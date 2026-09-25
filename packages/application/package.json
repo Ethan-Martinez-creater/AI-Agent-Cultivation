@@ -1,0 +1,13 @@
+{
+  "name": "@cultivation/application",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@cultivation/domain": "0.0.1",
+    "@cultivation/shared": "0.0.1"
+  }
+}

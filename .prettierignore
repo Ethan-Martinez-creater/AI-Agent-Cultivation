@@ -1,0 +1,9 @@
+node_modules/
+.npm-cache/
+.electron-cache/
+.vite/
+out/
+.test-data/
+coverage/
+package-lock.json
+docs/AI-Agent-Cultivation_Windows_V1_Initial_Build_Plan_v0.3.md

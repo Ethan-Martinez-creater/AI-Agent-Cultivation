@@ -1,0 +1,51 @@
+{
+  "name": "ai-agent-cultivation",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Local-first Windows AI teammate desktop app",
+  "main": ".vite/build/main.js",
+  "author": "AI Agent Cultivation contributors",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "electron-forge start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "package": "electron-forge package --platform=win32 --arch=x64",
+    "smoke:package": "node scripts/smoke-packaged.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-router-dom": "7.9.6",
+    "tailwindcss": "4.3.3",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "7.11.2",
+    "@electron-forge/maker-zip": "7.11.2",
+    "@electron-forge/plugin-auto-unpack-natives": "7.11.2",
+    "@electron-forge/plugin-vite": "7.11.2",
+    "@eslint/js": "9.39.1",
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "24.9.1",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@tailwindcss/vite": "4.3.3",
+    "@vitejs/plugin-react": "5.1.0",
+    "electron": "40.0.0",
+    "eslint": "9.39.1",
+    "playwright-core": "1.63.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.2",
+    "vite": "7.3.6",
+    "vitest": "5.0.1"
+  }
+}
