@@ -7,6 +7,12 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@cultivation/application": "0.0.1"
+    "@cultivation/application": "0.0.1",
+    "@ai-sdk/anthropic": "3.0.122",
+    "@ai-sdk/deepseek": "2.0.67",
+    "@ai-sdk/google": "3.0.127",
+    "@ai-sdk/openai": "3.0.118",
+    "@ai-sdk/openai-compatible": "2.0.78",
+    "ai": "6.0.291"
   }
 }

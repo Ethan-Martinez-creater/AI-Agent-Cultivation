@@ -24,18 +24,33 @@ export interface ProviderRegistry {
 
 export interface ModelRequest {
   runtimeProfileId: string;
-  prompt: string;
   teammateId: string;
-  missionId?: string;
+  messages: Array<{
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+  }>;
+}
+export interface ModelUsage {
+  inputTokens: number | null;
+  outputTokens: number | null;
+  cachedInputTokens: number | null;
+  reasoningTokens: number | null;
 }
 export interface ModelResponse {
   text: string;
-  inputTokens: number;
-  outputTokens: number;
+  usage: ModelUsage;
+}
+export type ModelStreamEvent =
+  | { type: 'text-delta'; text: string }
+  | { type: 'finish'; usage: ModelUsage };
+export interface ModelConnectionTestResult {
+  ok: boolean;
+  message: string;
 }
 export interface ModelGateway {
   generate(request: ModelRequest): Promise<ModelResponse>;
-  stream(request: ModelRequest): AsyncIterable<string>;
+  stream(request: ModelRequest): AsyncIterable<ModelStreamEvent>;
+  testConnection(runtimeProfileId: string): Promise<ModelConnectionTestResult>;
 }
 
 export interface Repository<T> {
