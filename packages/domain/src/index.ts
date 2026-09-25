@@ -2,6 +2,24 @@ import type { Id, IsoDateTime } from '@cultivation/shared';
 
 export type TeammateStatus = 'ACTIVE' | 'ARCHIVED';
 export type Realm = 'QI_REFINING' | 'FOUNDATION' | 'CORE' | 'NASCENT_SOUL';
+export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
+export interface ProviderConfig {
+  id: Id;
+  name: string;
+  kind: ProviderKind;
+  baseUrl: string | null;
+  enabled: boolean;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+}
+/** Safe for Renderer: neither a key nor encrypted bytes are included. */
+export interface CredentialSummary {
+  id: Id;
+  providerId: Id;
+  label: string;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+}
 export interface Teammate {
   id: Id;
   name: string;
@@ -206,6 +224,14 @@ export interface Message {
   createdAt: IsoDateTime;
 }
 
+/** A personal chat thread; Mission messages remain a separate future workflow. */
+export interface Conversation {
+  id: Id;
+  teammateId: Id;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+}
+
 export interface MissionEvent {
   id: Id;
   missionId: Id;
@@ -236,8 +262,8 @@ export interface UsageRecord {
   runtimeProfileId: Id;
   provider: string;
   model: string;
-  inputTokens: number;
-  outputTokens: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
   cachedInputTokens: number | null;
   reasoningTokens: number | null;
   providerMetadata: Record<string, unknown> | null;

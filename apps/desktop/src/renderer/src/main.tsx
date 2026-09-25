@@ -95,7 +95,7 @@ interface CultivationBridge {
   };
   credentials: {
     list(providerId?: string): Promise<CredentialView[]>;
-    create(input: { providerId: string; label: string; apiKey: string }): Promise<CredentialView>;
+    create(input: { providerId: string; label: string }): Promise<CredentialView>;
   };
   runtimes: {
     list(): Promise<RuntimeProfileView[]>;
@@ -146,10 +146,10 @@ declare global {
 const pages = [
   ['/', '洞府 Home', '你的本地工作台。管理长期道友并继续上次的对话。'],
   ['/teammates', '道友 Teammates', '创建道友身份，选择运行配置并开启持续对话。'],
-  ['/parties', '队伍 Parties', 'Gate 2 · 队伍协作将在后续阶段接入。'],
-  ['/missions', '历练 Missions', 'Gate 2 · Mission Runtime 将在后续阶段接入。'],
+  ['/parties', '队伍 Parties', '多道友协作将在后续阶段接入。'],
+  ['/missions', '历练 Missions', 'Mission Runtime 将在后续阶段接入。'],
   ['/skills', '功法 Skills', 'Gate 2 · 技能管理将在后续阶段接入。'],
-  ['/tools', '法宝 Tools', 'Gate 2 · Tool 与 MCP 将在后续阶段接入。'],
+  ['/tools', '法宝 Tools', 'Tool 与 MCP 将在后续阶段接入。'],
   ['/memory', '记忆 Memory', 'Gate 2 · 长期记忆将在后续阶段接入。'],
   ['/usage', '灵石 Usage', '按道友和运行配置查看模型调用用量。'],
   ['/settings', '设置 Settings', '管理服务商、凭据和运行配置。'],
@@ -395,7 +395,7 @@ function SettingsPage() {
       <PageHeading
         eyebrow="Provider · Credential · RuntimeProfile"
         title="设置 Settings"
-        description="凭据由 Main Process 安全保存。Renderer 只接收凭据标签和引用，不读取密钥。"
+        description="Main Process 从剪贴板读取并加密密钥。Renderer 不接收明文或密文。"
       />
       <div className="settings-summary">
         <SummaryMetric label="服务商" value={providers.length} />
@@ -574,7 +574,6 @@ function CredentialsPanel({
 }) {
   const [providerId, setProviderId] = useState('');
   const [label, setLabel] = useState('');
-  const [apiKey, setApiKey] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -591,14 +590,12 @@ function CredentialsPanel({
     setError('');
     setSuccess('');
     try {
-      await window.cultivation.credentials.create({ providerId, label: label.trim(), apiKey });
+      await window.cultivation.credentials.create({ providerId, label: label.trim() });
       setLabel('');
-      setApiKey('');
-      setSuccess('凭据已安全保存。Renderer 不会读取已保存密钥。');
+      setSuccess('凭据已加密保存，剪贴板已清空。');
       await onCreated();
     } catch {
-      setError('保存凭据失败。请检查服务商和密钥后重试。');
-      setApiKey('');
+      setError('保存凭据失败。请先复制 API Key，再检查服务商与系统加密服务。');
     } finally {
       setBusy(false);
     }
@@ -608,7 +605,8 @@ function CredentialsPanel({
       <form className="form-card" onSubmit={(event) => void submit(event)}>
         <h2>添加凭据</h2>
         <p className="muted-copy">
-          密钥只在提交时经 typed IPC 发送给 Main Process，并使用系统安全存储加密。
+          先在其他应用复制 API Key，再点击保存。Main Process
+          读取系统剪贴板并加密，随后清空剪贴板；密钥不会进入此页面。
         </p>
         <label className="field">
           <span>关联服务商</span>
@@ -635,21 +633,10 @@ function CredentialsPanel({
             placeholder="例如：默认 API Key"
           />
         </label>
-        <label className="field">
-          <span>API Key</span>
-          <input
-            required
-            type="password"
-            autoComplete="new-password"
-            value={apiKey}
-            onChange={(event) => setApiKey(event.target.value)}
-            placeholder="粘贴密钥"
-          />
-        </label>
         {error && <InlineMessage tone="error">{error}</InlineMessage>}
         {success && <InlineMessage tone="success">{success}</InlineMessage>}
-        <button className="button primary" disabled={busy || !providers.length || !apiKey.trim()}>
-          {busy ? '加密保存中…' : '安全保存凭据'}
+        <button className="button primary" disabled={busy || !providers.length}>
+          {busy ? '加密保存中…' : '从剪贴板安全导入'}
         </button>
         {!providers.length && <p className="form-hint">请先添加服务商。</p>}
       </form>

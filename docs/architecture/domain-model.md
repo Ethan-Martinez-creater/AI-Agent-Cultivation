@@ -2,6 +2,8 @@
 
 `Teammate.id` 是持久身份；`currentRuntimeProfileId` 仅指向当前运行配置。更换 Provider、Credential 或 Model 不应重建 Teammate，也不应修改 Memory owner、Mission 记录、Skill 或经历。
 
+Gate 1 的持续聊天通过 `Conversation.id + teammateId` 绑定身份。Chat `Message.missionId` 为 `null`，不能把 Conversation 当作 Mission。切换 Runtime 只更新 Teammate 引用，旧 Message 与 Usage 的归属保持不变；Usage 记录调用时的 RuntimeProfile、Provider 配置 ID 和 model ID。Provider 未返回的 token 字段存为 `null`，不伪造零值。
+
 `Mission` 是执行边界，`MissionRun` 是一次尝试。状态只能通过 `packages/domain/src/mission-state.ts` 的 `transition` 转移；应用命令层会在后续 Gate 使用该函数，Renderer 不应直接更新状态。`MissionEvent` 与 `AuditEvent` 分别记录业务执行和安全/系统行为。
 
 计划未指定 `PAUSED` 的进出边。Gate 0 为使暂停状态可用，补充 `RUNNING → PAUSED → RUNNING`、`PAUSED → CANCELLED`；同时允许 `READY → CANCELLED`。`COMPLETED` 与 `CANCELLED` 为终态。后续评审可在运行时接入前调整。

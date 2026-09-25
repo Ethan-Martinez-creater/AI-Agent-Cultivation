@@ -1,9 +1,14 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, safeStorage } from 'electron';
 import { join } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
-import { databasePath, openDatabase } from '@cultivation/persistence';
+import { databasePath, Gate1SqliteRepository, openDatabase } from '@cultivation/persistence';
+import { Gate1Service } from '@cultivation/application/gate1-service';
+import { AiSdkModelGateway, FakeModelGateway } from '@cultivation/agent-runtime';
+import type { ModelGateway } from '@cultivation/application';
+import { ElectronSecretStore } from './secret-store.js';
+import { registerGate1Ipc } from './gate1-ipc.js';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -14,7 +19,7 @@ if (process.env.CULTIVATION_USER_DATA_DIR) {
   app.setPath('userData', process.env.CULTIVATION_USER_DATA_DIR);
 }
 
-function createWindow(): void {
+function createWindow(service: Gate1Service): void {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
     width: 1180,
@@ -79,6 +84,7 @@ function createWindow(): void {
       db.close();
     }
   });
+  registerGate1Ipc(window, validSender, service);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -88,19 +94,22 @@ app
   .whenReady()
   .then(() => {
     const db = openDatabase(databasePath(app.getPath('userData')));
-    try {
-      db.prepare('SELECT 1').get();
-    } finally {
-      db.close();
-    }
+    db.prepare('SELECT 1').get();
+    app.once('before-quit', () => db.close());
     if (process.argv.includes('--gate0-smoke')) {
       process.stdout.write('GATE0_SMOKE_OK native_sqlite=ok\n');
       app.exit(0);
       return;
     }
-    createWindow();
+    const store = new Gate1SqliteRepository(db);
+    const secretStore = new ElectronSecretStore(safeStorage);
+    const gateway: ModelGateway = process.argv.includes('--gate1-fake-model')
+      ? new FakeModelGateway()
+      : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
+    const service: Gate1Service = new Gate1Service(store, secretStore, gateway);
+    createWindow(service);
     app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+      if (BrowserWindow.getAllWindows().length === 0) createWindow(service);
     });
   })
   .catch((error: unknown) => {

@@ -198,7 +198,8 @@ export class AiSdkModelGateway implements ModelGateway {
     private readonly resolveRuntime: ResolveRuntime,
     options: AiSdkModelGatewayOptions = {},
   ) {
-    this.fetchImplementation = options.fetch ?? globalThis.fetch;
+    const fetcher = options.fetch ?? globalThis.fetch;
+    this.fetchImplementation = (input, init) => fetcher(input, { ...init, redirect: 'error' });
   }
 
   async generate(request: ModelRequest): Promise<ModelResponse> {
@@ -253,13 +254,31 @@ export class AiSdkModelGateway implements ModelGateway {
   async testConnection(runtimeProfileId: string): Promise<{ ok: boolean; message: string }> {
     try {
       const runtime = await this.getRuntime(runtimeProfileId);
-      await generateText({
-        model: this.createModel(runtime),
-        messages: [{ role: 'user', content: 'Reply with OK.' }],
-        maxOutputTokens: 1,
-        maxRetries: 0,
+      const baseUrl =
+        runtime.baseUrl ??
+        {
+          OPENAI: 'https://api.openai.com/v1',
+          ANTHROPIC: 'https://api.anthropic.com/v1',
+          GOOGLE: 'https://generativelanguage.googleapis.com/v1beta',
+          DEEPSEEK: 'https://api.deepseek.com',
+          OPENAI_COMPATIBLE: '',
+        }[runtime.kind];
+      const headers: Record<string, string> =
+        runtime.kind === 'GOOGLE'
+          ? { 'x-goog-api-key': runtime.apiKey }
+          : runtime.kind === 'ANTHROPIC'
+            ? { 'x-api-key': runtime.apiKey, 'anthropic-version': '2023-06-01' }
+            : runtime.apiKey
+              ? { authorization: `Bearer ${runtime.apiKey}` }
+              : {};
+      const response = await this.fetchImplementation(`${baseUrl.replace(/\/$/, '')}/models`, {
+        method: 'GET',
+        headers,
+        redirect: 'error',
+        signal: AbortSignal.timeout(10_000),
       });
-      return { ok: true, message: `Connection succeeded for model ${runtime.modelId}.` };
+      if (!response.ok) throw new ModelGatewayError('PROVIDER_REQUEST_FAILED');
+      return { ok: true, message: 'Provider connection succeeded.' };
     } catch (error) {
       return { ok: false, message: this.toSafeError(error).message };
     }
@@ -277,7 +296,7 @@ export class AiSdkModelGateway implements ModelGateway {
     if (
       !runtime.modelId.trim() ||
       typeof runtime.apiKey !== 'string' ||
-      runtime.apiKey.trim().length === 0
+      (runtime.kind !== 'OPENAI_COMPATIBLE' && runtime.apiKey.trim().length === 0)
     ) {
       throw new ModelGatewayError('INVALID_RUNTIME');
     }
@@ -289,7 +308,7 @@ export class AiSdkModelGateway implements ModelGateway {
 
   private createModel(runtime: ResolvedRuntime): LanguageModel {
     const baseURL = runtime.baseUrl ?? undefined;
-    const common = { apiKey: runtime.apiKey, fetch: this.fetchImplementation };
+    const common = { apiKey: runtime.apiKey || undefined, fetch: this.fetchImplementation };
 
     switch (runtime.kind) {
       case 'OPENAI':

@@ -20,6 +20,7 @@
     "smoke:package": "node scripts/smoke-packaged.mjs"
   },
   "dependencies": {
+    "@cultivation/agent-runtime": "0.0.1",
     "better-sqlite3": "13.0.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",

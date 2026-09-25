@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./gate1-service": "./src/gate1-service.ts"
   },
   "dependencies": {
     "@cultivation/domain": "0.0.1",

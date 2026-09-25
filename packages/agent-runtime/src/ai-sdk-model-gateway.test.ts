@@ -59,6 +59,65 @@ function responseFor(kind: RuntimeProviderKind): Record<string, unknown> {
 
 describe('AiSdkModelGateway', () => {
   it.each<RuntimeProviderKind>(['OPENAI', 'ANTHROPIC', 'GOOGLE', 'DEEPSEEK', 'OPENAI_COMPATIBLE'])(
+    'tests %s connection with a non-generating models request',
+    async (kind) => {
+      let seen: Request | undefined;
+      const gateway = new AiSdkModelGateway(
+        async () => ({
+          kind,
+          baseUrl: 'https://provider.example/v1',
+          modelId: 'manually-entered-model',
+          apiKey: 'test-secret',
+        }),
+        {
+          fetch: async (input, init) => {
+            seen = new Request(input, init);
+            return new Response('{}', { status: 200 });
+          },
+        },
+      );
+      await expect(gateway.testConnection('runtime-1')).resolves.toEqual({
+        ok: true,
+        message: 'Provider connection succeeded.',
+      });
+      expect(seen?.method).toBe('GET');
+      expect(seen?.url).toBe('https://provider.example/v1/models');
+      expect(
+        seen?.headers.get(
+          kind === 'GOOGLE'
+            ? 'x-goog-api-key'
+            : kind === 'ANTHROPIC'
+              ? 'x-api-key'
+              : 'authorization',
+        ),
+      ).toBe(kind === 'GOOGLE' || kind === 'ANTHROPIC' ? 'test-secret' : 'Bearer test-secret');
+    },
+  );
+
+  it('supports a local OpenAI-Compatible endpoint without a credential', async () => {
+    let authorization: string | null = null;
+    const gateway = new AiSdkModelGateway(
+      async () => ({
+        kind: 'OPENAI_COMPATIBLE',
+        baseUrl: 'http://localhost:1234/v1',
+        modelId: 'local-model',
+        apiKey: '',
+      }),
+      {
+        fetch: async (input, init) => {
+          authorization = new Request(input, init).headers.get('authorization');
+          return new Response(JSON.stringify(responseFor('OPENAI_COMPATIBLE')), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          });
+        },
+      },
+    );
+    await expect(gateway.generate(request)).resolves.toMatchObject({ text: 'PONG' });
+    expect(authorization).toBeNull();
+  });
+
+  it.each<RuntimeProviderKind>(['OPENAI', 'ANTHROPIC', 'GOOGLE', 'DEEPSEEK', 'OPENAI_COMPATIBLE'])(
     'routes %s through its pinned AI SDK adapter',
     async (kind) => {
       const seenUrls: string[] = [];
