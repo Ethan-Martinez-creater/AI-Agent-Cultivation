@@ -141,16 +141,20 @@ export type PermissionCapability =
   | 'EXTERNAL_MESSAGE'
   | 'INSTALL_TOOL';
 export type PermissionDecision = 'ALLOW' | 'DENY' | 'ASK';
-export type PermissionScope = 'GLOBAL' | 'TEAMMATE' | 'MISSION';
-export interface PermissionRule {
+export type PermissionScopeRef =
+  | { scope: 'GLOBAL'; scopeId: null }
+  | { scope: 'TEAMMATE'; scopeId: Id }
+  | { scope: 'MISSION'; scopeId: Id };
+export type PermissionScope = PermissionScopeRef['scope'];
+interface PermissionRuleBase {
   id: Id;
   subjectType: 'USER' | 'TEAMMATE';
   subjectId: Id;
   capability: PermissionCapability;
   resourcePattern: string;
   decision: PermissionDecision;
-  scope: PermissionScope;
 }
+export type PermissionRule = PermissionRuleBase & PermissionScopeRef;
 
 export type MissionRunStatus = 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
 export interface MissionRun {

@@ -144,8 +144,27 @@ CREATE TABLE permission_rules (
   id TEXT PRIMARY KEY, subject_type TEXT NOT NULL, subject_id TEXT NOT NULL,
   capability TEXT NOT NULL, resource_pattern TEXT NOT NULL,
   decision TEXT NOT NULL CHECK (decision IN ('ALLOW','DENY','ASK')),
-  scope TEXT NOT NULL CHECK (scope IN ('GLOBAL','TEAMMATE','MISSION'))
+  scope TEXT NOT NULL CHECK (scope IN ('GLOBAL','TEAMMATE','MISSION')),
+  scope_id TEXT,
+  CHECK (
+    (scope = 'GLOBAL' AND scope_id IS NULL)
+    OR (scope IN ('TEAMMATE','MISSION') AND scope_id IS NOT NULL AND length(scope_id) > 0)
+  )
 );
+CREATE INDEX permission_rules_lookup_idx
+  ON permission_rules(subject_type, subject_id, capability, scope, scope_id);
+CREATE TRIGGER permission_rules_mission_scope_insert BEFORE INSERT ON permission_rules
+WHEN new.scope = 'MISSION' AND NOT EXISTS (SELECT 1 FROM missions WHERE id = new.scope_id) BEGIN
+  SELECT RAISE(ABORT, 'mission permission scope must reference an existing mission');
+END;
+CREATE TRIGGER permission_rules_mission_scope_update BEFORE UPDATE OF scope, scope_id ON permission_rules
+WHEN new.scope = 'MISSION' AND NOT EXISTS (SELECT 1 FROM missions WHERE id = new.scope_id) BEGIN
+  SELECT RAISE(ABORT, 'mission permission scope must reference an existing mission');
+END;
+CREATE TRIGGER missions_permission_scope_delete BEFORE DELETE ON missions
+WHEN EXISTS (SELECT 1 FROM permission_rules WHERE scope = 'MISSION' AND scope_id = old.id) BEGIN
+  SELECT RAISE(ABORT, 'mission permission scope is still referenced');
+END;
 CREATE TABLE collaboration_requests (
   id TEXT PRIMARY KEY, mission_id TEXT NOT NULL REFERENCES missions(id) ON DELETE RESTRICT,
   requester_teammate_id TEXT NOT NULL REFERENCES teammates(id) ON DELETE RESTRICT,

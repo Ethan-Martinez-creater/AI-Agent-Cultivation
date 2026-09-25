@@ -4,6 +4,7 @@ import type {
   MemoryRecord,
   Party,
   PermissionRule,
+  PermissionScopeRef,
   RuntimeProfile,
   Skill,
   Teammate,
@@ -73,7 +74,11 @@ export interface UsageRepository {
   }): Promise<void>;
 }
 export interface PermissionRepository extends Repository<PermissionRule> {
-  find(subjectId: string, capability: PermissionRule['capability']): Promise<PermissionRule[]>;
+  find(
+    subjectId: string,
+    capability: PermissionRule['capability'],
+    scope: PermissionScopeRef,
+  ): Promise<PermissionRule[]>;
   saveApproval(request: ApprovalRequest): Promise<void>;
 }
 export interface ToolRegistry {
