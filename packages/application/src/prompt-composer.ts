@@ -13,7 +13,7 @@ export interface PromptComposerInput {
   /** Already relevance-ranked candidates; ownership and status are rechecked here. */
   relevantMemories: readonly MemoryRecord[];
   skills: readonly Skill[];
-  skillAssignments: readonly TeammateSkillAssignment[];
+  skillAssignments: readonly Pick<TeammateSkillAssignment, 'teammateId' | 'skillId' | 'enabled'>[];
   conversationContext: readonly ConversationPromptMessage[];
   /** Enables USER-scoped memories only when the caller supplies the current user id. */
   userId?: string;

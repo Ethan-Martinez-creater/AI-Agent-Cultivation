@@ -203,6 +203,334 @@ try {
   assert.ok(teammateUsage.every((item) => item.inputTokens !== null && item.outputTokens !== null));
   assert.equal(result.usage.filter((item) => item.teammateId === result.otherTeammateId).length, 1);
 
+  const gate2 = await page.evaluate(
+    async ({
+      teammateId,
+      conversationId,
+      otherTeammateId,
+      otherConversationId,
+      runtimeA,
+      nonce,
+    }) => {
+      const api = window.cultivation;
+      const inspectMarker = '__GATE2_PROMPT_INSPECT__';
+      const stream = (targetTeammateId, targetConversationId, text) =>
+        new Promise((resolve, reject) => {
+          const requestId = window.crypto.randomUUID();
+          const events = [];
+          const timer = window.setTimeout(() => {
+            off();
+            reject(new Error('Gate 2 stream timeout'));
+          }, 15_000);
+          const off = api.chat.onEvent((event) => {
+            if (event.requestId !== requestId) return;
+            events.push(event);
+            if (event.type === 'done' || event.type === 'error') {
+              window.clearTimeout(timer);
+              off();
+              if (event.type === 'error') reject(new Error(event.message));
+              else resolve(events);
+            }
+          });
+          api.chat
+            .send({
+              requestId,
+              teammateId: targetTeammateId,
+              conversationId: targetConversationId,
+              text,
+            })
+            .catch((error) => {
+              window.clearTimeout(timer);
+              off();
+              reject(error);
+            });
+        });
+      const send = async (targetTeammateId, targetConversationId, text) => {
+        const events = await stream(targetTeammateId, targetConversationId, text);
+        const done = events.find((event) => event.type === 'done');
+        if (!done || done.type !== 'done') throw new Error('Gate 2 chat did not complete');
+        return done.assistantMessage;
+      };
+
+      const memoryA = await api.memories.create({
+        teammateId,
+        memoryType: 'FACT',
+        content: `A_ONLY_MEMORY_${nonce}`,
+        summary: `${inspectMarker} A_SCOPE_${nonce}`,
+        importance: 0.9,
+      });
+      const memoryB = await api.memories.create({
+        teammateId: otherTeammateId,
+        memoryType: 'FACT',
+        content: `B_ONLY_MEMORY_${nonce}`,
+        summary: `${inspectMarker} B_SCOPE_${nonce}`,
+        importance: 0.9,
+      });
+      const archiveTarget = await api.memories.create({
+        teammateId,
+        memoryType: 'OBSERVATION',
+        content: `EDIT_THEN_ARCHIVE_${nonce}`,
+        summary: 'temporary',
+        importance: 0.2,
+      });
+      const edited = await api.memories.update({
+        teammateId,
+        id: archiveTarget.id,
+        memoryType: 'OBSERVATION',
+        content: `EDITED_THEN_ARCHIVE_${nonce}`,
+        summary: 'edited before archive',
+        importance: 0.3,
+      });
+      const archived = await api.memories.archive({ teammateId, id: edited.id });
+
+      const acceptedEvidence = `ACCEPTED_EVIDENCE_${nonce} ${inspectMarker}`;
+      await send(teammateId, conversationId, acceptedEvidence);
+      const acceptedUser = (await api.chat.listMessages({ teammateId, conversationId })).find(
+        (message) => message.role === 'USER' && message.content === acceptedEvidence,
+      );
+      if (!acceptedUser) throw new Error('Accepted candidate evidence was not persisted');
+      const acceptedProposals = await api.memories.proposeFromMessage({
+        teammateId,
+        conversationId,
+        messageId: acceptedUser.id,
+      });
+      const accepted = await api.memories.accept({
+        teammateId,
+        id: acceptedProposals[0].id,
+        edits: {
+          content: `ACCEPTED_MEMORY_${nonce}`,
+          summary: `${inspectMarker} A_ACCEPTED_${nonce}`,
+          importance: 0.95,
+        },
+      });
+      const rejectedEvidence = `REJECTED_EVIDENCE_${nonce} ${inspectMarker}`;
+      await send(teammateId, conversationId, rejectedEvidence);
+      const rejectedUser = (await api.chat.listMessages({ teammateId, conversationId })).find(
+        (message) => message.role === 'USER' && message.content === rejectedEvidence,
+      );
+      if (!rejectedUser) throw new Error('Rejected candidate evidence was not persisted');
+      const rejectedProposals = await api.memories.proposeFromMessage({
+        teammateId,
+        conversationId,
+        messageId: rejectedUser.id,
+      });
+      const rejected = await api.memories.reject({
+        teammateId,
+        id: rejectedProposals[0].id,
+      });
+      const crossOwnerArchiveRejected = await api.memories
+        .archive({ teammateId, id: memoryB.id })
+        .then(
+          () => false,
+          () => true,
+        );
+      const crossConversationExtractionRejected = await api.memories
+        .proposeFromMessage({
+          teammateId,
+          conversationId: otherConversationId,
+          messageId: 'foreign-message',
+        })
+        .then(
+          () => false,
+          () => true,
+        );
+
+      const skillA = await api.skills.create({
+        name: `Smoke Skill A ${nonce}`,
+        description: 'Enabled only for Teammate A',
+        instructions: 'initial revision',
+        tags: ['smoke'],
+      });
+      const updatedSkillA = await api.skills.update({
+        id: skillA.id,
+        name: skillA.name,
+        description: skillA.description,
+        instructions: `A_ONLY_SKILL_${nonce}`,
+        tags: skillA.tags,
+      });
+      const skillRevisions = await api.skills.listRevisions(skillA.id);
+      await api.skills.assign({ teammateId, skillId: updatedSkillA.id });
+      const assignmentA = await api.skills.setEnabled({
+        teammateId,
+        skillId: updatedSkillA.id,
+        enabled: true,
+      });
+      const disabledSkill = await api.skills.create({
+        name: `Smoke Disabled Skill ${nonce}`,
+        description: 'Assigned but disabled',
+        instructions: `DISABLED_SKILL_${nonce}`,
+        tags: [],
+      });
+      await api.skills.assign({ teammateId, skillId: disabledSkill.id });
+      const disabledAssignment = await api.skills.setEnabled({
+        teammateId,
+        skillId: disabledSkill.id,
+        enabled: false,
+      });
+      const skillB = await api.skills.create({
+        name: `Smoke Skill B ${nonce}`,
+        description: 'Enabled only for Teammate B',
+        instructions: `B_ONLY_SKILL_${nonce}`,
+        tags: ['smoke'],
+      });
+      await api.skills.assign({ teammateId: otherTeammateId, skillId: skillB.id });
+      const assignmentB = await api.skills.setEnabled({
+        teammateId: otherTeammateId,
+        skillId: skillB.id,
+        enabled: true,
+      });
+      const archivedSkill = await api.skills.create({
+        name: `Smoke Archived Skill ${nonce}`,
+        description: 'Archive lifecycle coverage',
+        instructions: 'Never injected',
+        tags: [],
+      });
+      const archivedSkillResult = await api.skills.archive(archivedSkill.id);
+
+      const embeddingBefore = await api.embedding.getConfig();
+      const embeddingConfig = await api.embedding.setConfig(runtimeA);
+      const indexedA = await api.embedding.reindex(teammateId);
+      const indexedB = await api.embedding.reindex(otherTeammateId);
+      const oldMessages = await api.chat.listMessages({ teammateId, conversationId });
+      const oldMessageIds = oldMessages.map((message) => message.id);
+      const switched = await api.teammates.switchRuntime({
+        teammateId,
+        runtimeProfileId: runtimeA,
+      });
+      const inspectionA = (await send(teammateId, conversationId, inspectMarker)).content;
+      const inspectionB = (await send(otherTeammateId, otherConversationId, inspectMarker)).content;
+      return {
+        inspectMarker,
+        memoryAId: memoryA.id,
+        memoryBId: memoryB.id,
+        acceptedMemoryId: accepted.id,
+        rejectedMemoryId: rejected.id,
+        archivedMemoryId: archived.id,
+        editedMemory: edited,
+        allA: await api.memories.list(teammateId),
+        allB: await api.memories.list(otherTeammateId),
+        activeA: await api.memories.list(teammateId, 'ACTIVE'),
+        activeB: await api.memories.list(otherTeammateId, 'ACTIVE'),
+        acceptedProposal: acceptedProposals[0],
+        accepted,
+        rejectedProposal: rejectedProposals[0],
+        rejected,
+        archived,
+        crossOwnerArchiveRejected,
+        crossConversationExtractionRejected,
+        skillA: updatedSkillA,
+        skillB,
+        skillRevisions,
+        assignmentA,
+        disabledAssignment,
+        assignmentB,
+        archivedSkillResult,
+        embeddingBefore,
+        embeddingConfig,
+        indexedA,
+        indexedB,
+        switchedId: switched.id,
+        switchedRuntimeId: switched.currentRuntimeProfileId,
+        oldMessageIds,
+        messagesAfterSwitch: await api.chat.listMessages({ teammateId, conversationId }),
+        assignmentsAfterSwitch: await api.skills.listAssignments(teammateId),
+        memoriesAfterSwitch: await api.memories.list(teammateId),
+        inspectionA,
+        inspectionB,
+        usage: await api.usage.list(teammateId),
+      };
+    },
+    {
+      teammateId: result.teammateId,
+      conversationId: result.conversationId,
+      otherTeammateId: result.otherTeammateId,
+      otherConversationId: result.otherConversationId,
+      runtimeA: result.runtimeA,
+      nonce: randomUUID(),
+    },
+  );
+  assert.equal(gate2.accepted.status, 'ACTIVE');
+  assert.ok(gate2.accepted.confirmedAt);
+  assert.equal(gate2.accepted.sourceType, 'CHAT_EXTRACTION');
+  assert.equal(gate2.accepted.sourceConversationId, result.conversationId);
+  assert.ok(gate2.accepted.sourceMessageId);
+  assert.equal(gate2.acceptedProposal.status, 'PROPOSED');
+  assert.equal(gate2.rejectedProposal.status, 'PROPOSED');
+  assert.equal(gate2.rejected.status, 'REJECTED');
+  assert.equal(gate2.archived.status, 'ARCHIVED');
+  assert.ok(gate2.editedMemory.content.startsWith('EDITED_THEN_ARCHIVE_'));
+  assert.equal(gate2.crossOwnerArchiveRejected, true);
+  assert.equal(gate2.crossConversationExtractionRejected, true);
+  assert.ok(gate2.allA.every((memory) => memory.ownerId === result.teammateId));
+  assert.ok(gate2.allB.every((memory) => memory.ownerId === result.otherTeammateId));
+  assert.ok(gate2.activeA.some((memory) => memory.id === gate2.memoryAId));
+  assert.ok(gate2.activeA.some((memory) => memory.id === gate2.acceptedMemoryId));
+  assert.equal(gate2.activeA.find((memory) => memory.id === gate2.memoryAId).sourceType, 'MANUAL');
+  assert.ok(!gate2.activeA.some((memory) => memory.id === gate2.rejectedMemoryId));
+  assert.ok(!gate2.activeA.some((memory) => memory.id === gate2.archivedMemoryId));
+  assert.ok(gate2.activeB.some((memory) => memory.id === gate2.memoryBId));
+  assert.equal(gate2.skillA.version, '1.0.1');
+  assert.deepEqual(
+    gate2.skillRevisions.map((revision) => revision.version),
+    ['1.0.0', '1.0.1'],
+  );
+  assert.equal(gate2.assignmentA.enabled, true);
+  assert.equal(gate2.disabledAssignment.enabled, false);
+  assert.equal(gate2.assignmentB.enabled, true);
+  assert.equal(gate2.archivedSkillResult.status, 'ARCHIVED');
+  assert.equal(gate2.embeddingBefore.available, true);
+  assert.equal(gate2.embeddingConfig.runtimeProfileId, result.runtimeA);
+  assert.equal(gate2.indexedA.total, 2);
+  assert.equal(gate2.indexedA.indexed, 2);
+  assert.equal(gate2.indexedB.total, 1);
+  assert.equal(gate2.indexedB.indexed, 1);
+  assert.equal(gate2.switchedId, result.teammateId);
+  assert.equal(gate2.switchedRuntimeId, result.runtimeA);
+  assert.ok(
+    gate2.oldMessageIds.every((id) =>
+      gate2.messagesAfterSwitch.some((message) => message.id === id),
+    ),
+  );
+  assert.ok(
+    gate2.messagesAfterSwitch.every((message) => message.conversationId === result.conversationId),
+  );
+  assert.ok(gate2.memoriesAfterSwitch.some((memory) => memory.id === gate2.memoryAId));
+  assert.ok(
+    gate2.assignmentsAfterSwitch.some(
+      (assignment) => assignment.skillId === gate2.skillA.id && assignment.enabled,
+    ),
+  );
+  assert.ok(gate2.inspectionA.includes('A_SCOPE_'));
+  assert.ok(gate2.inspectionA.includes('A_ACCEPTED_'));
+  assert.ok(gate2.inspectionA.includes('A_ONLY_SKILL_'));
+  assert.ok(!gate2.inspectionA.includes('B_SCOPE_'));
+  assert.ok(!gate2.inspectionA.includes('B_ONLY_SKILL_'));
+  assert.ok(!gate2.inspectionA.includes('REJECTED_EVIDENCE_'));
+  assert.ok(!gate2.inspectionA.includes('DISABLED_SKILL_'));
+  assert.ok(gate2.inspectionB.includes('B_SCOPE_'));
+  assert.ok(gate2.inspectionB.includes('B_ONLY_SKILL_'));
+  assert.ok(!gate2.inspectionB.includes('A_SCOPE_'));
+  assert.ok(!gate2.inspectionB.includes('A_ACCEPTED_'));
+  assert.ok(!gate2.inspectionB.includes('A_ONLY_SKILL_'));
+  assert.ok(
+    gate2.usage.some((item) => item.providerMetadata?.purpose === 'MEMORY_CANDIDATE_EXTRACTION'),
+  );
+  assert.ok(
+    gate2.usage.some((item) => item.providerMetadata?.purpose === 'MEMORY_EMBEDDING_QUERY'),
+  );
+  const extractionUsage = gate2.usage.find(
+    (item) => item.providerMetadata?.purpose === 'MEMORY_CANDIDATE_EXTRACTION',
+  );
+  assert.equal(extractionUsage.runtimeProfileId, result.runtimeB);
+  assert.equal(extractionUsage.provider, result.providerB);
+  const embeddingQueryUsage = gate2.usage.find(
+    (item) => item.providerMetadata?.purpose === 'MEMORY_EMBEDDING_QUERY',
+  );
+  assert.equal(embeddingQueryUsage.runtimeProfileId, result.runtimeA);
+  assert.equal(embeddingQueryUsage.provider, result.providerA);
+  assert.ok(embeddingQueryUsage.inputTokens !== null);
+  assert.equal(embeddingQueryUsage.outputTokens, null);
+
   const db = new Database(join(userData, 'data', 'cultivation.sqlite'), { readonly: true });
   try {
     const row = db
@@ -210,11 +538,38 @@ try {
       .get(result.credentialId);
     assert.ok(row && row.ciphertext instanceof Buffer);
     assert.ok(!row.ciphertext.includes(Buffer.from(key)));
+    const vectorRows = db
+      .prepare(
+        `SELECT memory_id, runtime_profile_id, model_id, dimension, length(embedding) AS bytes
+         FROM memory_embeddings WHERE memory_id IN (?, ?, ?, ?) ORDER BY memory_id`,
+      )
+      .all(gate2.memoryAId, gate2.memoryBId, gate2.acceptedMemoryId, gate2.rejectedMemoryId);
+    const vectorIds = vectorRows.map((vectorRow) => vectorRow.memory_id);
+    assert.ok(vectorIds.includes(gate2.memoryAId));
+    assert.ok(vectorIds.includes(gate2.memoryBId));
+    assert.ok(vectorIds.includes(gate2.acceptedMemoryId));
+    assert.ok(!vectorIds.includes(gate2.rejectedMemoryId));
+    assert.ok(
+      vectorRows.every(
+        (vectorRow) =>
+          vectorRow.runtime_profile_id === result.runtimeA &&
+          vectorRow.model_id === 'smoke-model-a' &&
+          vectorRow.dimension === 16 &&
+          vectorRow.bytes === 64,
+      ),
+    );
+    const embeddingSetting = db
+      .prepare('SELECT runtime_profile_id FROM embedding_settings WHERE id = 1')
+      .get();
+    assert.equal(embeddingSetting.runtime_profile_id, result.runtimeA);
   } finally {
     db.close();
   }
   console.log(
     'GATE1_PACKAGED_SMOKE_OK navigation=9 ipc=ok native_sqlite=ok secret=encrypted chat=streamed runtime_migration=ok usage=ok',
+  );
+  console.log(
+    'GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried runtime_migration=ok',
   );
 } finally {
   await app.close();

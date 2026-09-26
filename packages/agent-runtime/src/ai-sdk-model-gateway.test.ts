@@ -58,6 +58,62 @@ function responseFor(kind: RuntimeProviderKind): Record<string, unknown> {
 }
 
 describe('AiSdkModelGateway', () => {
+  it('validates structured memory candidates without accepting owner or status from the model', async () => {
+    const gateway = new AiSdkModelGateway(
+      async () => ({
+        kind: 'OPENAI',
+        baseUrl: null,
+        modelId: 'fixture-model',
+        apiKey: 'test-secret',
+      }),
+      {
+        fetch: async () =>
+          new Response(
+            JSON.stringify({
+              ...responseFor('OPENAI'),
+              choices: [
+                {
+                  index: 0,
+                  message: {
+                    role: 'assistant',
+                    content: JSON.stringify({
+                      candidates: [
+                        {
+                          memoryType: 'FACT',
+                          content: 'The user prefers tea.',
+                          summary: 'Prefers tea',
+                          importance: 0.7,
+                          confidence: 0.8,
+                          ownerId: 'attacker',
+                          status: 'ACTIVE',
+                        },
+                      ],
+                    }),
+                  },
+                  finish_reason: 'stop',
+                },
+              ],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+      },
+    );
+    const result = await gateway.extractCandidates({
+      teammateId: 'teammate-1',
+      runtimeProfileId: 'runtime-1',
+      evidence: 'I prefer tea.',
+    });
+    expect(result.candidates).toEqual([
+      {
+        memoryType: 'FACT',
+        content: 'The user prefers tea.',
+        summary: 'Prefers tea',
+        importance: 0.7,
+        confidence: 0.8,
+      },
+    ]);
+  });
+
   it.each<RuntimeProviderKind>(['OPENAI', 'ANTHROPIC', 'GOOGLE', 'DEEPSEEK', 'OPENAI_COMPATIBLE'])(
     'tests %s connection with a non-generating models request',
     async (kind) => {

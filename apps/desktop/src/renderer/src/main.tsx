@@ -132,6 +132,13 @@ interface ChatEvent {
 interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
+  embedding: {
+    getConfig(): Promise<{ available: boolean; runtimeProfileId: string | null }>;
+    setConfig(
+      runtimeProfileId: string | null,
+    ): Promise<{ available: boolean; runtimeProfileId: string | null }>;
+    reindex(teammateId: string): Promise<{ indexed: number; total: number }>;
+  };
   providers: {
     list(): Promise<ProviderView[]>;
     create(input: { name: string; kind: ProviderKind; baseUrl?: string }): Promise<ProviderView>;
@@ -205,7 +212,7 @@ interface CultivationBridge {
       teammateId: string;
       conversationId: string;
       messageId: string;
-    }): Promise<MemoryView>;
+    }): Promise<MemoryView[]>;
   };
   skills: {
     list(): Promise<SkillView[]>;
@@ -487,13 +494,17 @@ function PlaceholderPage({ title, description }: { title: string; description: s
   );
 }
 
-type SettingsTab = 'providers' | 'credentials' | 'runtimes';
+type SettingsTab = 'providers' | 'credentials' | 'runtimes' | 'embedding';
 
 function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('providers');
   const [providers, setProviders] = useState<ProviderView[]>([]);
   const [credentials, setCredentials] = useState<CredentialView[]>([]);
   const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
+  const [embeddingConfig, setEmbeddingConfig] = useState<{
+    available: boolean;
+    runtimeProfileId: string | null;
+  }>({ available: false, runtimeProfileId: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -501,14 +512,16 @@ function SettingsPage() {
     setLoading(true);
     setError('');
     try {
-      const [providerRows, credentialRows, runtimeRows] = await Promise.all([
+      const [providerRows, credentialRows, runtimeRows, embedding] = await Promise.all([
         window.cultivation.providers.list(),
         window.cultivation.credentials.list(),
         window.cultivation.runtimes.list(),
+        window.cultivation.embedding.getConfig(),
       ]);
       setProviders(providerRows);
       setCredentials(credentialRows);
       setRuntimes(runtimeRows);
+      setEmbeddingConfig(embedding);
     } catch (cause) {
       setError(errorText(cause, '读取设置失败。'));
     } finally {
@@ -537,6 +550,7 @@ function SettingsPage() {
             ['providers', '服务商'],
             ['credentials', '凭据'],
             ['runtimes', 'Runtime Profiles'],
+            ['embedding', '记忆向量检索'],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -571,9 +585,144 @@ function SettingsPage() {
               onChanged={refresh}
             />
           )}
+          {tab === 'embedding' && (
+            <EmbeddingPanel
+              providers={providers}
+              runtimes={runtimes}
+              config={embeddingConfig}
+              onChanged={refresh}
+            />
+          )}
         </div>
       )}
     </section>
+  );
+}
+
+function EmbeddingPanel({
+  providers,
+  runtimes,
+  config,
+  onChanged,
+}: {
+  providers: ProviderView[];
+  runtimes: RuntimeProfileView[];
+  config: { available: boolean; runtimeProfileId: string | null };
+  onChanged: () => Promise<void>;
+}) {
+  const [selected, setSelected] = useState(config.runtimeProfileId ?? '');
+  const [teammateId, setTeammateId] = useState('');
+  const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+  useEffect(() => setSelected(config.runtimeProfileId ?? ''), [config.runtimeProfileId]);
+  useEffect(() => {
+    void window.cultivation.teammates
+      .list()
+      .then(setTeammates)
+      .catch(() => setTeammates([]));
+  }, []);
+  const eligible = runtimes.filter((runtime) =>
+    ['OPENAI', 'GOOGLE', 'OPENAI_COMPATIBLE'].includes(
+      providers.find((provider) => provider.id === runtime.providerId)?.kind ?? '',
+    ),
+  );
+  const save = async () => {
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      await window.cultivation.embedding.setConfig(selected || null);
+      await onChanged();
+      setNotice(
+        selected
+          ? '已启用可选向量检索；现有记忆可按道友重建索引。'
+          : '已关闭向量检索；FTS5 仍可使用。',
+      );
+    } catch (cause) {
+      setError(errorText(cause, '保存 embedding 配置失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const reindex = async () => {
+    if (!teammateId) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await window.cultivation.embedding.reindex(teammateId);
+      setNotice(`已索引 ${result.indexed}/${result.total} 条 ACTIVE 记忆。`);
+    } catch (cause) {
+      setError(errorText(cause, '重建索引失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="panel-grid">
+      <div className="form-card">
+        <h2>可选 embedding Runtime</h2>
+        <p className="muted-copy">
+          未配置时完整使用 FTS5。这里的 Runtime 必须填 embedding 模型 ID；向量索引仅存于本机
+          SQLite。
+        </p>
+        <p className="form-hint">
+          sqlite-vec：{config.available ? '可用' : '未装载，当前使用 FTS5'}
+        </p>
+        <label className="field">
+          <span>运行配置</span>
+          <select
+            value={selected}
+            onChange={(event) => setSelected(event.target.value)}
+            disabled={!config.available}
+          >
+            <option value="">关闭向量检索</option>
+            {eligible.map((runtime) => (
+              <option key={runtime.id} value={runtime.id}>
+                {runtime.name} · {runtime.modelId}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="button primary"
+          type="button"
+          disabled={busy || !config.available}
+          onClick={() => void save()}
+        >
+          保存配置
+        </button>
+        {notice && <InlineMessage tone="success">{notice}</InlineMessage>}
+        {error && <InlineMessage tone="error">{error}</InlineMessage>}
+      </div>
+      <div className="form-card">
+        <h2>重建道友记忆索引</h2>
+        <p className="muted-copy">
+          只读取所选道友已确认的 ACTIVE 记忆；会调用所选 embedding Provider 并记录 Usage。
+        </p>
+        <label className="field">
+          <span>道友</span>
+          <select value={teammateId} onChange={(event) => setTeammateId(event.target.value)}>
+            <option value="">选择道友</option>
+            {teammates.map((teammate) => (
+              <option key={teammate.id} value={teammate.id}>
+                {teammate.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="button secondary"
+          type="button"
+          disabled={busy || !config.available || !config.runtimeProfileId || !teammateId}
+          onClick={() => void reindex()}
+        >
+          重建索引
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -1617,13 +1766,17 @@ function ChatPage() {
     setNotice('');
     setCandidateReady(false);
     try {
-      const candidate = await window.cultivation.memories.proposeFromMessage({
+      const candidates = await window.cultivation.memories.proposeFromMessage({
         teammateId: teammate.id,
         conversationId,
         messageId: message.id,
       });
-      setCandidateReady(true);
-      setNotice(`已为 ${teammate.name} 创建待确认的记忆候选「${candidate.summary}」。`);
+      setCandidateReady(candidates.length > 0);
+      setNotice(
+        candidates.length > 0
+          ? `已为 ${teammate.name} 创建 ${candidates.length} 条待确认的记忆候选。`
+          : '未发现值得保存的长期记忆。',
+      );
     } catch (cause) {
       setError(errorText(cause, '提取记忆候选失败；当前对话不受影响。'));
     } finally {

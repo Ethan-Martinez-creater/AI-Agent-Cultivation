@@ -33,3 +33,25 @@ INSERT INTO skill_revisions
   (id, skill_id, revision, version, name, description, instructions, tags_json, created_at)
 SELECT id || ':r1', id, 1, version, name, description, instructions, tags_json, updated_at
 FROM skills;
+
+-- Embedding is optional: these ordinary tables migrate without loading sqlite-vec.
+-- FTS5 remains available even when the extension or an embedding provider is absent.
+CREATE TABLE embedding_settings (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  runtime_profile_id TEXT REFERENCES runtime_profiles(id) ON DELETE RESTRICT,
+  updated_at TEXT NOT NULL
+);
+INSERT INTO embedding_settings (id, runtime_profile_id, updated_at)
+VALUES (1, NULL, datetime('now'));
+
+CREATE TABLE memory_embeddings (
+  memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE RESTRICT,
+  runtime_profile_id TEXT NOT NULL REFERENCES runtime_profiles(id) ON DELETE RESTRICT,
+  model_id TEXT NOT NULL,
+  content_hash TEXT NOT NULL,
+  dimension INTEGER NOT NULL CHECK (dimension BETWEEN 1 AND 4096),
+  embedding BLOB NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (memory_id, runtime_profile_id)
+);
+CREATE INDEX memory_embeddings_runtime_idx ON memory_embeddings(runtime_profile_id, memory_id);

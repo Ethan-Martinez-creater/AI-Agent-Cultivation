@@ -7,6 +7,8 @@ import gate2Sql from '../../../migrations/0003_gate2.sql?raw';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
+export { Gate2VectorRepository, SCOPED_VECTOR_QUERY } from './gate2-vector.js';
+export type { ScopedVectorMatch } from './gate2-vector.js';
 
 export interface Migration {
   version: number;

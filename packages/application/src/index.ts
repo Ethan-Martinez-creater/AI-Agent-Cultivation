@@ -2,6 +2,7 @@ import type {
   ApprovalRequest,
   Mission,
   MemoryRecord,
+  MemoryType,
   Party,
   PermissionRule,
   PermissionScopeRef,
@@ -51,6 +52,40 @@ export interface ModelGateway {
   generate(request: ModelRequest): Promise<ModelResponse>;
   stream(request: ModelRequest): AsyncIterable<ModelStreamEvent>;
   testConnection(runtimeProfileId: string): Promise<ModelConnectionTestResult>;
+}
+
+/** A model may propose facts from evidence; ownership and status are set by the application. */
+export interface MemoryCandidateDraft {
+  memoryType: MemoryType;
+  content: string;
+  summary: string;
+  importance: number;
+  confidence: number;
+}
+export interface MemoryCandidateRequest {
+  runtimeProfileId: string;
+  teammateId: string;
+  evidence: string;
+}
+export interface MemoryCandidateResult {
+  candidates: MemoryCandidateDraft[];
+  usage: ModelUsage;
+}
+export interface MemoryCandidateExtractor {
+  extractCandidates(request: MemoryCandidateRequest): Promise<MemoryCandidateResult>;
+}
+
+export interface EmbeddingRequest {
+  runtimeProfileId: string;
+  teammateId: string;
+  text: string;
+}
+export interface EmbeddingResult {
+  vector: number[];
+  usage: ModelUsage;
+}
+export interface EmbeddingGateway {
+  embed(request: EmbeddingRequest): Promise<EmbeddingResult>;
 }
 
 export interface Repository<T> {

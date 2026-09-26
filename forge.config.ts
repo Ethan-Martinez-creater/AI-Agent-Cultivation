@@ -2,12 +2,14 @@ import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
+import { resolve } from 'node:path';
 
 const config: ForgeConfig = {
   packagerConfig: {
     name: 'AI Agent Cultivation',
     executableName: 'AI-Agent-Cultivation',
     asar: { unpack: '**/*.node' },
+    extraResource: [resolve('node_modules/sqlite-vec-windows-x64/vec0.dll')],
     electronZipDir: process.env.CULTIVATION_ELECTRON_ZIP_DIR || undefined,
     ignore: (file: string) => {
       const normalized = file.replaceAll('\\', '/');

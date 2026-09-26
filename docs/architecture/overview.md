@@ -1,11 +1,13 @@
-# Gate 0–1 架构总览
+# Gate 0–2 架构总览
 
 ```text
 React Renderer --方法级 typed IPC--> Preload --> Electron Main
                                                ├── Gate1Service
                                                ├── SecretStore (safeStorage)
                                                ├── ModelGateway (AI SDK 6 / Fake)
-                                               └── Gate1SqliteRepository (SQLite)
+                                               ├── MemoryService + PromptComposer
+                                               ├── SkillService + HybridMemoryService
+                                               └── Gate1/Gate2 SQLite repositories
 shared <- domain <- application <- agent-runtime
 ```
 
@@ -14,3 +16,7 @@ shared <- domain <- application <- agent-runtime
 Gate 1 用 AI SDK 6 Core 实现五种 Provider adapter，同时保留 `FakeModelGateway` 进行无真实 API 的测试。`Conversation` 归属一个 Teammate，与未来的 Mission 执行分开；流事件带请求、道友与会话 ID，Usage 固定为调用时的 Runtime/Provider/Model 快照。Permission Engine 与 Mission Runtime 留待后续 Gate。
 
 存储使用 Electron 用户数据目录。SQL 迁移版本记录在 `schema_migrations`，初始化配置 `foreign_keys=ON` 和 `journal_mode=WAL`。Gate 1 的 `0002_gate1.sql` 增加 Conversation 归属，并允许 Provider 未返回的 token 数为 `NULL`。
+
+Gate 2 将 Memory 视为有 owner 与审核状态的证据记录。聊天证据经 AI SDK 6 structured output + Zod 最多生成三条 `PROPOSED`，只有用户明确接受才转为 `ACTIVE`；手工创建视为用户直接确认。`PromptComposer` 分层放置平台规则、道友身份、相关 Memory、已启用 Skill 与会话上下文，并限制 Memory Top-K 和字符预算。Skill 仅保存声明式文本、版本快照和逐道友启用状态，不执行代码。
+
+Memory 检索首先在 SQL 中按 `owner_type + owner_id + status` 缩小到当前道友的 ACTIVE 集合，再为这个集合建立临时 FTS5 索引。可选的 `sqlite-vec` 扩展通过 Main 装载；向量查询同样先物化当前道友的 ACTIVE scope，再计算距离。embedding Runtime 未配置或向量路径失败时直接使用 FTS5。向量模型调用写入 UsageRecord；Runtime Migration 只改变道友当前运行配置，不改变 Memory/Skill 的道友归属。

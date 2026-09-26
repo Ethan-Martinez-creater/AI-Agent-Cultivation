@@ -3,9 +3,15 @@ import type {
   Conversation,
   CredentialSummary,
   Message,
+  MemoryRecord,
+  MemoryStatus,
+  MemoryType,
   ProviderConfig,
   ProviderKind,
   RuntimeProfile,
+  Skill,
+  SkillAssignment,
+  SkillRevision,
   Teammate,
   UsageRecord,
 } from '@cultivation/domain';
@@ -54,6 +60,20 @@ export interface TeammateInput {
   currentRuntimeProfileId: string;
 }
 
+export interface MemoryInput {
+  teammateId: string;
+  memoryType: MemoryType;
+  content: string;
+  summary: string;
+  importance: number;
+}
+export interface SkillInput {
+  name: string;
+  description: string;
+  instructions: string;
+  tags: string[];
+}
+
 export interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
@@ -90,6 +110,45 @@ export interface CultivationBridge {
       text: string;
     }): Promise<{ requestId: string; conversationId: string }>;
     onEvent(callback: (event: ChatStreamEvent) => void): () => void;
+  };
+  memories: {
+    list(teammateId: string, status?: MemoryStatus): Promise<MemoryRecord[]>;
+    create(input: MemoryInput): Promise<MemoryRecord>;
+    update(input: MemoryInput & { id: string }): Promise<MemoryRecord>;
+    archive(input: { teammateId: string; id: string }): Promise<MemoryRecord>;
+    accept(input: {
+      teammateId: string;
+      id: string;
+      edits?: Partial<Pick<MemoryRecord, 'memoryType' | 'content' | 'summary' | 'importance'>>;
+    }): Promise<MemoryRecord>;
+    reject(input: { teammateId: string; id: string }): Promise<MemoryRecord>;
+    proposeFromMessage(input: {
+      teammateId: string;
+      conversationId: string;
+      messageId: string;
+    }): Promise<MemoryRecord[]>;
+  };
+  embedding: {
+    getConfig(): Promise<{ available: boolean; runtimeProfileId: string | null }>;
+    setConfig(
+      runtimeProfileId: string | null,
+    ): Promise<{ available: boolean; runtimeProfileId: string | null }>;
+    reindex(teammateId: string): Promise<{ indexed: number; total: number }>;
+  };
+  skills: {
+    list(): Promise<Skill[]>;
+    create(input: SkillInput): Promise<Skill>;
+    update(input: SkillInput & { id: string }): Promise<Skill>;
+    archive(id: string): Promise<Skill>;
+    listRevisions(id: string): Promise<SkillRevision[]>;
+    listAssignments(teammateId: string): Promise<SkillAssignment[]>;
+    assign(input: { teammateId: string; skillId: string }): Promise<SkillAssignment>;
+    unassign(input: { teammateId: string; skillId: string }): Promise<void>;
+    setEnabled(input: {
+      teammateId: string;
+      skillId: string;
+      enabled: boolean;
+    }): Promise<SkillAssignment>;
   };
   usage: { list(teammateId?: string): Promise<UsageRecord[]> };
 }
@@ -131,6 +190,32 @@ const bridge: CultivationBridge = {
       ipcRenderer.on('chat:event', listener);
       return () => ipcRenderer.removeListener('chat:event', listener);
     },
+  },
+  memories: {
+    list: (teammateId, status) => ipcRenderer.invoke('memories:list', { teammateId, status }),
+    create: (input) => ipcRenderer.invoke('memories:create', input),
+    update: (input) => ipcRenderer.invoke('memories:update', input),
+    archive: (input) => ipcRenderer.invoke('memories:archive', input),
+    accept: (input) => ipcRenderer.invoke('memories:accept', input),
+    reject: (input) => ipcRenderer.invoke('memories:reject', input),
+    proposeFromMessage: (input) => ipcRenderer.invoke('memories:proposeFromMessage', input),
+  },
+  embedding: {
+    getConfig: () => ipcRenderer.invoke('embedding:getConfig'),
+    setConfig: (runtimeProfileId) =>
+      ipcRenderer.invoke('embedding:setConfig', { runtimeProfileId }),
+    reindex: (teammateId) => ipcRenderer.invoke('embedding:reindex', { teammateId }),
+  },
+  skills: {
+    list: () => ipcRenderer.invoke('skills:list'),
+    create: (input) => ipcRenderer.invoke('skills:create', input),
+    update: (input) => ipcRenderer.invoke('skills:update', input),
+    archive: (id) => ipcRenderer.invoke('skills:archive', id),
+    listRevisions: (id) => ipcRenderer.invoke('skills:listRevisions', id),
+    listAssignments: (teammateId) => ipcRenderer.invoke('skills:listAssignments', teammateId),
+    assign: (input) => ipcRenderer.invoke('skills:assign', input),
+    unassign: (input) => ipcRenderer.invoke('skills:unassign', input),
+    setEnabled: (input) => ipcRenderer.invoke('skills:setEnabled', input),
   },
   usage: { list: (teammateId) => ipcRenderer.invoke('usage:list', teammateId) },
 };

@@ -5,7 +5,11 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./gate1-service": "./src/gate1-service.ts"
+    "./gate1-service": "./src/gate1-service.ts",
+    "./gate2-memory-service": "./src/gate2-memory-service.ts",
+    "./gate2-hybrid-memory-service": "./src/gate2-hybrid-memory-service.ts",
+    "./prompt-composer": "./src/prompt-composer.ts",
+    "./skill-service": "./src/skill-service.ts"
   },
   "dependencies": {
     "@cultivation/domain": "0.0.1",

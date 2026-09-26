@@ -5,8 +5,6 @@ export interface TeammateSkillAssignment {
   teammateId: string;
   skillId: string;
   enabled: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 /** Immutable content snapshot created for each Skill revision. */
@@ -206,13 +204,10 @@ export class SkillService {
     }
     const existing = await this.store.getAssignment(teammateId, skillId);
     if (existing) return existing;
-    const now = this.clock.now();
     const assignment: TeammateSkillAssignment = {
       teammateId,
       skillId,
       enabled: false,
-      createdAt: now,
-      updatedAt: now,
     };
     await this.store.saveAssignment(assignment);
     return assignment;
@@ -251,7 +246,7 @@ export class SkillService {
         throw new SkillServiceError('ARCHIVED', 'Archived Skills cannot be enabled.');
       }
     }
-    const updated = { ...assignment, enabled, updatedAt: this.clock.now() };
+    const updated = { ...assignment, enabled };
     await this.store.saveAssignment(updated);
     return updated;
   }
