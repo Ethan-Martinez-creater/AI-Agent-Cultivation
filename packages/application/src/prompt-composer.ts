@@ -1,5 +1,4 @@
 import type { MemoryRecord, Skill, Teammate } from '@cultivation/domain';
-import type { ModelRequest } from './index.js';
 import type { TeammateSkillAssignment } from './skill-service.js';
 
 export interface ConversationPromptMessage {
@@ -40,7 +39,7 @@ export interface PromptSections {
 
 export interface PromptComposition {
   sections: PromptSections;
-  messages: ModelRequest['messages'];
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
 }
 
 const DEFAULT_LIMITS: PromptComposerLimits = {

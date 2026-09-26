@@ -23,13 +23,39 @@ export interface ProviderRegistry {
   listModelIds(providerId: string): Promise<string[]>;
 }
 
+export type ModelToolCallPart = {
+  type: 'tool-call';
+  toolCallId: string;
+  /** Stable ToolDescriptor ID. The provider adapter may map it to a provider-safe name. */
+  toolName: string;
+  input: unknown;
+};
+export type ModelToolResultPart = {
+  type: 'tool-result';
+  toolCallId: string;
+  /** Stable ToolDescriptor ID matching the assistant tool-call part. */
+  toolName: string;
+  output: {
+    type: 'json';
+    value: {
+      classification: 'UNTRUSTED_EXTERNAL_DATA';
+      toolId: string;
+      ok: boolean;
+      code: string | null;
+      content: string;
+    };
+  };
+};
+export type ModelMessage =
+  | { role: 'system'; content: string }
+  | { role: 'user'; content: string }
+  | { role: 'assistant'; content: string | ModelToolCallPart[] }
+  | { role: 'tool'; content: ModelToolResultPart[] };
+
 export interface ModelRequest {
   runtimeProfileId: string;
   teammateId: string;
-  messages: Array<{
-    role: 'system' | 'user' | 'assistant';
-    content: string;
-  }>;
+  messages: ModelMessage[];
 }
 export interface ModelUsage {
   inputTokens: number | null;

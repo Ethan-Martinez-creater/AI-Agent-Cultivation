@@ -9,6 +9,8 @@ import {
   type LanguageModel,
   type LanguageModelUsage,
 } from 'ai';
+import { createHash } from 'node:crypto';
+import type { ModelMessage as AiSdkModelMessage } from 'ai';
 import { z } from 'zod';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
@@ -187,14 +189,42 @@ function providerReportedUsage(kind: RuntimeProviderKind, usage: LanguageModelUs
   };
 }
 
+function providerToolName(toolId: string): string {
+  const digest = createHash('sha256').update(toolId, 'utf8').digest('hex').slice(0, 32);
+  return `tool_${digest}`;
+}
+
 function toSdkMessages(messages: ModelRequest['messages']) {
   const system = messages
     .filter((message) => message.role === 'system')
     .map((message) => message.content)
     .join('\n\n');
+  const sdkMessages: AiSdkModelMessage[] = messages
+    .filter((message) => message.role !== 'system')
+    .map((message) => {
+      if (message.role === 'assistant' && Array.isArray(message.content)) {
+        return {
+          role: 'assistant',
+          content: message.content.map((part) => ({
+            ...part,
+            toolName: providerToolName(part.toolName),
+          })),
+        };
+      }
+      if (message.role === 'tool') {
+        return {
+          role: 'tool',
+          content: message.content.map((part) => ({
+            ...part,
+            toolName: providerToolName(part.toolName),
+          })),
+        };
+      }
+      return message;
+    });
   return {
     ...(system.length > 0 ? { system } : {}),
-    messages: messages.filter((message) => message.role !== 'system'),
+    messages: sdkMessages,
   };
 }
 
@@ -257,8 +287,8 @@ export class AiSdkModelGateway implements ModelGateway, MemoryCandidateExtractor
       const runtime = await this.getRuntime(request.runtimeProfileId);
       const ids = new Map<string, string>();
       const tools = Object.fromEntries(
-        request.tools.map((descriptor, index) => {
-          const name = `tool_${index}`;
+        request.tools.map((descriptor) => {
+          const name = providerToolName(descriptor.id);
           ids.set(name, descriptor.id);
           return [
             name,

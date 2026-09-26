@@ -11,23 +11,90 @@ import type {
   ModelToolResponse,
 } from '@cultivation/application';
 
+function contentCharacters(content: unknown): number {
+  return typeof content === 'string' ? content.length : JSON.stringify(content).length;
+}
+
+function inspectTranscript(messages: ModelRequest['messages']) {
+  const callIds = messages.flatMap((message) =>
+    message.role === 'assistant' && Array.isArray(message.content)
+      ? message.content
+          .filter((part) => part.type === 'tool-call')
+          .map((part) => ({ id: part.toolCallId, name: part.toolName }))
+      : [],
+  );
+  const resultIds = messages.flatMap((message) =>
+    message.role === 'tool'
+      ? message.content
+          .filter((part) => part.type === 'tool-result')
+          .map((part) => ({ id: part.toolCallId, name: part.toolName }))
+      : [],
+  );
+  const toolOutputText = messages.flatMap((message) =>
+    message.role === 'tool' ? message.content.map((part) => part.output.value.content) : [],
+  );
+  const userMessagesWithToolOutput = messages.filter(
+    (message) =>
+      message.role === 'user' &&
+      typeof message.content === 'string' &&
+      toolOutputText.some((content) => content.length > 0 && message.content.includes(content)),
+  ).length;
+  return {
+    messages: messages.map((message) => ({
+      role: message.role,
+      toolCallIds:
+        message.role === 'assistant' && Array.isArray(message.content)
+          ? message.content
+              .filter((part) => part.type === 'tool-call')
+              .map((part) => part.toolCallId)
+          : [],
+      toolResultIds:
+        message.role === 'tool'
+          ? message.content
+              .filter((part) => part.type === 'tool-result')
+              .map((part) => part.toolCallId)
+          : [],
+    })),
+    toolCallIdsMatch:
+      callIds.length === resultIds.length &&
+      callIds.every(
+        (call, index) => call.id === resultIds[index]?.id && call.name === resultIds[index]?.name,
+      ),
+    userMessagesWithToolOutput,
+  };
+}
+
 /** Stable test double: no API credentials, network requests or hidden state. */
 export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor, EmbeddingGateway {
   async generate(request: ModelRequest): Promise<ModelResponse> {
-    const prompt = request.messages.at(-1)?.content ?? '';
+    const lastText = [...request.messages]
+      .reverse()
+      .find(
+        (message): message is Extract<(typeof request.messages)[number], { content: string }> =>
+          typeof message.content === 'string',
+      );
+    const prompt = lastText?.content ?? '';
+    const toolResults = request.messages.flatMap((message) =>
+      message.role === 'tool' ? message.content.map((part) => part.output.value) : [],
+    );
     const text =
       prompt.trim() === '__GATE2_PROMPT_INSPECT__'
         ? request.messages
             .filter((message) => message.role === 'system')
             .map((message) => message.content)
             .join('\n')
-        : prompt.trim() === 'PING'
-          ? 'PONG'
-          : `FAKE: ${prompt}`;
+        : toolResults.length > 0
+          ? `FAKE_TOOL_RESULT:${JSON.stringify(toolResults)}`
+          : prompt.trim() === 'PING'
+            ? 'PONG'
+            : `FAKE: ${prompt}`;
     return {
       text,
       usage: {
-        inputTokens: request.messages.reduce((total, message) => total + message.content.length, 0),
+        inputTokens: request.messages.reduce(
+          (total, message) => total + contentCharacters(message.content),
+          0,
+        ),
         outputTokens: text.length,
         cachedInputTokens: null,
         reasoningTokens: null,
@@ -38,33 +105,99 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
   async generateWithTools(
     request: Parameters<NonNullable<ModelGateway['generateWithTools']>>[0],
   ): Promise<ModelToolResponse> {
-    const prompt = request.messages.at(-1)?.content ?? '';
-    const repeat = request.messages.some((message) =>
-      message.content.startsWith('__GATE4_REPEAT_TOOL__:'),
+    const objective = request.messages.find(
+      (
+        message,
+      ): message is Extract<(typeof request.messages)[number], { role: 'user' }> & {
+        content: string;
+      } => message.role === 'user' && typeof message.content === 'string',
+    )?.content;
+    const callCount = request.messages.reduce(
+      (total, message) =>
+        total +
+        (message.role === 'assistant' && Array.isArray(message.content)
+          ? message.content.filter((part) => part.type === 'tool-call').length
+          : 0),
+      0,
     );
-    const fixture = repeat
-      ? request.messages.find((message) => message.content.startsWith('__GATE4_REPEAT_TOOL__:'))
-          ?.content
-      : prompt;
-    const marker = repeat ? '__GATE4_REPEAT_TOOL__:' : '__GATE4_TOOL__:';
-    if (fixture?.startsWith(marker)) {
-      let requested: { toolId: string; input: unknown };
+    const resultCount = request.messages.reduce(
+      (total, message) =>
+        total +
+        (message.role === 'tool'
+          ? message.content.filter((part) => part.type === 'tool-result').length
+          : 0),
+      0,
+    );
+    const transcriptFixture = objective?.startsWith('__GATE4_TRANSCRIPT_INSPECT__:') ?? false;
+    const sequenceFixture = objective?.startsWith('__GATE4_SEQUENCE_TOOL__:') ?? false;
+    const repeatFixture = objective?.startsWith('__GATE4_REPEAT_TOOL__:') ?? false;
+    const singleFixture = objective?.startsWith('__GATE4_TOOL__:') ?? false;
+    let sequence: Array<{ toolId: string; input: unknown }> = [];
+    if (sequenceFixture) {
       try {
-        requested = JSON.parse(fixture.slice(marker.length)) as { toolId: string; input: unknown };
+        sequence = JSON.parse(objective!.slice('__GATE4_SEQUENCE_TOOL__:'.length)) as Array<{
+          toolId: string;
+          input: unknown;
+        }>;
       } catch {
-        requested = { toolId: '', input: {} };
+        sequence = [];
       }
+    }
+    let single: { toolId: string; input: unknown } | null = null;
+    if (transcriptFixture || repeatFixture || singleFixture) {
+      const marker = transcriptFixture
+        ? '__GATE4_TRANSCRIPT_INSPECT__:'
+        : repeatFixture
+          ? '__GATE4_REPEAT_TOOL__:'
+          : '__GATE4_TOOL__:';
+      try {
+        single = JSON.parse(objective!.slice(marker.length)) as {
+          toolId: string;
+          input: unknown;
+        };
+      } catch {
+        single = { toolId: '', input: {} };
+      }
+    }
+
+    let requested: { toolId: string; input: unknown } | undefined;
+    if (sequenceFixture) {
+      if (callCount < sequence.length) requested = sequence[callCount];
+    } else if (repeatFixture) {
+      requested = single ?? { toolId: '', input: {} };
+    } else if (singleFixture || transcriptFixture) {
+      if (callCount === 0) requested = single ?? { toolId: '', input: {} };
+    }
+
+    if (requested) {
       const toolId = requested.toolId;
-      const text = '';
       return {
-        text,
+        text: '',
         toolCalls: [{ id: `fake-call-${request.messages.length}`, toolId, input: requested.input }],
         usage: {
           inputTokens: request.messages.reduce(
-            (total, message) => total + message.content.length,
+            (total, message) => total + contentCharacters(message.content),
             0,
           ),
           outputTokens: 1,
+          cachedInputTokens: null,
+          reasoningTokens: null,
+        },
+      };
+    }
+
+    if ((transcriptFixture || sequenceFixture) && resultCount > 0) {
+      const diagnostics = inspectTranscript(request.messages);
+      const text = JSON.stringify(diagnostics);
+      return {
+        text,
+        toolCalls: [],
+        usage: {
+          inputTokens: request.messages.reduce(
+            (total, message) => total + contentCharacters(message.content),
+            0,
+          ),
+          outputTokens: text.length,
           cachedInputTokens: null,
           reasoningTokens: null,
         },
