@@ -119,6 +119,20 @@ export interface ToolDescriptor {
   inputSchema: Record<string, unknown>;
   riskLevel: RiskLevel;
   sideEffect: SideEffect;
+  capability: PermissionCapability;
+}
+
+/** User-configured stdio MCP server settings. Only environment variable names are stored. */
+export interface McpServerConfig {
+  id: Id;
+  name: string;
+  command: string;
+  args: string[];
+  envWhitelist: string[];
+  cwd: string | null;
+  enabled: boolean;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
 }
 
 export type PartyType = 'FIXED' | 'AD_HOC';
@@ -220,6 +234,23 @@ export interface ApprovalRequest {
   actionPayload: Record<string, unknown>;
   riskLevel: RiskLevel;
   state: ApprovalState;
+  createdAt: IsoDateTime;
+  resolvedAt: IsoDateTime | null;
+}
+
+export type PendingToolCallState = 'PENDING' | 'RESOLVED';
+/** Bounded, resumable tool input attached to one approval and the same Mission Run. */
+export interface PendingToolCall {
+  approvalId: Id;
+  missionId: Id;
+  runId: Id;
+  toolId: Id;
+  source: ToolSource;
+  capability: PermissionCapability;
+  inputJson: string;
+  stepCount: number;
+  toolCallCount: number;
+  state: PendingToolCallState;
   createdAt: IsoDateTime;
   resolvedAt: IsoDateTime | null;
 }

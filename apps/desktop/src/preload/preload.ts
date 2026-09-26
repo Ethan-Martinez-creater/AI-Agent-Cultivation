@@ -11,6 +11,8 @@ import type {
   MissionEvent,
   AuditEvent,
   ApprovalRequest,
+  McpServerConfig,
+  ToolDescriptor,
   ProviderConfig,
   ProviderKind,
   RuntimeProfile,
@@ -181,8 +183,29 @@ export interface CultivationBridge {
     cancel(id: string): Promise<Mission>;
     resolveApproval(input: {
       approvalId: string;
-      decision: 'APPROVED' | 'DENIED';
+      decision: 'APPROVED' | 'DENIED' | 'ALLOW_MISSION';
     }): Promise<MissionDetail>;
+  };
+  tools: {
+    getWorkspace(): Promise<{ rootPath: string | null }>;
+    chooseWorkspace(): Promise<{ rootPath: string | null }>;
+    listBuiltins(): Promise<ToolDescriptor[]>;
+    listMcpServers(): Promise<McpServerConfig[]>;
+    saveMcpServer(input: {
+      id?: string;
+      name: string;
+      command: string;
+      args: string[];
+      envWhitelist: string[];
+      cwd: string | null;
+      enabled: boolean;
+    }): Promise<McpServerConfig>;
+    removeMcpServer(id: string): Promise<void>;
+    refreshMcpServer(id: string): Promise<{
+      status: 'READY' | 'ERROR';
+      tools: ToolDescriptor[];
+      message: string;
+    }>;
   };
   usage: { list(teammateId?: string): Promise<UsageRecord[]> };
 }
@@ -263,6 +286,15 @@ const bridge: CultivationBridge = {
     resume: (id) => ipcRenderer.invoke('missions:resume', id),
     cancel: (id) => ipcRenderer.invoke('missions:cancel', id),
     resolveApproval: (input) => ipcRenderer.invoke('missions:resolveApproval', input),
+  },
+  tools: {
+    getWorkspace: () => ipcRenderer.invoke('tools:getWorkspace'),
+    chooseWorkspace: () => ipcRenderer.invoke('tools:chooseWorkspace'),
+    listBuiltins: () => ipcRenderer.invoke('tools:listBuiltins'),
+    listMcpServers: () => ipcRenderer.invoke('tools:listMcpServers'),
+    saveMcpServer: (input) => ipcRenderer.invoke('tools:saveMcpServer', input),
+    removeMcpServer: (id) => ipcRenderer.invoke('tools:removeMcpServer', id),
+    refreshMcpServer: (id) => ipcRenderer.invoke('tools:refreshMcpServer', id),
   },
   usage: { list: (teammateId) => ipcRenderer.invoke('usage:list', teammateId) },
 };

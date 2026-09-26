@@ -8,6 +8,7 @@ import type {
   ModelGateway,
   ModelRequest,
   ModelResponse,
+  ModelToolResponse,
 } from '@cultivation/application';
 
 /** Stable test double: no API credentials, network requests or hidden state. */
@@ -32,6 +33,45 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
         reasoningTokens: null,
       },
     };
+  }
+
+  async generateWithTools(
+    request: Parameters<NonNullable<ModelGateway['generateWithTools']>>[0],
+  ): Promise<ModelToolResponse> {
+    const prompt = request.messages.at(-1)?.content ?? '';
+    const repeat = request.messages.some((message) =>
+      message.content.startsWith('__GATE4_REPEAT_TOOL__:'),
+    );
+    const fixture = repeat
+      ? request.messages.find((message) => message.content.startsWith('__GATE4_REPEAT_TOOL__:'))
+          ?.content
+      : prompt;
+    const marker = repeat ? '__GATE4_REPEAT_TOOL__:' : '__GATE4_TOOL__:';
+    if (fixture?.startsWith(marker)) {
+      let requested: { toolId: string; input: unknown };
+      try {
+        requested = JSON.parse(fixture.slice(marker.length)) as { toolId: string; input: unknown };
+      } catch {
+        requested = { toolId: '', input: {} };
+      }
+      const toolId = requested.toolId;
+      const text = '';
+      return {
+        text,
+        toolCalls: [{ id: `fake-call-${request.messages.length}`, toolId, input: requested.input }],
+        usage: {
+          inputTokens: request.messages.reduce(
+            (total, message) => total + message.content.length,
+            0,
+          ),
+          outputTokens: 1,
+          cachedInputTokens: null,
+          reasoningTokens: null,
+        },
+      };
+    }
+    const response = await this.generate(request);
+    return { ...response, toolCalls: [] };
   }
 
   async *stream(request: ModelRequest) {

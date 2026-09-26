@@ -10,6 +10,7 @@
     "./gate2-hybrid-memory-service": "./src/gate2-hybrid-memory-service.ts",
     "./gate3-mission-service": "./src/gate3-mission-service.ts",
     "./permission-engine": "./src/permission-engine.ts",
+    "./tool-runtime": "./src/tool-runtime.ts",
     "./prompt-composer": "./src/prompt-composer.ts",
     "./skill-service": "./src/skill-service.ts"
   },

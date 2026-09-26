@@ -16,7 +16,7 @@ const runInput = z.object({ missionId: id, approvalFixture: z.boolean() }).stric
 const approvalDecision = z
   .object({
     approvalId: id,
-    decision: z.enum(['APPROVED', 'DENIED']),
+    decision: z.enum(['APPROVED', 'DENIED', 'ALLOW_MISSION']),
   })
   .strict();
 

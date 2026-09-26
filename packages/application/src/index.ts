@@ -41,6 +41,14 @@ export interface ModelResponse {
   text: string;
   usage: ModelUsage;
 }
+export interface ModelToolCall {
+  id: string;
+  toolId: string;
+  input: unknown;
+}
+export interface ModelToolResponse extends ModelResponse {
+  toolCalls: ModelToolCall[];
+}
 export type ModelStreamEvent =
   | { type: 'text-delta'; text: string }
   | { type: 'finish'; usage: ModelUsage };
@@ -50,6 +58,9 @@ export interface ModelConnectionTestResult {
 }
 export interface ModelGateway {
   generate(request: ModelRequest): Promise<ModelResponse>;
+  generateWithTools?(
+    request: ModelRequest & { tools: ToolDescriptor[] },
+  ): Promise<ModelToolResponse>;
   stream(request: ModelRequest): AsyncIterable<ModelStreamEvent>;
   testConnection(runtimeProfileId: string): Promise<ModelConnectionTestResult>;
 }

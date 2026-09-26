@@ -1,8 +1,10 @@
 import {
   embed,
   generateText,
+  jsonSchema,
   Output,
   streamText,
+  tool,
   type CallSettings,
   type LanguageModel,
   type LanguageModelUsage,
@@ -22,6 +24,7 @@ import type {
   EmbeddingResult,
   ModelRequest,
   ModelResponse,
+  ModelToolResponse,
   ModelStreamEvent,
   ModelUsage,
 } from '@cultivation/application';
@@ -242,6 +245,46 @@ export class AiSdkModelGateway implements ModelGateway, MemoryCandidateExtractor
       });
 
       return { text: result.text, usage: providerReportedUsage(runtime.kind, result.usage) };
+    } catch (error) {
+      throw this.toSafeError(error);
+    }
+  }
+
+  async generateWithTools(
+    request: Parameters<NonNullable<ModelGateway['generateWithTools']>>[0],
+  ): Promise<ModelToolResponse> {
+    try {
+      const runtime = await this.getRuntime(request.runtimeProfileId);
+      const ids = new Map<string, string>();
+      const tools = Object.fromEntries(
+        request.tools.map((descriptor, index) => {
+          const name = `tool_${index}`;
+          ids.set(name, descriptor.id);
+          return [
+            name,
+            tool({
+              description: `${descriptor.name}: ${descriptor.description}`.slice(0, 500),
+              inputSchema: jsonSchema(descriptor.inputSchema as Parameters<typeof jsonSchema>[0]),
+            }),
+          ];
+        }),
+      );
+      const result = await generateText({
+        model: this.createModel(runtime),
+        ...toSdkMessages(request.messages),
+        ...generationSettings(runtime.parameters),
+        tools,
+        maxRetries: 0,
+      });
+      return {
+        text: result.text,
+        toolCalls: result.toolCalls.map((call) => ({
+          id: call.toolCallId,
+          toolId: ids.get(call.toolName) ?? '',
+          input: call.input,
+        })),
+        usage: providerReportedUsage(runtime.kind, result.usage),
+      };
     } catch (error) {
       throw this.toSafeError(error);
     }

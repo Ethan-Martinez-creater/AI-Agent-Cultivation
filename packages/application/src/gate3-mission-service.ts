@@ -16,10 +16,11 @@ import type {
 } from '@cultivation/domain';
 import { DomainError } from '@cultivation/shared';
 import { transition } from '@cultivation/domain';
-import type { ModelGateway, ModelUsage } from './index.js';
+import type { ModelGateway, ModelUsage, ModelRequest } from './index.js';
 import type { ChatPromptContext, Gate1Store } from './gate1-service.js';
 import { PromptComposer } from './prompt-composer.js';
 import type { PermissionEngine } from './permission-engine.js';
+import { ToolRuntime, type ToolCall, type ToolDispatch, type ToolResult } from './tool-runtime.js';
 
 /** Domain Run plus its user-visible final result. The result is never copied to an audit/event. */
 export type MissionRunRecord = MissionRun & { resultText: string | null };
@@ -51,6 +52,27 @@ export interface Gate3MissionStore {
   listMissionUsage(missionId: string): UsageRecord[];
   saveUsage(record: UsageRecord): void;
   transaction<T>(fn: () => T): T;
+}
+
+export interface PendingMissionToolCall {
+  approvalId: string;
+  missionId: string;
+  runId: string;
+  toolId: string;
+  source: 'BUILTIN' | 'MCP';
+  capability: PermissionCapability;
+  inputJson: string;
+  stepCount: number;
+  toolCallCount: number;
+  state: 'PENDING' | 'RESOLVED';
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
+export interface PendingMissionToolStore {
+  savePendingToolCall(call: PendingMissionToolCall): void;
+  getPendingToolCall(approvalId: string): PendingMissionToolCall | null;
+  resolvePendingToolCall(approvalId: string, resolvedAt: string): PendingMissionToolCall | null;
 }
 
 export interface MissionClock {
@@ -89,6 +111,8 @@ const FIXTURE_CAPABILITY: PermissionCapability = 'SPEND_BUDGET';
 const MAX_TITLE_LENGTH = 160;
 const MAX_OBJECTIVE_LENGTH = 8_000;
 const MAX_RESULT_LENGTH = 40_000;
+const MAX_TOOL_STEPS = 8;
+const MAX_TOOL_CALLS = 8;
 
 const defaultClock: MissionClock = {
   now: () => new Date().toISOString(),
@@ -130,6 +154,8 @@ function validUsageCount(value: number | null): number | null {
 export class Gate3MissionService {
   private readonly busy = new Set<string>();
   private readonly composer = new PromptComposer();
+  private toolRuntime: ToolRuntime | null = null;
+  private pendingTools: PendingMissionToolStore | null = null;
 
   constructor(
     private readonly store: Gate3MissionStore,
@@ -139,6 +165,11 @@ export class Gate3MissionService {
     private readonly promptContext?: ChatPromptContext,
     private readonly clock: MissionClock = defaultClock,
   ) {}
+
+  attachTools(runtime: ToolRuntime, pending: PendingMissionToolStore): void {
+    this.toolRuntime = runtime;
+    this.pendingTools = pending;
+  }
 
   list(): Mission[] {
     return this.store.listMissions();
@@ -291,6 +322,11 @@ export class Gate3MissionService {
       for (const approval of pending) {
         const resolved = this.store.resolveApproval(approval.id, 'CANCELLED', timestamp);
         if (!resolved) throw new DomainError('APPROVAL_ALREADY_RESOLVED', 'Approval 已被处理');
+        if (this.pendingTools?.getPendingToolCall(approval.id)) {
+          if (!this.pendingTools.resolvePendingToolCall(approval.id, timestamp)) {
+            throw new DomainError('CONFLICT', 'Pending Tool Call 已被处理');
+          }
+        }
         this.appendEvent(mission, approval.runId, 'approval.cancelled', 'USER', LOCAL_USER_ID, {
           approvalId: approval.id,
           capability: approval.capability,
@@ -322,7 +358,7 @@ export class Gate3MissionService {
 
   async resolveApproval(input: {
     approvalId: string;
-    decision: Extract<ApprovalState, 'APPROVED' | 'DENIED'>;
+    decision: 'APPROVED' | 'DENIED' | 'ALLOW_MISSION';
   }): Promise<MissionDetail> {
     const approval = this.store.getApproval(input.approvalId);
     if (!approval) return absent('ApprovalRequest');
@@ -337,12 +373,20 @@ export class Gate3MissionService {
     if (!run || run.missionId !== mission.id || run.status !== 'RUNNING') {
       throw new DomainError('MISSION_INVALID_STATE', 'Approval 对应的 Run 已结束');
     }
+    const pendingTool = this.pendingTools?.getPendingToolCall(approval.id);
+    if (pendingTool) {
+      return this.resolveToolApproval(input, approval, mission, run, pendingTool);
+    }
+    if (input.decision === 'ALLOW_MISSION') {
+      throw new DomainError('INVALID_INPUT', '此审批不支持 Mission 工具授权');
+    }
+    const fixtureDecision = input.decision;
 
     let nextMission = mission;
     this.store.transaction(() => {
       const resolved = this.store.resolveApproval(
         input.approvalId,
-        input.decision,
+        fixtureDecision,
         this.clock.now(),
       );
       if (!resolved) throw new DomainError('APPROVAL_ALREADY_RESOLVED', 'Approval 只能处理一次');
@@ -401,6 +445,154 @@ export class Gate3MissionService {
     });
 
     if (input.decision === 'APPROVED') await this.executeRun(nextMission, run);
+    return this.detail(mission.id);
+  }
+
+  private async resolveToolApproval(
+    input: { approvalId: string; decision: 'APPROVED' | 'DENIED' | 'ALLOW_MISSION' },
+    approval: ApprovalRequest,
+    mission: Mission,
+    run: MissionRunRecord,
+    pending: PendingMissionToolCall,
+  ): Promise<MissionDetail> {
+    if (!this.toolRuntime || !this.pendingTools || pending.state !== 'PENDING') {
+      throw new DomainError('MISSION_INVALID_STATE', 'Tool Runtime 不可用');
+    }
+    if (
+      pending.missionId !== mission.id ||
+      pending.runId !== run.id ||
+      pending.capability !== approval.capability
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'Approval 与 Tool Call 不匹配');
+    }
+    let stored: { callId: string; input: unknown };
+    try {
+      stored = JSON.parse(pending.inputJson) as { callId: string; input: unknown };
+      if (typeof stored.callId !== 'string' || stored.callId.length > 128) throw new Error();
+    } catch {
+      throw new DomainError('PERSISTENCE_INVALID', 'Tool Call 数据无效');
+    }
+    const tool = this.toolRuntime.registry.get(pending.toolId);
+    const resource = approval.actionPayload.resource;
+    let currentResource: string | null = null;
+    try {
+      if (
+        tool &&
+        stored.input &&
+        typeof stored.input === 'object' &&
+        !Array.isArray(stored.input)
+      ) {
+        currentResource = tool.resource(stored.input as Record<string, unknown>);
+      }
+    } catch {
+      currentResource = null;
+    }
+    const descriptorMatches =
+      tool?.descriptor.source === pending.source &&
+      tool.descriptor.capability === pending.capability &&
+      currentResource === resource;
+    if (
+      input.decision === 'ALLOW_MISSION' &&
+      (typeof resource !== 'string' || !resource || resource.length > 512)
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'Tool grant 目标无效');
+    }
+    const at = this.clock.now();
+    const running = this.transition(mission, 'RUNNING', at);
+    this.store.transaction(() => {
+      if (
+        !this.store.resolveApproval(
+          approval.id,
+          input.decision === 'DENIED' ? 'DENIED' : 'APPROVED',
+          at,
+        )
+      ) {
+        throw new DomainError('APPROVAL_ALREADY_RESOLVED', 'Approval 只能处理一次');
+      }
+      if (!this.pendingTools?.resolvePendingToolCall(approval.id, at)) {
+        throw new DomainError('APPROVAL_ALREADY_RESOLVED', 'Tool Call 只能处理一次');
+      }
+      if (input.decision === 'ALLOW_MISSION' && descriptorMatches) {
+        this.permissions.grantMission({
+          id: this.clock.newId(),
+          subjectType: 'TEAMMATE',
+          subjectId: mission.coordinatorTeammateId,
+          capability: pending.capability,
+          resourcePattern: resource as string,
+          decision: 'ALLOW',
+          scope: 'MISSION',
+          scopeId: mission.id,
+        });
+      }
+      if (!this.store.transitionMission(running, mission.state)) {
+        throw new DomainError('CONFLICT', 'Mission 状态已被其他操作修改');
+      }
+      this.appendEvent(running, run.id, 'tool.approval_decided', 'USER', LOCAL_USER_ID, {
+        approvalId: approval.id,
+        toolId: pending.toolId,
+        source: pending.source,
+        capability: pending.capability,
+        decision: input.decision,
+      });
+      this.appendAudit(running, 'tool.approval_decided', 'USER', LOCAL_USER_ID, {
+        runId: run.id,
+        approvalId: approval.id,
+        toolId: pending.toolId,
+        source: pending.source,
+        capability: pending.capability,
+        decision: input.decision,
+      });
+      this.appendStateEvents(mission, running, 'USER', LOCAL_USER_ID, 'mission.approval_resumed', {
+        runId: run.id,
+        approvalId: approval.id,
+      });
+    });
+
+    const call: ToolCall = { id: stored.callId, toolId: pending.toolId, input: stored.input };
+    let result: ToolResult;
+    if (input.decision === 'DENIED') {
+      result = {
+        toolCallId: call.id,
+        toolId: call.toolId,
+        ok: false,
+        code: 'PERMISSION_DENIED',
+        content: 'Permission denied by user.',
+      };
+      this.recordToolResult(running, run, pending, result, approval.id);
+    } else if (!descriptorMatches) {
+      result = {
+        toolCallId: call.id,
+        toolId: call.toolId,
+        ok: false,
+        code: 'TOOL_CHANGED',
+        content: 'Tool configuration changed while approval was pending.',
+      };
+      this.recordToolResult(running, run, pending, result, approval.id);
+    } else {
+      if (this.busy.has(mission.id)) throw new DomainError('MISSION_BUSY', 'Mission 正在执行');
+      this.busy.add(mission.id);
+      try {
+        const dispatch = await this.toolRuntime.dispatch(
+          call,
+          { missionId: mission.id, runId: run.id, teammateId: mission.coordinatorTeammateId },
+          true,
+        );
+        result =
+          dispatch.kind === 'RESULT'
+            ? dispatch.result
+            : {
+                toolCallId: call.id,
+                toolId: call.toolId,
+                ok: false,
+                code: 'PERMISSION_DENIED',
+                content: 'Tool approval could not be applied.',
+              };
+        this.recordToolResult(running, run, pending, result, approval.id);
+      } finally {
+        this.busy.delete(mission.id);
+      }
+    }
+    await this.executeRun(running, run, result, pending.stepCount, pending.toolCallCount);
     return this.detail(mission.id);
   }
 
@@ -576,7 +768,13 @@ export class Gate3MissionService {
     });
   }
 
-  private async executeRun(mission: Mission, run: MissionRunRecord): Promise<void> {
+  private async executeRun(
+    mission: Mission,
+    run: MissionRunRecord,
+    previousToolResult?: ToolResult,
+    previousStepCount = 0,
+    previousToolCallCount = 0,
+  ): Promise<void> {
     if (this.busy.has(mission.id)) throw new DomainError('MISSION_BUSY', 'Mission 正在执行');
     if (mission.state !== 'RUNNING' || run.status !== 'RUNNING') {
       throw new DomainError('MISSION_INVALID_STATE', '只有 RUNNING MissionRun 可以执行');
@@ -627,6 +825,22 @@ export class Gate3MissionService {
       ),
       conversationContext: [{ role: 'user', content: mission.objective }],
     }).messages;
+
+    if (previousToolResult) {
+      messages.push({ role: 'user', content: `TOOL_RESULT:${JSON.stringify(previousToolResult)}` });
+    }
+    if (this.toolRuntime && this.gateway.generateWithTools) {
+      await this.executeToolLoop(
+        mission,
+        run,
+        teammate.id,
+        runtime,
+        messages,
+        previousStepCount,
+        previousToolCallCount,
+      );
+      return;
+    }
 
     this.store.transaction(() => {
       this.appendEvent(mission, run.id, 'model.call_started', 'TEAMMATE', teammate.id, {
@@ -694,6 +908,358 @@ export class Gate3MissionService {
         attempt: run.attempt,
       });
     });
+  }
+
+  private async executeToolLoop(
+    mission: Mission,
+    run: MissionRunRecord,
+    teammateId: string,
+    runtime: RuntimeProfile,
+    messages: ModelRequest['messages'],
+    initialSteps: number,
+    initialToolCalls: number,
+  ): Promise<void> {
+    if (!this.toolRuntime || !this.gateway.generateWithTools) return;
+    let steps = initialSteps;
+    let toolCalls = initialToolCalls;
+    if (this.busy.has(mission.id)) throw new DomainError('MISSION_BUSY', 'Mission 正在执行');
+    this.busy.add(mission.id);
+    try {
+      while (steps < MAX_TOOL_STEPS) {
+        if (!this.isRunActive(mission, run)) return;
+        this.store.transaction(() => {
+          this.appendEvent(mission, run.id, 'model.call_started', 'TEAMMATE', teammateId, {
+            runtimeProfileId: runtime.id,
+            providerId: runtime.providerId,
+            modelId: runtime.modelId,
+            step: steps + 1,
+          });
+          this.appendAudit(mission, 'model.call_started', 'TEAMMATE', teammateId, {
+            runId: run.id,
+            runtimeProfileId: runtime.id,
+            providerId: runtime.providerId,
+            modelId: runtime.modelId,
+            step: steps + 1,
+          });
+        });
+        let response;
+        try {
+          response = await this.gateway.generateWithTools({
+            teammateId,
+            runtimeProfileId: runtime.id,
+            messages,
+            tools: this.toolRuntime.registry.list(),
+          });
+        } catch {
+          if (this.isRunActive(mission, run)) {
+            this.failModelCall(mission, run, teammateId, runtime, null);
+          }
+          return;
+        }
+        if (!this.isRunActive(mission, run)) return;
+        steps += 1;
+        const usage = this.usageRecord(mission, run, teammateId, runtime, response.usage);
+        this.store.transaction(() => {
+          this.store.saveUsage(usage);
+          this.appendUsageEvents(mission, run, teammateId, runtime, usage);
+          this.appendEvent(mission, run.id, 'model.call_completed', 'TEAMMATE', teammateId, {
+            step: steps,
+            proposedToolCalls: response.toolCalls.length,
+          });
+          this.appendAudit(mission, 'model.call_completed', 'TEAMMATE', teammateId, {
+            runId: run.id,
+            step: steps,
+            proposedToolCalls: response.toolCalls.length,
+          });
+        });
+
+        if (response.toolCalls.length === 0) {
+          this.completeToolRun(mission, run, response.text);
+          return;
+        }
+        if (response.toolCalls.length !== 1) {
+          toolCalls += response.toolCalls.length;
+          if (toolCalls > MAX_TOOL_CALLS) break;
+          const result: ToolResult = {
+            toolCallId: 'multiple',
+            toolId: 'multiple',
+            ok: false,
+            code: 'MULTIPLE_TOOL_CALLS',
+            content: 'Propose only one tool call per model step.',
+          };
+          this.recordToolResult(
+            mission,
+            run,
+            {
+              toolId: 'multiple',
+              source: 'BUILTIN',
+              capability: 'FILE_READ',
+              inputJson: '{}',
+            },
+            result,
+          );
+          messages.push({ role: 'user', content: `TOOL_RESULT:${JSON.stringify(result)}` });
+          continue;
+        }
+        if (toolCalls >= MAX_TOOL_CALLS) break;
+        toolCalls += 1;
+        const proposed = response.toolCalls[0]!;
+        const call: ToolCall = { id: proposed.id, toolId: proposed.toolId, input: proposed.input };
+        let dispatch: ToolDispatch;
+        try {
+          dispatch = await this.toolRuntime.dispatch(call, {
+            missionId: mission.id,
+            runId: run.id,
+            teammateId,
+          });
+        } catch {
+          dispatch = {
+            kind: 'RESULT',
+            trace: {
+              toolId: call.toolId,
+              source: 'UNKNOWN',
+              capability: null,
+              riskLevel: null,
+              sideEffect: null,
+              resource: null,
+              inputSummary: { keys: [], bytes: 0 },
+              outputSummary: { ok: false, code: 'TOOL_FAILED', bytes: 0 },
+            },
+            result: {
+              toolCallId: call.id,
+              toolId: call.toolId,
+              ok: false,
+              code: 'TOOL_FAILED',
+              content: 'Tool failed safely.',
+            },
+          };
+        }
+        if (!this.isRunActive(mission, run)) return;
+        this.store.transaction(() => {
+          this.appendEvent(mission, run.id, 'tool.proposed', 'TEAMMATE', teammateId, {
+            toolId: dispatch.trace.toolId,
+            source: dispatch.trace.source,
+            capability: dispatch.trace.capability,
+            inputSummary: dispatch.trace.inputSummary,
+            step: steps,
+          });
+          this.appendAudit(mission, 'tool.proposed', 'TEAMMATE', teammateId, {
+            runId: run.id,
+            toolId: dispatch.trace.toolId,
+            source: dispatch.trace.source,
+            capability: dispatch.trace.capability,
+            inputSummary: dispatch.trace.inputSummary,
+            step: steps,
+          });
+        });
+        if (dispatch.kind === 'APPROVAL') {
+          this.requestToolApproval(mission, run, call, dispatch, steps, toolCalls);
+          return;
+        }
+        this.recordToolResult(
+          mission,
+          run,
+          {
+            toolId: dispatch.trace.toolId,
+            source: dispatch.trace.source === 'MCP' ? 'MCP' : 'BUILTIN',
+            capability: dispatch.trace.capability ?? 'FILE_READ',
+            inputJson: JSON.stringify({ callId: call.id, input: call.input }).slice(0, 64 * 1024),
+          },
+          dispatch.result,
+        );
+        messages.push({ role: 'user', content: `TOOL_RESULT:${JSON.stringify(dispatch.result)}` });
+      }
+      if (this.isRunActive(mission, run)) this.failToolLimit(mission, run);
+    } finally {
+      this.busy.delete(mission.id);
+    }
+  }
+
+  private requestToolApproval(
+    mission: Mission,
+    run: MissionRunRecord,
+    call: ToolCall,
+    dispatch: Extract<ToolDispatch, { kind: 'APPROVAL' }>,
+    steps: number,
+    toolCalls: number,
+  ): void {
+    if (
+      !this.pendingTools ||
+      !dispatch.trace.capability ||
+      !dispatch.trace.resource ||
+      dispatch.trace.source === 'UNKNOWN' ||
+      !dispatch.trace.riskLevel
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'Tool approval 数据无效');
+    }
+    const at = this.clock.now();
+    const approval: ApprovalRequest = {
+      id: this.clock.newId(),
+      missionId: mission.id,
+      runId: run.id,
+      requesterTeammateId: mission.coordinatorTeammateId,
+      capability: dispatch.trace.capability,
+      actionType: 'TOOL_CALL',
+      actionPayload: {
+        toolId: dispatch.trace.toolId,
+        source: dispatch.trace.source,
+        resource: dispatch.trace.resource,
+        inputSummary: dispatch.trace.inputSummary,
+      },
+      riskLevel: dispatch.trace.riskLevel,
+      state: 'PENDING',
+      createdAt: at,
+      resolvedAt: null,
+    };
+    const waiting = this.transition(mission, 'WAITING_APPROVAL', at);
+    this.store.transaction(() => {
+      this.store.insertApproval(approval);
+      this.pendingTools?.savePendingToolCall({
+        approvalId: approval.id,
+        missionId: mission.id,
+        runId: run.id,
+        toolId: call.toolId,
+        source: dispatch.trace.source as 'BUILTIN' | 'MCP',
+        capability: approval.capability,
+        inputJson: JSON.stringify({ callId: call.id, input: call.input }),
+        stepCount: steps,
+        toolCallCount: toolCalls,
+        state: 'PENDING',
+        createdAt: at,
+        resolvedAt: null,
+      });
+      if (!this.store.transitionMission(waiting, mission.state)) {
+        throw new DomainError('CONFLICT', 'Mission 状态已被其他操作修改');
+      }
+      this.appendEvent(
+        waiting,
+        run.id,
+        'tool.approval_requested',
+        'TEAMMATE',
+        mission.coordinatorTeammateId,
+        {
+          approvalId: approval.id,
+          toolId: call.toolId,
+          source: dispatch.trace.source,
+          capability: approval.capability,
+          inputSummary: dispatch.trace.inputSummary,
+        },
+      );
+      this.appendAudit(
+        waiting,
+        'tool.approval_requested',
+        'TEAMMATE',
+        mission.coordinatorTeammateId,
+        {
+          runId: run.id,
+          approvalId: approval.id,
+          toolId: call.toolId,
+          source: dispatch.trace.source,
+          capability: approval.capability,
+          inputSummary: dispatch.trace.inputSummary,
+        },
+      );
+      this.appendStateEvents(mission, waiting, 'SYSTEM', null, 'mission.waiting_approval', {
+        runId: run.id,
+        approvalId: approval.id,
+      });
+    });
+  }
+
+  private recordToolResult(
+    mission: Mission,
+    run: MissionRunRecord,
+    metadata: Pick<PendingMissionToolCall, 'toolId' | 'source' | 'capability' | 'inputJson'>,
+    result: ToolResult,
+    approvalId: string | null = null,
+  ): void {
+    const payload = {
+      toolId: metadata.toolId,
+      source: metadata.source,
+      capability: metadata.capability,
+      approvalId,
+      success: result.ok,
+      code: result.code,
+      inputSummary: { bytes: Buffer.byteLength(metadata.inputJson) },
+      outputSummary: { bytes: Buffer.byteLength(result.content) },
+    };
+    this.store.transaction(() => {
+      this.appendEvent(
+        mission,
+        run.id,
+        'tool.result',
+        'TEAMMATE',
+        mission.coordinatorTeammateId,
+        payload,
+      );
+      this.appendAudit(mission, 'tool.result', 'TEAMMATE', mission.coordinatorTeammateId, {
+        runId: run.id,
+        ...payload,
+      });
+    });
+  }
+
+  private completeToolRun(mission: Mission, run: MissionRunRecord, text: string): void {
+    const at = this.clock.now();
+    const completed = this.transition(mission, 'COMPLETED', at);
+    this.store.transaction(() => {
+      this.finishRun({
+        ...run,
+        status: 'COMPLETED',
+        endedAt: at,
+        errorCode: null,
+        errorMessage: null,
+        resultText: text.slice(0, MAX_RESULT_LENGTH),
+      });
+      if (!this.store.transitionMission(completed, mission.state)) {
+        throw new DomainError('CONFLICT', 'Mission 状态已被其他操作修改');
+      }
+      this.appendEvent(completed, run.id, 'run.completed', 'SYSTEM', null, {
+        attempt: run.attempt,
+      });
+      this.appendStateEvents(mission, completed, 'SYSTEM', null, 'mission.completed', {
+        runId: run.id,
+        attempt: run.attempt,
+      });
+    });
+  }
+
+  private failToolLimit(mission: Mission, run: MissionRunRecord): void {
+    const at = this.clock.now();
+    const failed = this.transition(mission, 'FAILED', at);
+    this.store.transaction(() => {
+      this.finishRun({
+        ...run,
+        status: 'FAILED',
+        endedAt: at,
+        errorCode: 'TOOL_LIMIT_REACHED',
+        errorMessage: 'Mission tool step limit reached.',
+        resultText: JSON.stringify({ ok: false, code: 'TOOL_LIMIT_REACHED' }),
+      });
+      if (!this.store.transitionMission(failed, mission.state)) {
+        throw new DomainError('CONFLICT', 'Mission 状态已被其他操作修改');
+      }
+      this.appendEvent(failed, run.id, 'runtime.tool_limit', 'SYSTEM', null, {
+        maxSteps: MAX_TOOL_STEPS,
+        maxToolCalls: MAX_TOOL_CALLS,
+      });
+      this.appendAudit(failed, 'runtime.tool_limit', 'SYSTEM', null, {
+        runId: run.id,
+        maxSteps: MAX_TOOL_STEPS,
+        maxToolCalls: MAX_TOOL_CALLS,
+      });
+      this.appendStateEvents(mission, failed, 'SYSTEM', null, 'mission.failed', {
+        runId: run.id,
+        reason: 'TOOL_LIMIT_REACHED',
+      });
+    });
+  }
+
+  private isRunActive(mission: Mission, run: MissionRunRecord): boolean {
+    return (
+      this.store.getMission(mission.id)?.state === 'RUNNING' &&
+      this.store.getRun(run.id)?.status === 'RUNNING'
+    );
   }
 
   private failBeforeModel(mission: Mission, run: MissionRunRecord, code: string): void {

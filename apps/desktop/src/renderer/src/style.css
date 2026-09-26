@@ -1974,3 +1974,194 @@ td code {
   font: inherit;
   font-size: 0.9rem;
 }
+
+.tools-page {
+  display: grid;
+  gap: 13px;
+}
+.tools-page > .page-heading {
+  margin-bottom: 8px;
+}
+.tool-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #2d443b;
+  border-radius: 12px;
+  background: rgba(23, 35, 29, 0.94);
+}
+.tool-panel .section-heading {
+  margin: 0 0 14px;
+}
+.tool-panel .section-heading h2 {
+  margin: 0 0 5px;
+  font-size: 14px;
+}
+.workspace-path {
+  overflow-wrap: anywhere;
+  padding: 11px 13px;
+  border: 1px solid #344e40;
+  border-radius: 8px;
+  color: #d8e5dc;
+  background: #111d18;
+  font:
+    11px/1.6 Consolas,
+    'Cascadia Mono',
+    monospace;
+}
+.workspace-path.unselected {
+  color: #899d91;
+  font-family: inherit;
+}
+.tool-descriptor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 9px;
+}
+.tool-descriptor-card {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #30483d;
+  border-radius: 9px;
+  background: #14211b;
+}
+.tool-descriptor-card.compact {
+  padding: 9px;
+}
+.tool-descriptor-top,
+.mcp-server-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tool-descriptor-top h3,
+.mcp-server-top h3 {
+  margin: 0 0 4px;
+  color: #e1e9e3;
+  font-size: 12px;
+}
+.tool-descriptor-top code {
+  color: #9bb3a3;
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+.tool-source-pill {
+  flex: 0 0 auto;
+  padding: 3px 6px;
+  border: 1px solid #415847;
+  border-radius: 999px;
+  color: #c5d8c8;
+  background: #1e3023;
+  font-size: 8px;
+}
+.tool-descriptor-card > p {
+  margin: 9px 0;
+  color: #9caea3;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.tool-descriptor-meta,
+.mcp-server-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: #b1c1b5;
+  font-size: 9px;
+}
+.tool-descriptor-meta span {
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #1e2e24;
+}
+.mcp-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.8fr) minmax(370px, 1.2fr);
+  align-items: start;
+  gap: 13px;
+}
+.mcp-form .form-title-row {
+  margin-bottom: 13px;
+}
+.mcp-form .form-title-row .eyebrow {
+  margin-bottom: 6px;
+}
+.mcp-form .form-title-row h2 {
+  margin: 0;
+  font-size: 15px;
+}
+.mcp-form .field {
+  margin-top: 11px;
+}
+.tool-enabled-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 13px;
+  color: #bdcbbf;
+  font-size: 10px;
+}
+.tool-enabled-toggle input {
+  accent-color: #c0ad75;
+}
+.mcp-form .form-hint {
+  margin-top: 12px;
+}
+.mcp-form .button.full-width {
+  margin-top: 13px;
+}
+.mcp-server-stack {
+  display: grid;
+  gap: 9px;
+}
+.mcp-server-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #30483d;
+  border-radius: 9px;
+  background: #14211b;
+}
+.mcp-server-command {
+  max-width: 36rem;
+  overflow: hidden;
+  margin: 0;
+  color: #91a99a;
+  font:
+    9px/1.5 Consolas,
+    'Cascadia Mono',
+    monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mcp-discovery-status {
+  display: flex;
+  align-items: center;
+  color: #aebfb2;
+  font-size: 9px;
+}
+.mcp-discovered-tools {
+  display: grid;
+  gap: 6px;
+  padding-top: 2px;
+}
+.mcp-server-card .button-row {
+  margin-top: 0;
+}
+.timeline-tool-meta {
+  display: contents;
+}
+.timeline-tool-meta > span {
+  display: inline-flex;
+  gap: 3px;
+}
+.timeline-tool-meta strong {
+  color: #d7e1da;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 920px) {
+  .mcp-workspace {
+    grid-template-columns: 1fr;
+  }
+}

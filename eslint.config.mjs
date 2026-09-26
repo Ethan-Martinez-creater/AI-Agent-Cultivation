@@ -27,4 +27,8 @@ export default tseslint.config(
     files: ['scripts/**/*.mjs'],
     languageOptions: { globals: { process: 'readonly', console: 'readonly', window: 'readonly' } },
   },
+  {
+    files: ['apps/desktop/src/main/fixtures/**/*.mjs'],
+    languageOptions: { globals: { process: 'readonly', Buffer: 'readonly' } },
+  },
 );

@@ -64,6 +64,13 @@ const scopeRank: Readonly<Record<PermissionScopeRef['scope'], number>> = {
 export class PermissionEngine {
   constructor(private readonly rules: PermissionRuleStore) {}
 
+  grantMission(rule: PermissionRule): void {
+    if (rule.scope !== 'MISSION' || rule.decision !== 'ALLOW' || !rule.scopeId) {
+      throw new Error('Invalid Mission grant');
+    }
+    this.rules.savePermissionRule(rule);
+  }
+
   evaluate(check: PermissionCheck): PermissionResult {
     const applicable = this.rules
       .listPermissionRules(check.subjectType, check.subjectId, check.capability)
