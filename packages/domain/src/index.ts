@@ -153,6 +153,14 @@ export interface PartyMember {
   order: number;
 }
 
+/** A Teammate explicitly assigned to one Mission; ordering is stable for presentation. */
+export interface MissionParticipant {
+  missionId: Id;
+  teammateId: Id;
+  role: 'COORDINATOR' | 'MEMBER' | 'AUTHOR' | 'REVIEWER';
+  sortOrder: number;
+}
+
 export type MissionMode = 'SOLO' | 'CONSULTATION' | 'REVIEW' | 'DELEGATION';
 export type MissionState =
   | 'DRAFT'
@@ -259,12 +267,46 @@ export type CollaborationState = 'PENDING' | 'APPROVED' | 'DENIED' | 'CANCELLED'
 export interface CollaborationRequest {
   id: Id;
   missionId: Id;
+  /** Null only for legacy pre-Gate-5 rows that were created without a MissionRun link. */
+  runId: Id | null;
   requesterTeammateId: Id;
   targetTeammateId: Id;
   reason: string;
   proposedTask: string;
-  estimatedUsage: number | null;
+  expectedBenefit: string;
+  /** Delegation depth is bounded to 0 (initiative/consultation) or 1 (delegation). */
+  depth: 0 | 1;
   state: CollaborationState;
+  createdAt: IsoDateTime;
+  resolvedAt: IsoDateTime | null;
+}
+
+export type Gate5PendingToolCallState = 'PENDING' | 'RESOLVED';
+/** Restart-safe Gate 5 continuation snapshot for member-owned tool approval. */
+export interface Gate5PendingToolCall {
+  approvalId: Id;
+  missionId: Id;
+  runId: Id;
+  teammateId: Id;
+  /** Bounded JSON continuation context; includes task/artifact state, never private Memory text. */
+  contextJson: string;
+  stepCount: number;
+  toolCallCount: number;
+  state: Gate5PendingToolCallState;
+  createdAt: IsoDateTime;
+  resolvedAt: IsoDateTime | null;
+}
+
+export type CollaborationArtifactKind = 'MEMBER_RESULT' | 'DRAFT' | 'REVIEW' | 'FINAL';
+/** Only bounded, Mission-public outputs belong here; private Memory is never an artifact. */
+export interface CollaborationArtifact {
+  id: Id;
+  missionId: Id;
+  runId: Id;
+  teammateId: Id;
+  kind: CollaborationArtifactKind;
+  content: string;
+  createdAt: IsoDateTime;
 }
 
 export interface Message {
