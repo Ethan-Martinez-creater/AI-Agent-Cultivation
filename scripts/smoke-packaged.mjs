@@ -577,3 +577,4 @@ try {
 
 await import('./smoke-gate3-packaged.mjs');
 await import('./smoke-gate4-packaged.mjs');
+await import('./gate5-packaged-smoke.mjs');
