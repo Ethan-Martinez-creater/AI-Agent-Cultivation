@@ -8,6 +8,7 @@ import {
   Routes,
   useNavigate,
   useParams,
+  useSearchParams,
 } from 'react-router-dom';
 import './style.css';
 
@@ -64,6 +65,48 @@ interface MessageView {
   role: MessageRole;
   content: string;
   createdAt: string;
+}
+
+type MemoryType = 'IDENTITY' | 'PREFERENCE' | 'FACT' | 'EPISODE' | 'PROCEDURE' | 'OBSERVATION';
+type MemoryStatus = 'PROPOSED' | 'ACTIVE' | 'REJECTED' | 'ARCHIVED';
+type MemorySourceType = 'MANUAL' | 'CHAT_EXTRACTION';
+
+interface MemoryView {
+  id: string;
+  ownerType: 'TEAMMATE';
+  ownerId: string;
+  memoryType: MemoryType;
+  content: string;
+  summary: string;
+  sourceType: MemorySourceType;
+  sourceId: string | null;
+  sourceConversationId: string | null;
+  sourceMessageId: string | null;
+  confidence: number;
+  importance: number;
+  status: MemoryStatus;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt: string | null;
+  confirmedAt: string | null;
+}
+
+interface SkillView {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  tags: string[];
+  version: string;
+  status: 'ACTIVE' | 'ARCHIVED';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface SkillAssignmentView {
+  teammateId: string;
+  skillId: string;
+  enabled: boolean;
 }
 
 interface UsageView {
@@ -134,6 +177,61 @@ interface CultivationBridge {
     }): Promise<{ requestId: string; conversationId: string }>;
     onEvent(callback: (event: ChatEvent) => void): () => void;
   };
+  memories: {
+    list(teammateId: string, status?: MemoryStatus): Promise<MemoryView[]>;
+    create(input: {
+      teammateId: string;
+      memoryType: MemoryType;
+      content: string;
+      summary: string;
+      importance: number;
+    }): Promise<MemoryView>;
+    update(input: {
+      teammateId: string;
+      id: string;
+      memoryType: MemoryType;
+      content: string;
+      summary: string;
+      importance: number;
+    }): Promise<MemoryView>;
+    archive(input: { teammateId: string; id: string }): Promise<MemoryView>;
+    accept(input: {
+      teammateId: string;
+      id: string;
+      edits?: Partial<Pick<MemoryView, 'memoryType' | 'content' | 'summary' | 'importance'>>;
+    }): Promise<MemoryView>;
+    reject(input: { teammateId: string; id: string }): Promise<MemoryView>;
+    proposeFromMessage(input: {
+      teammateId: string;
+      conversationId: string;
+      messageId: string;
+    }): Promise<MemoryView>;
+  };
+  skills: {
+    list(): Promise<SkillView[]>;
+    create(input: {
+      name: string;
+      description: string;
+      instructions: string;
+      tags: string[];
+    }): Promise<SkillView>;
+    update(input: {
+      id: string;
+      name: string;
+      description: string;
+      instructions: string;
+      tags: string[];
+    }): Promise<SkillView>;
+    archive(skillId: string): Promise<SkillView>;
+    assign(input: { teammateId: string; skillId: string }): Promise<SkillAssignmentView>;
+    unassign(input: { teammateId: string; skillId: string }): Promise<void>;
+    setEnabled(input: {
+      teammateId: string;
+      skillId: string;
+      enabled: boolean;
+    }): Promise<SkillAssignmentView>;
+    listAssignments(teammateId: string): Promise<SkillAssignmentView[]>;
+  };
   usage: { list(teammateId?: string): Promise<UsageView[]> };
 }
 
@@ -148,9 +246,9 @@ const pages = [
   ['/teammates', '道友 Teammates', '创建道友身份，选择运行配置并开启持续对话。'],
   ['/parties', '队伍 Parties', '多道友协作将在后续阶段接入。'],
   ['/missions', '历练 Missions', 'Mission Runtime 将在后续阶段接入。'],
-  ['/skills', '功法 Skills', 'Gate 2 · 技能管理将在后续阶段接入。'],
+  ['/skills', '功法 Skills', '为道友编写可复用的声明式指引。'],
   ['/tools', '法宝 Tools', 'Tool 与 MCP 将在后续阶段接入。'],
-  ['/memory', '记忆 Memory', 'Gate 2 · 长期记忆将在后续阶段接入。'],
+  ['/memory', '记忆 Memory', '查看、确认并管理专属于道友的长期记忆。'],
   ['/usage', '灵石 Usage', '按道友和运行配置查看模型调用用量。'],
   ['/settings', '设置 Settings', '管理服务商、凭据和运行配置。'],
 ] as const;
@@ -162,6 +260,43 @@ const providerKinds: { value: ProviderKind; label: string }[] = [
   { value: 'DEEPSEEK', label: 'DeepSeek' },
   { value: 'OPENAI_COMPATIBLE', label: 'OpenAI Compatible' },
 ];
+
+const memoryTypes: { value: MemoryType; label: string }[] = [
+  { value: 'IDENTITY', label: '身份 Identity' },
+  { value: 'PREFERENCE', label: '偏好 Preference' },
+  { value: 'FACT', label: '事实 Fact' },
+  { value: 'EPISODE', label: '经历 Episode' },
+  { value: 'PROCEDURE', label: '流程 Procedure' },
+  { value: 'OBSERVATION', label: '观察 Observation' },
+];
+
+type MemoryForm = {
+  memoryType: MemoryType;
+  content: string;
+  summary: string;
+  importance: number;
+};
+
+const blankMemoryForm: MemoryForm = {
+  memoryType: 'FACT',
+  content: '',
+  summary: '',
+  importance: 0.5,
+};
+
+type SkillForm = {
+  name: string;
+  description: string;
+  instructions: string;
+  tagsText: string;
+};
+
+const blankSkillForm: SkillForm = {
+  name: '',
+  description: '',
+  instructions: '',
+  tagsText: '',
+};
 
 function errorText(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
@@ -240,18 +375,12 @@ function App() {
             path="/missions"
             element={<PlaceholderPage title="历练 Missions" description={pages[3][2]} />}
           />
-          <Route
-            path="/skills"
-            element={<PlaceholderPage title="功法 Skills" description={pages[4][2]} />}
-          />
+          <Route path="/skills" element={<SkillsPage />} />
           <Route
             path="/tools"
             element={<PlaceholderPage title="法宝 Tools" description={pages[5][2]} />}
           />
-          <Route
-            path="/memory"
-            element={<PlaceholderPage title="记忆 Memory" description={pages[6][2]} />}
-          />
+          <Route path="/memory" element={<MemoryPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
@@ -1276,6 +1405,7 @@ function TeammatesPage() {
               {selected.status === 'ARCHIVED' && (
                 <div className="notice">已归档的道友保留历史数据，不能继续发送新消息。</div>
               )}
+              <TeammateSkillsPanel teammate={selected} />
             </div>
           ) : loading ? (
             <div className="loading-card">正在读取道友…</div>
@@ -1304,6 +1434,8 @@ function ChatPage() {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [extractingMessageId, setExtractingMessageId] = useState('');
+  const [candidateReady, setCandidateReady] = useState(false);
   const activeRequest = useRef<{
     requestId: string | null;
     teammateId: string;
@@ -1420,6 +1552,7 @@ function ChatPage() {
     setError('');
     setStreamText('');
     setPendingUserText('');
+    setCandidateReady(false);
     try {
       await refreshMessages(teammateId, id);
     } catch (cause) {
@@ -1429,6 +1562,7 @@ function ChatPage() {
   const createConversation = async () => {
     setError('');
     setNotice('');
+    setCandidateReady(false);
     try {
       const created = await window.cultivation.chat.createConversation(teammateId);
       const rows = await refreshConversations(teammateId);
@@ -1452,6 +1586,7 @@ function ChatPage() {
     setDraft('');
     setError('');
     setNotice('');
+    setCandidateReady(false);
     setPendingUserText(text);
     setStreamText('');
     setStreaming(true);
@@ -1472,6 +1607,27 @@ function ChatPage() {
       setPendingUserText('');
       setStreamText('');
       setError(errorText(cause, '发送消息失败。'));
+    }
+  };
+
+  const extractMemoryCandidate = async (message: MessageView) => {
+    if (!teammate || !conversationId || message.conversationId !== conversationId) return;
+    setExtractingMessageId(message.id);
+    setError('');
+    setNotice('');
+    setCandidateReady(false);
+    try {
+      const candidate = await window.cultivation.memories.proposeFromMessage({
+        teammateId: teammate.id,
+        conversationId,
+        messageId: message.id,
+      });
+      setCandidateReady(true);
+      setNotice(`已为 ${teammate.name} 创建待确认的记忆候选「${candidate.summary}」。`);
+    } catch (cause) {
+      setError(errorText(cause, '提取记忆候选失败；当前对话不受影响。'));
+    } finally {
+      setExtractingMessageId('');
     }
   };
 
@@ -1571,7 +1727,14 @@ function ChatPage() {
                 <p>此会话的消息会持续保存，切换 Runtime 后仍归属于同一道友。</p>
               </div>
             ) : (
-              messages.map((message) => <MessageBubble key={message.id} message={message} />)
+              messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  onExtract={extractMemoryCandidate}
+                  extracting={extractingMessageId === message.id}
+                />
+              ))
             )}
             {pendingUserText && (
               <div className="message-row user-message">
@@ -1600,6 +1763,14 @@ function ChatPage() {
           {notice && (
             <div className="chat-notice" role="status">
               {notice}
+              {candidateReady && (
+                <button
+                  className="text-button"
+                  onClick={() => navigate(`/memory?teammateId=${encodeURIComponent(teammateId)}`)}
+                >
+                  前往审核
+                </button>
+              )}
             </div>
           )}
           <form className="composer" onSubmit={(event) => void send(event)}>
@@ -1647,7 +1818,15 @@ function ChatPage() {
   );
 }
 
-function MessageBubble({ message }: { message: MessageView }) {
+function MessageBubble({
+  message,
+  onExtract,
+  extracting = false,
+}: {
+  message: MessageView;
+  onExtract?: (message: MessageView) => void;
+  extracting?: boolean;
+}) {
   const isUser = message.role === 'USER';
   const isAssistant = message.role === 'ASSISTANT';
   return (
@@ -1658,8 +1837,958 @@ function MessageBubble({ message }: { message: MessageView }) {
         <small>
           {isUser ? '你' : isAssistant ? '道友' : message.role} · {formatTime(message.createdAt)}
         </small>
+        {onExtract && (isUser || isAssistant) && message.missionId === null && (
+          <button
+            className="message-memory-action"
+            disabled={extracting}
+            onClick={() => onExtract(message)}
+            type="button"
+          >
+            {extracting ? '正在生成候选…' : '提取为记忆候选'}
+          </button>
+        )}
       </div>
       {message.missionId !== null && <span className="safe-tag">Mission</span>}
+    </div>
+  );
+}
+
+function MemoryPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [selectedTeammateId, setSelectedTeammateId] = useState(
+    () => searchParams.get('teammateId') ?? '',
+  );
+  const [memories, setMemories] = useState<MemoryView[]>([]);
+  const [status, setStatus] = useState<MemoryStatus | 'ALL'>('ALL');
+  const [form, setForm] = useState<MemoryForm>(blankMemoryForm);
+  const [editingId, setEditingId] = useState('');
+  const [reviewId, setReviewId] = useState('');
+  const [reviewForm, setReviewForm] = useState<MemoryForm>(blankMemoryForm);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState('');
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    void window.cultivation.teammates
+      .list()
+      .then((rows) => {
+        setTeammates(rows);
+        setSelectedTeammateId((current) => {
+          if (rows.some((row) => row.id === current)) return current;
+          const preferredId = searchParams.get('teammateId');
+          if (preferredId && rows.some((row) => row.id === preferredId)) return preferredId;
+          return rows.find((row) => row.status === 'ACTIVE')?.id ?? rows[0]?.id ?? '';
+        });
+      })
+      .catch((cause: unknown) => setError(errorText(cause, '读取道友失败。')));
+  }, [searchParams]);
+
+  useEffect(() => {
+    const next = new URLSearchParams();
+    if (selectedTeammateId) next.set('teammateId', selectedTeammateId);
+    if (searchParams.get('teammateId') !== selectedTeammateId) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [selectedTeammateId, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setMemories([]);
+    setEditingId('');
+    setReviewId('');
+    if (!selectedTeammateId) {
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+    setLoading(true);
+    setError('');
+    void window.cultivation.memories
+      .list(selectedTeammateId, status === 'ALL' ? undefined : status)
+      .then((rows) => {
+        if (!cancelled) {
+          setMemories(
+            rows.filter(
+              (row) => row.ownerType === 'TEAMMATE' && row.ownerId === selectedTeammateId,
+            ),
+          );
+        }
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取道友记忆失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTeammateId, status, refreshKey]);
+
+  const selectedTeammate = teammates.find((item) => item.id === selectedTeammateId);
+  const updateForm = (patch: Partial<MemoryForm>) =>
+    setForm((current) => ({ ...current, ...patch }));
+  const updateReviewForm = (patch: Partial<MemoryForm>) =>
+    setReviewForm((current) => ({ ...current, ...patch }));
+  const refresh = () => setRefreshKey((current) => current + 1);
+
+  const createMemory = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!selectedTeammateId) return;
+    setBusyId('create');
+    setError('');
+    setNotice('');
+    try {
+      await window.cultivation.memories.create({
+        teammateId: selectedTeammateId,
+        ...form,
+      });
+      setForm(blankMemoryForm);
+      setNotice(`记忆已保存到 ${selectedTeammate?.name ?? '当前道友'} 的专属空间。`);
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '创建记忆失败。'));
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const beginEdit = (memory: MemoryView) => {
+    setReviewId('');
+    setEditingId(memory.id);
+    setForm({
+      memoryType: memory.memoryType,
+      content: memory.content,
+      summary: memory.summary,
+      importance: memory.importance,
+    });
+  };
+
+  const saveEdit = async (memory: MemoryView) => {
+    setBusyId(memory.id);
+    setError('');
+    try {
+      await window.cultivation.memories.update({
+        teammateId: selectedTeammateId,
+        id: memory.id,
+        ...form,
+      });
+      setEditingId('');
+      setNotice('记忆已更新。');
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '更新记忆失败。'));
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const archiveMemory = async (memory: MemoryView) => {
+    setBusyId(memory.id);
+    setError('');
+    try {
+      await window.cultivation.memories.archive({ teammateId: selectedTeammateId, id: memory.id });
+      setNotice('记忆已归档，不再参与检索。');
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '归档记忆失败。'));
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const startReview = (memory: MemoryView) => {
+    setEditingId('');
+    setReviewId(memory.id);
+    setReviewForm({
+      memoryType: memory.memoryType,
+      content: memory.content,
+      summary: memory.summary,
+      importance: memory.importance,
+    });
+  };
+
+  const acceptCandidate = async (memory: MemoryView, edited: boolean) => {
+    setBusyId(memory.id);
+    setError('');
+    try {
+      await window.cultivation.memories.accept({
+        teammateId: selectedTeammateId,
+        id: memory.id,
+        ...(edited ? { edits: reviewForm } : {}),
+      });
+      setReviewId('');
+      setNotice('候选已由你确认，现可参与此道友的记忆检索。');
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '确认记忆候选失败。'));
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const saveCandidateEdit = async (memory: MemoryView) => {
+    setBusyId(memory.id);
+    setError('');
+    try {
+      await window.cultivation.memories.update({
+        teammateId: selectedTeammateId,
+        id: memory.id,
+        ...reviewForm,
+      });
+      setNotice('候选修改已保存，仍保持待确认状态。');
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '保存候选修改失败。'));
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const rejectCandidate = async (memory: MemoryView) => {
+    setBusyId(memory.id);
+    setError('');
+    try {
+      await window.cultivation.memories.reject({ teammateId: selectedTeammateId, id: memory.id });
+      setReviewId('');
+      setNotice('候选已拒绝，不会参与检索。');
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '拒绝记忆候选失败。'));
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  return (
+    <section className="page wide-page">
+      <PageHeading
+        eyebrow="Memory · owner scoped review"
+        title="记忆 Memory"
+        description="每条记忆都绑定一个具体道友。模型提取的内容仅创建 PROPOSED 候选；你确认后才会进入 ACTIVE 检索。"
+      />
+      <div className="memory-toolbar">
+        <label className="field">
+          <span>当前道友（记忆归属）</span>
+          <select
+            value={selectedTeammateId}
+            onChange={(event) => setSelectedTeammateId(event.target.value)}
+          >
+            <option value="">选择道友</option>
+            {teammates.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name} · {item.status === 'ACTIVE' ? '活跃' : '归档'}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>状态</span>
+          <select
+            value={status}
+            onChange={(event) => setStatus(event.target.value as MemoryStatus | 'ALL')}
+          >
+            <option value="ALL">全部状态</option>
+            <option value="PROPOSED">待确认</option>
+            <option value="ACTIVE">已激活</option>
+            <option value="REJECTED">已拒绝</option>
+            <option value="ARCHIVED">已归档</option>
+          </select>
+        </label>
+        <button className="button secondary" disabled={!selectedTeammateId} onClick={refresh}>
+          刷新
+        </button>
+      </div>
+      {error && (
+        <div className="notice error" role="alert">
+          {error}
+        </div>
+      )}
+      {notice && (
+        <div className="notice success" role="status">
+          {notice}
+        </div>
+      )}
+      {!selectedTeammateId ? (
+        <div className="empty-card">
+          <h3>先创建一位道友</h3>
+          <p>Memory 会按道友隔离保存和检索。</p>
+        </div>
+      ) : (
+        <>
+          <div className="memory-scope-note">
+            <strong>{selectedTeammate?.name ?? '当前道友'}</strong>
+            <span>仅显示此道友拥有的 Memory · {selectedTeammateId.slice(0, 12)}</span>
+          </div>
+          <form
+            className="form-card memory-create-form"
+            onSubmit={(event) => void createMemory(event)}
+          >
+            <div className="form-title-row">
+              <div>
+                <p className="eyebrow">MANUAL MEMORY</p>
+                <h2>添加已确认记忆</h2>
+                <p className="muted-copy">手动输入的内容保存到当前道友，不会分享给其他道友。</p>
+              </div>
+            </div>
+            <div className="memory-form-grid">
+              <label className="field">
+                <span>类型</span>
+                <select
+                  value={form.memoryType}
+                  onChange={(event) => updateForm({ memoryType: event.target.value as MemoryType })}
+                >
+                  {memoryTypes.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>重要度 · 0–1</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={form.importance}
+                  onChange={(event) => updateForm({ importance: Number(event.target.value) })}
+                />
+              </label>
+              <label className="field memory-summary-field">
+                <span>摘要</span>
+                <input
+                  required
+                  maxLength={240}
+                  value={form.summary}
+                  onChange={(event) => updateForm({ summary: event.target.value })}
+                  placeholder="用于快速识别这条记忆"
+                />
+              </label>
+            </div>
+            <label className="field">
+              <span>内容</span>
+              <textarea
+                required
+                rows={3}
+                maxLength={8000}
+                value={form.content}
+                onChange={(event) => updateForm({ content: event.target.value })}
+                placeholder="写下希望这位道友在后续对话中记住的内容"
+              />
+            </label>
+            <button className="button primary" disabled={busyId === 'create'}>
+              {busyId === 'create' ? '保存中…' : '保存记忆'}
+            </button>
+          </form>
+          <div className="section-heading">
+            <div>
+              <h2>记忆记录</h2>
+              <p>PROPOSED 候选只在你接受后才会参与检索。</p>
+            </div>
+            <span className="count-badge">{memories.length}</span>
+          </div>
+          {loading ? (
+            <div className="loading-card">正在读取记忆…</div>
+          ) : memories.length ? (
+            <div className="memory-list">
+              {[...memories]
+                .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+                .map((memory) => {
+                  const editing = editingId === memory.id;
+                  const reviewing = reviewId === memory.id;
+                  return (
+                    <article className="memory-card" key={memory.id}>
+                      <div className="memory-card-heading">
+                        <div>
+                          <span
+                            className={`status-pill memory-status ${memory.status.toLowerCase()}`}
+                          >
+                            {memory.status === 'PROPOSED'
+                              ? '待你确认'
+                              : memory.status === 'ACTIVE'
+                                ? '已激活'
+                                : memory.status === 'REJECTED'
+                                  ? '已拒绝'
+                                  : '已归档'}
+                          </span>
+                          <span className="memory-type-label">
+                            {memoryTypes.find((item) => item.value === memory.memoryType)?.label ??
+                              memory.memoryType}
+                          </span>
+                        </div>
+                        <small>创建于 {formatDate(memory.createdAt)}</small>
+                      </div>
+                      {editing ? (
+                        <MemoryEditFields form={form} onChange={updateForm} />
+                      ) : (
+                        <>
+                          <h3>{memory.summary}</h3>
+                          <p className="memory-content">{memory.content}</p>
+                        </>
+                      )}
+                      <div className="memory-provenance">
+                        <span>
+                          来源：{memory.sourceType === 'MANUAL' ? '手动创建' : '对话提取'}
+                        </span>
+                        <span>重要度 {memory.importance.toFixed(2)}</span>
+                        {memory.confidence !== null && (
+                          <span>提取置信度 {memory.confidence.toFixed(2)}</span>
+                        )}
+                        {memory.confirmedAt && <span>确认于 {formatDate(memory.confirmedAt)}</span>}
+                        {memory.sourceConversationId && (
+                          <span>Conversation {memory.sourceConversationId.slice(0, 10)}</span>
+                        )}
+                        {memory.sourceMessageId && (
+                          <span>Message {memory.sourceMessageId.slice(0, 10)}</span>
+                        )}
+                        {memory.sourceId && memory.sourceId !== memory.sourceMessageId && (
+                          <span>Source {memory.sourceId.slice(0, 10)}</span>
+                        )}
+                      </div>
+                      {reviewing && (
+                        <div className="candidate-edit-panel">
+                          <p>检查并修改候选内容，然后明确接受；保存后才会进入 ACTIVE。</p>
+                          <MemoryEditFields form={reviewForm} onChange={updateReviewForm} />
+                          <div className="button-row">
+                            <button
+                              className="button primary small"
+                              disabled={busyId === memory.id}
+                              onClick={() => void acceptCandidate(memory, true)}
+                              type="button"
+                            >
+                              保存修改并接受
+                            </button>
+                            <button
+                              className="button secondary small"
+                              disabled={busyId === memory.id}
+                              onClick={() => void saveCandidateEdit(memory)}
+                              type="button"
+                            >
+                              保存修改，继续审核
+                            </button>
+                            <button
+                              className="button ghost small"
+                              onClick={() => setReviewId('')}
+                              type="button"
+                            >
+                              取消
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      <div className="button-row compact memory-actions">
+                        {memory.status === 'PROPOSED' && !reviewing && (
+                          <>
+                            <button
+                              className="button primary small"
+                              disabled={busyId === memory.id}
+                              onClick={() => void acceptCandidate(memory, false)}
+                            >
+                              接受候选
+                            </button>
+                            <button
+                              className="button secondary small"
+                              onClick={() => startReview(memory)}
+                            >
+                              编辑后接受
+                            </button>
+                            <button
+                              className="button danger-ghost small"
+                              disabled={busyId === memory.id}
+                              onClick={() => void rejectCandidate(memory)}
+                            >
+                              拒绝
+                            </button>
+                          </>
+                        )}
+                        {memory.status === 'ACTIVE' && !editing && (
+                          <>
+                            <button
+                              className="button secondary small"
+                              onClick={() => beginEdit(memory)}
+                            >
+                              编辑
+                            </button>
+                            <button
+                              className="button danger-ghost small"
+                              disabled={busyId === memory.id}
+                              onClick={() => void archiveMemory(memory)}
+                            >
+                              归档
+                            </button>
+                          </>
+                        )}
+                        {editing && (
+                          <>
+                            <button
+                              className="button primary small"
+                              disabled={busyId === memory.id}
+                              onClick={() => void saveEdit(memory)}
+                              type="button"
+                            >
+                              保存编辑
+                            </button>
+                            <button
+                              className="button ghost small"
+                              onClick={() => setEditingId('')}
+                              type="button"
+                            >
+                              取消
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+            </div>
+          ) : (
+            <div className="empty-card subdued">
+              <h3>还没有符合筛选的记忆</h3>
+              <p>你可以手动添加记忆，或从 Chat 消息提取待确认候选。</p>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+function MemoryEditFields({
+  form,
+  onChange,
+}: {
+  form: MemoryForm;
+  onChange: (patch: Partial<MemoryForm>) => void;
+}) {
+  return (
+    <div className="memory-edit-fields">
+      <div className="memory-form-grid">
+        <label className="field">
+          <span>类型</span>
+          <select
+            value={form.memoryType}
+            onChange={(event) => onChange({ memoryType: event.target.value as MemoryType })}
+          >
+            {memoryTypes.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>重要度 · 0–1</span>
+          <input
+            type="number"
+            min="0"
+            max="1"
+            step="0.05"
+            value={form.importance}
+            onChange={(event) => onChange({ importance: Number(event.target.value) })}
+          />
+        </label>
+        <label className="field memory-summary-field">
+          <span>摘要</span>
+          <input
+            required
+            maxLength={240}
+            value={form.summary}
+            onChange={(event) => onChange({ summary: event.target.value })}
+          />
+        </label>
+      </div>
+      <label className="field">
+        <span>内容</span>
+        <textarea
+          required
+          rows={3}
+          maxLength={8000}
+          value={form.content}
+          onChange={(event) => onChange({ content: event.target.value })}
+        />
+      </label>
+    </div>
+  );
+}
+
+function SkillsPage() {
+  const [skills, setSkills] = useState<SkillView[]>([]);
+  const [form, setForm] = useState<SkillForm>(blankSkillForm);
+  const [editingId, setEditingId] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    void window.cultivation.skills
+      .list()
+      .then((rows) => {
+        if (!cancelled) setSkills(rows);
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取 Skill 失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshKey]);
+
+  const refresh = () => setRefreshKey((current) => current + 1);
+  const updateForm = (patch: Partial<SkillForm>) =>
+    setForm((current) => ({ ...current, ...patch }));
+  const beginEdit = (skill: SkillView) => {
+    setEditingId(skill.id);
+    setForm({
+      name: skill.name,
+      description: skill.description,
+      instructions: skill.instructions,
+      tagsText: skill.tags.join(', '),
+    });
+    setError('');
+    setNotice('');
+  };
+  const save = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setBusy(true);
+    setError('');
+    setNotice('');
+    const input = {
+      name: form.name.trim(),
+      description: form.description.trim(),
+      instructions: form.instructions.trim(),
+      tags: form.tagsText
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    };
+    try {
+      const skill = editingId
+        ? await window.cultivation.skills.update({ id: editingId, ...input })
+        : await window.cultivation.skills.create(input);
+      setForm(blankSkillForm);
+      setEditingId('');
+      setNotice(
+        editingId ? `已保存为新版本 v${skill.version}。` : `Skill 已创建，版本 v${skill.version}。`,
+      );
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '保存 Skill 失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const archive = async (skill: SkillView) => {
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      await window.cultivation.skills.archive(skill.id);
+      setNotice(`Skill「${skill.name}」已归档。`);
+      refresh();
+    } catch (cause) {
+      setError(errorText(cause, '归档 Skill 失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="page wide-page">
+      <PageHeading
+        eyebrow="Skill · declarative instructions"
+        title="功法 Skills"
+        description="Skill 只保存名称、标签与指令文本，不执行任意代码。只有分配给道友并启用的 Skill 才会加入该道友的对话提示。"
+      />
+      {error && (
+        <div className="notice error" role="alert">
+          {error}
+        </div>
+      )}
+      {notice && (
+        <div className="notice success" role="status">
+          {notice}
+        </div>
+      )}
+      <div className="panel-grid skill-workspace">
+        <form className="form-card" onSubmit={(event) => void save(event)}>
+          <div className="form-title-row">
+            <div>
+              <p className="eyebrow">{editingId ? 'NEW SKILL VERSION' : 'DECLARATIVE SKILL'}</p>
+              <h2>{editingId ? '编辑 Skill' : '创建 Skill'}</h2>
+              {editingId && <p className="muted-copy">保存会自动创建下一个 patch 版本。</p>}
+            </div>
+            {editingId && (
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => {
+                  setEditingId('');
+                  setForm(blankSkillForm);
+                }}
+              >
+                取消
+              </button>
+            )}
+          </div>
+          <label className="field">
+            <span>名称</span>
+            <input
+              required
+              maxLength={100}
+              value={form.name}
+              onChange={(event) => updateForm({ name: event.target.value })}
+              placeholder="例如：代码审查习惯"
+            />
+          </label>
+          <label className="field">
+            <span>说明</span>
+            <input
+              maxLength={500}
+              value={form.description}
+              onChange={(event) => updateForm({ description: event.target.value })}
+              placeholder="Skill 的用途"
+            />
+          </label>
+          <label className="field">
+            <span>
+              标签 <small>用逗号分隔</small>
+            </span>
+            <input
+              maxLength={400}
+              value={form.tagsText}
+              onChange={(event) => updateForm({ tagsText: event.target.value })}
+              placeholder="coding, review"
+            />
+          </label>
+          <label className="field">
+            <span>指令</span>
+            <textarea
+              required
+              rows={8}
+              maxLength={12000}
+              value={form.instructions}
+              onChange={(event) => updateForm({ instructions: event.target.value })}
+              placeholder="描述道友在指定任务中应遵循的做法"
+            />
+          </label>
+          <p className="form-hint">此处文本作为提示内容使用，不会被当作脚本或命令执行。</p>
+          <button className="button primary" disabled={busy}>
+            {busy ? '保存中…' : editingId ? '保存新版本' : '创建 Skill'}
+          </button>
+        </form>
+        <div className="list-card skill-list-card">
+          <div className="list-heading">
+            <div>
+              <h2>已创建的 Skills</h2>
+              <p>编辑会生成新的版本，现有分配仍引用同一个 Skill。</p>
+            </div>
+            <span className="count-badge">{skills.length}</span>
+          </div>
+          {loading ? (
+            <div className="loading-card">正在读取 Skill…</div>
+          ) : skills.length ? (
+            [...skills]
+              .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+              .map((skill) => (
+                <article className="skill-card" key={skill.id}>
+                  <div className="skill-card-top">
+                    <div>
+                      <h3>{skill.name}</h3>
+                      <p>{skill.description || '无说明'}</p>
+                    </div>
+                    <span
+                      className={`status-pill ${skill.status === 'ACTIVE' ? 'active' : 'archived'}`}
+                    >
+                      {skill.status === 'ACTIVE' ? '启用' : '归档'}
+                    </span>
+                  </div>
+                  <div className="skill-meta">
+                    <span>v{skill.version}</span>
+                    <span>更新于 {formatDate(skill.updatedAt)}</span>
+                  </div>
+                  {skill.tags.length > 0 && (
+                    <div className="skill-tags">
+                      {skill.tags.map((tag) => (
+                        <span className="skill-tag" key={tag}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <details className="skill-instructions">
+                    <summary>查看指令文本</summary>
+                    <pre>{skill.instructions}</pre>
+                  </details>
+                  {skill.status === 'ACTIVE' && (
+                    <div className="button-row compact">
+                      <button className="button secondary small" onClick={() => beginEdit(skill)}>
+                        编辑 / 新版本
+                      </button>
+                      <button
+                        className="button danger-ghost small"
+                        disabled={busy}
+                        onClick={() => void archive(skill)}
+                      >
+                        归档
+                      </button>
+                    </div>
+                  )}
+                </article>
+              ))
+          ) : (
+            <EmptyList text="还没有 Skill；先创建声明式指令，再到道友页面分配。" />
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TeammateSkillsPanel({ teammate }: { teammate: TeammateView }) {
+  const [skills, setSkills] = useState<SkillView[]>([]);
+  const [assignments, setAssignments] = useState<SkillAssignmentView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busySkillId, setBusySkillId] = useState('');
+  const [error, setError] = useState('');
+
+  const refresh = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [skillRows, assignmentRows] = await Promise.all([
+        window.cultivation.skills.list(),
+        window.cultivation.skills.listAssignments(teammate.id),
+      ]);
+      setSkills(skillRows);
+      setAssignments(assignmentRows.filter((item) => item.teammateId === teammate.id));
+    } catch (cause) {
+      setError(errorText(cause, '读取道友 Skill 分配失败。'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refresh();
+  }, [teammate.id]);
+
+  const assign = async (skillId: string) => {
+    setBusySkillId(skillId);
+    setError('');
+    try {
+      await window.cultivation.skills.assign({ teammateId: teammate.id, skillId });
+      await refresh();
+    } catch (cause) {
+      setError(errorText(cause, '分配 Skill 失败。'));
+    } finally {
+      setBusySkillId('');
+    }
+  };
+  const unassign = async (skillId: string) => {
+    setBusySkillId(skillId);
+    setError('');
+    try {
+      await window.cultivation.skills.unassign({ teammateId: teammate.id, skillId });
+      await refresh();
+    } catch (cause) {
+      setError(errorText(cause, '取消分配 Skill 失败。'));
+    } finally {
+      setBusySkillId('');
+    }
+  };
+  const setEnabled = async (skillId: string, enabled: boolean) => {
+    setBusySkillId(skillId);
+    setError('');
+    try {
+      await window.cultivation.skills.setEnabled({ teammateId: teammate.id, skillId, enabled });
+      await refresh();
+    } catch (cause) {
+      setError(errorText(cause, '更新 Skill 启用状态失败。'));
+    } finally {
+      setBusySkillId('');
+    }
+  };
+
+  return (
+    <div className="profile-section teammate-skill-section">
+      <div className="section-heading">
+        <div>
+          <h3>此道友的 Skills</h3>
+          <p>分配和启用状态仅属于 {teammate.name}。</p>
+        </div>
+        <span className="count-badge">{assignments.length}</span>
+      </div>
+      {error && (
+        <div className="notice error" role="alert">
+          {error}
+        </div>
+      )}
+      {loading ? (
+        <div className="loading-card">正在读取 Skill 分配…</div>
+      ) : skills.filter((skill) => skill.status === 'ACTIVE').length ? (
+        <div className="teammate-skill-list">
+          {skills
+            .filter((skill) => skill.status === 'ACTIVE')
+            .map((skill) => {
+              const assignment = assignments.find((item) => item.skillId === skill.id);
+              return (
+                <div className="teammate-skill-row" key={skill.id}>
+                  <div className="teammate-skill-copy">
+                    <strong>{skill.name}</strong>
+                    <small>
+                      v{skill.version} · {skill.description || '无说明'}
+                    </small>
+                  </div>
+                  {assignment ? (
+                    <div className="teammate-skill-controls">
+                      <label className="skill-toggle">
+                        <input
+                          type="checkbox"
+                          checked={assignment.enabled}
+                          disabled={busySkillId === skill.id}
+                          onChange={(event) => void setEnabled(skill.id, event.target.checked)}
+                        />
+                        <span>{assignment.enabled ? '已启用' : '已停用'}</span>
+                      </label>
+                      <button
+                        className="text-button"
+                        disabled={busySkillId === skill.id}
+                        onClick={() => void unassign(skill.id)}
+                      >
+                        取消分配
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="button secondary small"
+                      disabled={busySkillId === skill.id || teammate.status !== 'ACTIVE'}
+                      onClick={() => void assign(skill.id)}
+                    >
+                      分配给此道友
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+        </div>
+      ) : (
+        <p className="form-hint">还没有可分配的 Skill。先在 Skills 页面创建。</p>
+      )}
+      <p className="form-hint">只有此处已启用的 Skill 会进入这位道友的 Prompt。</p>
     </div>
   );
 }
