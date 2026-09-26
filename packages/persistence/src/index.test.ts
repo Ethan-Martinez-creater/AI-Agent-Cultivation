@@ -40,7 +40,7 @@ describe('SQLite bootstrap', () => {
         .run(),
     ).toThrow();
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 2,
+      count: 3,
     });
     const tables = db
       .prepare("SELECT name FROM sqlite_master WHERE type IN ('table', 'view')")
@@ -55,6 +55,7 @@ describe('SQLite bootstrap', () => {
       'memories',
       'memory_fts',
       'skills',
+      'skill_revisions',
       'teammate_skills',
       'tools',
       'mcp_servers',
@@ -87,12 +88,12 @@ describe('SQLite bootstrap', () => {
     );
     runMigrations(db, migrations);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 2,
+      count: 3,
     });
     db.close();
     db = openDatabase(path);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 2,
+      count: 3,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     db.close();
@@ -159,6 +160,7 @@ describe('SQLite bootstrap', () => {
     expect(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([
       { version: 1 },
       { version: 2 },
+      { version: 3 },
     ]);
     db.close();
   });

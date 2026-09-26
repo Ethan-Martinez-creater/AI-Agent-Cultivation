@@ -65,12 +65,15 @@ export interface MemoryRecord {
   summary: string;
   sourceType: string;
   sourceId: Id | null;
+  sourceConversationId: Id | null;
+  sourceMessageId: Id | null;
   importance: number;
   confidence: number;
   status: MemoryStatus;
   createdAt: IsoDateTime;
   updatedAt: IsoDateTime;
   expiresAt: IsoDateTime | null;
+  confirmedAt: IsoDateTime | null;
 }
 
 export type SkillStatus = 'ACTIVE' | 'ARCHIVED';
@@ -84,6 +87,25 @@ export interface Skill {
   status: SkillStatus;
   createdAt: IsoDateTime;
   updatedAt: IsoDateTime;
+}
+
+/** Immutable full-content snapshot recorded whenever the current Skill version changes. */
+export interface SkillRevision {
+  id: Id;
+  skillId: Id;
+  revision: number;
+  version: string;
+  name: string;
+  description: string;
+  instructions: string;
+  tags: string[];
+  createdAt: IsoDateTime;
+}
+
+export interface SkillAssignment {
+  teammateId: Id;
+  skillId: Id;
+  enabled: boolean;
 }
 
 export type ToolSource = 'BUILTIN' | 'MCP';

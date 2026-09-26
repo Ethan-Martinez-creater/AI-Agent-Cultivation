@@ -3,6 +3,10 @@ import { dirname, join } from 'node:path';
 import Database from 'better-sqlite3';
 import initialSql from '../../../migrations/0001_initial.sql?raw';
 import gate1Sql from '../../../migrations/0002_gate1.sql?raw';
+import gate2Sql from '../../../migrations/0003_gate2.sql?raw';
+
+export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
+export type { MemorySearchResult } from './gate2.js';
 
 export interface Migration {
   version: number;
@@ -12,6 +16,7 @@ export interface Migration {
 export const migrations: readonly Migration[] = [
   { version: 1, name: 'initial', sql: initialSql },
   { version: 2, name: 'gate1', sql: gate1Sql },
+  { version: 3, name: 'gate2', sql: gate2Sql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
