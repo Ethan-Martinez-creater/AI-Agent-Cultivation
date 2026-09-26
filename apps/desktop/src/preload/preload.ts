@@ -11,8 +11,14 @@ import type {
   MissionEvent,
   AuditEvent,
   ApprovalRequest,
+  CollaborationArtifact,
+  CollaborationRequest,
   McpServerConfig,
+  MissionMode,
+  MissionParticipant,
   ToolDescriptor,
+  Party,
+  PartyMember,
   ProviderConfig,
   ProviderKind,
   RuntimeProfile,
@@ -88,7 +94,12 @@ export interface MissionDetail {
   audits: AuditEvent[];
   approvals: ApprovalRequest[];
   usage: UsageRecord[];
+  participants: MissionParticipant[];
+  collaborations: CollaborationRequest[];
+  artifacts: CollaborationArtifact[];
 }
+
+export type PartyView = Party & { members: PartyMember[] };
 
 export interface CultivationBridge {
   app: { getVersion(): Promise<string> };
@@ -173,6 +184,8 @@ export interface CultivationBridge {
       title: string;
       objective: string;
       coordinatorTeammateId: string;
+      mode?: MissionMode;
+      partyId?: string | null;
     }): Promise<Mission>;
     update(input: { id: string; title: string; objective: string }): Promise<Mission>;
     ready(id: string): Promise<Mission>;
@@ -185,6 +198,29 @@ export interface CultivationBridge {
       approvalId: string;
       decision: 'APPROVED' | 'DENIED' | 'ALLOW_MISSION';
     }): Promise<MissionDetail>;
+    resolveCollaboration(input: {
+      requestId: string;
+      decision: 'APPROVED' | 'DENIED';
+    }): Promise<MissionDetail>;
+  };
+  parties: {
+    list(): Promise<PartyView[]>;
+    create(input: {
+      name: string;
+      description: string;
+      type: Party['type'];
+      coordinatorTeammateId: string;
+      memberTeammateIds: string[];
+    }): Promise<PartyView>;
+    update(input: {
+      id: string;
+      name: string;
+      description: string;
+      type: Party['type'];
+      coordinatorTeammateId: string;
+      memberTeammateIds: string[];
+    }): Promise<PartyView>;
+    archive(id: string): Promise<PartyView>;
   };
   tools: {
     getWorkspace(): Promise<{ rootPath: string | null }>;
@@ -286,6 +322,13 @@ const bridge: CultivationBridge = {
     resume: (id) => ipcRenderer.invoke('missions:resume', id),
     cancel: (id) => ipcRenderer.invoke('missions:cancel', id),
     resolveApproval: (input) => ipcRenderer.invoke('missions:resolveApproval', input),
+    resolveCollaboration: (input) => ipcRenderer.invoke('missions:resolveCollaboration', input),
+  },
+  parties: {
+    list: () => ipcRenderer.invoke('parties:list'),
+    create: (input) => ipcRenderer.invoke('parties:create', input),
+    update: (input) => ipcRenderer.invoke('parties:update', input),
+    archive: (id) => ipcRenderer.invoke('parties:archive', id),
   },
   tools: {
     getWorkspace: () => ipcRenderer.invoke('tools:getWorkspace'),

@@ -13,7 +13,8 @@
     "./tool-runtime": "./src/tool-runtime.ts",
     "./prompt-composer": "./src/prompt-composer.ts",
     "./skill-service": "./src/skill-service.ts",
-    "./gate5-party-service": "./src/gate5-party-service.ts"
+    "./gate5-party-service": "./src/gate5-party-service.ts",
+    "./gate5-collaboration-service": "./src/gate5-collaboration-service.ts"
   },
   "dependencies": {
     "@cultivation/domain": "0.0.1",

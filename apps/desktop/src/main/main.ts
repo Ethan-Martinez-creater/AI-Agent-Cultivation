@@ -10,6 +10,7 @@ import {
   Gate2VectorRepository,
   Gate3SqliteRepository,
   Gate4SqliteRepository,
+  Gate5SqliteRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -32,6 +33,8 @@ import { ToolRegistry, ToolRuntime } from '@cultivation/application/tool-runtime
 import { McpHost } from './mcp-host.js';
 import { Gate4ToolsService } from './gate4-tools-service.js';
 import { registerGate4Ipc } from './gate4-ipc.js';
+import { Gate5PartyService } from '@cultivation/application/gate5-party-service';
+import { Gate5CollaborationService } from '@cultivation/application/gate5-collaboration-service';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -48,6 +51,9 @@ function createWindow(
   skillService: SkillService,
   hybridMemory: Gate2HybridMemoryService,
   missions: Gate3MissionService,
+  missionStore: Gate3SqliteRepository,
+  partyMissions: Gate5CollaborationService,
+  parties: Gate5PartyService,
   tools: Gate4ToolsService,
 ): void {
   const preload = join(__dirname, 'preload.js');
@@ -116,7 +122,7 @@ function createWindow(
   });
   registerGate1Ipc(window, validSender, service);
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
-  registerGate3Ipc(validSender, missions);
+  registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties);
   registerGate4Ipc(window, validSender, tools);
 
   if (devUrl) void window.loadURL(devUrl);
@@ -138,6 +144,7 @@ app
     const gate2Store = new Gate2SqliteRepository(db);
     const gate3Store = new Gate3SqliteRepository(db);
     const gate4Store = new Gate4SqliteRepository(db);
+    const gate5Store = new Gate5SqliteRepository(db);
     let vectorAvailable = false;
     try {
       const extension = app.isPackaged
@@ -204,12 +211,44 @@ app
       gateway,
       promptContext,
     );
-    missions.attachTools(new ToolRuntime(registry, permissionEngine), gate4Store);
+    const toolRuntime = new ToolRuntime(registry, permissionEngine);
+    missions.attachTools(toolRuntime, gate4Store);
+    const parties = new Gate5PartyService(gate5Store, store);
+    const partyMissions = new Gate5CollaborationService(
+      gate3Store,
+      gate5Store,
+      parties,
+      store,
+      permissionEngine,
+      gateway,
+      promptContext,
+      toolRuntime,
+    );
     await missions.recoverInterrupted();
-    createWindow(service, memoryService, skillService, hybridMemory, missions, tools);
+    createWindow(
+      service,
+      memoryService,
+      skillService,
+      hybridMemory,
+      missions,
+      gate3Store,
+      partyMissions,
+      parties,
+      tools,
+    );
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0)
-        createWindow(service, memoryService, skillService, hybridMemory, missions, tools);
+        createWindow(
+          service,
+          memoryService,
+          skillService,
+          hybridMemory,
+          missions,
+          gate3Store,
+          partyMissions,
+          parties,
+          tools,
+        );
     });
   })
   .catch((error: unknown) => {
