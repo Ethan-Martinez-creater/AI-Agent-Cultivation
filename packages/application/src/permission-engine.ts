@@ -39,7 +39,30 @@ function scopeApplies(scope: PermissionScopeRef, check: PermissionCheck): boolea
   }
 }
 
+const exactResourcePrefix = '\u0000cultivation.exact-resource.v1:';
+
+function encodeExactResource(resource: string): string {
+  let encoded = '';
+  for (let index = 0; index < resource.length; index += 1) {
+    encoded += resource.charCodeAt(index).toString(16).padStart(4, '0');
+  }
+  return `${exactResourcePrefix}${encoded}`;
+}
+
+function exactResourceFromPattern(pattern: string): string | null {
+  if (!pattern.startsWith(exactResourcePrefix)) return null;
+  const encoded = pattern.slice(exactResourcePrefix.length);
+  if (encoded.length % 4 !== 0 || !/^[0-9a-f]*$/.test(encoded)) return null;
+  let resource = '';
+  for (let index = 0; index < encoded.length; index += 4) {
+    resource += String.fromCharCode(Number.parseInt(encoded.slice(index, index + 4), 16));
+  }
+  return resource;
+}
+
 function resourceMatches(pattern: string, resource: string): boolean {
+  const exactResource = exactResourceFromPattern(pattern);
+  if (exactResource !== null) return exactResource === resource;
   if (pattern === '*') return true;
   const escaped = pattern
     .split('*')
@@ -64,11 +87,35 @@ const scopeRank: Readonly<Record<PermissionScopeRef['scope'], number>> = {
 export class PermissionEngine {
   constructor(private readonly rules: PermissionRuleStore) {}
 
+  /**
+   * Saves a one-resource Mission grant. The resourcePattern argument is treated
+   * as a literal resource, so wildcard characters and backslashes cannot widen
+   * the grant. The tagged encoding stays in the existing text column and leaves
+   * legacy glob rules unchanged.
+   */
+  grantExactMission(rule: PermissionRule): void {
+    this.validateMissionGrant(rule);
+    this.rules.savePermissionRule({
+      ...rule,
+      resourcePattern: encodeExactResource(rule.resourcePattern),
+    });
+  }
+
+  /** Backwards-compatible safe default: Mission grants are exact by default. */
   grantMission(rule: PermissionRule): void {
+    this.grantExactMission(rule);
+  }
+
+  /** Explicit opt-in for a Mission-scoped glob PermissionRule. */
+  grantMissionPattern(rule: PermissionRule): void {
+    this.validateMissionGrant(rule);
+    this.rules.savePermissionRule(rule);
+  }
+
+  private validateMissionGrant(rule: PermissionRule): void {
     if (rule.scope !== 'MISSION' || rule.decision !== 'ALLOW' || !rule.scopeId) {
       throw new Error('Invalid Mission grant');
     }
-    this.rules.savePermissionRule(rule);
   }
 
   evaluate(check: PermissionCheck): PermissionResult {

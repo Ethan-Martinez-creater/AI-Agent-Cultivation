@@ -214,4 +214,50 @@ describe('PermissionEngine', () => {
     expect(evaluate('mission:fixture:small')).toBe('ALLOW');
     expect(evaluate('mission:file:read')).toBe('ASK');
   });
+
+  it('keeps an ALLOW_MISSION resource containing * exact', () => {
+    const store = new RuleStore();
+    const engine = new PermissionEngine(store);
+    engine.grantExactMission(rule('MISSION', 'mission-1', 'ALLOW', 'file:E:/workspace:*'));
+    const evaluate = (resource: string) =>
+      engine.evaluate({ ...missionCheck, capability: 'SPEND_BUDGET', resource }).decision;
+
+    expect(evaluate('file:E:/workspace:*')).toBe('ALLOW');
+    expect(evaluate('file:E:/workspace:secret.txt')).toBe('ASK');
+  });
+
+  it('matches exact resources with backslashes and wildcard characters literally', () => {
+    const store = new RuleStore();
+    const engine = new PermissionEngine(store);
+    const resource = 'mcp:server:tool*\\folder\\name';
+    engine.grantExactMission(rule('MISSION', 'mission-1', 'ALLOW', resource));
+    const evaluate = (candidate: string) =>
+      engine.evaluate({ ...missionCheck, resource: candidate }).decision;
+
+    expect(evaluate(resource)).toBe('ALLOW');
+    expect(evaluate('mcp:server:toolX\\folder\\name')).toBe('ASK');
+    expect(evaluate('mcp:server:tool*\\folderX\\name')).toBe('ASK');
+  });
+
+  it('does not let a special MCP tool name widen an exact Mission grant', () => {
+    const store = new RuleStore();
+    const engine = new PermissionEngine(store);
+    const resource = 'mcp:server:__proto__*\\..\\secret';
+    engine.grantMission(rule('MISSION', 'mission-1', 'ALLOW', resource));
+    const evaluate = (candidate: string) =>
+      engine.evaluate({ ...missionCheck, resource: candidate }).decision;
+
+    expect(evaluate(resource)).toBe('ALLOW');
+    expect(evaluate('mcp:server:__proto__anything\\..\\secret')).toBe('ASK');
+    expect(evaluate('mcp:server:__proto__*\\..\\secret.txt')).toBe('ASK');
+  });
+
+  it('preserves explicit wildcard Mission rules through the opt-in pattern API', () => {
+    const store = new RuleStore();
+    const engine = new PermissionEngine(store);
+    engine.grantMissionPattern(rule('MISSION', 'mission-1', 'ALLOW', 'file:E:/workspace/*'));
+    expect(engine.evaluate({ ...missionCheck, resource: 'file:E:/workspace/a.txt' }).decision).toBe(
+      'ALLOW',
+    );
+  });
 });
