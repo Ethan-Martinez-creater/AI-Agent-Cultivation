@@ -46,4 +46,17 @@ describe('Mission state machine', () => {
     expect(canTransition('RUNNING', 'INTERRUPTED')).toBe(true);
     expect(canTransition('INTERRUPTED', 'READY')).toBe(true);
   });
+
+  it('allows a draft to be cancelled through the state machine', () => {
+    expect(transition(base, 'CANCELLED').state).toBe('CANCELLED');
+    expect(canTransition('DRAFT', 'CANCELLED')).toBe(true);
+  });
+
+  it('allows a denied approval to fail a waiting Mission', () => {
+    const waiting = transition(transition(base, 'READY'), 'RUNNING');
+    const pending = transition(waiting, 'WAITING_APPROVAL');
+
+    expect(transition(pending, 'FAILED').state).toBe('FAILED');
+    expect(canTransition('WAITING_APPROVAL', 'FAILED')).toBe(true);
+  });
 });

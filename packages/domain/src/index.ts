@@ -206,6 +206,7 @@ export interface MissionRun {
   endedAt: IsoDateTime | null;
   errorCode: string | null;
   errorMessage: string | null;
+  resultText: string | null;
 }
 
 export type ApprovalState = 'PENDING' | 'APPROVED' | 'DENIED' | 'CANCELLED' | 'EXPIRED';

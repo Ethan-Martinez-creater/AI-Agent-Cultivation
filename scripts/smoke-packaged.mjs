@@ -574,3 +574,5 @@ try {
 } finally {
   await app.close();
 }
+
+await import('./smoke-gate3-packaged.mjs');

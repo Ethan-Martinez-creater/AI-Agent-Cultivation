@@ -2,7 +2,7 @@ import type { Mission, MissionState } from './index.js';
 import { DomainError } from '@cultivation/shared';
 
 const transitions: Readonly<Record<MissionState, readonly MissionState[]>> = {
-  DRAFT: ['READY'],
+  DRAFT: ['READY', 'CANCELLED'],
   READY: ['RUNNING', 'CANCELLED'],
   RUNNING: [
     'WAITING_APPROVAL',
@@ -13,7 +13,7 @@ const transitions: Readonly<Record<MissionState, readonly MissionState[]>> = {
     'CANCELLED',
     'INTERRUPTED',
   ],
-  WAITING_APPROVAL: ['RUNNING', 'CANCELLED'],
+  WAITING_APPROVAL: ['RUNNING', 'FAILED', 'CANCELLED'],
   WAITING_COLLABORATION: ['RUNNING', 'CANCELLED'],
   PAUSED: ['RUNNING', 'CANCELLED'],
   COMPLETED: [],

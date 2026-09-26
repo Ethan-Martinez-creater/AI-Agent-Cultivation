@@ -6,6 +6,11 @@ import type {
   MemoryRecord,
   MemoryStatus,
   MemoryType,
+  Mission,
+  MissionRun,
+  MissionEvent,
+  AuditEvent,
+  ApprovalRequest,
   ProviderConfig,
   ProviderKind,
   RuntimeProfile,
@@ -72,6 +77,15 @@ export interface SkillInput {
   description: string;
   instructions: string;
   tags: string[];
+}
+
+export interface MissionDetail {
+  mission: Mission;
+  runs: MissionRun[];
+  events: MissionEvent[];
+  audits: AuditEvent[];
+  approvals: ApprovalRequest[];
+  usage: UsageRecord[];
 }
 
 export interface CultivationBridge {
@@ -150,6 +164,26 @@ export interface CultivationBridge {
       enabled: boolean;
     }): Promise<SkillAssignment>;
   };
+  missions: {
+    list(): Promise<Mission[]>;
+    detail(id: string): Promise<MissionDetail>;
+    create(input: {
+      title: string;
+      objective: string;
+      coordinatorTeammateId: string;
+    }): Promise<Mission>;
+    update(input: { id: string; title: string; objective: string }): Promise<Mission>;
+    ready(id: string): Promise<Mission>;
+    start(input: { missionId: string; approvalFixture: boolean }): Promise<MissionDetail>;
+    retry(input: { missionId: string; approvalFixture: boolean }): Promise<MissionDetail>;
+    pause(id: string): Promise<Mission>;
+    resume(id: string): Promise<MissionDetail>;
+    cancel(id: string): Promise<Mission>;
+    resolveApproval(input: {
+      approvalId: string;
+      decision: 'APPROVED' | 'DENIED';
+    }): Promise<MissionDetail>;
+  };
   usage: { list(teammateId?: string): Promise<UsageRecord[]> };
 }
 
@@ -216,6 +250,19 @@ const bridge: CultivationBridge = {
     assign: (input) => ipcRenderer.invoke('skills:assign', input),
     unassign: (input) => ipcRenderer.invoke('skills:unassign', input),
     setEnabled: (input) => ipcRenderer.invoke('skills:setEnabled', input),
+  },
+  missions: {
+    list: () => ipcRenderer.invoke('missions:list'),
+    detail: (id) => ipcRenderer.invoke('missions:detail', id),
+    create: (input) => ipcRenderer.invoke('missions:create', input),
+    update: (input) => ipcRenderer.invoke('missions:update', input),
+    ready: (id) => ipcRenderer.invoke('missions:ready', id),
+    start: (input) => ipcRenderer.invoke('missions:start', input),
+    retry: (input) => ipcRenderer.invoke('missions:retry', input),
+    pause: (id) => ipcRenderer.invoke('missions:pause', id),
+    resume: (id) => ipcRenderer.invoke('missions:resume', id),
+    cancel: (id) => ipcRenderer.invoke('missions:cancel', id),
+    resolveApproval: (input) => ipcRenderer.invoke('missions:resolveApproval', input),
   },
   usage: { list: (teammateId) => ipcRenderer.invoke('usage:list', teammateId) },
 };

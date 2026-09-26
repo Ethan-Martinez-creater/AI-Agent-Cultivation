@@ -8,9 +8,10 @@ import {
   Gate1SqliteRepository,
   Gate2SqliteRepository,
   Gate2VectorRepository,
+  Gate3SqliteRepository,
   openDatabase,
 } from '@cultivation/persistence';
-import { Gate1Service } from '@cultivation/application/gate1-service';
+import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
 import { Gate2MemoryService } from '@cultivation/application/gate2-memory-service';
 import { Gate2HybridMemoryService } from '@cultivation/application/gate2-hybrid-memory-service';
 import { SkillService, type SkillServiceStore } from '@cultivation/application/skill-service';
@@ -23,6 +24,9 @@ import type {
 import { ElectronSecretStore } from './secret-store.js';
 import { registerGate1Ipc } from './gate1-ipc.js';
 import { registerGate2Ipc } from './gate2-ipc.js';
+import { registerGate3Ipc } from './gate3-ipc.js';
+import { Gate3MissionService } from '@cultivation/application/gate3-mission-service';
+import { PermissionEngine } from '@cultivation/application/permission-engine';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -38,6 +42,7 @@ function createWindow(
   memoryService: Gate2MemoryService,
   skillService: SkillService,
   hybridMemory: Gate2HybridMemoryService,
+  missions: Gate3MissionService,
 ): void {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -105,6 +110,7 @@ function createWindow(
   });
   registerGate1Ipc(window, validSender, service);
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
+  registerGate3Ipc(validSender, missions);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -112,7 +118,7 @@ function createWindow(
 
 app
   .whenReady()
-  .then(() => {
+  .then(async () => {
     const db = openDatabase(databasePath(app.getPath('userData')));
     db.prepare('SELECT 1').get();
     app.once('before-quit', () => db.close());
@@ -123,6 +129,7 @@ app
     }
     const store = new Gate1SqliteRepository(db);
     const gate2Store = new Gate2SqliteRepository(db);
+    const gate3Store = new Gate3SqliteRepository(db);
     let vectorAvailable = false;
     try {
       const extension = app.isPackaged
@@ -166,17 +173,26 @@ app
       now: () => new Date().toISOString(),
       newId: () => crypto.randomUUID(),
     });
-    const service: Gate1Service = new Gate1Service(store, secretStore, gateway, {
+    const promptContext: ChatPromptContext = {
       load: async (teammateId, query) => ({
         relevantMemories: await hybridMemory.retrieve(teammateId, query),
         skills: gate2Store.listSkills(),
         skillAssignments: gate2Store.listSkillAssignments(teammateId),
       }),
-    });
-    createWindow(service, memoryService, skillService, hybridMemory);
+    };
+    const service: Gate1Service = new Gate1Service(store, secretStore, gateway, promptContext);
+    const missions = new Gate3MissionService(
+      gate3Store,
+      store,
+      new PermissionEngine(gate3Store),
+      gateway,
+      promptContext,
+    );
+    await missions.recoverInterrupted();
+    createWindow(service, memoryService, skillService, hybridMemory, missions);
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0)
-        createWindow(service, memoryService, skillService, hybridMemory);
+        createWindow(service, memoryService, skillService, hybridMemory, missions);
     });
   })
   .catch((error: unknown) => {

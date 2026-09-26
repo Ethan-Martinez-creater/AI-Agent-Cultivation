@@ -110,6 +110,9 @@ interface SkillAssignmentView {
 }
 
 interface UsageView {
+  id?: string;
+  missionId?: string | null;
+  runId?: string | null;
   teammateId: string;
   runtimeProfileId: string;
   provider: string;
@@ -117,6 +120,85 @@ interface UsageView {
   inputTokens: number | null;
   outputTokens: number | null;
   createdAt: string;
+}
+
+type MissionState =
+  | 'DRAFT'
+  | 'READY'
+  | 'RUNNING'
+  | 'WAITING_APPROVAL'
+  | 'PAUSED'
+  | 'INTERRUPTED'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
+
+interface MissionView {
+  id: string;
+  title: string;
+  objective: string;
+  coordinatorTeammateId: string;
+  mode: 'SOLO';
+  state: MissionState;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface MissionRunView {
+  id: string;
+  missionId: string;
+  attempt: number;
+  status: string;
+  startedAt: string;
+  endedAt: string | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  resultText: string | null;
+}
+
+interface MissionEventView {
+  id: string;
+  missionId: string;
+  runId: string | null;
+  eventType: string;
+  actorType: string;
+  actorId: string | null;
+  payloadJson: Record<string, unknown>;
+  createdAt: string;
+}
+
+interface ApprovalRequestView {
+  id: string;
+  missionId: string;
+  runId: string;
+  requesterTeammateId: string;
+  capability: string;
+  actionType: string;
+  actionPayload: Record<string, unknown>;
+  riskLevel: string;
+  state: string;
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
+interface AuditEventView {
+  id: string;
+  actorType: string;
+  actorId: string | null;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  payloadJson: Record<string, unknown>;
+  createdAt: string;
+}
+
+interface MissionDetailView {
+  mission: MissionView;
+  runs: MissionRunView[];
+  events: MissionEventView[];
+  approvals: ApprovalRequestView[];
+  audits: AuditEventView[];
+  usage: UsageView[];
 }
 
 interface ChatEvent {
@@ -240,6 +322,26 @@ interface CultivationBridge {
     listAssignments(teammateId: string): Promise<SkillAssignmentView[]>;
   };
   usage: { list(teammateId?: string): Promise<UsageView[]> };
+  missions: {
+    list(): Promise<MissionView[]>;
+    create(input: {
+      title: string;
+      objective: string;
+      coordinatorTeammateId: string;
+    }): Promise<MissionView>;
+    update(input: { id: string; title: string; objective: string }): Promise<MissionView>;
+    ready(id: string): Promise<MissionView>;
+    start(input: { missionId: string; approvalFixture: boolean }): Promise<MissionDetailView>;
+    retry(input: { missionId: string; approvalFixture: boolean }): Promise<MissionDetailView>;
+    pause(id: string): Promise<MissionView>;
+    resume(id: string): Promise<MissionDetailView>;
+    cancel(id: string): Promise<MissionView>;
+    detail(id: string): Promise<MissionDetailView>;
+    resolveApproval(input: {
+      approvalId: string;
+      decision: 'APPROVED' | 'DENIED';
+    }): Promise<MissionDetailView>;
+  };
 }
 
 declare global {
@@ -252,7 +354,7 @@ const pages = [
   ['/', '洞府 Home', '你的本地工作台。管理长期道友并继续上次的对话。'],
   ['/teammates', '道友 Teammates', '创建道友身份，选择运行配置并开启持续对话。'],
   ['/parties', '队伍 Parties', '多道友协作将在后续阶段接入。'],
-  ['/missions', '历练 Missions', 'Mission Runtime 将在后续阶段接入。'],
+  ['/missions', '历练 Missions', '以独立 Mission Run 跟踪目标、审批与执行事件。'],
   ['/skills', '功法 Skills', '为道友编写可复用的声明式指引。'],
   ['/tools', '法宝 Tools', 'Tool 与 MCP 将在后续阶段接入。'],
   ['/memory', '记忆 Memory', '查看、确认并管理专属于道友的长期记忆。'],
@@ -378,10 +480,7 @@ function App() {
             path="/parties"
             element={<PlaceholderPage title="队伍 Parties" description={pages[2][2]} />}
           />
-          <Route
-            path="/missions"
-            element={<PlaceholderPage title="历练 Missions" description={pages[3][2]} />}
-          />
+          <Route path="/missions" element={<MissionPage />} />
           <Route path="/skills" element={<SkillsPage />} />
           <Route
             path="/tools"
@@ -492,6 +591,715 @@ function PlaceholderPage({ title, description }: { title: string; description: s
       </div>
     </section>
   );
+}
+
+function MissionPage() {
+  const [missions, setMissions] = useState<MissionView[]>([]);
+  const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [selectedId, setSelectedId] = useState('');
+  const [detail, setDetail] = useState<MissionDetailView | null>(null);
+  const [title, setTitle] = useState('');
+  const [objective, setObjective] = useState('');
+  const [coordinatorId, setCoordinatorId] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [approvalFixture, setApprovalFixture] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
+  const refreshMissions = async (preferredId?: string) => {
+    const rows = await window.cultivation.missions.list();
+    setMissions(rows);
+    const nextId = preferredId ?? selectedId;
+    if (nextId && rows.some((mission) => mission.id === nextId)) {
+      setSelectedId(nextId);
+    } else if (rows.length > 0) {
+      setSelectedId(rows[0]!.id);
+    } else {
+      setSelectedId('');
+      setDetail(null);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    void Promise.all([window.cultivation.missions.list(), window.cultivation.teammates.list()])
+      .then(([missionRows, teammateRows]) => {
+        if (cancelled) return;
+        setMissions(missionRows);
+        const activeTeammates = teammateRows.filter((teammate) => teammate.status === 'ACTIVE');
+        setTeammates(activeTeammates);
+        setCoordinatorId((current) => current || activeTeammates[0]?.id || '');
+        if (missionRows.length > 0) setSelectedId(missionRows[0]!.id);
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取 Mission 失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId) {
+      setDetail(null);
+      return;
+    }
+    let cancelled = false;
+    void window.cultivation.missions
+      .detail(selectedId)
+      .then((result) => {
+        if (!cancelled) {
+          setDetail(result);
+          if (!editing && !creating) {
+            setTitle(result.mission.title);
+            setObjective(result.mission.objective);
+          }
+        }
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取 Mission 详情失败。'));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
+  const mission = detail?.mission ?? missions.find((item) => item.id === selectedId) ?? null;
+  const canEdit = !mission || mission.state === 'DRAFT' || mission.state === 'READY';
+  const isPendingApproval = (approval: ApprovalRequestView) =>
+    approval.state !== 'APPROVED' && approval.state !== 'DENIED' && !approval.resolvedAt;
+
+  const resetEditor = () => {
+    setCreating(false);
+    setEditing(false);
+    setError('');
+    setNotice('');
+    if (mission) {
+      setTitle(mission.title);
+      setObjective(mission.objective);
+    } else {
+      setTitle('');
+      setObjective('');
+    }
+  };
+
+  const runAction = async (label: string, action: () => Promise<unknown>) => {
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      await action();
+      await refreshMissions();
+      if (selectedId) {
+        const refreshed = await window.cultivation.missions.detail(selectedId);
+        setDetail(refreshed);
+        setTitle(refreshed.mission.title);
+        setObjective(refreshed.mission.objective);
+      }
+      setNotice(label);
+      setEditing(false);
+      setCreating(false);
+    } catch (cause) {
+      setError(errorText(cause, `${label}失败。`));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveMission = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      if (creating) {
+        const created = await window.cultivation.missions.create({
+          title: title.trim(),
+          objective: objective.trim(),
+          coordinatorTeammateId: coordinatorId,
+        });
+        await refreshMissions(created.id);
+        setDetail(await window.cultivation.missions.detail(created.id));
+        setCreating(false);
+        setEditing(false);
+        setNotice('Mission 草稿已创建。');
+      } else if (mission) {
+        const updated = await window.cultivation.missions.update({
+          id: mission.id,
+          title: title.trim(),
+          objective: objective.trim(),
+        });
+        await refreshMissions(updated.id);
+        setDetail(await window.cultivation.missions.detail(updated.id));
+        setEditing(false);
+        setNotice('Mission 已保存。');
+      }
+    } catch (cause) {
+      setError(errorText(cause, '保存 Mission 失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const pendingApprovals = detail?.approvals.filter(isPendingApproval) ?? [];
+  const sortedTimeline = [
+    ...(detail?.events ?? []).map((event) => ({
+      id: `event-${event.id}`,
+      kind: 'MISSION_EVENT' as const,
+      time: event.createdAt,
+      event,
+    })),
+    ...(detail?.audits ?? []).map((audit) => ({
+      id: `audit-${audit.id}`,
+      kind: 'AUDIT_EVENT' as const,
+      time: audit.createdAt,
+      audit,
+    })),
+  ].sort((left, right) => right.time.localeCompare(left.time));
+
+  return (
+    <section className="page wide-page mission-page">
+      <PageHeading
+        eyebrow="Gate 3 · SOLO Mission Runtime"
+        title="历练 Missions"
+        description="每个 Mission 拥有独立 Run、审批与追加式时间线；普通 Conversation 保持独立。当前仅支持 SOLO 执行。"
+      />
+      {error && (
+        <div className="notice error" role="alert">
+          {error}
+        </div>
+      )}
+      {notice && (
+        <div className="notice success" role="status">
+          {notice}
+        </div>
+      )}
+      <div className="mission-workspace">
+        <aside className="mission-list-card">
+          <div className="list-heading">
+            <div>
+              <h2>历练清单</h2>
+              <p>{missions.length} 个 Mission · 仅 SOLO</p>
+            </div>
+            <button
+              className="icon-button"
+              aria-label="新建 Mission"
+              disabled={busy || teammates.length === 0}
+              onClick={() => {
+                setSelectedId('');
+                setDetail(null);
+                setCreating(true);
+                setEditing(false);
+                setTitle('');
+                setObjective('');
+                setError('');
+                setNotice('');
+              }}
+            >
+              +
+            </button>
+          </div>
+          {loading ? (
+            <div className="loading-card">正在读取 Mission…</div>
+          ) : missions.length ? (
+            <div className="mission-list">
+              {missions.map((item) => (
+                <button
+                  key={item.id}
+                  className={
+                    item.id === selectedId ? 'mission-list-item selected' : 'mission-list-item'
+                  }
+                  onClick={() => {
+                    setCreating(false);
+                    setEditing(false);
+                    setSelectedId(item.id);
+                    setError('');
+                    setNotice('');
+                  }}
+                >
+                  <span className="mission-list-item-top">
+                    <strong>{item.title}</strong>
+                    <span className={`mission-state state-${stateClass(item.state)}`}>
+                      {missionStateLabel(item.state)}
+                    </span>
+                  </span>
+                  <small>{teammateName(teammates, item.coordinatorTeammateId)} · SOLO</small>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="list-empty">还没有历练。创建 Mission 草稿以定义目标。</div>
+          )}
+        </aside>
+
+        <div className="mission-main-column">
+          {(creating || (mission && editing && canEdit)) && (
+            <form
+              className="form-card mission-editor"
+              onSubmit={(event) => void saveMission(event)}
+            >
+              <div className="form-title-row">
+                <div>
+                  <p className="eyebrow">SOLO MISSION</p>
+                  <h2>{creating ? '创建 Mission 草稿' : '编辑 Mission'}</h2>
+                  <p className="muted-copy">Mission 只描述目标，由后端状态机决定后续状态。</p>
+                </div>
+                {!creating && (
+                  <button type="button" className="text-button" onClick={resetEditor}>
+                    取消
+                  </button>
+                )}
+              </div>
+              <label className="field">
+                <span>标题</span>
+                <input
+                  required
+                  maxLength={120}
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="为这次历练命名"
+                />
+              </label>
+              <label className="field">
+                <span>目标 Objective</span>
+                <textarea
+                  required
+                  rows={5}
+                  maxLength={12000}
+                  value={objective}
+                  onChange={(event) => setObjective(event.target.value)}
+                  placeholder="描述希望完成的结果和约束"
+                />
+              </label>
+              {creating && (
+                <label className="field">
+                  <span>执行道友</span>
+                  <select
+                    required
+                    value={coordinatorId}
+                    onChange={(event) => setCoordinatorId(event.target.value)}
+                  >
+                    {teammates.map((teammate) => (
+                      <option key={teammate.id} value={teammate.id}>
+                        {teammate.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <div className="button-row">
+                <button
+                  className="button primary"
+                  disabled={busy || !title.trim() || !objective.trim()}
+                >
+                  {busy ? '保存中…' : creating ? '创建草稿' : '保存更改'}
+                </button>
+                {creating && (
+                  <button type="button" className="button ghost" onClick={resetEditor}>
+                    取消
+                  </button>
+                )}
+              </div>
+            </form>
+          )}
+
+          {!creating && mission && detail && (
+            <>
+              <article className="mission-overview">
+                <div className="mission-overview-top">
+                  <div>
+                    <p className="eyebrow">MISSION OBJECTIVE</p>
+                    <h2>{mission.title}</h2>
+                    <p className="mission-overview-meta">
+                      SOLO · 道友 {teammateName(teammates, mission.coordinatorTeammateId)} · 创建于{' '}
+                      {formatDate(mission.createdAt)}
+                    </p>
+                  </div>
+                  <span className={`mission-state large state-${stateClass(mission.state)}`}>
+                    {missionStateLabel(mission.state)}
+                  </span>
+                </div>
+                <p className="mission-objective">{mission.objective}</p>
+                <div className="mission-actions">
+                  {canEdit && !editing && (
+                    <button
+                      className="button secondary small"
+                      disabled={busy}
+                      onClick={() => setEditing(true)}
+                    >
+                      编辑目标
+                    </button>
+                  )}
+                  {mission.state === 'DRAFT' && (
+                    <button
+                      className="button primary small"
+                      disabled={busy}
+                      onClick={() =>
+                        void runAction('Mission 已就绪。', () =>
+                          window.cultivation.missions.ready(mission.id),
+                        )
+                      }
+                    >
+                      标记就绪
+                    </button>
+                  )}
+                  {mission.state === 'READY' && (
+                    <>
+                      <label className="mission-fixture-toggle">
+                        <input
+                          type="checkbox"
+                          checked={approvalFixture}
+                          onChange={(event) => setApprovalFixture(event.target.checked)}
+                        />
+                        <span>触发确定性审批示例</span>
+                      </label>
+                      <button
+                        className="button primary small"
+                        disabled={busy}
+                        onClick={() =>
+                          void runAction('Mission Run 已启动。', () =>
+                            window.cultivation.missions.start({
+                              missionId: mission.id,
+                              approvalFixture,
+                            }),
+                          )
+                        }
+                      >
+                        开始历练
+                      </button>
+                    </>
+                  )}
+                  {mission.state === 'RUNNING' && (
+                    <button
+                      className="button secondary small"
+                      disabled={busy}
+                      onClick={() =>
+                        void runAction('Mission 已暂停。', () =>
+                          window.cultivation.missions.pause(mission.id),
+                        )
+                      }
+                    >
+                      暂停
+                    </button>
+                  )}
+                  {mission.state === 'PAUSED' && (
+                    <button
+                      className="button primary small"
+                      disabled={busy}
+                      onClick={() =>
+                        void runAction('Mission 已恢复。', () =>
+                          window.cultivation.missions.resume(mission.id),
+                        )
+                      }
+                    >
+                      恢复
+                    </button>
+                  )}
+                  {(mission.state === 'INTERRUPTED' || mission.state === 'FAILED') && (
+                    <button
+                      className="button primary small"
+                      disabled={busy}
+                      onClick={() =>
+                        void runAction('已创建新的 Mission Run。', () =>
+                          window.cultivation.missions.retry({
+                            missionId: mission.id,
+                            approvalFixture,
+                          }),
+                        )
+                      }
+                    >
+                      重试（新 Run）
+                    </button>
+                  )}
+                  {['RUNNING', 'WAITING_APPROVAL', 'PAUSED', 'INTERRUPTED', 'FAILED'].includes(
+                    mission.state,
+                  ) && (
+                    <button
+                      className="button danger-ghost small"
+                      disabled={busy}
+                      onClick={() =>
+                        void runAction('Mission 已取消。', () =>
+                          window.cultivation.missions.cancel(mission.id),
+                        )
+                      }
+                    >
+                      取消历练
+                    </button>
+                  )}
+                </div>
+              </article>
+
+              {pendingApprovals.length > 0 && (
+                <section className="mission-section approval-section">
+                  <div className="section-heading">
+                    <div>
+                      <h2>待处理审批</h2>
+                      <p>批准或拒绝会恢复同一个 Mission Run；拒绝结果会返回执行 Runtime。</p>
+                    </div>
+                    <span className="count-badge">{pendingApprovals.length}</span>
+                  </div>
+                  <div className="approval-list">
+                    {pendingApprovals.map((approval) => (
+                      <article className="approval-card" key={approval.id}>
+                        <div className="approval-card-copy">
+                          <strong>{approval.capability}</strong>
+                          <span>
+                            {approval.actionType} · 风险 {approval.riskLevel}
+                          </span>
+                          <small>
+                            Run {runAttemptLabel(detail.runs, approval.runId)} · 请求于{' '}
+                            {formatDate(approval.createdAt)}
+                          </small>
+                        </div>
+                        <div className="button-row compact">
+                          <button
+                            className="button primary small"
+                            disabled={busy}
+                            onClick={() =>
+                              void runAction('审批已批准，Runtime 将继续执行。', () =>
+                                window.cultivation.missions.resolveApproval({
+                                  approvalId: approval.id,
+                                  decision: 'APPROVED',
+                                }),
+                              )
+                            }
+                          >
+                            批准
+                          </button>
+                          <button
+                            className="button danger-ghost small"
+                            disabled={busy}
+                            onClick={() =>
+                              void runAction('审批已拒绝，拒绝结果已交还 Runtime。', () =>
+                                window.cultivation.missions.resolveApproval({
+                                  approvalId: approval.id,
+                                  decision: 'DENIED',
+                                }),
+                              )
+                            }
+                          >
+                            拒绝
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              <section className="mission-section">
+                <div className="section-heading">
+                  <div>
+                    <h2>Mission Runs</h2>
+                    <p>每次执行与重试都保留独立 attempt。</p>
+                  </div>
+                  <span className="count-badge">{detail.runs.length}</span>
+                </div>
+                {detail.runs.length ? (
+                  <div className="mission-run-list">
+                    {[...detail.runs]
+                      .sort((a, b) => a.attempt - b.attempt)
+                      .map((run) => (
+                        <article className="mission-run-card" key={run.id}>
+                          <div className="mission-run-heading">
+                            <strong>Attempt {run.attempt}</strong>
+                            <span className={`mission-state state-${stateClass(run.status)}`}>
+                              {missionStateLabel(run.status)}
+                            </span>
+                          </div>
+                          <small>开始于 {formatDate(run.startedAt)}</small>
+                          {run.endedAt && <small>结束于 {formatDate(run.endedAt)}</small>}
+                          {run.errorCode && (
+                            <small className="mission-error-code">错误代码：{run.errorCode}</small>
+                          )}
+                          {run.resultText && (
+                            <details className="mission-run-result">
+                              <summary>查看本次执行结果</summary>
+                              <pre>{run.resultText}</pre>
+                            </details>
+                          )}
+                        </article>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="mission-empty-inline">
+                    就绪后开始历练，此处会记录每个独立 Run。
+                  </div>
+                )}
+              </section>
+
+              <section className="mission-section">
+                <div className="section-heading">
+                  <div>
+                    <h2>执行 Timeline</h2>
+                    <p>MissionEvent 与 AuditEvent 分开展示；仅显示安全的类型、动作和运行元数据。</p>
+                  </div>
+                  <span className="count-badge">{sortedTimeline.length}</span>
+                </div>
+                {sortedTimeline.length ? (
+                  <ol className="mission-timeline">
+                    {sortedTimeline.map((item) => (
+                      <li className="mission-timeline-item" key={item.id}>
+                        <span
+                          className={`timeline-dot ${item.kind === 'AUDIT_EVENT' ? 'audit' : ''}`}
+                        />
+                        <div className="timeline-card">
+                          <div className="timeline-card-heading">
+                            <span
+                              className={`timeline-kind ${item.kind === 'AUDIT_EVENT' ? 'audit' : ''}`}
+                            >
+                              {item.kind === 'MISSION_EVENT' ? 'Mission Event' : 'Audit Event'}
+                            </span>
+                            <time>{formatDate(item.time)}</time>
+                          </div>
+                          {item.kind === 'MISSION_EVENT' ? (
+                            <div className="timeline-safe-meta">
+                              <strong>{safeLabel(item.event.eventType)}</strong>
+                              <span>Actor: {safeLabel(item.event.actorType)}</span>
+                              {item.event.runId && (
+                                <span>Run {runAttemptLabel(detail.runs, item.event.runId)}</span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="timeline-safe-meta">
+                              <strong>{safeLabel(item.audit.action)}</strong>
+                              <span>Target: {safeLabel(item.audit.targetType ?? 'UNKNOWN')}</span>
+                              <span>Actor: {safeLabel(item.audit.actorType)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <div className="mission-empty-inline">
+                    状态变化、审批和模型调用事件会追加到此时间线。
+                  </div>
+                )}
+              </section>
+
+              <section className="mission-section">
+                <div className="section-heading">
+                  <div>
+                    <h2>Mission Usage</h2>
+                    <p>用量属于具体 Mission、Run、道友和 Runtime Profile。</p>
+                  </div>
+                  <span className="count-badge">{detail.usage.length}</span>
+                </div>
+                {detail.usage.length ? (
+                  <div className="table-card mission-usage-table">
+                    <div className="table-scroll">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>时间 / Run</th>
+                            <th>道友</th>
+                            <th>Provider / Model</th>
+                            <th>Runtime Profile</th>
+                            <th>输入</th>
+                            <th>输出</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {detail.usage.map((item, index) => (
+                            <tr key={item.id ?? `${item.runId}-${item.createdAt}-${index}`}>
+                              <td>
+                                {formatDate(item.createdAt)}
+                                <small className="cell-id">
+                                  Run {runAttemptLabel(detail.runs, item.runId ?? '')}
+                                </small>
+                              </td>
+                              <td>{teammateName(teammates, item.teammateId)}</td>
+                              <td>
+                                <strong>{item.provider}</strong>
+                                <small className="cell-id">{item.model}</small>
+                              </td>
+                              <td>
+                                <code>{item.runtimeProfileId.slice(0, 12)}</code>
+                              </td>
+                              <td>{formatToken(item.inputTokens)}</td>
+                              <td>{formatToken(item.outputTokens)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mission-empty-inline">
+                    模型调用完成后，其 UsageRecord 会关联到相应 Run。
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {!creating && !mission && !loading && (
+            <div className="empty-card mission-empty-state">
+              <span className="empty-icon">◇</span>
+              <h3>{teammates.length ? '建立一次独立历练' : '先创建一位道友'}</h3>
+              <p>
+                {teammates.length
+                  ? 'Mission 有自己的运行状态、审批和事件时间线，不会变成普通 Chat Conversation。'
+                  : 'SOLO Mission 需要一个已启用的道友作为执行者。'}
+              </p>
+              {teammates.length > 0 && (
+                <button
+                  className="button primary"
+                  onClick={() => {
+                    setCreating(true);
+                    setTitle('');
+                    setObjective('');
+                  }}
+                >
+                  创建 Mission 草稿
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function missionStateLabel(value: string): string {
+  const labels: Record<string, string> = {
+    DRAFT: '草稿',
+    READY: '就绪',
+    RUNNING: '运行中',
+    WAITING_APPROVAL: '等待审批',
+    PAUSED: '已暂停',
+    INTERRUPTED: '已中断',
+    COMPLETED: '已完成',
+    FAILED: '失败',
+    CANCELLED: '已取消',
+  };
+  return labels[value] ?? safeLabel(value);
+}
+
+function stateClass(value: string): string {
+  return value.toLowerCase().replaceAll('_', '-');
+}
+
+function teammateName(teammates: TeammateView[], teammateId: string): string {
+  return teammates.find((teammate) => teammate.id === teammateId)?.name ?? teammateId.slice(0, 8);
+}
+
+function runAttemptLabel(runs: MissionRunView[], runId: string): string {
+  const run = runs.find((item) => item.id === runId);
+  return run ? `#${run.attempt}` : runId.slice(0, 8) || '—';
+}
+
+function safeLabel(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_.:-]/g, ' ').slice(0, 96) || '未知';
 }
 
 type SettingsTab = 'providers' | 'credentials' | 'runtimes' | 'embedding';
