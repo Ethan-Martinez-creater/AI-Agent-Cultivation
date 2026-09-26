@@ -152,6 +152,11 @@ try {
   db.prepare(
     `INSERT INTO permission_rules
     (id, subject_type, subject_id, capability, resource_pattern, decision, scope, scope_id)
+    VALUES (?, 'TEAMMATE', ?, 'SPEND_BUDGET', '*', 'ASK', 'GLOBAL', NULL)`,
+  ).run(randomUUID(), fixture.a);
+  db.prepare(
+    `INSERT INTO permission_rules
+    (id, subject_type, subject_id, capability, resource_pattern, decision, scope, scope_id)
     VALUES (?, 'TEAMMATE', ?, 'SPEND_BUDGET', '*', 'ALLOW', 'MISSION', ?)`,
   ).run(randomUUID(), fixture.a, fixture.scopedAllow);
   for (const [missionId, state] of [
@@ -242,7 +247,12 @@ try {
   assert.equal(complete.approved.runs[0].id, recovered.waiting.runs[0].id);
   assert.equal(complete.duplicateResolveRejected, true);
   assert.equal(complete.grant.mission.state, 'COMPLETED');
+  assert.equal(complete.grant.approvals.length, 0);
   assert.equal(complete.otherWaiting.mission.state, 'WAITING_APPROVAL');
+  assert.equal(
+    complete.otherWaiting.approvals.filter((item) => item.state === 'PENDING').length,
+    1,
+  );
   assert.equal(complete.denied.mission.state, 'FAILED');
   assert.equal(complete.denied.runs[0].status, 'FAILED');
   assert.ok(
@@ -307,5 +317,5 @@ try {
   auditDb.close();
 }
 console.log(
-  'GATE3_PACKAGED_SMOKE_OK solo=ok scope=memory_skill_permission usage=mission_run approval=once restart=waiting_paused_interrupted retry=new_attempt audit=append_only',
+  'GATE3_PACKAGED_SMOKE_OK solo=ok scope=memory_skill_permission mission_allow_over_global_ask=ok usage=mission_run approval=once restart=waiting_paused_interrupted retry=new_attempt audit=append_only',
 );

@@ -48,16 +48,18 @@ function resourceMatches(pattern: string, resource: string): boolean {
   return new RegExp(`^${escaped}$`).test(resource);
 }
 
-const decisionRank: Readonly<Record<PermissionDecision, number>> = {
-  DENY: 0,
-  ASK: 1,
-  ALLOW: 2,
+const scopeRank: Readonly<Record<PermissionScopeRef['scope'], number>> = {
+  GLOBAL: 0,
+  TEAMMATE: 1,
+  MISSION: 2,
 };
 
 /**
  * Evaluates only rules for the exact subject/capability, then applies the scope
  * of each rule against the current Teammate and Mission. Unmatched Mission rules
- * never affect another Mission. With no explicit rule the safe outcome is ASK.
+ * never affect another Mission. Any applicable DENY wins; otherwise the most
+ * specific scope decides, with ASK winning over ALLOW at that scope. With no
+ * applicable rule the safe outcome is ASK.
  */
 export class PermissionEngine {
   constructor(private readonly rules: PermissionRuleStore) {}
@@ -75,11 +77,14 @@ export class PermissionEngine {
       );
 
     if (applicable.length === 0) return { decision: 'ASK', matchedRuleIds: [] };
-    const decision = applicable
-      .map((rule) => rule.decision)
-      .sort((left, right) => decisionRank[left] - decisionRank[right])[0];
+    const highestScope = Math.max(...applicable.map((rule) => scopeRank[rule.scope]));
+    const decision: PermissionDecision = applicable.some((rule) => rule.decision === 'DENY')
+      ? 'DENY'
+      : applicable.some((rule) => scopeRank[rule.scope] === highestScope && rule.decision === 'ASK')
+        ? 'ASK'
+        : 'ALLOW';
     return {
-      decision: decision ?? 'ASK',
+      decision,
       matchedRuleIds: applicable.map((rule) => rule.id).sort(),
     };
   }
