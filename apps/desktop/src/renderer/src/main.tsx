@@ -122,6 +122,26 @@ interface UsageView {
   createdAt: string;
 }
 
+type PartyType = 'FIXED' | 'AD_HOC';
+type MissionMode = 'SOLO' | 'CONSULTATION' | 'REVIEW' | 'DELEGATION';
+
+interface PartyMemberView {
+  teammateId: string;
+  role: 'COORDINATOR' | 'MEMBER';
+  order: number;
+}
+
+interface PartyView {
+  id: string;
+  name: string;
+  description: string;
+  type: PartyType;
+  status: 'ACTIVE' | 'ARCHIVED';
+  coordinatorTeammateId: string;
+  members: PartyMemberView[];
+  createdAt: string;
+}
+
 type MissionState =
   | 'DRAFT'
   | 'READY'
@@ -138,10 +158,43 @@ interface MissionView {
   title: string;
   objective: string;
   coordinatorTeammateId: string;
-  mode: 'SOLO';
+  mode: MissionMode;
+  partyId?: string | null;
   state: MissionState;
   createdAt: string;
   updatedAt: string;
+}
+
+interface CollaborationRequestView {
+  id: string;
+  missionId: string;
+  runId: string;
+  requesterTeammateId: string;
+  targetTeammateId: string;
+  reason: string;
+  proposedTask: string;
+  expectedBenefit: string;
+  depth: number;
+  state: 'PENDING' | 'APPROVED' | 'DENIED' | 'STARTED' | 'COMPLETED' | 'FAILED' | string;
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
+interface MissionParticipantView {
+  missionId: string;
+  teammateId: string;
+  role: string;
+  sortOrder: number;
+}
+
+interface CollaborationArtifactView {
+  id: string;
+  missionId: string;
+  runId: string;
+  teammateId: string;
+  kind: 'MEMBER_RESULT' | 'DRAFT' | 'REVIEW' | 'FINAL';
+  content: string;
+  createdAt: string;
 }
 
 interface MissionRunView {
@@ -228,6 +281,9 @@ interface MissionDetailView {
   approvals: ApprovalRequestView[];
   audits: AuditEventView[];
   usage: UsageView[];
+  participants: MissionParticipantView[];
+  collaborations: CollaborationRequestView[];
+  artifacts: CollaborationArtifactView[];
 }
 
 interface ChatEvent {
@@ -282,6 +338,25 @@ interface CultivationBridge {
     archive(id: string): Promise<TeammateView>;
     duplicate(id: string): Promise<TeammateView>;
     switchRuntime(input: { teammateId: string; runtimeProfileId: string }): Promise<TeammateView>;
+  };
+  parties: {
+    list(): Promise<PartyView[]>;
+    create(input: {
+      name: string;
+      description: string;
+      type: PartyType;
+      coordinatorTeammateId: string;
+      memberTeammateIds: string[];
+    }): Promise<PartyView>;
+    update(input: {
+      id: string;
+      name: string;
+      description: string;
+      type: PartyType;
+      coordinatorTeammateId: string;
+      memberTeammateIds: string[];
+    }): Promise<PartyView>;
+    archive(id: string): Promise<PartyView>;
   };
   chat: {
     listConversations(teammateId: string): Promise<ConversationView[]>;
@@ -357,6 +432,8 @@ interface CultivationBridge {
       title: string;
       objective: string;
       coordinatorTeammateId: string;
+      mode?: MissionMode;
+      partyId?: string | null;
     }): Promise<MissionView>;
     update(input: { id: string; title: string; objective: string }): Promise<MissionView>;
     ready(id: string): Promise<MissionView>;
@@ -369,6 +446,10 @@ interface CultivationBridge {
     resolveApproval(input: {
       approvalId: string;
       decision: 'APPROVED' | 'DENIED' | 'ALLOW_MISSION';
+    }): Promise<MissionDetailView>;
+    resolveCollaboration(input: {
+      requestId: string;
+      decision: 'APPROVED' | 'DENIED';
     }): Promise<MissionDetailView>;
   };
   tools: {
@@ -399,7 +480,7 @@ declare global {
 const pages = [
   ['/', '洞府 Home', '你的本地工作台。管理长期道友并继续上次的对话。'],
   ['/teammates', '道友 Teammates', '创建道友身份，选择运行配置并开启持续对话。'],
-  ['/parties', '队伍 Parties', '多道友协作将在后续阶段接入。'],
+  ['/parties', '队伍 Parties', '管理固定与临时队伍，指定协调道友和成员。'],
   ['/missions', '历练 Missions', '以独立 Mission Run 跟踪目标、审批与执行事件。'],
   ['/skills', '功法 Skills', '为道友编写可复用的声明式指引。'],
   ['/tools', '法宝 Tools', '设置文件工作区并管理内置工具与手动配置的 MCP stdio Server。'],
@@ -522,10 +603,7 @@ function App() {
           <Route path="/teammates" element={<TeammatesPage />} />
           <Route path="/chat/:teammateId" element={<ChatPage />} />
           <Route path="/usage" element={<UsagePage />} />
-          <Route
-            path="/parties"
-            element={<PlaceholderPage title="队伍 Parties" description={pages[2][2]} />}
-          />
+          <Route path="/parties" element={<PartiesPage />} />
           <Route path="/missions" element={<MissionPage />} />
           <Route path="/skills" element={<SkillsPage />} />
           <Route path="/tools" element={<ToolsPage />} />
@@ -620,18 +698,6 @@ function HomePage() {
           </div>
         </div>
       )}
-    </section>
-  );
-}
-
-function PlaceholderPage({ title, description }: { title: string; description: string }) {
-  return (
-    <section className="page">
-      <PageHeading eyebrow="后续阶段" title={title} description={description} />
-      <div className="empty-card subdued">
-        <span className="empty-icon">◇</span>
-        <p>此功能不属于 Gate 1。</p>
-      </div>
     </section>
   );
 }
@@ -1087,14 +1153,414 @@ function ToolDescriptorCard({
   );
 }
 
+type PartyForm = {
+  name: string;
+  description: string;
+  type: PartyType;
+  coordinatorTeammateId: string;
+  memberTeammateIds: string[];
+};
+
+const blankPartyForm: PartyForm = {
+  name: '',
+  description: '',
+  type: 'FIXED',
+  coordinatorTeammateId: '',
+  memberTeammateIds: [],
+};
+
+function PartiesPage() {
+  const [parties, setParties] = useState<PartyView[]>([]);
+  const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [form, setForm] = useState<PartyForm>(blankPartyForm);
+  const [editingId, setEditingId] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
+  const activeTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
+  const refresh = async () => {
+    const [partyRows, teammateRows] = await Promise.all([
+      window.cultivation.parties.list(),
+      window.cultivation.teammates.list(),
+    ]);
+    setParties(partyRows);
+    setTeammates(teammateRows);
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    void Promise.all([window.cultivation.parties.list(), window.cultivation.teammates.list()])
+      .then(([partyRows, teammateRows]) => {
+        if (cancelled) return;
+        setParties(partyRows);
+        setTeammates(teammateRows);
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取队伍失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const beginCreate = () => {
+    const initial = activeTeammates.slice(0, 2).map((teammate) => teammate.id);
+    setForm({
+      ...blankPartyForm,
+      memberTeammateIds: initial,
+      coordinatorTeammateId: initial[0] ?? '',
+    });
+    setEditingId('');
+    setCreating(true);
+    setError('');
+    setNotice('');
+  };
+
+  const beginEdit = (party: PartyView) => {
+    const memberTeammateIds = party.members
+      .slice()
+      .sort((left, right) => left.order - right.order)
+      .map((member) => member.teammateId);
+    setForm({
+      name: party.name,
+      description: party.description,
+      type: party.type,
+      coordinatorTeammateId: party.coordinatorTeammateId,
+      memberTeammateIds,
+    });
+    setEditingId(party.id);
+    setCreating(false);
+    setError('');
+    setNotice('');
+  };
+
+  const updateMembers = (teammateId: string, checked: boolean) => {
+    setForm((current) => {
+      const members = checked
+        ? [...current.memberTeammateIds, teammateId]
+        : current.memberTeammateIds.filter((id) => id !== teammateId);
+      const coordinatorTeammateId = checked
+        ? current.coordinatorTeammateId || teammateId
+        : current.coordinatorTeammateId === teammateId
+          ? (members[0] ?? '')
+          : current.coordinatorTeammateId;
+      return { ...current, memberTeammateIds: members, coordinatorTeammateId };
+    });
+  };
+
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const selectedActive = form.memberTeammateIds.filter((id) =>
+      activeTeammates.some((teammate) => teammate.id === id),
+    );
+    if (selectedActive.length < 2 || selectedActive.length > 4) {
+      setError('队伍必须包含 2–4 名当前可用的道友。');
+      return;
+    }
+    if (!selectedActive.includes(form.coordinatorTeammateId)) {
+      setError('协调道友必须属于队伍成员。');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const input = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        type: form.type,
+        coordinatorTeammateId: form.coordinatorTeammateId,
+        memberTeammateIds: selectedActive,
+      };
+      if (editingId) await window.cultivation.parties.update({ id: editingId, ...input });
+      else await window.cultivation.parties.create(input);
+      await refresh();
+      setEditingId('');
+      setCreating(false);
+      setForm(blankPartyForm);
+      setNotice(editingId ? '队伍已更新。' : '队伍已创建。');
+    } catch (cause) {
+      setError(errorText(cause, '保存队伍失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const archive = async (party: PartyView) => {
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      await window.cultivation.parties.archive(party.id);
+      await refresh();
+      if (editingId === party.id) {
+        setEditingId('');
+        setForm(blankPartyForm);
+      }
+      setNotice(`队伍「${party.name}」已归档。`);
+    } catch (cause) {
+      setError(errorText(cause, '归档队伍失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const activeParties = parties.filter((party) => party.status === 'ACTIVE');
+  const archivedParties = parties.filter((party) => party.status === 'ARCHIVED');
+
+  return (
+    <section className="page wide-page party-page">
+      <PageHeading
+        eyebrow="Gate 5 · Persistent Teammate Collaboration"
+        title="队伍 Parties"
+        description="组合 2–4 位持久道友并指定协调者。队伍成员保持各自的 Runtime、Memory、Skill 与工具权限。"
+      />
+      {error && (
+        <div className="notice error" role="alert">
+          {error}
+        </div>
+      )}
+      {notice && (
+        <div className="notice success" role="status">
+          {notice}
+        </div>
+      )}
+      <div className="party-layout">
+        <section className="list-card party-roster">
+          <div className="list-heading">
+            <div>
+              <h2>我的队伍</h2>
+              <p>
+                {activeParties.length} 支可用队伍 · {archivedParties.length} 支已归档
+              </p>
+            </div>
+            <button
+              className="button primary small"
+              type="button"
+              disabled={busy || activeTeammates.length < 2}
+              onClick={beginCreate}
+            >
+              新建队伍
+            </button>
+          </div>
+          {loading ? (
+            <div className="loading-card">正在读取队伍…</div>
+          ) : activeParties.length ? (
+            <div className="party-list">
+              {activeParties.map((party) => (
+                <article
+                  className={`party-card ${editingId === party.id ? 'selected' : ''}`}
+                  key={party.id}
+                >
+                  <div className="party-card-heading">
+                    <div>
+                      <h3>{party.name}</h3>
+                      <span className={`party-type-pill ${party.type.toLowerCase()}`}>
+                        {party.type === 'FIXED' ? '固定队伍' : '临时队伍'}
+                      </span>
+                    </div>
+                    <span className="count-badge">{party.members.length}/4</span>
+                  </div>
+                  <p>{party.description || '暂无说明。'}</p>
+                  <div className="party-member-list">
+                    {party.members
+                      .slice()
+                      .sort((left, right) => left.order - right.order)
+                      .map((member) => (
+                        <span
+                          className={`party-member-chip ${member.role === 'COORDINATOR' ? 'coordinator' : ''}`}
+                          key={member.teammateId}
+                        >
+                          {member.role === 'COORDINATOR' ? '协调者 · ' : ''}
+                          {teammateName(teammates, member.teammateId)}
+                          {teammates.find((teammate) => teammate.id === member.teammateId)
+                            ?.status !== 'ACTIVE' && ' · 不可用'}
+                        </span>
+                      ))}
+                  </div>
+                  <div className="button-row compact">
+                    <button
+                      className="button secondary small"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => beginEdit(party)}
+                    >
+                      编辑
+                    </button>
+                    <button
+                      className="button danger-ghost small"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void archive(party)}
+                    >
+                      归档
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="list-empty">尚未创建可用队伍。</div>
+          )}
+          {archivedParties.length > 0 && (
+            <details className="archived-party-list">
+              <summary>已归档队伍 ({archivedParties.length})</summary>
+              {archivedParties.map((party) => (
+                <div className="archived-party-row" key={party.id}>
+                  <strong>{party.name}</strong>
+                  <span>
+                    {party.type === 'FIXED' ? '固定' : '临时'} · {party.members.length} 位成员
+                  </span>
+                </div>
+              ))}
+            </details>
+          )}
+        </section>
+
+        {(creating || editingId) && (
+          <form className="form-card party-editor" onSubmit={(event) => void submit(event)}>
+            <div className="form-title-row">
+              <div>
+                <p className="eyebrow">PARTY CONFIGURATION</p>
+                <h2>{creating ? '创建队伍' : '编辑队伍'}</h2>
+                <p className="muted-copy">新 Mission 只能使用由可用持久道友组成的队伍。</p>
+              </div>
+              <button
+                className="text-button"
+                type="button"
+                onClick={() => {
+                  setCreating(false);
+                  setEditingId('');
+                  setForm(blankPartyForm);
+                }}
+              >
+                取消
+              </button>
+            </div>
+            <label className="field">
+              <span>队伍名称</span>
+              <input
+                required
+                maxLength={100}
+                value={form.name}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, name: event.target.value }))
+                }
+                placeholder="例如：研究小队"
+              />
+            </label>
+            <label className="field">
+              <span>
+                说明 <small>可选</small>
+              </span>
+              <textarea
+                rows={3}
+                maxLength={1000}
+                value={form.description}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, description: event.target.value }))
+                }
+                placeholder="这支队伍适合处理什么任务？"
+              />
+            </label>
+            <label className="field">
+              <span>类型</span>
+              <select
+                value={form.type}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, type: event.target.value as PartyType }))
+                }
+              >
+                <option value="FIXED">FIXED · 固定队伍</option>
+                <option value="AD_HOC">AD_HOC · 临时队伍</option>
+              </select>
+            </label>
+            <fieldset className="party-member-fieldset">
+              <legend>成员 · 选择 2–4 位可用道友</legend>
+              {teammates.map((teammate) => {
+                const checked = form.memberTeammateIds.includes(teammate.id);
+                const archivedSelected = checked && teammate.status !== 'ACTIVE';
+                return (
+                  <label
+                    className={`party-member-option ${teammate.status !== 'ACTIVE' ? 'unavailable' : ''}`}
+                    key={teammate.id}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      disabled={
+                        busy ||
+                        (teammate.status !== 'ACTIVE' && !checked) ||
+                        (!checked && form.memberTeammateIds.length >= 4)
+                      }
+                      onChange={(event) => updateMembers(teammate.id, event.target.checked)}
+                    />
+                    <span>
+                      <strong>{teammate.name}</strong>
+                      <small>
+                        {teammate.title || '道友'}
+                        {archivedSelected
+                          ? ' · 当前已归档，请移除后保存'
+                          : teammate.status !== 'ACTIVE'
+                            ? ' · 不可加入新队伍'
+                            : ''}
+                      </small>
+                    </span>
+                  </label>
+                );
+              })}
+            </fieldset>
+            <label className="field">
+              <span>协调道友</span>
+              <select
+                required
+                value={form.coordinatorTeammateId}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, coordinatorTeammateId: event.target.value }))
+                }
+              >
+                <option value="">选择协调者</option>
+                {form.memberTeammateIds
+                  .filter((id) => activeTeammates.some((teammate) => teammate.id === id))
+                  .map((id) => (
+                    <option key={id} value={id}>
+                      {teammateName(teammates, id)}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            {form.memberTeammateIds.length < 2 && <p className="form-hint">至少选择两位道友。</p>}
+            <button
+              className="button primary"
+              disabled={busy || !form.name.trim() || form.memberTeammateIds.length < 2}
+            >
+              {busy ? '保存中…' : '保存队伍'}
+            </button>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function MissionPage() {
   const [missions, setMissions] = useState<MissionView[]>([]);
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [parties, setParties] = useState<PartyView[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [detail, setDetail] = useState<MissionDetailView | null>(null);
   const [title, setTitle] = useState('');
   const [objective, setObjective] = useState('');
   const [coordinatorId, setCoordinatorId] = useState('');
+  const [missionMode, setMissionMode] = useState<MissionMode>('SOLO');
+  const [partyId, setPartyId] = useState('');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
   const [approvalFixture, setApprovalFixture] = useState(false);
@@ -1102,6 +1568,16 @@ function MissionPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const activeTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
+  const activeParties = parties.filter(
+    (party) =>
+      party.status === 'ACTIVE' &&
+      party.members.length >= 2 &&
+      party.members.length <= 4 &&
+      party.members.every((member) =>
+        activeTeammates.some((teammate) => teammate.id === member.teammateId),
+      ),
+  );
 
   const refreshMissions = async (preferredId?: string) => {
     const rows = await window.cultivation.missions.list();
@@ -1120,13 +1596,23 @@ function MissionPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void Promise.all([window.cultivation.missions.list(), window.cultivation.teammates.list()])
-      .then(([missionRows, teammateRows]) => {
+    void Promise.all([
+      window.cultivation.missions.list(),
+      window.cultivation.teammates.list(),
+      window.cultivation.parties.list(),
+    ])
+      .then(([missionRows, teammateRows, partyRows]) => {
         if (cancelled) return;
         setMissions(missionRows);
-        const activeTeammates = teammateRows.filter((teammate) => teammate.status === 'ACTIVE');
-        setTeammates(activeTeammates);
-        setCoordinatorId((current) => current || activeTeammates[0]?.id || '');
+        setTeammates(teammateRows);
+        setParties(partyRows);
+        setCoordinatorId(
+          (current) =>
+            current || teammateRows.find((teammate) => teammate.status === 'ACTIVE')?.id || '',
+        );
+        setPartyId(
+          (current) => current || partyRows.find((party) => party.status === 'ACTIVE')?.id || '',
+        );
         if (missionRows.length > 0) setSelectedId(missionRows[0]!.id);
       })
       .catch((cause: unknown) => {
@@ -1154,6 +1640,8 @@ function MissionPage() {
           if (!editing && !creating) {
             setTitle(result.mission.title);
             setObjective(result.mission.objective);
+            setMissionMode(result.mission.mode ?? 'SOLO');
+            setPartyId(result.mission.partyId ?? '');
           }
         }
       })
@@ -1181,6 +1669,7 @@ function MissionPage() {
     } else {
       setTitle('');
       setObjective('');
+      setMissionMode('SOLO');
     }
   };
 
@@ -1209,6 +1698,19 @@ function MissionPage() {
 
   const saveMission = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (
+      creating &&
+      (missionMode === 'SOLO'
+        ? !activeTeammates.some((teammate) => teammate.id === coordinatorId)
+        : !activeParties.some((party) => party.id === partyId))
+    ) {
+      setError(
+        missionMode === 'SOLO'
+          ? '请选择一位当前可用的执行道友。'
+          : '请选择一支由 2–4 位当前可用道友组成的队伍。',
+      );
+      return;
+    }
     setBusy(true);
     setError('');
     setNotice('');
@@ -1217,7 +1719,13 @@ function MissionPage() {
         const created = await window.cultivation.missions.create({
           title: title.trim(),
           objective: objective.trim(),
-          coordinatorTeammateId: coordinatorId,
+          coordinatorTeammateId:
+            missionMode === 'SOLO'
+              ? coordinatorId
+              : (activeParties.find((party) => party.id === partyId)?.coordinatorTeammateId ??
+                coordinatorId),
+          mode: missionMode,
+          partyId: missionMode === 'SOLO' ? null : partyId,
         });
         await refreshMissions(created.id);
         setDetail(await window.cultivation.missions.detail(created.id));
@@ -1243,6 +1751,8 @@ function MissionPage() {
   };
 
   const pendingApprovals = detail?.approvals.filter(isPendingApproval) ?? [];
+  const pendingCollaborations =
+    detail?.collaborations.filter((request) => request.state === 'PENDING') ?? [];
   const sortedTimeline = [
     ...(detail?.events ?? []).map((event) => ({
       id: `event-${event.id}`,
@@ -1261,9 +1771,9 @@ function MissionPage() {
   return (
     <section className="page wide-page mission-page">
       <PageHeading
-        eyebrow="Gate 3 · SOLO Mission Runtime"
+        eyebrow="Gate 5 · Party Mission Runtime"
         title="历练 Missions"
-        description="每个 Mission 拥有独立 Run、审批与追加式时间线；普通 Conversation 保持独立。当前仅支持 SOLO 执行。"
+        description="选择 SOLO 或 Party 协作模式。每位参与道友使用自己的运行配置、记忆与功法；普通 Conversation 保持独立。"
       />
       {error && (
         <div className="notice error" role="alert">
@@ -1280,12 +1790,12 @@ function MissionPage() {
           <div className="list-heading">
             <div>
               <h2>历练清单</h2>
-              <p>{missions.length} 个 Mission · 仅 SOLO</p>
+              <p>{missions.length} 个 Mission</p>
             </div>
             <button
               className="icon-button"
               aria-label="新建 Mission"
-              disabled={busy || teammates.length === 0}
+              disabled={busy || (activeTeammates.length === 0 && activeParties.length === 0)}
               onClick={() => {
                 setSelectedId('');
                 setDetail(null);
@@ -1293,6 +1803,9 @@ function MissionPage() {
                 setEditing(false);
                 setTitle('');
                 setObjective('');
+                setMissionMode('SOLO');
+                setPartyId(activeParties[0]?.id ?? '');
+                setCoordinatorId(activeTeammates[0]?.id ?? '');
                 setError('');
                 setNotice('');
               }}
@@ -1324,7 +1837,12 @@ function MissionPage() {
                       {missionStateLabel(item.state)}
                     </span>
                   </span>
-                  <small>{teammateName(teammates, item.coordinatorTeammateId)} · SOLO</small>
+                  <small>
+                    {teammateName(teammates, item.coordinatorTeammateId)} ·{' '}
+                    {missionModeLabel(item.mode ?? 'SOLO')}
+                    {item.partyId &&
+                      ` · ${parties.find((party) => party.id === item.partyId)?.name ?? 'Party'}`}
+                  </small>
                 </button>
               ))}
             </div>
@@ -1341,9 +1859,11 @@ function MissionPage() {
             >
               <div className="form-title-row">
                 <div>
-                  <p className="eyebrow">SOLO MISSION</p>
+                  <p className="eyebrow">{creating ? 'NEW MISSION' : 'MISSION'}</p>
                   <h2>{creating ? '创建 Mission 草稿' : '编辑 Mission'}</h2>
-                  <p className="muted-copy">Mission 只描述目标，由后端状态机决定后续状态。</p>
+                  <p className="muted-copy">
+                    Mission 只描述目标与参与队伍，由 Runtime 状态机安排协作。
+                  </p>
                 </div>
                 {!creating && (
                   <button type="button" className="text-button" onClick={resetEditor}>
@@ -1373,25 +1893,86 @@ function MissionPage() {
                 />
               </label>
               {creating && (
-                <label className="field">
-                  <span>执行道友</span>
-                  <select
-                    required
-                    value={coordinatorId}
-                    onChange={(event) => setCoordinatorId(event.target.value)}
-                  >
-                    {teammates.map((teammate) => (
-                      <option key={teammate.id} value={teammate.id}>
-                        {teammate.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <>
+                  <label className="field">
+                    <span>Mission 模式</span>
+                    <select
+                      value={missionMode}
+                      onChange={(event) => setMissionMode(event.target.value as MissionMode)}
+                    >
+                      <option value="SOLO">SOLO · 单道友执行</option>
+                      <option value="CONSULTATION">CONSULTATION · 独立咨询并汇总</option>
+                      <option value="REVIEW">REVIEW · 起草、独立审查、定稿</option>
+                      <option value="DELEGATION">DELEGATION · 委托单个子任务</option>
+                    </select>
+                  </label>
+                  {missionMode === 'SOLO' ? (
+                    <label className="field">
+                      <span>执行道友</span>
+                      <select
+                        required
+                        value={coordinatorId}
+                        onChange={(event) => setCoordinatorId(event.target.value)}
+                      >
+                        {activeTeammates.map((teammate) => (
+                          <option key={teammate.id} value={teammate.id}>
+                            {teammate.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    <>
+                      <label className="field">
+                        <span>参与队伍</span>
+                        <select
+                          required
+                          value={partyId}
+                          onChange={(event) => setPartyId(event.target.value)}
+                        >
+                          <option value="">选择可用队伍</option>
+                          {activeParties.map((party) => (
+                            <option key={party.id} value={party.id}>
+                              {party.name} · {party.members.length} 位 ·{' '}
+                              {teammateName(teammates, party.coordinatorTeammateId)} 协调
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      {activeParties.length === 0 && (
+                        <p className="form-hint">
+                          请先在 Parties 页面创建包含 2–4 位可用道友的队伍。
+                        </p>
+                      )}
+                      <div className="mission-party-preview">
+                        <strong>参与成员</strong>
+                        {(activeParties.find((party) => party.id === partyId)?.members ?? [])
+                          .slice()
+                          .sort((left, right) => left.order - right.order)
+                          .map((member) => (
+                            <span key={member.teammateId}>
+                              {member.role === 'COORDINATOR' ? '协调者 · ' : ''}
+                              {teammateName(teammates, member.teammateId)}
+                            </span>
+                          ))}
+                        <small>成员的 Runtime、Memory、Skills 和工具权限保持独立。</small>
+                      </div>
+                    </>
+                  )}
+                </>
               )}
               <div className="button-row">
                 <button
                   className="button primary"
-                  disabled={busy || !title.trim() || !objective.trim()}
+                  disabled={
+                    busy ||
+                    !title.trim() ||
+                    !objective.trim() ||
+                    (creating &&
+                      (missionMode === 'SOLO'
+                        ? !activeTeammates.some((teammate) => teammate.id === coordinatorId)
+                        : !activeParties.some((party) => party.id === partyId)))
+                  }
                 >
                   {busy ? '保存中…' : creating ? '创建草稿' : '保存更改'}
                 </button>
@@ -1412,7 +1993,8 @@ function MissionPage() {
                     <p className="eyebrow">MISSION OBJECTIVE</p>
                     <h2>{mission.title}</h2>
                     <p className="mission-overview-meta">
-                      SOLO · 道友 {teammateName(teammates, mission.coordinatorTeammateId)} · 创建于{' '}
+                      {missionModeLabel(mission.mode ?? 'SOLO')} · 协调道友{' '}
+                      {teammateName(teammates, mission.coordinatorTeammateId)} · 创建于{' '}
                       {formatDate(mission.createdAt)}
                     </p>
                   </div>
@@ -1529,6 +2111,145 @@ function MissionPage() {
                   )}
                 </div>
               </article>
+
+              {detail.participants.length > 0 && (
+                <section className="mission-section mission-participants">
+                  <div className="section-heading">
+                    <div>
+                      <h2>参与道友</h2>
+                      <p>每位成员以自己的 Runtime、Memory、Skills 和权限独立执行。</p>
+                    </div>
+                    <span className="count-badge">{detail.participants.length}</span>
+                  </div>
+                  <div className="mission-participant-list">
+                    {detail.participants
+                      .slice()
+                      .sort((left, right) => left.sortOrder - right.sortOrder)
+                      .map((participant) => (
+                        <article className="mission-participant-card" key={participant.teammateId}>
+                          <span className="avatar">
+                            {teammates.find((teammate) => teammate.id === participant.teammateId)
+                              ?.avatar ||
+                              teammateName(teammates, participant.teammateId).slice(0, 1)}
+                          </span>
+                          <div>
+                            <strong>{teammateName(teammates, participant.teammateId)}</strong>
+                            <small>{safeLabel(participant.role)}</small>
+                          </div>
+                        </article>
+                      ))}
+                  </div>
+                </section>
+              )}
+
+              {pendingCollaborations.length > 0 && (
+                <section className="mission-section collaboration-approval-section">
+                  <div className="section-heading">
+                    <div>
+                      <h2>待处理协作请求</h2>
+                      <p>批准后才会启动目标道友；拒绝时目标不会发生模型调用。</p>
+                    </div>
+                    <span className="count-badge">{pendingCollaborations.length}</span>
+                  </div>
+                  <div className="collaboration-request-list">
+                    {pendingCollaborations.map((request) => (
+                      <article className="collaboration-request-card" key={request.id}>
+                        <div className="collaboration-request-heading">
+                          <span className="collaboration-flow">
+                            <strong>{teammateName(teammates, request.requesterTeammateId)}</strong>
+                            <span>请求协作 →</span>
+                            <strong>{teammateName(teammates, request.targetTeammateId)}</strong>
+                          </span>
+                          <span className="mission-state state-waiting-approval">等待批准</span>
+                        </div>
+                        <dl className="collaboration-request-details">
+                          <div>
+                            <dt>原因</dt>
+                            <dd>{request.reason}</dd>
+                          </div>
+                          <div>
+                            <dt>拟执行任务</dt>
+                            <dd>{request.proposedTask}</dd>
+                          </div>
+                          <div>
+                            <dt>预计收益</dt>
+                            <dd>{request.expectedBenefit}</dd>
+                          </div>
+                        </dl>
+                        <small>
+                          委托深度 {request.depth} · Run{' '}
+                          {runAttemptLabel(detail.runs, request.runId)} · 请求于{' '}
+                          {formatDate(request.createdAt)}
+                        </small>
+                        <div className="button-row compact">
+                          <button
+                            className="button primary small"
+                            type="button"
+                            disabled={busy}
+                            onClick={() =>
+                              void runAction('协作已批准，原 Mission Run 将继续。', () =>
+                                window.cultivation.missions.resolveCollaboration({
+                                  requestId: request.id,
+                                  decision: 'APPROVED',
+                                }),
+                              )
+                            }
+                          >
+                            批准并继续
+                          </button>
+                          <button
+                            className="button danger-ghost small"
+                            type="button"
+                            disabled={busy}
+                            onClick={() =>
+                              void runAction('协作已拒绝，Coordinator 将收到结构化结果。', () =>
+                                window.cultivation.missions.resolveCollaboration({
+                                  requestId: request.id,
+                                  decision: 'DENIED',
+                                }),
+                              )
+                            }
+                          >
+                            拒绝请求
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {detail.artifacts.length > 0 && (
+                <section className="mission-section mission-artifacts">
+                  <div className="section-heading">
+                    <div>
+                      <h2>协作成果</h2>
+                      <p>仅展示本 Mission 产生的公开结果，不包含成员私有记忆。</p>
+                    </div>
+                    <span className="count-badge">{detail.artifacts.length}</span>
+                  </div>
+                  <div className="mission-artifact-list">
+                    {detail.artifacts
+                      .slice()
+                      .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
+                      .map((artifact) => (
+                        <article
+                          className={`mission-artifact-card artifact-${artifact.kind.toLowerCase()}`}
+                          key={artifact.id}
+                        >
+                          <div className="mission-artifact-heading">
+                            <span className="artifact-kind-pill">
+                              {artifactKindLabel(artifact.kind)}
+                            </span>
+                            <strong>{teammateName(teammates, artifact.teammateId)}</strong>
+                            <time>{formatDate(artifact.createdAt)}</time>
+                          </div>
+                          <div className="mission-artifact-content">{artifact.content}</div>
+                        </article>
+                      ))}
+                  </div>
+                </section>
+              )}
 
               {pendingApprovals.length > 0 && (
                 <section className="mission-section approval-section">
@@ -1672,7 +2393,14 @@ function MissionPage() {
                           {item.kind === 'MISSION_EVENT' ? (
                             <div className="timeline-safe-meta">
                               <strong>{safeLabel(item.event.eventType)}</strong>
-                              <span>Actor: {safeLabel(item.event.actorType)}</span>
+                              <span>
+                                参与者:{' '}
+                                {timelineActorName(
+                                  teammates,
+                                  item.event.actorType,
+                                  item.event.actorId,
+                                )}
+                              </span>
                               {item.event.runId && (
                                 <span>Run {runAttemptLabel(detail.runs, item.event.runId)}</span>
                               )}
@@ -1682,7 +2410,14 @@ function MissionPage() {
                             <div className="timeline-safe-meta">
                               <strong>{safeLabel(item.audit.action)}</strong>
                               <span>Target: {safeLabel(item.audit.targetType ?? 'UNKNOWN')}</span>
-                              <span>Actor: {safeLabel(item.audit.actorType)}</span>
+                              <span>
+                                参与者:{' '}
+                                {timelineActorName(
+                                  teammates,
+                                  item.audit.actorType,
+                                  item.audit.actorId,
+                                )}
+                              </span>
                               {renderToolTimelineMetadata(item.audit.payloadJson)}
                             </div>
                           )}
@@ -1795,6 +2530,39 @@ function missionStateLabel(value: string): string {
     CANCELLED: '已取消',
   };
   return labels[value] ?? safeLabel(value);
+}
+
+function missionModeLabel(mode: MissionMode): string {
+  const labels: Record<MissionMode, string> = {
+    SOLO: 'SOLO',
+    CONSULTATION: '咨询',
+    REVIEW: '审查',
+    DELEGATION: '委托',
+  };
+  return labels[mode] ?? safeLabel(mode);
+}
+
+function artifactKindLabel(kind: CollaborationArtifactView['kind']): string {
+  const labels: Record<CollaborationArtifactView['kind'], string> = {
+    MEMBER_RESULT: '成员意见',
+    DRAFT: 'Draft 草稿',
+    REVIEW: 'Review 审查',
+    FINAL: 'Final 定稿',
+  };
+  return labels[kind];
+}
+
+function timelineActorName(
+  teammates: TeammateView[],
+  actorType: string,
+  actorId: string | null,
+): string {
+  if (actorId && teammates.some((teammate) => teammate.id === actorId)) {
+    return teammateName(teammates, actorId);
+  }
+  if (actorType === 'USER') return '用户';
+  if (actorType === 'SYSTEM') return '系统';
+  return safeLabel(actorType);
 }
 
 function stateClass(value: string): string {
