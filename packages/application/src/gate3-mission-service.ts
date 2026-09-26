@@ -708,7 +708,7 @@ export class Gate3MissionService {
         throw new DomainError('APPROVAL_ALREADY_RESOLVED', 'Tool Call 只能处理一次');
       }
       if (input.decision === 'ALLOW_MISSION' && descriptorMatches) {
-        this.permissions.grantMission({
+        this.permissions.grantExactMission({
           id: this.clock.newId(),
           subjectType: 'TEAMMATE',
           subjectId: mission.coordinatorTeammateId,
