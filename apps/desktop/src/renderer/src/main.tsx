@@ -122,6 +122,42 @@ interface UsageView {
   createdAt: string;
 }
 
+type ExperienceType = 'MISSION_RESULT' | 'COLLABORATION' | 'TOOL_USE' | 'SKILL_USE';
+type ExperienceOutcome = 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
+
+interface ExperienceEventView {
+  id: string;
+  teammateId: string;
+  missionId: string;
+  runId: string;
+  experienceType: ExperienceType;
+  source: string;
+  sourceId: string;
+  role: string;
+  outcome: ExperienceOutcome;
+  mode: MissionMode;
+  createdAt: string;
+}
+
+interface CapabilityProfileView {
+  teammateId: string;
+  completedMissions: number;
+  failedMissions: number;
+  cancelledMissions: number;
+  consultationParticipations: number;
+  reviewParticipations: number;
+  delegationParticipations: number;
+  toolUses: number;
+  completedCollaborations: number;
+  skillUses: number;
+  lastActiveAt: string | null;
+}
+
+interface TeammateExperienceView {
+  events: ExperienceEventView[];
+  profile: CapabilityProfileView;
+}
+
 type PartyType = 'FIXED' | 'AD_HOC';
 type MissionMode = 'SOLO' | 'CONSULTATION' | 'REVIEW' | 'DELEGATION';
 
@@ -426,6 +462,7 @@ interface CultivationBridge {
     listAssignments(teammateId: string): Promise<SkillAssignmentView[]>;
   };
   usage: { list(teammateId?: string): Promise<UsageView[]> };
+  experience: { get(teammateId: string): Promise<TeammateExperienceView> };
   missions: {
     list(): Promise<MissionView[]>;
     create(input: {
@@ -635,38 +672,69 @@ function PageHeading({
 
 function HomePage() {
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [loadAttempt, setLoadAttempt] = useState(0);
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
     void window.cultivation.teammates
       .list()
-      .then((items) => setTeammates(items.filter((item) => item.status === 'ACTIVE')))
-      .catch(() => setTeammates([]));
-  }, []);
+      .then((items) => {
+        if (!cancelled) setTeammates(items.filter((item) => item.status === 'ACTIVE'));
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取道友失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadAttempt]);
   const navigate = useNavigate();
   return (
     <section className="page wide-page">
       <PageHeading
-        eyebrow="Gate 1 · 单道友对话"
+        eyebrow="初入洞府 · Home"
         title="洞府 Home"
-        description="你的道友保留稳定身份。模型和服务商通过运行配置切换。"
+        description="从模型配置开始，逐步建立道友、日常对话与可追溯的任务协作。"
       />
       <div className="home-banner">
         <div>
           <span className="banner-kicker">当前阶段</span>
-          <h2>和一位道友持续交流</h2>
-          <p>创建道友、配置运行模型，然后从独立 Conversation 开始聊天。</p>
+          <h2>从配置 Provider 到开始协作</h2>
+          <p>普通 Conversation 会持续保存；Mission 和队伍协作有各自独立的运行记录。</p>
         </div>
         <button className="button primary" onClick={() => navigate('/teammates')}>
           管理道友
         </button>
       </div>
+      <HomeOnboardingGuide teammateId={teammates[0]?.id ?? ''} />
       <div className="section-heading">
         <div>
           <h2>我的道友</h2>
-          <p>Conversation 属于道友身份，切换运行配置不会更改身份或历史。</p>
+          <p>对话与经历记录都归属于道友身份，切换 Runtime 不会更改历史。</p>
         </div>
         <span className="count-badge">{teammates.length}</span>
       </div>
-      {teammates.length ? (
+      {loading ? (
+        <div className="loading-card">正在读取道友…</div>
+      ) : error ? (
+        <div className="empty-card onboarding-empty">
+          <h3>暂时无法读取道友</h3>
+          <p>{error}</p>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={() => setLoadAttempt((current) => current + 1)}
+          >
+            重新读取
+          </button>
+        </div>
+      ) : teammates.length ? (
         <div className="teammate-grid">
           {teammates.map((teammate) => (
             <button
@@ -686,8 +754,8 @@ function HomePage() {
       ) : (
         <div className="empty-card">
           <span className="empty-icon">◇</span>
-          <h3>还没有道友</h3>
-          <p>先添加服务商与凭据，再创建 Runtime Profile 和道友。</p>
+          <h3>还没有可用道友</h3>
+          <p>先在设置中添加 Provider、Credential 和 Runtime Profile，再创建第一位道友。</p>
           <div className="button-row centered">
             <button className="button secondary" onClick={() => navigate('/settings')}>
               配置模型
@@ -698,6 +766,96 @@ function HomePage() {
           </div>
         </div>
       )}
+    </section>
+  );
+}
+
+function HomeOnboardingGuide({ teammateId }: { teammateId: string }) {
+  const navigate = useNavigate();
+  const steps = [
+    {
+      label: 'Provider 与 Runtime',
+      detail: '添加服务商、凭据，并建立模型运行配置。',
+      action: '打开设置',
+      path: '/settings',
+    },
+    {
+      label: 'Teammate 道友',
+      detail: '用 Runtime 创建一个有稳定身份的道友。',
+      action: '创建道友',
+      path: '/teammates',
+    },
+    {
+      label: 'Chat 对话',
+      detail: '从独立 Conversation 开始交流。',
+      action: teammateId ? '打开对话' : '先创建道友',
+      path: teammateId ? `/chat/${encodeURIComponent(teammateId)}` : '/teammates',
+    },
+    {
+      label: 'Memory / Skill',
+      detail: '按需整理长期记忆，或给道友分配可复用的 Skill。',
+      action: '记忆',
+      path: '/memory',
+      secondAction: 'Skills',
+      secondPath: '/skills',
+    },
+    {
+      label: 'SOLO Mission',
+      detail: '先为一位道友设定目标，查看独立 Run 与审批记录。',
+      action: '创建历练',
+      path: '/missions',
+    },
+    {
+      label: 'Party 队伍',
+      detail: '准备至少两位可用道友，指定协调者。',
+      action: '管理队伍',
+      path: '/parties',
+    },
+    {
+      label: 'Collaboration 协作',
+      detail: '在 Party Mission 中选择咨询、审查或委托，并处理协作请求。',
+      action: '查看历练',
+      path: '/missions',
+    },
+  ];
+  return (
+    <section className="onboarding-guide" aria-labelledby="onboarding-title">
+      <div className="onboarding-heading">
+        <div>
+          <p className="eyebrow">首次使用 · Getting started</p>
+          <h2 id="onboarding-title">建议上手路径</h2>
+        </div>
+        <p>每一步都可稍后完成；对话、记忆、任务和队伍记录各自归属清晰。</p>
+      </div>
+      <ol className="onboarding-steps">
+        {steps.map((step, index) => (
+          <li className="onboarding-step" key={step.label}>
+            <span className="onboarding-step-number">{index + 1}</span>
+            <div className="onboarding-step-copy">
+              <strong>{step.label}</strong>
+              <small>{step.detail}</small>
+            </div>
+            <div className="onboarding-step-actions">
+              <button
+                className="text-button onboarding-link"
+                type="button"
+                onClick={() => navigate(step.path)}
+              >
+                {step.action}
+              </button>
+              {step.secondAction && step.secondPath && (
+                <button
+                  className="text-button onboarding-link"
+                  type="button"
+                  onClick={() => navigate(step.secondPath)}
+                >
+                  {step.secondAction}
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
@@ -1177,8 +1335,10 @@ function PartiesPage() {
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const navigate = useNavigate();
 
   const activeTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
   const refresh = async () => {
@@ -1193,6 +1353,7 @@ function PartiesPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setError('');
     void Promise.all([window.cultivation.parties.list(), window.cultivation.teammates.list()])
       .then(([partyRows, teammateRows]) => {
         if (cancelled) return;
@@ -1208,7 +1369,7 @@ function PartiesPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadAttempt]);
 
   const beginCreate = () => {
     const initial = activeTeammates.slice(0, 2).map((teammate) => teammate.id);
@@ -1318,13 +1479,30 @@ function PartiesPage() {
   return (
     <section className="page wide-page party-page">
       <PageHeading
-        eyebrow="Gate 5 · Persistent Teammate Collaboration"
+        eyebrow="组队协作 · Party"
         title="队伍 Parties"
         description="组合 2–4 位持久道友并指定协调者。队伍成员保持各自的 Runtime、Memory、Skill 与工具权限。"
       />
+      <div className="workflow-note">
+        <strong>协作建议</strong>
+        <p>
+          先用 SOLO Mission 熟悉单人运行；准备至少两位可用道友后创建 Party，再从 Party Mission
+          选择咨询、审查或委托。每次跨道友协作都会生成可审阅的请求。
+        </p>
+        <button className="text-button" type="button" onClick={() => navigate('/missions')}>
+          前往 Mission
+        </button>
+      </div>
       {error && (
-        <div className="notice error" role="alert">
+        <div className="notice error notice-with-action" role="alert">
           {error}
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setLoadAttempt((current) => current + 1)}
+          >
+            重新读取
+          </button>
         </div>
       )}
       {notice && (
@@ -1352,6 +1530,18 @@ function PartiesPage() {
           </div>
           {loading ? (
             <div className="loading-card">正在读取队伍…</div>
+          ) : error && parties.length === 0 ? (
+            <div className="empty-card party-empty-state">
+              <h3>暂时无法读取队伍</h3>
+              <p>连接恢复后可重新载入队伍与成员列表。</p>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setLoadAttempt((current) => current + 1)}
+              >
+                重新读取
+              </button>
+            </div>
           ) : activeParties.length ? (
             <div className="party-list">
               {activeParties.map((party) => (
@@ -1407,7 +1597,37 @@ function PartiesPage() {
               ))}
             </div>
           ) : (
-            <div className="list-empty">尚未创建可用队伍。</div>
+            <div className="empty-card party-empty-state">
+              <span className="empty-icon">◇</span>
+              <h3>{activeTeammates.length < 2 ? '组队需要两位可用道友' : '还没有可用队伍'}</h3>
+              <p>
+                {activeTeammates.length < 2
+                  ? '创建或启用第二位道友后，便可指定协调者并开始 Party Mission。'
+                  : '创建一支包含 2–4 位道友的队伍，之后可在 Party Mission 中发起协作。'}
+              </p>
+              {activeTeammates.length < 2 ? (
+                <div className="button-row centered">
+                  <button
+                    className="button secondary"
+                    type="button"
+                    onClick={() => navigate('/settings')}
+                  >
+                    配置 Provider
+                  </button>
+                  <button
+                    className="button primary"
+                    type="button"
+                    onClick={() => navigate('/teammates')}
+                  >
+                    创建道友
+                  </button>
+                </div>
+              ) : (
+                <button className="button primary" type="button" onClick={beginCreate}>
+                  新建队伍
+                </button>
+              )}
+            </div>
           )}
           {archivedParties.length > 0 && (
             <details className="archived-party-list">
@@ -1565,9 +1785,13 @@ function MissionPage() {
   const [editing, setEditing] = useState(false);
   const [approvalFixture, setApprovalFixture] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [detailLoadAttempt, setDetailLoadAttempt] = useState(0);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const navigate = useNavigate();
   const activeTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
   const activeParties = parties.filter(
     (party) =>
@@ -1596,6 +1820,7 @@ function MissionPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setError('');
     void Promise.all([
       window.cultivation.missions.list(),
       window.cultivation.teammates.list(),
@@ -1624,14 +1849,18 @@ function MissionPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadAttempt]);
 
   useEffect(() => {
     if (!selectedId) {
       setDetail(null);
+      setDetailLoading(false);
       return;
     }
     let cancelled = false;
+    setDetail(null);
+    setDetailLoading(true);
+    setError('');
     void window.cultivation.missions
       .detail(selectedId)
       .then((result) => {
@@ -1647,11 +1876,14 @@ function MissionPage() {
       })
       .catch((cause: unknown) => {
         if (!cancelled) setError(errorText(cause, '读取 Mission 详情失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setDetailLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [selectedId]);
+  }, [selectedId, detailLoadAttempt]);
 
   const mission = detail?.mission ?? missions.find((item) => item.id === selectedId) ?? null;
   const canEdit = !mission || mission.state === 'DRAFT' || mission.state === 'READY';
@@ -1771,10 +2003,20 @@ function MissionPage() {
   return (
     <section className="page wide-page mission-page">
       <PageHeading
-        eyebrow="Gate 5 · Party Mission Runtime"
+        eyebrow="任务历练 · Mission"
         title="历练 Missions"
-        description="选择 SOLO 或 Party 协作模式。每位参与道友使用自己的运行配置、记忆与功法；普通 Conversation 保持独立。"
+        description="先用 SOLO Mission 完成单人历练；准备队伍后，再选择 Party 协作模式。每位道友的 Runtime、Memory 与 Skill 保持独立。"
       />
+      <div className="workflow-note mission-flow-note">
+        <strong>从 SOLO 到 Collaboration</strong>
+        <p>
+          SOLO Mission 适合熟悉目标、审批与独立 Run。需要多位道友时，先在 Parties
+          建队，再选择咨询、审查或委托；发出的协作请求会显示原因、子任务和预计收益，供你批准或拒绝。
+        </p>
+        <button className="text-button" type="button" onClick={() => navigate('/parties')}>
+          管理 Party 队伍
+        </button>
+      </div>
       {error && (
         <div className="notice error" role="alert">
           {error}
@@ -2488,26 +2730,83 @@ function MissionPage() {
             </>
           )}
 
-          {!creating && !mission && !loading && (
+          {!creating && !mission && !loading && error && (
             <div className="empty-card mission-empty-state">
               <span className="empty-icon">◇</span>
-              <h3>{teammates.length ? '建立一次独立历练' : '先创建一位道友'}</h3>
+              <h3>暂时无法读取 Mission</h3>
+              <p>{error}</p>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setLoadAttempt((current) => current + 1)}
+              >
+                重新读取
+              </button>
+            </div>
+          )}
+
+          {!creating && mission && !detail && !loading && (
+            <div className="empty-card mission-empty-state">
+              <span className="empty-icon">◇</span>
+              <h3>{detailLoading ? '正在读取 Mission 详情' : 'Mission 详情暂不可用'}</h3>
               <p>
-                {teammates.length
-                  ? 'Mission 有自己的运行状态、审批和事件时间线，不会变成普通 Chat Conversation。'
-                  : 'SOLO Mission 需要一个已启用的道友作为执行者。'}
+                {detailLoading
+                  ? '请稍候，正在读取此 Mission 的 Run、审批与时间线。'
+                  : error || '可以重新读取此 Mission 的执行详情。'}
               </p>
-              {teammates.length > 0 && (
+              {detailLoading ? (
+                <div className="loading-card">读取中…</div>
+              ) : (
+                <button
+                  className="button secondary"
+                  type="button"
+                  onClick={() => setDetailLoadAttempt((current) => current + 1)}
+                >
+                  重试
+                </button>
+              )}
+            </div>
+          )}
+
+          {!creating && !mission && !loading && !error && (
+            <div className="empty-card mission-empty-state">
+              <span className="empty-icon">◇</span>
+              <h3>{activeTeammates.length ? '建立一次独立历练' : '先准备一位可用道友'}</h3>
+              <p>
+                {activeTeammates.length
+                  ? 'SOLO Mission 有独立的执行状态、审批和事件时间线，不会变成普通 Chat Conversation。'
+                  : 'SOLO Mission 需要一位活跃道友和可用 Runtime。先配置 Provider，再创建道友。'}
+              </p>
+              {activeTeammates.length > 0 ? (
                 <button
                   className="button primary"
                   onClick={() => {
                     setCreating(true);
                     setTitle('');
                     setObjective('');
+                    setMissionMode('SOLO');
+                    setCoordinatorId(activeTeammates[0]!.id);
                   }}
                 >
                   创建 Mission 草稿
                 </button>
+              ) : (
+                <div className="button-row centered">
+                  <button
+                    className="button secondary"
+                    type="button"
+                    onClick={() => navigate('/settings')}
+                  >
+                    配置 Provider
+                  </button>
+                  <button
+                    className="button primary"
+                    type="button"
+                    onClick={() => navigate('/teammates')}
+                  >
+                    创建道友
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -3336,6 +3635,7 @@ function TeammatesPage() {
   const navigate = useNavigate();
   const refresh = async () => {
     setLoading(true);
+    setError('');
     try {
       const [teammateRows, runtimeRows] = await Promise.all([
         window.cultivation.teammates.list(),
@@ -3463,13 +3763,16 @@ function TeammatesPage() {
   return (
     <section className="page wide-page">
       <PageHeading
-        eyebrow="Stable identity · Runtime independent"
+        eyebrow="道友档案 · Teammate"
         title="道友 Teammates"
         description="道友是持续对话的身份。Runtime Profile 可以更换，道友 ID 与其 Conversation 历史保持不变。"
       />
       {error && (
-        <div className="notice error" role="alert">
+        <div className="notice error notice-with-action" role="alert">
           {error}
+          <button className="text-button" type="button" onClick={() => void refresh()}>
+            重新读取
+          </button>
         </div>
       )}
       {notice && (
@@ -3490,6 +3793,8 @@ function TeammatesPage() {
           </div>
           {loading ? (
             <div className="list-empty">读取中…</div>
+          ) : error && teammates.length === 0 ? (
+            <div className="list-empty">列表读取失败；可使用上方“重新读取”重试。</div>
           ) : teammates.length ? (
             teammates.map((teammate) => (
               <button
@@ -3619,7 +3924,18 @@ function TeammatesPage() {
                 </select>
               </label>
               {!runtimes.length && (
-                <p className="form-hint">需要先在 Settings 中创建 Runtime Profile。</p>
+                <div className="prerequisite-note">
+                  <p className="form-hint">
+                    需要先添加 Provider、Credential，再创建 Runtime Profile。
+                  </p>
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => navigate('/settings')}
+                  >
+                    前往 Settings 配置
+                  </button>
+                </div>
               )}
               <button className="button primary" disabled={busy || !runtimes.length}>
                 {busy ? '保存中…' : editingId ? '保存道友' : '创建道友'}
@@ -3704,6 +4020,7 @@ function TeammatesPage() {
                 <div className="notice">已归档的道友保留历史数据，不能继续发送新消息。</div>
               )}
               <TeammateSkillsPanel teammate={selected} />
+              <TeammateExperiencePanel teammate={selected} />
             </div>
           ) : loading ? (
             <div className="loading-card">正在读取道友…</div>
@@ -3956,7 +4273,7 @@ function ChatPage() {
       <PageHeading
         eyebrow="持续对话 · Conversation"
         title={teammate?.name ?? '正在打开对话'}
-        description="这是道友的独立 Conversation，不属于 Mission；Gate 1 不包含 Mission 执行。"
+        description="这是道友的独立 Conversation，不属于 Mission；日常交流与任务执行分别保存。"
       />
       {teammate && (
         <div className="chat-context">
@@ -5093,6 +5410,177 @@ function TeammateSkillsPanel({ teammate }: { teammate: TeammateView }) {
       <p className="form-hint">只有此处已启用的 Skill 会进入这位道友的 Prompt。</p>
     </div>
   );
+}
+
+function TeammateExperiencePanel({ teammate }: { teammate: TeammateView }) {
+  const [experience, setExperience] = useState<TeammateExperienceView | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setExperience(null);
+    setLoading(true);
+    setError('');
+    const getExperience = window.cultivation?.experience?.get;
+    if (typeof getExperience !== 'function') {
+      setError('经历记录接口尚未连接。请重启应用后重试。');
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+    void getExperience(teammate.id)
+      .then((result) => {
+        if (!cancelled) setExperience(result);
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取经历记录失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [teammate.id, refreshKey]);
+
+  const profile = experience?.profile;
+  const metrics = profile
+    ? ([
+        ['已完成 Mission', profile.completedMissions],
+        ['失败 Mission', profile.failedMissions],
+        ['已取消 Mission', profile.cancelledMissions],
+        ['咨询参与', profile.consultationParticipations],
+        ['审查参与', profile.reviewParticipations],
+        ['委托参与', profile.delegationParticipations],
+        ['工具使用', profile.toolUses],
+        ['已完成协作', profile.completedCollaborations],
+        ['Skill 使用', profile.skillUses],
+      ] as const)
+    : [];
+
+  return (
+    <section className="profile-section experience-panel" aria-labelledby="experience-title">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">可核验记录 · Activity profile</p>
+          <h3 id="experience-title">经历 / 能力</h3>
+          <p>炼气 · 正式能力考核尚未开启</p>
+        </div>
+        <button
+          className="button ghost small"
+          type="button"
+          disabled={loading}
+          onClick={() => setRefreshKey((current) => current + 1)}
+        >
+          刷新记录
+        </button>
+      </div>
+      <p className="experience-note">
+        这里只汇总 Mission 结果、协作、工具和 Skill 的实际记录，不评等级或分数，也不会自动改变境界。
+      </p>
+      {error && (
+        <div className="notice error notice-with-action" role="alert">
+          {error}
+          <button
+            className="text-button"
+            type="button"
+            disabled={loading}
+            onClick={() => setRefreshKey((current) => current + 1)}
+          >
+            重试
+          </button>
+        </div>
+      )}
+      {loading ? (
+        <div className="loading-card">正在读取经历记录…</div>
+      ) : profile ? (
+        <>
+          <div className="experience-metrics">
+            {metrics.map(([label, value]) => (
+              <div className="experience-metric" key={label}>
+                <span>{label}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+          <p className="experience-last-active">
+            最近活动：{profile.lastActiveAt ? formatDate(profile.lastActiveAt) : '暂无活动记录'}
+          </p>
+          <div className="experience-event-heading">
+            <h4>近期经历来源</h4>
+            <span>{experience.events.length} 条</span>
+          </div>
+          {experience.events.length ? (
+            <ol className="experience-event-list">
+              {experience.events
+                .slice()
+                .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+                .slice(0, 12)
+                .map((event) => (
+                  <li className="experience-event" key={event.id}>
+                    <div className="experience-event-top">
+                      <strong>{experienceTypeLabel(event.experienceType)}</strong>
+                      <span className={`experience-outcome outcome-${event.outcome.toLowerCase()}`}>
+                        {experienceOutcomeLabel(event.outcome)}
+                      </span>
+                      <time>{formatDate(event.createdAt)}</time>
+                    </div>
+                    <div className="experience-provenance">
+                      <span>模式：{experienceModeLabel(event.mode)}</span>
+                      <span>角色：{safeLabel(event.role)}</span>
+                      <span>
+                        来源：{safeLabel(event.source)} · <code>{event.sourceId || '—'}</code>
+                      </span>
+                      <span>
+                        Mission <code>{event.missionId || '—'}</code> · Run{' '}
+                        <code>{event.runId || '—'}</code>
+                      </span>
+                    </div>
+                  </li>
+                ))}
+            </ol>
+          ) : (
+            <div className="experience-empty">
+              尚无可核验的任务、协作、工具或 Skill 使用记录；完成相关操作后，这里会显示记录来源。
+            </div>
+          )}
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+function experienceTypeLabel(type: ExperienceType): string {
+  const labels: Record<ExperienceType, string> = {
+    MISSION_RESULT: 'Mission 结果',
+    COLLABORATION: '队伍协作',
+    TOOL_USE: '工具使用',
+    SKILL_USE: 'Skill 使用',
+  };
+  return labels[type];
+}
+
+function experienceOutcomeLabel(outcome: ExperienceOutcome): string {
+  const labels: Record<ExperienceOutcome, string> = {
+    COMPLETED: '已完成',
+    FAILED: '失败',
+    CANCELLED: '已取消',
+    INTERRUPTED: '中断',
+  };
+  return labels[outcome];
+}
+
+function experienceModeLabel(mode: MissionMode): string {
+  const labels: Record<MissionMode, string> = {
+    SOLO: '单人 SOLO',
+    CONSULTATION: '咨询',
+    REVIEW: '审查',
+    DELEGATION: '委托',
+  };
+  return labels[mode] ?? safeLabel(mode);
 }
 
 function UsagePage() {
