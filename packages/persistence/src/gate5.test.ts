@@ -302,6 +302,16 @@ describe('Gate 5 SQLite persistence', () => {
         repository.resolveCollaborationRequest('request', 'APPROVED', 'resolved'),
       ).toMatchObject({ state: 'APPROVED', resolvedAt: 'resolved', runId: 'run' });
       expect(repository.resolveCollaborationRequest('request', 'DENIED', 'later')).toBeNull();
+      repository.createCollaborationRequest(request({ id: 'permission-denied' }));
+      expect(
+        repository.resolveCollaborationRequest('permission-denied', 'DENIED', 'resolved'),
+      ).toMatchObject({
+        id: 'permission-denied',
+        runId: 'run',
+        targetTeammateId: 'b',
+        state: 'DENIED',
+      });
+      expect(repository.listCollaborationArtifacts('mission', 'run')).toEqual([]);
       expect(() =>
         db
           .prepare(

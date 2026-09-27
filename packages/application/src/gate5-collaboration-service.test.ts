@@ -337,6 +337,28 @@ function setup(memberCount = 2) {
   return { store, service, restart, gateway, party, parties, teammates, registry, create };
 }
 
+function synthesisInput(gateway: RecordingGateway): {
+  publicResults: Array<{ kind: string; teammateId: string; content: string }>;
+  collaborationOutcomes: Array<{
+    requestId: string;
+    targetTeammateId: string;
+    state: string;
+    reasonSummary: string;
+    taskSummary: string;
+  }>;
+} {
+  const request = gateway.requests.find((item) =>
+    item.messages.some(
+      (message) => message.role === 'user' && message.content.startsWith('SYNTHESIS: '),
+    ),
+  );
+  const message = request?.messages.find(
+    (item) => item.role === 'user' && item.content.startsWith('SYNTHESIS: '),
+  );
+  if (!message || message.role !== 'user') throw new Error('Coordinator synthesis was not called');
+  return JSON.parse(message.content.slice('SYNTHESIS: '.length));
+}
+
 describe('Gate5CollaborationService', () => {
   it('keeps a denied target at zero model calls and resolves an invite only once', async () => {
     const { service, store, gateway, create } = setup();
@@ -349,6 +371,24 @@ describe('Gate5CollaborationService', () => {
     expect(done.runs[0]?.id).toBe(waiting.runs[0]?.id);
     expect(gateway.requests.every((item) => item.teammateId === 'a')).toBe(true);
     expect(store.usage.every((item) => item.teammateId === 'a')).toBe(true);
+    expect(done.artifacts.filter((item) => item.teammateId === 'b')).toEqual([]);
+    expect(done.artifacts.map((item) => item.kind)).toEqual(['FINAL']);
+    expect(
+      done.events.some(
+        (item) =>
+          item.actorId === 'b' &&
+          ['collaboration.started', 'collaboration.completed', 'collaboration.failed'].includes(
+            item.eventType,
+          ),
+      ),
+    ).toBe(false);
+    expect(synthesisInput(gateway)).toMatchObject({
+      publicResults: [],
+      collaborationOutcomes: [{ requestId: request.id, targetTeammateId: 'b', state: 'DENIED' }],
+    });
+    expect(
+      synthesisInput(gateway).collaborationOutcomes[0]?.reasonSummary.length,
+    ).toBeLessThanOrEqual(200);
     await expect(
       service.resolveCollaboration({ requestId: request.id, decision: 'APPROVED' }),
     ).rejects.toThrow();
@@ -369,9 +409,19 @@ describe('Gate5CollaborationService', () => {
     expect(done.usage.every((item) => item.runId === waiting.runs[0]?.id)).toBe(true);
   });
 
-  it('honors INVITE_TEAMMATE DENY before creating a request or invoking the target', async () => {
+  it('persists INVITE_TEAMMATE DENY as a resolved proposal without target execution or repeated proposal', async () => {
     const { service, store, gateway, create } = setup();
     const id = create();
+    const propose = gateway.proposeCollaboration.bind(gateway);
+    let proposalCalls = 0;
+    gateway.proposeCollaboration = async (request) => {
+      proposalCalls += 1;
+      const result = await propose(request);
+      return {
+        ...result,
+        proposal: { ...result.proposal, reason: 'r'.repeat(600), task: 't'.repeat(600) },
+      };
+    };
     store.rules.push({
       id: 'deny-invite',
       subjectType: 'TEAMMATE',
@@ -384,9 +434,32 @@ describe('Gate5CollaborationService', () => {
     });
     const done = await service.start(id);
     expect(done.mission.state).toBe('COMPLETED');
-    expect(done.collaborations).toHaveLength(0);
+    expect(done.collaborations).toMatchObject([
+      { runId: done.runs[0]?.id, targetTeammateId: 'b', state: 'DENIED' },
+    ]);
+    expect(proposalCalls).toBe(1);
     expect(gateway.requests.every((item) => item.teammateId === 'a')).toBe(true);
+    expect(done.usage.every((item) => item.teammateId === 'a')).toBe(true);
+    expect(done.artifacts.filter((item) => item.teammateId === 'b')).toEqual([]);
+    expect(done.artifacts.map((item) => item.kind)).toEqual(['FINAL']);
+    expect(
+      done.events.some(
+        (item) =>
+          item.actorId === 'b' &&
+          ['collaboration.started', 'collaboration.completed', 'collaboration.failed'].includes(
+            item.eventType,
+          ),
+      ),
+    ).toBe(false);
+    expect(synthesisInput(gateway)).toMatchObject({
+      publicResults: [],
+      collaborationOutcomes: [{ targetTeammateId: 'b', state: 'DENIED' }],
+    });
+    expect(synthesisInput(gateway).collaborationOutcomes[0]?.reasonSummary).toHaveLength(200);
+    expect(synthesisInput(gateway).collaborationOutcomes[0]?.taskSummary).toHaveLength(200);
+    expect(done.events.some((item) => item.eventType === 'collaboration.proposed')).toBe(true);
     expect(done.events.some((item) => item.eventType === 'collaboration.denied')).toBe(true);
+    expect(done.audits.some((item) => item.action === 'collaboration.denied')).toBe(true);
   });
 
   it('uses each teammate own runtime, scoped memory and skill, then coordinator synthesizes', async () => {
@@ -440,7 +513,29 @@ describe('Gate5CollaborationService', () => {
       expect(done.artifacts.map((item) => item.kind)).toEqual(
         mode === 'REVIEW' ? ['DRAFT', 'REVIEW', 'FINAL'] : ['MEMBER_RESULT', 'FINAL'],
       );
+      expect(
+        done.artifacts.filter((item) => item.kind === 'REVIEW' || item.kind === 'MEMBER_RESULT'),
+      ).toMatchObject([{ teammateId: 'b' }]);
     }
+  });
+
+  it('records Review denial without attributing a Review artifact to an unexecuted reviewer', async () => {
+    const { service, gateway, create } = setup();
+    const id = create('REVIEW');
+    const waiting = await service.start(id);
+    const done = await service.resolveCollaboration({
+      requestId: waiting.collaborations[0]!.id,
+      decision: 'DENIED',
+    });
+    expect(done.mission.state).toBe('COMPLETED');
+    expect(done.artifacts.map((item) => [item.kind, item.teammateId])).toEqual([
+      ['DRAFT', 'a'],
+      ['FINAL', 'a'],
+    ]);
+    expect(done.usage.every((item) => item.teammateId === 'a')).toBe(true);
+    expect(synthesisInput(gateway).collaborationOutcomes).toMatchObject([
+      { targetTeammateId: 'b', state: 'DENIED' },
+    ]);
   });
 
   it('consults three persistent teammates without sharing member private context', async () => {
@@ -471,6 +566,84 @@ describe('Gate5CollaborationService', () => {
     expect(
       done.usage.every((item) => item.missionId === id && item.runId === done.runs[0]?.id),
     ).toBe(true);
+  });
+
+  it('continues a three-member Consultation after one denial without assigning that target an artifact', async () => {
+    const { service, gateway, create } = setup(3);
+    const id = create();
+    const first = await service.start(id);
+    const second = await service.resolveCollaboration({
+      requestId: first.collaborations[0]!.id,
+      decision: 'DENIED',
+    });
+    expect(second.mission.state).toBe('WAITING_COLLABORATION');
+    expect(second.collaborations[1]?.targetTeammateId).toBe('c');
+    expect(second.artifacts.filter((item) => item.teammateId === 'b')).toEqual([]);
+    const done = await service.resolveCollaboration({
+      requestId: second.collaborations[1]!.id,
+      decision: 'APPROVED',
+    });
+    expect(done.mission.state).toBe('COMPLETED');
+    expect(done.artifacts.map((item) => [item.kind, item.teammateId])).toEqual([
+      ['MEMBER_RESULT', 'c'],
+      ['FINAL', 'a'],
+    ]);
+    expect(gateway.requests.map((item) => item.teammateId)).toEqual(['c', 'a']);
+    expect(synthesisInput(gateway).collaborationOutcomes).toMatchObject([
+      { targetTeammateId: 'b', state: 'DENIED' },
+      { targetTeammateId: 'c', state: 'APPROVED' },
+    ]);
+  });
+
+  it('uses only the current Run collaboration outcomes and artifacts after Retry', async () => {
+    const { service, gateway, create } = setup(3);
+    const propose = gateway.proposeCollaboration.bind(gateway);
+    let proposalCalls = 0;
+    gateway.proposeCollaboration = async (request) => {
+      proposalCalls += 1;
+      if (proposalCalls === 2) throw new Error('Fixture proposal failure after first denial');
+      return propose(request);
+    };
+    const id = create();
+    const first = await service.start(id);
+    const failed = await service.resolveCollaboration({
+      requestId: first.collaborations[0]!.id,
+      decision: 'DENIED',
+    });
+    expect(failed.mission.state).toBe('FAILED');
+    const oldRunId = failed.runs[0]!.id;
+    const retried = await service.retry(id);
+    expect(retried.mission.state).toBe('WAITING_COLLABORATION');
+    const newRunId = retried.runs[1]!.id;
+    expect(newRunId).not.toBe(oldRunId);
+    const afterB = await service.resolveCollaboration({
+      requestId: retried.collaborations.find((item) => item.runId === newRunId)!.id,
+      decision: 'APPROVED',
+    });
+    const done = await service.resolveCollaboration({
+      requestId: afterB.collaborations.find(
+        (item) => item.runId === newRunId && item.targetTeammateId === 'c',
+      )!.id,
+      decision: 'DENIED',
+    });
+    expect(done.mission.state).toBe('COMPLETED');
+    expect(done.collaborations.filter((item) => item.runId === oldRunId)).toMatchObject([
+      { targetTeammateId: 'b', state: 'DENIED' },
+    ]);
+    expect(synthesisInput(gateway).collaborationOutcomes).toMatchObject([
+      { targetTeammateId: 'b', state: 'APPROVED' },
+      { targetTeammateId: 'c', state: 'DENIED' },
+    ]);
+    expect(
+      synthesisInput(gateway).collaborationOutcomes.some(
+        (item) => item.requestId === first.collaborations[0]!.id,
+      ),
+    ).toBe(false);
+    expect(done.artifacts.filter((item) => item.runId === oldRunId)).toEqual([]);
+    expect(done.artifacts.filter((item) => item.runId === newRunId)).toMatchObject([
+      { teammateId: 'b', kind: 'MEMBER_RESULT' },
+      { teammateId: 'a', kind: 'FINAL' },
+    ]);
   });
 
   it('never treats a delegated teammate request to invite C as authorization', async () => {

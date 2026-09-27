@@ -217,13 +217,26 @@ try {
     0,
     'Denied Teammate B must not begin a model call',
   );
-  const deniedMemberResults = deniedDetail.artifacts.filter(
-    (artifact) => artifact.teammateId === fixture.bId && artifact.kind === 'MEMBER_RESULT',
+  assert.equal(
+    deniedDetail.artifacts.filter((artifact) => artifact.teammateId === fixture.bId).length,
+    0,
+    'Unexecuted teammate B must own no collaboration artifact',
+  );
+  assert.equal(
+    deniedDetail.events.filter(
+      (event) =>
+        event.actorId === fixture.bId &&
+        ['collaboration.started', 'collaboration.completed', 'collaboration.failed'].includes(
+          event.eventType,
+        ),
+    ).length,
+    0,
   );
   assert.ok(
-    deniedMemberResults.every(
-      (artifact) => JSON.parse(artifact.content).code === 'COLLABORATION_DENIED',
-    ),
+    deniedDetail.artifacts
+      .find((artifact) => artifact.kind === 'FINAL')
+      ?.content.includes('"state":"DENIED"'),
+    'Coordinator synthesis must receive the denied CollaborationRequest outcome',
   );
   assertCollaborationAudit(deniedDetail, 'denied');
   assert.ok(missionUsage(deniedDetail, fixture.aId).length > 0);
@@ -431,6 +444,17 @@ try {
     artifacts.some((item) => item.teammate_id === fixture.bId && item.kind === 'MEMBER_RESULT'),
   );
   assert.ok(artifacts.some((item) => item.teammate_id === fixture.aId && item.kind === 'FINAL'));
+  const deniedTargetArtifactCount = db
+    .prepare(
+      `SELECT COUNT(*) AS count FROM collaboration_artifacts
+       WHERE mission_id = ? AND teammate_id = ?`,
+    )
+    .get(deniedDetail.mission.id, fixture.bId).count;
+  assert.equal(
+    deniedTargetArtifactCount,
+    0,
+    'SQLite must not assign an artifact to a denied, unexecuted teammate',
+  );
   for (const privateMarker of fixture.privateMarkers) {
     assert.ok(!JSON.stringify(artifacts).includes(privateMarker));
   }
@@ -470,5 +494,5 @@ try {
 }
 
 console.log(
-  'GATE5_PACKAGED_SMOKE_OK party=2 persistent_teammates consultation=initiative_invite deny=target_model_calls_zero approve=member_uses_own_runtime_memory_skill coordinator_synthesis=final_artifact usage_audit=actor_attributed',
+  'GATE5_PACKAGED_SMOKE_OK party=2 persistent_teammates consultation=initiative_invite deny=target_model_calls_zero_and_sqlite_artifacts_zero approve=member_uses_own_runtime_memory_skill coordinator_synthesis=final_artifact usage_audit=actor_attributed',
 );

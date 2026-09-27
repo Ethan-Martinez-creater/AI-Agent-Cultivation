@@ -505,13 +505,6 @@ export class Gate5CollaborationService {
         requestId: request.id,
       });
     } else {
-      this.appendArtifact(
-        running,
-        run,
-        request.targetTeammateId,
-        'MEMBER_RESULT',
-        JSON.stringify({ ok: false, code: 'COLLABORATION_DENIED' }),
-      );
       await this.continueRun(running, run);
     }
     return this.detail(mission.id);
@@ -582,10 +575,18 @@ export class Gate5CollaborationService {
         teammateId: item.teammateId,
         content: bounded(item.content),
       }));
+    const collaborationOutcomes = requests.map((request) => ({
+      requestId: request.id,
+      requesterTeammateId: request.requesterTeammateId,
+      targetTeammateId: request.targetTeammateId,
+      state: request.state,
+      reasonSummary: summary(request.reason),
+      taskSummary: summary(request.proposedTask),
+    }));
     await this.runParticipant(mission, run, {
       phase: 'SYNTHESIS',
       teammateId: mission.coordinatorTeammateId,
-      task: `SYNTHESIS: ${JSON.stringify({ objective: mission.objective, mode: mission.mode, publicResults }).slice(0, 24_000)}`,
+      task: `SYNTHESIS: ${JSON.stringify({ objective: mission.objective, mode: mission.mode, publicResults, collaborationOutcomes }).slice(0, 24_000)}`,
       artifactKind: 'FINAL',
       requestId: null,
     });
@@ -703,25 +704,6 @@ export class Gate5CollaborationService {
       teammateId: coordinator.id,
       missionId: mission.id,
     });
-    if (permission.decision === 'DENY') {
-      this.record(mission, run.id, 'collaboration.denied', 'SYSTEM', null, {
-        requesterTeammateId: coordinator.id,
-        targetTeammateId: proposal.targetTeammateId,
-        mode: mission.mode,
-        reasonSummary: summary(proposal.reason),
-        taskSummary: summary(proposal.task),
-        code: 'INVITE_PERMISSION_DENIED',
-      });
-      this.appendArtifact(
-        mission,
-        run,
-        proposal.targetTeammateId,
-        'MEMBER_RESULT',
-        JSON.stringify({ ok: false, code: 'INVITE_PERMISSION_DENIED' }),
-      );
-      await this.continueRun(mission, run);
-      return;
-    }
     const at = this.clock.now();
     const request: CollaborationRequest = {
       id: this.clock.newId(),
@@ -737,6 +719,35 @@ export class Gate5CollaborationService {
       createdAt: at,
       resolvedAt: null,
     };
+    if (permission.decision === 'DENY') {
+      this.missionStore.transaction(() => {
+        this.store.createCollaborationRequest(request);
+        if (!this.store.resolveCollaborationRequest(request.id, 'DENIED', at)) {
+          throw new DomainError('CONFLICT', '协作拒绝记录更新冲突');
+        }
+        this.record(mission, run.id, 'collaboration.proposed', 'TEAMMATE', coordinator.id, {
+          requestId: request.id,
+          requesterTeammateId: coordinator.id,
+          targetTeammateId: request.targetTeammateId,
+          mode: mission.mode,
+          reasonSummary: summary(request.reason),
+          taskSummary: summary(request.proposedTask),
+          expectedBenefitSummary: summary(request.expectedBenefit),
+          permission: permission.decision,
+        });
+        this.record(mission, run.id, 'collaboration.denied', 'SYSTEM', null, {
+          requestId: request.id,
+          requesterTeammateId: coordinator.id,
+          targetTeammateId: request.targetTeammateId,
+          mode: mission.mode,
+          reasonSummary: summary(request.reason),
+          taskSummary: summary(request.proposedTask),
+          code: 'INVITE_PERMISSION_DENIED',
+        });
+      });
+      await this.continueRun(mission, run);
+      return;
+    }
     const waiting = transition(mission, 'WAITING_COLLABORATION', at);
     this.missionStore.transaction(() => {
       this.store.createCollaborationRequest(request);
