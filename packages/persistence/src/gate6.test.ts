@@ -306,7 +306,7 @@ describe('Gate 6 experience ledger', () => {
         count: 0,
       });
       expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-        count: 8,
+        count: 9,
       });
     } finally {
       db.close();

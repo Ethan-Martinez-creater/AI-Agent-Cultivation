@@ -9,6 +9,7 @@ import gate4Sql from '../../../migrations/0005_gate4.sql?raw';
 import gate5Sql from '../../../migrations/0006_gate5.sql?raw';
 import gate6Sql from '../../../migrations/0007_gate6.sql?raw';
 import gate6CollaborationOutcomeSql from '../../../migrations/0008_gate6_collaboration_outcome.sql?raw';
+import routingFoundationSql from '../../../migrations/0009_routing_foundation.sql?raw';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
@@ -18,6 +19,17 @@ export { Gate3SqliteRepository } from './gate3.js';
 export { Gate4SqliteRepository } from './gate4.js';
 export { Gate5SqliteRepository } from './gate5.js';
 export { Gate6SqliteRepository } from './gate6.js';
+export { R0SqliteRepository } from './r0.js';
+export type {
+  CapabilityDimension,
+  CapabilityEvidenceRecord,
+  DecisionReceiptRecord,
+  ExternalAppProfileRecord,
+  ExternalWorkArtifactRecord,
+  ExternalWorkRequestRecord,
+  ModelCapabilityBenchmarkRecord,
+  TeammateCapabilityStateRecord,
+} from './r0.js';
 export type { McpServerConfig, PendingToolCall, PendingToolCallState } from '@cultivation/domain';
 export type { Gate5PendingToolCall, Gate5PendingToolCallState } from '@cultivation/domain';
 
@@ -25,6 +37,7 @@ export interface Migration {
   version: number;
   name: string;
   sql: string;
+  requiresForeignKeysOff?: boolean;
 }
 export const migrations: readonly Migration[] = [
   { version: 1, name: 'initial', sql: initialSql },
@@ -35,6 +48,12 @@ export const migrations: readonly Migration[] = [
   { version: 6, name: 'gate5', sql: gate5Sql },
   { version: 7, name: 'gate6', sql: gate6Sql },
   { version: 8, name: 'gate6_collaboration_outcome', sql: gate6CollaborationOutcomeSql },
+  {
+    version: 9,
+    name: 'routing_foundation',
+    sql: routingFoundationSql,
+    requiresForeignKeysOff: true,
+  },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -83,9 +102,15 @@ export interface TeammateRecord {
   status: 'ACTIVE' | 'ARCHIVED';
   realm: 'QI_REFINING' | 'FOUNDATION' | 'CORE' | 'NASCENT_SOUL';
   currentRuntimeProfileId: string | null;
+  executorKind: 'MODEL_RUNTIME' | 'USER_BRIDGE';
+  routingPolicy: 'NORMAL' | 'FALLBACK_ONLY' | 'MANUAL_ONLY';
+  systemKind: 'HUMAN_BRIDGE' | null;
   createdAt: string;
   updatedAt: string;
 }
+
+type TeammateWriteRecord = Omit<TeammateRecord, 'executorKind' | 'routingPolicy' | 'systemKind'> &
+  Partial<Pick<TeammateRecord, 'executorKind' | 'routingPolicy' | 'systemKind'>>;
 
 export interface ConversationRecord {
   id: string;
@@ -165,6 +190,9 @@ interface TeammateRow {
   status: TeammateRecord['status'];
   realm: TeammateRecord['realm'];
   current_runtime_profile_id: string | null;
+  executor_kind: TeammateRecord['executorKind'];
+  routing_policy: TeammateRecord['routingPolicy'];
+  system_kind: TeammateRecord['systemKind'];
   created_at: string;
   updated_at: string;
 }
@@ -311,22 +339,42 @@ export class Gate1SqliteRepository {
     ).map(mapRuntimeProfile);
   }
 
-  saveTeammate(value: TeammateRecord): void {
+  saveTeammate(value: TeammateWriteRecord): void {
+    const existing = this.db
+      .prepare('SELECT executor_kind, routing_policy, system_kind FROM teammates WHERE id = ?')
+      .get(value.id) as
+      | Pick<TeammateRow, 'executor_kind' | 'routing_policy' | 'system_kind'>
+      | undefined;
+    if (
+      existing?.system_kind === 'HUMAN_BRIDGE' &&
+      ((value.executorKind !== undefined && value.executorKind !== existing.executor_kind) ||
+        (value.routingPolicy !== undefined && value.routingPolicy !== existing.routing_policy) ||
+        (value.systemKind !== undefined && value.systemKind !== existing.system_kind) ||
+        value.currentRuntimeProfileId !== null)
+    ) {
+      throw new Error('Human Bridge executor identity and Runtime binding are immutable');
+    }
+    const executorKind = value.executorKind ?? existing?.executor_kind ?? 'MODEL_RUNTIME';
+    const routingPolicy = value.routingPolicy ?? existing?.routing_policy ?? 'NORMAL';
+    const systemKind = value.systemKind ?? existing?.system_kind ?? null;
     this.db
       .prepare(
         `INSERT INTO teammates
           (id, name, avatar, title, description, identity_prompt, behavior_prompt, status, realm,
-           current_runtime_profile_id, created_at, updated_at)
+           current_runtime_profile_id, executor_kind, routing_policy, system_kind, created_at, updated_at)
          VALUES (@id, @name, @avatar, @title, @description, @identityPrompt, @behaviorPrompt,
-           @status, @realm, @currentRuntimeProfileId, @createdAt, @updatedAt)
+           @status, @realm, @currentRuntimeProfileId, @executorKind, @routingPolicy, @systemKind,
+           @createdAt, @updatedAt)
          ON CONFLICT(id) DO UPDATE SET
            name=excluded.name, avatar=excluded.avatar, title=excluded.title,
            description=excluded.description, identity_prompt=excluded.identity_prompt,
            behavior_prompt=excluded.behavior_prompt, status=excluded.status,
            realm=excluded.realm, current_runtime_profile_id=excluded.current_runtime_profile_id,
+           executor_kind=excluded.executor_kind, routing_policy=excluded.routing_policy,
+           system_kind=excluded.system_kind,
            updated_at=excluded.updated_at`,
       )
-      .run(value);
+      .run({ ...value, executorKind, routingPolicy, systemKind });
   }
 
   getTeammate(id: string): TeammateRecord | null {
@@ -497,6 +545,9 @@ function mapTeammate(row: TeammateRow): TeammateRecord {
     status: row.status,
     realm: row.realm,
     currentRuntimeProfileId: row.current_runtime_profile_id,
+    executorKind: row.executor_kind,
+    routingPolicy: row.routing_policy,
+    systemKind: row.system_kind,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -572,13 +623,62 @@ export function runMigrations(db: Database.Database, steps: readonly Migration[]
   );
   for (const step of [...steps].sort((a, b) => a.version - b.version)) {
     if (applied.has(step.version)) continue;
+    if (step.requiresForeignKeysOff) {
+      runMigrationWithForeignKeysDisabled(db, step);
+    } else {
+      db.transaction(() => applyMigration(db, step))();
+    }
+  }
+}
+
+function applyMigration(db: Database.Database, step: Migration): void {
+  db.exec(step.sql);
+  db.prepare('INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)').run(
+    step.version,
+    step.name,
+    new Date().toISOString(),
+  );
+}
+
+function runMigrationWithForeignKeysDisabled(db: Database.Database, step: Migration): void {
+  if (db.inTransaction) {
+    throw new Error(`Migration ${step.version} must run outside an existing transaction`);
+  }
+  const foreignKeysWereEnabled = Boolean(db.pragma('foreign_keys', { simple: true }));
+  const legacyAlterTableWasEnabled = Boolean(db.pragma('legacy_alter_table', { simple: true }));
+  assertForeignKeyIntegrity(db, `before migration ${step.version}`);
+  db.pragma('foreign_keys = OFF');
+  try {
     db.transaction(() => {
-      db.exec(step.sql);
-      db.prepare('INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)').run(
-        step.version,
-        step.name,
-        new Date().toISOString(),
-      );
+      applyMigration(db, step);
+      assertForeignKeyIntegrity(db, `during migration ${step.version}`);
     })();
+    assertForeignKeyIntegrity(db, `after migration ${step.version}`);
+  } finally {
+    try {
+      db.pragma(`legacy_alter_table = ${legacyAlterTableWasEnabled ? 'ON' : 'OFF'}`);
+    } finally {
+      db.pragma(`foreign_keys = ${foreignKeysWereEnabled ? 'ON' : 'OFF'}`);
+    }
+  }
+  assertForeignKeyIntegrity(db, `after restoring foreign keys for migration ${step.version}`);
+}
+
+function assertForeignKeyIntegrity(db: Database.Database, phase: string): void {
+  const violations = db.pragma('foreign_key_check') as {
+    table: string;
+    rowid: number | null;
+    parent: string;
+    fkid: number;
+  }[];
+  if (violations.length > 0) {
+    const sample = violations
+      .slice(0, 5)
+      .map(
+        ({ table, rowid, parent, fkid }) =>
+          `${table}[${rowid ?? 'WITHOUT ROWID'}]->${parent}#${fkid}`,
+      )
+      .join(', ');
+    throw new Error(`Foreign key check failed ${phase}: ${sample}`);
   }
 }
