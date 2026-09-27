@@ -277,6 +277,9 @@ export class Gate1Service {
       description: input.description,
       identityPrompt: input.identityPrompt,
       behaviorPrompt: input.behaviorPrompt,
+      executorKind: 'MODEL_RUNTIME',
+      routingPolicy: 'NORMAL',
+      systemKind: null,
       status: 'ACTIVE',
       realm: 'QI_REFINING',
       currentRuntimeProfileId: input.currentRuntimeProfileId,
@@ -299,6 +302,9 @@ export class Gate1Service {
   }): Teammate {
     const previous = this.store.getTeammate(input.id);
     if (!previous) notFound('道友');
+    if (previous.executorKind === 'USER_BRIDGE') {
+      throw new DomainError('INVALID_INPUT', 'Human Bridge 不可通过道友运行配置接口编辑');
+    }
     this.requireRuntime(input.currentRuntimeProfileId);
     const teammate: Teammate = {
       ...previous,
@@ -342,6 +348,9 @@ export class Gate1Service {
   switchRuntime(input: { teammateId: string; runtimeProfileId: string }): Teammate {
     const previous = this.store.getTeammate(input.teammateId);
     if (!previous) notFound('道友');
+    if (previous.executorKind === 'USER_BRIDGE') {
+      throw new DomainError('INVALID_INPUT', 'Human Bridge 不可绑定模型运行配置');
+    }
     this.requireRuntime(input.runtimeProfileId);
     const teammate = {
       ...previous,

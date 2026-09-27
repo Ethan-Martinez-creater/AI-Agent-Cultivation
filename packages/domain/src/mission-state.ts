@@ -7,6 +7,7 @@ const transitions: Readonly<Record<MissionState, readonly MissionState[]>> = {
   RUNNING: [
     'WAITING_APPROVAL',
     'WAITING_COLLABORATION',
+    'WAITING_EXTERNAL_WORK',
     'PAUSED',
     'COMPLETED',
     'FAILED',
@@ -15,6 +16,7 @@ const transitions: Readonly<Record<MissionState, readonly MissionState[]>> = {
   ],
   WAITING_APPROVAL: ['RUNNING', 'FAILED', 'CANCELLED'],
   WAITING_COLLABORATION: ['RUNNING', 'CANCELLED'],
+  WAITING_EXTERNAL_WORK: ['RUNNING', 'FAILED', 'CANCELLED'],
   PAUSED: ['RUNNING', 'CANCELLED'],
   COMPLETED: [],
   FAILED: ['READY'],

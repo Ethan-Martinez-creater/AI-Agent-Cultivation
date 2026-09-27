@@ -47,6 +47,14 @@ describe('Mission state machine', () => {
     expect(canTransition('INTERRUPTED', 'READY')).toBe(true);
   });
 
+  it('supports waiting for external work and resuming or resolving the Mission', () => {
+    expect(canTransition('RUNNING', 'WAITING_EXTERNAL_WORK')).toBe(true);
+    expect(canTransition('WAITING_EXTERNAL_WORK', 'RUNNING')).toBe(true);
+    expect(canTransition('WAITING_EXTERNAL_WORK', 'FAILED')).toBe(true);
+    expect(canTransition('WAITING_EXTERNAL_WORK', 'CANCELLED')).toBe(true);
+    expect(canTransition('WAITING_EXTERNAL_WORK', 'COMPLETED')).toBe(false);
+  });
+
   it('allows a draft to be cancelled through the state machine', () => {
     expect(transition(base, 'CANCELLED').state).toBe('CANCELLED');
     expect(canTransition('DRAFT', 'CANCELLED')).toBe(true);

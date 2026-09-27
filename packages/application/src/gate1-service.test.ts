@@ -155,6 +155,17 @@ describe('Gate 1 application vertical slice', () => {
       modelId: 'model-b',
     });
     const teammate = service.createTeammate(teammateInput(runtimeA.id));
+    expect(teammate).toMatchObject({
+      executorKind: 'MODEL_RUNTIME',
+      routingPolicy: 'NORMAL',
+      systemKind: null,
+    });
+    const duplicate = service.duplicateTeammate(teammate.id);
+    expect(duplicate).toMatchObject({
+      executorKind: 'MODEL_RUNTIME',
+      routingPolicy: 'NORMAL',
+      systemKind: null,
+    });
     const conversation = service.createConversation(teammate.id);
     expect((await collect(service, teammate.id, conversation.id, 'PING')).at(-1)?.type).toBe(
       'done',
@@ -265,5 +276,45 @@ describe('Gate 1 application vertical slice', () => {
       inputTokens: null,
       outputTokens: null,
     });
+  });
+
+  it('does not bind a Human Bridge to a Runtime through Gate 1 update paths', () => {
+    const { service, store } = setup();
+    const provider = service.createProvider({
+      name: 'Local',
+      kind: 'OPENAI_COMPATIBLE',
+      baseUrl: 'http://localhost:9999/v1',
+    });
+    const runtime = service.createRuntimeProfile({
+      name: 'Local',
+      providerId: provider.id,
+      credentialId: null,
+      modelId: 'local-model',
+    });
+    const bridge = {
+      ...service.createTeammate(teammateInput(runtime.id)),
+      currentRuntimeProfileId: null,
+      executorKind: 'USER_BRIDGE',
+      routingPolicy: 'FALLBACK_ONLY',
+      systemKind: 'HUMAN_BRIDGE',
+    } as const;
+    store.saveTeammate(bridge);
+
+    expect(() =>
+      service.updateTeammate({
+        id: bridge.id,
+        name: bridge.name,
+        avatar: bridge.avatar,
+        title: bridge.title,
+        description: bridge.description,
+        identityPrompt: bridge.identityPrompt,
+        behaviorPrompt: bridge.behaviorPrompt,
+        currentRuntimeProfileId: runtime.id,
+      }),
+    ).toThrow('Human Bridge');
+    expect(() =>
+      service.switchRuntime({ teammateId: bridge.id, runtimeProfileId: runtime.id }),
+    ).toThrow('Human Bridge');
+    expect(store.getTeammate(bridge.id)).toEqual(bridge);
   });
 });

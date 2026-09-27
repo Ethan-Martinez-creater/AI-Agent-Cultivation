@@ -2,6 +2,9 @@ import type { Id, IsoDateTime } from '@cultivation/shared';
 
 export type TeammateStatus = 'ACTIVE' | 'ARCHIVED';
 export type Realm = 'QI_REFINING' | 'FOUNDATION' | 'CORE' | 'NASCENT_SOUL';
+export type ExecutorKind = 'MODEL_RUNTIME' | 'USER_BRIDGE';
+export type RoutingPolicy = 'NORMAL' | 'FALLBACK_ONLY' | 'MANUAL_ONLY';
+export type SystemKind = 'HUMAN_BRIDGE';
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
 export interface ProviderConfig {
   id: Id;
@@ -28,6 +31,9 @@ export interface Teammate {
   description: string;
   identityPrompt: string;
   behaviorPrompt: string;
+  executorKind: ExecutorKind;
+  routingPolicy: RoutingPolicy;
+  systemKind: SystemKind | null;
   status: TeammateStatus;
   realm: Realm;
   currentRuntimeProfileId: Id | null;
@@ -168,6 +174,7 @@ export type MissionState =
   | 'RUNNING'
   | 'WAITING_APPROVAL'
   | 'WAITING_COLLABORATION'
+  | 'WAITING_EXTERNAL_WORK'
   | 'PAUSED'
   | 'COMPLETED'
   | 'FAILED'
@@ -396,6 +403,153 @@ export interface CapabilityProfile {
   completedCollaborations: number;
   skillUses: number;
   lastActiveAt: IsoDateTime | null;
+}
+
+export type CapabilityDimension =
+  | 'GENERAL_REASONING'
+  | 'LONG_CONTEXT_REASONING'
+  | 'AGENTIC_EXECUTION'
+  | 'CODING'
+  | 'TOOL_USE'
+  | 'VISUAL_UNDERSTANDING'
+  | 'IMAGE_GENERATION'
+  | 'IMAGE_EDITING'
+  | 'VIDEO_GENERATION'
+  | 'VIDEO_EDITING'
+  | 'SPEECH_UNDERSTANDING'
+  | 'SPEECH_GENERATION'
+  | 'SPEECH_TO_SPEECH'
+  | 'MUSIC_GENERATION';
+
+export type BenchmarkProvenanceType = 'CATALOG' | 'USER_OVERRIDE' | 'USER_ESTIMATE';
+
+/** Static, versioned benchmark data attached to a Runtime/model alias. */
+export interface ModelCapabilityBenchmark {
+  id: Id;
+  runtimeProfileId: Id;
+  modelAlias: string;
+  dimension: CapabilityDimension;
+  supported: boolean;
+  /** Null when unsupported; keep this distinct from a supported low score. */
+  normalizedScore: number | null;
+  rawScore: number | null;
+  source: string;
+  benchmark: string;
+  benchmarkVersion: string;
+  snapshotDate: IsoDateTime;
+  sourceUrl: string | null;
+  provenanceType: BenchmarkProvenanceType;
+}
+
+/** Dynamic capability state derived from fact-backed CapabilityEvidence. */
+export interface TeammateCapabilityState {
+  teammateId: Id;
+  dimension: CapabilityDimension;
+  currentScore: number;
+  evidenceWeight: number;
+  ratingCount: number;
+  currentRuntimeProfileId: Id | null;
+  updatedAt: IsoDateTime;
+}
+
+export type CapabilityEvidenceSourceType = 'USER_DIMENSION_RATING' | 'USER_OVERALL_RATING';
+
+/** Append-only user evidence; a bridge rating may not be tied to a Runtime profile. */
+export interface CapabilityEvidence {
+  id: Id;
+  teammateId: Id;
+  runtimeProfileId: Id | null;
+  missionId: Id;
+  runId: Id;
+  dimension: CapabilityDimension;
+  sourceType: CapabilityEvidenceSourceType;
+  ratingValue: number;
+  demandWeight: number;
+  evidenceWeight: number;
+  createdAt: IsoDateTime;
+}
+
+/** One dimension's probability and whether it is a hard requirement for a task. */
+export interface TaskCapabilityDemand {
+  dimension: CapabilityDimension;
+  probability: number;
+  required: boolean;
+}
+
+export type DecisionReceiptMode = 'SHADOW' | 'ADVISORY' | 'ACTIVE';
+
+/** Bounded audit record of a Decision Plane result; inputSummary excludes private source text. */
+export interface DecisionReceipt {
+  id: Id;
+  missionId: Id | null;
+  runId: Id | null;
+  decisionType: string;
+  provider: string;
+  model: string;
+  modelVersion: string;
+  questionVersion: string;
+  stateHash: string;
+  /** Maximum 2,000 characters; persistence validates the bound. */
+  inputSummary: string;
+  answersJson: Record<string, unknown>;
+  confidenceJson: Record<string, unknown>;
+  policyVersion: string;
+  selectedAction: string | null;
+  mode: DecisionReceiptMode;
+  createdAt: IsoDateTime;
+}
+
+export type ExternalWorkRequestState =
+  | 'PENDING'
+  | 'IN_PROGRESS'
+  | 'SUBMITTED'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'CANCELLED';
+
+/** User-owned external work that can pause a Mission while awaiting an artifact. */
+export interface ExternalWorkRequest {
+  id: Id;
+  missionId: Id;
+  runId: Id;
+  requesterTeammateId: Id;
+  assigneeTeammateId: Id;
+  capability: CapabilityDimension;
+  title: string;
+  prompt: string;
+  requirementsJson: Record<string, unknown>;
+  targetArtifactsJson: Record<string, unknown>;
+  acceptanceCriteriaJson: Record<string, unknown>;
+  state: ExternalWorkRequestState;
+  createdAt: IsoDateTime;
+  submittedAt: IsoDateTime | null;
+  resolvedAt: IsoDateTime | null;
+}
+
+/** File metadata submitted to satisfy an ExternalWorkRequest. */
+export interface ExternalWorkArtifact {
+  id: Id;
+  externalWorkRequestId: Id;
+  path: string;
+  fileName: string;
+  extension: string;
+  sizeBytes: number;
+  mimeType: string | null;
+  metadataJson: Record<string, unknown>;
+  submittedAt: IsoDateTime;
+}
+
+/** User-configured app that can be suggested for external work; stores no credentials. */
+export interface ExternalAppProfile {
+  id: Id;
+  teammateId: Id;
+  name: string;
+  vendor: string | null;
+  capabilities: CapabilityDimension[];
+  notes: string | null;
+  enabled: boolean;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
 }
 
 export { canTransition, transition } from './mission-state.js';
