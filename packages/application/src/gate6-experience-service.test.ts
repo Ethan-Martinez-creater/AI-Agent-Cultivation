@@ -55,6 +55,38 @@ describe('Gate 6 experience application service', () => {
     });
   });
 
+  it('counts collaboration completions from participant outcome across opposite Run results', () => {
+    const profile = buildCapabilityProfile('a', [
+      ledgerEvent('MISSION_RESULT', {
+        id: 'run-completed',
+        runId: 'run-completed',
+        outcome: 'COMPLETED',
+      }),
+      ledgerEvent('MISSION_RESULT', {
+        id: 'run-failed',
+        runId: 'run-failed',
+        outcome: 'FAILED',
+      }),
+      ledgerEvent('COLLABORATION', {
+        id: 'member-failed-coordinator-completed',
+        runId: 'run-completed',
+        outcome: 'FAILED',
+      }),
+      ledgerEvent('COLLABORATION', {
+        id: 'member-completed-coordinator-failed',
+        runId: 'run-failed',
+        outcome: 'COMPLETED',
+      }),
+    ]);
+
+    expect(profile).toMatchObject({
+      completedMissions: 1,
+      failedMissions: 1,
+      completedCollaborations: 1,
+      consultationParticipations: 2,
+    });
+  });
+
   it('ignores legacy inflated capability profile data and reconciles idempotently', () => {
     const db = new Database(':memory:');
     db.pragma('foreign_keys = ON');

@@ -81,7 +81,9 @@ interface ToolContinuation {
   stepCount: number;
   toolCallCount: number;
 }
-type ParticipantOutcome = { kind: 'DONE'; text: string } | { kind: 'WAITING' };
+type ParticipantOutcome =
+  | { kind: 'DONE'; text: string; failureCode?: string }
+  | { kind: 'WAITING' };
 
 const POLICY =
   'Execute only the current Mission task as this persistent Teammate. Your private Memory and enabled Skills belong only to you. ' +
@@ -134,6 +136,23 @@ function bounded(value: string, limit = MAX_PUBLIC_TEXT): string {
 
 function summary(value: string): string {
   return bounded(value.replace(/\s+/g, ' ').trim(), 200);
+}
+
+function collaborationFailureCode(value: string): string {
+  try {
+    const result: unknown = JSON.parse(value);
+    if (
+      isRecord(result) &&
+      result.ok === false &&
+      typeof result.code === 'string' &&
+      /^[A-Z0-9_]{1,80}$/.test(result.code)
+    ) {
+      return result.code;
+    }
+  } catch {
+    /* Fall back to a bounded generic failure code. */
+  }
+  return 'COLLABORATION_FAILED';
 }
 
 function toolResultPart(result: ToolResult): ModelMessage {
@@ -793,12 +812,30 @@ export class Gate5CollaborationService {
     task: ParticipantTask,
     resume?: ToolContinuation,
   ): Promise<void> {
-    if (task.phase === 'PARTICIPANT' && !resume) {
+    let collaborationRequest: CollaborationRequest | null = null;
+    if (task.phase === 'PARTICIPANT') {
+      collaborationRequest = task.requestId
+        ? this.store.getCollaborationRequest(task.requestId)
+        : null;
+      if (
+        !collaborationRequest ||
+        collaborationRequest.missionId !== mission.id ||
+        collaborationRequest.runId !== run.id ||
+        collaborationRequest.targetTeammateId !== task.teammateId ||
+        collaborationRequest.state !== 'APPROVED'
+      ) {
+        await this.fail(mission, run, 'COLLABORATION_PROVENANCE_INVALID');
+        return;
+      }
+    }
+    if (collaborationRequest && !resume) {
       this.record(mission, run.id, 'collaboration.started', 'TEAMMATE', task.teammateId, {
-        requestId: task.requestId,
-        requesterTeammateId: mission.coordinatorTeammateId,
+        requestId: collaborationRequest.id,
+        requesterTeammateId: collaborationRequest.requesterTeammateId,
         targetTeammateId: task.teammateId,
+        participantTeammateId: task.teammateId,
         mode: mission.mode,
+        outcome: 'STARTED',
         taskSummary: summary(task.task),
       });
     }
@@ -811,15 +848,25 @@ export class Gate5CollaborationService {
         await this.fail(mission, run, 'COORDINATOR_EXECUTION_FAILED');
         return;
       }
-      outcome = { kind: 'DONE', text: JSON.stringify({ ok: false, code: 'COLLABORATION_FAILED' }) };
+      outcome = {
+        kind: 'DONE',
+        text: JSON.stringify({ ok: false, code: 'COLLABORATION_FAILED' }),
+        failureCode: 'COLLABORATION_FAILED',
+      };
     }
     if (outcome.kind === 'WAITING' || !this.active(mission, run)) return;
     if (outcome.text === '{"ok":false,"code":"MODEL_CALL_LIMIT_REACHED"}') {
       await this.fail(mission, run, 'MODEL_CALL_LIMIT_REACHED');
       return;
     }
+    if (task.phase !== 'PARTICIPANT' && outcome.failureCode) {
+      await this.fail(mission, run, outcome.failureCode);
+      return;
+    }
     if (task.phase === 'PARTICIPANT') {
       const failed = outcome.text.startsWith('{"ok":false,');
+      const failureCode =
+        outcome.failureCode ?? (failed ? collaborationFailureCode(outcome.text) : null);
       this.record(
         mission,
         run.id,
@@ -827,10 +874,13 @@ export class Gate5CollaborationService {
         'TEAMMATE',
         task.teammateId,
         {
-          requestId: task.requestId,
-          requesterTeammateId: mission.coordinatorTeammateId,
+          requestId: collaborationRequest!.id,
+          requesterTeammateId: collaborationRequest!.requesterTeammateId,
           targetTeammateId: task.teammateId,
+          participantTeammateId: task.teammateId,
           mode: mission.mode,
+          outcome: failed ? 'FAILED' : 'COMPLETED',
+          ...(failureCode ? { code: failureCode } : {}),
           outputSummary: { bytes: Buffer.byteLength(outcome.text) },
         },
       );
@@ -929,7 +979,11 @@ export class Gate5CollaborationService {
             teammate.id,
             this.modelPayload(runtime, { phase: task.phase, code: 'MODEL_CALL_FAILED' }),
           );
-          return { kind: 'DONE', text: JSON.stringify({ ok: false, code: 'MODEL_CALL_FAILED' }) };
+          return {
+            kind: 'DONE',
+            text: JSON.stringify({ ok: false, code: 'MODEL_CALL_FAILED' }),
+            failureCode: 'MODEL_CALL_FAILED',
+          };
         }
         if (!this.active(mission, run)) return { kind: 'WAITING' };
         steps += 1;

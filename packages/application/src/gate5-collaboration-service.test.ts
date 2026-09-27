@@ -371,6 +371,9 @@ describe('Gate5CollaborationService', () => {
     expect(done.runs[0]?.id).toBe(waiting.runs[0]?.id);
     expect(gateway.requests.every((item) => item.teammateId === 'a')).toBe(true);
     expect(store.usage.every((item) => item.teammateId === 'a')).toBe(true);
+    expect(
+      done.events.filter((item) => item.eventType === 'model.call_started' && item.actorId === 'b'),
+    ).toEqual([]);
     expect(done.artifacts.filter((item) => item.teammateId === 'b')).toEqual([]);
     expect(done.artifacts.map((item) => item.kind)).toEqual(['FINAL']);
     expect(
@@ -382,6 +385,7 @@ describe('Gate5CollaborationService', () => {
           ),
       ),
     ).toBe(false);
+    expect(done.events.filter((item) => item.actorId === 'b')).toEqual([]);
     expect(synthesisInput(gateway)).toMatchObject({
       publicResults: [],
       collaborationOutcomes: [{ requestId: request.id, targetTeammateId: 'b', state: 'DENIED' }],
@@ -440,6 +444,9 @@ describe('Gate5CollaborationService', () => {
     expect(proposalCalls).toBe(1);
     expect(gateway.requests.every((item) => item.teammateId === 'a')).toBe(true);
     expect(done.usage.every((item) => item.teammateId === 'a')).toBe(true);
+    expect(
+      done.events.filter((item) => item.eventType === 'model.call_started' && item.actorId === 'b'),
+    ).toEqual([]);
     expect(done.artifacts.filter((item) => item.teammateId === 'b')).toEqual([]);
     expect(done.artifacts.map((item) => item.kind)).toEqual(['FINAL']);
     expect(
@@ -451,6 +458,7 @@ describe('Gate5CollaborationService', () => {
           ),
       ),
     ).toBe(false);
+    expect(done.events.filter((item) => item.actorId === 'b')).toEqual([]);
     expect(synthesisInput(gateway)).toMatchObject({
       publicResults: [],
       collaborationOutcomes: [{ targetTeammateId: 'b', state: 'DENIED' }],
@@ -507,6 +515,189 @@ describe('Gate5CollaborationService', () => {
       ),
     ).toBe(true);
   });
+
+  it.each(['CONSULTATION', 'REVIEW', 'DELEGATION'] as const)(
+    'keeps a failed %s participant outcome when coordinator synthesis completes',
+    async (mode) => {
+      const { service, store, gateway, create } = setup(mode === 'CONSULTATION' ? 2 : 3);
+      const generate = gateway.generate.bind(gateway);
+      gateway.generate = async (request) => {
+        const synthesis = request.messages.some(
+          (message) => message.role === 'user' && message.content.startsWith('SYNTHESIS: '),
+        );
+        if (request.teammateId === 'b' || (request.teammateId === 'a' && synthesis)) {
+          return request.teammateId === 'b'
+            ? {
+                text: JSON.stringify({ ok: false, code: 'MEMBER_TASK_FAILED' }),
+                usage: {
+                  inputTokens: 5,
+                  outputTokens: 2,
+                  cachedInputTokens: null,
+                  reasoningTokens: null,
+                },
+              }
+            : {
+                text: 'Coordinator synthesized the failed collaboration.',
+                usage: {
+                  inputTokens: 5,
+                  outputTokens: 3,
+                  cachedInputTokens: null,
+                  reasoningTokens: null,
+                },
+              };
+        }
+        return generate(request);
+      };
+
+      const id = create(mode);
+      const waiting = await service.start(id);
+      const request = waiting.collaborations[0]!;
+      const done = await service.resolveCollaboration({
+        requestId: request.id,
+        decision: 'APPROVED',
+      });
+      const run = done.runs[0]!;
+      const participantEvents = done.events.filter(
+        (event) =>
+          event.runId === run.id &&
+          event.actorType === 'TEAMMATE' &&
+          event.actorId === 'b' &&
+          ['collaboration.started', 'collaboration.completed', 'collaboration.failed'].includes(
+            event.eventType,
+          ),
+      );
+
+      expect(run.status).toBe('COMPLETED');
+      expect(done.mission.state).toBe('COMPLETED');
+      expect(participantEvents.map((event) => event.eventType)).toEqual([
+        'collaboration.started',
+        'collaboration.failed',
+      ]);
+      expect(participantEvents[0]?.payloadJson).toMatchObject({
+        requestId: request.id,
+        requesterTeammateId: 'a',
+        targetTeammateId: 'b',
+        participantTeammateId: 'b',
+        mode,
+        outcome: 'STARTED',
+      });
+      expect(participantEvents[1]?.payloadJson).toMatchObject({
+        requestId: request.id,
+        requesterTeammateId: 'a',
+        targetTeammateId: 'b',
+        participantTeammateId: 'b',
+        mode,
+        outcome: 'FAILED',
+      });
+      expect(done.artifacts.filter((artifact) => artifact.teammateId === 'b')).toHaveLength(1);
+      expect(gateway.requests.filter((item) => item.teammateId === 'b')).toHaveLength(1);
+      expect(
+        done.events.filter(
+          (event) => event.eventType === 'model.call_started' && event.actorId === 'b',
+        ),
+      ).toHaveLength(1);
+      expect(store.usage.filter((item) => item.teammateId === 'b')).toHaveLength(1);
+      expect(store.usage.filter((item) => item.teammateId === 'b')[0]).toMatchObject({
+        missionId: id,
+        runId: run.id,
+        teammateId: 'b',
+        runtimeProfileId: 'runtime-b',
+      });
+      const coordinatorFinal = done.events.find(
+        (event) => event.eventType === 'collaboration.completed' && event.actorId === 'a',
+      );
+      expect(coordinatorFinal?.payloadJson).not.toHaveProperty('requestId');
+    },
+  );
+
+  it.each(['CONSULTATION', 'REVIEW', 'DELEGATION'] as const)(
+    'keeps a completed %s participant outcome when coordinator synthesis fails',
+    async (mode) => {
+      const { service, store, gateway, create } = setup(mode === 'CONSULTATION' ? 2 : 3);
+      const generate = gateway.generate.bind(gateway);
+      gateway.generate = async (request) => {
+        const synthesis = request.messages.some(
+          (message) => message.role === 'user' && message.content.startsWith('SYNTHESIS: '),
+        );
+        if (request.teammateId === 'a' && synthesis) {
+          throw new Error('fixture coordinator synthesis provider failure');
+        }
+        return generate(request);
+      };
+
+      const id = create(mode);
+      const waiting = await service.start(id);
+      const request = waiting.collaborations[0]!;
+      const done = await service.resolveCollaboration({
+        requestId: request.id,
+        decision: 'APPROVED',
+      });
+      const run = done.runs[0]!;
+      const participantEvents = done.events.filter(
+        (event) =>
+          event.runId === run.id &&
+          event.actorType === 'TEAMMATE' &&
+          event.actorId === 'b' &&
+          ['collaboration.started', 'collaboration.completed', 'collaboration.failed'].includes(
+            event.eventType,
+          ),
+      );
+
+      expect(run.status).toBe('FAILED');
+      expect(run.errorCode).toBe('MODEL_CALL_FAILED');
+      expect(done.mission.state).toBe('FAILED');
+      expect(participantEvents.map((event) => event.eventType)).toEqual([
+        'collaboration.started',
+        'collaboration.completed',
+      ]);
+      expect(participantEvents[0]?.payloadJson).toMatchObject({
+        requestId: request.id,
+        requesterTeammateId: 'a',
+        targetTeammateId: 'b',
+        participantTeammateId: 'b',
+        mode,
+        outcome: 'STARTED',
+      });
+      expect(participantEvents[1]?.payloadJson).toMatchObject({
+        requestId: request.id,
+        requesterTeammateId: 'a',
+        targetTeammateId: 'b',
+        participantTeammateId: 'b',
+        mode,
+        outcome: 'COMPLETED',
+      });
+      expect(
+        done.events.some(
+          (event) =>
+            event.runId === run.id &&
+            event.actorType === 'SYSTEM' &&
+            event.eventType === 'collaboration.failed',
+        ),
+      ).toBe(true);
+      const systemRunFailure = done.events.find(
+        (event) =>
+          event.runId === run.id &&
+          event.actorType === 'SYSTEM' &&
+          event.eventType === 'collaboration.failed',
+      );
+      expect(systemRunFailure?.payloadJson).not.toHaveProperty('requestId');
+      expect(done.artifacts.some((artifact) => artifact.teammateId === 'b')).toBe(true);
+      expect(done.artifacts.some((artifact) => artifact.kind === 'FINAL')).toBe(false);
+      expect(gateway.requests.filter((item) => item.teammateId === 'b')).toHaveLength(1);
+      expect(
+        done.events.filter(
+          (event) => event.eventType === 'model.call_started' && event.actorId === 'b',
+        ),
+      ).toHaveLength(1);
+      expect(store.usage.filter((item) => item.teammateId === 'b')).toHaveLength(1);
+      expect(store.usage.filter((item) => item.teammateId === 'b')[0]).toMatchObject({
+        missionId: id,
+        runId: run.id,
+        teammateId: 'b',
+        runtimeProfileId: 'runtime-b',
+      });
+    },
+  );
 
   it('persists Review Draft, Review, Final and Delegation depth one', async () => {
     for (const mode of ['REVIEW', 'DELEGATION'] as const) {
@@ -655,6 +846,17 @@ describe('Gate5CollaborationService', () => {
       { teammateId: 'b', kind: 'MEMBER_RESULT' },
       { teammateId: 'a', kind: 'FINAL' },
     ]);
+    expect(
+      done.events
+        .filter(
+          (event) =>
+            event.actorId === 'b' &&
+            ['collaboration.started', 'collaboration.completed', 'collaboration.failed'].includes(
+              event.eventType,
+            ),
+        )
+        .map((event) => event.runId),
+    ).toEqual([newRunId, newRunId]);
   });
 
   it('never treats a delegated teammate request to invite C as authorization', async () => {
