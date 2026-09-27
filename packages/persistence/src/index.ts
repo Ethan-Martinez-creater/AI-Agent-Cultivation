@@ -10,6 +10,7 @@ import gate5Sql from '../../../migrations/0006_gate5.sql?raw';
 import gate6Sql from '../../../migrations/0007_gate6.sql?raw';
 import gate6CollaborationOutcomeSql from '../../../migrations/0008_gate6_collaboration_outcome.sql?raw';
 import routingFoundationSql from '../../../migrations/0009_routing_foundation.sql?raw';
+import capabilityEvidenceProvenanceSql from '../../../migrations/0010_r0_capability_evidence_provenance.sql?raw';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
@@ -54,6 +55,7 @@ export const migrations: readonly Migration[] = [
     sql: routingFoundationSql,
     requiresForeignKeysOff: true,
   },
+  { version: 10, name: 'r0_capability_evidence_provenance', sql: capabilityEvidenceProvenanceSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

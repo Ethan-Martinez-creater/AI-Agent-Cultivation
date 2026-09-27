@@ -1,6 +1,6 @@
 # R0 — Routing Foundation
 
-状态：R0 实现及验收通过，待本轮提交记录补齐。
+状态：R0 实现及验收通过；0010 CapabilityEvidence provenance 修复及本轮打包验收通过。
 
 ## 范围与不变量
 
@@ -20,20 +20,26 @@
 
 SQLite 无法直接扩大旧 Mission state `CHECK`，迁移在外键完整性验证保护下重建该表，保留旧 Mission/Run/Event/Audit、Permission、Experience 事实。系统 Human Bridge 的 bootstrap 是显式、幂等的 repository 操作；应用启动不调用它。
 
+### 0010：CapabilityEvidence provenance 修复
+
+0009 只验证了 Mission participant/Run 归属，因此未执行成员可被评价，MODEL_RUNTIME 也能以空 Runtime 写入。`0010_r0_capability_evidence_provenance.sql` 只替换 Evidence 的 INSERT 校验 trigger，保留 0009 和原有 UPDATE/DELETE append-only 限制。新评价必须指向已终结的精确 MissionRun。`MODEL_RUNTIME` 道友必须是 Mission coordinator/participant，并提供非空历史 Runtime ID；同一 Run 中该道友的 `model.call_started` 事件（payload 中匹配 Runtime ID）或 Usage 记录必须证明执行。当前 Runtime 不参与历史 ID 推断。`USER_BRIDGE` 必须使用空 Runtime ID，且同一 MissionRun 中存在以其为 assignee 的 `ACCEPTED` ExternalWorkRequest。Party membership、DENIED collaboration proposal、未完成外部工作都不足以产生 Evidence。旧 Evidence 行不被重写；R0 尚无用户评分 UI。
+
 ## 验证证据
 
 本轮在 Windows x64 主工作区完成：
 
-| 命令                    | 结果                                                                                                     |
-| ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| `npm run test`          | 26 个测试文件、163 项测试通过；包含 Gate 0–6 全量回归。                                                  |
-| `npm run typecheck`     | 通过。                                                                                                   |
-| `npm run lint`          | 通过。                                                                                                   |
-| `npm run format:check`  | 通过。                                                                                                   |
-| `npm run package`       | 通过，产物为 `out/AI Agent Cultivation-win32-x64/AI-Agent-Cultivation.exe`。                             |
-| `npm run smoke:package` | 真实 Windows 包启动并通过 Gate 1–6 smoke，以及 R0 migration 9、旧创建路径道友默认字段、SQLite 外键检查。 |
+| 命令                    | 结果                                                                                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------- |
+| `npm run test`          | 27 个测试文件、175 项测试通过；包含 Gate 0–6 全量回归。                                                   |
+| `npm run typecheck`     | 通过。                                                                                                    |
+| `npm run lint`          | 通过。                                                                                                    |
+| `npm run format:check`  | 通过。                                                                                                    |
+| `npm run package`       | 通过，产物为 `out/AI Agent Cultivation-win32-x64/AI-Agent-Cultivation.exe`。                              |
+| `npm run smoke:package` | 真实 Windows 包启动并通过 Gate 1–6 smoke，以及 R0 migration 10、旧创建路径道友默认字段、SQLite 外键检查。 |
 
 确定性测试验证 1→9、带 Mission/Run/Event/Permission/Audit/Experience 事实的 8→9 迁移，旧道友默认值，无 Runtime 的 USER_BRIDGE，Benchmark Runtime 归属与 unsupported/低分区分，receipt 摘要长度边界，ExternalWorkRequest lifecycle、artifact 和 app profile 约束，以及 `WAITING_EXTERNAL_WORK` 重启保留。Migration 8→9 的表重建前后均执行 SQLite 外键完整性检查，旧事实保持原样。
+
+0010 的 12 项聚焦测试还验证 MODEL_RUNTIME 空/错误 Runtime 拒绝、participant 与 DENIED target 未执行拒绝、历史 Runtime 与 Usage provenance 接受、USER_BRIDGE 未完成/已接受外部工作、RUNNING Run 拒绝、Retry 不跨 Run 借用事实、9→10 迁移保留旧事实及 Evidence append-only。
 
 ## 已知问题与后续边界
 

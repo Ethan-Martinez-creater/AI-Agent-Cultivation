@@ -315,10 +315,20 @@ describe('R0 routing persistence', () => {
       { ...state, currentScore: 70, updatedAt: 'later' },
     ]);
 
+    db.prepare(
+      `INSERT INTO mission_events
+        (id, mission_id, run_id, event_type, actor_type, actor_id, payload_json, created_at)
+       VALUES ('evidence-model-call', 'mission-1', 'run-1', 'model.call_started',
+         'TEAMMATE', 'coordinator', '{"runtimeProfileId":"runtime-1"}', 'call-time')`,
+    ).run();
+    db.prepare(
+      "UPDATE mission_runs SET status = 'COMPLETED', ended_at = 'ended' WHERE id = 'run-1'",
+    ).run();
+
     const evidence: CapabilityEvidenceRecord = {
       id: 'evidence-1',
       teammateId: 'coordinator',
-      runtimeProfileId: null,
+      runtimeProfileId: 'runtime-1',
       missionId: 'mission-1',
       runId: 'run-1',
       dimension: 'CODING',
