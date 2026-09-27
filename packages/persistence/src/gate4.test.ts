@@ -69,13 +69,14 @@ const mcpServer: McpServerConfig = {
 describe('Gate 4 persistence', () => {
   it('applies migration 0005 after the prior migrations and stores one explicit workspace root', () => {
     const { db, gate4 } = setup();
-    expect(migrations.map(({ version }) => version)).toEqual([1, 2, 3, 4, 5]);
+    expect(migrations.map(({ version }) => version)).toEqual([1, 2, 3, 4, 5, 6]);
     expect(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([
       { version: 1 },
       { version: 2 },
       { version: 3 },
       { version: 4 },
       { version: 5 },
+      { version: 6 },
     ]);
     expect(gate4.getWorkspaceRoot()).toBeNull();
     gate4.setWorkspaceRoot('E:/workspace/project');

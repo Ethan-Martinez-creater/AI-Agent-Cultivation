@@ -63,6 +63,63 @@ function responseFor(kind: RuntimeProviderKind): Record<string, unknown> {
 }
 
 describe('AiSdkModelGateway', () => {
+  it('validates structured collaboration proposals and restricts targets to the approved roster', async () => {
+    const bodies: Array<Record<string, unknown>> = [];
+    const gateway = new AiSdkModelGateway(
+      async () => ({
+        kind: 'OPENAI',
+        baseUrl: null,
+        modelId: 'fixture-model',
+        apiKey: 'test-secret',
+      }),
+      {
+        fetch: async (input, init) => {
+          bodies.push((await new Request(input, init).json()) as Record<string, unknown>);
+          return new Response(
+            JSON.stringify({
+              ...responseFor('OPENAI'),
+              choices: [
+                {
+                  index: 0,
+                  message: {
+                    role: 'assistant',
+                    content: JSON.stringify({
+                      targetTeammateId: 'teammate-b',
+                      reason: 'Independent review',
+                      task: 'Review the public draft',
+                      expectedBenefit: 'Find defects',
+                      status: 'APPROVED',
+                    }),
+                  },
+                  finish_reason: 'stop',
+                },
+              ],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          );
+        },
+      },
+    );
+    const result = await gateway.proposeCollaboration({
+      runtimeProfileId: 'runtime-a',
+      teammateId: 'teammate-a',
+      mode: 'REVIEW',
+      objective: 'Check the plan',
+      eligibleTargetIds: ['teammate-b'],
+      publicDraft: 'Draft',
+      systemContext: 'GATE5_A_MEMORY only',
+    });
+    expect(result.proposal).toEqual({
+      targetTeammateId: 'teammate-b',
+      reason: 'Independent review',
+      task: 'Review the public draft',
+      expectedBenefit: 'Find defects',
+    });
+    expect(result.usage.inputTokens).toBe(7);
+    expect(JSON.stringify(bodies[0])).toContain('GATE5_A_MEMORY only');
+    expect(JSON.stringify(bodies[0])).not.toContain('GATE5_B_MEMORY');
+  });
+
   it('validates structured memory candidates without accepting owner or status from the model', async () => {
     const gateway = new AiSdkModelGateway(
       async () => ({

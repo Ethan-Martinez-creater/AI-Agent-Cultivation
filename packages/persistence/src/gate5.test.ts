@@ -6,7 +6,12 @@ import type {
   MissionParticipant,
   PartyMember,
 } from '@cultivation/domain';
-import { Gate5SqliteRepository, migrations, runMigrations } from './index.js';
+import {
+  Gate3SqliteRepository,
+  Gate5SqliteRepository,
+  migrations,
+  runMigrations,
+} from './index.js';
 
 function fixture(withRun = true) {
   const db = new Database(':memory:');
@@ -85,6 +90,66 @@ function request(overrides: Partial<CollaborationRequest> = {}): CollaborationRe
 }
 
 describe('Gate 5 SQLite persistence', () => {
+  it('accepts usage for the actual Party participant while rejecting nonparticipants and preserving SOLO ownership', () => {
+    const { db } = fixture();
+    const usageRepository = new Gate3SqliteRepository(db);
+    const usage = {
+      id: 'member-usage',
+      missionId: 'mission',
+      runId: 'run',
+      teammateId: 'b',
+      runtimeProfileId: 'r',
+      provider: 'OPENAI',
+      model: 'model',
+      inputTokens: 8,
+      outputTokens: 3,
+      cachedInputTokens: null,
+      reasoningTokens: null,
+      providerMetadata: null,
+      estimatedCost: null,
+      currency: null,
+      createdAt: 'now',
+    };
+    try {
+      usageRepository.saveUsage(usage);
+      expect(usageRepository.listMissionUsage('mission')).toMatchObject([
+        { teammateId: 'b', runId: 'run', runtimeProfileId: 'r' },
+      ]);
+      expect(() =>
+        usageRepository.saveUsage({ ...usage, id: 'outsider-usage', teammateId: 'd' }),
+      ).toThrow(/ownership must match/);
+      expect(() =>
+        db.prepare("UPDATE usage_records SET teammate_id = 'd' WHERE id = 'member-usage'").run(),
+      ).toThrow(/ownership must match/);
+      db.prepare(
+        `INSERT INTO missions (id,title,objective,initiator_type,initiator_id,
+          coordinator_teammate_id,mode,state,created_at,updated_at)
+         VALUES ('solo','Solo','Objective','USER','user','a','SOLO','RUNNING','now','now')`,
+      ).run();
+      db.prepare(
+        `INSERT INTO mission_runs (id,mission_id,attempt,status,started_at)
+         VALUES ('solo-run','solo',1,'RUNNING','now')`,
+      ).run();
+      expect(() =>
+        usageRepository.saveUsage({
+          ...usage,
+          id: 'solo-noncoordinator',
+          missionId: 'solo',
+          runId: 'solo-run',
+        }),
+      ).toThrow(/ownership must match/);
+      usageRepository.saveUsage({
+        ...usage,
+        id: 'solo-coordinator',
+        missionId: 'solo',
+        runId: 'solo-run',
+        teammateId: 'a',
+      });
+    } finally {
+      db.close();
+    }
+  });
+
   it('enforces 2–4 unique Party members with one matching Coordinator and rolls back failed replacements', () => {
     const { db, repository, members } = fixture();
     try {

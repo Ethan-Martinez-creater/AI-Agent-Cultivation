@@ -97,6 +97,49 @@ WHEN new.role NOT IN ('COORDINATOR', 'MEMBER', 'AUTHOR', 'REVIEWER')
   SELECT RAISE(ABORT, 'invalid Mission participant role or coordinator');
 END;
 
+-- Gate 3 allowed only the coordinator to own Mission usage. Party calls are
+-- owned by the teammate who actually invoked the model, provided that teammate
+-- is a persisted participant of this exact Mission. SOLO retains its original
+-- coordinator-only constraint.
+DROP TRIGGER usage_records_mission_run_insert;
+DROP TRIGGER usage_records_mission_run_update;
+CREATE TRIGGER usage_records_mission_run_insert
+BEFORE INSERT ON usage_records
+WHEN (new.mission_id IS NULL) != (new.run_id IS NULL)
+  OR (new.mission_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM mission_runs AS r
+    JOIN missions AS m ON m.id = r.mission_id
+    WHERE r.id = new.run_id AND r.mission_id = new.mission_id
+      AND (
+        (m.mode = 'SOLO' AND m.coordinator_teammate_id = new.teammate_id)
+        OR (m.mode IN ('CONSULTATION', 'REVIEW', 'DELEGATION') AND m.party_id IS NOT NULL
+          AND EXISTS (
+            SELECT 1 FROM mission_participants AS p
+            WHERE p.mission_id = m.id AND p.teammate_id = new.teammate_id
+          ))
+      )
+  )) BEGIN
+  SELECT RAISE(ABORT, 'usage mission, run, and teammate ownership must match');
+END;
+CREATE TRIGGER usage_records_mission_run_update
+BEFORE UPDATE OF mission_id, run_id, teammate_id ON usage_records
+WHEN (new.mission_id IS NULL) != (new.run_id IS NULL)
+  OR (new.mission_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM mission_runs AS r
+    JOIN missions AS m ON m.id = r.mission_id
+    WHERE r.id = new.run_id AND r.mission_id = new.mission_id
+      AND (
+        (m.mode = 'SOLO' AND m.coordinator_teammate_id = new.teammate_id)
+        OR (m.mode IN ('CONSULTATION', 'REVIEW', 'DELEGATION') AND m.party_id IS NOT NULL
+          AND EXISTS (
+            SELECT 1 FROM mission_participants AS p
+            WHERE p.mission_id = m.id AND p.teammate_id = new.teammate_id
+          ))
+      )
+  )) BEGIN
+  SELECT RAISE(ABORT, 'usage mission, run, and teammate ownership must match');
+END;
+
 CREATE TRIGGER mission_runs_party_available
 BEFORE INSERT ON mission_runs
 WHEN EXISTS (

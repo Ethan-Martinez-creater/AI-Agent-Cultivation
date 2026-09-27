@@ -1,6 +1,7 @@
 import type {
   ApprovalRequest,
   Mission,
+  MissionMode,
   MemoryRecord,
   MemoryType,
   Party,
@@ -82,11 +83,34 @@ export interface ModelConnectionTestResult {
   ok: boolean;
   message: string;
 }
+export interface CollaborationProposal {
+  targetTeammateId: string;
+  reason: string;
+  task: string;
+  expectedBenefit: string;
+}
+export interface CollaborationProposalRequest {
+  runtimeProfileId: string;
+  teammateId: string;
+  mode: Extract<MissionMode, 'CONSULTATION' | 'REVIEW' | 'DELEGATION'>;
+  objective: string;
+  eligibleTargetIds: string[];
+  publicDraft: string | null;
+  /** Composed context for the requesting Teammate only; never another member's private context. */
+  systemContext: string;
+}
+export interface CollaborationProposalResult {
+  proposal: CollaborationProposal;
+  usage: ModelUsage;
+}
 export interface ModelGateway {
   generate(request: ModelRequest): Promise<ModelResponse>;
   generateWithTools?(
     request: ModelRequest & { tools: ToolDescriptor[] },
   ): Promise<ModelToolResponse>;
+  proposeCollaboration?(
+    request: CollaborationProposalRequest,
+  ): Promise<CollaborationProposalResult>;
   stream(request: ModelRequest): AsyncIterable<ModelStreamEvent>;
   testConnection(runtimeProfileId: string): Promise<ModelConnectionTestResult>;
 }

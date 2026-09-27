@@ -143,7 +143,11 @@ export class Gate5SqliteRepository {
         members.map((member) => ({
           missionId: value.id,
           teammateId: member.teammate_id,
-          role: member.role,
+          role:
+            value.mode === 'REVIEW' &&
+            member.teammate_id === members.find((item) => item.role === 'MEMBER')?.teammate_id
+              ? 'REVIEWER'
+              : member.role,
           sortOrder: member.sort_order,
         })),
       );

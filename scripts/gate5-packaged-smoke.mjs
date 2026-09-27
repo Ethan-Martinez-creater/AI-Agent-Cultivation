@@ -88,8 +88,10 @@ try {
     const a = await makeTeammate(`Gate 5 Coordinator ${nonce}`, runtimeA.id);
     const b = await makeTeammate(`Gate 5 Member ${nonce}`, runtimeB.id);
 
-    const aMemory = `__GATE5_SCOPE_INSPECT__ GATE5_A_MEMORY_${nonce}`;
-    const bMemory = `__GATE5_SCOPE_INSPECT__ GATE5_B_MEMORY_${nonce}`;
+    const objective = `Consult independently and report a bounded public result. __GATE5_SCOPE_INSPECT__ ${nonce}`;
+    const memberTask = `MEMBER_TASK: Contribute to this Mission: ${objective}`;
+    const aMemory = `${memberTask} GATE5_A_MEMORY_${nonce}`;
+    const bMemory = `${memberTask} GATE5_B_MEMORY_${nonce}`;
     await api.memories.create({
       teammateId: a.id,
       memoryType: 'FACT',
@@ -254,9 +256,11 @@ try {
     approvedDetail.events.find((event) => event.eventType === 'collaboration.started')?.actorId,
     fixture.bId,
   );
-  assert.equal(
-    approvedDetail.events.find((event) => event.eventType === 'collaboration.completed')?.actorId,
-    fixture.bId,
+  assert.ok(
+    approvedDetail.events.some(
+      (event) => event.eventType === 'collaboration.completed' && event.actorId === fixture.bId,
+    ),
+    'Member completion must be recorded under B even when final synthesis shares the same timestamp',
   );
 
   const members = approvedDetail.participants;
