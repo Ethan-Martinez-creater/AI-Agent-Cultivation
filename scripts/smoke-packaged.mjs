@@ -577,4 +577,6 @@ try {
 
 await import('./smoke-gate3-packaged.mjs');
 await import('./smoke-gate4-packaged.mjs');
-await import('./gate5-packaged-smoke.mjs');
+const { gate5Evidence } = await import('./gate5-packaged-smoke.mjs');
+const { verifyGate6Packaged } = await import('./gate6-packaged-smoke.mjs');
+await verifyGate6Packaged(gate5Evidence);

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, safeStorage } from 'electron';
+import squirrelStartup from 'electron-squirrel-startup';
 import { join } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -11,6 +12,7 @@ import {
   Gate3SqliteRepository,
   Gate4SqliteRepository,
   Gate5SqliteRepository,
+  Gate6SqliteRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -35,6 +37,8 @@ import { Gate4ToolsService } from './gate4-tools-service.js';
 import { registerGate4Ipc } from './gate4-ipc.js';
 import { Gate5PartyService } from '@cultivation/application/gate5-party-service';
 import { Gate5CollaborationService } from '@cultivation/application/gate5-collaboration-service';
+import { Gate6ExperienceService } from '@cultivation/application/gate6-experience-service';
+import { registerGate6Ipc } from './gate6-ipc.js';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -55,6 +59,7 @@ function createWindow(
   partyMissions: Gate5CollaborationService,
   parties: Gate5PartyService,
   tools: Gate4ToolsService,
+  experience: Gate6ExperienceService,
 ): void {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -124,137 +129,150 @@ function createWindow(
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
   registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties);
   registerGate4Ipc(window, validSender, tools);
+  registerGate6Ipc(validSender, experience);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
 }
 
-app
-  .whenReady()
-  .then(async () => {
-    const db = openDatabase(databasePath(app.getPath('userData')));
-    db.prepare('SELECT 1').get();
-    app.once('before-quit', () => db.close());
-    if (process.argv.includes('--gate0-smoke')) {
-      process.stdout.write('GATE0_SMOKE_OK native_sqlite=ok\n');
-      app.exit(0);
-      return;
-    }
-    const store = new Gate1SqliteRepository(db);
-    const gate2Store = new Gate2SqliteRepository(db);
-    const gate3Store = new Gate3SqliteRepository(db);
-    const gate4Store = new Gate4SqliteRepository(db);
-    const gate5Store = new Gate5SqliteRepository(db);
-    let vectorAvailable = false;
-    try {
-      const extension = app.isPackaged
-        ? join(process.resourcesPath, 'vec0.dll')
-        : join(process.cwd(), 'node_modules', 'sqlite-vec-windows-x64', 'vec0.dll');
-      db.loadExtension(extension);
-      db.prepare('SELECT vec_version()').get();
-      vectorAvailable = true;
-    } catch {
-      // FTS5 remains fully functional if an installation cannot load sqlite-vec.
-    }
-    const vectorStore = new Gate2VectorRepository(db, vectorAvailable);
-    const secretStore = new ElectronSecretStore(safeStorage);
-    const gateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
-      process.argv.includes('--gate1-fake-model')
-        ? new FakeModelGateway()
-        : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
-    const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
-    const hybridMemory = new Gate2HybridMemoryService(store, memoryService, vectorStore, gateway);
-    const skillStore: SkillServiceStore = {
-      getSkill: async (id) => gate2Store.getSkill(id),
-      listSkills: async () => gate2Store.listSkills(),
-      saveSkill: async (skill) => gate2Store.saveSkill(skill),
-      listSkillRevisions: async (id) => gate2Store.listSkillRevisions(id),
-      getAssignment: async (teammateId, skillId) =>
-        gate2Store.listSkillAssignments(teammateId).find((item) => item.skillId === skillId) ??
-        null,
-      listAssignmentsForTeammate: async (teammateId) => gate2Store.listSkillAssignments(teammateId),
-      saveAssignment: async (assignment) => {
-        const existing = gate2Store
-          .listSkillAssignments(assignment.teammateId)
-          .some((item) => item.skillId === assignment.skillId);
-        if (!existing) gate2Store.assignSkill(assignment.teammateId, assignment.skillId);
-        gate2Store.setSkillEnabled(assignment.teammateId, assignment.skillId, assignment.enabled);
-      },
-      deleteAssignment: async (teammateId, skillId) => {
-        gate2Store.unassignSkill(teammateId, skillId);
-      },
-    };
-    const skillService = new SkillService(skillStore, {
-      now: () => new Date().toISOString(),
-      newId: () => crypto.randomUUID(),
+// Squirrel invokes the executable for install/update/uninstall hooks. Those
+// invocations manage shortcuts and must not open the normal database or UI.
+if (squirrelStartup) app.quit();
+else if (process.platform === 'win32')
+  app.setAppUserModelId('com.squirrel.AiAgentCultivation.AI-Agent-Cultivation');
+
+if (!squirrelStartup)
+  app
+    .whenReady()
+    .then(async () => {
+      const db = openDatabase(databasePath(app.getPath('userData')));
+      db.prepare('SELECT 1').get();
+      app.once('before-quit', () => db.close());
+      if (process.argv.includes('--gate0-smoke')) {
+        process.stdout.write('GATE0_SMOKE_OK native_sqlite=ok\n');
+        app.exit(0);
+        return;
+      }
+      const store = new Gate1SqliteRepository(db);
+      const gate2Store = new Gate2SqliteRepository(db);
+      const gate3Store = new Gate3SqliteRepository(db);
+      const gate4Store = new Gate4SqliteRepository(db);
+      const gate5Store = new Gate5SqliteRepository(db);
+      const experience = new Gate6ExperienceService(new Gate6SqliteRepository(db));
+      let vectorAvailable = false;
+      try {
+        const extension = app.isPackaged
+          ? join(process.resourcesPath, 'vec0.dll')
+          : join(process.cwd(), 'node_modules', 'sqlite-vec-windows-x64', 'vec0.dll');
+        db.loadExtension(extension);
+        db.prepare('SELECT vec_version()').get();
+        vectorAvailable = true;
+      } catch {
+        // FTS5 remains fully functional if an installation cannot load sqlite-vec.
+      }
+      const vectorStore = new Gate2VectorRepository(db, vectorAvailable);
+      const secretStore = new ElectronSecretStore(safeStorage);
+      const gateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
+        process.argv.includes('--gate1-fake-model')
+          ? new FakeModelGateway()
+          : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
+      const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
+      const hybridMemory = new Gate2HybridMemoryService(store, memoryService, vectorStore, gateway);
+      const skillStore: SkillServiceStore = {
+        getSkill: async (id) => gate2Store.getSkill(id),
+        listSkills: async () => gate2Store.listSkills(),
+        saveSkill: async (skill) => gate2Store.saveSkill(skill),
+        listSkillRevisions: async (id) => gate2Store.listSkillRevisions(id),
+        getAssignment: async (teammateId, skillId) =>
+          gate2Store.listSkillAssignments(teammateId).find((item) => item.skillId === skillId) ??
+          null,
+        listAssignmentsForTeammate: async (teammateId) =>
+          gate2Store.listSkillAssignments(teammateId),
+        saveAssignment: async (assignment) => {
+          const existing = gate2Store
+            .listSkillAssignments(assignment.teammateId)
+            .some((item) => item.skillId === assignment.skillId);
+          if (!existing) gate2Store.assignSkill(assignment.teammateId, assignment.skillId);
+          gate2Store.setSkillEnabled(assignment.teammateId, assignment.skillId, assignment.enabled);
+        },
+        deleteAssignment: async (teammateId, skillId) => {
+          gate2Store.unassignSkill(teammateId, skillId);
+        },
+      };
+      const skillService = new SkillService(skillStore, {
+        now: () => new Date().toISOString(),
+        newId: () => crypto.randomUUID(),
+      });
+      const promptContext: ChatPromptContext = {
+        load: async (teammateId, query) => ({
+          relevantMemories: await hybridMemory.retrieve(teammateId, query),
+          skills: gate2Store.listSkills(),
+          skillAssignments: gate2Store.listSkillAssignments(teammateId),
+        }),
+      };
+      const service: Gate1Service = new Gate1Service(store, secretStore, gateway, promptContext);
+      const permissionEngine = new PermissionEngine(gate3Store);
+      const registry = new ToolRegistry();
+      const mcpHost = new McpHost();
+      const tools = new Gate4ToolsService(gate4Store, registry, mcpHost);
+      await tools.initialize();
+      app.once('before-quit', () => {
+        void tools.close();
+      });
+      const missions = new Gate3MissionService(
+        gate3Store,
+        store,
+        permissionEngine,
+        gateway,
+        promptContext,
+      );
+      const toolRuntime = new ToolRuntime(registry, permissionEngine);
+      missions.attachTools(toolRuntime, gate4Store);
+      const parties = new Gate5PartyService(gate5Store, store);
+      const partyMissions = new Gate5CollaborationService(
+        gate3Store,
+        gate5Store,
+        parties,
+        store,
+        permissionEngine,
+        gateway,
+        promptContext,
+        toolRuntime,
+      );
+      await missions.recoverInterrupted();
+      experience.reconcileAll();
+      createWindow(
+        service,
+        memoryService,
+        skillService,
+        hybridMemory,
+        missions,
+        gate3Store,
+        partyMissions,
+        parties,
+        tools,
+        experience,
+      );
+      app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0)
+          createWindow(
+            service,
+            memoryService,
+            skillService,
+            hybridMemory,
+            missions,
+            gate3Store,
+            partyMissions,
+            parties,
+            tools,
+            experience,
+          );
+      });
+    })
+    .catch((error: unknown) => {
+      process.stderr.write(`Startup failed: ${String(error)}\n`);
+      app.exit(1);
     });
-    const promptContext: ChatPromptContext = {
-      load: async (teammateId, query) => ({
-        relevantMemories: await hybridMemory.retrieve(teammateId, query),
-        skills: gate2Store.listSkills(),
-        skillAssignments: gate2Store.listSkillAssignments(teammateId),
-      }),
-    };
-    const service: Gate1Service = new Gate1Service(store, secretStore, gateway, promptContext);
-    const permissionEngine = new PermissionEngine(gate3Store);
-    const registry = new ToolRegistry();
-    const mcpHost = new McpHost();
-    const tools = new Gate4ToolsService(gate4Store, registry, mcpHost);
-    await tools.initialize();
-    app.once('before-quit', () => {
-      void tools.close();
-    });
-    const missions = new Gate3MissionService(
-      gate3Store,
-      store,
-      permissionEngine,
-      gateway,
-      promptContext,
-    );
-    const toolRuntime = new ToolRuntime(registry, permissionEngine);
-    missions.attachTools(toolRuntime, gate4Store);
-    const parties = new Gate5PartyService(gate5Store, store);
-    const partyMissions = new Gate5CollaborationService(
-      gate3Store,
-      gate5Store,
-      parties,
-      store,
-      permissionEngine,
-      gateway,
-      promptContext,
-      toolRuntime,
-    );
-    await missions.recoverInterrupted();
-    createWindow(
-      service,
-      memoryService,
-      skillService,
-      hybridMemory,
-      missions,
-      gate3Store,
-      partyMissions,
-      parties,
-      tools,
-    );
-    app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0)
-        createWindow(
-          service,
-          memoryService,
-          skillService,
-          hybridMemory,
-          missions,
-          gate3Store,
-          partyMissions,
-          parties,
-          tools,
-        );
-    });
-  })
-  .catch((error: unknown) => {
-    process.stderr.write(`Startup failed: ${String(error)}\n`);
-    app.exit(1);
-  });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

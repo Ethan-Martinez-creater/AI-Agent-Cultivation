@@ -27,6 +27,8 @@ import type {
   SkillRevision,
   Teammate,
   UsageRecord,
+  ExperienceEvent,
+  CapabilityProfile,
 } from '@cultivation/domain';
 
 export type ChatStreamEvent =
@@ -104,6 +106,9 @@ export type PartyView = Party & { members: PartyMember[] };
 export interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
+  experience: {
+    get(teammateId: string): Promise<{ events: ExperienceEvent[]; profile: CapabilityProfile }>;
+  };
   providers: {
     list(): Promise<ProviderConfig[]>;
     create(input: ProviderInput): Promise<ProviderConfig>;
@@ -249,6 +254,7 @@ export interface CultivationBridge {
 const bridge: CultivationBridge = {
   app: { getVersion: () => ipcRenderer.invoke('app:getVersion') },
   health: { ping: () => ipcRenderer.invoke('health:ping') },
+  experience: { get: (teammateId) => ipcRenderer.invoke('experience:get', teammateId) },
   providers: {
     list: () => ipcRenderer.invoke('providers:list'),
     create: (input) => ipcRenderer.invoke('providers:create', input),

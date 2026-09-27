@@ -10,33 +10,43 @@ import { _electron as electron } from 'playwright-core';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const runId = `${Date.now()}-${process.pid}-${randomUUID()}`;
+const runId = `${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`;
 const configuredRoot = process.env.CULTIVATION_INSTALLER_SMOKE_ROOT;
-const scratchBase = configuredRoot
-  ? resolve(configuredRoot)
-  : join(repoRoot, '.tmp', 'installer-smoke');
+const scratchBase = configuredRoot ? resolve(configuredRoot) : join(parse(repoRoot).root, 'a6');
 const scratchRoot = join(scratchBase, runId);
 const localAppData = join(scratchRoot, 'local-app-data');
-const appData = join(scratchRoot, 'roaming-app-data');
 const userProfile = join(scratchRoot, 'user-profile');
+const appData = join(userProfile, 'AppData', 'Roaming');
+const startMenuPrograms = join(appData, 'Microsoft', 'Windows', 'Start Menu', 'Programs');
+const desktopDirectory = join(userProfile, 'Desktop');
 const tempDirectory = join(scratchRoot, 'temp');
-const squirrelTemp = join(scratchRoot, 'squirrel-temp');
 const launchWorkingDirectory = join(scratchRoot, 'launch-working-directory');
 const setupOutput = join(repoRoot, 'out', 'make', 'squirrel.windows', 'x64');
 const expectedExecutableName = 'AI-Agent-Cultivation.exe';
+const startMenuShortcut = join(
+  startMenuPrograms,
+  'AI Agent Cultivation contributors',
+  'AI Agent Cultivation.lnk',
+);
 
 assert.equal(
   parse(scratchRoot).root.toUpperCase(),
   'E:\\',
   'Installer smoke writes only to E:; set CULTIVATION_INSTALLER_SMOKE_ROOT to an E: temp folder.',
 );
+assert.equal(
+  isPathWithin(repoRoot, scratchRoot),
+  false,
+  'Installer smoke temp must be outside the source checkout for Electron Packager.',
+);
 
 for (const directory of [
   localAppData,
   appData,
   userProfile,
+  startMenuPrograms,
+  desktopDirectory,
   tempDirectory,
-  squirrelTemp,
   launchWorkingDirectory,
 ]) {
   mkdirSync(directory, { recursive: true });
@@ -49,7 +59,7 @@ const installerEnv = {
   USERPROFILE: userProfile,
   TEMP: tempDirectory,
   TMP: tempDirectory,
-  SQUIRREL_TEMP: squirrelTemp,
+  SQUIRREL_TEMP: localAppData,
 };
 delete installerEnv.CULTIVATION_USER_DATA_DIR;
 const buildEnv = {
@@ -82,6 +92,10 @@ const setupExecutable = setupExecutables[0];
 
 await install(setupExecutable, installerEnv);
 let installation = await waitForInstallation(localAppData);
+await waitUntil(
+  () => existsSync(startMenuShortcut),
+  'Squirrel did not create the isolated Start menu shortcut.',
+);
 assert.ok(
   isPathWithin(localAppData, installation.root),
   `Squirrel install escaped the isolated LOCALAPPDATA target: ${installation.root}`,
@@ -94,19 +108,28 @@ const createdTeammate = await withInstalledApp(
   installerEnv,
   async (page) => {
     await page.getByRole('heading', { name: '洞府 Home' }).waitFor({ timeout: 60_000 });
-    return page.evaluate(
-      async (name) =>
-        window.cultivation.teammates.create({
-          name,
-          avatar: null,
-          title: null,
-          description: 'Windows installer smoke data',
-          identityPrompt: 'Installer smoke only; no model request is made.',
-          behaviorPrompt: '',
-          currentRuntimeProfileId: null,
-        }),
-      marker,
-    );
+    return page.evaluate(async (name) => {
+      const provider = await window.cultivation.providers.create({
+        name: `${name} Provider`,
+        kind: 'OPENAI_COMPATIBLE',
+        baseUrl: 'http://127.0.0.1:9/v1',
+      });
+      const runtime = await window.cultivation.runtimes.create({
+        name: `${name} Runtime`,
+        providerId: provider.id,
+        credentialId: null,
+        modelId: 'installer-smoke-only',
+      });
+      return window.cultivation.teammates.create({
+        name,
+        avatar: null,
+        title: null,
+        description: 'Windows installer smoke data',
+        identityPrompt: 'Installer smoke only; no model request is made.',
+        behaviorPrompt: '',
+        currentRuntimeProfileId: runtime.id,
+      });
+    }, marker);
   },
 );
 
@@ -151,6 +174,10 @@ await waitUntil(
   () => !existsSync(installation.executable),
   'Squirrel uninstaller did not remove the installed application files.',
 );
+await waitUntil(
+  () => !existsSync(startMenuShortcut),
+  'Squirrel uninstaller did not remove the Start menu shortcut.',
+);
 assert.ok(existsSync(databasePath), 'Uninstall removed the app userData database.');
 assert.equal(
   statSync(databasePath).size,
@@ -160,6 +187,10 @@ assert.equal(
 
 await install(setupExecutable, installerEnv);
 installation = await waitForInstallation(localAppData);
+await waitUntil(
+  () => existsSync(startMenuShortcut),
+  'Squirrel reinstall did not restore the Start menu shortcut.',
+);
 assert.ok(isPathWithin(localAppData, installation.root));
 await stopAppProcesses(installation.root);
 await withInstalledApp(installation.executable, installerEnv, async (page) => {
@@ -173,7 +204,7 @@ await withInstalledApp(installation.executable, installerEnv, async (page) => {
 
 assert.ok(existsSync(databasePath), 'userData disappeared after reinstall.');
 console.log(
-  `WINDOWS_INSTALLER_SMOKE_OK install=ok launch_close_relaunch=ok uninstall=ok reinstall=ok userData=${userDataDirectory}`,
+  `WINDOWS_INSTALLER_SMOKE_OK install=ok launch_close_relaunch=ok uninstall=ok reinstall=ok shortcut=ok userData=${userDataDirectory}`,
 );
 
 async function install(setupPath, env) {

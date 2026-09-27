@@ -496,3 +496,10 @@ try {
 console.log(
   'GATE5_PACKAGED_SMOKE_OK party=2 persistent_teammates consultation=initiative_invite deny=target_model_calls_zero_and_sqlite_artifacts_zero approve=member_uses_own_runtime_memory_skill coordinator_synthesis=final_artifact usage_audit=actor_attributed',
 );
+
+export const gate5Evidence = {
+  userData,
+  fixture,
+  deniedMissionId: deniedDetail.mission.id,
+  approvedMissionId: approvedDetail.mission.id,
+};

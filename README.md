@@ -38,7 +38,7 @@ npm run smoke:package
 npm run smoke:installer
 ```
 
-`npm run package` 生成可直接运行的目录 `out/AI Agent Cultivation-win32-x64/`。`npm run make` 生成 Squirrel 安装器、完整 `.nupkg` 和 `RELEASES` 文件，位于 `out/make/squirrel.windows/x64/`。`npm run smoke:package` 验证已打包的应用；`npm run smoke:installer` 会生成安装包，在隔离的本地数据目录中安装、启动、关闭、重启、卸载并重装，核对数据保留，不需要 Provider 或 API Key。Smoke 目录默认位于仓库 `.tmp/installer-smoke/` 下；可通过 `CULTIVATION_INSTALLER_SMOKE_ROOT` 指定 E: 上的其他隔离目录。目录保留供检查。
+`npm run package` 生成可直接运行的目录 `out/AI Agent Cultivation-win32-x64/`。`npm run make` 生成 Squirrel 安装器、完整 `.nupkg` 和 `RELEASES` 文件，位于 `out/make/squirrel.windows/x64/`。`npm run smoke:package` 验证已打包的应用；`npm run smoke:installer` 会生成安装包，在隔离的本地数据目录中安装、启动、关闭、重启、卸载并重装，核对数据保留，不需要 Provider 或 API Key。Smoke 目录默认位于 `E:\a6\`（源码目录之外；短路径用于兼容 Windows 原生构建工具）；可通过 `CULTIVATION_INSTALLER_SMOKE_ROOT` 指定 E: 上的其他隔离目录。目录保留供检查。
 
 ## 已知限制
 
