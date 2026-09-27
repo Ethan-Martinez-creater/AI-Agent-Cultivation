@@ -1,4 +1,5 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
+import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
@@ -22,7 +23,10 @@ const config: ForgeConfig = {
     },
   },
   rebuildConfig: {},
-  makers: [new MakerZIP({}, ['win32'])],
+  makers: [
+    new MakerSquirrel({ name: 'AiAgentCultivation', noMsi: true }, ['win32']),
+    new MakerZIP({}, ['win32']),
+  ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
     new VitePlugin({

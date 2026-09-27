@@ -1,5 +1,6 @@
 {
   "name": "ai-agent-cultivation",
+  "productName": "AI Agent Cultivation",
   "version": "0.0.1",
   "private": true,
   "description": "Local-first Windows AI teammate desktop app",
@@ -17,13 +18,16 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "package": "electron-forge package --platform=win32 --arch=x64",
-    "smoke:package": "node scripts/smoke-packaged.mjs"
+    "make": "electron-forge make --platform=win32 --arch=x64",
+    "smoke:package": "node scripts/smoke-packaged.mjs",
+    "smoke:installer": "node scripts/smoke-installer.mjs"
   },
   "dependencies": {
     "@cultivation/agent-runtime": "0.0.1",
     "@modelcontextprotocol/client": "2.1.0",
     "ajv": "6.15.0",
     "better-sqlite3": "13.0.3",
+    "electron-squirrel-startup": "1.0.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-router-dom": "7.9.6",
@@ -33,12 +37,14 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "7.11.2",
+    "@electron-forge/maker-squirrel": "7.11.2",
     "@electron-forge/maker-zip": "7.11.2",
     "@electron-forge/plugin-auto-unpack-natives": "7.11.2",
     "@electron-forge/plugin-vite": "7.11.2",
     "@eslint/js": "9.39.1",
     "@tailwindcss/vite": "4.3.3",
     "@types/better-sqlite3": "7.6.13",
+    "@types/electron-squirrel-startup": "1.0.2",
     "@types/node": "24.9.1",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
