@@ -8,6 +8,7 @@ import gate3Sql from '../../../migrations/0004_gate3.sql?raw';
 import gate4Sql from '../../../migrations/0005_gate4.sql?raw';
 import gate5Sql from '../../../migrations/0006_gate5.sql?raw';
 import gate6Sql from '../../../migrations/0007_gate6.sql?raw';
+import gate6CollaborationOutcomeSql from '../../../migrations/0008_gate6_collaboration_outcome.sql?raw';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
@@ -33,6 +34,7 @@ export const migrations: readonly Migration[] = [
   { version: 5, name: 'gate4', sql: gate4Sql },
   { version: 6, name: 'gate5', sql: gate5Sql },
   { version: 7, name: 'gate6', sql: gate6Sql },
+  { version: 8, name: 'gate6_collaboration_outcome', sql: gate6CollaborationOutcomeSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

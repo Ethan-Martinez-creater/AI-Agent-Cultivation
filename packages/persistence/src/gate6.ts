@@ -34,6 +34,7 @@ interface SourceEventRow {
   created_at: string;
   mode: MissionMode;
   run_status: MissionRunStatus;
+  collaboration_outcome: ExperienceEvent['outcome'] | null;
 }
 
 interface ExperienceEventRow {
@@ -113,7 +114,54 @@ export class Gate6SqliteRepository {
       const sourceEvents = this.db
         .prepare(
           `SELECT e.id, e.mission_id, e.run_id, e.event_type, e.actor_type, e.actor_id,
-                  e.payload_json, e.created_at, m.mode, r.status AS run_status
+                  e.payload_json, e.created_at, m.mode, r.status AS run_status,
+                  (SELECT CASE
+                    WHEN EXISTS (
+                      SELECT 1 FROM mission_events AS t
+                      WHERE t.mission_id = e.mission_id AND t.run_id = e.run_id
+                        AND t.actor_type = 'TEAMMATE' AND t.actor_id = e.actor_id
+                        AND t.event_type = 'collaboration.completed'
+                        AND json_extract(t.payload_json, '$.requestId') = c.id
+                        AND json_extract(t.payload_json, '$.targetTeammateId') = e.actor_id
+                    ) AND NOT EXISTS (
+                      SELECT 1 FROM mission_events AS t
+                      WHERE t.mission_id = e.mission_id AND t.run_id = e.run_id
+                        AND t.actor_type = 'TEAMMATE' AND t.actor_id = e.actor_id
+                        AND t.event_type = 'collaboration.failed'
+                        AND json_extract(t.payload_json, '$.requestId') = c.id
+                        AND json_extract(t.payload_json, '$.targetTeammateId') = e.actor_id
+                    ) THEN 'COMPLETED'
+                    WHEN EXISTS (
+                      SELECT 1 FROM mission_events AS t
+                      WHERE t.mission_id = e.mission_id AND t.run_id = e.run_id
+                        AND t.actor_type = 'TEAMMATE' AND t.actor_id = e.actor_id
+                        AND t.event_type = 'collaboration.failed'
+                        AND json_extract(t.payload_json, '$.requestId') = c.id
+                        AND json_extract(t.payload_json, '$.targetTeammateId') = e.actor_id
+                    ) AND NOT EXISTS (
+                      SELECT 1 FROM mission_events AS t
+                      WHERE t.mission_id = e.mission_id AND t.run_id = e.run_id
+                        AND t.actor_type = 'TEAMMATE' AND t.actor_id = e.actor_id
+                        AND t.event_type = 'collaboration.completed'
+                        AND json_extract(t.payload_json, '$.requestId') = c.id
+                        AND json_extract(t.payload_json, '$.targetTeammateId') = e.actor_id
+                    ) THEN 'FAILED'
+                    WHEN r.status IN ('CANCELLED', 'INTERRUPTED')
+                      AND NOT EXISTS (
+                        SELECT 1 FROM mission_events AS t
+                        WHERE t.mission_id = e.mission_id AND t.run_id = e.run_id
+                          AND t.actor_type = 'TEAMMATE' AND t.actor_id = e.actor_id
+                          AND t.event_type IN ('collaboration.completed', 'collaboration.failed')
+                          AND json_extract(t.payload_json, '$.requestId') = c.id
+                          AND json_extract(t.payload_json, '$.targetTeammateId') = e.actor_id
+                      ) THEN r.status
+                    ELSE NULL END
+                   FROM collaboration_requests AS c
+                   WHERE c.id = json_extract(e.payload_json, '$.requestId')
+                     AND c.mission_id = e.mission_id AND c.run_id = e.run_id
+                     AND c.target_teammate_id = e.actor_id AND c.state = 'APPROVED'
+                     AND json_extract(e.payload_json, '$.targetTeammateId') = e.actor_id
+                  ) AS collaboration_outcome
            FROM mission_events AS e
            JOIN mission_runs AS r ON r.id = e.run_id AND r.mission_id = e.mission_id
            JOIN missions AS m ON m.id = e.mission_id
@@ -170,8 +218,8 @@ export class Gate6SqliteRepository {
 
       for (const event of sourceEvents) {
         if (!event.actor_id || event.actor_type !== 'TEAMMATE') continue;
-        const outcome = terminalOutcome(event.run_status);
-        if (!outcome) continue;
+        const runOutcome = terminalOutcome(event.run_status);
+        if (!runOutcome) continue;
         const role =
           event.mode === 'SOLO'
             ? event.actor_id ===
@@ -186,17 +234,19 @@ export class Gate6SqliteRepository {
           missionId: event.mission_id,
           runId: event.run_id,
           role,
-          outcome,
+          outcome: runOutcome,
           mode: event.mode,
           createdAt: event.created_at,
         } as const;
         if (
           event.event_type === 'collaboration.started' &&
           event.mode !== 'SOLO' &&
+          event.collaboration_outcome !== null &&
           actorsByRun.get(event.run_id)?.has(event.actor_id)
         ) {
           add({
             ...sourceBase,
+            outcome: event.collaboration_outcome,
             experienceType: 'COLLABORATION',
             source: 'COLLABORATION_EVENT',
             sourceId: event.id,
