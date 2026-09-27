@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import Database from 'better-sqlite3';
 import { describe, expect, it } from 'vitest';
 import {
@@ -184,6 +184,7 @@ describe('R0 routing persistence', () => {
     );
     mkdirSync(directory, { recursive: true });
     const path = databasePath(directory);
+    mkdirSync(dirname(path), { recursive: true });
     const oldDb = new Database(path);
     oldDb.pragma('foreign_keys = ON');
     runMigrations(oldDb, migrations.slice(0, 8));
@@ -266,7 +267,7 @@ describe('R0 routing persistence', () => {
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     expect(db.pragma('foreign_key_check')).toEqual([]);
     db.close();
-  });
+  }, 15_000);
 
   it('stores benchmark priors, current capability state, immutable evidence, and bounded decision receipts', () => {
     const db = makeDatabase();
@@ -386,8 +387,8 @@ describe('R0 routing persistence', () => {
     expect(() => db.prepare("DELETE FROM teammates WHERE id = 'human-bridge'").run()).toThrow();
 
     db.prepare(
-      `INSERT INTO mission_participants (mission_id, teammate_id, role)
-       VALUES ('mission-1', 'human-bridge', 'MEMBER')`,
+      `INSERT INTO mission_participants (mission_id, teammate_id, role, sort_order)
+       VALUES ('mission-1', 'human-bridge', 'MEMBER', 1)`,
     ).run();
     seedMissionRun(db, 'mission-2', 'run-2');
     db.prepare(

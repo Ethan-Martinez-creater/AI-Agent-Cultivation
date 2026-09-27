@@ -562,6 +562,20 @@ try {
       .prepare('SELECT runtime_profile_id FROM embedding_settings WHERE id = 1')
       .get();
     assert.equal(embeddingSetting.runtime_profile_id, result.runtimeA);
+    const migration = db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get();
+    assert.equal(migration.version, 9);
+    const teammateExecutor = db
+      .prepare(
+        `SELECT executor_kind, routing_policy, system_kind
+         FROM teammates WHERE id = ?`,
+      )
+      .get(result.teammateId);
+    assert.deepEqual(teammateExecutor, {
+      executor_kind: 'MODEL_RUNTIME',
+      routing_policy: 'NORMAL',
+      system_kind: null,
+    });
+    assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
   } finally {
     db.close();
   }
@@ -571,6 +585,7 @@ try {
   console.log(
     'GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried runtime_migration=ok',
   );
+  console.log('R0_PACKAGED_SMOKE_OK migration=9 teammate_defaults=ok foreign_keys=ok');
 } finally {
   await app.close();
 }

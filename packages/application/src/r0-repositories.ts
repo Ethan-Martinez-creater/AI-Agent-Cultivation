@@ -6,6 +6,7 @@ import type {
   ExternalWorkArtifact,
   ExternalWorkRequest,
   ModelCapabilityBenchmark,
+  Teammate,
   TeammateCapabilityState,
 } from '@cultivation/domain';
 
@@ -36,7 +37,7 @@ export interface DecisionReceiptRepository {
 
 /** Persistence only: actual external work execution belongs to later gates. */
 export interface ExternalWorkRepository {
-  createExternalWorkRequest(value: ExternalWorkRequest): void;
+  createExternalWorkRequest(value: ExternalWorkRequest): ExternalWorkRequest;
   getExternalWorkRequest(id: string): ExternalWorkRequest | null;
   listExternalWorkRequests(missionId?: string, runId?: string): ExternalWorkRequest[];
   transitionExternalWorkRequest(
@@ -48,4 +49,9 @@ export interface ExternalWorkRepository {
   listExternalWorkArtifacts(requestId: string): ExternalWorkArtifact[];
   saveExternalAppProfile(value: ExternalAppProfile): void;
   listExternalAppProfiles(teammateId: string): ExternalAppProfile[];
+}
+
+/** Explicit opt-in bootstrap, never invoked by R0 application startup. */
+export interface HumanBridgeBootstrapRepository {
+  ensureHumanBridgeTeammate(input: { id: string; createdAt: string; updatedAt: string }): Teammate;
 }

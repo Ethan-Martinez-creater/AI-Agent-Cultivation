@@ -25,6 +25,7 @@ export type {
   CapabilityRepository,
   DecisionReceiptRepository,
   ExternalWorkRepository,
+  HumanBridgeBootstrapRepository,
 } from './r0-repositories.js';
 
 /** Application ports contain no Electron, SQLite or provider SDK types. */
