@@ -15,7 +15,9 @@
     "./skill-service": "./src/skill-service.ts",
     "./gate5-party-service": "./src/gate5-party-service.ts",
     "./gate5-collaboration-service": "./src/gate5-collaboration-service.ts",
-    "./gate6-experience-service": "./src/gate6-experience-service.ts"
+    "./gate6-experience-service": "./src/gate6-experience-service.ts",
+    "./r0-decision": "./src/r0-decision.ts",
+    "./r0-repositories": "./src/r0-repositories.ts"
   },
   "dependencies": {
     "@cultivation/domain": "0.0.1",

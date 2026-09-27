@@ -15,6 +15,17 @@ import type {
 
 export { Gate6ExperienceService, buildCapabilityProfile } from './gate6-experience-service.js';
 export type { Gate6ExperienceSnapshot, Gate6ExperienceStore } from './gate6-experience-service.js';
+export type {
+  DecisionGateway,
+  DecisionRequest,
+  DecisionResult,
+  DecisionType,
+} from './r0-decision.js';
+export type {
+  CapabilityRepository,
+  DecisionReceiptRepository,
+  ExternalWorkRepository,
+} from './r0-repositories.js';
 
 /** Application ports contain no Electron, SQLite or provider SDK types. */
 export interface SecretStore {

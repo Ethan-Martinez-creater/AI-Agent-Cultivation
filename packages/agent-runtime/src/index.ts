@@ -1,4 +1,5 @@
 export { FakeModelGateway } from './fake-model-gateway.js';
+export { FakeDecisionGateway } from './fake-decision-gateway.js';
 export { AiSdkModelGateway, ModelGatewayError } from './ai-sdk-model-gateway.js';
 export type {
   AiSdkModelGatewayOptions,
