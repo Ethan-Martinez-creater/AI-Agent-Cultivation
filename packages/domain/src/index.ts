@@ -368,4 +368,34 @@ export interface UsageRecord {
   createdAt: IsoDateTime;
 }
 
+/** Append-only, provenance-backed record of one teammate's real Mission activity. */
+export interface ExperienceEvent {
+  id: Id;
+  teammateId: Id;
+  missionId: Id;
+  runId: Id;
+  experienceType: 'MISSION_RESULT' | 'COLLABORATION' | 'TOOL_USE' | 'SKILL_USE';
+  source: string;
+  sourceId: Id;
+  role: string;
+  outcome: 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
+  mode: MissionMode;
+  createdAt: IsoDateTime;
+}
+
+/** Rebuilt from ExperienceEvent rows whenever requested; never a scoring source. */
+export interface CapabilityProfile {
+  teammateId: Id;
+  completedMissions: number;
+  failedMissions: number;
+  cancelledMissions: number;
+  consultationParticipations: number;
+  reviewParticipations: number;
+  delegationParticipations: number;
+  toolUses: number;
+  completedCollaborations: number;
+  skillUses: number;
+  lastActiveAt: IsoDateTime | null;
+}
+
 export { canTransition, transition } from './mission-state.js';

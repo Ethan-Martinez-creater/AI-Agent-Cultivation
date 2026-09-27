@@ -333,6 +333,23 @@ function validUsageCount(value: number | null): number | null {
   return value !== null && Number.isFinite(value) && value >= 0 ? Math.floor(value) : null;
 }
 
+function skillIdsInPromptSection(section: string): string[] {
+  const separator = section.indexOf('\n');
+  if (separator < 0) return [];
+  try {
+    const parsed: unknown = JSON.parse(section.slice(separator + 1));
+    return Array.isArray(parsed)
+      ? parsed.flatMap((item) =>
+          item !== null && typeof item === 'object' && 'id' in item && typeof item.id === 'string'
+            ? [item.id]
+            : [],
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Mission Runtime for the SOLO vertical slice. Conversation persistence is not
  * used here: the objective is composed into a Mission-specific prompt and the
@@ -1011,23 +1028,23 @@ export class Gate3MissionService {
     ) {
       return;
     }
-    const messages: ModelRequest['messages'] = [
-      ...this.composer.compose({
-        platformPolicy: PLATFORM_POLICY,
-        teammate,
-        relevantMemories: context.relevantMemories.filter(
-          (memory) =>
-            memory.ownerType === 'TEAMMATE' &&
-            memory.ownerId === teammate.id &&
-            memory.status === 'ACTIVE',
-        ),
-        skills: context.skills,
-        skillAssignments: context.skillAssignments.filter(
-          (assignment) => assignment.teammateId === teammate.id,
-        ),
-        conversationContext: [{ role: 'user', content: mission.objective }],
-      }).messages,
-    ];
+    const composition = this.composer.compose({
+      platformPolicy: PLATFORM_POLICY,
+      teammate,
+      relevantMemories: context.relevantMemories.filter(
+        (memory) =>
+          memory.ownerType === 'TEAMMATE' &&
+          memory.ownerId === teammate.id &&
+          memory.status === 'ACTIVE',
+      ),
+      skills: context.skills,
+      skillAssignments: context.skillAssignments.filter(
+        (assignment) => assignment.teammateId === teammate.id,
+      ),
+      conversationContext: [{ role: 'user', content: mission.objective }],
+    });
+    const skillIds = skillIdsInPromptSection(composition.sections.activeSkills);
+    const messages: ModelRequest['messages'] = [...composition.messages];
 
     if (resumedToolTranscript) {
       messages.push(...resumedToolTranscript.priorMessages);
@@ -1040,6 +1057,7 @@ export class Gate3MissionService {
         teammate.id,
         runtime,
         messages,
+        skillIds,
         previousStepCount,
         previousToolCallCount,
       );
@@ -1052,6 +1070,7 @@ export class Gate3MissionService {
         providerId: runtime.providerId,
         modelId: runtime.modelId,
       });
+      this.recordSkillUses(mission, run, teammate.id, skillIds);
       this.appendAudit(mission, 'model.call_started', 'TEAMMATE', teammate.id, {
         runId: run.id,
         runtimeProfileId: runtime.id,
@@ -1120,6 +1139,7 @@ export class Gate3MissionService {
     teammateId: string,
     runtime: RuntimeProfile,
     messages: ModelRequest['messages'],
+    skillIds: readonly string[],
     initialSteps: number,
     initialToolCalls: number,
   ): Promise<void> {
@@ -1138,6 +1158,7 @@ export class Gate3MissionService {
             modelId: runtime.modelId,
             step: steps + 1,
           });
+          this.recordSkillUses(mission, run, teammateId, skillIds);
           this.appendAudit(mission, 'model.call_started', 'TEAMMATE', teammateId, {
             runId: run.id,
             runtimeProfileId: runtime.id,
@@ -1476,6 +1497,17 @@ export class Gate3MissionService {
         ...payload,
       });
     });
+  }
+
+  private recordSkillUses(
+    mission: Mission,
+    run: MissionRunRecord,
+    teammateId: string,
+    skillIds: readonly string[],
+  ): void {
+    for (const skillId of skillIds) {
+      this.appendEvent(mission, run.id, 'skill.used', 'TEAMMATE', teammateId, { skillId });
+    }
   }
 
   private completeToolRun(mission: Mission, run: MissionRunRecord, text: string): void {

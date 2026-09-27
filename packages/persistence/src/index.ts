@@ -7,6 +7,7 @@ import gate2Sql from '../../../migrations/0003_gate2.sql?raw';
 import gate3Sql from '../../../migrations/0004_gate3.sql?raw';
 import gate4Sql from '../../../migrations/0005_gate4.sql?raw';
 import gate5Sql from '../../../migrations/0006_gate5.sql?raw';
+import gate6Sql from '../../../migrations/0007_gate6.sql?raw';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
@@ -15,6 +16,7 @@ export type { ScopedVectorMatch } from './gate2-vector.js';
 export { Gate3SqliteRepository } from './gate3.js';
 export { Gate4SqliteRepository } from './gate4.js';
 export { Gate5SqliteRepository } from './gate5.js';
+export { Gate6SqliteRepository } from './gate6.js';
 export type { McpServerConfig, PendingToolCall, PendingToolCallState } from '@cultivation/domain';
 export type { Gate5PendingToolCall, Gate5PendingToolCallState } from '@cultivation/domain';
 
@@ -30,6 +32,7 @@ export const migrations: readonly Migration[] = [
   { version: 4, name: 'gate3', sql: gate3Sql },
   { version: 5, name: 'gate4', sql: gate4Sql },
   { version: 6, name: 'gate5', sql: gate5Sql },
+  { version: 7, name: 'gate6', sql: gate6Sql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

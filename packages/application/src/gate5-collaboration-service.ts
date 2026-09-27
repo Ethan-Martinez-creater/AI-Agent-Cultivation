@@ -111,6 +111,23 @@ function count(value: number | null | undefined): number | null {
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
 }
 
+function skillIdsInPromptSection(section: string): string[] {
+  const separator = section.indexOf('\n');
+  if (separator < 0) return [];
+  try {
+    const parsed: unknown = JSON.parse(section.slice(separator + 1));
+    return Array.isArray(parsed)
+      ? parsed.flatMap((item) =>
+          item !== null && typeof item === 'object' && 'id' in item && typeof item.id === 'string'
+            ? [item.id]
+            : [],
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 function bounded(value: string, limit = MAX_PUBLIC_TEXT): string {
   return value.slice(0, limit);
 }
@@ -628,32 +645,35 @@ export class Gate5CollaborationService {
     } catch {
       /* optional context */
     }
+    const composition = this.composer.compose({
+      platformPolicy: POLICY,
+      teammate: coordinator,
+      relevantMemories: data.relevantMemories.filter(
+        (memory) =>
+          memory.ownerType === 'TEAMMATE' &&
+          memory.ownerId === coordinator.id &&
+          memory.status === 'ACTIVE',
+      ),
+      skills: data.skills,
+      skillAssignments: data.skillAssignments.filter(
+        (assignment) => assignment.teammateId === coordinator.id,
+      ),
+      conversationContext: [{ role: 'user', content: mission.objective }],
+    });
+    const skillIds = skillIdsInPromptSection(composition.sections.activeSkills);
     const systemContext =
-      this.composer
-        .compose({
-          platformPolicy: POLICY,
-          teammate: coordinator,
-          relevantMemories: data.relevantMemories.filter(
-            (memory) =>
-              memory.ownerType === 'TEAMMATE' &&
-              memory.ownerId === coordinator.id &&
-              memory.status === 'ACTIVE',
-          ),
-          skills: data.skills,
-          skillAssignments: data.skillAssignments.filter(
-            (assignment) => assignment.teammateId === coordinator.id,
-          ),
-          conversationContext: [{ role: 'user', content: mission.objective }],
-        })
-        .messages.find((message) => message.role === 'system')?.content ?? POLICY;
-    this.record(
-      mission,
-      run.id,
-      'model.call_started',
-      'TEAMMATE',
-      coordinator.id,
-      this.modelPayload(runtime, { phase: 'COLLABORATION_PROPOSAL' }),
-    );
+      composition.messages.find((message) => message.role === 'system')?.content ?? POLICY;
+    this.missionStore.transaction(() => {
+      this.record(
+        mission,
+        run.id,
+        'model.call_started',
+        'TEAMMATE',
+        coordinator.id,
+        this.modelPayload(runtime, { phase: 'COLLABORATION_PROPOSAL' }),
+      );
+      this.recordSkillUses(mission, run, coordinator.id, skillIds);
+    });
     let result: { proposal: CollaborationProposal; usage: ModelUsage };
     this.busy.add(mission.id);
     try {
@@ -841,23 +861,23 @@ export class Gate5CollaborationService {
     } catch {
       /* optional context */
     }
-    const messages: ModelMessage[] = [
-      ...this.composer.compose({
-        platformPolicy: POLICY,
-        teammate,
-        relevantMemories: data.relevantMemories.filter(
-          (memory) =>
-            memory.ownerType === 'TEAMMATE' &&
-            memory.ownerId === teammate.id &&
-            memory.status === 'ACTIVE',
-        ),
-        skills: data.skills,
-        skillAssignments: data.skillAssignments.filter(
-          (assignment) => assignment.teammateId === teammate.id,
-        ),
-        conversationContext: [{ role: 'user', content: bounded(task.task, 24_000) }],
-      }).messages,
-    ];
+    const composition = this.composer.compose({
+      platformPolicy: POLICY,
+      teammate,
+      relevantMemories: data.relevantMemories.filter(
+        (memory) =>
+          memory.ownerType === 'TEAMMATE' &&
+          memory.ownerId === teammate.id &&
+          memory.status === 'ACTIVE',
+      ),
+      skills: data.skills,
+      skillAssignments: data.skillAssignments.filter(
+        (assignment) => assignment.teammateId === teammate.id,
+      ),
+      conversationContext: [{ role: 'user', content: bounded(task.task, 24_000) }],
+    });
+    const skillIds = skillIdsInPromptSection(composition.sections.activeSkills);
+    const messages: ModelMessage[] = [...composition.messages];
     if (resume) messages.push(...resume.messages);
     let steps = resume?.stepCount ?? 0;
     let toolCalls = resume?.toolCallCount ?? 0;
@@ -871,14 +891,17 @@ export class Gate5CollaborationService {
             kind: 'DONE',
             text: JSON.stringify({ ok: false, code: 'MODEL_CALL_LIMIT_REACHED' }),
           };
-        this.record(
-          mission,
-          run.id,
-          'model.call_started',
-          'TEAMMATE',
-          teammate.id,
-          this.modelPayload(runtime, { phase: task.phase, step: steps + 1 }),
-        );
+        this.missionStore.transaction(() => {
+          this.record(
+            mission,
+            run.id,
+            'model.call_started',
+            'TEAMMATE',
+            teammate.id,
+            this.modelPayload(runtime, { phase: task.phase, step: steps + 1 }),
+          );
+          this.recordSkillUses(mission, run, teammate.id, skillIds);
+        });
         let response;
         try {
           response =
@@ -1282,6 +1305,17 @@ export class Gate5CollaborationService {
       code: result.code,
       outputSummary: { bytes: Buffer.byteLength(result.content) },
     });
+  }
+
+  private recordSkillUses(
+    mission: Mission,
+    run: MissionRunRecord,
+    teammateId: string,
+    skillIds: readonly string[],
+  ): void {
+    for (const skillId of skillIds) {
+      this.record(mission, run.id, 'skill.used', 'TEAMMATE', teammateId, { skillId });
+    }
   }
 
   private appendArtifact(

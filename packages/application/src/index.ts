@@ -13,6 +13,9 @@ import type {
   ToolDescriptor,
 } from '@cultivation/domain';
 
+export { Gate6ExperienceService, buildCapabilityProfile } from './gate6-experience-service.js';
+export type { Gate6ExperienceSnapshot, Gate6ExperienceStore } from './gate6-experience-service.js';
+
 /** Application ports contain no Electron, SQLite or provider SDK types. */
 export interface SecretStore {
   encrypt(plaintext: string): Promise<Uint8Array>;

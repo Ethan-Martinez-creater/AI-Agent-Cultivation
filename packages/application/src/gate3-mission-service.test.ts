@@ -733,13 +733,18 @@ describe('Gate 3 Mission Runtime', () => {
       coordinatorTeammateId: 'teammate-1',
     });
     service.ready(mission.id);
-    await service.start({ missionId: mission.id, approvalFixture: false });
+    const completed = await service.start({ missionId: mission.id, approvalFixture: false });
     const prompt = captured?.messages.map((message) => message.content).join('\n') ?? '';
     expect(prompt).toContain('OWN_MEMORY_SENTINEL');
     expect(prompt).toContain('Use concise headings.');
     expect(prompt).not.toContain('OTHER_MEMORY_SENTINEL');
     expect(prompt).not.toContain('MISSION_MEMORY_SENTINEL');
     expect(prompt).not.toContain('disabled text');
+    expect(
+      completed.events
+        .filter((event) => event.eventType === 'skill.used')
+        .map((event) => ({ actorId: event.actorId, skillId: event.payloadJson.skillId })),
+    ).toEqual([{ actorId: 'teammate-1', skillId: 'skill-enabled' }]);
   });
   it('continues the original Run after tool approval and persists a Mission-only grant', async () => {
     const { service, store, permissionStore, teammate, gate1, gateway } = fixture();

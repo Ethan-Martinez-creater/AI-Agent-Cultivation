@@ -472,6 +472,17 @@ describe('Gate5CollaborationService', () => {
     });
     expect(detail.mission.state).toBe('COMPLETED');
     expect(gateway.requests.map((item) => item.teammateId)).toEqual(['b', 'a']);
+    const skillUses = detail.events
+      .filter((event) => event.eventType === 'skill.used')
+      .map((event) => ({ actorId: event.actorId, skillId: event.payloadJson.skillId }));
+    expect(skillUses).toHaveLength(3);
+    expect(skillUses).toEqual(
+      expect.arrayContaining([
+        { actorId: 'a', skillId: 'skill-a' },
+        { actorId: 'b', skillId: 'skill-b' },
+        { actorId: 'a', skillId: 'skill-a' },
+      ]),
+    );
     const member = gateway.requests[0]!;
     const system = member.messages.find((message) => message.role === 'system')?.content ?? '';
     expect(member.runtimeProfileId).toBe('runtime-b');
