@@ -40,10 +40,10 @@ export async function verifyGate6Packaged(evidence) {
         const memories = await api.memories.list(fixture.bId, 'ACTIVE');
         const skills = await api.skills.listAssignments(fixture.bId);
 
-        const runPartyMode = async (mode) => {
+        const runPartyMode = async (mode, marker = '') => {
           const mission = await api.missions.create({
             title: `Alpha ${mode} ${fixture.nonce}`,
-            objective: `Produce a bounded ${mode} result for alpha acceptance.`,
+            objective: `Produce a bounded ${mode} result for alpha acceptance. ${marker}`,
             coordinatorTeammateId: fixture.aId,
             partyId: fixture.partyId,
             mode,
@@ -61,16 +61,25 @@ export async function verifyGate6Packaged(evidence) {
           });
           return {
             missionId: mission.id,
+            runId: done.runs.at(-1)?.id,
             state: done.mission.state,
             artifacts: done.artifacts.map((item) => ({
               kind: item.kind,
               teammateId: item.teammateId,
             })),
             targetUsage: done.usage.filter((item) => item.teammateId === fixture.bId).length,
+            targetModelCalls: done.events.filter(
+              (item) => item.eventType === 'model.call_started' && item.actorId === fixture.bId,
+            ).length,
           };
         };
         const review = await runPartyMode('REVIEW');
         const delegation = await runPartyMode('DELEGATION');
+        const completedBeforeOpposites = (await api.experience.get(fixture.bId)).profile
+          .completedCollaborations;
+        const memberFailed = await runPartyMode('CONSULTATION', '__GATE6_MEMBER_FAIL__');
+        const memberFailedExperience = await api.experience.get(fixture.bId);
+        const synthesisFailed = await runPartyMode('REVIEW', '__GATE6_SYNTHESIS_FAIL__');
         const finalTarget = await api.experience.get(fixture.bId);
         return {
           deniedTarget,
@@ -82,6 +91,10 @@ export async function verifyGate6Packaged(evidence) {
           skills,
           review,
           delegation,
+          completedBeforeOpposites,
+          memberFailed,
+          memberFailedExperience,
+          synthesisFailed,
           finalTarget,
           deniedMissionId,
           approvedMissionId,
@@ -138,6 +151,38 @@ export async function verifyGate6Packaged(evidence) {
       ],
     );
     assert.ok(beforeRestart.delegation.targetUsage > 0);
+    assert.equal(beforeRestart.memberFailed.state, 'COMPLETED');
+    assert.ok(beforeRestart.memberFailed.targetModelCalls > 0);
+    assert.equal(
+      beforeRestart.memberFailedExperience.events.find(
+        (item) =>
+          item.missionId === beforeRestart.memberFailed.missionId &&
+          item.runId === beforeRestart.memberFailed.runId &&
+          item.experienceType === 'COLLABORATION',
+      )?.outcome,
+      'FAILED',
+      'Member failure must remain FAILED after successful coordinator synthesis',
+    );
+    assert.equal(
+      beforeRestart.memberFailedExperience.profile.completedCollaborations,
+      beforeRestart.completedBeforeOpposites,
+    );
+    assert.equal(beforeRestart.synthesisFailed.state, 'FAILED');
+    assert.ok(beforeRestart.synthesisFailed.targetModelCalls > 0);
+    assert.equal(
+      beforeRestart.finalTarget.events.find(
+        (item) =>
+          item.missionId === beforeRestart.synthesisFailed.missionId &&
+          item.runId === beforeRestart.synthesisFailed.runId &&
+          item.experienceType === 'COLLABORATION',
+      )?.outcome,
+      'COMPLETED',
+      'Completed member work must remain COMPLETED after coordinator synthesis fails',
+    );
+    assert.equal(
+      beforeRestart.finalTarget.profile.completedCollaborations,
+      beforeRestart.completedBeforeOpposites + 1,
+    );
     assert.ok(beforeRestart.finalTarget.profile.consultationParticipations >= 1);
     assert.ok(beforeRestart.finalTarget.profile.reviewParticipations >= 1);
     assert.ok(beforeRestart.finalTarget.profile.delegationParticipations >= 1);
@@ -178,6 +223,17 @@ export async function verifyGate6Packaged(evidence) {
       )
       .get(deniedMissionId, fixture.bId).count;
     assert.equal(deniedRows, 0);
+    for (const [scenario, expectedOutcome] of [
+      [beforeRestart.memberFailed, 'FAILED'],
+      [beforeRestart.synthesisFailed, 'COMPLETED'],
+    ]) {
+      const row = db
+        .prepare(
+          "SELECT outcome FROM experience_events WHERE mission_id = ? AND run_id = ? AND teammate_id = ? AND experience_type = 'COLLABORATION'",
+        )
+        .get(scenario.missionId, scenario.runId, fixture.bId);
+      assert.equal(row?.outcome, expectedOutcome);
+    }
     assert.ok(beforeCount > 0);
   } finally {
     db.close();
@@ -209,6 +265,6 @@ export async function verifyGate6Packaged(evidence) {
     reopenedDb.close();
   }
   console.log(
-    'GATE6_PACKAGED_SMOKE_OK experience=actor_run_source_provenance denied_target=zero review=ok delegation=ok runtime_migration=identity_memory_skill_experience restart=ledger_idempotent',
+    'GATE6_PACKAGED_SMOKE_OK experience=actor_run_source_provenance denied_target=zero participant_failed_run_completed=ok participant_completed_run_failed=ok review=ok delegation=ok runtime_migration=identity_memory_skill_experience restart=ledger_idempotent',
   );
 }

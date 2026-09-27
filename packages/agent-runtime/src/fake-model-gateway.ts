@@ -108,26 +108,31 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
     const toolResults = request.messages.flatMap((message) =>
       message.role === 'tool' ? message.content.map((part) => part.output.value) : [],
     );
+    if (prompt.startsWith('SYNTHESIS:') && prompt.includes('__GATE6_SYNTHESIS_FAIL__')) {
+      throw new Error('Fake coordinator synthesis failure');
+    }
     const text =
-      prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE5_SCOPE_INSPECT__')
-        ? JSON.stringify({
-            teammateId: request.teammateId,
-            runtimeProfileId: request.runtimeProfileId,
-            aMemorySeen: systemText.includes('GATE5_A_MEMORY'),
-            bMemorySeen: systemText.includes('GATE5_B_MEMORY'),
-            aSkillSeen: systemText.includes('GATE5_A_SKILL'),
-            bSkillSeen: systemText.includes('GATE5_B_SKILL'),
-          })
-        : prompt.trim() === '__GATE2_PROMPT_INSPECT__'
-          ? request.messages
-              .filter((message) => message.role === 'system')
-              .map((message) => message.content)
-              .join('\n')
-          : toolResults.length > 0
-            ? `FAKE_TOOL_RESULT:${JSON.stringify(toolResults)}`
-            : prompt.trim() === 'PING'
-              ? 'PONG'
-              : `FAKE: ${prompt}`;
+      prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE6_MEMBER_FAIL__')
+        ? '{"ok":false,"code":"FAKE_MEMBER_FAILURE"}'
+        : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE5_SCOPE_INSPECT__')
+          ? JSON.stringify({
+              teammateId: request.teammateId,
+              runtimeProfileId: request.runtimeProfileId,
+              aMemorySeen: systemText.includes('GATE5_A_MEMORY'),
+              bMemorySeen: systemText.includes('GATE5_B_MEMORY'),
+              aSkillSeen: systemText.includes('GATE5_A_SKILL'),
+              bSkillSeen: systemText.includes('GATE5_B_SKILL'),
+            })
+          : prompt.trim() === '__GATE2_PROMPT_INSPECT__'
+            ? request.messages
+                .filter((message) => message.role === 'system')
+                .map((message) => message.content)
+                .join('\n')
+            : toolResults.length > 0
+              ? `FAKE_TOOL_RESULT:${JSON.stringify(toolResults)}`
+              : prompt.trim() === 'PING'
+                ? 'PONG'
+                : `FAKE: ${prompt}`;
     return {
       text,
       usage: {
