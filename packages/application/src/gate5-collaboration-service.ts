@@ -282,7 +282,7 @@ function validateHumanBridgeExternalWork(input: HumanBridgeExternalWorkInput): v
     artifactIds.add(artifact.id);
     boundedList(artifact.allowedExtensions, 'ExternalWork extension', 32, 16);
   }
-  if (input.externalAppProfileId !== undefined) {
+  if (input.externalAppProfileId !== undefined && input.externalAppProfileId !== null) {
     required(input.externalAppProfileId, 'ExternalAppProfile', 128);
   }
 }

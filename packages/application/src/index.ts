@@ -100,7 +100,7 @@ export interface ModelExternalWorkContext {
   requestId: string;
   capability: CapabilityDimension;
   outcome: 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
-  publicResult: string;
+  publicResult: string | null;
   artifacts: Array<{
     path: string;
     fileName: string;
