@@ -1,8 +1,10 @@
 import type {
   ApprovalRequest,
   AuditEvent,
+  CapabilityDimension,
   CollaborationArtifact,
   CollaborationRequest,
+  ExternalWorkRequest,
   Gate5PendingToolCall,
   Mission,
   MissionEvent,
@@ -66,6 +68,76 @@ export interface CreatePartyMissionInput {
   partyId: string;
 }
 
+export interface HumanBridgeArtifactTarget {
+  id: string;
+  name: string;
+  required: boolean;
+  allowedExtensions: string[];
+  maxSizeBytes: number;
+}
+
+/** User-supplied, structured task details required to approve a Human Bridge request. */
+export interface HumanBridgeExternalWorkInput {
+  capability: CapabilityDimension;
+  title: string;
+  prompt: string;
+  requirements: string[];
+  targetArtifacts: HumanBridgeArtifactTarget[];
+  targetWorkspacePaths: string[];
+  acceptanceCriteria: string[];
+  externalAppProfileId?: string;
+}
+
+export interface Gate5ExternalWorkArtifactSummary {
+  id: string;
+  path: string;
+  fileName: string;
+  extension: string;
+  sizeBytes: number;
+}
+
+/** ExternalWork continuation remains separate from ModelMessage and CollaborationArtifact. */
+export interface Gate5ExternalWorkContinuation {
+  kind: 'EXTERNAL_WORK_CONTINUATION';
+  requestId: string;
+  missionId: string;
+  runId: string;
+  requesterTeammateId: string;
+  assigneeTeammateId: string;
+  capability: CapabilityDimension;
+  outcome: 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
+  publicResult?: string | null;
+  artifacts: Gate5ExternalWorkArtifactSummary[];
+  trust: 'UNTRUSTED_EXTERNAL_DATA';
+}
+
+export interface Gate5ExternalWorkModelContext {
+  requestId: string;
+  capability: CapabilityDimension;
+  outcome: 'ACCEPTED';
+  publicResult: string | null;
+  artifacts: Array<
+    Pick<Gate5ExternalWorkArtifactSummary, 'path' | 'fileName' | 'extension' | 'sizeBytes'>
+  >;
+  trust: 'UNTRUSTED_EXTERNAL_DATA';
+}
+
+export interface Gate5ExternalWorkService {
+  createExplicit(input: {
+    missionId: string;
+    runId: string;
+    requesterTeammateId: string;
+    capability: CapabilityDimension;
+    title: string;
+    prompt: string;
+    requirements: string[];
+    targetArtifacts: HumanBridgeArtifactTarget[];
+    targetWorkspacePaths: string[];
+    acceptanceCriteria: string[];
+    externalAppProfileId?: string;
+  }): ExternalWorkRequest;
+}
+
 type Phase = 'COORDINATOR' | 'PARTICIPANT' | 'SYNTHESIS';
 interface ParticipantTask {
   phase: Phase;
@@ -73,6 +145,7 @@ interface ParticipantTask {
   task: string;
   artifactKind: CollaborationArtifact['kind'];
   requestId: string | null;
+  externalWorkContext?: Gate5ExternalWorkModelContext;
 }
 interface ToolContinuation {
   task: ParticipantTask;
@@ -97,6 +170,26 @@ const MAX_TOOL_CALLS = 8;
 const MAX_PUBLIC_TEXT = 8_000;
 const MAX_RESULT_TEXT = 40_000;
 const MAX_PROPOSAL_TEXT = 2_000;
+const MAX_EXTERNAL_WORK_PUBLIC_RESULT = 8_000;
+const MAX_EXTERNAL_WORK_ARTIFACTS = 16;
+const MAX_EXTERNAL_WORK_PATH = 1_024;
+const MAX_EXTERNAL_WORK_FILE_NAME = 255;
+const CAPABILITY_DIMENSIONS: readonly CapabilityDimension[] = [
+  'GENERAL_REASONING',
+  'LONG_CONTEXT_REASONING',
+  'AGENTIC_EXECUTION',
+  'CODING',
+  'TOOL_USE',
+  'VISUAL_UNDERSTANDING',
+  'IMAGE_GENERATION',
+  'IMAGE_EDITING',
+  'VIDEO_GENERATION',
+  'VIDEO_EDITING',
+  'SPEECH_UNDERSTANDING',
+  'SPEECH_GENERATION',
+  'SPEECH_TO_SPEECH',
+  'MUSIC_GENERATION',
+];
 const LOCAL_USER = 'local-user';
 const defaultClock: MissionClock = {
   now: () => new Date().toISOString(),
@@ -136,6 +229,181 @@ function bounded(value: string, limit = MAX_PUBLIC_TEXT): string {
 
 function summary(value: string): string {
   return bounded(value.replace(/\s+/g, ' ').trim(), 200);
+}
+
+function boundedList(
+  values: string[],
+  label: string,
+  maxItems: number,
+  maxLength: number,
+): string[] {
+  if (!Array.isArray(values) || values.length > maxItems) {
+    throw new DomainError('INVALID_INPUT', `${label}数量无效`);
+  }
+  return values.map((value) => required(value, label, maxLength));
+}
+
+function validateHumanBridgeExternalWork(input: HumanBridgeExternalWorkInput): void {
+  if (!CAPABILITY_DIMENSIONS.includes(input.capability)) {
+    throw new DomainError('INVALID_INPUT', 'Human Bridge capability 无效');
+  }
+  required(input.title, 'ExternalWork 标题', 160);
+  required(input.prompt, 'ExternalWork Prompt', 20_000);
+  boundedList(input.requirements, 'ExternalWork requirement', 20, 1_000);
+  boundedList(
+    input.targetWorkspacePaths,
+    'ExternalWork workspace path',
+    10,
+    MAX_EXTERNAL_WORK_PATH,
+  );
+  boundedList(input.acceptanceCriteria, 'ExternalWork acceptance criteria', 20, 1_000);
+  if (
+    !Array.isArray(input.targetArtifacts) ||
+    input.targetArtifacts.length > MAX_EXTERNAL_WORK_ARTIFACTS
+  ) {
+    throw new DomainError('INVALID_INPUT', 'ExternalWork artifact target 数量无效');
+  }
+  const artifactIds = new Set<string>();
+  for (const artifact of input.targetArtifacts) {
+    if (
+      !artifact ||
+      !required(artifact.id, 'ExternalWork artifact ID', 128) ||
+      !required(artifact.name, 'ExternalWork artifact name', 255) ||
+      typeof artifact.required !== 'boolean' ||
+      !Number.isSafeInteger(artifact.maxSizeBytes) ||
+      artifact.maxSizeBytes <= 0 ||
+      artifact.maxSizeBytes > 2 * 1024 * 1024 * 1024
+    ) {
+      throw new DomainError('INVALID_INPUT', 'ExternalWork artifact target 无效');
+    }
+    if (artifactIds.has(artifact.id)) {
+      throw new DomainError('INVALID_INPUT', 'ExternalWork artifact ID 不可重复');
+    }
+    artifactIds.add(artifact.id);
+    boundedList(artifact.allowedExtensions, 'ExternalWork extension', 32, 16);
+  }
+  if (input.externalAppProfileId !== undefined) {
+    required(input.externalAppProfileId, 'ExternalAppProfile', 128);
+  }
+}
+
+function validateExternalWorkContinuation(
+  requestId: string,
+  value: Gate5ExternalWorkContinuation,
+): Gate5ExternalWorkModelContext | null {
+  if (
+    !value ||
+    !requestId ||
+    requestId.length > 128 ||
+    value.kind !== 'EXTERNAL_WORK_CONTINUATION' ||
+    value.requestId !== requestId ||
+    !value.missionId ||
+    value.missionId.length > 128 ||
+    !value.runId ||
+    value.runId.length > 128 ||
+    !value.requesterTeammateId ||
+    value.requesterTeammateId.length > 128 ||
+    !value.assigneeTeammateId ||
+    value.assigneeTeammateId.length > 128 ||
+    value.trust !== 'UNTRUSTED_EXTERNAL_DATA' ||
+    !CAPABILITY_DIMENSIONS.includes(value.capability) ||
+    !['ACCEPTED', 'REJECTED', 'CANCELLED'].includes(value.outcome) ||
+    !Array.isArray(value.artifacts) ||
+    value.artifacts.length > MAX_EXTERNAL_WORK_ARTIFACTS ||
+    (value.publicResult !== undefined &&
+      value.publicResult !== null &&
+      (typeof value.publicResult !== 'string' ||
+        Buffer.byteLength(value.publicResult) > MAX_EXTERNAL_WORK_PUBLIC_RESULT))
+  ) {
+    throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation 无效');
+  }
+  const artifacts = value.artifacts.map((artifact) => {
+    if (
+      !artifact ||
+      typeof artifact.id !== 'string' ||
+      artifact.id.length < 1 ||
+      artifact.id.length > 128 ||
+      typeof artifact.path !== 'string' ||
+      artifact.path.length < 1 ||
+      artifact.path.length > MAX_EXTERNAL_WORK_PATH ||
+      typeof artifact.fileName !== 'string' ||
+      artifact.fileName.length < 1 ||
+      artifact.fileName.length > MAX_EXTERNAL_WORK_FILE_NAME ||
+      typeof artifact.extension !== 'string' ||
+      artifact.extension.length > 16 ||
+      !Number.isSafeInteger(artifact.sizeBytes) ||
+      artifact.sizeBytes < 0
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork artifact metadata 无效');
+    }
+    return {
+      path: artifact.path,
+      fileName: artifact.fileName,
+      extension: artifact.extension,
+      sizeBytes: artifact.sizeBytes,
+    };
+  });
+  if (value.outcome !== 'ACCEPTED') return null;
+  return {
+    requestId: value.requestId,
+    capability: value.capability,
+    outcome: 'ACCEPTED',
+    publicResult: value.publicResult ?? null,
+    artifacts,
+    trust: 'UNTRUSTED_EXTERNAL_DATA',
+  };
+}
+
+function parseExternalWorkModelContext(value: unknown): Gate5ExternalWorkModelContext {
+  if (
+    !isRecord(value) ||
+    typeof value.requestId !== 'string' ||
+    value.requestId.length < 1 ||
+    value.requestId.length > 128 ||
+    typeof value.capability !== 'string' ||
+    !CAPABILITY_DIMENSIONS.includes(value.capability as CapabilityDimension) ||
+    value.outcome !== 'ACCEPTED' ||
+    value.trust !== 'UNTRUSTED_EXTERNAL_DATA' ||
+    (value.publicResult !== undefined &&
+      value.publicResult !== null &&
+      (typeof value.publicResult !== 'string' ||
+        Buffer.byteLength(value.publicResult) > MAX_EXTERNAL_WORK_PUBLIC_RESULT)) ||
+    !Array.isArray(value.artifacts) ||
+    value.artifacts.length > MAX_EXTERNAL_WORK_ARTIFACTS
+  ) {
+    throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork model context 无效');
+  }
+  const artifacts = value.artifacts.map((artifact) => {
+    if (
+      !isRecord(artifact) ||
+      typeof artifact.path !== 'string' ||
+      artifact.path.length < 1 ||
+      artifact.path.length > MAX_EXTERNAL_WORK_PATH ||
+      typeof artifact.fileName !== 'string' ||
+      artifact.fileName.length < 1 ||
+      artifact.fileName.length > MAX_EXTERNAL_WORK_FILE_NAME ||
+      typeof artifact.extension !== 'string' ||
+      artifact.extension.length > 16 ||
+      !Number.isSafeInteger(artifact.sizeBytes) ||
+      (artifact.sizeBytes as number) < 0
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork model artifact metadata 无效');
+    }
+    return {
+      path: artifact.path,
+      fileName: artifact.fileName,
+      extension: artifact.extension,
+      sizeBytes: artifact.sizeBytes as number,
+    };
+  });
+  return {
+    requestId: value.requestId,
+    capability: value.capability as CapabilityDimension,
+    outcome: 'ACCEPTED',
+    publicResult: (value.publicResult as string | null | undefined) ?? null,
+    artifacts,
+    trust: 'UNTRUSTED_EXTERNAL_DATA',
+  };
 }
 
 function collaborationFailureCode(value: string): string {
@@ -298,6 +566,7 @@ function appendToolResult(messages: ModelMessage[], call: ModelToolCall, result:
 export class Gate5CollaborationService {
   private readonly busy = new Set<string>();
   private readonly composer = new PromptComposer();
+  private externalWork: Gate5ExternalWorkService | null = null;
 
   constructor(
     private readonly missionStore: Gate3MissionStore,
@@ -310,6 +579,10 @@ export class Gate5CollaborationService {
     private readonly tools?: ToolRuntime,
     private readonly clock: MissionClock = defaultClock,
   ) {}
+
+  attachExternalWork(service: Gate5ExternalWorkService): void {
+    this.externalWork = service;
+  }
 
   detail(missionId: string): PartyMissionDetail {
     const mission = this.requireMission(missionId);
@@ -488,6 +761,7 @@ export class Gate5CollaborationService {
   async resolveCollaboration(input: {
     requestId: string;
     decision: 'APPROVED' | 'DENIED';
+    externalWork?: HumanBridgeExternalWorkInput;
   }): Promise<PartyMissionDetail> {
     const request = this.store.getCollaborationRequest(input.requestId);
     if (!request) throw new DomainError('NOT_FOUND', 'CollaborationRequest 不存在');
@@ -500,6 +774,52 @@ export class Gate5CollaborationService {
       throw new DomainError('MISSION_INVALID_STATE', '协作请求对应的 Run 不可恢复');
     }
     if (this.busy.has(mission.id)) throw new DomainError('MISSION_BUSY', 'Mission 正在执行');
+    const target = this.requireTeammate(request.targetTeammateId);
+    const isHumanBridge =
+      target.executorKind === 'USER_BRIDGE' && target.systemKind === 'HUMAN_BRIDGE';
+    if (target.executorKind === 'USER_BRIDGE' && !isHumanBridge) {
+      throw new DomainError('INVALID_INPUT', '不支持的 User Bridge 道友');
+    }
+    if (
+      target.systemKind === 'HUMAN_BRIDGE' &&
+      (!isHumanBridge || target.currentRuntimeProfileId !== null)
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'Human Bridge 身份或 Runtime 状态无效');
+    }
+    if (input.externalWork && !isHumanBridge) {
+      throw new DomainError('INVALID_INPUT', 'ExternalWork 只能分配给 Human Bridge');
+    }
+    if (input.decision === 'APPROVED' && isHumanBridge) {
+      if (request.targetTeammateId === mission.coordinatorTeammateId) {
+        throw new DomainError('INVALID_INPUT', 'Human Bridge 不能担任 Coordinator');
+      }
+      const participants = this.store.listMissionParticipants(mission.id);
+      if (
+        !participants.some(
+          (participant) =>
+            participant.teammateId === request.requesterTeammateId &&
+            participant.missionId === mission.id,
+        ) ||
+        !participants.some(
+          (participant) =>
+            participant.teammateId === target.id &&
+            participant.missionId === mission.id &&
+            participant.role === 'MEMBER',
+        )
+      ) {
+        throw new DomainError('PERSISTENCE_INVALID', 'Human Bridge Collaboration 成员来源无效');
+      }
+      if (!input.externalWork) {
+        throw new DomainError(
+          'INVALID_INPUT',
+          '批准 Human Bridge 协作需要明确的 ExternalWork 任务',
+        );
+      }
+      validateHumanBridgeExternalWork(input.externalWork);
+      if (!this.externalWork) {
+        throw new DomainError('EXTERNAL_WORK_UNAVAILABLE', 'ExternalWork 服务不可用');
+      }
+    }
     const at = this.clock.now();
     const running = transition(mission, 'RUNNING', at);
     this.missionStore.transaction(() => {
@@ -533,6 +853,91 @@ export class Gate5CollaborationService {
       );
     });
     if (input.decision === 'APPROVED') {
+      if (isHumanBridge) {
+        const externalWork = input.externalWork!;
+        try {
+          const created = this.externalWork!.createExplicit({
+            missionId: mission.id,
+            runId: run.id,
+            requesterTeammateId: request.requesterTeammateId,
+            capability: externalWork.capability,
+            title: externalWork.title.trim(),
+            prompt: externalWork.prompt.trim(),
+            requirements: boundedList(
+              externalWork.requirements,
+              'ExternalWork requirement',
+              20,
+              1_000,
+            ),
+            targetArtifacts: externalWork.targetArtifacts,
+            targetWorkspacePaths: boundedList(
+              externalWork.targetWorkspacePaths,
+              'ExternalWork workspace path',
+              10,
+              MAX_EXTERNAL_WORK_PATH,
+            ),
+            acceptanceCriteria: boundedList(
+              externalWork.acceptanceCriteria,
+              'ExternalWork acceptance criteria',
+              20,
+              1_000,
+            ),
+            ...(externalWork.externalAppProfileId
+              ? { externalAppProfileId: externalWork.externalAppProfileId.trim() }
+              : {}),
+          });
+          if (
+            created.missionId !== mission.id ||
+            created.runId !== run.id ||
+            created.requesterTeammateId !== request.requesterTeammateId ||
+            created.assigneeTeammateId !== target.id ||
+            created.capability !== externalWork.capability ||
+            created.state !== 'PENDING'
+          ) {
+            throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork 创建结果来源无效');
+          }
+          const waiting = this.missionStore.getMission(mission.id);
+          if (!waiting || waiting.state !== 'WAITING_EXTERNAL_WORK') {
+            throw new DomainError('CONFLICT', 'Mission 未进入等待 ExternalWork 状态');
+          }
+          this.record(waiting, run.id, 'collaboration.external_work_created', 'USER', LOCAL_USER, {
+            requestId: request.id,
+            externalWorkRequestId: created.id,
+            requesterTeammateId: request.requesterTeammateId,
+            targetTeammateId: target.id,
+            capability: created.capability,
+            titleSummary: summary(externalWork.title),
+          });
+        } catch (error) {
+          const currentMission = this.missionStore.getMission(mission.id);
+          const currentRun = this.missionStore.getRun(run.id);
+          const failureCode =
+            error instanceof DomainError && /^[A-Z0-9_]{1,80}$/.test(error.code)
+              ? error.code
+              : 'EXTERNAL_WORK_REQUEST_FAILED';
+          if (
+            currentMission &&
+            currentRun?.status === 'RUNNING' &&
+            (currentMission.state === 'RUNNING' || currentMission.state === 'WAITING_EXTERNAL_WORK')
+          ) {
+            this.record(
+              currentMission,
+              run.id,
+              'collaboration.external_work_failed',
+              'SYSTEM',
+              null,
+              {
+                requestId: request.id,
+                targetTeammateId: target.id,
+                capability: externalWork.capability,
+                code: failureCode,
+              },
+            );
+            await this.fail(currentMission, currentRun, failureCode);
+          }
+        }
+        return this.detail(mission.id);
+      }
       await this.runParticipant(running, run, {
         phase: 'PARTICIPANT',
         teammateId: request.targetTeammateId,
@@ -543,6 +948,73 @@ export class Gate5CollaborationService {
     } else {
       await this.continueRun(running, run);
     }
+    return this.detail(mission.id);
+  }
+
+  /** Resumes the coordinator with a typed continuation from ExternalWorkService. */
+  async resumeExternalWork(
+    continuation: Gate5ExternalWorkContinuation,
+  ): Promise<PartyMissionDetail> {
+    const requestId = continuation.requestId;
+    const context = validateExternalWorkContinuation(requestId, continuation);
+    const missionId = continuation.missionId;
+    const mission = this.requireMission(missionId);
+    const run = this.missionStore.getRun(continuation.runId);
+    if (
+      !continuation.requesterTeammateId ||
+      !continuation.assigneeTeammateId ||
+      continuation.requesterTeammateId.length > 128 ||
+      continuation.assigneeTeammateId.length > 128 ||
+      !run ||
+      run.missionId !== mission.id ||
+      run.status !== 'RUNNING' ||
+      this.latestRun(mission.id).id !== run.id ||
+      mission.state !== 'RUNNING'
+    ) {
+      throw new DomainError('MISSION_INVALID_STATE', 'ExternalWork 对应的当前 Run 无效');
+    }
+    const target = this.teammates.getTeammate(continuation.assigneeTeammateId);
+    if (
+      !target ||
+      target.status !== 'ACTIVE' ||
+      target.executorKind !== 'USER_BRIDGE' ||
+      target.systemKind !== 'HUMAN_BRIDGE' ||
+      target.currentRuntimeProfileId !== null
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork assignee 不是 Human Bridge');
+    }
+    const linkedRequest = this.store
+      .listCollaborationRequests(mission.id)
+      .find(
+        (item) =>
+          item.runId === run.id &&
+          item.requesterTeammateId === continuation.requesterTeammateId &&
+          item.targetTeammateId === continuation.assigneeTeammateId &&
+          item.state === 'APPROVED',
+      );
+    if (!linkedRequest) {
+      throw new DomainError(
+        'PERSISTENCE_INVALID',
+        'ExternalWork continuation 无已批准的 Party 请求',
+      );
+    }
+    if (this.busy.has(mission.id)) throw new DomainError('MISSION_BUSY', 'Mission 正在执行');
+    if (continuation.outcome !== 'ACCEPTED') {
+      const code =
+        continuation.outcome === 'REJECTED' ? 'EXTERNAL_WORK_REJECTED' : 'EXTERNAL_WORK_CANCELLED';
+      this.record(mission, run.id, 'collaboration.external_work_finished', 'SYSTEM', null, {
+        requestId,
+        collaborationRequestId: linkedRequest.id,
+        capability: continuation.capability,
+        outcome: continuation.outcome,
+        code,
+      });
+      await this.fail(mission, run, code);
+      return this.detail(mission.id);
+    }
+    if (!context) throw new DomainError('PERSISTENCE_INVALID', 'Accepted ExternalWork 缺少结果');
+    this.recordExternalWorkContinuation(mission, run, continuation, context);
+    await this.continueRun(mission, run, context);
     return this.detail(mission.id);
   }
 
@@ -568,8 +1040,13 @@ export class Gate5CollaborationService {
     return this.detail(mission.id);
   }
 
-  private async continueRun(mission: Mission, run: MissionRunRecord): Promise<void> {
+  private async continueRun(
+    mission: Mission,
+    run: MissionRunRecord,
+    externalWorkContext?: Gate5ExternalWorkModelContext,
+  ): Promise<void> {
     if (!this.active(mission, run)) return;
+    const continuation = externalWorkContext ?? this.externalWorkContextForRun(mission.id, run.id);
     const artifacts = this.store.listCollaborationArtifacts(mission.id, run.id);
     if (mission.mode === 'REVIEW' && !artifacts.some((item) => item.kind === 'DRAFT')) {
       await this.runParticipant(mission, run, {
@@ -625,6 +1102,7 @@ export class Gate5CollaborationService {
       task: `SYNTHESIS: ${JSON.stringify({ objective: mission.objective, mode: mission.mode, publicResults, collaborationOutcomes }).slice(0, 24_000)}`,
       artifactKind: 'FINAL',
       requestId: null,
+      ...(continuation ? { externalWorkContext: continuation } : {}),
     });
   }
 
@@ -899,6 +1377,15 @@ export class Gate5CollaborationService {
     task: ParticipantTask,
     resume?: ToolContinuation,
   ): Promise<ParticipantOutcome> {
+    if (
+      task.externalWorkContext &&
+      (task.phase !== 'SYNTHESIS' || task.teammateId !== mission.coordinatorTeammateId)
+    ) {
+      throw new DomainError(
+        'PERSISTENCE_INVALID',
+        'ExternalWork context 只能用于 Coordinator synthesis',
+      );
+    }
     const teammate = this.requireTeammate(task.teammateId);
     const runtime = this.requireRuntime(teammate);
     let data: Awaited<ReturnType<ChatPromptContext['load']>> = {
@@ -954,20 +1441,20 @@ export class Gate5CollaborationService {
         });
         let response;
         try {
+          const modelRequest = {
+            teammateId: teammate.id,
+            runtimeProfileId: runtime.id,
+            messages,
+            ...(task.externalWorkContext ? { externalWorkContext: task.externalWorkContext } : {}),
+          };
           response =
             this.tools && this.gateway.generateWithTools
               ? await this.gateway.generateWithTools({
-                  teammateId: teammate.id,
-                  runtimeProfileId: runtime.id,
-                  messages,
+                  ...modelRequest,
                   tools: this.tools.registry.list(),
                 })
               : {
-                  ...(await this.gateway.generate({
-                    teammateId: teammate.id,
-                    runtimeProfileId: runtime.id,
-                    messages,
-                  })),
+                  ...(await this.gateway.generate(modelRequest)),
                   toolCalls: [],
                 };
         } catch {
@@ -1207,6 +1694,17 @@ export class Gate5CollaborationService {
         boundedToolInput(parsed.call.input) !== parsed.call.input
       )
         throw new Error();
+      const externalWorkContext =
+        parsed.task.externalWorkContext === undefined
+          ? undefined
+          : parseExternalWorkModelContext(parsed.task.externalWorkContext);
+      if (
+        externalWorkContext &&
+        (parsed.task.phase !== 'SYNTHESIS' ||
+          parsed.task.teammateId !== mission.coordinatorTeammateId)
+      ) {
+        throw new Error();
+      }
       const messages = parseToolHistory(parsed.messages);
       const currentCallId = parsed.call.id as string;
       if (
@@ -1219,7 +1717,10 @@ export class Gate5CollaborationService {
       )
         throw new Error();
       saved = {
-        task: parsed.task as unknown as ParticipantTask,
+        task: {
+          ...(parsed.task as unknown as ParticipantTask),
+          ...(externalWorkContext ? { externalWorkContext } : {}),
+        },
         call: parsed.call as unknown as ModelToolCall,
         messages,
       };
@@ -1517,6 +2018,121 @@ export class Gate5CollaborationService {
     );
   }
 
+  private recordExternalWorkContinuation(
+    mission: Mission,
+    run: MissionRunRecord,
+    continuation: Gate5ExternalWorkContinuation,
+    context: Gate5ExternalWorkModelContext,
+  ): void {
+    const previous = this.missionStore
+      .listMissionEvents(mission.id)
+      .find(
+        (event) =>
+          event.runId === run.id &&
+          event.eventType === 'external_work.continuation_received' &&
+          event.payloadJson.requestId === continuation.requestId,
+      );
+    if (previous) {
+      const saved = this.externalWorkContextFromEvent(previous, mission.id, run.id);
+      if (!saved || JSON.stringify(saved) !== JSON.stringify(context)) {
+        throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation 重复数据不一致');
+      }
+      return;
+    }
+    const at = this.clock.now();
+    const event: MissionEvent = {
+      id: this.clock.newId(),
+      missionId: mission.id,
+      runId: run.id,
+      eventType: 'external_work.continuation_received',
+      actorType: 'SYSTEM',
+      actorId: null,
+      payloadJson: {
+        kind: continuation.kind,
+        requestId: continuation.requestId,
+        missionId: continuation.missionId,
+        runId: continuation.runId,
+        requesterTeammateId: continuation.requesterTeammateId,
+        assigneeTeammateId: continuation.assigneeTeammateId,
+        capability: context.capability,
+        outcome: context.outcome,
+        publicResult: context.publicResult,
+        artifacts: continuation.artifacts,
+        trust: 'UNTRUSTED_EXTERNAL_DATA',
+      },
+      createdAt: at,
+    };
+    const audit: AuditEvent = {
+      id: this.clock.newId(),
+      actorType: 'SYSTEM',
+      actorId: null,
+      action: 'external_work.continuation_received',
+      targetType: 'MISSION',
+      targetId: mission.id,
+      payloadJson: {
+        runId: run.id,
+        requestId: continuation.requestId,
+        capability: context.capability,
+        outcome: context.outcome,
+        publicResultBytes: context.publicResult ? Buffer.byteLength(context.publicResult) : 0,
+        artifactCount: context.artifacts.length,
+        trust: 'UNTRUSTED_EXTERNAL_DATA',
+      },
+      createdAt: at,
+    };
+    this.missionStore.transaction(() => {
+      this.missionStore.appendMissionEvent(event);
+      this.missionStore.appendAuditEvent(audit);
+    });
+  }
+
+  private externalWorkContextForRun(
+    missionId: string,
+    runId: string,
+  ): Gate5ExternalWorkModelContext | undefined {
+    const event = this.missionStore
+      .listMissionEvents(missionId)
+      .filter(
+        (candidate) =>
+          candidate.runId === runId &&
+          candidate.eventType === 'external_work.continuation_received',
+      )
+      .at(-1);
+    if (!event) return undefined;
+    return this.externalWorkContextFromEvent(event, missionId, runId) ?? undefined;
+  }
+
+  private externalWorkContextFromEvent(
+    event: MissionEvent,
+    missionId: string,
+    runId: string,
+  ): Gate5ExternalWorkModelContext | null {
+    const payload = event.payloadJson;
+    if (
+      event.missionId !== missionId ||
+      event.runId !== runId ||
+      !isRecord(payload) ||
+      typeof payload.requestId !== 'string' ||
+      typeof payload.requesterTeammateId !== 'string' ||
+      typeof payload.assigneeTeammateId !== 'string'
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation event 无效');
+    }
+    return validateExternalWorkContinuation(payload.requestId, {
+      kind: payload.kind as 'EXTERNAL_WORK_CONTINUATION',
+      requestId: payload.requestId,
+      missionId,
+      runId,
+      requesterTeammateId: payload.requesterTeammateId,
+      assigneeTeammateId: payload.assigneeTeammateId,
+      capability: payload.capability as CapabilityDimension,
+      outcome: payload.outcome as 'ACCEPTED',
+      publicResult: payload.publicResult as string | null,
+      artifacts: payload.artifacts as Gate5ExternalWorkArtifactSummary[],
+      trust: payload.trust as 'UNTRUSTED_EXTERNAL_DATA',
+    });
+  }
+
   private changeState(
     mission: Mission,
     state: MissionState,
@@ -1624,10 +2240,22 @@ export class Gate5CollaborationService {
     if (
       current.party.coordinatorTeammateId !== mission.coordinatorTeammateId ||
       snapshot.length !== currentIds.length ||
-      snapshot.some((item) => !currentIds.includes(item.teammateId))
+      snapshot.some(
+        (item) =>
+          !currentIds.includes(item.teammateId) ||
+          current.members.find((member) => member.teammate.id === item.teammateId)?.membership
+            .role !== item.role,
+      )
     ) {
       throw new DomainError('INVALID_INPUT', 'Party 成员已变化，请创建新 Mission');
     }
-    for (const item of snapshot) this.requireRuntime(this.requireTeammate(item.teammateId));
+    for (const item of current.members) {
+      if (
+        item.membership.role === 'COORDINATOR' ||
+        item.teammate.executorKind === 'MODEL_RUNTIME'
+      ) {
+        this.requireRuntime(item.teammate);
+      }
+    }
   }
 }

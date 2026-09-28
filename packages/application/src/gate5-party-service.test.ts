@@ -186,4 +186,60 @@ describe('Gate 5 Party application service', () => {
     ]);
     expect(() => service.validatePartyForMission(party.id)).toThrow(/Coordinator 成员标记无效/);
   });
+
+  it('allows only the runtime-free Human Bridge as a member and never as Coordinator', () => {
+    const { service, teammates } = setup();
+    const bridge: Teammate = {
+      ...teammates.get('e')!,
+      id: 'human-bridge',
+      name: 'Human Bridge',
+      executorKind: 'USER_BRIDGE',
+      routingPolicy: 'FALLBACK_ONLY',
+      systemKind: 'HUMAN_BRIDGE',
+      currentRuntimeProfileId: null,
+    };
+    teammates.set(bridge.id, bridge);
+
+    const party = service.createParty(input(['a', bridge.id]));
+
+    expect(
+      service.validatePartyForMission(party.id).members.map(({ teammate }) => teammate.id),
+    ).toEqual(['a', bridge.id]);
+    expect(() =>
+      service.createParty(input([bridge.id, 'a'], { coordinatorTeammateId: bridge.id })),
+    ).toThrow(/只能作为无 Runtime 的 Party 成员/);
+    expect(() =>
+      service.updateParty({
+        id: party.id,
+        ...input([bridge.id, 'a'], { coordinatorTeammateId: bridge.id }),
+      }),
+    ).toThrow(/只能作为无 Runtime 的 Party 成员/);
+  });
+
+  it('rejects malformed or runtime-backed USER_BRIDGE members', () => {
+    const { service, teammates } = setup();
+    const model = teammates.get('e')!;
+    const invalidBridge: Teammate = {
+      ...model,
+      id: 'invalid-bridge',
+      executorKind: 'USER_BRIDGE',
+      systemKind: null,
+      currentRuntimeProfileId: null,
+    };
+    teammates.set(invalidBridge.id, invalidBridge);
+    expect(() => service.createParty(input(['a', invalidBridge.id]))).toThrow(
+      /只能作为无 Runtime 的 Party 成员/,
+    );
+
+    const runtimeBackedBridge: Teammate = {
+      ...invalidBridge,
+      id: 'runtime-backed-bridge',
+      systemKind: 'HUMAN_BRIDGE',
+      currentRuntimeProfileId: 'runtime-e',
+    };
+    teammates.set(runtimeBackedBridge.id, runtimeBackedBridge);
+    expect(() => service.createParty(input(['a', runtimeBackedBridge.id]))).toThrow(
+      /只能作为无 Runtime 的 Party 成员/,
+    );
+  });
 });

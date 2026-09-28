@@ -130,7 +130,7 @@ export class Gate5PartyService {
     );
     this.assertRoster(party, memberships);
     const members = memberships.map((membership): PartyMemberWithTeammate => {
-      const teammate = this.requireAvailableTeammate(membership.teammateId);
+      const teammate = this.requireAvailableTeammate(membership.teammateId, membership.role);
       return { membership, teammate };
     });
     return { party, members };
@@ -195,12 +195,31 @@ export class Gate5PartyService {
   }
 
   private assertAllAvailable(members: PartyMember[]): void {
-    for (const member of members) this.requireAvailableTeammate(member.teammateId);
+    for (const member of members) {
+      this.requireAvailableTeammate(member.teammateId, member.role);
+    }
   }
 
-  private requireAvailableTeammate(teammateId: string): Teammate {
+  private requireAvailableTeammate(teammateId: string, role: PartyMember['role']): Teammate {
     const teammate = this.teammates.getTeammate(teammateId);
-    if (!teammate || teammate.status !== 'ACTIVE' || !teammate.currentRuntimeProfileId) {
+    if (!teammate || teammate.status !== 'ACTIVE') {
+      throw new DomainError('INVALID_INPUT', 'Party 包含不可用或已归档的道友');
+    }
+    if (teammate.executorKind === 'USER_BRIDGE') {
+      if (
+        role === 'COORDINATOR' ||
+        teammate.systemKind !== 'HUMAN_BRIDGE' ||
+        teammate.currentRuntimeProfileId !== null
+      ) {
+        throw new DomainError('INVALID_INPUT', 'Human Bridge 只能作为无 Runtime 的 Party 成员');
+      }
+      return teammate;
+    }
+    if (
+      teammate.executorKind !== 'MODEL_RUNTIME' ||
+      teammate.systemKind !== null ||
+      !teammate.currentRuntimeProfileId
+    ) {
       throw new DomainError('INVALID_INPUT', 'Party 包含不可用或已归档的道友');
     }
     if (!this.teammates.getRuntimeProfile(teammate.currentRuntimeProfileId)) {
