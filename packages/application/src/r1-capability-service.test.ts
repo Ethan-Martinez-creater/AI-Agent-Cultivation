@@ -186,6 +186,39 @@ describe('R1 benchmark prior and dynamic capability scoring', () => {
     expect(selected?.normalizedScore).toBeNull();
   });
 
+  it('prefers catalog over estimates and orders equal sources by snapshot then creation fact', () => {
+    const resolver = new BenchmarkPriorResolver();
+    const input = {
+      runtimeProfileId: 'runtime-1',
+      modelAlias: 'model-1',
+      dimension: 'GENERAL_REASONING' as const,
+    };
+    const estimate = benchmark({
+      id: 'new-estimate',
+      provenanceType: 'USER_ESTIMATE',
+      snapshotDate: '2026-09-01T00:00:00.000Z',
+    });
+    const olderCatalog = benchmark({ id: 'old-catalog', normalizedScore: 60 });
+    const latestCatalog = benchmark({
+      id: 'latest-catalog',
+      normalizedScore: 70,
+      snapshotDate: '2026-08-02T00:00:00.000Z',
+      createdAt: '2026-08-03T00:00:00.000Z',
+    });
+    expect(
+      resolver.resolve({ ...input, benchmarks: [estimate, olderCatalog, latestCatalog] })?.id,
+    ).toBe('latest-catalog');
+    const laterCreation = benchmark({
+      id: 'later-creation',
+      normalizedScore: 75,
+      snapshotDate: latestCatalog.snapshotDate,
+      createdAt: '2026-08-04T00:00:00.000Z',
+    });
+    expect(resolver.resolve({ ...input, benchmarks: [latestCatalog, laterCreation] })?.id).toBe(
+      'later-creation',
+    );
+  });
+
   it('calculates a benchmark prior plus transfer-weighted evidence deterministically', () => {
     const projection = calculateCapabilityScore({
       teammateId: 'teammate-1',
@@ -214,6 +247,47 @@ describe('R1 benchmark prior and dynamic capability scoring', () => {
         (CAPABILITY_SCORING_POLICY.priorStrength + 1 + CAPABILITY_SCORING_POLICY.transferWeight),
       updatedAt: '2026-08-03T00:00:00.000Z',
     });
+  });
+
+  it('limits one extreme rating and moves gradually with repeated consistent ratings', () => {
+    const prior = benchmark({ normalizedScore: 80 });
+    const userRatings = Array.from({ length: 6 }, (_, index) =>
+      evidence({
+        id: `low-${index}`,
+        ratingValue: 0,
+        evidenceWeight: CAPABILITY_SCORING_POLICY.overallProjectionEvidenceWeight,
+        createdAt: `2026-08-${String(index + 2).padStart(2, '0')}T00:00:00.000Z`,
+      }),
+    );
+    const scoreFor = (count: number) =>
+      calculateCapabilityScore({
+        teammateId: 'teammate-1',
+        dimension: 'GENERAL_REASONING',
+        currentRuntimeProfileId: 'runtime-1',
+        prior,
+        evidence: userRatings.slice(0, count),
+      })?.currentScore;
+
+    expect(scoreFor(0)).toBe(80);
+    expect(scoreFor(1)).toBeGreaterThan(75);
+    expect(scoreFor(6)).toBeLessThan(scoreFor(1)!);
+    expect(scoreFor(6)).toBeGreaterThan(50);
+  });
+
+  it('weights an explicit dimension rating more than an overall projection', () => {
+    const prior = benchmark({ normalizedScore: 80 });
+    const scoreWith = (evidenceWeight: number) =>
+      calculateCapabilityScore({
+        teammateId: 'teammate-1',
+        dimension: 'GENERAL_REASONING',
+        currentRuntimeProfileId: 'runtime-1',
+        prior,
+        evidence: [evidence({ ratingValue: 0, evidenceWeight })],
+      })?.currentScore;
+
+    expect(scoreWith(CAPABILITY_SCORING_POLICY.dimensionEvidenceWeight)).toBeLessThan(
+      scoreWith(CAPABILITY_SCORING_POLICY.overallProjectionEvidenceWeight)!,
+    );
   });
 
   it('keeps a supported zero score distinct from an unsupported benchmark', () => {
@@ -379,6 +453,33 @@ describe('R1 capability service', () => {
       service.submitRating({
         ...RUN,
         teammateId: 'teammate-1',
+        runtimeProfileId: 'runtime-1',
+        selectedDimensions: ['GENERAL_REASONING'],
+        overallRating: 5,
+      }),
+    ).toThrow(/did not execute/);
+  });
+
+  it('does not enable USER_BRIDGE rating even if a fixture supplies a model target', () => {
+    const store = configuredStore();
+    store.teammates.set('bridge', {
+      id: 'bridge',
+      currentRuntimeProfileId: null,
+      executorKind: 'USER_BRIDGE',
+    });
+    store.ratingTargets.push({
+      teammateId: 'bridge',
+      runtimeProfileId: 'runtime-1',
+      modelAlias: 'model-1',
+    });
+    addAllSupportedBenchmarks(store);
+
+    const service = new R1CapabilityService(store);
+    expect(service.getRatingTargets(RUN.missionId, RUN.runId)).toEqual([]);
+    expect(() =>
+      service.submitRating({
+        ...RUN,
+        teammateId: 'bridge',
         runtimeProfileId: 'runtime-1',
         selectedDimensions: ['GENERAL_REASONING'],
         overallRating: 5,

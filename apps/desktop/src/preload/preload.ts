@@ -29,7 +29,14 @@ import type {
   UsageRecord,
   ExperienceEvent,
   CapabilityProfile,
+  CapabilityDimension,
+  ModelCapabilityBenchmark,
+  CapabilityEvidence,
 } from '@cultivation/domain';
+import type {
+  R1CapabilityProfile,
+  R1RatingTarget,
+} from '@cultivation/application/r1-capability-service';
 
 export type ChatStreamEvent =
   | {
@@ -103,11 +110,57 @@ export interface MissionDetail {
 
 export type PartyView = Party & { members: PartyMember[] };
 
+export interface BenchmarkInput {
+  runtimeProfileId: string;
+  modelAlias: string;
+  dimension: CapabilityDimension;
+  supported: boolean;
+  normalizedScore: number | null;
+  rawScore: number | null;
+  source: string;
+  benchmark: string;
+  benchmarkVersion: string;
+  snapshotDate: string;
+  sourceUrl: string | null;
+  provenanceType: ModelCapabilityBenchmark['provenanceType'];
+}
+
+export interface RatingInput {
+  missionId: string;
+  runId: string;
+  teammateId: string;
+  runtimeProfileId: string;
+  selectedDimensions: CapabilityDimension[];
+  skip?: boolean;
+  overallRating?: 1 | 2 | 3 | 4 | 5;
+  dimensionRatings?: Partial<Record<CapabilityDimension, 1 | 2 | 3 | 4 | 5>>;
+}
+
 export interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
   experience: {
     get(teammateId: string): Promise<{ events: ExperienceEvent[]; profile: CapabilityProfile }>;
+  };
+  capability: {
+    catalog(): Promise<
+      Array<{
+        id: string;
+        name: string;
+        url: string;
+        dimensions: CapabilityDimension[];
+        description: string;
+      }>
+    >;
+    benchmarks(runtimeProfileId: string): Promise<ModelCapabilityBenchmark[]>;
+    priors(
+      runtimeProfileId: string,
+    ): Promise<Array<{ dimension: CapabilityDimension; prior: ModelCapabilityBenchmark | null }>>;
+    saveBenchmark(input: BenchmarkInput): Promise<ModelCapabilityBenchmark>;
+    ratingTargets(input: { missionId: string; runId: string }): Promise<R1RatingTarget[]>;
+    submitRating(input: RatingInput): Promise<{ evidence: CapabilityEvidence[]; skipped: boolean }>;
+    profile(teammateId: string): Promise<R1CapabilityProfile>;
+    rebuild(teammateId: string): Promise<unknown>;
   };
   providers: {
     list(): Promise<ProviderConfig[]>;
@@ -255,6 +308,16 @@ const bridge: CultivationBridge = {
   app: { getVersion: () => ipcRenderer.invoke('app:getVersion') },
   health: { ping: () => ipcRenderer.invoke('health:ping') },
   experience: { get: (teammateId) => ipcRenderer.invoke('experience:get', teammateId) },
+  capability: {
+    catalog: () => ipcRenderer.invoke('capability:catalog'),
+    benchmarks: (runtimeProfileId) => ipcRenderer.invoke('capability:benchmarks', runtimeProfileId),
+    priors: (runtimeProfileId) => ipcRenderer.invoke('capability:priors', runtimeProfileId),
+    saveBenchmark: (input) => ipcRenderer.invoke('capability:saveBenchmark', input),
+    ratingTargets: (input) => ipcRenderer.invoke('capability:ratingTargets', input),
+    submitRating: (input) => ipcRenderer.invoke('capability:submitRating', input),
+    profile: (teammateId) => ipcRenderer.invoke('capability:profile', teammateId),
+    rebuild: (teammateId) => ipcRenderer.invoke('capability:rebuild', teammateId),
+  },
   providers: {
     list: () => ipcRenderer.invoke('providers:list'),
     create: (input) => ipcRenderer.invoke('providers:create', input),

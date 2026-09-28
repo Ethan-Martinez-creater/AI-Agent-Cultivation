@@ -13,6 +13,7 @@ import {
   Gate4SqliteRepository,
   Gate5SqliteRepository,
   Gate6SqliteRepository,
+  R0SqliteRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -39,6 +40,8 @@ import { Gate5PartyService } from '@cultivation/application/gate5-party-service'
 import { Gate5CollaborationService } from '@cultivation/application/gate5-collaboration-service';
 import { Gate6ExperienceService } from '@cultivation/application/gate6-experience-service';
 import { registerGate6Ipc } from './gate6-ipc.js';
+import { R1CapabilityService } from '@cultivation/application/r1-capability-service';
+import { registerR1Ipc } from './r1-ipc.js';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -60,6 +63,8 @@ function createWindow(
   parties: Gate5PartyService,
   tools: Gate4ToolsService,
   experience: Gate6ExperienceService,
+  capabilities: R1CapabilityService,
+  capabilityStore: R0SqliteRepository,
 ): void {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -125,11 +130,24 @@ function createWindow(
       db.close();
     }
   });
-  registerGate1Ipc(window, validSender, service);
+  registerGate1Ipc(
+    window,
+    validSender,
+    service,
+    (teammateId) => {
+      capabilities.rebuild(teammateId);
+    },
+    (runtimeProfileId) => {
+      for (const teammate of capabilityStore.listTeammatesUsingRuntime(runtimeProfileId)) {
+        capabilities.rebuild(teammate.id);
+      }
+    },
+  );
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
   registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties);
   registerGate4Ipc(window, validSender, tools);
   registerGate6Ipc(validSender, experience);
+  registerR1Ipc(validSender, capabilities);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -159,6 +177,8 @@ if (!squirrelStartup)
       const gate4Store = new Gate4SqliteRepository(db);
       const gate5Store = new Gate5SqliteRepository(db);
       const experience = new Gate6ExperienceService(new Gate6SqliteRepository(db));
+      const capabilityStore = new R0SqliteRepository(db);
+      const capabilities = new R1CapabilityService(capabilityStore);
       let vectorAvailable = false;
       try {
         const extension = app.isPackaged
@@ -252,6 +272,8 @@ if (!squirrelStartup)
         parties,
         tools,
         experience,
+        capabilities,
+        capabilityStore,
       );
       app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0)
@@ -266,6 +288,8 @@ if (!squirrelStartup)
             parties,
             tools,
             experience,
+            capabilities,
+            capabilityStore,
           );
       });
     })

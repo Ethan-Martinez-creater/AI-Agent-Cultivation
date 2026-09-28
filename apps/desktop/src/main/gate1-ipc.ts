@@ -59,6 +59,8 @@ export function registerGate1Ipc(
   window: BrowserWindow,
   validSender: (event: IpcMainInvokeEvent) => boolean,
   service: Gate1Service,
+  onRuntimeSwitched?: (teammateId: string) => void | Promise<void>,
+  onRuntimeUpdated?: (runtimeProfileId: string) => void | Promise<void>,
 ): void {
   const activeRequests = new Set<string>();
   const register = (
@@ -109,9 +111,13 @@ export function registerGate1Ipc(
   register('runtimes:create', (_event, args) =>
     service.createRuntimeProfile(one(args, runtimeInput)),
   );
-  register('runtimes:update', (_event, args) =>
-    service.updateRuntimeProfile(one(args, runtimeInput.extend({ id: idSchema }))),
-  );
+  register('runtimes:update', async (_event, args) => {
+    const updated = await service.updateRuntimeProfile(
+      one(args, runtimeInput.extend({ id: idSchema })),
+    );
+    await onRuntimeUpdated?.(updated.id);
+    return updated;
+  });
   register('runtimes:testConnection', (_event, args) =>
     service.testConnection(one(args, idSchema)),
   );
@@ -125,11 +131,15 @@ export function registerGate1Ipc(
   );
   register('teammates:archive', (_event, args) => service.archiveTeammate(one(args, idSchema)));
   register('teammates:duplicate', (_event, args) => service.duplicateTeammate(one(args, idSchema)));
-  register('teammates:switchRuntime', (_event, args) =>
-    service.switchRuntime(
-      one(args, z.object({ teammateId: idSchema, runtimeProfileId: idSchema }).strict()),
-    ),
-  );
+  register('teammates:switchRuntime', async (_event, args) => {
+    const input = one(
+      args,
+      z.object({ teammateId: idSchema, runtimeProfileId: idSchema }).strict(),
+    );
+    const updated = await service.switchRuntime(input);
+    await onRuntimeSwitched?.(updated.id);
+    return updated;
+  });
   register('chat:listConversations', (_event, args) =>
     service.listConversations(one(args, idSchema)),
   );

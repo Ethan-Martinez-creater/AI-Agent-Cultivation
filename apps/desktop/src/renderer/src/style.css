@@ -2772,3 +2772,94 @@ td code {
     grid-template-columns: 1fr;
   }
 }
+.r1-benchmark-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.r1-benchmark-form,
+.r1-dimension-list,
+.r1-catalog-list,
+.r1-capability-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.r1-benchmark-form {
+  margin-top: 1rem;
+}
+.r1-dimension-list {
+  max-height: 29rem;
+  overflow: auto;
+  margin: 1rem 0;
+}
+.r1-checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.r1-checkbox-field input {
+  width: auto;
+}
+.r1-catalog-list {
+  padding-left: 1.25rem;
+}
+.r1-catalog-list li small {
+  display: block;
+}
+.r1-catalog-list code {
+  overflow-wrap: anywhere;
+}
+.r1-capability-grid {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+.r1-capability-card {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 0.7rem;
+}
+.r1-capability-card small {
+  line-height: 1.4;
+}
+.r1-capability-card p {
+  margin: 0;
+}
+.r1-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.r1-score small {
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+.r1-rating-card {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 0.7rem;
+}
+.r1-rating-dimensions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.r1-rating-dimension {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 0.5rem;
+}
+
+@media (max-width: 850px) {
+  .r1-benchmark-layout {
+    grid-template-columns: 1fr;
+  }
+}

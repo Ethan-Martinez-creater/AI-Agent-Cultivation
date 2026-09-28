@@ -10,6 +10,17 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
+import type { BenchmarkInput, RatingInput } from '../../preload/preload.js';
+import type {
+  CapabilityDimension,
+  CapabilityEvidence,
+  ModelCapabilityBenchmark,
+} from '@cultivation/domain';
+import type {
+  R1CapabilityProfile,
+  R1RatingTarget,
+} from '@cultivation/application/r1-capability-service';
+import { BenchmarkPanel, DynamicCapabilityPanel, MissionRatingCard } from './r1-capability.js';
 import './style.css';
 
 type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -335,6 +346,26 @@ interface ChatEvent {
 interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
+  capability: {
+    catalog(): Promise<
+      Array<{
+        id: string;
+        name: string;
+        url: string;
+        dimensions: CapabilityDimension[];
+        description: string;
+      }>
+    >;
+    benchmarks(runtimeProfileId: string): Promise<ModelCapabilityBenchmark[]>;
+    priors(
+      runtimeProfileId: string,
+    ): Promise<Array<{ dimension: CapabilityDimension; prior: ModelCapabilityBenchmark | null }>>;
+    saveBenchmark(input: BenchmarkInput): Promise<ModelCapabilityBenchmark>;
+    ratingTargets(input: { missionId: string; runId: string }): Promise<R1RatingTarget[]>;
+    submitRating(input: RatingInput): Promise<{ evidence: CapabilityEvidence[]; skipped: boolean }>;
+    profile(teammateId: string): Promise<R1CapabilityProfile>;
+    rebuild(teammateId: string): Promise<unknown>;
+  };
   embedding: {
     getConfig(): Promise<{ available: boolean; runtimeProfileId: string | null }>;
     setConfig(
@@ -2598,6 +2629,17 @@ function MissionPage() {
                               <pre>{run.resultText}</pre>
                             </details>
                           )}
+                          {['COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED'].includes(
+                            run.status,
+                          ) && (
+                            <MissionRatingCard
+                              missionId={detail.mission.id}
+                              runId={run.id}
+                              teammateNames={Object.fromEntries(
+                                teammates.map((item) => [item.id, item.name]),
+                              )}
+                            />
+                          )}
                         </article>
                       ))}
                   </div>
@@ -2942,7 +2984,7 @@ function metadataToken(value: unknown, pattern = /^[A-Za-z0-9_.:-]{1,96}$/): str
   return typeof value === 'string' && pattern.test(value) ? safeLabel(value) : null;
 }
 
-type SettingsTab = 'providers' | 'credentials' | 'runtimes' | 'embedding';
+type SettingsTab = 'providers' | 'credentials' | 'runtimes' | 'benchmark' | 'embedding';
 
 function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('providers');
@@ -2998,6 +3040,7 @@ function SettingsPage() {
             ['providers', '服务商'],
             ['credentials', '凭据'],
             ['runtimes', 'Runtime Profiles'],
+            ['benchmark', '能力画像 / Benchmark'],
             ['embedding', '记忆向量检索'],
           ] as const
         ).map(([id, label]) => (
@@ -3033,6 +3076,7 @@ function SettingsPage() {
               onChanged={refresh}
             />
           )}
+          {tab === 'benchmark' && <BenchmarkPanel runtimes={runtimes} />}
           {tab === 'embedding' && (
             <EmbeddingPanel
               providers={providers}
@@ -4020,6 +4064,10 @@ function TeammatesPage() {
                 <div className="notice">已归档的道友保留历史数据，不能继续发送新消息。</div>
               )}
               <TeammateSkillsPanel teammate={selected} />
+              <DynamicCapabilityPanel
+                key={`${selected.id}:${selected.currentRuntimeProfileId}`}
+                teammateId={selected.id}
+              />
               <TeammateExperiencePanel teammate={selected} />
             </div>
           ) : loading ? (

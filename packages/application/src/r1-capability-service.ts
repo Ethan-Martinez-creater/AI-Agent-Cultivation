@@ -176,6 +176,7 @@ export class R1CapabilityService {
     const facts = this.store.listMissionRunRatingTargets(missionId, runId);
     const targets = new Map<string, R1RatingTarget>();
     for (const fact of facts) {
+      if (this.store.getTeammate(fact.teammateId)?.executorKind !== 'MODEL_RUNTIME') continue;
       const key = `${fact.teammateId}\u0000${fact.runtimeProfileId}`;
       const existingEvidence = this.store.listCapabilityEvidence(fact.teammateId);
       const benchmarks = this.store.listModelCapabilityBenchmarks(
