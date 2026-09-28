@@ -43,11 +43,40 @@ export type {
   SubmitCapabilityRatingResult,
 } from './r1-capability-service.js';
 export type {
+  DecisionQuestion,
   DecisionGateway,
   DecisionRequest,
   DecisionResult,
   DecisionType,
 } from './r0-decision.js';
+export {
+  CAPABILITY_BAND_POLICY,
+  DECISION_STATE_BUDGET,
+  DecisionStateBudgetError,
+  DecisionStateBuilder,
+  R3_DECISION_QUESTION_VERSIONS,
+  R3_DECISION_STATE_VERSION,
+  R3_SHADOW_POLICY_VERSION,
+  canonicalDecisionJson,
+} from './r3-decision-state.js';
+export type {
+  CapabilityAvailability,
+  CapabilityBand,
+  CapabilityStateInput,
+  DecisionCandidateInput,
+  DecisionSkillMetadata,
+  DecisionStateBuildResult,
+  VerifiedExperienceSummary,
+} from './r3-decision-state.js';
+export { ShadowDecisionService } from './r3-shadow-service.js';
+export type {
+  DecisionFallbackCode,
+  DecisionObservationPort,
+  DecisionShadowObservation,
+  ShadowDecisionContext,
+  ShadowDecisionOutcome,
+  ShadowDecisionServiceOptions,
+} from './r3-shadow-service.js';
 export type {
   CapabilityRepository,
   DecisionReceiptRepository,

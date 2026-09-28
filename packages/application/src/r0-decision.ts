@@ -5,11 +5,22 @@ export type DecisionType =
   | 'COLLABORATION_NEED'
   | 'REVIEW_NEED';
 
+export interface DecisionQuestion {
+  type: 'noul' | 'choice';
+  instructions: string;
+  criteria?: Record<string, string | null>;
+}
+
 /** A deliberately small state summary; private Memory and file contents have no slot. */
 export interface DecisionRequest {
   decisionType: DecisionType;
   questionVersion: string;
   stateHash: string;
+  policyVersion: string;
+  /** Explicit allowlisted, bounded decision state. Never raw private source text. */
+  state: Record<string, unknown>;
+  /** Small independent questions; adapter owns provider-specific serialization. */
+  questions: Record<string, DecisionQuestion>;
   inputSummary: {
     taskSummary: string;
     candidateIds: string[];
@@ -22,6 +33,9 @@ export interface DecisionResult {
   answers: Record<string, unknown>;
   confidence: Record<string, number>;
   selectedAction: string | null;
+  model?: string;
+  inputTokens?: number | null;
+  latencyMs?: number | null;
 }
 
 export interface DecisionGateway {
