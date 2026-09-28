@@ -2,24 +2,55 @@ import { describe, expect, it } from 'vitest';
 import type { DecisionRequest, DecisionResult } from '@cultivation/application/r0-decision';
 import { FakeDecisionGateway } from './fake-decision-gateway.js';
 
-const request: DecisionRequest = {
+const request = {
   decisionType: 'TASK_CAPABILITY',
   questionVersion: 'r0-fixture-v1',
+  policyVersion: 'r3-shadow-v1',
   stateHash: 'state-1',
   inputSummary: {
     taskSummary: 'A bounded public task summary',
     candidateIds: ['teammate-a'],
   },
-};
+  state: { schemaVersion: 'r3-decision-state-v1', taskSummary: 'A bounded public task summary' },
+  questions: Object.fromEntries(
+    [
+      'GENERAL_REASONING',
+      'LONG_CONTEXT_REASONING',
+      'AGENTIC_EXECUTION',
+      'CODING',
+      'TOOL_USE',
+      'VISUAL_UNDERSTANDING',
+      'IMAGE_GENERATION',
+      'IMAGE_EDITING',
+      'VIDEO_GENERATION',
+      'VIDEO_EDITING',
+      'SPEECH_UNDERSTANDING',
+      'SPEECH_GENERATION',
+      'SPEECH_TO_SPEECH',
+      'MUSIC_GENERATION',
+    ].flatMap((dimension) => [
+      [
+        `demand.${dimension}.probability`,
+        { type: 'noul' as const, instructions: 'Estimate task demand.' },
+      ],
+      [
+        `demand.${dimension}.required`,
+        {
+          type: 'choice' as const,
+          instructions: 'Is this required?',
+          criteria: { YES: null, NO: null },
+        },
+      ],
+    ]),
+  ),
+} as DecisionRequest;
 
 describe('FakeDecisionGateway', () => {
-  it('is inert without a fixture and never calls a remote decision service', async () => {
+  it('creates safe deterministic answers without calling a remote decision service', async () => {
     const gateway = new FakeDecisionGateway();
-    expect(await gateway.evaluate(request)).toEqual({
-      answers: {},
-      confidence: {},
-      selectedAction: null,
-    });
+    const result = await gateway.evaluate(request);
+    expect(result.answers.demands).toHaveLength(14);
+    expect(result.selectedAction).toBeNull();
   });
 
   it('returns a deterministic isolated copy keyed by decision and state', async () => {
@@ -32,10 +63,101 @@ describe('FakeDecisionGateway', () => {
     const first = await gateway.evaluate(request);
     (first.answers.demands as Array<{ dimension: string }>)[0]!.dimension = 'MUTATED';
     expect(await gateway.evaluate(request)).toEqual(fixture);
-    expect(await gateway.evaluate({ ...request, stateHash: 'unmatched' })).toEqual({
-      answers: {},
-      confidence: {},
-      selectedAction: null,
+    const unmatched = await gateway.evaluate({ ...request, stateHash: 'unmatched' });
+    expect(unmatched.answers.demands).toHaveLength(14);
+    expect(unmatched).not.toEqual(fixture);
+  });
+
+  it('creates bounded deterministic fake answers for every R3 decision shape', async () => {
+    const dimensions = [
+      'GENERAL_REASONING',
+      'LONG_CONTEXT_REASONING',
+      'AGENTIC_EXECUTION',
+      'CODING',
+      'TOOL_USE',
+      'VISUAL_UNDERSTANDING',
+      'IMAGE_GENERATION',
+      'IMAGE_EDITING',
+      'VIDEO_GENERATION',
+      'VIDEO_EDITING',
+      'SPEECH_UNDERSTANDING',
+      'SPEECH_GENERATION',
+      'SPEECH_TO_SPEECH',
+      'MUSIC_GENERATION',
+    ];
+    const questions = Object.fromEntries(
+      dimensions.flatMap((dimension) => [
+        [
+          `demand.${dimension}.probability`,
+          { type: 'noul' as const, instructions: 'Estimate task demand.' },
+        ],
+        [
+          `demand.${dimension}.required`,
+          {
+            type: 'choice' as const,
+            instructions: 'Is it required?',
+            criteria: { YES: null, NO: null },
+          },
+        ],
+      ]),
+    );
+    const taskResult = await new FakeDecisionGateway().evaluate({
+      ...request,
+      questions,
+    } as DecisionRequest);
+    expect(taskResult.answers.demands).toHaveLength(14);
+    expect(taskResult.answers.demands).toContainEqual({
+      dimension: 'CODING',
+      probability: 0.25,
+      required: false,
     });
+
+    const teammateResult = await new FakeDecisionGateway().evaluate({
+      ...request,
+      decisionType: 'TEAMMATE_FIT',
+      questions: {
+        teammate: {
+          type: 'choice',
+          instructions: 'Choose an eligible teammate.',
+          criteria: { 'teammate-b': null, 'teammate-a': null, NONE: null },
+        },
+      },
+    } as DecisionRequest);
+    expect(teammateResult.answers.teammate).toBe('teammate-b');
+    expect(Object.keys(teammateResult.answers)).toEqual(['teammate']);
+    expect(teammateResult.choiceProbabilities).toEqual({
+      'teammate-b': 1,
+      'teammate-a': 0,
+      NONE: 0,
+    });
+    expect(teammateResult.confidence.teammate).toBe(1);
+    expect(teammateResult.selectedAction).toBe('teammate-b');
+
+    const collaborationResult = await new FakeDecisionGateway().evaluate({
+      ...request,
+      decisionType: 'COLLABORATION_NEED',
+      questions: {
+        collaboration: {
+          type: 'choice',
+          instructions: 'Would collaboration help?',
+          criteria: { YES: null, NO: null, UNCERTAIN: null },
+        },
+      },
+    } as DecisionRequest);
+    const reviewResult = await new FakeDecisionGateway().evaluate({
+      ...request,
+      decisionType: 'REVIEW_NEED',
+      questions: {
+        review: {
+          type: 'choice',
+          instructions: 'Would review help?',
+          criteria: { YES: null, NO: null, UNCERTAIN: null },
+        },
+      },
+    } as DecisionRequest);
+    expect(collaborationResult.answers.collaboration).toBe('NO');
+    expect(reviewResult.answers.review).toBe('NO');
+    expect(collaborationResult.selectedAction).toBe('NO');
+    expect(reviewResult.selectedAction).toBe('NO');
   });
 });

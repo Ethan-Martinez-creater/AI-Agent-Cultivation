@@ -28,6 +28,13 @@ export interface DecisionRequest {
   };
 }
 
+/** Generic fail-open status, independent of any provider SDK. */
+export type DecisionErrorCode =
+  | 'INVALID_REQUEST'
+  | 'TIMEOUT'
+  | 'PROVIDER_UNAVAILABLE'
+  | 'SCHEMA_MISMATCH';
+
 /** Advisory data only. Code remains responsible for eligibility and authority. */
 export interface DecisionResult {
   answers: Record<string, unknown>;
@@ -36,6 +43,9 @@ export interface DecisionResult {
   model?: string;
   inputTokens?: number | null;
   latencyMs?: number | null;
+  /** Provider-reported choice distribution, kept outside normalized domain answers. */
+  choiceProbabilities?: Record<string, number>;
+  errorCode?: DecisionErrorCode | null;
 }
 
 export interface DecisionGateway {

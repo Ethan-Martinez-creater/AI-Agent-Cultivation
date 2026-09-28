@@ -1,0 +1,715 @@
+[
+  {
+    "id": "zh-single-coding-test",
+    "language": "zh",
+    "tags": ["Chinese", "programming", "single-person task"],
+    "taskSummary": "为日期解析函数补充边界测试，并修复跨时区时遗漏闰日的问题。只需修改该函数和测试。",
+    "candidateProfiles": [
+      {
+        "id": "reviewer",
+        "roleSummary": "代码评审道友",
+        "titleSummary": "Review specialist",
+        "capabilityBands": { "CODING": "medium", "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["test design"],
+        "verifiedExperienceSummary": "Reviewed small TypeScript changes."
+      },
+      {
+        "id": "coder",
+        "roleSummary": "软件工程道友",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high", "TOOL_USE": "high" },
+        "enabledSkillMetadata": ["unit testing"],
+        "verifiedExperienceSummary": "Completed prior bounded coding missions."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["CODING", "GENERAL_REASONING", "TOOL_USE"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["CODING", "GENERAL_REASONING"],
+      "requiredDimensions": ["CODING"],
+      "teammateId": "coder",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "en-review-refactor",
+    "language": "en",
+    "tags": ["English", "programming", "review"],
+    "taskSummary": "Refactor the transaction retry loop and audit the change for idempotency, retry safety, and data loss risks. Provide the patch and a review summary.",
+    "candidateProfiles": [
+      {
+        "id": "coder",
+        "roleSummary": "Software engineer",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high", "GENERAL_REASONING": "medium" },
+        "enabledSkillMetadata": ["refactoring"],
+        "verifiedExperienceSummary": "Implemented bounded backend changes."
+      },
+      {
+        "id": "reviewer",
+        "roleSummary": "Independent reviewer",
+        "titleSummary": "Reliability specialist",
+        "capabilityBands": { "GENERAL_REASONING": "high", "LONG_CONTEXT_REASONING": "high" },
+        "enabledSkillMetadata": ["risk review"],
+        "verifiedExperienceSummary": "Completed independent code reviews."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["CODING", "GENERAL_REASONING", "LONG_CONTEXT_REASONING"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["CODING", "GENERAL_REASONING", "LONG_CONTEXT_REASONING"],
+      "requiredDimensions": ["CODING", "GENERAL_REASONING"],
+      "teammateId": "coder",
+      "collaboration": "NO",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "mix-tool-mcp-audit",
+    "language": "zh-en-mix",
+    "tags": ["mixed language", "Tool/MCP", "security"],
+    "taskSummary": "Inspect the configured MCP server list and summarize which tools are enabled; 检查权限设置是否会让任一 Mission grant 扩散到其他任务。不要运行有副作用的工具。",
+    "candidateProfiles": [
+      {
+        "id": "mcp-auditor",
+        "roleSummary": "MCP security reviewer",
+        "titleSummary": "Tool safety specialist",
+        "capabilityBands": { "TOOL_USE": "high", "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["permission audit"],
+        "verifiedExperienceSummary": "Audited tool permission behavior."
+      },
+      {
+        "id": "writer",
+        "roleSummary": "Technical writer",
+        "titleSummary": "Documentation specialist",
+        "capabilityBands": { "GENERAL_REASONING": "medium" },
+        "enabledSkillMetadata": ["documentation"],
+        "verifiedExperienceSummary": "Prepared product notes."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["TOOL_USE", "GENERAL_REASONING"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["TOOL_USE", "AGENTIC_EXECUTION", "GENERAL_REASONING"],
+      "requiredDimensions": ["TOOL_USE", "GENERAL_REASONING"],
+      "teammateId": "mcp-auditor",
+      "collaboration": "NO",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "zh-image-generation",
+    "language": "zh",
+    "tags": ["Chinese", "image generation"],
+    "taskSummary": "为产品帮助页制作一张简洁的扁平插画：桌面上有笔记本电脑、便签和一株小植物，使用柔和的蓝绿色，不要添加文字。",
+    "candidateProfiles": [
+      {
+        "id": "coder",
+        "roleSummary": "Software engineer",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high" },
+        "enabledSkillMetadata": ["TypeScript"],
+        "verifiedExperienceSummary": "Completed software changes."
+      },
+      {
+        "id": "illustrator",
+        "roleSummary": "Visual designer",
+        "titleSummary": "Image creator",
+        "capabilityBands": { "IMAGE_GENERATION": "high", "IMAGE_EDITING": "medium" },
+        "enabledSkillMetadata": ["visual composition"],
+        "verifiedExperienceSummary": "Completed image design tasks."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["IMAGE_GENERATION", "VISUAL_UNDERSTANDING"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["IMAGE_GENERATION", "VISUAL_UNDERSTANDING"],
+      "requiredDimensions": ["IMAGE_GENERATION"],
+      "teammateId": "illustrator",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "en-video-generation",
+    "language": "en",
+    "tags": ["English", "video generation"],
+    "taskSummary": "Create a short 8-second product teaser showing a paper sketch turning into a polished app screen, with a steady camera and no spoken narration.",
+    "candidateProfiles": [
+      {
+        "id": "video-maker",
+        "roleSummary": "Video creator",
+        "titleSummary": "Motion specialist",
+        "capabilityBands": { "VIDEO_GENERATION": "high", "VIDEO_EDITING": "high" },
+        "enabledSkillMetadata": ["motion direction"],
+        "verifiedExperienceSummary": "Prepared short video deliverables."
+      },
+      {
+        "id": "designer",
+        "roleSummary": "Visual designer",
+        "titleSummary": "Image creator",
+        "capabilityBands": { "IMAGE_GENERATION": "high", "VIDEO_GENERATION": "unsupported" },
+        "enabledSkillMetadata": ["composition"],
+        "verifiedExperienceSummary": "Produced static image work."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "VIDEO_GENERATION",
+      "VIDEO_EDITING",
+      "VISUAL_UNDERSTANDING"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["VIDEO_GENERATION", "VIDEO_EDITING", "VISUAL_UNDERSTANDING"],
+      "requiredDimensions": ["VIDEO_GENERATION"],
+      "teammateId": "video-maker",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "zh-music-generation",
+    "language": "zh",
+    "tags": ["Chinese", "music generation"],
+    "taskSummary": "生成一段约 20 秒的轻快无歌词背景音乐，适合产品演示视频，开头和结尾都要平滑，不使用明显的人声采样。",
+    "candidateProfiles": [
+      {
+        "id": "audio-maker",
+        "roleSummary": "Audio creator",
+        "titleSummary": "Music specialist",
+        "capabilityBands": { "MUSIC_GENERATION": "high", "SPEECH_GENERATION": "medium" },
+        "enabledSkillMetadata": ["music direction"],
+        "verifiedExperienceSummary": "Produced short audio pieces."
+      },
+      {
+        "id": "researcher",
+        "roleSummary": "Research teammate",
+        "titleSummary": "Analysis specialist",
+        "capabilityBands": { "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["research"],
+        "verifiedExperienceSummary": "Completed research tasks."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["MUSIC_GENERATION", "SPEECH_GENERATION"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["MUSIC_GENERATION"],
+      "requiredDimensions": ["MUSIC_GENERATION"],
+      "teammateId": "audio-maker",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "mix-live-speech-assistant",
+    "language": "zh-en-mix",
+    "tags": ["mixed language", "speech", "speech-to-speech"],
+    "taskSummary": "Build a voice assistant demo that can listen to short spoken Chinese or English requests, understand the intent, and respond naturally by voice with low latency. Keep a transcript for the demo.",
+    "candidateProfiles": [
+      {
+        "id": "voice",
+        "roleSummary": "Voice systems teammate",
+        "titleSummary": "Speech specialist",
+        "capabilityBands": {
+          "SPEECH_UNDERSTANDING": "high",
+          "SPEECH_GENERATION": "high",
+          "SPEECH_TO_SPEECH": "high"
+        },
+        "enabledSkillMetadata": ["voice UX"],
+        "verifiedExperienceSummary": "Integrated speech input and output."
+      },
+      {
+        "id": "coder",
+        "roleSummary": "Software engineer",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high", "TOOL_USE": "medium" },
+        "enabledSkillMetadata": ["API integration"],
+        "verifiedExperienceSummary": "Implemented service integrations."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "SPEECH_UNDERSTANDING",
+      "SPEECH_GENERATION",
+      "SPEECH_TO_SPEECH",
+      "CODING"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": [
+        "SPEECH_UNDERSTANDING",
+        "SPEECH_GENERATION",
+        "SPEECH_TO_SPEECH",
+        "GENERAL_REASONING"
+      ],
+      "requiredDimensions": ["SPEECH_UNDERSTANDING", "SPEECH_GENERATION"],
+      "teammateId": "voice",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "zh-long-context-policy-analysis",
+    "language": "zh",
+    "tags": ["Chinese", "long context", "single-person task"],
+    "taskSummary": "阅读这份包含多年度条款、例外和附录的完整政策草案，找出相互矛盾的义务，逐条引用章节编号，并总结对实施团队的影响。",
+    "candidateProfiles": [
+      {
+        "id": "analyst",
+        "roleSummary": "Policy analyst",
+        "titleSummary": "Long document specialist",
+        "capabilityBands": { "LONG_CONTEXT_REASONING": "high", "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["document analysis"],
+        "verifiedExperienceSummary": "Reviewed long policy documents."
+      },
+      {
+        "id": "coder",
+        "roleSummary": "Software engineer",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high" },
+        "enabledSkillMetadata": ["testing"],
+        "verifiedExperienceSummary": "Completed coding missions."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["LONG_CONTEXT_REASONING", "GENERAL_REASONING"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["LONG_CONTEXT_REASONING", "GENERAL_REASONING"],
+      "requiredDimensions": ["LONG_CONTEXT_REASONING"],
+      "teammateId": "analyst",
+      "collaboration": "NO",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "en-multi-team-incident-plan",
+    "language": "en",
+    "tags": ["English", "obvious collaboration", "delegation"],
+    "taskSummary": "Prepare a production incident response plan spanning database recovery, API rollback, customer communications, and a post-incident review. Assign the work so these independent tracks can be developed in parallel.",
+    "candidateProfiles": [
+      {
+        "id": "coordinator",
+        "roleSummary": "Incident coordinator",
+        "titleSummary": "Operations lead",
+        "capabilityBands": { "GENERAL_REASONING": "high", "AGENTIC_EXECUTION": "high" },
+        "enabledSkillMetadata": ["incident response"],
+        "verifiedExperienceSummary": "Coordinated incident missions."
+      },
+      {
+        "id": "database",
+        "roleSummary": "Database specialist",
+        "titleSummary": "Recovery engineer",
+        "capabilityBands": { "CODING": "high", "TOOL_USE": "high" },
+        "enabledSkillMetadata": ["database recovery"],
+        "verifiedExperienceSummary": "Prepared database recovery plans."
+      },
+      {
+        "id": "writer",
+        "roleSummary": "Communications teammate",
+        "titleSummary": "Customer writing",
+        "capabilityBands": { "GENERAL_REASONING": "medium" },
+        "enabledSkillMetadata": ["clear writing"],
+        "verifiedExperienceSummary": "Wrote customer-facing notices."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "GENERAL_REASONING",
+      "AGENTIC_EXECUTION",
+      "CODING",
+      "TOOL_USE"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["GENERAL_REASONING", "AGENTIC_EXECUTION", "CODING", "TOOL_USE"],
+      "requiredDimensions": ["GENERAL_REASONING", "AGENTIC_EXECUTION"],
+      "teammateId": "coordinator",
+      "collaboration": "YES",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "mix-architecture-review",
+    "language": "zh-en-mix",
+    "tags": ["mixed language", "Review", "programming", "multi-capability"],
+    "taskSummary": "Review the proposed event-driven architecture and its migration plan. 请检查可恢复性、权限边界、数据库升级顺序，并指出上线前必须修正的风险。",
+    "candidateProfiles": [
+      {
+        "id": "architect",
+        "roleSummary": "Architecture teammate",
+        "titleSummary": "Systems designer",
+        "capabilityBands": {
+          "GENERAL_REASONING": "high",
+          "LONG_CONTEXT_REASONING": "high",
+          "AGENTIC_EXECUTION": "medium"
+        },
+        "enabledSkillMetadata": ["architecture review"],
+        "verifiedExperienceSummary": "Reviewed system designs."
+      },
+      {
+        "id": "coder",
+        "roleSummary": "Software engineer",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high", "TOOL_USE": "high" },
+        "enabledSkillMetadata": ["migration testing"],
+        "verifiedExperienceSummary": "Implemented migration changes."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "GENERAL_REASONING",
+      "LONG_CONTEXT_REASONING",
+      "AGENTIC_EXECUTION",
+      "CODING",
+      "TOOL_USE"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": [
+        "GENERAL_REASONING",
+        "LONG_CONTEXT_REASONING",
+        "AGENTIC_EXECUTION",
+        "CODING",
+        "TOOL_USE"
+      ],
+      "requiredDimensions": ["GENERAL_REASONING", "LONG_CONTEXT_REASONING"],
+      "teammateId": "architect",
+      "collaboration": "NO",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "zh-explicit-teammate-choice",
+    "language": "zh",
+    "tags": ["Chinese", "user explicitly selects teammate"],
+    "taskSummary": "请由我指定的代码道友检查这个简单配置变更，只总结是否会影响现有用户数据，不要修改文件。",
+    "explicitTeammateId": "requested-one",
+    "candidateProfiles": [
+      {
+        "id": "other-one",
+        "roleSummary": "Research teammate",
+        "titleSummary": "Research specialist",
+        "capabilityBands": { "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["research"],
+        "verifiedExperienceSummary": "Prepared technical summaries."
+      },
+      {
+        "id": "requested-one",
+        "roleSummary": "Code teammate selected by user",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high" },
+        "enabledSkillMetadata": ["safe configuration changes"],
+        "verifiedExperienceSummary": "Handled prior configuration updates."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["CODING", "GENERAL_REASONING"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["CODING", "GENERAL_REASONING"],
+      "requiredDimensions": ["CODING"],
+      "teammateId": "requested-one",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "en-all-models-unsupported-bridge-demand",
+    "language": "en",
+    "tags": ["English", "Human Bridge", "unsupported capability"],
+    "taskSummary": "Create a polished physical product photograph using the exact ceramic prototype on my desk, including its real surface defects and color. No digital reference images are available; I will need to photograph and upload the prototype myself.",
+    "candidateProfiles": [
+      {
+        "id": "designer",
+        "roleSummary": "Visual designer",
+        "titleSummary": "Digital image specialist",
+        "capabilityBands": { "IMAGE_GENERATION": "unsupported", "VISUAL_UNDERSTANDING": "medium" },
+        "enabledSkillMetadata": ["composition"],
+        "verifiedExperienceSummary": "Produced digital illustrations."
+      },
+      {
+        "id": "photographer",
+        "roleSummary": "Product photographer",
+        "titleSummary": "Physical capture specialist",
+        "capabilityBands": {
+          "IMAGE_GENERATION": "unsupported",
+          "VISUAL_UNDERSTANDING": "unsupported"
+        },
+        "enabledSkillMetadata": ["studio photography"],
+        "verifiedExperienceSummary": "No external work has been submitted in this case."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["GENERAL_REASONING", "CODING", "TOOL_USE"],
+    "humanBridgeCapableDimensions": ["IMAGE_GENERATION", "VISUAL_UNDERSTANDING"],
+    "expected": {
+      "capabilityDimensions": ["IMAGE_GENERATION", "VISUAL_UNDERSTANDING"],
+      "requiredDimensions": ["IMAGE_GENERATION", "VISUAL_UNDERSTANDING"],
+      "teammateId": "designer",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": true
+    }
+  },
+  {
+    "id": "mix-research-and-slide-assets",
+    "language": "zh-en-mix",
+    "tags": ["mixed language", "multi-capability", "collaboration", "review"],
+    "taskSummary": "Compare three public reports about grid storage adoption, summarize the evidence and uncertainty, then create a concise 5-slide outline plus one original cover illustration. Cite the sources in the notes.",
+    "candidateProfiles": [
+      {
+        "id": "researcher",
+        "roleSummary": "Research teammate",
+        "titleSummary": "Evidence analyst",
+        "capabilityBands": { "LONG_CONTEXT_REASONING": "high", "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["source comparison"],
+        "verifiedExperienceSummary": "Compared multiple source documents."
+      },
+      {
+        "id": "designer",
+        "roleSummary": "Visual designer",
+        "titleSummary": "Image creator",
+        "capabilityBands": { "IMAGE_GENERATION": "high", "IMAGE_EDITING": "medium" },
+        "enabledSkillMetadata": ["slide composition"],
+        "verifiedExperienceSummary": "Created presentation visuals."
+      },
+      {
+        "id": "writer",
+        "roleSummary": "Technical writer",
+        "titleSummary": "Presentation specialist",
+        "capabilityBands": { "GENERAL_REASONING": "medium", "LONG_CONTEXT_REASONING": "medium" },
+        "enabledSkillMetadata": ["slide outlines"],
+        "verifiedExperienceSummary": "Prepared concise slide outlines."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "GENERAL_REASONING",
+      "LONG_CONTEXT_REASONING",
+      "IMAGE_GENERATION",
+      "IMAGE_EDITING"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": [
+        "GENERAL_REASONING",
+        "LONG_CONTEXT_REASONING",
+        "IMAGE_GENERATION",
+        "IMAGE_EDITING"
+      ],
+      "requiredDimensions": ["GENERAL_REASONING", "LONG_CONTEXT_REASONING"],
+      "teammateId": "researcher",
+      "collaboration": "YES",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "en-single-customer-email",
+    "language": "en",
+    "tags": ["English", "single-person task"],
+    "taskSummary": "Draft a concise and empathetic email explaining that a scheduled maintenance window has moved from Tuesday to Wednesday. Do not promise compensation or include unsupported details.",
+    "candidateProfiles": [
+      {
+        "id": "writer",
+        "roleSummary": "Communications teammate",
+        "titleSummary": "Customer writing",
+        "capabilityBands": { "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["customer communication"],
+        "verifiedExperienceSummary": "Drafted customer notices."
+      },
+      {
+        "id": "coder",
+        "roleSummary": "Software engineer",
+        "titleSummary": "Implementation specialist",
+        "capabilityBands": { "CODING": "high" },
+        "enabledSkillMetadata": ["testing"],
+        "verifiedExperienceSummary": "Completed code changes."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["GENERAL_REASONING"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["GENERAL_REASONING"],
+      "requiredDimensions": ["GENERAL_REASONING"],
+      "teammateId": "writer",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "zh-file-workspace-tool-task",
+    "language": "zh",
+    "tags": ["Chinese", "Built-in Tool", "filesystem"],
+    "taskSummary": "在当前授权 Workspace 中创建 reports/weekly 目录，读取 overview.txt 后生成 weekly-summary.md。不要访问 Workspace 之外的路径。",
+    "candidateProfiles": [
+      {
+        "id": "tool-user",
+        "roleSummary": "Tool-enabled teammate",
+        "titleSummary": "Workspace operator",
+        "capabilityBands": { "TOOL_USE": "high", "AGENTIC_EXECUTION": "high" },
+        "enabledSkillMetadata": ["workspace safety"],
+        "verifiedExperienceSummary": "Used scoped file tools."
+      },
+      {
+        "id": "writer",
+        "roleSummary": "Technical writer",
+        "titleSummary": "Documentation specialist",
+        "capabilityBands": { "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["documentation"],
+        "verifiedExperienceSummary": "Prepared technical summaries."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": ["TOOL_USE", "AGENTIC_EXECUTION", "GENERAL_REASONING"],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["TOOL_USE", "AGENTIC_EXECUTION", "GENERAL_REASONING"],
+      "requiredDimensions": ["TOOL_USE"],
+      "teammateId": "tool-user",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "en-voice-transcription",
+    "language": "en",
+    "tags": ["English", "speech understanding", "speech generation"],
+    "taskSummary": "Transcribe a short English customer voicemail, label the request type, and generate a spoken acknowledgement in a calm tone without inventing details.",
+    "candidateProfiles": [
+      {
+        "id": "voice",
+        "roleSummary": "Voice systems teammate",
+        "titleSummary": "Speech specialist",
+        "capabilityBands": { "SPEECH_UNDERSTANDING": "high", "SPEECH_GENERATION": "high" },
+        "enabledSkillMetadata": ["transcription"],
+        "verifiedExperienceSummary": "Processed audio tasks."
+      },
+      {
+        "id": "writer",
+        "roleSummary": "Communications teammate",
+        "titleSummary": "Customer writing",
+        "capabilityBands": { "GENERAL_REASONING": "high" },
+        "enabledSkillMetadata": ["customer communication"],
+        "verifiedExperienceSummary": "Prepared customer notices."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "SPEECH_UNDERSTANDING",
+      "SPEECH_GENERATION",
+      "GENERAL_REASONING"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["SPEECH_UNDERSTANDING", "SPEECH_GENERATION", "GENERAL_REASONING"],
+      "requiredDimensions": ["SPEECH_UNDERSTANDING"],
+      "teammateId": "voice",
+      "collaboration": "NO",
+      "review": "NO",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "mix-video-caption-review",
+    "language": "zh-en-mix",
+    "tags": ["mixed language", "video editing", "Review"],
+    "taskSummary": "Review the draft tutorial video captions against the narration and identify timing or translation errors. 检查字幕是否准确表达操作步骤，并给出需要重新剪辑的时间点。",
+    "candidateProfiles": [
+      {
+        "id": "video-reviewer",
+        "roleSummary": "Video editor",
+        "titleSummary": "Motion review specialist",
+        "capabilityBands": { "VIDEO_EDITING": "high", "SPEECH_UNDERSTANDING": "medium" },
+        "enabledSkillMetadata": ["caption timing"],
+        "verifiedExperienceSummary": "Reviewed tutorial timing and captions."
+      },
+      {
+        "id": "translator",
+        "roleSummary": "Language teammate",
+        "titleSummary": "Translation specialist",
+        "capabilityBands": { "GENERAL_REASONING": "high", "SPEECH_UNDERSTANDING": "medium" },
+        "enabledSkillMetadata": ["bilingual review"],
+        "verifiedExperienceSummary": "Reviewed mixed-language documentation."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "VIDEO_EDITING",
+      "SPEECH_UNDERSTANDING",
+      "GENERAL_REASONING"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": ["VIDEO_EDITING", "SPEECH_UNDERSTANDING", "GENERAL_REASONING"],
+      "requiredDimensions": ["VIDEO_EDITING", "SPEECH_UNDERSTANDING"],
+      "teammateId": "video-reviewer",
+      "collaboration": "NO",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  },
+  {
+    "id": "zh-multi-step-data-migration",
+    "language": "zh",
+    "tags": ["Chinese", "programming", "multi-capability", "long context"],
+    "taskSummary": "规划并实现用户表字段迁移：先检查现有 schema 和历史 migration，再添加可回滚迁移、数据校验、测试以及升级说明。确保已有账户数据保留。",
+    "candidateProfiles": [
+      {
+        "id": "db-engineer",
+        "roleSummary": "Database engineer",
+        "titleSummary": "Migration specialist",
+        "capabilityBands": {
+          "CODING": "high",
+          "TOOL_USE": "high",
+          "LONG_CONTEXT_REASONING": "high"
+        },
+        "enabledSkillMetadata": ["database migrations"],
+        "verifiedExperienceSummary": "Implemented reversible schema updates."
+      },
+      {
+        "id": "reviewer",
+        "roleSummary": "Independent reviewer",
+        "titleSummary": "Reliability specialist",
+        "capabilityBands": { "GENERAL_REASONING": "high", "LONG_CONTEXT_REASONING": "high" },
+        "enabledSkillMetadata": ["data integrity"],
+        "verifiedExperienceSummary": "Reviewed data preservation risks."
+      },
+      {
+        "id": "writer",
+        "roleSummary": "Technical writer",
+        "titleSummary": "Documentation specialist",
+        "capabilityBands": { "GENERAL_REASONING": "medium" },
+        "enabledSkillMetadata": ["release notes"],
+        "verifiedExperienceSummary": "Prepared implementation notes."
+      }
+    ],
+    "ordinaryModelSupportedDimensions": [
+      "CODING",
+      "TOOL_USE",
+      "LONG_CONTEXT_REASONING",
+      "GENERAL_REASONING",
+      "AGENTIC_EXECUTION"
+    ],
+    "humanBridgeCapableDimensions": [],
+    "expected": {
+      "capabilityDimensions": [
+        "CODING",
+        "TOOL_USE",
+        "LONG_CONTEXT_REASONING",
+        "GENERAL_REASONING",
+        "AGENTIC_EXECUTION"
+      ],
+      "requiredDimensions": ["CODING", "TOOL_USE", "LONG_CONTEXT_REASONING"],
+      "teammateId": "db-engineer",
+      "collaboration": "YES",
+      "review": "YES",
+      "humanBridgeNeeded": false
+    }
+  }
+]
