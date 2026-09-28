@@ -304,6 +304,7 @@ if (!squirrelStartup)
         promptContext,
         toolRuntime,
       );
+      partyMissions.attachExternalWork(externalWork);
       await missions.recoverInterrupted();
       for (const continuation of externalWork.resumeFinalizedRequests()) {
         await partyMissions.resumeExternalWork(continuation);

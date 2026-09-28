@@ -85,7 +85,7 @@ export interface HumanBridgeExternalWorkInput {
   targetArtifacts: HumanBridgeArtifactTarget[];
   targetWorkspacePaths: string[];
   acceptanceCriteria: string[];
-  externalAppProfileId?: string;
+  externalAppProfileId?: string | null;
 }
 
 export interface Gate5ExternalWorkArtifactSummary {
