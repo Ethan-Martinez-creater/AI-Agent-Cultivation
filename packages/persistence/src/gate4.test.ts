@@ -70,7 +70,7 @@ describe('Gate 4 persistence', () => {
   it('applies migration 0005 after the prior migrations and stores one explicit workspace root', () => {
     const { db, gate4 } = setup();
     expect(migrations.map(({ version }) => version)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
     ]);
     expect(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([
       { version: 1 },
@@ -85,6 +85,7 @@ describe('Gate 4 persistence', () => {
       { version: 10 },
       { version: 11 },
       { version: 12 },
+      { version: 13 },
     ]);
     expect(gate4.getWorkspaceRoot()).toBeNull();
     gate4.setWorkspaceRoot('E:/workspace/project');

@@ -40,7 +40,7 @@ describe('SQLite bootstrap', () => {
         .run(),
     ).toThrow();
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 12,
+      count: 13,
     });
     const tables = db
       .prepare("SELECT name FROM sqlite_master WHERE type IN ('table', 'view')")
@@ -82,6 +82,9 @@ describe('SQLite bootstrap', () => {
       'external_work_requests',
       'external_work_artifacts',
       'external_app_profiles',
+      'decision_provider_configs',
+      'decision_shadow_policy_config',
+      'decision_shadow_attempts',
     ]) {
       expect(tables.some((table) => table.name === name)).toBe(true);
     }
@@ -95,12 +98,12 @@ describe('SQLite bootstrap', () => {
     );
     runMigrations(db, migrations);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 12,
+      count: 13,
     });
     db.close();
     db = openDatabase(path);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 12,
+      count: 13,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     db.close();
@@ -177,6 +180,7 @@ describe('SQLite bootstrap', () => {
       { version: 10 },
       { version: 11 },
       { version: 12 },
+      { version: 13 },
     ]);
     db.close();
   });

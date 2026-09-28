@@ -496,7 +496,13 @@ export interface DecisionReceipt {
   answersJson: Record<string, unknown>;
   confidenceJson: Record<string, unknown>;
   policyVersion: string;
+  /** Shadow recommendation only; it does not describe an action already applied. */
   selectedAction: string | null;
+  /** Existing real behavior at observation time; distinct from the shadow recommendation. */
+  actualAction?: string | null;
+  /** Provider-reported/observed timing and token counts; absent means unknown. */
+  latencyMs?: number | null;
+  inputTokens?: number | null;
   mode: DecisionReceiptMode;
   createdAt: IsoDateTime;
 }
