@@ -254,3 +254,35 @@ export interface ToolRegistry {
   get(id: string): Promise<ToolDescriptor | null>;
   list(): Promise<ToolDescriptor[]>;
 }
+
+export {
+  ExternalWorkService,
+  HumanBridgeService,
+  HUMAN_BRIDGE_PRIOR_SOURCE,
+  HUMAN_BRIDGE_SCORING_POLICY_VERSION,
+  HUMAN_BRIDGE_SYSTEM_ID,
+} from './r2-human-bridge-service.js';
+export type {
+  CreateExplicitExternalWorkInput,
+  ExternalWorkArtifactSubmission,
+  ExternalWorkArtifactSummary,
+  ExternalWorkArtifactTarget,
+  ExternalWorkContinuation,
+  ExternalWorkCreatedNotification,
+  ExternalWorkDetail,
+  ExternalWorkRequestRecord,
+  HumanBridgeCapabilityDimensionProfile,
+  HumanBridgeCapabilityProfile,
+  HumanBridgeCapabilitySetting,
+  HumanBridgeDisplayInput,
+  HumanBridgeRatingInput,
+  HumanBridgeRatingResult,
+  HumanBridgeServiceOptions,
+  HumanBridgeServiceStore,
+  R2HumanBridgeServiceStore,
+  SaveHumanBridgeExternalAppProfileInput,
+  SubmitExternalWorkArtifactsInput,
+  ValidatedWorkspaceArtifact,
+  WorkspaceArtifactConstraints,
+  WorkspaceArtifactValidator,
+} from './r2-human-bridge-service.js';
