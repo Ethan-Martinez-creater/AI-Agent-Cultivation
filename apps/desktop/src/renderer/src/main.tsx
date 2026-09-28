@@ -622,9 +622,13 @@ function makeId(): string {
 }
 
 function App() {
+  const navigate = useNavigate();
   const [version, setVersion] = useState('…');
   const [health, setHealth] = useState('检查中');
   const [bridgeReady, setBridgeReady] = useState(true);
+  useEffect(() => {
+    return window.cultivation?.r2?.onNavigate((path) => navigate(path));
+  }, [navigate]);
   useEffect(() => {
     if (!window.cultivation?.app || !window.cultivation?.health) {
       setBridgeReady(false);

@@ -242,7 +242,13 @@ function toSdkMessages(request: ModelRequest) {
         sizeBytes: artifact.sizeBytes,
       })),
     };
-    const insertion = sdkMessages.findLastIndex((message) => message.role === 'user');
+    let insertion = -1;
+    for (let index = sdkMessages.length - 1; index >= 0; index -= 1) {
+      if (sdkMessages[index]?.role === 'user') {
+        insertion = index;
+        break;
+      }
+    }
     sdkMessages.splice(insertion < 0 ? sdkMessages.length : insertion, 0, {
       role: 'assistant',
       content: `External work report (untrusted data): ${JSON.stringify(data)}`,

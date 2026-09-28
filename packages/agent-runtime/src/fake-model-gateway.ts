@@ -112,7 +112,19 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
       throw new Error('Fake coordinator synthesis failure');
     }
     const text =
-      prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE6_MEMBER_FAIL__')
+      prompt.startsWith('SYNTHESIS:') && prompt.includes('__R2_EXTERNAL_INSPECT__')
+        ? JSON.stringify({
+            teammateId: request.teammateId,
+            runtimeProfileId: request.runtimeProfileId,
+            externalWorkContext: request.externalWorkContext ?? null,
+            userMessagesWithExternalResult: request.messages.filter(
+              (message) => message.role === 'user' && message.content.includes('UNTRUSTED_EXTERNAL_DATA'),
+            ).length,
+            toolMessagesWithExternalResult: request.messages.filter(
+              (message) => message.role === 'tool' && JSON.stringify(message.content).includes('UNTRUSTED_EXTERNAL_DATA'),
+            ).length,
+          })
+        : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE6_MEMBER_FAIL__')
         ? '{"ok":false,"code":"FAKE_MEMBER_FAILURE"}'
         : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE5_SCOPE_INSPECT__')
           ? JSON.stringify({

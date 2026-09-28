@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, safeStorage } from 'electron';
+import { app, BrowserWindow, ipcMain, Notification, safeStorage } from 'electron';
 import squirrelStartup from 'electron-squirrel-startup';
 import { join } from 'node:path';
 import { mkdirSync } from 'node:fs';
@@ -42,6 +42,9 @@ import { Gate6ExperienceService } from '@cultivation/application/gate6-experienc
 import { registerGate6Ipc } from './gate6-ipc.js';
 import { R1CapabilityService } from '@cultivation/application/r1-capability-service';
 import { registerR1Ipc } from './r1-ipc.js';
+import { HumanBridgeService, ExternalWorkService, type R2HumanBridgeServiceStore } from '@cultivation/application/r2-human-bridge-service';
+import { registerR2Ipc } from './r2-ipc.js';
+import { FileWorkspace } from './file-workspace.js';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -65,7 +68,9 @@ function createWindow(
   experience: Gate6ExperienceService,
   capabilities: R1CapabilityService,
   capabilityStore: R0SqliteRepository,
-): void {
+  humanBridge: HumanBridgeService,
+  externalWork: ExternalWorkService,
+): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
     width: 1180,
@@ -148,9 +153,11 @@ function createWindow(
   registerGate4Ipc(window, validSender, tools);
   registerGate6Ipc(validSender, experience);
   registerR1Ipc(validSender, capabilities);
+  registerR2Ipc(validSender, humanBridge, externalWork, partyMissions, tools);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
+  return window;
 }
 
 // Squirrel invokes the executable for install/update/uninstall hooks. Those
@@ -179,6 +186,33 @@ if (!squirrelStartup)
       const experience = new Gate6ExperienceService(new Gate6SqliteRepository(db));
       const capabilityStore = new R0SqliteRepository(db);
       const capabilities = new R1CapabilityService(capabilityStore);
+      const r2Store: R2HumanBridgeServiceStore = {
+        ensureHumanBridgeTeammate: (input) => capabilityStore.ensureHumanBridgeTeammate(input),
+        updateHumanBridgeDisplay: (teammateId, value) => capabilityStore.updateHumanBridgeDisplay(teammateId, value),
+        listHumanBridgeCapabilities: (teammateId) => capabilityStore.listHumanBridgeCapabilities(teammateId),
+        saveHumanBridgeCapability: (value) => capabilityStore.saveHumanBridgeCapability(value),
+        listTeammateCapabilityStates: (teammateId) => capabilityStore.listTeammateCapabilityStates(teammateId),
+        replaceTeammateCapabilityStates: (teammateId, states) => capabilityStore.replaceTeammateCapabilityStates(teammateId, states),
+        listCapabilityEvidence: (teammateId, dimension) => capabilityStore.listCapabilityEvidence(teammateId, dimension),
+        appendCapabilityEvidenceBatch: (values) => capabilityStore.appendCapabilityEvidenceBatch(values),
+        saveExternalAppProfile: (value) => capabilityStore.saveExternalAppProfile(value),
+        listExternalAppProfiles: (teammateId) => capabilityStore.listExternalAppProfiles(teammateId),
+        createExternalWorkRequest: (value) => capabilityStore.createExternalWorkRequest(value),
+        getExternalWorkRequest: (id) => capabilityStore.getExternalWorkRequest(id),
+        listExternalWorkRequests: (missionId, runId) => capabilityStore.listExternalWorkRequests(missionId, runId),
+        transitionExternalWorkRequest: (id, state, at, publicResult) => capabilityStore.transitionExternalWorkRequest(id, state, at, publicResult),
+        appendExternalWorkArtifact: (value) => capabilityStore.appendExternalWorkArtifact(value),
+        listExternalWorkArtifacts: (requestId) => capabilityStore.listExternalWorkArtifacts(requestId),
+        getMission: (id) => gate3Store.getMission(id),
+        listRuns: (missionId) => gate3Store.listRuns(missionId),
+        listMissionParticipants: (missionId) => gate5Store.listMissionParticipants(missionId),
+        transitionMission: (value, expectedState) => gate3Store.transitionMission(value, expectedState),
+        appendMissionEvent: (value) => gate3Store.appendMissionEvent(value),
+        appendAuditEvent: (value) => gate3Store.appendAuditEvent(value),
+        transaction: (fn) => gate3Store.transaction(fn),
+      };
+      const humanBridge = new HumanBridgeService(r2Store);
+      humanBridge.bootstrap();
       let vectorAvailable = false;
       try {
         const extension = app.isPackaged
@@ -236,6 +270,17 @@ if (!squirrelStartup)
       const mcpHost = new McpHost();
       const tools = new Gate4ToolsService(gate4Store, registry, mcpHost);
       await tools.initialize();
+      const externalWork = new ExternalWorkService(r2Store, {
+        validateArtifact: async (relativePath, constraints) => {
+          const root = tools.getWorkspace().rootPath;
+          if (!root) throw new Error('请先选择 Workspace Root');
+          const inspected = await (await FileWorkspace.open(root)).inspectArtifact(relativePath, constraints.maxSizeBytes);
+          if (!constraints.allowedExtensions.includes(inspected.extension)) {
+            throw new Error('Artifact extension 不符合要求');
+          }
+          return { relativePath: inspected.path, fileName: inspected.fileName, extension: inspected.extension, sizeBytes: inspected.sizeBytes };
+        },
+      });
       app.once('before-quit', () => {
         void tools.close();
       });
@@ -260,8 +305,11 @@ if (!squirrelStartup)
         toolRuntime,
       );
       await missions.recoverInterrupted();
+      for (const continuation of externalWork.resumeFinalizedRequests()) {
+        await partyMissions.resumeExternalWork(continuation);
+      }
       experience.reconcileAll();
-      createWindow(
+      let activeWindow = createWindow(
         service,
         memoryService,
         skillService,
@@ -274,10 +322,27 @@ if (!squirrelStartup)
         experience,
         capabilities,
         capabilityStore,
+        humanBridge,
+        externalWork,
       );
+      externalWork.subscribeCreated((created) => {
+        try {
+          if (!Notification.isSupported()) return;
+          const notice = new Notification({ title: created.title, body: '打开应用查看本尊待办。' });
+          notice.on('click', () => {
+            if (activeWindow.isDestroyed()) return;
+            activeWindow.show();
+            activeWindow.focus();
+            activeWindow.webContents.send('r2:navigate', '/external-work');
+          });
+          notice.show();
+        } catch {
+          // Durable in-app tasks remain authoritative when Windows notifications fail.
+        }
+      });
       app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0)
-          createWindow(
+          activeWindow = createWindow(
             service,
             memoryService,
             skillService,
@@ -290,6 +355,8 @@ if (!squirrelStartup)
             experience,
             capabilities,
             capabilityStore,
+            humanBridge,
+            externalWork,
           );
       });
     })

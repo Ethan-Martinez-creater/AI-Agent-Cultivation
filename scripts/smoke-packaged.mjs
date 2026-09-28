@@ -563,7 +563,7 @@ try {
       .get();
     assert.equal(embeddingSetting.runtime_profile_id, result.runtimeA);
     const migration = db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get();
-    assert.equal(migration.version, 11);
+    assert.equal(migration.version, 12);
     const teammateExecutor = db
       .prepare(
         `SELECT executor_kind, routing_policy, system_kind
@@ -585,7 +585,7 @@ try {
   console.log(
     'GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried runtime_migration=ok',
   );
-  console.log('R0_PACKAGED_SMOKE_OK migration=11 teammate_defaults=ok foreign_keys=ok');
+  console.log('R0_PACKAGED_SMOKE_OK migration=12 teammate_defaults=ok foreign_keys=ok');
 } finally {
   await app.close();
 }
@@ -596,3 +596,4 @@ const { gate5Evidence } = await import('./gate5-packaged-smoke.mjs');
 const { verifyGate6Packaged } = await import('./gate6-packaged-smoke.mjs');
 await verifyGate6Packaged(gate5Evidence);
 await import('./r1-packaged-smoke.mjs');
+await import('./r2-packaged-smoke.mjs');

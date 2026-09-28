@@ -158,6 +158,7 @@ export interface CultivationBridge {
     submitRating(input: { externalWorkRequestId: string; stars?: number; skip?: boolean }): Promise<unknown>;
     copyPrompt(id: string): Promise<void>;
     openTargetFolder(id: string): Promise<void>;
+    onNavigate(callback: (path: string) => void): () => void;
   };
   experience: {
     get(teammateId: string): Promise<{ events: ExperienceEvent[]; profile: CapabilityProfile }>;
@@ -279,6 +280,22 @@ export interface CultivationBridge {
     resolveCollaboration(input: {
       requestId: string;
       decision: 'APPROVED' | 'DENIED';
+      externalWork?: {
+        capability: CapabilityDimension;
+        title: string;
+        prompt: string;
+        requirements: string[];
+        targetArtifacts: Array<{
+          id: string;
+          name: string;
+          required: boolean;
+          allowedExtensions: string[];
+          maxSizeBytes: number;
+        }>;
+        targetWorkspacePaths: string[];
+        acceptanceCriteria: string[];
+        externalAppProfileId: string | null;
+      };
     }): Promise<MissionDetail>;
   };
   parties: {
@@ -343,6 +360,13 @@ const bridge: CultivationBridge = {
     submitRating: (input) => ipcRenderer.invoke('r2:submitRating', input),
     copyPrompt: (id) => ipcRenderer.invoke('r2:copyPrompt', id),
     openTargetFolder: (id) => ipcRenderer.invoke('r2:openTargetFolder', id),
+    onNavigate: (callback) => {
+      const listener = (_event: Electron.IpcRendererEvent, path: string) => {
+        if (path === '/external-work') callback(path);
+      };
+      ipcRenderer.on('r2:navigate', listener);
+      return () => ipcRenderer.removeListener('r2:navigate', listener);
+    },
   },
   experience: { get: (teammateId) => ipcRenderer.invoke('experience:get', teammateId) },
   capability: {
