@@ -439,6 +439,7 @@ export interface ModelCapabilityBenchmark {
   snapshotDate: IsoDateTime;
   sourceUrl: string | null;
   provenanceType: BenchmarkProvenanceType;
+  createdAt: IsoDateTime;
 }
 
 /** Dynamic capability state derived from fact-backed CapabilityEvidence. */
@@ -449,6 +450,7 @@ export interface TeammateCapabilityState {
   evidenceWeight: number;
   ratingCount: number;
   currentRuntimeProfileId: Id | null;
+  scoringPolicyVersion: string;
   updatedAt: IsoDateTime;
 }
 

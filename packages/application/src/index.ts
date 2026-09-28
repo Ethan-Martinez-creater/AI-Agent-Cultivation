@@ -15,6 +15,32 @@ import type {
 
 export { Gate6ExperienceService, buildCapabilityProfile } from './gate6-experience-service.js';
 export type { Gate6ExperienceSnapshot, Gate6ExperienceStore } from './gate6-experience-service.js';
+export { BenchmarkPriorResolver } from './r1-benchmark-prior.js';
+export { BENCHMARK_SOURCE_CATALOG } from './r1-benchmark-source-catalog.js';
+export type { BenchmarkSourceCatalogEntry } from './r1-benchmark-source-catalog.js';
+export {
+  CAPABILITY_DIMENSIONS,
+  CAPABILITY_SCORING_POLICY,
+  calculateCapabilityScore,
+  projectCapabilityScore,
+  ratingStarsToScore,
+} from './r1-capability-scoring.js';
+export type { CapabilityScoreProjection } from './r1-capability-scoring.js';
+export { R1CapabilityService } from './r1-capability-service.js';
+export type {
+  R1CapabilityDimensionProfile,
+  R1CapabilityProfile,
+  R1CapabilityProfileSource,
+  R1CapabilityStore,
+  R1EffectiveBenchmarkPrior,
+  R1MissionRunRatingTargetFact,
+  R1RatingTarget,
+  R1CapabilityServiceOptions,
+  R1RuntimeTeammate,
+  R1RuntimeTeammateReference,
+  SubmitCapabilityRatingInput,
+  SubmitCapabilityRatingResult,
+} from './r1-capability-service.js';
 export type {
   DecisionGateway,
   DecisionRequest,
