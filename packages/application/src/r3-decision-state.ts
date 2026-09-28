@@ -123,7 +123,13 @@ export class DecisionStateBuilder {
     const candidates = [...input.candidates]
       .map((candidate) => normalizeCandidate(candidate))
       .filter((candidate): candidate is NormalizedCandidate => candidate !== null)
-      .sort((left, right) => left.id.localeCompare(right.id));
+      .sort((left, right) =>
+        left.id === explicitTeammateId
+          ? -1
+          : right.id === explicitTeammateId
+            ? 1
+            : left.id.localeCompare(right.id),
+      );
     const boundedCandidates = candidates.slice(0, DECISION_STATE_BUDGET.candidateCount);
     const state = {
       schemaVersion: R3_DECISION_STATE_VERSION,

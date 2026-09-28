@@ -12,6 +12,18 @@ export interface R3DecisionProviderConfig {
 export interface R3DecisionConfigStore {
   getDecisionProviderConfig(): R3DecisionProviderConfig;
   saveDecisionProviderConfig(value: R3DecisionProviderConfig): void;
+  getShadowPolicyConfig(): R3ShadowPolicyConfig;
+  saveShadowPolicyConfig(value: R3ShadowPolicyConfig): void;
+}
+
+export interface R3ShadowPolicyConfig {
+  enabled: boolean;
+  mode: 'SHADOW';
+  questionVersion: string;
+  policyVersion: string;
+  maxStateBytes: number;
+  timeoutMs: number;
+  updatedAt: string;
 }
 
 export interface R3TestConnectionResult {
@@ -32,6 +44,7 @@ export class R3DecisionConfigController {
 
   getConfigView(): R3DecisionConfigView {
     const config = this.store.getDecisionProviderConfig();
+    const policy = this.store.getShadowPolicyConfig();
     const keySource = config.apiKeyCiphertext
       ? 'SAFE_STORAGE'
       : this.envKey()?.trim()
@@ -41,7 +54,7 @@ export class R3DecisionConfigController {
       provider: 'TYPESAFE',
       model: 'jev-1.13.0',
       mode: 'SHADOW',
-      enabled: config.enabled,
+      enabled: config.enabled && policy.enabled,
       configured: keySource !== 'NONE',
       keySource,
     };
@@ -67,7 +80,15 @@ export class R3DecisionConfigController {
       throw new DomainError('INVALID_INPUT', '请先配置 TypeSafe API Key');
     }
     const config = this.store.getDecisionProviderConfig();
-    this.store.saveDecisionProviderConfig({ ...config, enabled, updatedAt: this.now() });
+    const policy = this.store.getShadowPolicyConfig();
+    const updatedAt = this.now();
+    if (enabled) {
+      this.store.saveShadowPolicyConfig({ ...policy, enabled, updatedAt });
+      this.store.saveDecisionProviderConfig({ ...config, enabled, updatedAt });
+    } else {
+      this.store.saveDecisionProviderConfig({ ...config, enabled, updatedAt });
+      this.store.saveShadowPolicyConfig({ ...policy, enabled, updatedAt });
+    }
     return this.getConfigView();
   }
 

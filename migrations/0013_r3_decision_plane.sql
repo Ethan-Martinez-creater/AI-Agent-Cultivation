@@ -58,7 +58,7 @@ CREATE TABLE decision_shadow_policy_config (
   mode TEXT NOT NULL DEFAULT 'SHADOW' CHECK (mode = 'SHADOW'),
   question_version TEXT NOT NULL CHECK (length(question_version) BETWEEN 1 AND 128),
   policy_version TEXT NOT NULL CHECK (length(policy_version) BETWEEN 1 AND 128),
-  max_state_bytes INTEGER NOT NULL DEFAULT 12288 CHECK (max_state_bytes BETWEEN 1 AND 12288),
+  max_state_bytes INTEGER NOT NULL DEFAULT 24000 CHECK (max_state_bytes BETWEEN 1 AND 24000),
   timeout_ms INTEGER NOT NULL DEFAULT 15000 CHECK (timeout_ms BETWEEN 250 AND 120000),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -68,7 +68,7 @@ INSERT INTO decision_shadow_policy_config
   (id, enabled, mode, question_version, policy_version,
    max_state_bytes, timeout_ms, created_at, updated_at)
 VALUES ('default', 0, 'SHADOW', 'r3-questions-v1', 'r3-shadow-policy-v1',
-  12288, 15000,
+  24000, 15000,
   strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));
 
 CREATE TRIGGER decision_shadow_policy_identity_immutable

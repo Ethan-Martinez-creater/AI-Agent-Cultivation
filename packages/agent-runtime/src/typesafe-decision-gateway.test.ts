@@ -32,6 +32,7 @@ const baseRequest = (
   ({
     decisionType,
     questionVersion: 'r3-test-v1',
+    policyVersion: 'r3-shadow-policy-v1',
     stateHash: 'bounded-state-hash',
     inputSummary: { taskSummary: 'bounded task summary', candidateIds: ['teammate-a'] },
     state: { schemaVersion: 'r3-decision-state-v1', taskSummary: 'Write a short unit test.' },

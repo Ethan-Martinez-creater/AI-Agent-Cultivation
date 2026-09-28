@@ -9,6 +9,15 @@ function fixture(envKey?: string) {
     apiKeyCiphertext: null,
     updatedAt: '2026-01-01T00:00:00.000Z',
   };
+  let policy = {
+    enabled: false,
+    mode: 'SHADOW' as const,
+    questionVersion: 'r3-questions-v1',
+    policyVersion: 'r3-shadow-policy-v1',
+    maxStateBytes: 24_000,
+    timeoutMs: 15_000,
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  };
   const calls: string[] = [];
   const secrets: SecretStore = {
     encrypt: async (plaintext) => {
@@ -25,6 +34,10 @@ function fixture(envKey?: string) {
       getDecisionProviderConfig: () => row,
       saveDecisionProviderConfig: (next) => {
         row = next;
+      },
+      getShadowPolicyConfig: () => policy,
+      saveShadowPolicyConfig: (next) => {
+        policy = next;
       },
     },
     secrets,

@@ -232,7 +232,7 @@ const db = new Database(dbPath);
 try {
   assert.equal(
     db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get().version,
-    12,
+    13,
   );
   const evidence = db
     .prepare('SELECT teammate_id, runtime_profile_id, source_type FROM capability_evidence')

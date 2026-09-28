@@ -24,6 +24,7 @@ export interface DecisionShadowObservation {
   provider: string;
   model: string;
   recommendation: string | null;
+  receiptId: string | null;
   actualAction: string | null;
   latencyMs: number | null;
   inputTokens: number | null;
@@ -97,10 +98,19 @@ export class ShadowDecisionService {
 
     let result: DecisionResult;
     try {
-      result = validateDecisionResult(
-        await withTimeout(this.options.gateway.evaluate(request), this.options.timeoutMs ?? 6_000),
-        request,
+      const gatewayResult = await withTimeout(
+        this.options.gateway.evaluate(request),
+        this.options.timeoutMs ?? 6_000,
       );
+      if (gatewayResult.errorCode) {
+        return this.fallback(
+          request,
+          context,
+          gatewayResult.errorCode,
+          gatewayResult.latencyMs ?? elapsed(started),
+        );
+      }
+      result = validateDecisionResult(gatewayResult, request);
     } catch (error) {
       fallbackCode =
         error instanceof DecisionSchemaError
@@ -154,6 +164,7 @@ export class ShadowDecisionService {
       provider: bounded(this.options.provider, 80),
       model: bounded(result.model ?? this.options.model, 120),
       recommendation: result.selectedAction,
+      receiptId: receipt.id,
       actualAction: boundedNullable(context.actualAction ?? null, 160),
       latencyMs,
       inputTokens,
@@ -181,6 +192,7 @@ export class ShadowDecisionService {
       provider: bounded(this.options.provider, 80),
       model: bounded(this.options.model, 120),
       recommendation: null,
+      receiptId: null,
       actualAction: boundedNullable(context.actualAction ?? null, 160),
       latencyMs: Number.isFinite(latencyMs) ? latencyMs : null,
       inputTokens: null,

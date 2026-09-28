@@ -227,7 +227,7 @@ describe('R3 Decision Plane persistence', () => {
       mode: 'SHADOW',
       questionVersion: 'r3-questions-v1',
       policyVersion: 'r3-shadow-policy-v1',
-      maxStateBytes: 12288,
+      maxStateBytes: 24000,
       timeoutMs: 15000,
     });
     expect(

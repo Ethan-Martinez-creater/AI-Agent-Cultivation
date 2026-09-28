@@ -147,6 +147,27 @@ describe('ShadowDecisionService', () => {
     expect(observations[0]?.fallbackCode).toBe('SCHEMA_MISMATCH');
   });
 
+  it('uses sanitized adapter error codes and never turns an empty failure response into a receipt', async () => {
+    for (const code of [
+      'TIMEOUT',
+      'PROVIDER_UNAVAILABLE',
+      'SCHEMA_MISMATCH',
+      'INVALID_REQUEST',
+    ] as const) {
+      const { service, receipts, observations } = setup({
+        answers: {},
+        confidence: {},
+        selectedAction: null,
+        errorCode: code,
+        latencyMs: 42,
+      });
+      const result = await service.evaluate(taskRequest());
+      expect(result).toMatchObject({ status: 'FALLBACK', fallbackCode: code });
+      expect(receipts).toHaveLength(0);
+      expect(observations[0]).toMatchObject({ fallbackCode: code, latencyMs: 42 });
+    }
+  });
+
   it('rejects non-allowlisted state before calling the DecisionGateway', async () => {
     const { service, gateway, receipts, observations } = setup({
       answers: {},

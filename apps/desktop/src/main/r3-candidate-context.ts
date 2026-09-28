@@ -1,5 +1,5 @@
-import type { CapabilityDimension } from '@cultivation/domain';
 import { CAPABILITY_DIMENSIONS } from '@cultivation/application';
+import type { DecisionCandidateInput } from '@cultivation/application/r3-decision-state';
 import type { R1CapabilityService } from '@cultivation/application/r1-capability-service';
 import type { HumanBridgeService } from '@cultivation/application/r2-human-bridge-service';
 import type {
@@ -7,25 +7,6 @@ import type {
   Gate2SqliteRepository,
   Gate6SqliteRepository,
 } from '@cultivation/persistence';
-
-export interface R3ShadowCandidate {
-  id: string;
-  roleTitle: string;
-  capabilities: Partial<
-    Record<
-      CapabilityDimension,
-      { status: 'SUPPORTED' | 'UNSUPPORTED' | 'UNCONFIGURED'; score: number | null }
-    >
-  >;
-  enabledSkills: Array<{ id: string; name: string; category: string; summary: string }>;
-  verifiedExperiences: Array<{
-    type: string;
-    mode: string;
-    outcome: string;
-    role: string;
-    createdAt: string;
-  }>;
-}
 
 /** Reads only allowlisted summaries; Memory, messages, files and events are never queried. */
 export function buildR3ShadowCandidates(
@@ -37,7 +18,7 @@ export function buildR3ShadowCandidates(
     capabilities: R1CapabilityService;
     humanBridge: HumanBridgeService;
   },
-): R3ShadowCandidate[] {
+): DecisionCandidateInput[] {
   const eligible = stores.teammates
     .listTeammates()
     .filter(
@@ -53,7 +34,7 @@ export function buildR3ShadowCandidates(
   const skillsById = new Map(skills.map((skill) => [skill.id, skill]));
 
   return eligible.map((teammate) => {
-    const capabilities: R3ShadowCandidate['capabilities'] = {};
+    const capabilities: DecisionCandidateInput['capabilities'] = {};
     if (teammate.executorKind === 'USER_BRIDGE') {
       const bridge = stores.humanBridge.capabilityProfile();
       for (const dimension of bridge.dimensions) {
@@ -91,6 +72,7 @@ export function buildR3ShadowCandidates(
       .slice(-6)
       .reverse()
       .map((event) => ({
+        verified: true,
         type: event.experienceType,
         mode: event.mode,
         outcome: event.outcome,

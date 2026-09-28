@@ -14,13 +14,19 @@ import {
   Gate5SqliteRepository,
   Gate6SqliteRepository,
   R0SqliteRepository,
+  R3SqliteRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
 import { Gate2MemoryService } from '@cultivation/application/gate2-memory-service';
 import { Gate2HybridMemoryService } from '@cultivation/application/gate2-hybrid-memory-service';
 import { SkillService, type SkillServiceStore } from '@cultivation/application/skill-service';
-import { AiSdkModelGateway, FakeModelGateway } from '@cultivation/agent-runtime';
+import {
+  AiSdkModelGateway,
+  FakeModelGateway,
+  FakeDecisionGateway,
+  TypeSafeDecisionGateway,
+} from '@cultivation/agent-runtime';
 import type {
   EmbeddingGateway,
   MemoryCandidateExtractor,
@@ -49,6 +55,9 @@ import {
 } from '@cultivation/application/r2-human-bridge-service';
 import { registerR2Ipc } from './r2-ipc.js';
 import { FileWorkspace } from './file-workspace.js';
+import { R3DecisionConfigController } from './r3-config.js';
+import { R3ShadowMissionObserver } from './r3-shadow-observer.js';
+import { registerR3Ipc } from './r3-ipc.js';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -74,6 +83,9 @@ function createWindow(
   capabilityStore: R0SqliteRepository,
   humanBridge: HumanBridgeService,
   externalWork: ExternalWorkService,
+  r3Config: R3DecisionConfigController,
+  r3Store: R3SqliteRepository,
+  r3Observer: R3ShadowMissionObserver,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -153,11 +165,14 @@ function createWindow(
     },
   );
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
-  registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties);
+  registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties, (mission) =>
+    r3Observer.observeMission(mission),
+  );
   registerGate4Ipc(window, validSender, tools);
   registerGate6Ipc(validSender, experience);
   registerR1Ipc(validSender, capabilities);
   registerR2Ipc(validSender, humanBridge, externalWork, partyMissions, tools);
+  registerR3Ipc(validSender, r3Config, r3Store);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -189,6 +204,7 @@ if (!squirrelStartup)
       const gate5Store = new Gate5SqliteRepository(db);
       const experience = new Gate6ExperienceService(new Gate6SqliteRepository(db));
       const capabilityStore = new R0SqliteRepository(db);
+      const r3Store = new R3SqliteRepository(db);
       const capabilities = new R1CapabilityService(capabilityStore);
       const r2Store: R2HumanBridgeServiceStore = {
         ensureHumanBridgeTeammate: (input) => capabilityStore.ensureHumanBridgeTeammate(input),
@@ -241,6 +257,27 @@ if (!squirrelStartup)
       }
       const vectorStore = new Gate2VectorRepository(db, vectorAvailable);
       const secretStore = new ElectronSecretStore(safeStorage);
+      const fakeDecision = process.argv.includes('--r3-fake-decision');
+      const fakeDecisionError = process.argv.includes('--r3-fake-decision-error');
+      const r3GatewayFactory = (apiKey: string, timeoutMs: number) =>
+        fakeDecisionError
+          ? {
+              evaluate: async () => ({
+                answers: {},
+                confidence: {},
+                selectedAction: null,
+                errorCode: 'PROVIDER_UNAVAILABLE' as const,
+              }),
+            }
+          : fakeDecision
+            ? new FakeDecisionGateway()
+            : new TypeSafeDecisionGateway({ apiKey, timeoutMs });
+      const r3Config = new R3DecisionConfigController(r3Store, secretStore, async (apiKey) => {
+        if (fakeDecision || fakeDecisionError) return { ok: true, model: 'jev-1.13.0' };
+        const gateway = new TypeSafeDecisionGateway({ apiKey });
+        const result = await gateway.testConnection();
+        return { ok: result.ok, model: result.model };
+      });
       const gateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
         process.argv.includes('--gate1-fake-model')
           ? new FakeModelGateway()
@@ -316,6 +353,18 @@ if (!squirrelStartup)
       const toolRuntime = new ToolRuntime(registry, permissionEngine);
       missions.attachTools(toolRuntime, gate4Store);
       const parties = new Gate5PartyService(gate5Store, store);
+      const r3Observer = new R3ShadowMissionObserver(
+        r3Config,
+        r3Store,
+        {
+          teammates: store,
+          skills: gate2Store,
+          experiences: new Gate6SqliteRepository(db),
+          capabilities,
+          humanBridge,
+        },
+        r3GatewayFactory,
+      );
       const partyMissions = new Gate5CollaborationService(
         gate3Store,
         gate5Store,
@@ -347,6 +396,9 @@ if (!squirrelStartup)
         capabilityStore,
         humanBridge,
         externalWork,
+        r3Config,
+        r3Store,
+        r3Observer,
       );
       externalWork.subscribeCreated((created) => {
         try {
@@ -380,6 +432,9 @@ if (!squirrelStartup)
             capabilityStore,
             humanBridge,
             externalWork,
+            r3Config,
+            r3Store,
+            r3Observer,
           );
       });
     })

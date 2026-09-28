@@ -40,7 +40,7 @@ export interface DecisionResult {
   answers: Record<string, unknown>;
   confidence: Record<string, number>;
   selectedAction: string | null;
-  model?: string;
+  model?: string | null;
   inputTokens?: number | null;
   latencyMs?: number | null;
   /** Provider-reported choice distribution, kept outside normalized domain answers. */
