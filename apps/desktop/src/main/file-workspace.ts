@@ -76,6 +76,44 @@ export class FileWorkspace {
     return this.rootPath;
   }
 
+  /** Verify a submitted artifact against the same canonical Workspace boundary as file tools. */
+  async inspectArtifact(
+    relativePath: string,
+    maxBytes: number,
+  ): Promise<{ path: string; fileName: string; extension: string; sizeBytes: number }> {
+    const target = this.resolveRelative(relativePath);
+    await this.verifyPath(target, false);
+    const flags = fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0);
+    const handle = await this.withIo(() => open(target, flags));
+    try {
+      await this.verifyPath(target, false);
+      const info = await this.withIo(() => handle.stat());
+      const pathInfo = await this.withIo(() => lstat(target));
+      if (!info.isFile() || !pathInfo.isFile()) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_NOT_FILE', 'Artifact is not a file');
+      }
+      if (pathInfo.isSymbolicLink() || !this.sameFile(info, pathInfo)) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_SYMLINK', 'Symbolic links are not allowed');
+      }
+      if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || info.size > maxBytes) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_TOO_LARGE', 'Artifact exceeds its size limit');
+      }
+      const canonical = await this.withIo(() => realpath(target));
+      const relative = path.relative(this.rootPath, canonical);
+      if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_PATH_ESCAPE', 'Path escapes the workspace');
+      }
+      return {
+        path: relative,
+        fileName: path.basename(canonical),
+        extension: path.extname(canonical).toLowerCase(),
+        sizeBytes: info.size,
+      };
+    } finally {
+      await this.withIo(() => handle.close());
+    }
+  }
+
   async list(relativePath: string): Promise<FileWorkspaceEntry[]> {
     const target = this.resolveRelative(relativePath, true);
     await this.verifyPath(target, true);

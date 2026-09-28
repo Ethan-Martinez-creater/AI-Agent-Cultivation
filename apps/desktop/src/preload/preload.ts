@@ -32,6 +32,9 @@ import type {
   CapabilityDimension,
   ModelCapabilityBenchmark,
   CapabilityEvidence,
+  ExternalAppProfile,
+  ExternalWorkArtifact,
+  ExternalWorkRequest,
 } from '@cultivation/domain';
 import type {
   R1CapabilityProfile,
@@ -139,6 +142,23 @@ export interface RatingInput {
 export interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
+  r2: {
+    bridgeProfile(): Promise<{ teammate: Teammate; dimensions: Array<{ dimension: CapabilityDimension; enabled: boolean; priorScore: number | null; currentScore: number | null; ratingCount: number; evidenceWeight: number; source: string | null }> }>;
+    updateDisplay(input: { name: string; avatar: string | null; title: string | null; description: string }): Promise<Teammate>;
+    setCapability(input: { dimension: CapabilityDimension; enabled: boolean }): Promise<unknown>;
+    listApps(): Promise<ExternalAppProfile[]>;
+    saveApp(input: { id?: string; name: string; vendor: string | null; capabilities: CapabilityDimension[]; notes: string | null; enabled: boolean }): Promise<ExternalAppProfile>;
+    listRequests(): Promise<ExternalWorkRequest[]>;
+    getRequest(id: string): Promise<{ request: ExternalWorkRequest; artifacts: ExternalWorkArtifact[] } | null>;
+    markInProgress(id: string): Promise<ExternalWorkRequest>;
+    submitArtifacts(input: { requestId: string; artifacts: Array<{ targetArtifactId: string; relativePath: string }> }): Promise<ExternalWorkRequest>;
+    accept(input: { requestId: string; publicResult?: string }): Promise<unknown>;
+    reject(input: { requestId: string; reason?: string }): Promise<unknown>;
+    cancel(input: { requestId: string }): Promise<unknown>;
+    submitRating(input: { externalWorkRequestId: string; stars?: number; skip?: boolean }): Promise<unknown>;
+    copyPrompt(id: string): Promise<void>;
+    openTargetFolder(id: string): Promise<void>;
+  };
   experience: {
     get(teammateId: string): Promise<{ events: ExperienceEvent[]; profile: CapabilityProfile }>;
   };
@@ -307,6 +327,23 @@ export interface CultivationBridge {
 const bridge: CultivationBridge = {
   app: { getVersion: () => ipcRenderer.invoke('app:getVersion') },
   health: { ping: () => ipcRenderer.invoke('health:ping') },
+  r2: {
+    bridgeProfile: () => ipcRenderer.invoke('r2:bridgeProfile'),
+    updateDisplay: (input) => ipcRenderer.invoke('r2:updateDisplay', input),
+    setCapability: (input) => ipcRenderer.invoke('r2:setCapability', input),
+    listApps: () => ipcRenderer.invoke('r2:listApps'),
+    saveApp: (input) => ipcRenderer.invoke('r2:saveApp', input),
+    listRequests: () => ipcRenderer.invoke('r2:listRequests'),
+    getRequest: (id) => ipcRenderer.invoke('r2:getRequest', id),
+    markInProgress: (id) => ipcRenderer.invoke('r2:markInProgress', id),
+    submitArtifacts: (input) => ipcRenderer.invoke('r2:submitArtifacts', input),
+    accept: (input) => ipcRenderer.invoke('r2:accept', input),
+    reject: (input) => ipcRenderer.invoke('r2:reject', input),
+    cancel: (input) => ipcRenderer.invoke('r2:cancel', input),
+    submitRating: (input) => ipcRenderer.invoke('r2:submitRating', input),
+    copyPrompt: (id) => ipcRenderer.invoke('r2:copyPrompt', id),
+    openTargetFolder: (id) => ipcRenderer.invoke('r2:openTargetFolder', id),
+  },
   experience: { get: (teammateId) => ipcRenderer.invoke('experience:get', teammateId) },
   capability: {
     catalog: () => ipcRenderer.invoke('capability:catalog'),

@@ -130,6 +130,9 @@ describe('FileWorkspace', () => {
     await expect(workspace.readText('escape/secret.txt')).rejects.toMatchObject({
       code: 'FILE_WORKSPACE_SYMLINK',
     });
+    await expect(workspace.inspectArtifact('escape/secret.txt', 100)).rejects.toMatchObject({
+      code: 'FILE_WORKSPACE_SYMLINK',
+    });
     await expect(workspace.list('')).rejects.toMatchObject({ code: 'FILE_WORKSPACE_SYMLINK' });
     await expect(readFile(secretPath, 'utf8')).resolves.toBe('outside secret');
   });
@@ -153,6 +156,26 @@ describe('FileWorkspace', () => {
     await createFile(binaryPath, Buffer.from([0xff, 0xfe, 0x00]));
     await expect(workspace.readText('binary.txt')).rejects.toMatchObject({
       code: 'FILE_WORKSPACE_INVALID_UTF8',
+    });
+  });
+
+  it('inspects artifacts from the canonical workspace without trusting submitted metadata', async () => {
+    const workspace = await FileWorkspace.open(workspaceRoot);
+    await createFile(path.join(workspaceRoot, 'result.PNG'), 'image bytes');
+    await expect(workspace.inspectArtifact('result.PNG', 100)).resolves.toEqual({
+      path: 'result.PNG',
+      fileName: 'result.PNG',
+      extension: '.png',
+      sizeBytes: 11,
+    });
+    await expect(workspace.inspectArtifact('result.PNG', 10)).rejects.toMatchObject({
+      code: 'FILE_WORKSPACE_TOO_LARGE',
+    });
+    await expect(workspace.inspectArtifact('../outside/secret.txt', 100)).rejects.toMatchObject({
+      code: 'FILE_WORKSPACE_PATH_ESCAPE',
+    });
+    await expect(workspace.inspectArtifact('missing.txt', 100)).rejects.toMatchObject({
+      code: 'FILE_WORKSPACE_PATH_NOT_FOUND',
     });
   });
 });

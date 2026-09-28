@@ -1,5 +1,6 @@
 import type {
   ApprovalRequest,
+  CapabilityDimension,
   Mission,
   MissionMode,
   MemoryRecord,
@@ -94,10 +95,26 @@ export type ModelMessage =
   | { role: 'assistant'; content: string | ModelToolCallPart[] }
   | { role: 'tool'; content: ModelToolResultPart[] };
 
+/** Explicit external-work data supplied after a Human Bridge submission. It is never a Chat/user/tool message. */
+export interface ModelExternalWorkContext {
+  requestId: string;
+  capability: CapabilityDimension;
+  outcome: 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
+  publicResult: string;
+  artifacts: Array<{
+    path: string;
+    fileName: string;
+    extension: string;
+    sizeBytes: number;
+  }>;
+  trust: 'UNTRUSTED_EXTERNAL_DATA';
+}
+
 export interface ModelRequest {
   runtimeProfileId: string;
   teammateId: string;
   messages: ModelMessage[];
+  externalWorkContext?: ModelExternalWorkContext;
 }
 export interface ModelUsage {
   inputTokens: number | null;

@@ -21,6 +21,7 @@ import type {
   R1RatingTarget,
 } from '@cultivation/application/r1-capability-service';
 import { BenchmarkPanel, DynamicCapabilityPanel, MissionRatingCard } from './r1-capability.js';
+import { HumanBridgeApproval, HumanBridgePage, type HumanBridgeApprovalInput, type R2UiApi } from './r2-human-bridge.js';
 import './style.css';
 
 type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -57,6 +58,9 @@ interface TeammateView {
   identityPrompt: string;
   behaviorPrompt: string;
   currentRuntimeProfileId: string | null;
+  executorKind?: 'MODEL_RUNTIME' | 'USER_BRIDGE';
+  routingPolicy?: 'NORMAL' | 'FALLBACK_ONLY' | 'MANUAL_ONLY';
+  systemKind?: 'HUMAN_BRIDGE' | null;
   status: TeammateStatus;
 }
 
@@ -133,7 +137,7 @@ interface UsageView {
   createdAt: string;
 }
 
-type ExperienceType = 'MISSION_RESULT' | 'COLLABORATION' | 'TOOL_USE' | 'SKILL_USE';
+type ExperienceType = 'MISSION_RESULT' | 'COLLABORATION' | 'TOOL_USE' | 'SKILL_USE' | 'EXTERNAL_WORK';
 type ExperienceOutcome = 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
 
 interface ExperienceEventView {
@@ -194,6 +198,8 @@ type MissionState =
   | 'READY'
   | 'RUNNING'
   | 'WAITING_APPROVAL'
+  | 'WAITING_COLLABORATION'
+  | 'WAITING_EXTERNAL_WORK'
   | 'PAUSED'
   | 'INTERRUPTED'
   | 'COMPLETED'
@@ -346,6 +352,7 @@ interface ChatEvent {
 interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
+  r2: R2UiApi;
   capability: {
     catalog(): Promise<
       Array<{
@@ -518,6 +525,7 @@ interface CultivationBridge {
     resolveCollaboration(input: {
       requestId: string;
       decision: 'APPROVED' | 'DENIED';
+      externalWork?: HumanBridgeApprovalInput;
     }): Promise<MissionDetailView>;
   };
   tools: {
@@ -550,6 +558,7 @@ const pages = [
   ['/teammates', '道友 Teammates', '创建道友身份，选择运行配置并开启持续对话。'],
   ['/parties', '队伍 Parties', '管理固定与临时队伍，指定协调道友和成员。'],
   ['/missions', '历练 Missions', '以独立 Mission Run 跟踪目标、审批与执行事件。'],
+  ['/external-work', '本尊待办 Human Bridge', '处理等待你在外部应用完成的 Mission 工作。'],
   ['/skills', '功法 Skills', '为道友编写可复用的声明式指引。'],
   ['/tools', '法宝 Tools', '设置文件工作区并管理内置工具与手动配置的 MCP stdio Server。'],
   ['/memory', '记忆 Memory', '查看、确认并管理专属于道友的长期记忆。'],
@@ -673,6 +682,7 @@ function App() {
           <Route path="/usage" element={<UsagePage />} />
           <Route path="/parties" element={<PartiesPage />} />
           <Route path="/missions" element={<MissionPage />} />
+          <Route path="/external-work" element={<HumanBridgePage api={window.cultivation.r2} />} />
           <Route path="/skills" element={<SkillsPage />} />
           <Route path="/tools" element={<ToolsPage />} />
           <Route path="/memory" element={<MemoryPage />} />
@@ -713,7 +723,7 @@ function HomePage() {
     void window.cultivation.teammates
       .list()
       .then((items) => {
-        if (!cancelled) setTeammates(items.filter((item) => item.status === 'ACTIVE'));
+        if (!cancelled) setTeammates(items.filter((item) => item.status === 'ACTIVE' && item.executorKind !== 'USER_BRIDGE'));
       })
       .catch((cause: unknown) => {
         if (!cancelled) setError(errorText(cause, '读取道友失败。'));
@@ -1779,7 +1789,7 @@ function PartiesPage() {
               >
                 <option value="">选择协调者</option>
                 {form.memberTeammateIds
-                  .filter((id) => activeTeammates.some((teammate) => teammate.id === id))
+                  .filter((id) => activeTeammates.some((teammate) => teammate.id === id && teammate.executorKind !== 'USER_BRIDGE'))
                   .map((id) => (
                     <option key={id} value={id}>
                       {teammateName(teammates, id)}
@@ -1823,14 +1833,15 @@ function MissionPage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const navigate = useNavigate();
-  const activeTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
+  const availableTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
+  const activeTeammates = availableTeammates.filter((teammate) => teammate.executorKind !== 'USER_BRIDGE');
   const activeParties = parties.filter(
     (party) =>
       party.status === 'ACTIVE' &&
       party.members.length >= 2 &&
       party.members.length <= 4 &&
       party.members.every((member) =>
-        activeTeammates.some((teammate) => teammate.id === member.teammateId),
+        availableTeammates.some((teammate) => teammate.id === member.teammateId),
       ),
   );
 
@@ -2276,6 +2287,7 @@ function MissionPage() {
                   </span>
                 </div>
                 <p className="mission-objective">{mission.objective}</p>
+                {mission.state === 'WAITING_EXTERNAL_WORK' && <div className="notice"><p>原 Mission Run 正在等待本尊完成外部工作。提交并验收后会继续同一个 Run。</p><button className="button secondary small" onClick={() => navigate('/external-work')}>打开本尊待办</button></div>}
                 <div className="mission-actions">
                   {canEdit && !editing && (
                     <button
@@ -2455,7 +2467,11 @@ function MissionPage() {
                           {formatDate(request.createdAt)}
                         </small>
                         <div className="button-row compact">
-                          <button
+                          {teammates.find((item) => item.id === request.targetTeammateId)?.executorKind === 'USER_BRIDGE' ? <HumanBridgeApproval
+                            api={window.cultivation.r2}
+                            busy={busy}
+                            onApprove={(externalWork) => runAction('已创建本尊外部工作；原 Run 正在等待提交。', () => window.cultivation.missions.resolveCollaboration({ requestId: request.id, decision: 'APPROVED', externalWork }))}
+                          /> : <button
                             className="button primary small"
                             type="button"
                             disabled={busy}
@@ -2469,7 +2485,7 @@ function MissionPage() {
                             }
                           >
                             批准并继续
-                          </button>
+                          </button>}
                           <button
                             className="button danger-ghost small"
                             type="button"
@@ -2864,6 +2880,8 @@ function missionStateLabel(value: string): string {
     READY: '就绪',
     RUNNING: '运行中',
     WAITING_APPROVAL: '等待审批',
+    WAITING_COLLABORATION: '等待协作批准',
+    WAITING_EXTERNAL_WORK: '等待本尊外部工作',
     PAUSED: '已暂停',
     INTERRUPTED: '已中断',
     COMPLETED: '已完成',
@@ -3856,6 +3874,7 @@ function TeammatesPage() {
                 <span className="data-row-copy">
                   <strong>{teammate.name}</strong>
                   <small>{teammate.title || '道友'}</small>
+                  {teammate.executorKind === 'USER_BRIDGE' && <small>本尊 · Human Bridge</small>}
                 </span>
                 <span
                   className={`status-pill ${teammate.status === 'ACTIVE' ? 'active' : 'archived'}`}
@@ -4009,9 +4028,9 @@ function TeammatesPage() {
               <div className="identity-panel">
                 <span>稳定身份 ID</span>
                 <code>{selected.id}</code>
-                <small>Runtime 切换不会改变此 ID，也不会迁移或丢失 Conversation 历史。</small>
+                <small>{selected.executorKind === 'USER_BRIDGE' ? '系统 Human Bridge 不绑定模型 Runtime，仅在明确委托的外部工作中执行。' : 'Runtime 切换不会改变此 ID，也不会迁移或丢失 Conversation 历史。'}</small>
               </div>
-              <div className="profile-section">
+              {selected.executorKind !== 'USER_BRIDGE' && <div className="profile-section">
                 <div className="section-heading">
                   <div>
                     <h3>当前 Runtime Profile</h3>
@@ -4030,9 +4049,9 @@ function TeammatesPage() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div>}
               <div className="profile-actions">
-                {selected.status === 'ACTIVE' && (
+                {selected.executorKind === 'USER_BRIDGE' ? <button className="button primary" onClick={() => navigate('/external-work')}>查看本尊待办与能力</button> : selected.status === 'ACTIVE' && (
                   <button
                     className="button primary"
                     onClick={() => navigate(`/chat/${encodeURIComponent(selected.id)}`)}
@@ -4040,17 +4059,17 @@ function TeammatesPage() {
                     打开对话
                   </button>
                 )}
-                <button className="button secondary" onClick={() => startEdit(selected)}>
+                {selected.executorKind !== 'USER_BRIDGE' && <button className="button secondary" onClick={() => startEdit(selected)}>
                   编辑资料
-                </button>
-                <button
+                </button>}
+                {selected.executorKind !== 'USER_BRIDGE' && <button
                   className="button secondary"
                   disabled={busy}
                   onClick={() => void duplicate(selected)}
                 >
                   复制道友
-                </button>
-                {selected.status === 'ACTIVE' && (
+                </button>}
+                {selected.executorKind !== 'USER_BRIDGE' && selected.status === 'ACTIVE' && (
                   <button
                     className="button danger-ghost"
                     disabled={busy}
@@ -4063,11 +4082,11 @@ function TeammatesPage() {
               {selected.status === 'ARCHIVED' && (
                 <div className="notice">已归档的道友保留历史数据，不能继续发送新消息。</div>
               )}
-              <TeammateSkillsPanel teammate={selected} />
-              <DynamicCapabilityPanel
+              {selected.executorKind !== 'USER_BRIDGE' && <TeammateSkillsPanel teammate={selected} />}
+              {selected.executorKind !== 'USER_BRIDGE' && <DynamicCapabilityPanel
                 key={`${selected.id}:${selected.currentRuntimeProfileId}`}
                 teammateId={selected.id}
-              />
+              />}
               <TeammateExperiencePanel teammate={selected} />
             </div>
           ) : loading ? (
@@ -5607,6 +5626,7 @@ function experienceTypeLabel(type: ExperienceType): string {
     COLLABORATION: '队伍协作',
     TOOL_USE: '工具使用',
     SKILL_USE: 'Skill 使用',
+    EXTERNAL_WORK: '本尊外部工作',
   };
   return labels[type];
 }

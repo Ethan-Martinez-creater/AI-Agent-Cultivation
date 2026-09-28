@@ -98,6 +98,13 @@ export class Gate6SqliteRepository {
              SELECT 1 FROM collaboration_requests AS c
              WHERE c.mission_id = a.mission_id AND c.run_id = a.run_id
                AND c.target_teammate_id = a.teammate_id AND c.state = 'DENIED'
+           )
+           UNION
+           SELECT w.mission_id, w.run_id, w.assignee_teammate_id AS teammate_id
+           FROM external_work_requests AS w
+           WHERE w.state = 'ACCEPTED' AND EXISTS (
+             SELECT 1 FROM external_work_artifacts AS a
+             WHERE a.external_work_request_id = w.id
            )`,
         )
         .all() as ActorEvidenceRow[];
@@ -270,6 +277,49 @@ export class Gate6SqliteRepository {
             sourceId: event.id,
           });
         }
+      }
+      const acceptedExternalWork = this.db
+        .prepare(
+          `SELECT w.id, w.mission_id, w.run_id, w.assignee_teammate_id, w.resolved_at,
+                  m.mode, m.coordinator_teammate_id
+           FROM external_work_requests AS w
+           JOIN mission_runs AS r ON r.id = w.run_id AND r.mission_id = w.mission_id
+           JOIN missions AS m ON m.id = w.mission_id
+           WHERE w.state = 'ACCEPTED' AND w.resolved_at IS NOT NULL
+             AND r.status != 'RUNNING'
+             AND EXISTS (SELECT 1 FROM external_work_artifacts AS a
+                         WHERE a.external_work_request_id = w.id)
+           ORDER BY w.resolved_at, w.id`,
+        )
+        .all() as Array<{
+        id: string;
+        mission_id: string;
+        run_id: string;
+        assignee_teammate_id: string;
+        resolved_at: string;
+        mode: ExperienceEvent['mode'];
+        coordinator_teammate_id: string;
+      }>;
+      for (const work of acceptedExternalWork) {
+        const role =
+          work.mode === 'SOLO'
+            ? work.assignee_teammate_id === work.coordinator_teammate_id
+              ? 'COORDINATOR'
+              : null
+            : (rolesByMission.get(work.mission_id)?.get(work.assignee_teammate_id) ?? null);
+        if (!role) continue;
+        add({
+          teammateId: work.assignee_teammate_id,
+          missionId: work.mission_id,
+          runId: work.run_id,
+          experienceType: 'EXTERNAL_WORK',
+          source: 'EXTERNAL_WORK_REQUEST',
+          sourceId: work.id,
+          role,
+          outcome: 'COMPLETED',
+          mode: work.mode,
+          createdAt: work.resolved_at,
+        });
       }
       return inserted;
     })();
