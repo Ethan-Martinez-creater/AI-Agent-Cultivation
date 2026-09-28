@@ -31,6 +31,7 @@ export interface ModelCapabilityBenchmarkRecord {
   snapshotDate: string;
   sourceUrl: string | null;
   provenanceType: 'CATALOG' | 'USER_OVERRIDE' | 'USER_ESTIMATE';
+  createdAt: string;
 }
 
 export interface TeammateCapabilityStateRecord {
@@ -40,7 +41,14 @@ export interface TeammateCapabilityStateRecord {
   evidenceWeight: number;
   ratingCount: number;
   currentRuntimeProfileId: string | null;
+  scoringPolicyVersion: string;
   updatedAt: string;
+}
+
+export interface MissionRunRatingTarget {
+  teammateId: string;
+  runtimeProfileId: string;
+  modelAlias: string;
 }
 
 export interface CapabilityEvidenceRecord {
@@ -146,6 +154,7 @@ interface ModelCapabilityBenchmarkRow {
   snapshot_date: string;
   source_url: string | null;
   provenance_type: ModelCapabilityBenchmarkRecord['provenanceType'];
+  created_at: string;
 }
 
 interface TeammateCapabilityStateRow {
@@ -155,6 +164,7 @@ interface TeammateCapabilityStateRow {
   evidence_weight: number;
   rating_count: number;
   current_runtime_profile_id: string | null;
+  scoring_policy_version: string;
   updated_at: string;
 }
 
@@ -242,10 +252,12 @@ export class R0SqliteRepository {
       .prepare(
         `INSERT INTO model_capability_benchmarks
           (id, runtime_profile_id, model_alias, dimension, supported, normalized_score, raw_score,
-           source, benchmark, benchmark_version, snapshot_date, source_url, provenance_type)
+           source, benchmark, benchmark_version, snapshot_date, source_url, provenance_type,
+           created_at)
          VALUES
           (@id, @runtimeProfileId, @modelAlias, @dimension, @supported, @normalizedScore, @rawScore,
-           @source, @benchmark, @benchmarkVersion, @snapshotDate, @sourceUrl, @provenanceType)`,
+           @source, @benchmark, @benchmarkVersion, @snapshotDate, @sourceUrl, @provenanceType,
+           @createdAt)`,
       )
       .run({ ...value, supported: value.supported ? 1 : 0 });
   }
@@ -266,13 +278,14 @@ export class R0SqliteRepository {
           .prepare(
             `SELECT * FROM model_capability_benchmarks
              WHERE runtime_profile_id = ? AND model_alias = ?
-             ORDER BY dimension, snapshot_date DESC, id`,
+             ORDER BY dimension, snapshot_date DESC, created_at DESC, id`,
           )
           .all(runtimeProfileId, modelAlias) as ModelCapabilityBenchmarkRow[])
       : (this.db
           .prepare(
             `SELECT * FROM model_capability_benchmarks
-             WHERE runtime_profile_id = ? ORDER BY model_alias, dimension, snapshot_date DESC, id`,
+             WHERE runtime_profile_id = ?
+             ORDER BY model_alias, dimension, snapshot_date DESC, created_at DESC, id`,
           )
           .all(runtimeProfileId) as ModelCapabilityBenchmarkRow[]);
     return rows.map(mapModelCapabilityBenchmark);
@@ -283,14 +296,15 @@ export class R0SqliteRepository {
       .prepare(
         `INSERT INTO teammate_capability_states
           (teammate_id, dimension, current_score, evidence_weight, rating_count,
-           current_runtime_profile_id, updated_at)
+           current_runtime_profile_id, scoring_policy_version, updated_at)
          VALUES
           (@teammateId, @dimension, @currentScore, @evidenceWeight, @ratingCount,
-           @currentRuntimeProfileId, @updatedAt)
+           @currentRuntimeProfileId, @scoringPolicyVersion, @updatedAt)
          ON CONFLICT(teammate_id, dimension) DO UPDATE SET
            current_score=excluded.current_score, evidence_weight=excluded.evidence_weight,
            rating_count=excluded.rating_count,
            current_runtime_profile_id=excluded.current_runtime_profile_id,
+           scoring_policy_version=excluded.scoring_policy_version,
            updated_at=excluded.updated_at`,
       )
       .run(value);
@@ -316,17 +330,179 @@ export class R0SqliteRepository {
     ).map(mapTeammateCapabilityState);
   }
 
-  appendCapabilityEvidence(value: CapabilityEvidenceRecord): void {
-    this.db
-      .prepare(
-        `INSERT INTO capability_evidence
-          (id, teammate_id, runtime_profile_id, mission_id, run_id, dimension, source_type,
-           rating_value, demand_weight, evidence_weight, created_at)
+  getTeammate(teammateId: string): {
+    id: string;
+    currentRuntimeProfileId: string | null;
+    executorKind: 'MODEL_RUNTIME' | 'USER_BRIDGE';
+  } | null {
+    const row = this.db
+      .prepare('SELECT id, current_runtime_profile_id, executor_kind FROM teammates WHERE id = ?')
+      .get(teammateId) as
+      | {
+          id: string;
+          current_runtime_profile_id: string | null;
+          executor_kind: 'MODEL_RUNTIME' | 'USER_BRIDGE';
+        }
+      | undefined;
+    return row
+      ? {
+          id: row.id,
+          currentRuntimeProfileId: row.current_runtime_profile_id,
+          executorKind: row.executor_kind,
+        }
+      : null;
+  }
+
+  /** Atomically replace the derived projection; callers rebuild it from durable facts. */
+  replaceTeammateCapabilityStates(
+    teammateId: string,
+    states: readonly TeammateCapabilityStateRecord[],
+  ): void {
+    if (states.some((state) => state.teammateId !== teammateId)) {
+      throw new Error('Capability state projection rows must belong to the requested Teammate');
+    }
+    const replace = this.db.transaction(() => {
+      this.db
+        .prepare('DELETE FROM teammate_capability_states WHERE teammate_id = ?')
+        .run(teammateId);
+      const insert = this.db.prepare(
+        `INSERT INTO teammate_capability_states
+          (teammate_id, dimension, current_score, evidence_weight, rating_count,
+           current_runtime_profile_id, scoring_policy_version, updated_at)
          VALUES
-          (@id, @teammateId, @runtimeProfileId, @missionId, @runId, @dimension, @sourceType,
-           @ratingValue, @demandWeight, @evidenceWeight, @createdAt)`,
+          (@teammateId, @dimension, @currentScore, @evidenceWeight, @ratingCount,
+           @currentRuntimeProfileId, @scoringPolicyVersion, @updatedAt)`,
+      );
+      for (const state of states) insert.run(state);
+    });
+    replace();
+  }
+
+  getRuntimeModelAlias(runtimeProfileId: string): string | null {
+    const row = this.db
+      .prepare('SELECT model_id FROM runtime_profiles WHERE id = ?')
+      .get(runtimeProfileId) as { model_id: string } | undefined;
+    return row?.model_id ?? null;
+  }
+
+  listTeammatesUsingRuntime(
+    runtimeProfileId: string,
+  ): { id: string; currentRuntimeProfileId: string | null }[] {
+    return this.db
+      .prepare(
+        `SELECT id, current_runtime_profile_id
+         FROM teammates WHERE current_runtime_profile_id = ? ORDER BY id`,
       )
-      .run(value);
+      .all(runtimeProfileId)
+      .map((row) => {
+        const value = row as { id: string; current_runtime_profile_id: string | null };
+        return { id: value.id, currentRuntimeProfileId: value.current_runtime_profile_id };
+      });
+  }
+
+  /** Return rating targets backed by a real model call or Usage for this exact terminal Run. */
+  listMissionRunRatingTargets(missionId: string, runId: string): MissionRunRatingTarget[] {
+    const rows = this.db
+      .prepare(
+        `WITH execution_facts AS (
+          SELECT e.actor_id AS teammate_id,
+                 CASE WHEN json_valid(e.payload_json)
+                   THEN json_extract(e.payload_json, '$.runtimeProfileId') END AS runtime_profile_id,
+                 CASE WHEN json_valid(e.payload_json)
+                   THEN json_extract(e.payload_json, '$.modelId') END AS model_alias,
+                 e.created_at AS occurred_at,
+                 e.id AS fact_id,
+                 0 AS fact_priority
+          FROM mission_events AS e
+          WHERE e.mission_id = @missionId AND e.run_id = @runId
+            AND e.event_type = 'model.call_started' AND e.actor_type = 'TEAMMATE'
+            AND CASE WHEN json_valid(e.payload_json)
+              THEN json_type(e.payload_json, '$.runtimeProfileId') END = 'text'
+            AND CASE WHEN json_valid(e.payload_json)
+              THEN json_type(e.payload_json, '$.modelId') END = 'text'
+            AND length(CASE WHEN json_valid(e.payload_json)
+              THEN json_extract(e.payload_json, '$.runtimeProfileId') END) > 0
+            AND length(CASE WHEN json_valid(e.payload_json)
+              THEN json_extract(e.payload_json, '$.modelId') END) > 0
+          UNION ALL
+          SELECT u.teammate_id, u.runtime_profile_id, u.model, u.created_at, u.id, 1
+          FROM usage_records AS u
+          WHERE u.mission_id = @missionId AND u.run_id = @runId
+            AND length(u.runtime_profile_id) > 0 AND length(u.model) > 0
+        )
+        SELECT facts.teammate_id, facts.runtime_profile_id, facts.model_alias
+        FROM execution_facts AS facts
+        JOIN mission_runs AS r ON r.id = @runId AND r.mission_id = @missionId
+          AND r.status IN ('COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED')
+        JOIN missions AS m ON m.id = r.mission_id
+        JOIN teammates AS t ON t.id = facts.teammate_id AND t.executor_kind = 'MODEL_RUNTIME'
+        WHERE ((m.mode = 'SOLO' AND m.coordinator_teammate_id = t.id)
+          OR EXISTS (
+            SELECT 1 FROM mission_participants AS p
+            WHERE p.mission_id = m.id AND p.teammate_id = t.id
+          ))
+        ORDER BY facts.teammate_id, facts.runtime_profile_id,
+                 facts.occurred_at DESC, facts.fact_priority DESC, facts.fact_id DESC`,
+      )
+      .all({ missionId, runId }) as {
+      teammate_id: string;
+      runtime_profile_id: string;
+      model_alias: string;
+    }[];
+
+    const unique = new Map<string, MissionRunRatingTarget>();
+    for (const row of rows) {
+      const key = `${row.teammate_id}\0${row.runtime_profile_id}`;
+      if (!unique.has(key)) {
+        unique.set(key, {
+          teammateId: row.teammate_id,
+          runtimeProfileId: row.runtime_profile_id,
+          modelAlias: row.model_alias,
+        });
+      }
+    }
+    return [...unique.values()];
+  }
+
+  appendCapabilityEvidence(value: CapabilityEvidenceRecord): void {
+    this.appendCapabilityEvidenceBatch([value]);
+  }
+
+  /** Insert one rating card atomically so partial multi-dimension ratings cannot persist. */
+  appendCapabilityEvidenceBatch(records: readonly CapabilityEvidenceRecord[]): void {
+    if (records.length < 1 || records.length > 3) {
+      throw new Error('A capability rating card must contain between 1 and 3 dimensions');
+    }
+    const first = records[0]!;
+    const dimensions = new Set<CapabilityDimension>();
+    for (const record of records) {
+      if (
+        record.teammateId !== first.teammateId ||
+        record.missionId !== first.missionId ||
+        record.runId !== first.runId ||
+        record.runtimeProfileId !== first.runtimeProfileId
+      ) {
+        throw new Error(
+          'Capability evidence batch must share one Teammate, Mission, Run, and Runtime',
+        );
+      }
+      if (dimensions.has(record.dimension)) {
+        throw new Error('Capability evidence batch dimensions must be unique');
+      }
+      dimensions.add(record.dimension);
+    }
+
+    const insert = this.db.prepare(
+      `INSERT INTO capability_evidence
+        (id, teammate_id, runtime_profile_id, mission_id, run_id, dimension, source_type,
+         rating_value, demand_weight, evidence_weight, created_at)
+       VALUES
+        (@id, @teammateId, @runtimeProfileId, @missionId, @runId, @dimension, @sourceType,
+         @ratingValue, @demandWeight, @evidenceWeight, @createdAt)`,
+    );
+    this.db.transaction(() => {
+      for (const record of records) insert.run(record);
+    })();
   }
 
   listCapabilityEvidence(
@@ -567,6 +743,7 @@ function mapModelCapabilityBenchmark(
     snapshotDate: row.snapshot_date,
     sourceUrl: row.source_url,
     provenanceType: row.provenance_type,
+    createdAt: row.created_at,
   };
 }
 
@@ -580,6 +757,7 @@ function mapTeammateCapabilityState(
     evidenceWeight: row.evidence_weight,
     ratingCount: row.rating_count,
     currentRuntimeProfileId: row.current_runtime_profile_id,
+    scoringPolicyVersion: row.scoring_policy_version,
     updatedAt: row.updated_at,
   };
 }

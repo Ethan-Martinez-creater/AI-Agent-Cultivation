@@ -83,6 +83,25 @@ function benchmark(
     snapshotDate: value.snapshotDate ?? '2026-09-27',
     sourceUrl: value.sourceUrl ?? 'https://example.test/benchmark',
     provenanceType: value.provenanceType ?? 'CATALOG',
+    createdAt: value.createdAt ?? '2026-09-27T00:00:00.000Z',
+  };
+}
+
+function capabilityEvidence(
+  value: Partial<CapabilityEvidenceRecord> & Pick<CapabilityEvidenceRecord, 'id'>,
+): CapabilityEvidenceRecord {
+  return {
+    id: value.id,
+    teammateId: value.teammateId ?? 'coordinator',
+    runtimeProfileId: value.runtimeProfileId === undefined ? 'runtime-1' : value.runtimeProfileId,
+    missionId: value.missionId ?? 'mission-1',
+    runId: value.runId ?? 'run-1',
+    dimension: value.dimension ?? 'CODING',
+    sourceType: value.sourceType ?? 'USER_DIMENSION_RATING',
+    ratingValue: value.ratingValue ?? 75,
+    demandWeight: value.demandWeight ?? 0.8,
+    evidenceWeight: value.evidenceWeight ?? 0.6,
+    createdAt: value.createdAt ?? 'evidence-time',
   };
 }
 
@@ -269,6 +288,49 @@ describe('R0 routing persistence', () => {
     db.close();
   }, 15_000);
 
+  it('adds R1 benchmark timestamps and scoring policy versions while preserving prior rows', () => {
+    const db = makeDatabase(migrations.slice(0, 10));
+    seedRuntimeAndTeammates(db);
+    db.prepare(
+      `INSERT INTO model_capability_benchmarks
+        (id, runtime_profile_id, model_alias, dimension, supported, normalized_score, raw_score,
+         source, benchmark, benchmark_version, snapshot_date, source_url, provenance_type)
+       VALUES ('legacy-benchmark', 'runtime-1', 'model-alias', 'CODING', 1, 72, 0.72,
+         'catalog', 'index', 'v1', '2026-09-20', NULL, 'CATALOG')`,
+    ).run();
+    db.prepare(
+      `INSERT INTO teammate_capability_states
+        (teammate_id, dimension, current_score, evidence_weight, rating_count,
+         current_runtime_profile_id, updated_at)
+       VALUES ('coordinator', 'CODING', 62, 1.5, 2, 'runtime-1', 'legacy-state-time')`,
+    ).run();
+
+    runMigrations(db, migrations);
+
+    expect(
+      db
+        .prepare('SELECT created_at FROM model_capability_benchmarks WHERE id = ?')
+        .get('legacy-benchmark'),
+    ).toEqual({ created_at: '2026-09-20' });
+    expect(
+      db.prepare('SELECT scoring_policy_version FROM teammate_capability_states').get(),
+    ).toEqual({ scoring_policy_version: 'r0-unversioned' });
+
+    const repository = new R0SqliteRepository(db);
+    const ingested = benchmark({
+      id: 'ingested-benchmark',
+      dimension: 'CODING',
+      createdAt: '2026-09-28T10:00:00.000Z',
+    });
+    repository.saveModelCapabilityBenchmark(ingested);
+    expect(repository.getModelCapabilityBenchmark(ingested.id)).toEqual(ingested);
+    expect(() =>
+      db.prepare("UPDATE model_capability_benchmarks SET created_at = 'edited'").run(),
+    ).toThrow();
+    expect(() => db.prepare('DELETE FROM model_capability_benchmarks').run()).toThrow();
+    db.close();
+  });
+
   it('stores benchmark priors, current capability state, immutable evidence, and bounded decision receipts', () => {
     const db = makeDatabase();
     seedRuntimeAndTeammates(db);
@@ -306,6 +368,7 @@ describe('R0 routing persistence', () => {
       evidenceWeight: 2.5,
       ratingCount: 3,
       currentRuntimeProfileId: 'runtime-1',
+      scoringPolicyVersion: 'r1-test-v1',
       updatedAt: 'state-time',
     };
     repository.saveTeammateCapabilityState(state);
@@ -319,7 +382,7 @@ describe('R0 routing persistence', () => {
       `INSERT INTO mission_events
         (id, mission_id, run_id, event_type, actor_type, actor_id, payload_json, created_at)
        VALUES ('evidence-model-call', 'mission-1', 'run-1', 'model.call_started',
-         'TEAMMATE', 'coordinator', '{"runtimeProfileId":"runtime-1"}', 'call-time')`,
+         'TEAMMATE', 'coordinator', '{"runtimeProfileId":"runtime-1","modelId":"model-1"}', 'call-time')`,
     ).run();
     db.prepare(
       "UPDATE mission_runs SET status = 'COMPLETED', ended_at = 'ended' WHERE id = 'run-1'",
@@ -355,6 +418,206 @@ describe('R0 routing persistence', () => {
     ).toThrow();
     expect(() => db.prepare('DELETE FROM decision_receipts').run()).toThrow();
     expect(db.pragma('foreign_key_check')).toEqual([]);
+    db.close();
+  });
+
+  it('replaces capability state projections atomically and records their scoring policy', () => {
+    const db = makeDatabase();
+    seedRuntimeAndTeammates(db);
+    const repository = new R0SqliteRepository(db);
+    const coding: TeammateCapabilityStateRecord = {
+      teammateId: 'coordinator',
+      dimension: 'CODING',
+      currentScore: 63,
+      evidenceWeight: 2.5,
+      ratingCount: 3,
+      currentRuntimeProfileId: 'runtime-1',
+      scoringPolicyVersion: 'r1-v1',
+      updatedAt: 'first-projection',
+    };
+    const reasoning: TeammateCapabilityStateRecord = {
+      ...coding,
+      dimension: 'GENERAL_REASONING',
+      currentScore: 81,
+    };
+    repository.replaceTeammateCapabilityStates('coordinator', [coding, reasoning]);
+    expect(repository.listTeammateCapabilityStates('coordinator')).toHaveLength(2);
+
+    const updatedCoding = { ...coding, currentScore: 70, scoringPolicyVersion: 'r1-v2' };
+    repository.replaceTeammateCapabilityStates('coordinator', [updatedCoding]);
+    expect(repository.listTeammateCapabilityStates('coordinator')).toEqual([updatedCoding]);
+
+    expect(() =>
+      repository.replaceTeammateCapabilityStates('coordinator', [
+        { ...updatedCoding, currentScore: 74, updatedAt: 'partial-write' },
+        {
+          ...updatedCoding,
+          dimension: 'TOOL_USE',
+          currentScore: 101,
+          updatedAt: 'invalid-row',
+        },
+      ]),
+    ).toThrow();
+    expect(repository.listTeammateCapabilityStates('coordinator')).toEqual([updatedCoding]);
+    expect(() =>
+      repository.replaceTeammateCapabilityStates('coordinator', [
+        { ...updatedCoding, teammateId: 'missing-teammate' },
+      ]),
+    ).toThrow(/belong to the requested Teammate/);
+    expect(repository.listTeammateCapabilityStates('coordinator')).toEqual([updatedCoding]);
+    db.close();
+  });
+
+  it('returns runtime assignments and aliases from persisted Runtime profiles', () => {
+    const db = makeDatabase();
+    seedRuntimeAndTeammates(db);
+    db.prepare(
+      `INSERT INTO runtime_profiles
+        (id, name, provider_id, model_id, created_at, updated_at)
+       VALUES ('runtime-2', 'Second Runtime', 'provider-1', 'model-2', 'created', 'updated')`,
+    ).run();
+    db.prepare(
+      `INSERT INTO teammates (id, name, current_runtime_profile_id, created_at, updated_at)
+       VALUES ('member', 'Member', 'runtime-1', 'created', 'updated'),
+              ('other-runtime', 'Other Runtime', 'runtime-2', 'created', 'updated')`,
+    ).run();
+    db.prepare(
+      "UPDATE teammates SET current_runtime_profile_id = 'runtime-1' WHERE id = 'coordinator'",
+    ).run();
+    const repository = new R0SqliteRepository(db);
+    repository.ensureHumanBridgeTeammate({
+      id: 'human-bridge',
+      createdAt: 'created',
+      updatedAt: 'updated',
+    });
+
+    expect(repository.listTeammatesUsingRuntime('runtime-1')).toEqual([
+      { id: 'coordinator', currentRuntimeProfileId: 'runtime-1' },
+      { id: 'member', currentRuntimeProfileId: 'runtime-1' },
+    ]);
+    expect(repository.getRuntimeModelAlias('runtime-1')).toBe('model-1');
+    expect(repository.getRuntimeModelAlias('missing-runtime')).toBeNull();
+    expect(repository.getTeammate('coordinator')).toEqual({
+      id: 'coordinator',
+      currentRuntimeProfileId: 'runtime-1',
+      executorKind: 'MODEL_RUNTIME',
+    });
+    expect(repository.getTeammate('human-bridge')).toEqual({
+      id: 'human-bridge',
+      currentRuntimeProfileId: null,
+      executorKind: 'USER_BRIDGE',
+    });
+    expect(repository.getTeammate('missing-teammate')).toBeNull();
+    db.close();
+  });
+
+  it('lists only model Teammates with actual execution on a terminal MissionRun', () => {
+    const db = makeDatabase();
+    seedRuntimeAndTeammates(db);
+    seedMissionRun(db);
+    db.prepare(
+      `INSERT INTO runtime_profiles
+        (id, name, provider_id, model_id, created_at, updated_at)
+       VALUES ('runtime-2', 'Second Runtime', 'provider-1', 'model-2', 'created', 'updated')`,
+    ).run();
+    db.prepare(
+      `INSERT INTO teammates (id, name, current_runtime_profile_id, created_at, updated_at)
+       VALUES ('member', 'Member', 'runtime-2', 'created', 'updated'),
+              ('membership-only', 'Membership only', 'runtime-1', 'created', 'updated')`,
+    ).run();
+    const repository = new R0SqliteRepository(db);
+    repository.ensureHumanBridgeTeammate({
+      id: 'human-bridge',
+      createdAt: 'created',
+      updatedAt: 'updated',
+    });
+    db.prepare(
+      `INSERT INTO mission_participants (mission_id, teammate_id, role, sort_order)
+       VALUES ('mission-1', 'member', 'MEMBER', 1),
+              ('mission-1', 'membership-only', 'MEMBER', 2),
+              ('mission-1', 'human-bridge', 'MEMBER', 3)`,
+    ).run();
+
+    const insertModelCall = db.prepare(
+      `INSERT INTO mission_events
+        (id, mission_id, run_id, event_type, actor_type, actor_id, payload_json, created_at)
+       VALUES (?, 'mission-1', 'run-1', 'model.call_started', 'TEAMMATE', ?, ?, ?)`,
+    );
+    insertModelCall.run(
+      'call-member',
+      'member',
+      JSON.stringify({ runtimeProfileId: 'runtime-2', modelId: 'model-2' }),
+      'call-2',
+    );
+    insertModelCall.run(
+      'call-bridge',
+      'human-bridge',
+      JSON.stringify({ runtimeProfileId: 'runtime-1', modelId: 'model-1' }),
+      'call-3',
+    );
+    db.prepare(
+      `INSERT INTO mission_events
+        (id, mission_id, run_id, event_type, actor_type, actor_id, payload_json, created_at)
+       VALUES ('call-malformed', 'mission-1', 'run-1', 'model.call_started', 'TEAMMATE',
+         'membership-only', 'not-json', 'call-4')`,
+    ).run();
+    db.prepare(
+      `INSERT INTO usage_records
+        (id, mission_id, run_id, teammate_id, runtime_profile_id, provider, model,
+         input_tokens, output_tokens, created_at)
+       VALUES ('usage-only-fact', 'mission-1', 'run-1', 'coordinator', 'runtime-1',
+         'OPENAI', 'usage-model', 0, 0, 'usage-time')`,
+    ).run();
+
+    expect(repository.listMissionRunRatingTargets('mission-1', 'run-1')).toEqual([]);
+    db.prepare(
+      "UPDATE mission_runs SET status = 'COMPLETED', ended_at = 'ended' WHERE id = 'run-1'",
+    ).run();
+    expect(repository.listMissionRunRatingTargets('mission-1', 'run-1')).toEqual([
+      { teammateId: 'coordinator', runtimeProfileId: 'runtime-1', modelAlias: 'usage-model' },
+      { teammateId: 'member', runtimeProfileId: 'runtime-2', modelAlias: 'model-2' },
+    ]);
+    db.close();
+  });
+
+  it('appends 1–3 rating dimensions atomically and leaves evidence append-only', () => {
+    const db = makeDatabase();
+    seedRuntimeAndTeammates(db);
+    seedMissionRun(db);
+    db.prepare(
+      `INSERT INTO mission_events
+        (id, mission_id, run_id, event_type, actor_type, actor_id, payload_json, created_at)
+       VALUES ('evidence-call', 'mission-1', 'run-1', 'model.call_started', 'TEAMMATE',
+         'coordinator', '{"runtimeProfileId":"runtime-1","modelId":"model-1"}', 'call-time')`,
+    ).run();
+    db.prepare(
+      "UPDATE mission_runs SET status = 'COMPLETED', ended_at = 'ended' WHERE id = 'run-1'",
+    ).run();
+    const repository = new R0SqliteRepository(db);
+    const first = capabilityEvidence({ id: 'rating-1' });
+    const second = capabilityEvidence({ id: 'rating-2', dimension: 'TOOL_USE' });
+
+    expect(() => repository.appendCapabilityEvidenceBatch([])).toThrow(/between 1 and 3/);
+    expect(() =>
+      repository.appendCapabilityEvidenceBatch([
+        first,
+        second,
+        capabilityEvidence({ id: 'rating-3', dimension: 'GENERAL_REASONING' }),
+        capabilityEvidence({ id: 'rating-4', dimension: 'AGENTIC_EXECUTION' }),
+      ]),
+    ).toThrow(/between 1 and 3/);
+    repository.appendCapabilityEvidenceBatch([first, second]);
+    expect(repository.listCapabilityEvidence('coordinator')).toEqual([first, second]);
+
+    expect(() =>
+      repository.appendCapabilityEvidenceBatch([
+        capabilityEvidence({ id: 'must-roll-back', dimension: 'VISUAL_UNDERSTANDING' }),
+        capabilityEvidence({ id: 'rating-1', dimension: 'GENERAL_REASONING' }),
+      ]),
+    ).toThrow();
+    expect(repository.listCapabilityEvidence('coordinator')).toEqual([first, second]);
+    expect(() => db.prepare('UPDATE capability_evidence SET rating_value = 0').run()).toThrow();
+    expect(() => db.prepare('DELETE FROM capability_evidence').run()).toThrow();
     db.close();
   });
 
