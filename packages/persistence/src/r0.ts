@@ -1,4 +1,5 @@
 import type Database from 'better-sqlite3';
+import type { ExternalWorkTargetArtifacts, ExternalWorkTextItems } from '@cultivation/domain';
 import type { TeammateRecord } from './index.js';
 
 export type CapabilityDimension =
@@ -101,9 +102,12 @@ export interface ExternalWorkRequestRecord {
   capability: CapabilityDimension;
   title: string;
   prompt: string;
-  requirementsJson: Record<string, unknown>;
-  targetArtifactsJson: Record<string, unknown>;
-  acceptanceCriteriaJson: Record<string, unknown>;
+  requirementsJson: ExternalWorkTextItems;
+  targetArtifactsJson: ExternalWorkTargetArtifacts;
+  targetWorkspacePathsJson: ExternalWorkTextItems;
+  acceptanceCriteriaJson: ExternalWorkTextItems;
+  externalAppProfileId: string | null;
+  publicResult: string | null;
   state: ExternalWorkRequestState;
   createdAt: string;
   submittedAt: string | null;
@@ -137,6 +141,21 @@ export interface ExternalAppProfileRecord {
 export interface EnsureHumanBridgeInput {
   id: string;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface HumanBridgeCapabilityRecord {
+  teammateId: string;
+  dimension: CapabilityDimension;
+  enabled: boolean;
+  updatedAt: string;
+}
+
+export interface HumanBridgeDisplayUpdate {
+  name: string;
+  avatar: string | null;
+  title: string | null;
+  description: string;
   updatedAt: string;
 }
 
@@ -212,7 +231,10 @@ interface ExternalWorkRequestRow {
   prompt: string;
   requirements_json: string;
   target_artifacts_json: string;
+  target_workspace_paths_json: string;
   acceptance_criteria_json: string;
+  external_app_profile_id: string | null;
+  public_result: string | null;
   state: ExternalWorkRequestState;
   created_at: string;
   submitted_at: string | null;
@@ -240,6 +262,13 @@ interface ExternalAppProfileRow {
   notes: string | null;
   enabled: number;
   created_at: string;
+  updated_at: string;
+}
+
+interface HumanBridgeCapabilityRow {
+  teammate_id: string;
+  dimension: CapabilityDimension;
+  enabled: number;
   updated_at: string;
 }
 
@@ -574,17 +603,22 @@ export class R0SqliteRepository {
       .prepare(
         `INSERT INTO external_work_requests
           (id, mission_id, run_id, requester_teammate_id, assignee_teammate_id, capability,
-           title, prompt, requirements_json, target_artifacts_json, acceptance_criteria_json,
+           title, prompt, requirements_json, target_artifacts_json,
+           target_workspace_paths_json, acceptance_criteria_json,
+           external_app_profile_id, public_result,
            state, created_at, submitted_at, resolved_at)
          VALUES
           (@id, @missionId, @runId, @requesterTeammateId, @assigneeTeammateId, @capability,
-           @title, @prompt, @requirementsJson, @targetArtifactsJson, @acceptanceCriteriaJson,
+           @title, @prompt, @requirementsJson, @targetArtifactsJson,
+           @targetWorkspacePathsJson, @acceptanceCriteriaJson, @externalAppProfileId,
+           @publicResult,
            @state, @createdAt, @submittedAt, @resolvedAt)`,
       )
       .run({
         ...value,
         requirementsJson: JSON.stringify(value.requirementsJson),
         targetArtifactsJson: JSON.stringify(value.targetArtifactsJson),
+        targetWorkspacePathsJson: JSON.stringify(value.targetWorkspacePathsJson),
         acceptanceCriteriaJson: JSON.stringify(value.acceptanceCriteriaJson),
       });
     return this.getExternalWorkRequest(value.id)!;
@@ -620,6 +654,7 @@ export class R0SqliteRepository {
     id: string,
     state: ExternalWorkRequestState,
     at: string,
+    publicResult: string | null = null,
   ): ExternalWorkRequestRecord | null {
     const current = this.getExternalWorkRequest(id);
     if (!current) return null;
@@ -627,6 +662,7 @@ export class R0SqliteRepository {
       .prepare(
         `UPDATE external_work_requests SET
            state = @state,
+           public_result = CASE WHEN @state = 'ACCEPTED' THEN @publicResult ELSE public_result END,
            submitted_at = CASE
              WHEN @state = 'SUBMITTED' THEN @at
              WHEN @state = 'IN_PROGRESS' AND state = 'REJECTED' THEN NULL
@@ -639,7 +675,7 @@ export class R0SqliteRepository {
            END
          WHERE id = @id`,
       )
-      .run({ id, state, at });
+      .run({ id, state, at, publicResult });
     return this.getExternalWorkRequest(id);
   }
 
@@ -694,6 +730,53 @@ export class R0SqliteRepository {
         )
         .all(teammateId) as ExternalAppProfileRow[]
     ).map(mapExternalAppProfile);
+  }
+
+  saveHumanBridgeCapability(value: HumanBridgeCapabilityRecord): HumanBridgeCapabilityRecord {
+    this.db
+      .prepare(
+        `INSERT INTO human_bridge_capabilities (teammate_id, dimension, enabled, updated_at)
+         VALUES (@teammateId, @dimension, @enabled, @updatedAt)
+         ON CONFLICT(teammate_id, dimension) DO UPDATE SET
+           enabled=excluded.enabled, updated_at=excluded.updated_at`,
+      )
+      .run({ ...value, enabled: value.enabled ? 1 : 0 });
+    return this.listHumanBridgeCapabilities(value.teammateId).find(
+      (capability) => capability.dimension === value.dimension,
+    )!;
+  }
+
+  listHumanBridgeCapabilities(teammateId: string): HumanBridgeCapabilityRecord[] {
+    return (
+      this.db
+        .prepare(
+          `SELECT * FROM human_bridge_capabilities
+           WHERE teammate_id = ? ORDER BY dimension`,
+        )
+        .all(teammateId) as HumanBridgeCapabilityRow[]
+    ).map(mapHumanBridgeCapability);
+  }
+
+  updateHumanBridgeDisplay(
+    teammateId: string,
+    value: HumanBridgeDisplayUpdate,
+  ): TeammateRecord | null {
+    const result = this.db
+      .prepare(
+        `UPDATE teammates
+         SET name = @name, avatar = @avatar, title = @title,
+             description = @description, updated_at = @updatedAt
+         WHERE id = @teammateId AND system_kind = 'HUMAN_BRIDGE'`,
+      )
+      .run({ ...value, teammateId });
+    return result.changes === 1 ? this.getHumanBridgeTeammate() : null;
+  }
+
+  getHumanBridgeTeammate(): TeammateRecord | null {
+    const row = this.db
+      .prepare("SELECT * FROM teammates WHERE system_kind = 'HUMAN_BRIDGE'")
+      .get() as TeammateRow | undefined;
+    return row ? mapTeammate(row) : null;
   }
 
   ensureHumanBridgeTeammate(input: EnsureHumanBridgeInput): TeammateRecord {
@@ -809,13 +892,25 @@ function mapExternalWorkRequest(row: ExternalWorkRequestRow): ExternalWorkReques
     capability: row.capability,
     title: row.title,
     prompt: row.prompt,
-    requirementsJson: JSON.parse(row.requirements_json) as Record<string, unknown>,
-    targetArtifactsJson: JSON.parse(row.target_artifacts_json) as Record<string, unknown>,
-    acceptanceCriteriaJson: JSON.parse(row.acceptance_criteria_json) as Record<string, unknown>,
+    requirementsJson: JSON.parse(row.requirements_json) as ExternalWorkTextItems,
+    targetArtifactsJson: JSON.parse(row.target_artifacts_json) as ExternalWorkTargetArtifacts,
+    targetWorkspacePathsJson: JSON.parse(row.target_workspace_paths_json) as ExternalWorkTextItems,
+    externalAppProfileId: row.external_app_profile_id,
+    acceptanceCriteriaJson: JSON.parse(row.acceptance_criteria_json) as ExternalWorkTextItems,
+    publicResult: row.public_result,
     state: row.state,
     createdAt: row.created_at,
     submittedAt: row.submitted_at,
     resolvedAt: row.resolved_at,
+  };
+}
+
+function mapHumanBridgeCapability(row: HumanBridgeCapabilityRow): HumanBridgeCapabilityRecord {
+  return {
+    teammateId: row.teammate_id,
+    dimension: row.dimension,
+    enabled: row.enabled === 1,
+    updatedAt: row.updated_at,
   };
 }
 

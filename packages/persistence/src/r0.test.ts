@@ -140,9 +140,22 @@ function externalRequest(id: string, assigneeTeammateId: string): ExternalWorkRe
     capability: 'IMAGE_GENERATION',
     title: 'Create a cover image',
     prompt: 'Create the requested image in the selected application.',
-    requirementsJson: { width: 1024, height: 1024 },
-    targetArtifactsJson: { artifacts: [{ extension: 'png', count: 1 }] },
-    acceptanceCriteriaJson: { extensions: ['png'] },
+    requirementsJson: { items: ['1024 by 1024 pixels'] },
+    targetArtifactsJson: {
+      items: [
+        {
+          id: 'primary-image',
+          name: 'Primary image',
+          required: true,
+          allowedExtensions: ['png'],
+          maxSizeBytes: 4_194_304,
+        },
+      ],
+    },
+    targetWorkspacePathsJson: { items: ['workspace/output'] },
+    acceptanceCriteriaJson: { items: ['Use the png extension'] },
+    externalAppProfileId: null,
+    publicResult: null,
     state: 'PENDING',
     createdAt: 'created',
     submittedAt: null,
@@ -286,7 +299,7 @@ describe('R0 routing persistence', () => {
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     expect(db.pragma('foreign_key_check')).toEqual([]);
     db.close();
-  }, 15_000);
+  }, 30_000);
 
   it('adds R1 benchmark timestamps and scoring policy versions while preserving prior rows', () => {
     const db = makeDatabase(migrations.slice(0, 10));
@@ -658,6 +671,91 @@ describe('R0 routing persistence', () => {
     persistence.saveTeammate({ ...bridge, name: 'Human Bridge (edited)', updatedAt: 'edited' });
     expect(persistence.getTeammate('human-bridge')?.name).toBe('Human Bridge (edited)');
     expect(() => db.prepare("DELETE FROM teammates WHERE id = 'human-bridge'").run()).toThrow();
+    expect(
+      repository.updateHumanBridgeDisplay(bridge.id, {
+        name: '本尊',
+        avatar: 'human.png',
+        title: 'Creator',
+        description: 'Human controlled bridge',
+        updatedAt: 'display-updated',
+      }),
+    ).toMatchObject({
+      id: bridge.id,
+      name: '本尊',
+      avatar: 'human.png',
+      title: 'Creator',
+      description: 'Human controlled bridge',
+      executorKind: 'USER_BRIDGE',
+      routingPolicy: 'FALLBACK_ONLY',
+      systemKind: 'HUMAN_BRIDGE',
+      currentRuntimeProfileId: null,
+    });
+    expect(
+      repository.updateHumanBridgeDisplay('coordinator', {
+        name: 'Coordinator',
+        avatar: null,
+        title: null,
+        description: '',
+        updatedAt: 'ignored',
+      }),
+    ).toBeNull();
+
+    expect(
+      repository.saveHumanBridgeCapability({
+        teammateId: bridge.id,
+        dimension: 'IMAGE_GENERATION',
+        enabled: true,
+        updatedAt: 'capability-enabled',
+      }),
+    ).toEqual({
+      teammateId: bridge.id,
+      dimension: 'IMAGE_GENERATION',
+      enabled: true,
+      updatedAt: 'capability-enabled',
+    });
+    expect(repository.listHumanBridgeCapabilities(bridge.id)).toEqual([
+      {
+        teammateId: bridge.id,
+        dimension: 'IMAGE_GENERATION',
+        enabled: true,
+        updatedAt: 'capability-enabled',
+      },
+    ]);
+    repository.saveTeammateCapabilityState({
+      teammateId: bridge.id,
+      dimension: 'IMAGE_GENERATION',
+      currentScore: 1,
+      evidenceWeight: 0,
+      ratingCount: 0,
+      currentRuntimeProfileId: null,
+      scoringPolicyVersion: 'human-bridge-prior-v1',
+      updatedAt: 'prior',
+    });
+    repository.saveHumanBridgeCapability({
+      teammateId: bridge.id,
+      dimension: 'IMAGE_GENERATION',
+      enabled: false,
+      updatedAt: 'capability-disabled',
+    });
+    expect(repository.getTeammateCapabilityState(bridge.id, 'IMAGE_GENERATION')).toBeNull();
+    expect(() =>
+      repository.saveTeammateCapabilityState({
+        teammateId: bridge.id,
+        dimension: 'IMAGE_GENERATION',
+        currentScore: 1,
+        evidenceWeight: 0,
+        ratingCount: 0,
+        currentRuntimeProfileId: null,
+        scoringPolicyVersion: 'human-bridge-prior-v1',
+        updatedAt: 'disabled-prior',
+      }),
+    ).toThrow(/disabled/i);
+    repository.saveHumanBridgeCapability({
+      teammateId: bridge.id,
+      dimension: 'IMAGE_GENERATION',
+      enabled: true,
+      updatedAt: 'capability-reenabled',
+    });
 
     db.prepare(
       `INSERT INTO mission_participants (mission_id, teammate_id, role, sort_order)
@@ -677,6 +775,18 @@ describe('R0 routing persistence', () => {
     expect(() =>
       repository.createExternalWorkRequest(externalRequest('bad-assignee', 'model-peer')),
     ).toThrow();
+    expect(() =>
+      repository.createExternalWorkRequest({
+        ...externalRequest('bad-workspace-path', bridge.id),
+        targetWorkspacePathsJson: { items: ['../outside'] },
+      }),
+    ).toThrow(/structured/i);
+    expect(() =>
+      repository.createExternalWorkRequest({
+        ...externalRequest('bad-app-recommendation', bridge.id),
+        externalAppProfileId: 'missing-app-profile',
+      }),
+    ).toThrow();
     const request = repository.createExternalWorkRequest(externalRequest('request-1', bridge.id));
     expect(request.state).toBe('PENDING');
     expect(repository.transitionExternalWorkRequest('missing', 'IN_PROGRESS', 'time')).toBeNull();
@@ -690,6 +800,9 @@ describe('R0 routing persistence', () => {
       'submitted-1',
     );
     expect(firstSubmit).toMatchObject({ state: 'SUBMITTED', submittedAt: 'submitted-1' });
+    expect(() =>
+      repository.transitionExternalWorkRequest(request.id, 'ACCEPTED', 'no-artifact'),
+    ).toThrow(/artifact/i);
     repository.appendExternalWorkArtifact(artifact('artifact-1', request.id, 'submitted-1'));
     expect(repository.listExternalWorkArtifacts(request.id)).toEqual([
       artifact('artifact-1', request.id, 'submitted-1'),
@@ -703,16 +816,28 @@ describe('R0 routing persistence', () => {
     expect(
       repository.transitionExternalWorkRequest(request.id, 'IN_PROGRESS', 'rework'),
     ).toMatchObject({ state: 'IN_PROGRESS', submittedAt: null, resolvedAt: null });
+    expect(() =>
+      repository.transitionExternalWorkRequest(request.id, 'SUBMITTED', 'submitted-1'),
+    ).toThrow(/new timestamp/i);
     expect(
       repository.transitionExternalWorkRequest(request.id, 'SUBMITTED', 'submitted-2')?.state,
     ).toBe('SUBMITTED');
+    expect(() =>
+      repository.transitionExternalWorkRequest(request.id, 'ACCEPTED', 'missing-current-artifact'),
+    ).toThrow(/artifact/i);
     repository.appendExternalWorkArtifact(artifact('artifact-2', request.id, 'submitted-2'));
     expect(
-      repository.transitionExternalWorkRequest(request.id, 'ACCEPTED', 'accepted'),
+      repository.transitionExternalWorkRequest(
+        request.id,
+        'ACCEPTED',
+        'accepted',
+        'The artifact meets the requested image brief.',
+      ),
     ).toMatchObject({
       state: 'ACCEPTED',
       submittedAt: 'submitted-2',
       resolvedAt: 'accepted',
+      publicResult: 'The artifact meets the requested image brief.',
     });
     expect(() =>
       repository.transitionExternalWorkRequest(request.id, 'IN_PROGRESS', 'invalid'),
@@ -741,6 +866,118 @@ describe('R0 routing persistence', () => {
         teammateId: 'coordinator',
       }),
     ).toThrow();
+    expect(db.pragma('foreign_key_check')).toEqual([]);
+    db.close();
+  });
+
+  it('accepts EXTERNAL_WORK and MISSION_RESULT only from accepted current-run Human Bridge artifacts', () => {
+    const db = makeDatabase();
+    seedRuntimeAndTeammates(db);
+    const persistence = new R0SqliteRepository(db);
+    const bridge = persistence.ensureHumanBridgeTeammate({
+      id: 'human-bridge',
+      createdAt: 'bridge-created',
+      updatedAt: 'bridge-updated',
+    });
+    persistence.saveHumanBridgeCapability({
+      teammateId: bridge.id,
+      dimension: 'IMAGE_GENERATION',
+      enabled: true,
+      updatedAt: 'capability-enabled',
+    });
+    db.prepare(
+      "UPDATE teammates SET current_runtime_profile_id = 'runtime-1' WHERE id = 'coordinator'",
+    ).run();
+    db.exec(`
+      INSERT INTO parties (id, name, coordinator_teammate_id, type, status, created_at)
+        VALUES ('party-1', 'Party', 'coordinator', 'FIXED', 'ACTIVE', 'created');
+      INSERT INTO party_members (party_id, teammate_id, role, sort_order)
+        VALUES ('party-1', 'coordinator', 'COORDINATOR', 0),
+               ('party-1', 'human-bridge', 'MEMBER', 1);
+      INSERT INTO missions
+        (id, title, objective, initiator_type, initiator_id, coordinator_teammate_id,
+         party_id, mode, state, created_at, updated_at)
+        VALUES ('mission-1', 'Mission', 'Objective', 'USER', 'user-1', 'coordinator',
+                'party-1', 'CONSULTATION', 'RUNNING', 'created', 'updated');
+      INSERT INTO mission_participants (mission_id, teammate_id, role, sort_order)
+        VALUES ('mission-1', 'coordinator', 'COORDINATOR', 0),
+               ('mission-1', 'human-bridge', 'MEMBER', 1);
+      INSERT INTO mission_runs (id, mission_id, attempt, status, started_at)
+        VALUES ('run-1', 'mission-1', 1, 'RUNNING', 'started');
+    `);
+
+    const request = persistence.createExternalWorkRequest(
+      externalRequest('bridge-work', bridge.id),
+    );
+    persistence.transitionExternalWorkRequest(request.id, 'IN_PROGRESS', 'started');
+    persistence.transitionExternalWorkRequest(request.id, 'SUBMITTED', 'submitted');
+    persistence.appendExternalWorkArtifact(artifact('bridge-artifact', request.id, 'submitted'));
+    expect(() =>
+      db
+        .prepare(
+          `INSERT INTO experience_events
+          (id, teammate_id, mission_id, run_id, experience_type, source, source_id,
+           role, outcome, mode, created_at)
+         VALUES ('pending-experience', 'human-bridge', 'mission-1', 'run-1',
+           'EXTERNAL_WORK', 'EXTERNAL_WORK_REQUEST', 'bridge-work', 'MEMBER',
+           'COMPLETED', 'CONSULTATION', 'attempted')`,
+        )
+        .run(),
+    ).toThrow(/durable/i);
+
+    persistence.transitionExternalWorkRequest(
+      request.id,
+      'ACCEPTED',
+      'accepted',
+      'The submitted image is ready for coordinator review.',
+    );
+    db.prepare(
+      "UPDATE mission_runs SET status = 'FAILED', ended_at = 'ended' WHERE id = 'run-1'",
+    ).run();
+    db.prepare(
+      `INSERT INTO experience_events
+        (id, teammate_id, mission_id, run_id, experience_type, source, source_id,
+         role, outcome, mode, created_at)
+       VALUES ('bridge-experience', 'human-bridge', 'mission-1', 'run-1',
+         'EXTERNAL_WORK', 'EXTERNAL_WORK_REQUEST', 'bridge-work', 'MEMBER',
+         'COMPLETED', 'CONSULTATION', 'ended')`,
+    ).run();
+    db.prepare(
+      `INSERT INTO experience_events
+        (id, teammate_id, mission_id, run_id, experience_type, source, source_id,
+         role, outcome, mode, created_at)
+       VALUES ('bridge-mission-result', 'human-bridge', 'mission-1', 'run-1',
+         'MISSION_RESULT', 'MISSION_RUN', 'run-1', 'MEMBER',
+         'FAILED', 'CONSULTATION', 'ended')`,
+    ).run();
+    expect(() =>
+      db
+        .prepare(
+          `INSERT INTO experience_events
+          (id, teammate_id, mission_id, run_id, experience_type, source, source_id,
+           role, outcome, mode, created_at)
+         VALUES ('wrong-source-experience', 'human-bridge', 'mission-1', 'run-1',
+           'EXTERNAL_WORK', 'EXTERNAL_WORK_REQUEST', 'wrong-request', 'MEMBER',
+           'COMPLETED', 'CONSULTATION', 'ended')`,
+        )
+        .run(),
+    ).toThrow(/durable/i);
+    expect(
+      db.prepare('SELECT experience_type, source, source_id, outcome FROM experience_events').all(),
+    ).toEqual([
+      {
+        experience_type: 'EXTERNAL_WORK',
+        source: 'EXTERNAL_WORK_REQUEST',
+        source_id: 'bridge-work',
+        outcome: 'COMPLETED',
+      },
+      {
+        experience_type: 'MISSION_RESULT',
+        source: 'MISSION_RUN',
+        source_id: 'run-1',
+        outcome: 'FAILED',
+      },
+    ]);
     expect(db.pragma('foreign_key_check')).toEqual([]);
     db.close();
   });

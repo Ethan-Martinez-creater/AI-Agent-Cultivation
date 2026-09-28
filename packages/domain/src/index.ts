@@ -381,7 +381,7 @@ export interface ExperienceEvent {
   teammateId: Id;
   missionId: Id;
   runId: Id;
-  experienceType: 'MISSION_RESULT' | 'COLLABORATION' | 'TOOL_USE' | 'SKILL_USE';
+  experienceType: 'MISSION_RESULT' | 'COLLABORATION' | 'TOOL_USE' | 'SKILL_USE' | 'EXTERNAL_WORK';
   source: string;
   sourceId: Id;
   role: string;
@@ -509,6 +509,22 @@ export type ExternalWorkRequestState =
   | 'REJECTED'
   | 'CANCELLED';
 
+export interface ExternalWorkTextItems {
+  items: string[];
+}
+
+export interface ExternalWorkArtifactTarget {
+  id: Id;
+  name: string;
+  required: boolean;
+  allowedExtensions: string[];
+  maxSizeBytes: number;
+}
+
+export interface ExternalWorkTargetArtifacts {
+  items: ExternalWorkArtifactTarget[];
+}
+
 /** User-owned external work that can pause a Mission while awaiting an artifact. */
 export interface ExternalWorkRequest {
   id: Id;
@@ -519,9 +535,13 @@ export interface ExternalWorkRequest {
   capability: CapabilityDimension;
   title: string;
   prompt: string;
-  requirementsJson: Record<string, unknown>;
-  targetArtifactsJson: Record<string, unknown>;
-  acceptanceCriteriaJson: Record<string, unknown>;
+  requirementsJson: ExternalWorkTextItems;
+  targetArtifactsJson: ExternalWorkTargetArtifacts;
+  targetWorkspacePathsJson: ExternalWorkTextItems;
+  acceptanceCriteriaJson: ExternalWorkTextItems;
+  externalAppProfileId: Id | null;
+  /** Bounded, explicitly public result text. User supplied content remains untrusted. */
+  publicResult: string | null;
   state: ExternalWorkRequestState;
   createdAt: IsoDateTime;
   submittedAt: IsoDateTime | null;

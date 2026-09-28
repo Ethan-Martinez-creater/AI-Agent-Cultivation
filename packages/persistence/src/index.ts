@@ -12,6 +12,7 @@ import gate6CollaborationOutcomeSql from '../../../migrations/0008_gate6_collabo
 import routingFoundationSql from '../../../migrations/0009_routing_foundation.sql?raw';
 import capabilityEvidenceProvenanceSql from '../../../migrations/0010_r0_capability_evidence_provenance.sql?raw';
 import dynamicCapabilitySql from '../../../migrations/0011_r1_dynamic_capability.sql?raw';
+import humanBridgeSql from '../../../migrations/0012_r2_human_bridge.sql?raw';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
@@ -29,6 +30,8 @@ export type {
   ExternalAppProfileRecord,
   ExternalWorkArtifactRecord,
   ExternalWorkRequestRecord,
+  HumanBridgeCapabilityRecord,
+  HumanBridgeDisplayUpdate,
   ModelCapabilityBenchmarkRecord,
   MissionRunRatingTarget,
   TeammateCapabilityStateRecord,
@@ -59,6 +62,7 @@ export const migrations: readonly Migration[] = [
   },
   { version: 10, name: 'r0_capability_evidence_provenance', sql: capabilityEvidenceProvenanceSql },
   { version: 11, name: 'r1_dynamic_capability', sql: dynamicCapabilitySql },
+  { version: 12, name: 'r2_human_bridge', sql: humanBridgeSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

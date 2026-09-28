@@ -44,6 +44,23 @@ function fixture(steps = migrations): void {
   });
 }
 
+function enableBridgeRequestCapability(): void {
+  db.prepare(
+    `INSERT OR IGNORE INTO party_members (party_id, teammate_id, role, sort_order)
+     VALUES ('party', 'bridge', 'MEMBER', 2)`,
+  ).run();
+  db.prepare(
+    `INSERT OR IGNORE INTO mission_participants (mission_id, teammate_id, role, sort_order)
+     VALUES ('mission', 'bridge', 'MEMBER', 2)`,
+  ).run();
+  repository.saveHumanBridgeCapability({
+    teammateId: 'bridge',
+    dimension: 'IMAGE_GENERATION',
+    enabled: true,
+    updatedAt: 'configured',
+  });
+}
+
 function terminal(runId = 'run-1', status: 'COMPLETED' | 'FAILED' = 'COMPLETED'): void {
   db.prepare('UPDATE mission_runs SET status = ?, ended_at = ? WHERE id = ?').run(
     status,
@@ -87,14 +104,41 @@ function externalRequest(): ExternalWorkRequestRecord {
     capability: 'IMAGE_GENERATION',
     title: 'Create image',
     prompt: 'Create a requested image',
-    requirementsJson: {},
-    targetArtifactsJson: { artifacts: [{ extension: 'png' }] },
-    acceptanceCriteriaJson: {},
+    requirementsJson: { items: [] },
+    targetArtifactsJson: {
+      items: [
+        {
+          id: 'primary-image',
+          name: 'Primary image',
+          required: true,
+          allowedExtensions: ['png'],
+          maxSizeBytes: 1_000_000,
+        },
+      ],
+    },
+    targetWorkspacePathsJson: { items: ['workspace/output'] },
+    acceptanceCriteriaJson: { items: [] },
+    externalAppProfileId: null,
+    publicResult: null,
     state: 'PENDING',
     createdAt: 'created',
     submittedAt: null,
     resolvedAt: null,
   };
+}
+
+function appendExternalWorkArtifact(requestId: string, submittedAt: string): void {
+  repository.appendExternalWorkArtifact({
+    id: `artifact-${submittedAt}`,
+    externalWorkRequestId: requestId,
+    path: 'workspace/output/result.png',
+    fileName: 'result.png',
+    extension: 'png',
+    sizeBytes: 100,
+    mimeType: 'image/png',
+    metadataJson: {},
+    submittedAt,
+  });
 }
 
 describe('R0 CapabilityEvidence execution provenance', () => {
@@ -174,9 +218,11 @@ describe('R0 CapabilityEvidence execution provenance', () => {
   });
 
   it('rejects USER_BRIDGE evidence with a runtime even after accepted external work', () => {
+    enableBridgeRequestCapability();
     repository.createExternalWorkRequest(externalRequest());
     repository.transitionExternalWorkRequest('external-work', 'IN_PROGRESS', 'started');
     repository.transitionExternalWorkRequest('external-work', 'SUBMITTED', 'submitted');
+    appendExternalWorkArtifact('external-work', 'submitted');
     repository.transitionExternalWorkRequest('external-work', 'ACCEPTED', 'accepted');
     terminal();
     expect(() =>
@@ -188,14 +234,7 @@ describe('R0 CapabilityEvidence execution provenance', () => {
 
   it('rejects USER_BRIDGE membership or an unaccepted external request', () => {
     // Membership can change after an attempt starts; it is never execution proof.
-    db.prepare(
-      `INSERT INTO party_members (party_id, teammate_id, role, sort_order)
-       VALUES ('party', 'bridge', 'MEMBER', 2)`,
-    ).run();
-    db.prepare(
-      `INSERT INTO mission_participants (mission_id, teammate_id, role, sort_order)
-       VALUES ('mission', 'bridge', 'MEMBER', 2)`,
-    ).run();
+    enableBridgeRequestCapability();
     repository.createExternalWorkRequest(externalRequest());
     repository.transitionExternalWorkRequest('external-work', 'IN_PROGRESS', 'started');
     repository.transitionExternalWorkRequest('external-work', 'SUBMITTED', 'submitted');
@@ -208,12 +247,18 @@ describe('R0 CapabilityEvidence execution provenance', () => {
   });
 
   it('accepts USER_BRIDGE only after its own external work is accepted', () => {
+    enableBridgeRequestCapability();
     repository.createExternalWorkRequest(externalRequest());
     repository.transitionExternalWorkRequest('external-work', 'IN_PROGRESS', 'started');
     repository.transitionExternalWorkRequest('external-work', 'SUBMITTED', 'submitted');
+    appendExternalWorkArtifact('external-work', 'submitted');
     repository.transitionExternalWorkRequest('external-work', 'ACCEPTED', 'accepted');
     terminal();
-    const rating = evidence({ teammateId: 'bridge', runtimeProfileId: null });
+    const rating = evidence({
+      teammateId: 'bridge',
+      runtimeProfileId: null,
+      dimension: 'IMAGE_GENERATION',
+    });
     repository.appendCapabilityEvidence(rating);
     expect(repository.listCapabilityEvidence('bridge')).toEqual([rating]);
   });
@@ -236,7 +281,7 @@ describe('R0 CapabilityEvidence execution provenance', () => {
     expect(repository.listCapabilityEvidence('member')).toEqual([evidence()]);
   });
 
-  it('upgrades populated 0009 data to 0010 without changing existing facts', () => {
+  it('upgrades populated 0009 data to the latest schema without changing existing facts', () => {
     db.close();
     fixture(migrations.slice(0, 9));
     modelCall();
@@ -244,7 +289,7 @@ describe('R0 CapabilityEvidence execution provenance', () => {
     repository.appendCapabilityEvidence(evidence());
     runMigrations(db, migrations);
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 11,
+      version: 12,
     });
     expect(repository.listCapabilityEvidence('member')).toEqual([evidence()]);
     expect(() =>
