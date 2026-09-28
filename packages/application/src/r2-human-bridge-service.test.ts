@@ -171,7 +171,7 @@ class MemoryStore implements R2HumanBridgeServiceStore {
         IN_PROGRESS: ['SUBMITTED', 'CANCELLED'],
         SUBMITTED: ['ACCEPTED', 'REJECTED', 'CANCELLED'],
         ACCEPTED: [],
-        REJECTED: [],
+        REJECTED: ['IN_PROGRESS', 'CANCELLED'],
         CANCELLED: [],
       };
     if (!valid[current.state].includes(state))
@@ -179,10 +179,10 @@ class MemoryStore implements R2HumanBridgeServiceStore {
     const next = {
       ...current,
       state,
-      submittedAt: state === 'SUBMITTED' ? atTime : current.submittedAt,
+      submittedAt: state === 'SUBMITTED' ? atTime : state === 'IN_PROGRESS' && current.state === 'REJECTED' ? null : current.submittedAt,
       resolvedAt: ['ACCEPTED', 'REJECTED', 'CANCELLED'].includes(state)
         ? atTime
-        : current.resolvedAt,
+        : state === 'IN_PROGRESS' && current.state === 'REJECTED' ? null : current.resolvedAt,
       publicResult: state === 'ACCEPTED' ? (publicResult ?? null) : null,
     };
     this.requests.set(id, next);
@@ -455,6 +455,18 @@ describe('R2 Human Bridge application services', () => {
     expect(store.getMission('mission-1')?.state).toBe('RUNNING');
 
     bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: true });
+    expect(() =>
+      externalWork.createExplicit({
+        ...createInput(),
+        requesterTeammateId: 'non-participant',
+      }),
+    ).toThrow(/participant/);
+    expect(() =>
+      externalWork.createExplicit({
+        ...createInput(),
+        prompt: 'x'.repeat(20_001),
+      }),
+    ).toThrow(/长度限制/);
     const createdEvents: unknown[] = [];
     externalWork.subscribeCreated((event) => {
       createdEvents.push(event);
@@ -482,18 +494,6 @@ describe('R2 Human Bridge application services', () => {
     ]);
     expect(JSON.stringify(createdEvents)).not.toContain(request.prompt);
 
-    expect(() =>
-      externalWork.createExplicit({
-        ...createInput(),
-        requesterTeammateId: 'non-participant',
-      }),
-    ).toThrow(/participant/);
-    expect(() =>
-      externalWork.createExplicit({
-        ...createInput(),
-        prompt: 'x'.repeat(20_001),
-      }),
-    ).toThrow(/长度限制/);
   });
 
   it('validates submitted files through the workspace port and rejects traversal, symlink, extension, and size failures', async () => {
