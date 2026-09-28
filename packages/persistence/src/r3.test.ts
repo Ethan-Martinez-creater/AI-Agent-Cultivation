@@ -339,6 +339,45 @@ describe('R3 Decision Plane persistence', () => {
     expect(db.pragma('foreign_key_check')).toEqual([]);
   });
 
+  it('persists the sanitized application fallback codes without raw provider errors', () => {
+    seedMissionRun();
+    const codes = [
+      'INVALID_REQUEST',
+      'TIMEOUT',
+      'PROVIDER_UNAVAILABLE',
+      'SCHEMA_MISMATCH',
+      'RECEIPT_WRITE_FAILED',
+    ] as const;
+    for (const [index, errorCode] of codes.entries()) {
+      repository.appendShadowAttempt(
+        attempt({
+          id: `fallback-${index}`,
+          status: 'ERROR',
+          receiptId: null,
+          actualAction: 'explicit-current-selection',
+          errorCode,
+        }),
+      );
+    }
+
+    expect(
+      repository
+        .listShadowAttempts('mission-1', 'run-1')
+        .map(({ errorCode }) => errorCode)
+        .reverse(),
+    ).toEqual(codes);
+    expect(() =>
+      repository.appendShadowAttempt(
+        attempt({
+          id: 'raw-provider-message',
+          status: 'ERROR',
+          receiptId: null,
+          errorCode: 'Provider rejected key sk-test-secret' as never,
+        }),
+      ),
+    ).toThrow();
+  });
+
   it('rejects mismatched Mission/Run receipt references', () => {
     seedMissionRun();
     expect(() => repository.appendDecisionReceipt(receipt({ runId: 'missing-run' }))).toThrow();

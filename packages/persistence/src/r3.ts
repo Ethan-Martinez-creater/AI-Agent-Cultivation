@@ -56,6 +56,9 @@ export type DecisionShadowErrorCode =
   | 'HTTP_ERROR'
   | 'SCHEMA_MISMATCH'
   | 'INVALID_RESPONSE'
+  | 'INVALID_REQUEST'
+  | 'PROVIDER_UNAVAILABLE'
+  | 'RECEIPT_WRITE_FAILED'
   | 'UNKNOWN';
 
 /** Sanitized attempt metadata only; never persist provider messages or raw errors here. */

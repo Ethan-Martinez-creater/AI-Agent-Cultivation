@@ -99,7 +99,8 @@ CREATE TABLE decision_shadow_attempts (
   error_code TEXT CHECK (
     error_code IS NULL OR error_code IN (
       'DISABLED', 'UNSUPPORTED', 'TIMEOUT', 'NETWORK', 'HTTP_ERROR',
-      'SCHEMA_MISMATCH', 'INVALID_RESPONSE', 'UNKNOWN'
+      'SCHEMA_MISMATCH', 'INVALID_RESPONSE', 'INVALID_REQUEST',
+      'PROVIDER_UNAVAILABLE', 'RECEIPT_WRITE_FAILED', 'UNKNOWN'
     )
   ),
   latency_ms INTEGER CHECK (latency_ms IS NULL OR latency_ms >= 0),
