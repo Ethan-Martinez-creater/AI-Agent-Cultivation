@@ -111,7 +111,13 @@ class Store
       this.listPartyMembers(value.partyId!).map((item) => ({
         missionId: value.id,
         teammateId: item.teammateId,
-        role: item.role,
+        role:
+          value.mode === 'REVIEW' &&
+          item.teammateId ===
+            this.listPartyMembers(value.partyId!).find((member) => member.role === 'MEMBER')
+              ?.teammateId
+            ? 'REVIEWER'
+            : item.role,
         sortOrder: item.order,
       })),
     );
@@ -410,7 +416,10 @@ function attachExternalWork(
         prompt: input.prompt,
         requirementsJson: { items: input.requirements },
         targetArtifactsJson: { items: input.targetArtifacts },
+        targetWorkspacePathsJson: { items: input.targetWorkspacePaths },
         acceptanceCriteriaJson: { items: input.acceptanceCriteria },
+        externalAppProfileId: input.externalAppProfileId ?? null,
+        publicResult: null,
         state: 'PENDING',
         createdAt: at,
         submittedAt: null,

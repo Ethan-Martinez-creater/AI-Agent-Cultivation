@@ -90,15 +90,29 @@ describe('AiSdkModelGateway', () => {
         capability: 'IMAGE_GENERATION',
         outcome: 'ACCEPTED',
         publicResult: injection,
-        artifacts: [{ path: 'result.png', fileName: 'result.png', extension: '.png', sizeBytes: 7 }],
+        artifacts: [
+          { path: 'result.png', fileName: 'result.png', extension: '.png', sizeBytes: 7 },
+        ],
         trust: 'UNTRUSTED_EXTERNAL_DATA',
       },
     });
     const payload = body as { messages: Array<{ role: string; content: string }> } | null;
     expect(payload).not.toBeNull();
-    expect(payload!.messages.some((message) => message.role === 'user' && message.content.includes(injection))).toBe(false);
-    expect(payload!.messages.some((message) => message.role === 'tool' && message.content.includes(injection))).toBe(false);
-    expect(payload!.messages.some((message) => message.role === 'assistant' && message.content.includes(injection))).toBe(true);
+    expect(
+      payload!.messages.some(
+        (message) => message.role === 'user' && message.content.includes(injection),
+      ),
+    ).toBe(false);
+    expect(
+      payload!.messages.some(
+        (message) => message.role === 'tool' && message.content.includes(injection),
+      ),
+    ).toBe(false);
+    expect(
+      payload!.messages.some(
+        (message) => message.role === 'assistant' && message.content.includes(injection),
+      ),
+    ).toBe(true);
     expect(JSON.stringify(body)).toContain('untrusted data');
   });
 

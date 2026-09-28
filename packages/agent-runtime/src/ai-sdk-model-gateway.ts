@@ -234,7 +234,7 @@ function toSdkMessages(request: ModelRequest) {
       requestId: external.requestId.slice(0, 128),
       capability: external.capability,
       outcome: external.outcome,
-      publicResult: external.publicResult.slice(0, 2_000),
+      publicResult: external.publicResult?.slice(0, 2_000) ?? null,
       artifacts: external.artifacts.slice(0, 12).map((artifact) => ({
         path: artifact.path.slice(0, 1_024),
         fileName: artifact.fileName.slice(0, 256),

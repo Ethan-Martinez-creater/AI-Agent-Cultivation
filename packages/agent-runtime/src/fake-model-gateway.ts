@@ -118,33 +118,36 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
             runtimeProfileId: request.runtimeProfileId,
             externalWorkContext: request.externalWorkContext ?? null,
             userMessagesWithExternalResult: request.messages.filter(
-              (message) => message.role === 'user' && message.content.includes('UNTRUSTED_EXTERNAL_DATA'),
+              (message) =>
+                message.role === 'user' && message.content.includes('UNTRUSTED_EXTERNAL_DATA'),
             ).length,
             toolMessagesWithExternalResult: request.messages.filter(
-              (message) => message.role === 'tool' && JSON.stringify(message.content).includes('UNTRUSTED_EXTERNAL_DATA'),
+              (message) =>
+                message.role === 'tool' &&
+                JSON.stringify(message.content).includes('UNTRUSTED_EXTERNAL_DATA'),
             ).length,
           })
         : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE6_MEMBER_FAIL__')
-        ? '{"ok":false,"code":"FAKE_MEMBER_FAILURE"}'
-        : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE5_SCOPE_INSPECT__')
-          ? JSON.stringify({
-              teammateId: request.teammateId,
-              runtimeProfileId: request.runtimeProfileId,
-              aMemorySeen: systemText.includes('GATE5_A_MEMORY'),
-              bMemorySeen: systemText.includes('GATE5_B_MEMORY'),
-              aSkillSeen: systemText.includes('GATE5_A_SKILL'),
-              bSkillSeen: systemText.includes('GATE5_B_SKILL'),
-            })
-          : prompt.trim() === '__GATE2_PROMPT_INSPECT__'
-            ? request.messages
-                .filter((message) => message.role === 'system')
-                .map((message) => message.content)
-                .join('\n')
-            : toolResults.length > 0
-              ? `FAKE_TOOL_RESULT:${JSON.stringify(toolResults)}`
-              : prompt.trim() === 'PING'
-                ? 'PONG'
-                : `FAKE: ${prompt}`;
+          ? '{"ok":false,"code":"FAKE_MEMBER_FAILURE"}'
+          : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE5_SCOPE_INSPECT__')
+            ? JSON.stringify({
+                teammateId: request.teammateId,
+                runtimeProfileId: request.runtimeProfileId,
+                aMemorySeen: systemText.includes('GATE5_A_MEMORY'),
+                bMemorySeen: systemText.includes('GATE5_B_MEMORY'),
+                aSkillSeen: systemText.includes('GATE5_A_SKILL'),
+                bSkillSeen: systemText.includes('GATE5_B_SKILL'),
+              })
+            : prompt.trim() === '__GATE2_PROMPT_INSPECT__'
+              ? request.messages
+                  .filter((message) => message.role === 'system')
+                  .map((message) => message.content)
+                  .join('\n')
+              : toolResults.length > 0
+                ? `FAKE_TOOL_RESULT:${JSON.stringify(toolResults)}`
+                : prompt.trim() === 'PING'
+                  ? 'PONG'
+                  : `FAKE: ${prompt}`;
     return {
       text,
       usage: {

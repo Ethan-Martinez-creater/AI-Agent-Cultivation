@@ -143,19 +143,51 @@ export interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
   r2: {
-    bridgeProfile(): Promise<{ teammate: Teammate; dimensions: Array<{ dimension: CapabilityDimension; enabled: boolean; priorScore: number | null; currentScore: number | null; ratingCount: number; evidenceWeight: number; source: string | null }> }>;
-    updateDisplay(input: { name: string; avatar: string | null; title: string | null; description: string }): Promise<Teammate>;
+    bridgeProfile(): Promise<{
+      teammate: Teammate;
+      dimensions: Array<{
+        dimension: CapabilityDimension;
+        enabled: boolean;
+        priorScore: number | null;
+        currentScore: number | null;
+        ratingCount: number;
+        evidenceWeight: number;
+        source: string | null;
+      }>;
+    }>;
+    updateDisplay(input: {
+      name: string;
+      avatar: string | null;
+      title: string | null;
+      description: string;
+    }): Promise<Teammate>;
     setCapability(input: { dimension: CapabilityDimension; enabled: boolean }): Promise<unknown>;
     listApps(): Promise<ExternalAppProfile[]>;
-    saveApp(input: { id?: string; name: string; vendor: string | null; capabilities: CapabilityDimension[]; notes: string | null; enabled: boolean }): Promise<ExternalAppProfile>;
+    saveApp(input: {
+      id?: string;
+      name: string;
+      vendor: string | null;
+      capabilities: CapabilityDimension[];
+      notes: string | null;
+      enabled: boolean;
+    }): Promise<ExternalAppProfile>;
     listRequests(): Promise<ExternalWorkRequest[]>;
-    getRequest(id: string): Promise<{ request: ExternalWorkRequest; artifacts: ExternalWorkArtifact[] } | null>;
+    getRequest(
+      id: string,
+    ): Promise<{ request: ExternalWorkRequest; artifacts: ExternalWorkArtifact[] } | null>;
     markInProgress(id: string): Promise<ExternalWorkRequest>;
-    submitArtifacts(input: { requestId: string; artifacts: Array<{ targetArtifactId: string; relativePath: string }> }): Promise<ExternalWorkRequest>;
+    submitArtifacts(input: {
+      requestId: string;
+      artifacts: Array<{ targetArtifactId: string; relativePath: string }>;
+    }): Promise<ExternalWorkRequest>;
     accept(input: { requestId: string; publicResult?: string }): Promise<unknown>;
     reject(input: { requestId: string; reason?: string }): Promise<unknown>;
     cancel(input: { requestId: string }): Promise<unknown>;
-    submitRating(input: { externalWorkRequestId: string; stars?: number; skip?: boolean }): Promise<unknown>;
+    submitRating(input: {
+      externalWorkRequestId: string;
+      stars?: number;
+      skip?: boolean;
+    }): Promise<unknown>;
     copyPrompt(id: string): Promise<void>;
     openTargetFolder(id: string): Promise<void>;
     onNavigate(callback: (path: string) => void): () => void;

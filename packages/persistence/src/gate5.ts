@@ -98,7 +98,8 @@ export class Gate5SqliteRepository {
       }
       const members = this.db
         .prepare(
-          `SELECT pm.teammate_id, pm.sort_order, pm.role, t.status, t.current_runtime_profile_id,
+          `SELECT pm.teammate_id, pm.sort_order, pm.role, t.status, t.executor_kind, t.system_kind,
+                  t.current_runtime_profile_id,
                   rp.provider_id, p.enabled AS provider_enabled
            FROM party_members AS pm
            JOIN teammates AS t ON t.id = pm.teammate_id
@@ -111,6 +112,8 @@ export class Gate5SqliteRepository {
         sort_order: number;
         role: PartyMember['role'];
         status: string;
+        executor_kind: string;
+        system_kind: string | null;
         current_runtime_profile_id: string | null;
         provider_id: string | null;
         provider_enabled: number | null;
@@ -122,9 +125,17 @@ export class Gate5SqliteRepository {
         members.some(
           (member) =>
             member.status !== 'ACTIVE' ||
-            member.current_runtime_profile_id === null ||
-            member.provider_id === null ||
-            member.provider_enabled !== 1,
+            !(
+              (member.executor_kind === 'MODEL_RUNTIME' &&
+                member.system_kind === null &&
+                member.current_runtime_profile_id !== null &&
+                member.provider_id !== null &&
+                member.provider_enabled === 1) ||
+              (member.executor_kind === 'USER_BRIDGE' &&
+                member.system_kind === 'HUMAN_BRIDGE' &&
+                member.role === 'MEMBER' &&
+                member.current_runtime_profile_id === null)
+            ),
         )
       ) {
         throw new Error('Archived or unavailable Teammates cannot start a Party Mission');
@@ -213,16 +224,20 @@ export class Gate5SqliteRepository {
     ) {
       throw new Error('Party Mission participants no longer match the active Party');
     }
-    const activeRuntimeCount = this.db
+    const availableCount = this.db
       .prepare(
         `SELECT COUNT(*) AS count FROM mission_participants AS mp
          JOIN teammates AS t ON t.id = mp.teammate_id
-         JOIN runtime_profiles AS rp ON rp.id = t.current_runtime_profile_id
-         JOIN providers AS p ON p.id = rp.provider_id AND p.enabled = 1
-         WHERE mp.mission_id = ? AND t.status = 'ACTIVE'`,
+         LEFT JOIN runtime_profiles AS rp ON rp.id = t.current_runtime_profile_id
+         LEFT JOIN providers AS p ON p.id = rp.provider_id
+         WHERE mp.mission_id = ? AND t.status = 'ACTIVE'
+           AND ((t.executor_kind = 'MODEL_RUNTIME' AND t.system_kind IS NULL
+                  AND rp.id IS NOT NULL AND p.enabled = 1)
+             OR (t.executor_kind = 'USER_BRIDGE' AND t.system_kind = 'HUMAN_BRIDGE'
+                  AND mp.role <> 'COORDINATOR' AND t.current_runtime_profile_id IS NULL))`,
       )
       .get(missionId) as { count: number };
-    if (activeRuntimeCount.count !== partyMembers.length) {
+    if (availableCount.count !== partyMembers.length) {
       throw new Error('Archived or unavailable Teammates cannot start a Party Mission');
     }
   }

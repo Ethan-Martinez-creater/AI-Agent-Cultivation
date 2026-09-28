@@ -21,7 +21,12 @@ import type {
   R1RatingTarget,
 } from '@cultivation/application/r1-capability-service';
 import { BenchmarkPanel, DynamicCapabilityPanel, MissionRatingCard } from './r1-capability.js';
-import { HumanBridgeApproval, HumanBridgePage, type HumanBridgeApprovalInput, type R2UiApi } from './r2-human-bridge.js';
+import {
+  HumanBridgeApproval,
+  HumanBridgePage,
+  type HumanBridgeApprovalInput,
+  type R2UiApi,
+} from './r2-human-bridge.js';
 import './style.css';
 
 type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -137,7 +142,12 @@ interface UsageView {
   createdAt: string;
 }
 
-type ExperienceType = 'MISSION_RESULT' | 'COLLABORATION' | 'TOOL_USE' | 'SKILL_USE' | 'EXTERNAL_WORK';
+type ExperienceType =
+  | 'MISSION_RESULT'
+  | 'COLLABORATION'
+  | 'TOOL_USE'
+  | 'SKILL_USE'
+  | 'EXTERNAL_WORK';
 type ExperienceOutcome = 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
 
 interface ExperienceEventView {
@@ -727,7 +737,10 @@ function HomePage() {
     void window.cultivation.teammates
       .list()
       .then((items) => {
-        if (!cancelled) setTeammates(items.filter((item) => item.status === 'ACTIVE' && item.executorKind !== 'USER_BRIDGE'));
+        if (!cancelled)
+          setTeammates(
+            items.filter((item) => item.status === 'ACTIVE' && item.executorKind !== 'USER_BRIDGE'),
+          );
       })
       .catch((cause: unknown) => {
         if (!cancelled) setError(errorText(cause, '读取道友失败。'));
@@ -1793,7 +1806,11 @@ function PartiesPage() {
               >
                 <option value="">选择协调者</option>
                 {form.memberTeammateIds
-                  .filter((id) => activeTeammates.some((teammate) => teammate.id === id && teammate.executorKind !== 'USER_BRIDGE'))
+                  .filter((id) =>
+                    activeTeammates.some(
+                      (teammate) => teammate.id === id && teammate.executorKind !== 'USER_BRIDGE',
+                    ),
+                  )
                   .map((id) => (
                     <option key={id} value={id}>
                       {teammateName(teammates, id)}
@@ -1838,7 +1855,9 @@ function MissionPage() {
   const [notice, setNotice] = useState('');
   const navigate = useNavigate();
   const availableTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
-  const activeTeammates = availableTeammates.filter((teammate) => teammate.executorKind !== 'USER_BRIDGE');
+  const activeTeammates = availableTeammates.filter(
+    (teammate) => teammate.executorKind !== 'USER_BRIDGE',
+  );
   const activeParties = parties.filter(
     (party) =>
       party.status === 'ACTIVE' &&
@@ -2291,7 +2310,17 @@ function MissionPage() {
                   </span>
                 </div>
                 <p className="mission-objective">{mission.objective}</p>
-                {mission.state === 'WAITING_EXTERNAL_WORK' && <div className="notice"><p>原 Mission Run 正在等待本尊完成外部工作。提交并验收后会继续同一个 Run。</p><button className="button secondary small" onClick={() => navigate('/external-work')}>打开本尊待办</button></div>}
+                {mission.state === 'WAITING_EXTERNAL_WORK' && (
+                  <div className="notice">
+                    <p>原 Mission Run 正在等待本尊完成外部工作。提交并验收后会继续同一个 Run。</p>
+                    <button
+                      className="button secondary small"
+                      onClick={() => navigate('/external-work')}
+                    >
+                      打开本尊待办
+                    </button>
+                  </div>
+                )}
                 <div className="mission-actions">
                   {canEdit && !editing && (
                     <button
@@ -2471,25 +2500,38 @@ function MissionPage() {
                           {formatDate(request.createdAt)}
                         </small>
                         <div className="button-row compact">
-                          {teammates.find((item) => item.id === request.targetTeammateId)?.executorKind === 'USER_BRIDGE' ? <HumanBridgeApproval
-                            api={window.cultivation.r2}
-                            busy={busy}
-                            onApprove={(externalWork) => runAction('已创建本尊外部工作；原 Run 正在等待提交。', () => window.cultivation.missions.resolveCollaboration({ requestId: request.id, decision: 'APPROVED', externalWork }))}
-                          /> : <button
-                            className="button primary small"
-                            type="button"
-                            disabled={busy}
-                            onClick={() =>
-                              void runAction('协作已批准，原 Mission Run 将继续。', () =>
-                                window.cultivation.missions.resolveCollaboration({
-                                  requestId: request.id,
-                                  decision: 'APPROVED',
-                                }),
-                              )
-                            }
-                          >
-                            批准并继续
-                          </button>}
+                          {teammates.find((item) => item.id === request.targetTeammateId)
+                            ?.executorKind === 'USER_BRIDGE' ? (
+                            <HumanBridgeApproval
+                              api={window.cultivation.r2}
+                              busy={busy}
+                              onApprove={(externalWork) =>
+                                runAction('已创建本尊外部工作；原 Run 正在等待提交。', () =>
+                                  window.cultivation.missions.resolveCollaboration({
+                                    requestId: request.id,
+                                    decision: 'APPROVED',
+                                    externalWork,
+                                  }),
+                                )
+                              }
+                            />
+                          ) : (
+                            <button
+                              className="button primary small"
+                              type="button"
+                              disabled={busy}
+                              onClick={() =>
+                                void runAction('协作已批准，原 Mission Run 将继续。', () =>
+                                  window.cultivation.missions.resolveCollaboration({
+                                    requestId: request.id,
+                                    decision: 'APPROVED',
+                                  }),
+                                )
+                              }
+                            >
+                              批准并继续
+                            </button>
+                          )}
                           <button
                             className="button danger-ghost small"
                             type="button"
@@ -4032,47 +4074,63 @@ function TeammatesPage() {
               <div className="identity-panel">
                 <span>稳定身份 ID</span>
                 <code>{selected.id}</code>
-                <small>{selected.executorKind === 'USER_BRIDGE' ? '系统 Human Bridge 不绑定模型 Runtime，仅在明确委托的外部工作中执行。' : 'Runtime 切换不会改变此 ID，也不会迁移或丢失 Conversation 历史。'}</small>
+                <small>
+                  {selected.executorKind === 'USER_BRIDGE'
+                    ? '系统 Human Bridge 不绑定模型 Runtime，仅在明确委托的外部工作中执行。'
+                    : 'Runtime 切换不会改变此 ID，也不会迁移或丢失 Conversation 历史。'}
+                </small>
               </div>
-              {selected.executorKind !== 'USER_BRIDGE' && <div className="profile-section">
-                <div className="section-heading">
-                  <div>
-                    <h3>当前 Runtime Profile</h3>
-                    <p>Provider、Credential 和 Model 由运行配置管理。</p>
+              {selected.executorKind !== 'USER_BRIDGE' && (
+                <div className="profile-section">
+                  <div className="section-heading">
+                    <div>
+                      <h3>当前 Runtime Profile</h3>
+                      <p>Provider、Credential 和 Model 由运行配置管理。</p>
+                    </div>
                   </div>
-                </div>
-                <select
-                  aria-label="切换 Runtime Profile"
-                  disabled={busy || selected.status !== 'ACTIVE'}
-                  value={selected.currentRuntimeProfileId ?? ''}
-                  onChange={(event) => void switchRuntime(event.target.value)}
-                >
-                  {runtimes.map((runtime) => (
-                    <option key={runtime.id} value={runtime.id}>
-                      {runtime.name} · {runtime.modelId}
-                    </option>
-                  ))}
-                </select>
-              </div>}
-              <div className="profile-actions">
-                {selected.executorKind === 'USER_BRIDGE' ? <button className="button primary" onClick={() => navigate('/external-work')}>查看本尊待办与能力</button> : selected.status === 'ACTIVE' && (
-                  <button
-                    className="button primary"
-                    onClick={() => navigate(`/chat/${encodeURIComponent(selected.id)}`)}
+                  <select
+                    aria-label="切换 Runtime Profile"
+                    disabled={busy || selected.status !== 'ACTIVE'}
+                    value={selected.currentRuntimeProfileId ?? ''}
+                    onChange={(event) => void switchRuntime(event.target.value)}
                   >
-                    打开对话
+                    {runtimes.map((runtime) => (
+                      <option key={runtime.id} value={runtime.id}>
+                        {runtime.name} · {runtime.modelId}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="profile-actions">
+                {selected.executorKind === 'USER_BRIDGE' ? (
+                  <button className="button primary" onClick={() => navigate('/external-work')}>
+                    查看本尊待办与能力
+                  </button>
+                ) : (
+                  selected.status === 'ACTIVE' && (
+                    <button
+                      className="button primary"
+                      onClick={() => navigate(`/chat/${encodeURIComponent(selected.id)}`)}
+                    >
+                      打开对话
+                    </button>
+                  )
+                )}
+                {selected.executorKind !== 'USER_BRIDGE' && (
+                  <button className="button secondary" onClick={() => startEdit(selected)}>
+                    编辑资料
                   </button>
                 )}
-                {selected.executorKind !== 'USER_BRIDGE' && <button className="button secondary" onClick={() => startEdit(selected)}>
-                  编辑资料
-                </button>}
-                {selected.executorKind !== 'USER_BRIDGE' && <button
-                  className="button secondary"
-                  disabled={busy}
-                  onClick={() => void duplicate(selected)}
-                >
-                  复制道友
-                </button>}
+                {selected.executorKind !== 'USER_BRIDGE' && (
+                  <button
+                    className="button secondary"
+                    disabled={busy}
+                    onClick={() => void duplicate(selected)}
+                  >
+                    复制道友
+                  </button>
+                )}
                 {selected.executorKind !== 'USER_BRIDGE' && selected.status === 'ACTIVE' && (
                   <button
                     className="button danger-ghost"
@@ -4086,11 +4144,15 @@ function TeammatesPage() {
               {selected.status === 'ARCHIVED' && (
                 <div className="notice">已归档的道友保留历史数据，不能继续发送新消息。</div>
               )}
-              {selected.executorKind !== 'USER_BRIDGE' && <TeammateSkillsPanel teammate={selected} />}
-              {selected.executorKind !== 'USER_BRIDGE' && <DynamicCapabilityPanel
-                key={`${selected.id}:${selected.currentRuntimeProfileId}`}
-                teammateId={selected.id}
-              />}
+              {selected.executorKind !== 'USER_BRIDGE' && (
+                <TeammateSkillsPanel teammate={selected} />
+              )}
+              {selected.executorKind !== 'USER_BRIDGE' && (
+                <DynamicCapabilityPanel
+                  key={`${selected.id}:${selected.currentRuntimeProfileId}`}
+                  teammateId={selected.id}
+                />
+              )}
               <TeammateExperiencePanel teammate={selected} />
             </div>
           ) : loading ? (

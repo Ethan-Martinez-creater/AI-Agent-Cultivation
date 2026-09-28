@@ -2863,13 +2863,62 @@ td code {
     grid-template-columns: 1fr;
   }
 }
-.r2-capability-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; margin: 16px 0; }
-.r2-capability-row { display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid var(--border, #dedede); border-radius: 8px; }
-.r2-capability-row small { margin-left: auto; }
-.r2-work-layout { display: grid; grid-template-columns: minmax(230px, 320px) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
-.r2-inline-form { display: flex; gap: 8px; flex-wrap: wrap; }
-.r2-inline-form input, .r2-inline-form select { min-width: 160px; flex: 1; }
-.r2-prompt { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; padding: 12px; background: var(--surface-soft, #f4f4f4); border-radius: 8px; }
-.r2-artifact-form { margin: 16px 0; padding: 12px; border: 1px solid var(--border, #dedede); border-radius: 8px; }
-.r2-approval-form { margin: 12px 0; padding: 14px; border: 1px solid var(--border, #dedede); border-radius: 8px; }
-@media (max-width: 800px) { .r2-work-layout { grid-template-columns: 1fr; } }
+.r2-capability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+  margin: 16px 0;
+}
+.r2-capability-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border, #dedede);
+  border-radius: 8px;
+}
+.r2-capability-row small {
+  margin-left: auto;
+}
+.r2-work-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 320px) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.r2-inline-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.r2-inline-form input,
+.r2-inline-form select {
+  min-width: 160px;
+  flex: 1;
+}
+.r2-prompt {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 320px;
+  overflow: auto;
+  padding: 12px;
+  background: var(--surface-soft, #f4f4f4);
+  border-radius: 8px;
+}
+.r2-artifact-form {
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid var(--border, #dedede);
+  border-radius: 8px;
+}
+.r2-approval-form {
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px solid var(--border, #dedede);
+  border-radius: 8px;
+}
+@media (max-width: 800px) {
+  .r2-work-layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -47,11 +47,16 @@ function fixture(steps: typeof migrations = migrations) {
        coordinator_teammate_id,party_id,mode,state,created_at,updated_at)
      VALUES ('mission','Mission','Objective','USER','user','a','party','CONSULTATION','READY','now','now')`,
   ).run();
-  parties.saveMissionParticipants('mission', [
-    { missionId: 'mission', teammateId: 'a', role: 'COORDINATOR', sortOrder: 0 },
-    { missionId: 'mission', teammateId: 'b', role: 'MEMBER', sortOrder: 1 },
-    { missionId: 'mission', teammateId: 'c', role: 'MEMBER', sortOrder: 2 },
-  ]);
+  for (const [teammateId, role, sortOrder] of [
+    ['a', 'COORDINATOR', 0],
+    ['b', 'MEMBER', 1],
+    ['c', 'MEMBER', 2],
+  ] as const) {
+    db.prepare(
+      `INSERT INTO mission_participants (mission_id,teammate_id,role,sort_order)
+       VALUES ('mission', ?, ?, ?)`,
+    ).run(teammateId, role, sortOrder);
+  }
   db.prepare("UPDATE missions SET state='RUNNING' WHERE id='mission'").run();
   const insertRun = db.prepare(
     `INSERT INTO mission_runs (id,mission_id,attempt,status,started_at)

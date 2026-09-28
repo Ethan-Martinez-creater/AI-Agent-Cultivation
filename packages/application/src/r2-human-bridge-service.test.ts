@@ -179,10 +179,17 @@ class MemoryStore implements R2HumanBridgeServiceStore {
     const next = {
       ...current,
       state,
-      submittedAt: state === 'SUBMITTED' ? atTime : state === 'IN_PROGRESS' && current.state === 'REJECTED' ? null : current.submittedAt,
+      submittedAt:
+        state === 'SUBMITTED'
+          ? atTime
+          : state === 'IN_PROGRESS' && current.state === 'REJECTED'
+            ? null
+            : current.submittedAt,
       resolvedAt: ['ACCEPTED', 'REJECTED', 'CANCELLED'].includes(state)
         ? atTime
-        : state === 'IN_PROGRESS' && current.state === 'REJECTED' ? null : current.resolvedAt,
+        : state === 'IN_PROGRESS' && current.state === 'REJECTED'
+          ? null
+          : current.resolvedAt,
       publicResult: state === 'ACCEPTED' ? (publicResult ?? null) : null,
     };
     this.requests.set(id, next);
@@ -493,7 +500,6 @@ describe('R2 Human Bridge application services', () => {
       },
     ]);
     expect(JSON.stringify(createdEvents)).not.toContain(request.prompt);
-
   });
 
   it('validates submitted files through the workspace port and rejects traversal, symlink, extension, and size failures', async () => {

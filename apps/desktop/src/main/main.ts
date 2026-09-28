@@ -42,7 +42,11 @@ import { Gate6ExperienceService } from '@cultivation/application/gate6-experienc
 import { registerGate6Ipc } from './gate6-ipc.js';
 import { R1CapabilityService } from '@cultivation/application/r1-capability-service';
 import { registerR1Ipc } from './r1-ipc.js';
-import { HumanBridgeService, ExternalWorkService, type R2HumanBridgeServiceStore } from '@cultivation/application/r2-human-bridge-service';
+import {
+  HumanBridgeService,
+  ExternalWorkService,
+  type R2HumanBridgeServiceStore,
+} from '@cultivation/application/r2-human-bridge-service';
 import { registerR2Ipc } from './r2-ipc.js';
 import { FileWorkspace } from './file-workspace.js';
 
@@ -188,25 +192,36 @@ if (!squirrelStartup)
       const capabilities = new R1CapabilityService(capabilityStore);
       const r2Store: R2HumanBridgeServiceStore = {
         ensureHumanBridgeTeammate: (input) => capabilityStore.ensureHumanBridgeTeammate(input),
-        updateHumanBridgeDisplay: (teammateId, value) => capabilityStore.updateHumanBridgeDisplay(teammateId, value),
-        listHumanBridgeCapabilities: (teammateId) => capabilityStore.listHumanBridgeCapabilities(teammateId),
+        updateHumanBridgeDisplay: (teammateId, value) =>
+          capabilityStore.updateHumanBridgeDisplay(teammateId, value),
+        listHumanBridgeCapabilities: (teammateId) =>
+          capabilityStore.listHumanBridgeCapabilities(teammateId),
         saveHumanBridgeCapability: (value) => capabilityStore.saveHumanBridgeCapability(value),
-        listTeammateCapabilityStates: (teammateId) => capabilityStore.listTeammateCapabilityStates(teammateId),
-        replaceTeammateCapabilityStates: (teammateId, states) => capabilityStore.replaceTeammateCapabilityStates(teammateId, states),
-        listCapabilityEvidence: (teammateId, dimension) => capabilityStore.listCapabilityEvidence(teammateId, dimension),
-        appendCapabilityEvidenceBatch: (values) => capabilityStore.appendCapabilityEvidenceBatch(values),
+        listTeammateCapabilityStates: (teammateId) =>
+          capabilityStore.listTeammateCapabilityStates(teammateId),
+        replaceTeammateCapabilityStates: (teammateId, states) =>
+          capabilityStore.replaceTeammateCapabilityStates(teammateId, states),
+        listCapabilityEvidence: (teammateId, dimension) =>
+          capabilityStore.listCapabilityEvidence(teammateId, dimension),
+        appendCapabilityEvidenceBatch: (values) =>
+          capabilityStore.appendCapabilityEvidenceBatch(values),
         saveExternalAppProfile: (value) => capabilityStore.saveExternalAppProfile(value),
-        listExternalAppProfiles: (teammateId) => capabilityStore.listExternalAppProfiles(teammateId),
+        listExternalAppProfiles: (teammateId) =>
+          capabilityStore.listExternalAppProfiles(teammateId),
         createExternalWorkRequest: (value) => capabilityStore.createExternalWorkRequest(value),
         getExternalWorkRequest: (id) => capabilityStore.getExternalWorkRequest(id),
-        listExternalWorkRequests: (missionId, runId) => capabilityStore.listExternalWorkRequests(missionId, runId),
-        transitionExternalWorkRequest: (id, state, at, publicResult) => capabilityStore.transitionExternalWorkRequest(id, state, at, publicResult),
+        listExternalWorkRequests: (missionId, runId) =>
+          capabilityStore.listExternalWorkRequests(missionId, runId),
+        transitionExternalWorkRequest: (id, state, at, publicResult) =>
+          capabilityStore.transitionExternalWorkRequest(id, state, at, publicResult),
         appendExternalWorkArtifact: (value) => capabilityStore.appendExternalWorkArtifact(value),
-        listExternalWorkArtifacts: (requestId) => capabilityStore.listExternalWorkArtifacts(requestId),
+        listExternalWorkArtifacts: (requestId) =>
+          capabilityStore.listExternalWorkArtifacts(requestId),
         getMission: (id) => gate3Store.getMission(id),
         listRuns: (missionId) => gate3Store.listRuns(missionId),
         listMissionParticipants: (missionId) => gate5Store.listMissionParticipants(missionId),
-        transitionMission: (value, expectedState) => gate3Store.transitionMission(value, expectedState),
+        transitionMission: (value, expectedState) =>
+          gate3Store.transitionMission(value, expectedState),
         appendMissionEvent: (value) => gate3Store.appendMissionEvent(value),
         appendAuditEvent: (value) => gate3Store.appendAuditEvent(value),
         transaction: (fn) => gate3Store.transaction(fn),
@@ -274,11 +289,18 @@ if (!squirrelStartup)
         validateArtifact: async (relativePath, constraints) => {
           const root = tools.getWorkspace().rootPath;
           if (!root) throw new Error('请先选择 Workspace Root');
-          const inspected = await (await FileWorkspace.open(root)).inspectArtifact(relativePath, constraints.maxSizeBytes);
+          const inspected = await (
+            await FileWorkspace.open(root)
+          ).inspectArtifact(relativePath, constraints.maxSizeBytes);
           if (!constraints.allowedExtensions.includes(inspected.extension)) {
             throw new Error('Artifact extension 不符合要求');
           }
-          return { relativePath: inspected.path, fileName: inspected.fileName, extension: inspected.extension, sizeBytes: inspected.sizeBytes };
+          return {
+            relativePath: inspected.path,
+            fileName: inspected.fileName,
+            extension: inspected.extension,
+            sizeBytes: inspected.sizeBytes,
+          };
         },
       });
       app.once('before-quit', () => {

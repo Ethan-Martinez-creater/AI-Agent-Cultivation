@@ -2237,14 +2237,20 @@ export class Gate5CollaborationService {
     const current = this.parties.validatePartyForMission(mission.partyId!);
     const snapshot = this.store.listMissionParticipants(mission.id);
     const currentIds = current.members.map((item) => item.teammate.id);
+    const reviewerId =
+      mission.mode === 'REVIEW'
+        ? current.members.find((item) => item.membership.role === 'MEMBER')?.teammate.id
+        : undefined;
     if (
       current.party.coordinatorTeammateId !== mission.coordinatorTeammateId ||
       snapshot.length !== currentIds.length ||
       snapshot.some(
         (item) =>
           !currentIds.includes(item.teammateId) ||
-          current.members.find((member) => member.teammate.id === item.teammateId)?.membership
-            .role !== item.role,
+          (item.teammateId === reviewerId
+            ? 'REVIEWER'
+            : current.members.find((member) => member.teammate.id === item.teammateId)?.membership
+                .role) !== item.role,
       )
     ) {
       throw new DomainError('INVALID_INPUT', 'Party 成员已变化，请创建新 Mission');

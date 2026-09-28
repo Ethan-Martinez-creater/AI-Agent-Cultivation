@@ -470,7 +470,7 @@ export interface ExternalWorkDetail {
   artifacts: ExternalWorkArtifact[];
 }
 
-export interface ExternalWorkServiceOptions extends HumanBridgeServiceOptions {}
+export type ExternalWorkServiceOptions = HumanBridgeServiceOptions;
 
 type ContinuationListener = (value: ExternalWorkContinuation) => void | Promise<void>;
 type CreatedListener = (value: ExternalWorkCreatedNotification) => void | Promise<void>;

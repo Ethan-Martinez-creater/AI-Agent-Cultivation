@@ -34,24 +34,54 @@ const collaborationDecision = z
   .object({
     requestId: id,
     decision: z.enum(['APPROVED', 'DENIED']),
-    externalWork: z.object({
-      capability: z.enum([
-        'GENERAL_REASONING', 'LONG_CONTEXT_REASONING', 'AGENTIC_EXECUTION', 'CODING', 'TOOL_USE',
-        'VISUAL_UNDERSTANDING', 'IMAGE_GENERATION', 'IMAGE_EDITING', 'VIDEO_GENERATION', 'VIDEO_EDITING',
-        'SPEECH_UNDERSTANDING', 'SPEECH_GENERATION', 'SPEECH_TO_SPEECH', 'MUSIC_GENERATION',
-      ]),
-      title: z.string().min(1).max(160),
-      prompt: z.string().min(1).max(20_000),
-      requirements: z.array(z.string().min(1).max(1_000)).max(20),
-      targetArtifacts: z.array(z.object({
-        id, name: z.string().min(1).max(255), required: z.boolean(),
-        allowedExtensions: z.array(z.string().regex(/^\.[a-z0-9]{1,12}$/)).min(1).max(16),
-        maxSizeBytes: z.number().int().min(1).max(100 * 1024 * 1024),
-      }).strict()).min(1).max(12),
-      targetWorkspacePaths: z.array(z.string().min(1).max(512)).max(8),
-      acceptanceCriteria: z.array(z.string().min(1).max(1_000)).min(1).max(20),
-      externalAppProfileId: id.nullable().optional(),
-    }).strict().optional(),
+    externalWork: z
+      .object({
+        capability: z.enum([
+          'GENERAL_REASONING',
+          'LONG_CONTEXT_REASONING',
+          'AGENTIC_EXECUTION',
+          'CODING',
+          'TOOL_USE',
+          'VISUAL_UNDERSTANDING',
+          'IMAGE_GENERATION',
+          'IMAGE_EDITING',
+          'VIDEO_GENERATION',
+          'VIDEO_EDITING',
+          'SPEECH_UNDERSTANDING',
+          'SPEECH_GENERATION',
+          'SPEECH_TO_SPEECH',
+          'MUSIC_GENERATION',
+        ]),
+        title: z.string().min(1).max(160),
+        prompt: z.string().min(1).max(20_000),
+        requirements: z.array(z.string().min(1).max(1_000)).max(20),
+        targetArtifacts: z
+          .array(
+            z
+              .object({
+                id,
+                name: z.string().min(1).max(255),
+                required: z.boolean(),
+                allowedExtensions: z
+                  .array(z.string().regex(/^\.[a-z0-9]{1,12}$/))
+                  .min(1)
+                  .max(16),
+                maxSizeBytes: z
+                  .number()
+                  .int()
+                  .min(1)
+                  .max(100 * 1024 * 1024),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(12),
+        targetWorkspacePaths: z.array(z.string().min(1).max(512)).max(8),
+        acceptanceCriteria: z.array(z.string().min(1).max(1_000)).min(1).max(20),
+        externalAppProfileId: id.nullable().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 const partyInput = z
