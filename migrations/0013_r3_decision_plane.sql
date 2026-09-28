@@ -29,8 +29,7 @@ CREATE TABLE decision_provider_configs (
     OR (typeof(api_key_ciphertext) = 'blob' AND length(api_key_ciphertext) > 0)
   ),
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  CHECK (enabled = 0 OR api_key_ciphertext IS NOT NULL)
+  updated_at TEXT NOT NULL
 );
 
 INSERT INTO decision_provider_configs

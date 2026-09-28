@@ -153,6 +153,22 @@ describe('R3 Decision Plane persistence', () => {
     });
     expect(repository.getDecisionProviderStatus()).not.toHaveProperty('apiKeyCiphertext');
 
+    const environmentConfigured = repository.saveDecisionProviderConfig({
+      enabled: true,
+      mode: 'SHADOW',
+      apiKeyCiphertext: null,
+      updatedAt: 'env-configured',
+    });
+    expect(environmentConfigured).toMatchObject({
+      enabled: true,
+      apiKeyCiphertext: null,
+      mode: 'SHADOW',
+    });
+    expect(repository.getDecisionProviderStatus()).toMatchObject({
+      enabled: true,
+      hasCredential: false,
+    });
+
     const ciphertext = Uint8Array.from([0x00, 0x9f, 0x21, 0xfa]);
     const saved = repository.saveDecisionProviderConfig({
       enabled: true,
