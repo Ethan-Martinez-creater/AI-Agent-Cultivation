@@ -2922,3 +2922,35 @@ td code {
     grid-template-columns: 1fr;
   }
 }
+.shadow-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.shadow-actions,
+.shadow-heading,
+.shadow-observation-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.shadow-heading {
+  justify-content: space-between;
+}
+
+.shadow-observations {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.shadow-observation {
+  border: 1px solid var(--border, #d4d6d8);
+  border-radius: 0.65rem;
+  padding: 0.85rem;
+}
+
+.shadow-observation p {
+  margin: 0.5rem 0;
+}

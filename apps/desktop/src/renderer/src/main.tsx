@@ -10,7 +10,11 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import type { BenchmarkInput, RatingInput } from '../../preload/preload.js';
+import type {
+  BenchmarkInput,
+  CultivationBridge as PreloadBridge,
+  RatingInput,
+} from '../../preload/preload.js';
 import type {
   CapabilityDimension,
   CapabilityEvidence,
@@ -27,6 +31,7 @@ import {
   type HumanBridgeApprovalInput,
   type R2UiApi,
 } from './r2-human-bridge.js';
+import { R3ShadowPanel } from './r3-shadow-panel.js';
 import './style.css';
 
 type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -362,6 +367,7 @@ interface ChatEvent {
 interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
+  r3: PreloadBridge['r3'];
   r2: R2UiApi;
   capability: {
     catalog(): Promise<
@@ -3048,7 +3054,13 @@ function metadataToken(value: unknown, pattern = /^[A-Za-z0-9_.:-]{1,96}$/): str
   return typeof value === 'string' && pattern.test(value) ? safeLabel(value) : null;
 }
 
-type SettingsTab = 'providers' | 'credentials' | 'runtimes' | 'benchmark' | 'embedding';
+type SettingsTab =
+  | 'providers'
+  | 'credentials'
+  | 'runtimes'
+  | 'benchmark'
+  | 'embedding'
+  | 'decision';
 
 function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('providers');
@@ -3106,6 +3118,7 @@ function SettingsPage() {
             ['runtimes', 'Runtime Profiles'],
             ['benchmark', '能力画像 / Benchmark'],
             ['embedding', '记忆向量检索'],
+            ['decision', 'Jev Shadow（高级）'],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -3141,6 +3154,7 @@ function SettingsPage() {
             />
           )}
           {tab === 'benchmark' && <BenchmarkPanel runtimes={runtimes} />}
+          {tab === 'decision' && <R3ShadowPanel />}
           {tab === 'embedding' && (
             <EmbeddingPanel
               providers={providers}

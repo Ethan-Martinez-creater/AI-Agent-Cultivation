@@ -139,9 +139,44 @@ export interface RatingInput {
   dimensionRatings?: Partial<Record<CapabilityDimension, 1 | 2 | 3 | 4 | 5>>;
 }
 
+export interface R3DecisionConfigView {
+  provider: 'TYPESAFE';
+  model: 'jev-1.13.0';
+  mode: 'SHADOW';
+  enabled: boolean;
+  configured: boolean;
+  keySource: 'SAFE_STORAGE' | 'ENVIRONMENT' | 'NONE';
+}
+
+export interface R3ShadowObservationView {
+  id: string;
+  missionId: string | null;
+  runId: string | null;
+  decisionType: string;
+  recommendation: string | null;
+  actualAction: string | null;
+  confidence: number | null;
+  provider: string;
+  model: string;
+  questionVersion: string;
+  policyVersion: string;
+  latencyMs: number | null;
+  inputTokens: number | null;
+  status: 'SUCCESS' | 'ERROR' | 'SKIPPED';
+  errorCode: string | null;
+  createdAt: string;
+}
+
 export interface CultivationBridge {
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
+  r3: {
+    getConfig(): Promise<R3DecisionConfigView>;
+    saveKeyFromClipboard(): Promise<R3DecisionConfigView>;
+    setEnabled(enabled: boolean): Promise<R3DecisionConfigView>;
+    testConnection(): Promise<{ ok: boolean; message: string; model: string | null }>;
+    listObservations(missionId?: string): Promise<R3ShadowObservationView[]>;
+  };
   r2: {
     bridgeProfile(): Promise<{
       teammate: Teammate;
@@ -376,6 +411,13 @@ export interface CultivationBridge {
 const bridge: CultivationBridge = {
   app: { getVersion: () => ipcRenderer.invoke('app:getVersion') },
   health: { ping: () => ipcRenderer.invoke('health:ping') },
+  r3: {
+    getConfig: () => ipcRenderer.invoke('r3:getConfig'),
+    saveKeyFromClipboard: () => ipcRenderer.invoke('r3:saveKeyFromClipboard'),
+    setEnabled: (enabled) => ipcRenderer.invoke('r3:setEnabled', enabled),
+    testConnection: () => ipcRenderer.invoke('r3:testConnection'),
+    listObservations: (missionId) => ipcRenderer.invoke('r3:listObservations', missionId),
+  },
   r2: {
     bridgeProfile: () => ipcRenderer.invoke('r2:bridgeProfile'),
     updateDisplay: (input) => ipcRenderer.invoke('r2:updateDisplay', input),

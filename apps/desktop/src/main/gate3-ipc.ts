@@ -1,7 +1,7 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 import { z } from 'zod';
 import { DomainError } from '@cultivation/shared';
-import type { MissionMode } from '@cultivation/domain';
+import type { Mission, MissionMode } from '@cultivation/domain';
 import type {
   Gate3MissionService,
   Gate3MissionStore,
@@ -117,6 +117,7 @@ export function registerGate3Ipc(
   missionStore: Pick<Gate3MissionStore, 'getApproval'>,
   partyMissions: Gate5CollaborationService,
   parties: Gate5PartyService,
+  afterMissionCreated?: (mission: Mission) => void | Promise<void>,
 ): void {
   const register = (
     channel: string,
@@ -161,25 +162,34 @@ export function registerGate3Ipc(
   register('missions:create', (args) => {
     const input = one(missionInput, args);
     const mode: MissionMode = input.mode ?? 'SOLO';
+    let created: Mission;
     if (mode === 'SOLO') {
       if (input.partyId) throw new DomainError('INVALID_INPUT', 'SOLO Mission 不可指定 Party');
-      return missions.create({
+      created = missions.create({
         title: input.title,
         objective: input.objective,
         coordinatorTeammateId: input.coordinatorTeammateId,
       });
+    } else {
+      if (!input.partyId) throw new DomainError('INVALID_INPUT', 'Party Mission 必须指定 Party');
+      const party = parties.getParty(input.partyId);
+      if (party.coordinatorTeammateId !== input.coordinatorTeammateId) {
+        throw new DomainError('INVALID_INPUT', 'Mission 协调道友必须与 Party Coordinator 一致');
+      }
+      created = partyMissions.create({
+        title: input.title,
+        objective: input.objective,
+        mode,
+        partyId: input.partyId,
+      });
     }
-    if (!input.partyId) throw new DomainError('INVALID_INPUT', 'Party Mission 必须指定 Party');
-    const party = parties.getParty(input.partyId);
-    if (party.coordinatorTeammateId !== input.coordinatorTeammateId) {
-      throw new DomainError('INVALID_INPUT', 'Mission 协调道友必须与 Party Coordinator 一致');
+    if (afterMissionCreated) {
+      // Shadow processing is detached from the committed Mission and cannot affect its result.
+      void Promise.resolve()
+        .then(() => afterMissionCreated(created))
+        .catch(() => undefined);
     }
-    return partyMissions.create({
-      title: input.title,
-      objective: input.objective,
-      mode,
-      partyId: input.partyId,
-    });
+    return created;
   });
   register('missions:update', (args) => {
     const input = one(missionEdit, args);
