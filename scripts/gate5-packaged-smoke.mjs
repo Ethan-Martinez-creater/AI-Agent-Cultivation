@@ -141,8 +141,8 @@ try {
     return {
       providerAId: providerA.id,
       providerBId: providerB.id,
-      runtimeAId: runtimeA.id,
-      runtimeBId: runtimeB.id,
+      runtimeAId: a.currentRuntimeProfileId,
+      runtimeBId: b.currentRuntimeProfileId,
       aId: a.id,
       bId: b.id,
       partyId: party.id,

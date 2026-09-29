@@ -646,6 +646,8 @@ describe('Gate 3 Mission Runtime', () => {
     service.ready(mission.id);
     const inFlight = service.start({ missionId: mission.id, approvalFixture: false });
     await modelStarted;
+    expect(service.recoverInterrupted(new Set([mission.id]))).toEqual([]);
+    expect(service.detail(mission.id).mission.state).toBe('RUNNING');
     expect(service.recoverInterrupted()).toMatchObject([{ id: mission.id, state: 'INTERRUPTED' }]);
     expect(service.detail(mission.id).runs[0]?.status).toBe('INTERRUPTED');
 

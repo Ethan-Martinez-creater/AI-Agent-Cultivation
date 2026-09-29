@@ -59,7 +59,6 @@ export function registerGate1Ipc(
   window: BrowserWindow,
   validSender: (event: IpcMainInvokeEvent) => boolean,
   service: Gate1Service,
-  onRuntimeSwitched?: (teammateId: string) => void | Promise<void>,
   onRuntimeUpdated?: (runtimeProfileId: string) => void | Promise<void>,
 ): void {
   const activeRequests = new Set<string>();
@@ -104,6 +103,15 @@ export function registerGate1Ipc(
     }
     return service.createCredential({ ...input, apiKey });
   });
+  register('credentials:rotate', async (_event, args) => {
+    const credentialId = one(args, idSchema);
+    const apiKey = (await clipboard.readText()).trim();
+    clipboard.clear();
+    if (!apiKey || apiKey.length > 16_384) {
+      throw new DomainError('INVALID_INPUT', '请先复制有效的 API Key 到剪贴板');
+    }
+    return service.rotateCredential({ credentialId, apiKey });
+  });
   register('runtimes:list', (_event, args) => {
     noArgs(args);
     return service.listRuntimeProfiles();
@@ -131,15 +139,7 @@ export function registerGate1Ipc(
   );
   register('teammates:archive', (_event, args) => service.archiveTeammate(one(args, idSchema)));
   register('teammates:duplicate', (_event, args) => service.duplicateTeammate(one(args, idSchema)));
-  register('teammates:switchRuntime', async (_event, args) => {
-    const input = one(
-      args,
-      z.object({ teammateId: idSchema, runtimeProfileId: idSchema }).strict(),
-    );
-    const updated = await service.switchRuntime(input);
-    await onRuntimeSwitched?.(updated.id);
-    return updated;
-  });
+  ipcMain.removeHandler('teammates:switchRuntime');
   register('chat:listConversations', (_event, args) =>
     service.listConversations(one(args, idSchema)),
   );

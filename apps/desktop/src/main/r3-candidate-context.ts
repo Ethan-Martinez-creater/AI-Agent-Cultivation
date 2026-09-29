@@ -1,12 +1,16 @@
 import { CAPABILITY_DIMENSIONS } from '@cultivation/application';
 import type { DecisionCandidateInput } from '@cultivation/application/r3-decision-state';
 import type { R1CapabilityService } from '@cultivation/application/r1-capability-service';
-import type { HumanBridgeService } from '@cultivation/application/r2-human-bridge-service';
 import type {
   Gate1SqliteRepository,
   Gate2SqliteRepository,
   Gate6SqliteRepository,
 } from '@cultivation/persistence';
+
+export interface R3CandidateBindingEligibility {
+  /** True only for a sealed binding whose Provider and Runtime snapshot are structurally valid. */
+  hasValidModelBinding(teammateId: string): boolean;
+}
 
 /** Reads only allowlisted summaries; Memory, messages, files and events are never queried. */
 export function buildR3ShadowCandidates(
@@ -16,7 +20,7 @@ export function buildR3ShadowCandidates(
     skills: Gate2SqliteRepository;
     experiences: Gate6SqliteRepository;
     capabilities: R1CapabilityService;
-    humanBridge: HumanBridgeService;
+    bindingEligibility: R3CandidateBindingEligibility;
   },
 ): DecisionCandidateInput[] {
   const eligible = stores.teammates
@@ -24,7 +28,11 @@ export function buildR3ShadowCandidates(
     .filter(
       (teammate) =>
         teammate.status === 'ACTIVE' &&
-        (teammate.executorKind === 'USER_BRIDGE' || teammate.currentRuntimeProfileId !== null),
+        teammate.executorKind === 'MODEL_RUNTIME' &&
+        teammate.systemKind !== 'HUMAN_BRIDGE' &&
+        teammate.routingPolicy !== 'FALLBACK_ONLY' &&
+        teammate.currentRuntimeProfileId !== null &&
+        stores.bindingEligibility.hasValidModelBinding(teammate.id),
     )
     .sort((a, b) =>
       a.id === selectedTeammateId ? -1 : b.id === selectedTeammateId ? 1 : a.id.localeCompare(b.id),
@@ -35,22 +43,19 @@ export function buildR3ShadowCandidates(
 
   return eligible.map((teammate) => {
     const capabilities: DecisionCandidateInput['capabilities'] = {};
-    if (teammate.executorKind === 'USER_BRIDGE') {
-      const bridge = stores.humanBridge.capabilityProfile();
-      for (const dimension of bridge.dimensions) {
-        capabilities[dimension.dimension] = dimension.enabled
-          ? { status: 'SUPPORTED', score: dimension.currentScore ?? dimension.priorScore }
+    const profile = stores.capabilities.profile(teammate.id);
+    for (const dimension of profile.dimensions) {
+      const prior = dimension.prior;
+      const score = prior?.normalizedScore;
+      capabilities[dimension.dimension] = !prior
+        ? { status: 'UNCONFIGURED', score: null }
+        : prior.supported &&
+            typeof score === 'number' &&
+            Number.isFinite(score) &&
+            score >= 0 &&
+            score <= 100
+          ? { status: 'SUPPORTED', score }
           : { status: 'UNSUPPORTED', score: null };
-      }
-    } else {
-      const profile = stores.capabilities.profile(teammate.id);
-      for (const dimension of profile.dimensions) {
-        capabilities[dimension.dimension] = !dimension.prior
-          ? { status: 'UNCONFIGURED', score: null }
-          : dimension.prior.supported
-            ? { status: 'SUPPORTED', score: dimension.currentScore }
-            : { status: 'UNSUPPORTED', score: null };
-      }
     }
     for (const dimension of CAPABILITY_DIMENSIONS) {
       capabilities[dimension] ??= { status: 'UNCONFIGURED', score: null };

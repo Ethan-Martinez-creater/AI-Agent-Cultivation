@@ -164,15 +164,15 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
       <div className="form-card">
         <h2>能力画像 / Benchmark</h2>
         <p className="muted-copy">
-          每个维度独立记录在 Runtime 和 Model ID
-          上。成绩由你填写，参考入口只提供榜单名称与链接；不自动抓取或假定模型得分。
+          每个维度独立记录在 Runtime 和 Model ID 上。道友创建后使用独立 Runtime，请按道友档案中的
+          Runtime ID 选择；参考入口不自动填分。
         </p>
         <label className="field">
           <span>Runtime / Model</span>
           <select value={runtimeId} onChange={(event) => setRuntimeId(event.target.value)}>
             {runtimes.map((item) => (
               <option key={item.id} value={item.id}>
-                {item.name} · {item.modelId}
+                {item.name} · {item.modelId} · {item.id.slice(0, 8)}
               </option>
             ))}
           </select>
@@ -380,7 +380,7 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
         if (!cancelled) setProfile(value);
       })
       .catch((cause: unknown) => {
-        if (!cancelled) setError(errorText(cause, '读取动态能力失败。'));
+        if (!cancelled) setError(errorText(cause, '读取 Benchmark 能力失败。'));
       });
     return () => {
       cancelled = true;
@@ -390,10 +390,8 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
     <section className="profile-section r1-profile-section">
       <div className="section-heading">
         <div>
-          <h3>动态能力 · Capability</h3>
-          <p>
-            由当前 Runtime Benchmark 与真实 Mission 用户评价重建；不会自动改变境界或选择执行者。
-          </p>
+          <h3>模型能力 · Benchmark</h3>
+          <p>能力分仅来自当前固定模型的有效 Benchmark；经历与功法只提供语义背景，不调整分数。</p>
         </div>
       </div>
       {error && (
@@ -401,13 +399,10 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
           {error}
         </div>
       )}
-      {!profile && !error && <div className="loading-card">正在重建能力画像…</div>}
+      {!profile && !error && <div className="loading-card">正在读取 Benchmark 能力画像…</div>}
       {profile && (
         <>
-          <p className="form-hint">
-            当前 Runtime：{profile.currentRuntimeProfileId ?? '无'} · 评分策略：
-            {profile.scoringPolicyVersion}
-          </p>
+          <p className="form-hint">固定模型 Runtime：{profile.currentRuntimeProfileId ?? '无'}</p>
           <div className="r1-capability-grid">
             {profile.dimensions.map((item) => (
               <article className="r1-capability-card" key={item.dimension}>
@@ -420,7 +415,7 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
                   </p>
                 )}
                 <small>
-                  Benchmark prior：
+                  Benchmark：
                   {item.prior?.supported
                     ? `${item.prior.normalizedScore} / 100`
                     : item.prior
@@ -428,258 +423,23 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
                       : '未配置'}
                 </small>
                 <small>
-                  评价数：{item.ratingCount} · Evidence weight：{item.evidenceWeight.toFixed(2)}
-                </small>
-                {item.currentScore !== null && item.weightedUserScore !== null && (
-                  <small>
-                    调整依据：用户加权均分 {item.weightedUserScore.toFixed(1)}；P=
-                    {item.priorStrength}，E={item.evidenceWeight.toFixed(2)}，α=
-                    {item.alpha.toFixed(3)}。历史 Runtime 权重 {item.transferWeight}。
-                  </small>
-                )}
-                <small>
                   来源：
                   {item.prior
                     ? `${item.prior.source} / ${item.prior.benchmark} (${item.prior.benchmarkVersion})`
                     : '无'}
                 </small>
                 <small>
-                  {item.source === 'BENCHMARK_PLUS_USER_EVIDENCE'
-                    ? '按用户评价逐步调整，历史 Runtime 的证据以迁移权重参与。'
-                    : item.source === 'BENCHMARK_ONLY'
-                      ? '当前分数仅来自 Benchmark prior。'
-                      : item.source === 'UNSUPPORTED'
-                        ? '当前 Runtime 明确不支持，不能形成有效能力分数。'
-                        : '没有可用于未来路由的能力分数。'}
+                  {item.source === 'BENCHMARK_ONLY'
+                    ? '当前分数仅来自 Benchmark prior。'
+                    : item.source === 'UNSUPPORTED'
+                      ? '当前 Runtime 明确不支持，不能形成有效能力分数。'
+                      : '没有可用于未来路由的能力分数。'}
                 </small>
               </article>
             ))}
           </div>
         </>
       )}
-    </section>
-  );
-}
-
-type RatingTarget = Awaited<ReturnType<typeof window.cultivation.capability.ratingTargets>>[number];
-
-export function MissionRatingCard({
-  missionId,
-  runId,
-  teammateNames,
-}: {
-  missionId: string;
-  runId: string;
-  teammateNames: Record<string, string>;
-}) {
-  const [targets, setTargets] = useState<RatingTarget[]>([]);
-  const [selectedTargetKey, setSelectedTargetKey] = useState('');
-  const [selectedDimensions, setSelectedDimensions] = useState<CapabilityDimension[]>([]);
-  const [overallRating, setOverallRating] = useState<1 | 2 | 3 | 4 | 5 | null>(null);
-  const [advanced, setAdvanced] = useState(false);
-  const [dimensionRatings, setDimensionRatings] = useState<
-    Partial<Record<CapabilityDimension, 1 | 2 | 3 | 4 | 5>>
-  >({});
-  const [dismissed, setDismissed] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
-  useEffect(() => {
-    let cancelled = false;
-    setTargets([]);
-    setDismissed(false);
-    void window.cultivation.capability
-      .ratingTargets({ missionId, runId })
-      .then((items) => {
-        if (cancelled) return;
-        setTargets(items);
-        const first = items.find((item) => !item.alreadyRated);
-        setSelectedTargetKey(first ? `${first.teammateId}:${first.runtimeProfileId}` : '');
-      })
-      .catch((cause: unknown) => {
-        if (!cancelled) setError(errorText(cause, '读取可评价道友失败。'));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [missionId, runId]);
-  const unrated = targets.filter((item) => !item.alreadyRated);
-  const available = unrated.filter((item) => item.supportedDimensions.length > 0);
-  const target =
-    available.find((item) => `${item.teammateId}:${item.runtimeProfileId}` === selectedTargetKey) ??
-    available[0];
-  const toggleDimension = (dimension: CapabilityDimension) => {
-    setSelectedDimensions((current) =>
-      current.includes(dimension)
-        ? current.filter((value) => value !== dimension)
-        : current.length < 3
-          ? [...current, dimension]
-          : current,
-    );
-  };
-  const save = async () => {
-    if (!target) return;
-    if (selectedDimensions.length < 1 || selectedDimensions.length > 3) {
-      setError('请选 1–3 个本次实际涉及的能力维度。');
-      return;
-    }
-    if (!overallRating && selectedDimensions.some((dimension) => !dimensionRatings[dimension])) {
-      setError('请填写整体评分，或为每个所选维度分别评分。');
-      return;
-    }
-    setBusy(true);
-    setError('');
-    try {
-      await window.cultivation.capability.submitRating({
-        missionId,
-        runId,
-        teammateId: target.teammateId,
-        runtimeProfileId: target.runtimeProfileId,
-        selectedDimensions,
-        ...(overallRating ? { overallRating } : {}),
-        ...(advanced ? { dimensionRatings } : {}),
-      });
-      const updated = await window.cultivation.capability.ratingTargets({ missionId, runId });
-      setTargets(updated);
-      const next = updated.find((item) => !item.alreadyRated);
-      setSelectedTargetKey(next ? `${next.teammateId}:${next.runtimeProfileId}` : '');
-      setSelectedDimensions([]);
-      setOverallRating(null);
-      setDimensionRatings({});
-      setNotice('评价已保存为可追溯 Evidence；能力投影已更新。');
-    } catch (cause) {
-      setError(errorText(cause, '保存评价失败。'));
-    } finally {
-      setBusy(false);
-    }
-  };
-  if (dismissed || (!unrated.length && !error && !notice)) return null;
-  return (
-    <section className="r1-rating-card" aria-label="本次历练评价">
-      <div className="section-heading">
-        <div>
-          <h3>本次历练评价 · 可跳过</h3>
-          <p>
-            只评价本 Run 真正调用过模型的道友。从该 Runtime 已支持的维度选 1–3 项，评价不会阻塞
-            Mission 完成。
-          </p>
-        </div>
-      </div>
-      {error && (
-        <div className="inline-message error" role="alert">
-          {error}
-        </div>
-      )}
-      {notice && (
-        <div className="inline-message success" role="status">
-          {notice}
-        </div>
-      )}
-      {!target && unrated.length > 0 && (
-        <p className="form-hint">
-          本 Run 有实际执行记录，但对应 Runtime 尚未配置任何受支持能力维度。请先在 Settings
-          的能力画像中录入 Benchmark；也可直接跳过。
-        </p>
-      )}
-      {target && (
-        <>
-          <label className="field">
-            <span>执行道友</span>
-            <select
-              value={`${target.teammateId}:${target.runtimeProfileId}`}
-              onChange={(event) => {
-                setSelectedTargetKey(event.target.value);
-                setSelectedDimensions([]);
-                setDimensionRatings({});
-              }}
-            >
-              {available.map((item) => (
-                <option
-                  key={`${item.teammateId}:${item.runtimeProfileId}`}
-                  value={`${item.teammateId}:${item.runtimeProfileId}`}
-                >
-                  {teammateNames[item.teammateId] ?? item.teammateId} · {item.modelAlias}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="r1-rating-dimensions">
-            {target.supportedDimensions.map((dimension) => (
-              <label key={dimension} className="r1-rating-dimension">
-                <input
-                  type="checkbox"
-                  checked={selectedDimensions.includes(dimension)}
-                  onChange={() => toggleDimension(dimension)}
-                />
-                <span>{labelDimension(dimension)}</span>
-              </label>
-            ))}
-          </div>
-          <label className="field">
-            <span>整体评分（快速模式）</span>
-            <select
-              value={overallRating ?? ''}
-              onChange={(event) =>
-                setOverallRating(
-                  event.target.value ? (Number(event.target.value) as 1 | 2 | 3 | 4 | 5) : null,
-                )
-              }
-            >
-              <option value="">请选择，或在高级模式逐维评分</option>
-              {[1, 2, 3, 4, 5].map((value) => (
-                <option key={value} value={value}>
-                  {value} 星
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field r1-checkbox-field">
-            <input
-              type="checkbox"
-              checked={advanced}
-              onChange={(event) => setAdvanced(event.target.checked)}
-            />
-            <span>高级模式：所选维度可单独评分，覆盖整体分数</span>
-          </label>
-          {advanced &&
-            selectedDimensions.map((dimension) => (
-              <label className="field" key={dimension}>
-                <span>{labelDimension(dimension)}</span>
-                <select
-                  value={dimensionRatings[dimension] ?? ''}
-                  onChange={(event) =>
-                    setDimensionRatings((current) => ({
-                      ...current,
-                      [dimension]: event.target.value
-                        ? (Number(event.target.value) as 1 | 2 | 3 | 4 | 5)
-                        : undefined,
-                    }))
-                  }
-                >
-                  <option value="">使用整体评分</option>
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <option key={value} value={value}>
-                      {value} 星
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
-        </>
-      )}
-      <div className="button-row compact">
-        <button
-          className="button primary small"
-          type="button"
-          disabled={busy || !target}
-          onClick={() => void save()}
-        >
-          {busy ? '保存中…' : '提交评价'}
-        </button>
-        <button className="button ghost small" type="button" onClick={() => setDismissed(true)}>
-          跳过
-        </button>
-      </div>
     </section>
   );
 }

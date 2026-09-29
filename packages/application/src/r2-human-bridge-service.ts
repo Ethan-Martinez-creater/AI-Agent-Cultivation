@@ -15,15 +15,11 @@ import type {
 } from '@cultivation/domain';
 import { transition } from '@cultivation/domain';
 import { DomainError } from '@cultivation/shared';
-import {
-  CAPABILITY_DIMENSIONS,
-  CAPABILITY_SCORING_POLICY,
-  ratingStarsToScore,
-} from './r1-capability-scoring.js';
+import { CAPABILITY_DIMENSIONS } from './r1-capability-scoring.js';
 
 export const HUMAN_BRIDGE_SYSTEM_ID = 'system-human-bridge';
 export const HUMAN_BRIDGE_PRIOR_SOURCE = 'HUMAN_BRIDGE_EXPLICIT_PRIOR';
-export const HUMAN_BRIDGE_SCORING_POLICY_VERSION = 'r2-human-bridge-progressive-v1';
+export const HUMAN_BRIDGE_SCORING_POLICY_VERSION = 'r3-human-bridge-fixed-benchmark-v1';
 
 const MAX_DISPLAY_NAME_LENGTH = 120;
 const MAX_DISPLAY_TITLE_LENGTH = 160;
@@ -122,6 +118,32 @@ export interface R2HumanBridgeServiceStore extends HumanBridgeServiceStore {
   transaction<T>(fn: () => T): T;
 }
 
+export type R2ExternalWorkContinuationState = 'PENDING' | 'CONSUMING' | 'CONSUMED';
+
+export interface R2ExternalWorkContinuationRecord {
+  externalWorkRequestId: string;
+  missionId: string;
+  missionRunId: string;
+  state: R2ExternalWorkContinuationState;
+  createdAt: string;
+  updatedAt: string;
+  consumedAt: string | null;
+}
+
+/** Backed by the same SQLite connection as the Mission and ExternalWork stores. */
+export interface R2ExternalWorkContinuationStore {
+  createPending(input: {
+    externalWorkRequestId: string;
+    missionId: string;
+    missionRunId: string;
+    createdAt: string;
+  }): R2ExternalWorkContinuationRecord;
+  getByRequestId(requestId: string): R2ExternalWorkContinuationRecord | null;
+  listRecoverable(): R2ExternalWorkContinuationRecord[];
+  markConsuming(requestId: string, at: string): boolean;
+  markConsumed(requestId: string, at: string): boolean;
+}
+
 export interface HumanBridgeServiceOptions {
   now?: () => string;
   newId?: () => string;
@@ -172,7 +194,6 @@ export class HumanBridgeService {
       updatedAt: at,
     });
     assertHumanBridgeIdentity(teammate);
-    this.rebuild(teammate.id);
     return teammate;
   }
 
@@ -210,26 +231,23 @@ export class HumanBridgeService {
 
   capabilityProfile(): HumanBridgeCapabilityProfile {
     const teammate = this.requireBridge();
-    const states = this.rebuild(teammate.id);
     const settingByDimension = new Map(
       this.store
         .listHumanBridgeCapabilities(teammate.id)
         .map((setting) => [setting.dimension, setting.enabled]),
     );
-    const stateByDimension = new Map(states.map((state) => [state.dimension, state]));
     return {
       teammate,
       scoringPolicyVersion: HUMAN_BRIDGE_SCORING_POLICY_VERSION,
       dimensions: CAPABILITY_DIMENSIONS.map((dimension) => {
         const enabled = settingByDimension.get(dimension) === true;
-        const state = stateByDimension.get(dimension);
         return {
           dimension,
           enabled,
           priorScore: enabled ? 1 : null,
-          currentScore: state?.currentScore ?? null,
-          evidenceWeight: state?.evidenceWeight ?? 0,
-          ratingCount: state?.ratingCount ?? 0,
+          currentScore: enabled ? 1 : null,
+          evidenceWeight: 0,
+          ratingCount: 0,
           source: enabled ? HUMAN_BRIDGE_PRIOR_SOURCE : null,
         };
       }),
@@ -265,48 +283,12 @@ export class HumanBridgeService {
     return profile;
   }
 
-  submitRating(input: HumanBridgeRatingInput): HumanBridgeRatingResult {
-    const teammate = this.requireBridge();
-    const request = this.store.getExternalWorkRequest(requiredId(input.externalWorkRequestId));
-    if (!request || request.assigneeTeammateId !== teammate.id || request.state !== 'ACCEPTED') {
-      throw new DomainError('CONFLICT', '只有已接受的 Human Bridge ExternalWork 才可评价');
-    }
-    if (latestSubmissionArtifacts(this.store, request).length === 0) {
-      throw new DomainError('CONFLICT', '缺少已验证的 ExternalWork Artifact');
-    }
-    if (input.skip === true) {
-      return { evidence: [], skipped: true, profile: this.capabilityProfile() };
-    }
-    const stars = input.stars;
-    if (stars === undefined) throw new DomainError('INVALID_INPUT', '评价星级不能为空');
-    const existing = this.store
-      .listCapabilityEvidence(teammate.id, request.capability)
-      .some(
-        (entry) =>
-          entry.missionId === request.missionId &&
-          entry.runId === request.runId &&
-          entry.runtimeProfileId === null,
-      );
-    if (existing) throw new DomainError('CONFLICT', '此 Mission Run 已评价过该 Human Bridge 能力');
-    const evidence: CapabilityEvidence = {
-      id: this.newId(),
-      teammateId: teammate.id,
-      runtimeProfileId: null,
-      missionId: request.missionId,
-      runId: request.runId,
-      dimension: request.capability,
-      sourceType: 'USER_DIMENSION_RATING',
-      ratingValue: ratingStarsToScore(stars),
-      demandWeight: CAPABILITY_SCORING_POLICY.selectedDimensionDemandWeight,
-      evidenceWeight: CAPABILITY_SCORING_POLICY.dimensionEvidenceWeight,
-      createdAt: this.now(),
-    };
-    this.store.appendCapabilityEvidenceBatch([evidence]);
-    return {
-      evidence: [evidence],
-      skipped: false,
-      profile: this.capabilityProfile(),
-    };
+  submitRating(_input: HumanBridgeRatingInput): HumanBridgeRatingResult {
+    void _input;
+    throw new DomainError(
+      'CAPABILITY_RATING_DISABLED',
+      'Human Bridge capability ratings are disabled; enabled dimensions have a fixed score of 1.',
+    );
   }
 
   private requireBridge(): Teammate {
@@ -317,69 +299,6 @@ export class HumanBridgeService {
     });
     assertHumanBridgeIdentity(teammate);
     return teammate;
-  }
-
-  private rebuild(teammateId: string): TeammateCapabilityState[] {
-    const settings = this.store.listHumanBridgeCapabilities(teammateId);
-    const enabled = new Set(
-      settings.filter((setting) => setting.enabled).map((item) => item.dimension),
-    );
-    if (enabled.size === 0) {
-      this.store.replaceTeammateCapabilityStates(teammateId, []);
-      return [];
-    }
-
-    const requests = this.store.listExternalWorkRequests();
-    const acceptedFacts = new Set(
-      requests
-        .filter(
-          (request) =>
-            request.assigneeTeammateId === teammateId &&
-            request.state === 'ACCEPTED' &&
-            latestSubmissionArtifacts(this.store, request).length > 0,
-        )
-        .map((request) => `${request.missionId}\0${request.runId}\0${request.capability}`),
-    );
-    const evidence = this.store
-      .listCapabilityEvidence(teammateId)
-      .filter(
-        (entry) =>
-          entry.runtimeProfileId === null &&
-          acceptedFacts.has(`${entry.missionId}\0${entry.runId}\0${entry.dimension}`),
-      );
-    const states = CAPABILITY_DIMENSIONS.flatMap((dimension) => {
-      if (!enabled.has(dimension)) return [];
-      const relevant = evidence.filter((entry) => entry.dimension === dimension);
-      const weight = relevant.reduce(
-        (sum, entry) => sum + entry.evidenceWeight * entry.demandWeight,
-        0,
-      );
-      const weightedScore = relevant.reduce(
-        (sum, entry) => sum + entry.ratingValue * entry.evidenceWeight * entry.demandWeight,
-        0,
-      );
-      const userScore = weight > 0 ? weightedScore / weight : 1;
-      const alpha = weight > 0 ? weight / (CAPABILITY_SCORING_POLICY.priorStrength + weight) : 0;
-      const currentScore = roundScore(1 + alpha * (userScore - 1));
-      const updatedAt = maxTimestamp([
-        settings.find((item) => item.dimension === dimension)?.updatedAt ?? this.now(),
-        ...relevant.map((entry) => entry.createdAt),
-      ]);
-      return [
-        {
-          teammateId,
-          dimension,
-          currentScore,
-          evidenceWeight: weight,
-          ratingCount: relevant.length,
-          currentRuntimeProfileId: null,
-          scoringPolicyVersion: HUMAN_BRIDGE_SCORING_POLICY_VERSION,
-          updatedAt,
-        } satisfies TeammateCapabilityState,
-      ];
-    });
-    this.store.replaceTeammateCapabilityStates(teammateId, states);
-    return states;
   }
 }
 
@@ -470,7 +389,9 @@ export interface ExternalWorkDetail {
   artifacts: ExternalWorkArtifact[];
 }
 
-export type ExternalWorkServiceOptions = HumanBridgeServiceOptions;
+export interface ExternalWorkServiceOptions extends HumanBridgeServiceOptions {
+  continuations?: R2ExternalWorkContinuationStore;
+}
 
 type ContinuationListener = (value: ExternalWorkContinuation) => void | Promise<void>;
 type CreatedListener = (value: ExternalWorkCreatedNotification) => void | Promise<void>;
@@ -479,6 +400,7 @@ type CreatedListener = (value: ExternalWorkCreatedNotification) => void | Promis
 export class ExternalWorkService {
   private readonly now: () => string;
   private readonly newId: () => string;
+  private readonly continuations: R2ExternalWorkContinuationStore | null;
   private readonly continuationListeners = new Set<ContinuationListener>();
   private readonly createdListeners = new Set<CreatedListener>();
 
@@ -489,6 +411,7 @@ export class ExternalWorkService {
   ) {
     this.now = options.now ?? (() => new Date().toISOString());
     this.newId = options.newId ?? randomUUID;
+    this.continuations = options.continuations ?? null;
   }
 
   createExplicit(input: CreateExplicitExternalWorkInput): ExternalWorkRequestRecord {
@@ -730,9 +653,57 @@ export class ExternalWorkService {
       if (!mission || mission.state !== 'WAITING_EXTERNAL_WORK') continue;
       const run = this.store.listRuns(request.missionId).at(-1);
       if (!run || run.id !== request.runId || run.status !== 'RUNNING') continue;
-      const continuation = this.resumeMission(request, mission);
+      const continuation =
+        request.state === 'ACCEPTED'
+          ? this.recoverAcceptedContinuation(request)
+          : this.resumeMission(request, mission);
+      if (!continuation) continue;
       continuations.push(continuation);
       this.publishContinuation(continuation);
+    }
+    return continuations;
+  }
+
+  /** Lists durable ACCEPTED continuations for ordered Main-process recovery. */
+  listPendingContinuations(): ExternalWorkContinuation[] {
+    if (!this.continuations) return [];
+    const continuations: ExternalWorkContinuation[] = [];
+    const pendingContinuations = this.continuations.listRecoverable();
+    for (const pending of pendingContinuations) {
+      const request = this.store.getExternalWorkRequest(pending.externalWorkRequestId);
+      const mission = this.store.getMission(pending.missionId);
+      const runs = this.store.listRuns(pending.missionId);
+      const run = runs.find((value) => value.id === pending.missionRunId);
+      if (
+        !request ||
+        request.state !== 'ACCEPTED' ||
+        request.missionId !== pending.missionId ||
+        request.runId !== pending.missionRunId ||
+        !mission ||
+        !['WAITING_EXTERNAL_WORK', 'RUNNING'].includes(mission.state) ||
+        !run ||
+        run.status !== 'RUNNING' ||
+        runs.at(-1)?.id !== pending.missionRunId
+      ) {
+        continue;
+      }
+      const continuation = this.buildContinuation(request, 'ACCEPTED', request.publicResult);
+      continuations.push(continuation);
+    }
+    return continuations;
+  }
+
+  /** Dispatches durable ACCEPTED work to registered listeners and waits for consumption. */
+  async resumePendingContinuations(): Promise<ExternalWorkContinuation[]> {
+    const continuations = this.listPendingContinuations();
+    if (continuations.length > 0 && this.continuationListeners.size === 0) {
+      throw new DomainError(
+        'EXTERNAL_WORK_CONTINUATION_UNAVAILABLE',
+        'ExternalWork continuation recovery requires a registered coordinator listener',
+      );
+    }
+    for (const continuation of continuations) {
+      await this.publishContinuationAndWait(continuation);
     }
     return continuations;
   }
@@ -815,12 +786,31 @@ export class ExternalWorkService {
     if (!currentRun || currentRun.id !== request.runId || currentRun.status !== 'RUNNING') {
       throw new DomainError('CONFLICT', 'ExternalWork 绑定的 MissionRun 不再是当前 RUNNING Run');
     }
+    if (outcome === 'ACCEPTED' && !this.continuations) {
+      throw new DomainError(
+        'EXTERNAL_WORK_CONTINUATION_UNAVAILABLE',
+        'Durable ExternalWork continuations are not configured',
+      );
+    }
     const at = this.now();
-    const running = transition(mission, 'RUNNING', at);
+    const nextMission = outcome === 'ACCEPTED' ? null : transition(mission, 'RUNNING', at);
     let resolved!: ExternalWorkRequestRecord;
     this.store.transaction(() => {
       resolved = this.transitionRequest(request, outcome, publicResult);
-      if (!this.store.transitionMission(running, mission.state)) {
+      if (outcome === 'ACCEPTED') {
+        const continuation = this.continuations!.createPending({
+          externalWorkRequestId: resolved.id,
+          missionId: resolved.missionId,
+          missionRunId: resolved.runId,
+          createdAt: at,
+        });
+        if (
+          continuation.missionId !== resolved.missionId ||
+          continuation.missionRunId !== resolved.runId
+        ) {
+          throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation 绑定不一致');
+        }
+      } else if (!nextMission || !this.store.transitionMission(nextMission, mission.state)) {
         throw new DomainError('CONFLICT', 'Mission 状态已被其他操作修改');
       }
       const artifacts =
@@ -849,6 +839,21 @@ export class ExternalWorkService {
       request.state as ExternalWorkContinuation['outcome'],
       request.publicResult,
     );
+  }
+
+  private recoverAcceptedContinuation(
+    request: ExternalWorkRequestRecord,
+  ): ExternalWorkContinuation | null {
+    const persisted = this.continuations?.getByRequestId(request.id);
+    if (
+      !persisted ||
+      persisted.state === 'CONSUMED' ||
+      persisted.missionId !== request.missionId ||
+      persisted.missionRunId !== request.runId
+    ) {
+      return null;
+    }
+    return this.buildContinuation(request, 'ACCEPTED', request.publicResult);
   }
 
   private buildContinuation(
@@ -927,6 +932,10 @@ export class ExternalWorkService {
 
   private publishContinuation(value: ExternalWorkContinuation): void {
     for (const listener of this.continuationListeners) this.callListener(listener, value);
+  }
+
+  private async publishContinuationAndWait(value: ExternalWorkContinuation): Promise<void> {
+    await Promise.all([...this.continuationListeners].map((listener) => listener(value)));
   }
 
   private callListener<T>(listener: (value: T) => void | Promise<void>, value: T): void {
@@ -1278,17 +1287,6 @@ function boundedField(value: string, maxLength: number): string {
   return typeof value === 'string' ? value.slice(0, maxLength) : '';
 }
 
-function maxTimestamp(values: readonly string[]): string {
-  return (
-    [...values].sort((left, right) => {
-      const leftDate = Date.parse(left);
-      const rightDate = Date.parse(right);
-      if (leftDate !== rightDate) return rightDate - leftDate;
-      return right.localeCompare(left);
-    })[0] ?? new Date(0).toISOString()
-  );
-}
-
 function afterLatestTimestamp(candidate: string, priorValues: readonly string[]): string {
   const candidateTime = Date.parse(candidate);
   const latestPrior = priorValues.reduce(
@@ -1296,10 +1294,6 @@ function afterLatestTimestamp(candidate: string, priorValues: readonly string[])
     -1,
   );
   return latestPrior >= candidateTime ? new Date(latestPrior + 1).toISOString() : candidate;
-}
-
-function roundScore(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

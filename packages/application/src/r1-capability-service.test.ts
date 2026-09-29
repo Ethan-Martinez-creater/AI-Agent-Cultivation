@@ -357,13 +357,15 @@ describe('R1 capability service', () => {
     expect(saved.modelAlias).toBe('model-1');
     expect(priors).toHaveLength(14);
     expect(priors[0]?.prior?.id).toBe('new-benchmark');
-    expect(store.states.get('teammate-1')?.[0]).toMatchObject({
+    expect(service.profile('teammate-1').dimensions[0]).toMatchObject({
       dimension: 'GENERAL_REASONING',
       currentScore: 0,
+      source: 'BENCHMARK_ONLY',
     });
+    expect(store.states.has('teammate-1')).toBe(false);
   });
 
-  it('creates at most three append-only evidence rows in one batch and supports skip', () => {
+  it('disables Mission ratings without writing legacy CapabilityEvidence', () => {
     const store = configuredStore();
     addAllSupportedBenchmarks(store);
     store.ratingTargets.push({
@@ -371,11 +373,7 @@ describe('R1 capability service', () => {
       runtimeProfileId: 'runtime-1',
       modelAlias: 'model-1',
     });
-    let nextId = 0;
-    const service = new R1CapabilityService(store, {
-      newId: () => `evidence-${++nextId}`,
-      now: () => '2026-08-05T00:00:00.000Z',
-    });
+    const service = new R1CapabilityService(store);
 
     const targets = service.getRatingTargets(RUN.missionId, RUN.runId);
     expect(targets).toEqual([
@@ -392,55 +390,12 @@ describe('R1 capability service', () => {
         ...RUN,
         teammateId: 'teammate-1',
         runtimeProfileId: 'runtime-1',
-        selectedDimensions: ['GENERAL_REASONING', 'CODING'],
-        dimensionRatings: { CODING: 2 },
-      }),
-    ).toThrow(/every selected dimension/);
-    expect(store.appendedBatches).toHaveLength(0);
-
-    const result = service.submitRating({
-      ...RUN,
-      teammateId: 'teammate-1',
-      runtimeProfileId: 'runtime-1',
-      selectedDimensions: ['GENERAL_REASONING', 'CODING', 'TOOL_USE'],
-      overallRating: 5,
-      dimensionRatings: { CODING: 2 },
-    });
-    expect(result.evidence).toHaveLength(3);
-    expect(result.evidence.map((row) => [row.dimension, row.ratingValue, row.sourceType])).toEqual([
-      ['GENERAL_REASONING', 100, 'USER_OVERALL_RATING'],
-      ['CODING', 25, 'USER_DIMENSION_RATING'],
-      ['TOOL_USE', 100, 'USER_OVERALL_RATING'],
-    ]);
-    expect(store.appendedBatches).toHaveLength(1);
-    expect(store.appendedBatches[0]).toHaveLength(3);
-    expect(service.getRatingTargets(RUN.missionId, RUN.runId)[0]?.alreadyRated).toBe(true);
-    expect(() =>
-      service.submitRating({
-        ...RUN,
-        teammateId: 'teammate-1',
-        runtimeProfileId: 'runtime-1',
         selectedDimensions: ['GENERAL_REASONING'],
         overallRating: 5,
       }),
-    ).toThrow(/already been rated/);
-
-    const secondStore = configuredStore();
-    addAllSupportedBenchmarks(secondStore);
-    secondStore.ratingTargets.push({
-      teammateId: 'teammate-1',
-      runtimeProfileId: 'runtime-1',
-      modelAlias: 'model-1',
-    });
-    const skipResult = new R1CapabilityService(secondStore).submitRating({
-      ...RUN,
-      teammateId: 'teammate-1',
-      runtimeProfileId: 'runtime-1',
-      selectedDimensions: [],
-      skip: true,
-    });
-    expect(skipResult).toEqual({ evidence: [], skipped: true });
-    expect(secondStore.appendedBatches).toHaveLength(0);
+    ).toThrow(/Mission ratings are disabled/);
+    expect(store.appendedBatches).toHaveLength(0);
+    expect(store.evidence).toHaveLength(0);
   });
 
   it('returns no target unless the persistence boundary reports actual run execution', () => {
@@ -457,7 +412,7 @@ describe('R1 capability service', () => {
         selectedDimensions: ['GENERAL_REASONING'],
         overallRating: 5,
       }),
-    ).toThrow(/did not execute/);
+    ).toThrow(/Mission ratings are disabled/);
   });
 
   it('does not enable USER_BRIDGE rating even if a fixture supplies a model target', () => {
@@ -484,10 +439,10 @@ describe('R1 capability service', () => {
         selectedDimensions: ['GENERAL_REASONING'],
         overallRating: 5,
       }),
-    ).toThrow(/did not execute/);
+    ).toThrow(/Mission ratings are disabled/);
   });
 
-  it('rebuilds reproducibly after a Runtime migration and discounts transferred evidence', () => {
+  it('uses only the current Runtime Benchmark and does not write legacy state projections', () => {
     const store = configuredStore();
     store.teammates.set('teammate-1', {
       id: 'teammate-1',
@@ -496,37 +451,104 @@ describe('R1 capability service', () => {
     });
     store.benchmarks.push(
       benchmark({
+        id: 'prior-runtime-1',
+        runtimeProfileId: 'runtime-1',
+        modelAlias: 'model-1',
+        normalizedScore: 90,
+      }),
+      benchmark({
         id: 'prior-runtime-2',
         runtimeProfileId: 'runtime-2',
         modelAlias: 'model-2',
         normalizedScore: 40,
       }),
     );
-    store.evidence.push(evidence({ runtimeProfileId: 'runtime-1', ratingValue: 100 }));
+    store.evidence.push(evidence({ runtimeProfileId: 'runtime-1', ratingValue: 0 }));
+    const staleState: TeammateCapabilityState = {
+      teammateId: 'teammate-1',
+      dimension: 'GENERAL_REASONING',
+      currentScore: 99,
+      evidenceWeight: 15,
+      ratingCount: 8,
+      currentRuntimeProfileId: 'runtime-1',
+      scoringPolicyVersion: 'legacy-dynamic-v1',
+      updatedAt: '2026-08-20T00:00:00.000Z',
+    };
+    store.states.set('teammate-1', [staleState]);
     const service = new R1CapabilityService(store);
 
     const first = service.profile('teammate-1');
     const second = service.profile('teammate-1');
+    const rebuilt = service.rebuild('teammate-1');
     const general = first.dimensions.find((value) => value.dimension === 'GENERAL_REASONING');
 
     expect(first).toEqual(second);
     expect(general).toMatchObject({
       prior: { id: 'prior-runtime-2', normalizedScore: 40 },
-      currentScore: 42.51,
-      evidenceWeight: CAPABILITY_SCORING_POLICY.transferWeight,
-      weightedUserScore: 100,
-      priorStrength: CAPABILITY_SCORING_POLICY.priorStrength,
-      transferWeight: CAPABILITY_SCORING_POLICY.transferWeight,
+      currentScore: 40,
+      evidenceWeight: 0,
+      ratingCount: 0,
+      weightedUserScore: null,
+      priorStrength: 0,
+      transferWeight: 0,
+      alpha: 0,
       currentRuntimeProfileId: 'runtime-2',
-      source: 'BENCHMARK_PLUS_USER_EVIDENCE',
+      source: 'BENCHMARK_ONLY',
+      scoringPolicyVersion: 'r1-benchmark-only-v1',
     });
-    expect(general?.alpha).toBeCloseTo(
-      CAPABILITY_SCORING_POLICY.transferWeight /
-        (CAPABILITY_SCORING_POLICY.priorStrength + CAPABILITY_SCORING_POLICY.transferWeight),
-    );
     expect(first.dimensions).toHaveLength(14);
-    expect(store.states.get('teammate-1')?.[0]?.scoringPolicyVersion).toBe(
-      CAPABILITY_SCORING_POLICY.version,
+    expect(rebuilt).toEqual([
+      expect.objectContaining({
+        dimension: 'GENERAL_REASONING',
+        currentScore: 40,
+        evidenceWeight: 0,
+        ratingCount: 0,
+        scoringPolicyVersion: 'r1-benchmark-only-v1',
+      }),
+    ]);
+    expect(store.states.get('teammate-1')).toEqual([staleState]);
+  });
+
+  it('keeps zero-score, unsupported, and unconfigured Benchmark dimensions distinct', () => {
+    const store = configuredStore();
+    store.benchmarks.push(
+      benchmark({
+        id: 'zero-score',
+        dimension: 'GENERAL_REASONING',
+        normalizedScore: 0,
+      }),
+      benchmark({
+        id: 'unsupported',
+        dimension: 'LONG_CONTEXT_REASONING',
+        supported: false,
+        normalizedScore: null,
+        rawScore: null,
+      }),
     );
+    store.evidence.push(evidence({ ratingValue: 100 }));
+    store.states.set('teammate-1', [
+      {
+        teammateId: 'teammate-1',
+        dimension: 'GENERAL_REASONING',
+        currentScore: 100,
+        evidenceWeight: 10,
+        ratingCount: 20,
+        currentRuntimeProfileId: 'runtime-1',
+        scoringPolicyVersion: 'legacy-dynamic-v1',
+        updatedAt: '2026-08-20T00:00:00.000Z',
+      },
+    ]);
+    const profile = new R1CapabilityService(store).profile('teammate-1');
+    const zero = profile.dimensions.find((value) => value.dimension === 'GENERAL_REASONING');
+    const unsupported = profile.dimensions.find(
+      (value) => value.dimension === 'LONG_CONTEXT_REASONING',
+    );
+    const unconfigured = profile.dimensions.find(
+      (value) => value.dimension === 'AGENTIC_EXECUTION',
+    );
+
+    expect(zero).toMatchObject({ currentScore: 0, source: 'BENCHMARK_ONLY', ratingCount: 0 });
+    expect(unsupported).toMatchObject({ currentScore: null, source: 'UNSUPPORTED' });
+    expect(unconfigured).toMatchObject({ prior: null, currentScore: null, source: 'NO_BENCHMARK' });
   });
 });

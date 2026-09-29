@@ -218,7 +218,7 @@ async function install(setupPath, env) {
 async function withInstalledApp(executablePath, env, exercise) {
   const application = await electron.launch({
     executablePath,
-    args: ['--installer-smoke'],
+    args: ['--installer-smoke', '--gate1-fake-model'],
     cwd: launchWorkingDirectory,
     env,
     timeout: 60_000,

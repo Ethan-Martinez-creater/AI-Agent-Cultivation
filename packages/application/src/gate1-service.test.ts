@@ -6,6 +6,7 @@ import type {
   ProviderConfig,
   RuntimeProfile,
   Teammate,
+  TeammateModelBinding,
   UsageRecord,
 } from '@cultivation/domain';
 import { FakeModelGateway } from '@cultivation/agent-runtime';
@@ -17,6 +18,7 @@ function setup(gateway: ModelGateway = new FakeModelGateway()) {
   const credentials = new Map<string, StoredCredential>();
   const runtimes = new Map<string, RuntimeProfile>();
   const teammates = new Map<string, Teammate>();
+  const bindings = new Map<string, TeammateModelBinding>();
   const conversations = new Map<string, Conversation>();
   const messages: Message[] = [];
   const usage: UsageRecord[] = [];
@@ -46,6 +48,36 @@ function setup(gateway: ModelGateway = new FakeModelGateway()) {
     getRuntimeProfile: (id) => runtimes.get(id) ?? null,
     saveRuntimeProfile: (value) => {
       runtimes.set(value.id, value);
+    },
+    isRuntimeBound: (runtimeId) =>
+      [...bindings.values()].some((item) => item.runtimeProfileId === runtimeId),
+    hasValidModelBinding: (teammateId) => bindings.has(teammateId),
+    getModelBinding: (teammateId) => bindings.get(teammateId) ?? null,
+    createSealedTeammate: (teammate, sourceRuntimeProfileId, verifiedAt) => {
+      const source = runtimes.get(sourceRuntimeProfileId)!;
+      const provider = providers.get(source.providerId)!;
+      const runtime = {
+        ...source,
+        id: crypto.randomUUID(),
+        createdAt: verifiedAt,
+        updatedAt: verifiedAt,
+      };
+      runtimes.set(runtime.id, runtime);
+      const saved = { ...teammate, currentRuntimeProfileId: runtime.id };
+      teammates.set(saved.id, saved);
+      const binding: TeammateModelBinding = {
+        teammateId: saved.id,
+        runtimeProfileId: runtime.id,
+        providerKind: provider.kind,
+        endpoint: provider.baseUrl,
+        modelId: runtime.modelId,
+        credentialId: runtime.credentialId,
+        verifiedAt,
+        sealedAt: verifiedAt,
+        verificationSource: 'LIVE_TEST',
+      };
+      bindings.set(saved.id, binding);
+      return { teammate: saved, binding };
     },
     listTeammates: () => [...teammates.values()],
     getTeammate: (id) => teammates.get(id) ?? null,
@@ -109,6 +141,29 @@ async function collect(
 }
 
 describe('Gate 1 application vertical slice', () => {
+  it('does not create or seal a teammate when connection verification fails', async () => {
+    const gateway = {
+      testConnection: async () => ({ ok: false, message: 'offline' }),
+    } as unknown as ModelGateway;
+    const { service, store } = setup(gateway);
+    const provider = service.createProvider({
+      name: 'Local',
+      kind: 'OPENAI_COMPATIBLE',
+      baseUrl: 'http://localhost:9999/v1',
+    });
+    const runtime = service.createRuntimeProfile({
+      name: 'Local',
+      providerId: provider.id,
+      credentialId: null,
+      modelId: 'local-model',
+    });
+    await expect(service.createTeammate(teammateInput(runtime.id))).rejects.toThrow(
+      '连接测试未通过',
+    );
+    expect(store.listTeammates()).toEqual([]);
+    expect(store.isRuntimeBound(runtime.id)).toBe(false);
+  });
+
   it('rejects Provider URLs that could store credential material in plaintext', () => {
     const { service } = setup();
     for (const baseUrl of [
@@ -123,7 +178,7 @@ describe('Gate 1 application vertical slice', () => {
     expect(service.listProviders()).toEqual([]);
   });
 
-  it('keeps credentials behind Main and retains identity, chat and usage across Providers', async () => {
+  it('seals each teammate to a private verified model while retaining chat and usage', async () => {
     const { service, store, credentials } = setup();
     const providerA = service.createProvider({ name: 'Provider A', kind: 'OPENAI' });
     const providerB = service.createProvider({ name: 'Provider B', kind: 'ANTHROPIC' });
@@ -154,27 +209,50 @@ describe('Gate 1 application vertical slice', () => {
       credentialId: credentialB.id,
       modelId: 'model-b',
     });
-    const teammate = service.createTeammate(teammateInput(runtimeA.id));
+    const teammate = await service.createTeammate(teammateInput(runtimeA.id));
     expect(teammate).toMatchObject({
       executorKind: 'MODEL_RUNTIME',
       routingPolicy: 'NORMAL',
       systemKind: null,
     });
-    const duplicate = service.duplicateTeammate(teammate.id);
+    const duplicate = await service.duplicateTeammate(teammate.id);
     expect(duplicate).toMatchObject({
       executorKind: 'MODEL_RUNTIME',
       routingPolicy: 'NORMAL',
       systemKind: null,
     });
+    expect(duplicate.id).not.toBe(teammate.id);
+    expect(duplicate.currentRuntimeProfileId).not.toBe(teammate.currentRuntimeProfileId);
+    const originalBinding = store.getModelBinding(teammate.id)!;
+    const rotated = await service.rotateCredential({
+      credentialId: credentialA.id,
+      apiKey: 'secret-A-rotated',
+    });
+    expect(rotated).not.toHaveProperty('ciphertext');
+    expect(rotated.id).toBe(credentialA.id);
+    expect(store.getModelBinding(teammate.id)).toEqual(originalBinding);
+    expect((await service.resolveRuntime(teammate.currentRuntimeProfileId!)).apiKey).toBe(
+      'secret-A-rotated',
+    );
     const conversation = service.createConversation(teammate.id);
     expect((await collect(service, teammate.id, conversation.id, 'PING')).at(-1)?.type).toBe(
       'done',
     );
-    const switched = service.switchRuntime({
-      teammateId: teammate.id,
-      runtimeProfileId: runtimeB.id,
-    });
-    expect(switched.id).toBe(teammate.id);
+    expect(() =>
+      service.switchRuntime({ teammateId: teammate.id, runtimeProfileId: runtimeB.id }),
+    ).toThrow('模型已封存');
+    expect(() =>
+      service.updateTeammate({ ...teammate, currentRuntimeProfileId: runtimeB.id }),
+    ).toThrow('模型已封存');
+    expect(() =>
+      service.updateRuntimeProfile({
+        ...runtimeA,
+        id: teammate.currentRuntimeProfileId!,
+        providerId: providerB.id,
+        credentialId: credentialB.id,
+        modelId: 'model-b',
+      }),
+    ).toThrow('已封存');
     expect((await collect(service, teammate.id, conversation.id, 'again')).at(-1)?.type).toBe(
       'done',
     );
@@ -185,14 +263,16 @@ describe('Gate 1 application vertical slice', () => {
       'ASSISTANT',
     ]);
     expect(service.listConversations(teammate.id)).toEqual([conversation]);
-    expect(store.getTeammate(teammate.id)?.currentRuntimeProfileId).toBe(runtimeB.id);
+    expect(store.getTeammate(teammate.id)?.currentRuntimeProfileId).toBe(
+      teammate.currentRuntimeProfileId,
+    );
     expect(
       service
         .listUsage(teammate.id)
         .map((item) => [item.teammateId, item.runtimeProfileId, item.provider, item.model]),
     ).toEqual([
-      [teammate.id, runtimeA.id, providerA.id, 'model-a'],
-      [teammate.id, runtimeB.id, providerB.id, 'model-b'],
+      [teammate.id, teammate.currentRuntimeProfileId, providerA.id, 'model-a'],
+      [teammate.id, teammate.currentRuntimeProfileId, providerA.id, 'model-a'],
     ]);
   });
 
@@ -225,8 +305,8 @@ describe('Gate 1 application vertical slice', () => {
       credentialId: null,
       modelId: 'local-model',
     });
-    const a = service.createTeammate(teammateInput(runtime.id, 'A'));
-    const b = service.createTeammate(teammateInput(runtime.id, 'B'));
+    const a = await service.createTeammate(teammateInput(runtime.id, 'A'));
+    const b = await service.createTeammate(teammateInput(runtime.id, 'B'));
     const ca = service.createConversation(a.id);
     const cb = service.createConversation(b.id);
     const [eventsA, eventsB] = await Promise.all([
@@ -269,7 +349,7 @@ describe('Gate 1 application vertical slice', () => {
       credentialId: null,
       modelId: 'local-model',
     });
-    const teammate = service.createTeammate(teammateInput(runtime.id));
+    const teammate = await service.createTeammate(teammateInput(runtime.id));
     const conversation = service.createConversation(teammate.id);
     await collect(service, teammate.id, conversation.id, 'hello');
     expect(service.listUsage(teammate.id)[0]).toMatchObject({
@@ -278,7 +358,7 @@ describe('Gate 1 application vertical slice', () => {
     });
   });
 
-  it('does not bind a Human Bridge to a Runtime through Gate 1 update paths', () => {
+  it('does not bind or archive Human Bridge through Gate 1 update paths', async () => {
     const { service, store } = setup();
     const provider = service.createProvider({
       name: 'Local',
@@ -292,7 +372,7 @@ describe('Gate 1 application vertical slice', () => {
       modelId: 'local-model',
     });
     const bridge = {
-      ...service.createTeammate(teammateInput(runtime.id)),
+      ...(await service.createTeammate(teammateInput(runtime.id))),
       currentRuntimeProfileId: null,
       executorKind: 'USER_BRIDGE',
       routingPolicy: 'FALLBACK_ONLY',
@@ -314,7 +394,8 @@ describe('Gate 1 application vertical slice', () => {
     ).toThrow('Human Bridge');
     expect(() =>
       service.switchRuntime({ teammateId: bridge.id, runtimeProfileId: runtime.id }),
-    ).toThrow('Human Bridge');
+    ).toThrow('模型已封存');
+    expect(() => service.archiveTeammate(bridge.id)).toThrow('Human Bridge');
     expect(store.getTeammate(bridge.id)).toEqual(bridge);
   });
 });

@@ -22,6 +22,7 @@ const app = await electron.launch({
   timeout: 30_000,
   env: { ...process.env, CULTIVATION_USER_DATA_DIR: userData },
 });
+let initialCredentialCiphertext;
 try {
   const page = await app.firstWindow();
   await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
@@ -73,6 +74,22 @@ try {
     providers.providerA.id,
   );
   assert.equal(await app.evaluate(({ clipboard }) => clipboard.readText()), '');
+  {
+    const snapshotDb = new Database(join(userData, 'data', 'cultivation.sqlite'), {
+      readonly: true,
+      fileMustExist: true,
+    });
+    try {
+      initialCredentialCiphertext = Buffer.from(
+        snapshotDb
+          .prepare('SELECT ciphertext FROM provider_credentials WHERE id = ?')
+          .get(credentialA.id).ciphertext,
+      );
+    } finally {
+      snapshotDb.close();
+    }
+  }
+  const rotatedKey = `sk-gate1-rotated-${randomUUID()}`;
   await app.evaluate(({ clipboard }, plaintext) => clipboard.writeText(plaintext), key);
   const credentialB = await page.evaluate(
     (providerId) => window.cultivation.credentials.create({ providerId, label: 'B' }),
@@ -106,6 +123,7 @@ try {
         currentRuntimeProfileId: runtimeA.id,
       };
       const teammate = await api.teammates.create(teammateInput);
+      const teammateRuntimeId = teammate.currentRuntimeProfileId;
       const conversation = await api.chat.createConversation(teammate.id);
       const stream = (teammateId, conversationId, text) =>
         new Promise((resolve, reject) => {
@@ -132,17 +150,67 @@ try {
           });
         });
       const first = await stream(teammate.id, conversation.id, 'PING');
-      const switched = await api.teammates.switchRuntime({
-        teammateId: teammate.id,
-        runtimeProfileId: runtimeB.id,
-      });
       const second = await stream(teammate.id, conversation.id, 'again');
-      const other = await api.teammates.create({ ...teammateInput, name: '玄明' });
+      const other = await api.teammates.create({
+        ...teammateInput,
+        name: '玄明',
+        currentRuntimeProfileId: runtimeB.id,
+      });
+      const otherRuntimeId = other.currentRuntimeProfileId;
       const otherConversation = await api.chat.createConversation(other.id);
       const [third, fourth] = await Promise.all([
         stream(teammate.id, conversation.id, 'parallel A'),
         stream(other.id, otherConversation.id, 'parallel B'),
       ]);
+      const listedTeammates = await api.teammates.list();
+      const teammateAfter = listedTeammates.find((item) => item.id === teammate.id);
+      const otherAfter = listedTeammates.find((item) => item.id === other.id);
+      const listedRuntimes = await api.runtimes.list();
+      const teammateRuntime = listedRuntimes.find((item) => item.id === teammateRuntimeId);
+      const otherRuntime = listedRuntimes.find((item) => item.id === otherRuntimeId);
+      const teammateRuntimeMutationRejected = await api.runtimes
+        .update({
+          id: teammateRuntimeId,
+          name: teammateRuntime.name,
+          providerId: teammateRuntime.providerId,
+          credentialId: teammateRuntime.credentialId,
+          modelId: 'tampered-model',
+          parameters: teammateRuntime.parameters,
+          capabilityOverrides: teammateRuntime.capabilityOverrides,
+        })
+        .then(
+          () => false,
+          () => true,
+        );
+      const teammateBindingMutationRejected = await api.teammates
+        .update({
+          id: teammate.id,
+          name: teammate.name,
+          avatar: teammate.avatar,
+          title: teammate.title,
+          description: teammate.description,
+          identityPrompt: teammate.identityPrompt,
+          behaviorPrompt: teammate.behaviorPrompt,
+          currentRuntimeProfileId: otherRuntimeId,
+        })
+        .then(
+          () => false,
+          () => true,
+        );
+      const sourceRuntimeUpdate = await api.runtimes.update({
+        id: runtimeA.id,
+        name: 'Runtime A source edited',
+        providerId: providerA.id,
+        credentialId: credentialA.id,
+        modelId: 'source-runtime-mutated',
+      });
+      const runtimesAfterMutation = await api.runtimes.list();
+      const fixedTeammateRuntimeAfterMutation = runtimesAfterMutation.find(
+        (item) => item.id === teammateRuntimeId,
+      );
+      const fixedOtherRuntimeAfterMutation = runtimesAfterMutation.find(
+        (item) => item.id === otherRuntimeId,
+      );
       return {
         credentialId: credentialA.id,
         credentialKeys: Object.keys(api.credentials).sort(),
@@ -151,9 +219,20 @@ try {
         providerB: providerB.id,
         runtimeA: runtimeA.id,
         runtimeB: runtimeB.id,
+        teammateRuntimeId,
+        otherRuntimeId,
+        teammateRuntimeModelId: teammateRuntime?.modelId,
+        otherRuntimeModelId: otherRuntime?.modelId,
+        sourceRuntimeUpdatedModelId: sourceRuntimeUpdate.modelId,
+        fixedTeammateRuntimeModelAfterMutation: fixedTeammateRuntimeAfterMutation?.modelId,
+        fixedOtherRuntimeModelAfterMutation: fixedOtherRuntimeAfterMutation?.modelId,
+        teammateRuntimeAfter: teammateAfter?.currentRuntimeProfileId,
+        otherRuntimeAfter: otherAfter?.currentRuntimeProfileId,
+        teammateRuntimeMutationRejected,
+        teammateBindingMutationRejected,
+        switchRuntimeApiRemoved: !Object.hasOwn(api.teammates, 'switchRuntime'),
         connection,
         teammateId: teammate.id,
-        switchedId: switched.id,
         conversationId: conversation.id,
         messages: await api.chat.listMessages({
           teammateId: teammate.id,
@@ -167,10 +246,21 @@ try {
     },
     { ...providers, credentialA, credentialB },
   );
-  assert.deepEqual(result.credentialKeys, ['create', 'list']);
+  assert.deepEqual(result.credentialKeys, ['create', 'list', 'rotate']);
   assert.ok(!JSON.stringify(result.returnedCredential).includes(key));
   assert.ok(!('ciphertext' in result.returnedCredential));
-  assert.equal(result.switchedId, result.teammateId);
+  assert.notEqual(result.teammateRuntimeId, result.runtimeA);
+  assert.notEqual(result.otherRuntimeId, result.runtimeB);
+  assert.equal(result.teammateRuntimeModelId, 'smoke-model-a');
+  assert.equal(result.otherRuntimeModelId, 'smoke-model-b');
+  assert.equal(result.sourceRuntimeUpdatedModelId, 'source-runtime-mutated');
+  assert.equal(result.fixedTeammateRuntimeModelAfterMutation, 'smoke-model-a');
+  assert.equal(result.fixedOtherRuntimeModelAfterMutation, 'smoke-model-b');
+  assert.equal(result.teammateRuntimeAfter, result.teammateRuntimeId);
+  assert.equal(result.otherRuntimeAfter, result.otherRuntimeId);
+  assert.equal(result.switchRuntimeApiRemoved, true);
+  assert.equal(result.teammateRuntimeMutationRejected, true);
+  assert.equal(result.teammateBindingMutationRejected, true);
   assert.equal(result.connection.ok, true);
   assert.equal(result.messages.length, 6);
   assert.ok(result.messages.every((message) => message.conversationId === result.conversationId));
@@ -190,18 +280,20 @@ try {
   assert.equal(teammateUsage.length, 3);
   assert.equal(
     teammateUsage.filter(
-      (item) => item.runtimeProfileId === result.runtimeA && item.provider === result.providerA,
+      (item) =>
+        item.runtimeProfileId === result.teammateRuntimeId && item.provider === result.providerA,
     ).length,
-    1,
-  );
-  assert.equal(
-    teammateUsage.filter(
-      (item) => item.runtimeProfileId === result.runtimeB && item.provider === result.providerB,
-    ).length,
-    2,
+    3,
   );
   assert.ok(teammateUsage.every((item) => item.inputTokens !== null && item.outputTokens !== null));
-  assert.equal(result.usage.filter((item) => item.teammateId === result.otherTeammateId).length, 1);
+  const otherUsage = result.usage.filter((item) => item.teammateId === result.otherTeammateId);
+  assert.equal(otherUsage.length, 1);
+  assert.ok(
+    otherUsage.every(
+      (item) =>
+        item.runtimeProfileId === result.otherRuntimeId && item.provider === result.providerB,
+    ),
+  );
 
   const gate2 = await page.evaluate(
     async ({
@@ -393,10 +485,7 @@ try {
       const indexedB = await api.embedding.reindex(otherTeammateId);
       const oldMessages = await api.chat.listMessages({ teammateId, conversationId });
       const oldMessageIds = oldMessages.map((message) => message.id);
-      const switched = await api.teammates.switchRuntime({
-        teammateId,
-        runtimeProfileId: runtimeA,
-      });
+      const listedTeammate = (await api.teammates.list()).find((item) => item.id === teammateId);
       const inspectionA = (await send(teammateId, conversationId, inspectMarker)).content;
       const inspectionB = (await send(otherTeammateId, otherConversationId, inspectMarker)).content;
       return {
@@ -429,10 +518,11 @@ try {
         embeddingConfig,
         indexedA,
         indexedB,
-        switchedId: switched.id,
-        switchedRuntimeId: switched.currentRuntimeProfileId,
+        fixedTeammateId: listedTeammate?.id,
+        fixedRuntimeId: listedTeammate?.currentRuntimeProfileId,
+        switchRuntimeApiRemoved: !Object.hasOwn(api.teammates, 'switchRuntime'),
         oldMessageIds,
-        messagesAfterSwitch: await api.chat.listMessages({ teammateId, conversationId }),
+        messagesAfterBinding: await api.chat.listMessages({ teammateId, conversationId }),
         assignmentsAfterSwitch: await api.skills.listAssignments(teammateId),
         memoriesAfterSwitch: await api.memories.list(teammateId),
         inspectionA,
@@ -445,7 +535,7 @@ try {
       conversationId: result.conversationId,
       otherTeammateId: result.otherTeammateId,
       otherConversationId: result.otherConversationId,
-      runtimeA: result.runtimeA,
+      runtimeA: result.teammateRuntimeId,
       nonce: randomUUID(),
     },
   );
@@ -479,20 +569,21 @@ try {
   assert.equal(gate2.assignmentB.enabled, true);
   assert.equal(gate2.archivedSkillResult.status, 'ARCHIVED');
   assert.equal(gate2.embeddingBefore.available, true);
-  assert.equal(gate2.embeddingConfig.runtimeProfileId, result.runtimeA);
+  assert.equal(gate2.embeddingConfig.runtimeProfileId, result.teammateRuntimeId);
   assert.equal(gate2.indexedA.total, 2);
   assert.equal(gate2.indexedA.indexed, 2);
   assert.equal(gate2.indexedB.total, 1);
   assert.equal(gate2.indexedB.indexed, 1);
-  assert.equal(gate2.switchedId, result.teammateId);
-  assert.equal(gate2.switchedRuntimeId, result.runtimeA);
+  assert.equal(gate2.fixedTeammateId, result.teammateId);
+  assert.equal(gate2.fixedRuntimeId, result.teammateRuntimeId);
+  assert.equal(gate2.switchRuntimeApiRemoved, true);
   assert.ok(
     gate2.oldMessageIds.every((id) =>
-      gate2.messagesAfterSwitch.some((message) => message.id === id),
+      gate2.messagesAfterBinding.some((message) => message.id === id),
     ),
   );
   assert.ok(
-    gate2.messagesAfterSwitch.every((message) => message.conversationId === result.conversationId),
+    gate2.messagesAfterBinding.every((message) => message.conversationId === result.conversationId),
   );
   assert.ok(gate2.memoriesAfterSwitch.some((memory) => memory.id === gate2.memoryAId));
   assert.ok(
@@ -521,15 +612,33 @@ try {
   const extractionUsage = gate2.usage.find(
     (item) => item.providerMetadata?.purpose === 'MEMORY_CANDIDATE_EXTRACTION',
   );
-  assert.equal(extractionUsage.runtimeProfileId, result.runtimeB);
-  assert.equal(extractionUsage.provider, result.providerB);
+  assert.equal(extractionUsage.runtimeProfileId, result.teammateRuntimeId);
+  assert.equal(extractionUsage.provider, result.providerA);
   const embeddingQueryUsage = gate2.usage.find(
     (item) => item.providerMetadata?.purpose === 'MEMORY_EMBEDDING_QUERY',
   );
-  assert.equal(embeddingQueryUsage.runtimeProfileId, result.runtimeA);
+  assert.equal(embeddingQueryUsage.runtimeProfileId, result.teammateRuntimeId);
   assert.equal(embeddingQueryUsage.provider, result.providerA);
   assert.ok(embeddingQueryUsage.inputTokens !== null);
   assert.equal(embeddingQueryUsage.outputTokens, null);
+
+  // Rotate only after both Teammates have sealed their model bindings.
+  await app.evaluate(({ clipboard }, plaintext) => clipboard.writeText(plaintext), rotatedKey);
+  const rotatedCredential = await page.evaluate(
+    (credentialId) => window.cultivation.credentials.rotate(credentialId),
+    result.credentialId,
+  );
+  assert.equal(await app.evaluate(({ clipboard }) => clipboard.readText()), '');
+  assert.equal(rotatedCredential.id, result.credentialId);
+  assert.deepEqual(Object.keys(rotatedCredential).sort(), [
+    'createdAt',
+    'id',
+    'label',
+    'providerId',
+    'updatedAt',
+  ]);
+  assert.ok(!JSON.stringify(rotatedCredential).includes(rotatedKey));
+  assert.ok(!('ciphertext' in rotatedCredential));
 
   const db = new Database(join(userData, 'data', 'cultivation.sqlite'), { readonly: true });
   try {
@@ -537,7 +646,33 @@ try {
       .prepare('SELECT ciphertext FROM provider_credentials WHERE id = ?')
       .get(result.credentialId);
     assert.ok(row && row.ciphertext instanceof Buffer);
+    assert.notDeepEqual(row.ciphertext, initialCredentialCiphertext);
     assert.ok(!row.ciphertext.includes(Buffer.from(key)));
+    assert.ok(!row.ciphertext.includes(Buffer.from(rotatedKey)));
+    const bindingA = db
+      .prepare(
+        `SELECT b.teammate_id, b.runtime_profile_id, b.provider_kind, b.endpoint, b.model_id,
+                b.credential_id, b.verified_at, b.verification_source, b.sealed_at
+         FROM teammate_model_bindings AS b WHERE b.teammate_id = ?`,
+      )
+      .get(result.teammateId);
+    const bindingB = db
+      .prepare('SELECT * FROM teammate_model_bindings WHERE teammate_id = ?')
+      .get(result.otherTeammateId);
+    assert.equal(bindingA.teammate_id, result.teammateId);
+    assert.equal(bindingA.runtime_profile_id, result.teammateRuntimeId);
+    assert.equal(bindingA.provider_kind, 'OPENAI');
+    assert.equal(bindingA.model_id, 'smoke-model-a');
+    assert.equal(bindingA.credential_id, result.credentialId);
+    assert.equal(bindingA.verification_source, 'LIVE_TEST');
+    assert.equal(bindingA.endpoint, null);
+    assert.ok(bindingA.verified_at);
+    assert.ok(bindingA.sealed_at);
+    assert.equal(bindingB.teammate_id, result.otherTeammateId);
+    assert.equal(bindingB.runtime_profile_id, result.otherRuntimeId);
+    assert.equal(bindingB.provider_kind, 'ANTHROPIC');
+    assert.equal(bindingB.model_id, 'smoke-model-b');
+    assert.ok(bindingB.sealed_at);
     const vectorRows = db
       .prepare(
         `SELECT memory_id, runtime_profile_id, model_id, dimension, length(embedding) AS bytes
@@ -552,7 +687,7 @@ try {
     assert.ok(
       vectorRows.every(
         (vectorRow) =>
-          vectorRow.runtime_profile_id === result.runtimeA &&
+          vectorRow.runtime_profile_id === result.teammateRuntimeId &&
           vectorRow.model_id === 'smoke-model-a' &&
           vectorRow.dimension === 16 &&
           vectorRow.bytes === 64,
@@ -561,9 +696,9 @@ try {
     const embeddingSetting = db
       .prepare('SELECT runtime_profile_id FROM embedding_settings WHERE id = 1')
       .get();
-    assert.equal(embeddingSetting.runtime_profile_id, result.runtimeA);
+    assert.equal(embeddingSetting.runtime_profile_id, result.teammateRuntimeId);
     const migration = db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get();
-    assert.equal(migration.version, 13);
+    assert.equal(migration.version, 14);
     const teammateExecutor = db
       .prepare(
         `SELECT executor_kind, routing_policy, system_kind
@@ -580,12 +715,12 @@ try {
     db.close();
   }
   console.log(
-    'GATE1_PACKAGED_SMOKE_OK navigation=9 ipc=ok native_sqlite=ok secret=encrypted chat=streamed runtime_migration=ok usage=ok',
+    'GATE1_PACKAGED_SMOKE_OK navigation=9 ipc=ok native_sqlite=ok secret=encrypted chat=streamed sealed_binding=ok fixed_model=ok usage=ok',
   );
   console.log(
-    'GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried runtime_migration=ok',
+    'GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried fixed_binding=ok',
   );
-  console.log('R0_PACKAGED_SMOKE_OK migration=13 teammate_defaults=ok foreign_keys=ok');
+  console.log('R0_PACKAGED_SMOKE_OK migration=14 teammate_defaults=ok foreign_keys=ok');
 } finally {
   await app.close();
 }
@@ -598,3 +733,4 @@ await verifyGate6Packaged(gate5Evidence);
 await import('./r1-packaged-smoke.mjs');
 await import('./r2-packaged-smoke.mjs');
 await import('./r3-packaged-smoke.mjs');
+await import('./r3-1-crash-packaged-smoke.mjs');

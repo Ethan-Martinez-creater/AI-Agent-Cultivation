@@ -35,6 +35,7 @@ import { Gate5PartyService } from './gate5-party-service.js';
 import { PermissionEngine } from './permission-engine.js';
 import { PromptComposer } from './prompt-composer.js';
 import { ToolRuntime, type ToolResult } from './tool-runtime.js';
+import type { R2ExternalWorkContinuationStore } from './r2-human-bridge-service.js';
 
 export interface Gate5CollaborationStore {
   insertPartyMission(mission: Mission): void;
@@ -565,8 +566,10 @@ function appendToolResult(messages: ModelMessage[], call: ModelToolCall, result:
 /** Party Mission orchestration. The SOLO service remains the owner of SOLO execution. */
 export class Gate5CollaborationService {
   private readonly busy = new Set<string>();
+  private readonly externalWorkContinuationsInFlight = new Set<string>();
   private readonly composer = new PromptComposer();
   private externalWork: Gate5ExternalWorkService | null = null;
+  private externalWorkContinuations: R2ExternalWorkContinuationStore | null = null;
 
   constructor(
     private readonly missionStore: Gate3MissionStore,
@@ -580,8 +583,12 @@ export class Gate5CollaborationService {
     private readonly clock: MissionClock = defaultClock,
   ) {}
 
-  attachExternalWork(service: Gate5ExternalWorkService): void {
+  attachExternalWork(
+    service: Gate5ExternalWorkService,
+    continuations?: R2ExternalWorkContinuationStore,
+  ): void {
     this.externalWork = service;
+    this.externalWorkContinuations = continuations ?? null;
   }
 
   detail(missionId: string): PartyMissionDetail {
@@ -960,6 +967,26 @@ export class Gate5CollaborationService {
     const missionId = continuation.missionId;
     const mission = this.requireMission(missionId);
     const run = this.missionStore.getRun(continuation.runId);
+    const durable = this.externalWorkContinuations?.getByRequestId(requestId) ?? null;
+    if (
+      durable &&
+      (durable.missionId !== mission.id || durable.missionRunId !== continuation.runId)
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation identity mismatch');
+    }
+    if (durable?.state === 'CONSUMED') return this.detail(mission.id);
+    if (this.externalWorkContinuationsInFlight.has(requestId)) return this.detail(mission.id);
+    if (
+      durable &&
+      continuation.outcome === 'ACCEPTED' &&
+      !['PENDING', 'CONSUMING'].includes(durable.state)
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation state is invalid');
+    }
+    if (run && durable?.state === 'CONSUMING') {
+      if (this.recoverFinalSynthesis(mission, run, requestId)) return this.detail(mission.id);
+      if (this.recoverTerminalContinuation(mission, run, requestId)) return this.detail(mission.id);
+    }
     if (
       !continuation.requesterTeammateId ||
       !continuation.assigneeTeammateId ||
@@ -969,7 +996,7 @@ export class Gate5CollaborationService {
       run.missionId !== mission.id ||
       run.status !== 'RUNNING' ||
       this.latestRun(mission.id).id !== run.id ||
-      mission.state !== 'RUNNING'
+      !['RUNNING', 'WAITING_EXTERNAL_WORK'].includes(mission.state)
     ) {
       throw new DomainError('MISSION_INVALID_STATE', 'ExternalWork 对应的当前 Run 无效');
     }
@@ -1013,9 +1040,108 @@ export class Gate5CollaborationService {
       return this.detail(mission.id);
     }
     if (!context) throw new DomainError('PERSISTENCE_INVALID', 'Accepted ExternalWork 缺少结果');
-    this.recordExternalWorkContinuation(mission, run, continuation, context);
-    await this.continueRun(mission, run, context);
-    return this.detail(mission.id);
+    this.externalWorkContinuationsInFlight.add(requestId);
+    try {
+      const running =
+        mission.state === 'WAITING_EXTERNAL_WORK'
+          ? transition(mission, 'RUNNING', this.clock.now())
+          : mission;
+      this.missionStore.transaction(() => {
+        if (durable?.state === 'PENDING') {
+          if (!this.externalWorkContinuations?.markConsuming(requestId, this.clock.now())) {
+            const latest = this.externalWorkContinuations?.getByRequestId(requestId);
+            if (!latest || latest.state === 'PENDING') {
+              throw new DomainError('CONFLICT', 'ExternalWork continuation claim conflict');
+            }
+          }
+        }
+        if (running !== mission) {
+          if (!this.missionStore.transitionMission(running, mission.state)) {
+            throw new DomainError('CONFLICT', 'Mission state changed before ExternalWork resume');
+          }
+          this.recordState(
+            mission,
+            running,
+            'mission.external_work_resumed',
+            'SYSTEM',
+            null,
+            run.id,
+          );
+        }
+        this.recordExternalWorkContinuation(running, run, continuation, context);
+      });
+      await this.continueRun(running, run, context);
+      const current = this.externalWorkContinuations?.getByRequestId(requestId);
+      if (current?.state === 'CONSUMING') {
+        this.missionStore.transaction(() => {
+          if (!this.externalWorkContinuations?.markConsumed(requestId, this.clock.now())) {
+            throw new DomainError('CONFLICT', 'ExternalWork continuation could not be consumed');
+          }
+        });
+      }
+      return this.detail(mission.id);
+    } finally {
+      this.externalWorkContinuationsInFlight.delete(requestId);
+    }
+  }
+
+  /** Closes failed/interrupted accepted Runs left CONSUMING by a crash after terminal state commit. */
+  private recoverTerminalContinuation(
+    mission: Mission,
+    run: MissionRunRecord,
+    requestId: string,
+  ): boolean {
+    const terminalRun = ['COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED'].includes(run.status);
+    const terminalMission = ['COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED'].includes(
+      mission.state,
+    );
+    if (!terminalRun && !terminalMission) return false;
+    if (!terminalRun || !terminalMission) {
+      throw new DomainError(
+        'PERSISTENCE_INVALID',
+        'ExternalWork continuation has an inconsistent terminal Mission/Run state',
+      );
+    }
+    this.missionStore.transaction(() => {
+      if (!this.externalWorkContinuations?.markConsumed(requestId, this.clock.now())) {
+        throw new DomainError('CONFLICT', 'ExternalWork continuation could not be consumed');
+      }
+    });
+    return true;
+  }
+
+  /** Uses a saved FINAL artifact to finish a run if the process stopped before its completion commit. */
+  private recoverFinalSynthesis(
+    mission: Mission,
+    run: MissionRunRecord,
+    requestId: string,
+  ): boolean {
+    if (mission.state === 'COMPLETED' && run.status === 'COMPLETED') {
+      this.missionStore.transaction(() => {
+        if (!this.externalWorkContinuations?.markConsumed(requestId, this.clock.now())) {
+          throw new DomainError('CONFLICT', 'ExternalWork continuation could not be consumed');
+        }
+      });
+      return true;
+    }
+    if (run.status !== 'RUNNING') return false;
+    const final = this.store
+      .listCollaborationArtifacts(mission.id, run.id)
+      .find((artifact) => artifact.kind === 'FINAL');
+    if (!final) return false;
+    let running = mission;
+    if (mission.state === 'WAITING_EXTERNAL_WORK') {
+      running = transition(mission, 'RUNNING', this.clock.now());
+      this.missionStore.transaction(() => {
+        if (!this.missionStore.transitionMission(running, mission.state)) {
+          throw new DomainError('CONFLICT', 'Mission state changed during continuation recovery');
+        }
+        this.recordState(mission, running, 'mission.external_work_resumed', 'SYSTEM', null, run.id);
+      });
+    }
+    if (running.state !== 'RUNNING') return false;
+    this.complete(running, run, final.content, requestId);
+    return true;
   }
 
   private async startNewRun(mission: Mission, isRetry: boolean): Promise<PartyMissionDetail> {
@@ -1365,7 +1491,7 @@ export class Gate5CollaborationService {
     }
     this.appendArtifact(mission, run, task.teammateId, task.artifactKind, outcome.text);
     if (task.artifactKind === 'FINAL') {
-      this.complete(mission, run, outcome.text);
+      this.complete(mission, run, outcome.text, task.externalWorkContext?.requestId);
       return;
     }
     await this.continueRun(mission, run);
@@ -1908,7 +2034,12 @@ export class Gate5CollaborationService {
     });
   }
 
-  private complete(mission: Mission, run: MissionRunRecord, resultText: string): void {
+  private complete(
+    mission: Mission,
+    run: MissionRunRecord,
+    resultText: string,
+    continuationRequestId?: string,
+  ): void {
     const at = this.clock.now();
     const completed = transition(mission, 'COMPLETED', at);
     this.missionStore.transaction(() => {
@@ -1926,6 +2057,11 @@ export class Gate5CollaborationService {
       }
       if (!this.missionStore.transitionMission(completed, mission.state))
         throw new DomainError('CONFLICT', 'Mission 更新冲突');
+      if (continuationRequestId) {
+        if (!this.externalWorkContinuations?.markConsumed(continuationRequestId, at)) {
+          throw new DomainError('CONFLICT', 'ExternalWork continuation could not be consumed');
+        }
+      }
       this.record(completed, run.id, 'run.completed', 'SYSTEM', null, { attempt: run.attempt });
       this.recordState(mission, completed, 'mission.completed', 'SYSTEM', null, run.id);
     });

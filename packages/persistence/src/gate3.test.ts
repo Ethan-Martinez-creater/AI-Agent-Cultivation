@@ -79,8 +79,16 @@ describe('Gate 3 SQLite persistence', () => {
     db.pragma('foreign_keys = ON');
     runMigrations(db, migrations.slice(0, 3));
     db.prepare(
-      `INSERT INTO teammates (id, name, created_at, updated_at)
-       VALUES ('teammate-1', 'Legacy', 'now', 'now')`,
+      `INSERT INTO providers (id, name, kind, created_at, updated_at)
+       VALUES ('provider-legacy', 'Legacy provider', 'OPENAI', 'now', 'now')`,
+    ).run();
+    db.prepare(
+      `INSERT INTO runtime_profiles (id, name, provider_id, model_id, created_at, updated_at)
+       VALUES ('runtime-legacy', 'Legacy runtime', 'provider-legacy', 'model-legacy', 'now', 'now')`,
+    ).run();
+    db.prepare(
+      `INSERT INTO teammates (id, name, current_runtime_profile_id, created_at, updated_at)
+       VALUES ('teammate-1', 'Legacy', 'runtime-legacy', 'now', 'now')`,
     ).run();
     db.prepare(
       `INSERT INTO missions
@@ -114,6 +122,7 @@ describe('Gate 3 SQLite persistence', () => {
       { version: 11 },
       { version: 12 },
       { version: 13 },
+      { version: 14 },
     ]);
     expect(db.prepare('SELECT id, result_text FROM mission_runs').all()).toEqual([
       { id: 'run-legacy', result_text: null },

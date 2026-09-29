@@ -46,19 +46,6 @@ const benchmarkInput = z
       context.addIssue({ code: 'custom', message: 'supported 与 normalizedScore 不一致' });
     }
   });
-const star = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
-const ratingInput = z
-  .object({
-    missionId: id,
-    runId: id,
-    teammateId: id,
-    runtimeProfileId: id,
-    selectedDimensions: z.array(dimension).max(3),
-    skip: z.boolean().optional(),
-    overallRating: star.optional(),
-    dimensionRatings: z.partialRecord(dimension, star).optional(),
-  })
-  .strict();
 
 export function registerR1Ipc(
   validSender: (event: IpcMainInvokeEvent) => boolean,
@@ -85,11 +72,8 @@ export function registerR1Ipc(
   register('capability:benchmarks', (args) => service.listBenchmarks(one(args, id)));
   register('capability:priors', (args) => service.listEffectivePriors(one(args, id)));
   register('capability:saveBenchmark', (args) => service.saveBenchmark(one(args, benchmarkInput)));
-  register('capability:ratingTargets', (args) => {
-    const input = one(args, z.object({ missionId: id, runId: id }).strict());
-    return service.getRatingTargets(input.missionId, input.runId);
-  });
-  register('capability:submitRating', (args) => service.submitRating(one(args, ratingInput)));
+  ipcMain.removeHandler('capability:ratingTargets');
+  ipcMain.removeHandler('capability:submitRating');
   register('capability:profile', (args) => service.profile(one(args, id)));
   register('capability:rebuild', (args) => service.rebuild(one(args, id)));
 }

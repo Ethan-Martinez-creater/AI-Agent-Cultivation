@@ -53,6 +53,19 @@ export interface RuntimeProfile {
   updatedAt: IsoDateTime;
 }
 
+/** Sealed provider/model identity for one MODEL_RUNTIME teammate. Credentials may rotate. */
+export interface TeammateModelBinding {
+  teammateId: Id;
+  runtimeProfileId: Id;
+  providerKind: ProviderKind;
+  endpoint: string | null;
+  modelId: string;
+  credentialId: Id | null;
+  verifiedAt: IsoDateTime | null;
+  verificationSource: 'LIVE_TEST' | 'LEGACY_STRUCTURAL';
+  sealedAt: IsoDateTime;
+}
+
 export type MemoryOwnerType = 'USER' | 'TEAMMATE' | 'MISSION';
 export type MemoryType =
   | 'IDENTITY'

@@ -31,15 +31,11 @@ import type {
   CapabilityProfile,
   CapabilityDimension,
   ModelCapabilityBenchmark,
-  CapabilityEvidence,
   ExternalAppProfile,
   ExternalWorkArtifact,
   ExternalWorkRequest,
 } from '@cultivation/domain';
-import type {
-  R1CapabilityProfile,
-  R1RatingTarget,
-} from '@cultivation/application/r1-capability-service';
+import type { R1CapabilityProfile } from '@cultivation/application/r1-capability-service';
 
 export type ChatStreamEvent =
   | {
@@ -128,17 +124,6 @@ export interface BenchmarkInput {
   provenanceType: ModelCapabilityBenchmark['provenanceType'];
 }
 
-export interface RatingInput {
-  missionId: string;
-  runId: string;
-  teammateId: string;
-  runtimeProfileId: string;
-  selectedDimensions: CapabilityDimension[];
-  skip?: boolean;
-  overallRating?: 1 | 2 | 3 | 4 | 5;
-  dimensionRatings?: Partial<Record<CapabilityDimension, 1 | 2 | 3 | 4 | 5>>;
-}
-
 export interface R3DecisionConfigView {
   provider: 'TYPESAFE';
   model: 'jev-1.13.0';
@@ -218,11 +203,6 @@ export interface CultivationBridge {
     accept(input: { requestId: string; publicResult?: string }): Promise<unknown>;
     reject(input: { requestId: string; reason?: string }): Promise<unknown>;
     cancel(input: { requestId: string }): Promise<unknown>;
-    submitRating(input: {
-      externalWorkRequestId: string;
-      stars?: number;
-      skip?: boolean;
-    }): Promise<unknown>;
     copyPrompt(id: string): Promise<void>;
     openTargetFolder(id: string): Promise<void>;
     onNavigate(callback: (path: string) => void): () => void;
@@ -245,8 +225,6 @@ export interface CultivationBridge {
       runtimeProfileId: string,
     ): Promise<Array<{ dimension: CapabilityDimension; prior: ModelCapabilityBenchmark | null }>>;
     saveBenchmark(input: BenchmarkInput): Promise<ModelCapabilityBenchmark>;
-    ratingTargets(input: { missionId: string; runId: string }): Promise<R1RatingTarget[]>;
-    submitRating(input: RatingInput): Promise<{ evidence: CapabilityEvidence[]; skipped: boolean }>;
     profile(teammateId: string): Promise<R1CapabilityProfile>;
     rebuild(teammateId: string): Promise<unknown>;
   };
@@ -257,6 +235,7 @@ export interface CultivationBridge {
   credentials: {
     list(providerId?: string): Promise<CredentialSummary[]>;
     create(input: { providerId: string; label: string }): Promise<CredentialSummary>;
+    rotate(credentialId: string): Promise<CredentialSummary>;
   };
   runtimes: {
     list(): Promise<RuntimeProfile[]>;
@@ -270,7 +249,6 @@ export interface CultivationBridge {
     update(input: TeammateInput & { id: string }): Promise<Teammate>;
     archive(id: string): Promise<Teammate>;
     duplicate(id: string): Promise<Teammate>;
-    switchRuntime(input: { teammateId: string; runtimeProfileId: string }): Promise<Teammate>;
   };
   chat: {
     listConversations(teammateId: string): Promise<Conversation[]>;
@@ -431,7 +409,6 @@ const bridge: CultivationBridge = {
     accept: (input) => ipcRenderer.invoke('r2:accept', input),
     reject: (input) => ipcRenderer.invoke('r2:reject', input),
     cancel: (input) => ipcRenderer.invoke('r2:cancel', input),
-    submitRating: (input) => ipcRenderer.invoke('r2:submitRating', input),
     copyPrompt: (id) => ipcRenderer.invoke('r2:copyPrompt', id),
     openTargetFolder: (id) => ipcRenderer.invoke('r2:openTargetFolder', id),
     onNavigate: (callback) => {
@@ -448,8 +425,6 @@ const bridge: CultivationBridge = {
     benchmarks: (runtimeProfileId) => ipcRenderer.invoke('capability:benchmarks', runtimeProfileId),
     priors: (runtimeProfileId) => ipcRenderer.invoke('capability:priors', runtimeProfileId),
     saveBenchmark: (input) => ipcRenderer.invoke('capability:saveBenchmark', input),
-    ratingTargets: (input) => ipcRenderer.invoke('capability:ratingTargets', input),
-    submitRating: (input) => ipcRenderer.invoke('capability:submitRating', input),
     profile: (teammateId) => ipcRenderer.invoke('capability:profile', teammateId),
     rebuild: (teammateId) => ipcRenderer.invoke('capability:rebuild', teammateId),
   },
@@ -460,6 +435,7 @@ const bridge: CultivationBridge = {
   credentials: {
     list: (providerId) => ipcRenderer.invoke('credentials:list', providerId),
     create: (input) => ipcRenderer.invoke('credentials:create', input),
+    rotate: (credentialId) => ipcRenderer.invoke('credentials:rotate', credentialId),
   },
   runtimes: {
     list: () => ipcRenderer.invoke('runtimes:list'),
@@ -474,7 +450,6 @@ const bridge: CultivationBridge = {
     update: (input) => ipcRenderer.invoke('teammates:update', input),
     archive: (id) => ipcRenderer.invoke('teammates:archive', id),
     duplicate: (id) => ipcRenderer.invoke('teammates:duplicate', id),
-    switchRuntime: (input) => ipcRenderer.invoke('teammates:switchRuntime', input),
   },
   chat: {
     listConversations: (teammateId) => ipcRenderer.invoke('chat:listConversations', teammateId),

@@ -32,11 +32,9 @@ export async function verifyGate6Packaged(evidence) {
         const deniedTarget = await api.experience.get(fixture.bId);
         const approvedTarget = await api.experience.get(fixture.bId);
         const coordinator = await api.experience.get(fixture.aId);
-        const migrated = await api.teammates.switchRuntime({
-          teammateId: fixture.bId,
-          runtimeProfileId: fixture.runtimeAId,
-        });
-        const afterMigration = await api.experience.get(fixture.bId);
+        const teammateAtStart = (await api.teammates.list()).find(
+          (item) => item.id === fixture.bId,
+        );
         const memories = await api.memories.list(fixture.bId, 'ACTIVE');
         const skills = await api.skills.listAssignments(fixture.bId);
 
@@ -81,12 +79,15 @@ export async function verifyGate6Packaged(evidence) {
         const memberFailedExperience = await api.experience.get(fixture.bId);
         const synthesisFailed = await runPartyMode('REVIEW', '__GATE6_SYNTHESIS_FAIL__');
         const finalTarget = await api.experience.get(fixture.bId);
+        const teammateAfterMissions = (await api.teammates.list()).find(
+          (item) => item.id === fixture.bId,
+        );
         return {
           deniedTarget,
           approvedTarget,
           coordinator,
-          migrated,
-          afterMigration,
+          bindingAtStart: teammateAtStart?.currentRuntimeProfileId,
+          bindingAfterMissions: teammateAfterMissions?.currentRuntimeProfileId,
           memories,
           skills,
           review,
@@ -103,9 +104,8 @@ export async function verifyGate6Packaged(evidence) {
       { fixture, deniedMissionId, approvedMissionId },
     );
 
-    assert.equal(beforeRestart.migrated.id, fixture.bId);
-    assert.equal(beforeRestart.migrated.realm, 'QI_REFINING');
-    assert.equal(beforeRestart.migrated.currentRuntimeProfileId, fixture.runtimeAId);
+    assert.ok(beforeRestart.bindingAtStart);
+    assert.equal(beforeRestart.bindingAfterMissions, beforeRestart.bindingAtStart);
     assert.ok(beforeRestart.memories.some((item) => item.content.includes('GATE5_B_MEMORY')));
     assert.ok(beforeRestart.skills.some((item) => item.enabled));
     assert.deepEqual(
@@ -126,11 +126,6 @@ export async function verifyGate6Packaged(evidence) {
       beforeRestart.coordinator.events.some(
         (item) => item.missionId === deniedMissionId && item.experienceType === 'MISSION_RESULT',
       ),
-    );
-    assert.deepEqual(
-      eventIds(beforeRestart.afterMigration.events),
-      eventIds(beforeRestart.approvedTarget.events),
-      'Runtime migration must preserve the same Teammate Experience',
     );
     assert.equal(beforeRestart.review.state, 'COMPLETED');
     assert.deepEqual(
@@ -265,6 +260,6 @@ export async function verifyGate6Packaged(evidence) {
     reopenedDb.close();
   }
   console.log(
-    'GATE6_PACKAGED_SMOKE_OK experience=actor_run_source_provenance denied_target=zero participant_failed_run_completed=ok participant_completed_run_failed=ok review=ok delegation=ok runtime_migration=identity_memory_skill_experience restart=ledger_idempotent',
+    'GATE6_PACKAGED_SMOKE_OK experience=actor_run_source_provenance denied_target=zero participant_failed_run_completed=ok participant_completed_run_failed=ok review=ok delegation=ok sealed_binding=stable restart=ledger_idempotent',
   );
 }

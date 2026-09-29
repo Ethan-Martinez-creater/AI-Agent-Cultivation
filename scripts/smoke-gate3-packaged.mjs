@@ -105,7 +105,8 @@ try {
     return {
       a: a.id,
       b: b.id,
-      runtime: runtime.id,
+      runtimeA: a.currentRuntimeProfileId,
+      runtimeB: b.currentRuntimeProfileId,
       provider: provider.id,
       soloA,
       soloB,
@@ -287,7 +288,10 @@ try {
           record.missionId === detail.mission.id &&
           detail.runs.some((run) => run.id === record.runId) &&
           record.teammateId === detail.mission.coordinatorTeammateId &&
-          record.runtimeProfileId === fixture.runtime,
+          record.runtimeProfileId ===
+            (detail.mission.coordinatorTeammateId === fixture.a
+              ? fixture.runtimeA
+              : fixture.runtimeB),
       ),
     );
     assert.ok(detail.events.length > 0);

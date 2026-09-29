@@ -6,13 +6,9 @@ import type {
   TeammateCapabilityState,
 } from '@cultivation/domain';
 import { BenchmarkPriorResolver } from './r1-benchmark-prior.js';
-import {
-  calculateCapabilityScore,
-  CAPABILITY_DIMENSIONS,
-  CAPABILITY_SCORING_POLICY,
-  projectCapabilityScore,
-  ratingStarsToScore,
-} from './r1-capability-scoring.js';
+import { CAPABILITY_DIMENSIONS } from './r1-capability-scoring.js';
+
+const BENCHMARK_ONLY_SCORING_POLICY_VERSION = 'r1-benchmark-only-v1';
 
 export interface R1RuntimeTeammate {
   id: string;
@@ -31,7 +27,7 @@ export interface R1MissionRunRatingTargetFact {
   modelAlias: string;
 }
 
-/** Persistence boundary. Evidence remains append-only; states are replaceable projections. */
+/** Persistence boundary; legacy evidence/state accessors remain for stored-data compatibility. */
 export interface R1CapabilityStore {
   getTeammate(teammateId: string): R1RuntimeTeammate | null;
   getRuntimeModelAlias(runtimeProfileId: string): string | null;
@@ -113,7 +109,7 @@ export interface R1CapabilityServiceOptions {
   resolver?: BenchmarkPriorResolver;
 }
 
-/** Benchmark entry, mission feedback, and deterministic capability projection. */
+/** Benchmark catalog and deterministic Benchmark-only capability projection. */
 export class R1CapabilityService {
   private readonly newId: () => string;
   private readonly now: () => string;
@@ -178,7 +174,6 @@ export class R1CapabilityService {
     for (const fact of facts) {
       if (this.store.getTeammate(fact.teammateId)?.executorKind !== 'MODEL_RUNTIME') continue;
       const key = `${fact.teammateId}\u0000${fact.runtimeProfileId}`;
-      const existingEvidence = this.store.listCapabilityEvidence(fact.teammateId);
       const benchmarks = this.store.listModelCapabilityBenchmarks(
         fact.runtimeProfileId,
         fact.modelAlias,
@@ -197,13 +192,7 @@ export class R1CapabilityService {
         missionId,
         runId,
         supportedDimensions,
-        alreadyRated: existingEvidence.some(
-          (entry) =>
-            entry.teammateId === fact.teammateId &&
-            entry.missionId === missionId &&
-            entry.runId === runId &&
-            entry.runtimeProfileId === fact.runtimeProfileId,
-        ),
+        alreadyRated: false,
       });
     }
     return [...targets.values()].sort(
@@ -214,82 +203,23 @@ export class R1CapabilityService {
   }
 
   submitRating(input: SubmitCapabilityRatingInput): SubmitCapabilityRatingResult {
-    const target = this.getRatingTargets(input.missionId, input.runId).find(
-      (candidate) =>
-        candidate.teammateId === input.teammateId &&
-        candidate.runtimeProfileId === input.runtimeProfileId,
-    );
-    if (!target) throw new Error('This Teammate did not execute the selected Mission Run.');
-    if (target.alreadyRated)
-      throw new Error('This Teammate and Runtime have already been rated for this Run.');
-    if (input.skip) return { evidence: [], skipped: true };
-    if (target.supportedDimensions.length === 0) {
-      throw new Error('No supported Benchmark dimensions are configured for this Runtime.');
-    }
-    validateSelectedDimensions(input.selectedDimensions, target.supportedDimensions);
-
-    const dimensionRatings = input.dimensionRatings ?? {};
-    for (const [dimension, rating] of Object.entries(dimensionRatings)) {
-      if (!input.selectedDimensions.includes(dimension as CapabilityDimension)) {
-        throw new Error('Per-dimension ratings must be within the selected dimensions.');
-      }
-      validateStars(rating);
-    }
-    if (input.overallRating !== undefined) validateStars(input.overallRating);
-    if (
-      input.overallRating === undefined &&
-      input.selectedDimensions.some((dimension) => dimensionRatings[dimension] === undefined)
-    ) {
-      throw new Error(
-        'Provide a per-dimension rating for every selected dimension, or an overall rating.',
-      );
-    }
-
-    const evidence: CapabilityEvidence[] = [];
-    const createdAt = this.now();
-    for (const dimension of input.selectedDimensions) {
-      const individualRating = dimensionRatings[dimension];
-      const stars = individualRating ?? input.overallRating;
-      if (stars === undefined) continue;
-      const isIndividual = individualRating !== undefined;
-      evidence.push({
-        id: this.newId(),
-        teammateId: input.teammateId,
-        runtimeProfileId: input.runtimeProfileId,
-        missionId: input.missionId,
-        runId: input.runId,
-        dimension,
-        sourceType: isIndividual ? 'USER_DIMENSION_RATING' : 'USER_OVERALL_RATING',
-        ratingValue: ratingStarsToScore(stars),
-        demandWeight: CAPABILITY_SCORING_POLICY.selectedDimensionDemandWeight,
-        evidenceWeight: isIndividual
-          ? CAPABILITY_SCORING_POLICY.dimensionEvidenceWeight
-          : CAPABILITY_SCORING_POLICY.overallProjectionEvidenceWeight,
-        createdAt,
-      });
-    }
-    if (evidence.length === 0) throw new Error('The selected dimensions have no ratings.');
-    this.store.appendCapabilityEvidenceBatch(evidence);
-    this.rebuild(input.teammateId);
-    return { evidence, skipped: false };
+    void input;
+    throw new Error('Mission ratings are disabled; capability scores come from Benchmarks only.');
   }
 
-  /** Rebuilds from benchmark/evidence facts; safe to call after Runtime migration. */
+  /** Returns legacy state-shaped values derived only from the current Runtime's Benchmarks. */
   rebuild(teammateId: string): TeammateCapabilityState[] {
     const teammate = this.store.getTeammate(teammateId);
     if (!teammate) throw new Error('Teammate does not exist.');
     if (teammate.executorKind !== 'MODEL_RUNTIME' || !teammate.currentRuntimeProfileId) {
-      this.store.replaceTeammateCapabilityStates(teammateId, []);
       return [];
     }
     const runtimeProfileId = teammate.currentRuntimeProfileId;
     const modelAlias = this.store.getRuntimeModelAlias(runtimeProfileId);
     if (!modelAlias) {
-      this.store.replaceTeammateCapabilityStates(teammateId, []);
       return [];
     }
     const benchmarks = this.store.listModelCapabilityBenchmarks(runtimeProfileId, modelAlias);
-    const evidence = this.store.listCapabilityEvidence(teammateId);
     const states = CAPABILITY_DIMENSIONS.flatMap((dimension) => {
       const prior = this.resolver.resolve({
         benchmarks,
@@ -297,27 +227,28 @@ export class R1CapabilityService {
         modelAlias,
         dimension,
       });
-      const state = projectCapabilityScore({
-        teammateId,
-        dimension,
-        currentRuntimeProfileId: runtimeProfileId,
-        prior,
-        evidence,
-      });
-      return state ? [state] : [];
+      if (!hasNormalizedBenchmarkScore(prior)) return [];
+      return [
+        {
+          teammateId,
+          dimension,
+          currentScore: prior.normalizedScore,
+          evidenceWeight: 0,
+          ratingCount: 0,
+          currentRuntimeProfileId: runtimeProfileId,
+          scoringPolicyVersion: BENCHMARK_ONLY_SCORING_POLICY_VERSION,
+          updatedAt: prior.createdAt,
+        },
+      ];
     });
-    this.store.replaceTeammateCapabilityStates(teammateId, states);
     return states;
   }
 
-  /** Always rebuilds so a model/runtime change cannot leave a stale display projection. */
+  /** Always resolves the Benchmark for the teammate's current fixed Runtime model. */
   profile(teammateId: string): R1CapabilityProfile {
     const teammate = this.store.getTeammate(teammateId);
     if (!teammate) throw new Error('Teammate does not exist.');
-    const states = this.rebuild(teammateId);
     const runtimeProfileId = teammate.currentRuntimeProfileId;
-    const stateByDimension = new Map(states.map((state) => [state.dimension, state]));
-    const evidence = this.store.listCapabilityEvidence(teammateId);
     const effectivePriors = runtimeProfileId
       ? this.listEffectivePriors(runtimeProfileId)
       : CAPABILITY_DIMENSIONS.map((dimension) => ({ dimension, prior: null }));
@@ -326,43 +257,26 @@ export class R1CapabilityService {
     );
     const dimensions = CAPABILITY_DIMENSIONS.map((dimension): R1CapabilityDimensionProfile => {
       const prior = priorByDimension.get(dimension) ?? null;
-      const state = stateByDimension.get(dimension);
-      const projection = runtimeProfileId
-        ? calculateCapabilityScore({
-            teammateId,
-            dimension,
-            currentRuntimeProfileId: runtimeProfileId,
-            prior,
-            evidence,
-          })
-        : null;
+      const hasBenchmarkScore = hasNormalizedBenchmarkScore(prior);
       return {
         dimension,
         prior,
-        currentScore: state?.currentScore ?? null,
-        ratingCount: state?.ratingCount ?? 0,
-        evidenceWeight: state?.evidenceWeight ?? 0,
-        weightedUserScore: projection?.weightedUserScore ?? null,
-        priorStrength: CAPABILITY_SCORING_POLICY.priorStrength,
-        transferWeight: CAPABILITY_SCORING_POLICY.transferWeight,
-        alpha: projection?.alpha ?? 0,
+        currentScore: hasBenchmarkScore ? prior.normalizedScore : null,
+        ratingCount: 0,
+        evidenceWeight: 0,
+        weightedUserScore: null,
+        priorStrength: 0,
+        transferWeight: 0,
+        alpha: 0,
         currentRuntimeProfileId: runtimeProfileId,
-        scoringPolicyVersion: CAPABILITY_SCORING_POLICY.version,
-        source: state
-          ? state.ratingCount > 0
-            ? 'BENCHMARK_PLUS_USER_EVIDENCE'
-            : 'BENCHMARK_ONLY'
-          : prior?.supported
-            ? 'NO_BENCHMARK'
-            : prior
-              ? 'UNSUPPORTED'
-              : 'NO_BENCHMARK',
+        scoringPolicyVersion: BENCHMARK_ONLY_SCORING_POLICY_VERSION,
+        source: !prior ? 'NO_BENCHMARK' : hasBenchmarkScore ? 'BENCHMARK_ONLY' : 'UNSUPPORTED',
       };
     });
     return {
       teammateId,
       currentRuntimeProfileId: runtimeProfileId,
-      scoringPolicyVersion: CAPABILITY_SCORING_POLICY.version,
+      scoringPolicyVersion: BENCHMARK_ONLY_SCORING_POLICY_VERSION,
       dimensions,
     };
   }
@@ -401,23 +315,14 @@ function validateBenchmark(
   }
 }
 
-function validateSelectedDimensions(
-  selected: readonly CapabilityDimension[],
-  supported: readonly CapabilityDimension[],
-): void {
-  if (selected.length < 1 || selected.length > 3) {
-    throw new Error('Select between one and three capability dimensions.');
-  }
-  if (new Set(selected).size !== selected.length) {
-    throw new Error('Capability dimensions must not be repeated.');
-  }
-  if (selected.some((dimension) => !supported.includes(dimension))) {
-    throw new Error('A selected dimension is not supported by this Runtime Benchmark.');
-  }
-}
-
-function validateStars(value: number): void {
-  if (!Number.isInteger(value) || value < 1 || value > 5) {
-    throw new Error('Rating must be an integer from 1 to 5.');
-  }
+function hasNormalizedBenchmarkScore(
+  prior: ModelCapabilityBenchmark | null,
+): prior is ModelCapabilityBenchmark & { supported: true; normalizedScore: number } {
+  return (
+    prior?.supported === true &&
+    prior.normalizedScore !== null &&
+    Number.isFinite(prior.normalizedScore) &&
+    prior.normalizedScore >= 0 &&
+    prior.normalizedScore <= 100
+  );
 }

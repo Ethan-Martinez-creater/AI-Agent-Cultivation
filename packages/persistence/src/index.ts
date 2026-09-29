@@ -14,6 +14,13 @@ import capabilityEvidenceProvenanceSql from '../../../migrations/0010_r0_capabil
 import dynamicCapabilitySql from '../../../migrations/0011_r1_dynamic_capability.sql?raw';
 import humanBridgeSql from '../../../migrations/0012_r2_human_bridge.sql?raw';
 import r3DecisionPlaneSql from '../../../migrations/0013_r3_decision_plane.sql?raw';
+import r3_1IdentityCapabilitySql from '../../../migrations/0014_r3_1_identity_capability.sql?raw';
+import { R31BindingRepository } from './r3-1-binding.js';
+import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
+
+export { R31BindingRepository } from './r3-1-binding.js';
+export type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
+export { R2ContinuationRepository } from './r2-continuation.js';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
@@ -77,6 +84,7 @@ export const migrations: readonly Migration[] = [
   { version: 11, name: 'r1_dynamic_capability', sql: dynamicCapabilitySql },
   { version: 12, name: 'r2_human_bridge', sql: humanBridgeSql },
   { version: 13, name: 'r3_decision_plane', sql: r3DecisionPlaneSql },
+  { version: 14, name: 'r3_1_identity_capability', sql: r3_1IdentityCapabilitySql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -258,7 +266,11 @@ interface UsageRow {
 
 /** Synchronous SQLite access used only by Electron's Main process. */
 export class Gate1SqliteRepository {
-  constructor(private readonly db: Database.Database) {}
+  private readonly r31Bindings: R31BindingRepository;
+
+  constructor(private readonly db: Database.Database) {
+    this.r31Bindings = new R31BindingRepository(db);
+  }
 
   saveProvider(value: ProviderConfig): void {
     this.db
@@ -411,6 +423,33 @@ export class Gate1SqliteRepository {
     return (
       this.db.prepare('SELECT * FROM teammates ORDER BY name, id').all() as TeammateRow[]
     ).map(mapTeammate);
+  }
+
+  createSealedTeammate(
+    teammate: TeammateRecord,
+    sourceRuntimeProfileId: string,
+    verifiedAt: string,
+  ): SealedTeammateCreation {
+    return this.r31Bindings.createSealedTeammate(teammate, sourceRuntimeProfileId, verifiedAt);
+  }
+
+  getModelBinding(teammateId: string): TeammateModelBindingRecord | null {
+    return this.r31Bindings.getModelBinding(teammateId);
+  }
+
+  isRuntimeBound(runtimeProfileId: string): boolean {
+    return this.r31Bindings.isRuntimeBound(runtimeProfileId);
+  }
+
+  hasValidModelBinding(teammateId: string): boolean {
+    return this.r31Bindings.hasValidModelBinding(teammateId);
+  }
+
+  rotateBoundCredential(
+    teammateId: string,
+    credentialId: string | null,
+  ): TeammateModelBindingRecord {
+    return this.r31Bindings.rotateBoundCredential(teammateId, credentialId);
   }
 
   saveConversation(value: ConversationRecord): void {

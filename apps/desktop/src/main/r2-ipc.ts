@@ -118,20 +118,7 @@ export function registerR2Ipc(
     await party.resumeExternalWork(continuation);
     return continuation;
   });
-  register('r2:submitRating', (args) =>
-    bridge.submitRating(
-      one(
-        args,
-        z
-          .object({
-            externalWorkRequestId: id,
-            stars: z.number().int().min(1).max(5).optional(),
-            skip: z.boolean().optional(),
-          })
-          .strict(),
-      ),
-    ),
-  );
+  ipcMain.removeHandler('r2:submitRating');
   register('r2:copyPrompt', (args) => {
     const detail = work.getExternalWorkRequest(one(args, id));
     if (!detail) throw new Error('ExternalWork 不存在');

@@ -38,8 +38,8 @@ function seedRuntimeAndTeammates(db: Database.Database): void {
      VALUES ('runtime-1', 'Runtime', 'provider-1', 'model-1', 'created', 'updated')`,
   ).run();
   db.prepare(
-    `INSERT INTO teammates (id, name, created_at, updated_at)
-     VALUES ('coordinator', 'Coordinator', 'created', 'updated')`,
+    `INSERT INTO teammates (id, name, current_runtime_profile_id, created_at, updated_at)
+     VALUES ('coordinator', 'Coordinator', 'runtime-1', 'created', 'updated')`,
   ).run();
 }
 

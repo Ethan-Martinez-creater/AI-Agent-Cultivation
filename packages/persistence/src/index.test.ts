@@ -40,7 +40,7 @@ describe('SQLite bootstrap', () => {
         .run(),
     ).toThrow();
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 13,
+      count: 14,
     });
     const tables = db
       .prepare("SELECT name FROM sqlite_master WHERE type IN ('table', 'view')")
@@ -85,6 +85,8 @@ describe('SQLite bootstrap', () => {
       'decision_provider_configs',
       'decision_shadow_policy_config',
       'decision_shadow_attempts',
+      'teammate_model_bindings',
+      'r2_external_work_continuations',
     ]) {
       expect(tables.some((table) => table.name === name)).toBe(true);
     }
@@ -98,12 +100,12 @@ describe('SQLite bootstrap', () => {
     );
     runMigrations(db, migrations);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 13,
+      count: 14,
     });
     db.close();
     db = openDatabase(path);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 13,
+      count: 14,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     db.close();
@@ -120,11 +122,13 @@ describe('SQLite bootstrap', () => {
     db.prepare(
       `INSERT INTO runtime_profiles
         (id, name, provider_id, model_id, created_at, updated_at)
-       VALUES ('runtime-1', 'Runtime', 'provider-1', 'model-1', 'created', 'updated')`,
+       VALUES ('runtime-1', 'Runtime', 'provider-1', 'model-1',
+         '2026-09-28T08:00:00.000Z', '2026-09-28T08:00:00.000Z')`,
     ).run();
     db.prepare(
-      `INSERT INTO teammates (id, name, created_at, updated_at)
-       VALUES ('teammate-1', 'Test', 'created', 'updated')`,
+      `INSERT INTO teammates (id, name, current_runtime_profile_id, created_at, updated_at)
+       VALUES ('teammate-1', 'Test', 'runtime-1',
+         '2026-09-28T08:00:00.000Z', '2026-09-28T08:00:00.000Z')`,
     ).run();
     db.prepare(
       `INSERT INTO missions
@@ -167,6 +171,18 @@ describe('SQLite bootstrap', () => {
     expect(db.prepare('SELECT id, input_tokens, output_tokens FROM usage_records').all()).toEqual([
       { id: 'usage-1', input_tokens: 4, output_tokens: 7 },
     ]);
+    const migratedTeammate = db
+      .prepare('SELECT current_runtime_profile_id FROM teammates WHERE id = ?')
+      .get('teammate-1') as { current_runtime_profile_id: string };
+    expect(migratedTeammate.current_runtime_profile_id).not.toBe('runtime-1');
+    expect(
+      db
+        .prepare('SELECT runtime_profile_id FROM teammate_model_bindings WHERE teammate_id = ?')
+        .get('teammate-1'),
+    ).toEqual({ runtime_profile_id: migratedTeammate.current_runtime_profile_id });
+    expect(db.prepare('SELECT id FROM runtime_profiles WHERE id = ?').get('runtime-1')).toEqual({
+      id: 'runtime-1',
+    });
     expect(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([
       { version: 1 },
       { version: 2 },
@@ -181,6 +197,7 @@ describe('SQLite bootstrap', () => {
       { version: 11 },
       { version: 12 },
       { version: 13 },
+      { version: 14 },
     ]);
     db.close();
   });

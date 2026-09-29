@@ -10,21 +10,10 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import type {
-  BenchmarkInput,
-  CultivationBridge as PreloadBridge,
-  RatingInput,
-} from '../../preload/preload.js';
-import type {
-  CapabilityDimension,
-  CapabilityEvidence,
-  ModelCapabilityBenchmark,
-} from '@cultivation/domain';
-import type {
-  R1CapabilityProfile,
-  R1RatingTarget,
-} from '@cultivation/application/r1-capability-service';
-import { BenchmarkPanel, DynamicCapabilityPanel, MissionRatingCard } from './r1-capability.js';
+import type { BenchmarkInput, CultivationBridge as PreloadBridge } from '../../preload/preload.js';
+import type { CapabilityDimension, ModelCapabilityBenchmark } from '@cultivation/domain';
+import type { R1CapabilityProfile } from '@cultivation/application/r1-capability-service';
+import { BenchmarkPanel, DynamicCapabilityPanel } from './r1-capability.js';
 import {
   HumanBridgeApproval,
   HumanBridgePage,
@@ -384,8 +373,6 @@ interface CultivationBridge {
       runtimeProfileId: string,
     ): Promise<Array<{ dimension: CapabilityDimension; prior: ModelCapabilityBenchmark | null }>>;
     saveBenchmark(input: BenchmarkInput): Promise<ModelCapabilityBenchmark>;
-    ratingTargets(input: { missionId: string; runId: string }): Promise<R1RatingTarget[]>;
-    submitRating(input: RatingInput): Promise<{ evidence: CapabilityEvidence[]; skipped: boolean }>;
     profile(teammateId: string): Promise<R1CapabilityProfile>;
     rebuild(teammateId: string): Promise<unknown>;
   };
@@ -403,6 +390,7 @@ interface CultivationBridge {
   credentials: {
     list(providerId?: string): Promise<CredentialView[]>;
     create(input: { providerId: string; label: string }): Promise<CredentialView>;
+    rotate(credentialId: string): Promise<CredentialView>;
   };
   runtimes: {
     list(): Promise<RuntimeProfileView[]>;
@@ -427,7 +415,6 @@ interface CultivationBridge {
     update(input: Omit<TeammateView, 'status'>): Promise<TeammateView>;
     archive(id: string): Promise<TeammateView>;
     duplicate(id: string): Promise<TeammateView>;
-    switchRuntime(input: { teammateId: string; runtimeProfileId: string }): Promise<TeammateView>;
   };
   parties: {
     list(): Promise<PartyView[]>;
@@ -780,7 +767,7 @@ function HomePage() {
       <div className="section-heading">
         <div>
           <h2>我的道友</h2>
-          <p>对话与经历记录都归属于道友身份，切换 Runtime 不会更改历史。</p>
+          <p>对话与经历记录都归属于道友身份；模型在创建时验证并固定。</p>
         </div>
         <span className="count-badge">{teammates.length}</span>
       </div>
@@ -1517,7 +1504,6 @@ function PartiesPage() {
       setBusy(false);
     }
   };
-
   const archive = async (party: PartyView) => {
     setBusy(true);
     setError('');
@@ -2697,17 +2683,6 @@ function MissionPage() {
                               <pre>{run.resultText}</pre>
                             </details>
                           )}
-                          {['COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED'].includes(
-                            run.status,
-                          ) && (
-                            <MissionRatingCard
-                              missionId={detail.mission.id}
-                              runId={run.id}
-                              teammateNames={Object.fromEntries(
-                                teammates.map((item) => [item.id, item.name]),
-                              )}
-                            />
-                          )}
                         </article>
                       ))}
                   </div>
@@ -3448,6 +3423,20 @@ function CredentialsPanel({
       setBusy(false);
     }
   };
+  const rotate = async (credential: CredentialView) => {
+    setBusy(true);
+    setError('');
+    setSuccess('');
+    try {
+      await window.cultivation.credentials.rotate(credential.id);
+      setSuccess(`「${credential.label}」的 API Key 已轮换；已绑定道友的模型身份保持不变。`);
+      await onCreated();
+    } catch {
+      setError('轮换失败。请先复制新 API Key，再检查系统加密服务。');
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <div className="panel-grid">
       <form className="form-card" onSubmit={(event) => void submit(event)}>
@@ -3493,7 +3482,10 @@ function CredentialsPanel({
           <h2>已保存凭据</h2>
           <span className="count-badge">{visibleCredentials.length}</span>
         </div>
-        <p className="muted-copy">此列表不包含密钥内容、密文或密钥预览。</p>
+        <p className="muted-copy">
+          此列表不包含密钥内容、密文或密钥预览。轮换前请先复制新 API Key；Main Process
+          读取并清空剪贴板。
+        </p>
         {visibleCredentials.length ? (
           visibleCredentials.map((credential) => (
             <div className="data-row" key={credential.id}>
@@ -3505,6 +3497,14 @@ function CredentialsPanel({
                 </small>
               </span>
               <span className="safe-tag">安全保存</span>
+              <button
+                className="button secondary"
+                type="button"
+                disabled={busy}
+                onClick={() => void rotate(credential)}
+              >
+                轮换 Key
+              </button>
             </div>
           ))
         ) : (
@@ -3855,30 +3855,6 @@ function TeammatesPage() {
       setBusy(false);
     }
   };
-  const switchRuntime = async (runtimeProfileId: string) => {
-    if (!selected) return;
-    setBusy(true);
-    setError('');
-    setNotice('');
-    const stableId = selected.id;
-    try {
-      const updated = await window.cultivation.teammates.switchRuntime({
-        teammateId: stableId,
-        runtimeProfileId,
-      });
-      setSelectedId(updated.id);
-      setNotice(
-        updated.id === stableId
-          ? '运行配置已切换，道友 ID 保持不变。'
-          : '切换返回了不同的道友 ID。',
-      );
-      await refresh();
-    } catch (cause) {
-      setError(errorText(cause, '切换 Runtime Profile 失败。'));
-    } finally {
-      setBusy(false);
-    }
-  };
   const updateForm = (patch: Partial<TeammateForm>) =>
     setForm((current) => ({ ...current, ...patch }));
 
@@ -3887,7 +3863,7 @@ function TeammatesPage() {
       <PageHeading
         eyebrow="道友档案 · Teammate"
         title="道友 Teammates"
-        description="道友是持续对话的身份。Runtime Profile 可以更换，道友 ID 与其 Conversation 历史保持不变。"
+        description="普通道友创建时验证并封存 Provider、Endpoint 和 Model；如需其他模型，请创建新道友。"
       />
       {error && (
         <div className="notice error notice-with-action" role="alert">
@@ -4031,21 +4007,32 @@ function TeammatesPage() {
                   placeholder="定义回答习惯与协作偏好"
                 />
               </label>
-              <label className="field">
-                <span>Runtime Profile</span>
-                <select
-                  required
-                  value={form.currentRuntimeProfileId}
-                  onChange={(event) => updateForm({ currentRuntimeProfileId: event.target.value })}
-                >
-                  <option value="">选择运行配置</option>
-                  {runtimes.map((runtime) => (
-                    <option key={runtime.id} value={runtime.id}>
-                      {runtime.name} · {runtime.modelId}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {editingId ? (
+                <p className="form-hint">
+                  模型身份已固定：
+                  {runtimes.find((runtime) => runtime.id === form.currentRuntimeProfileId)
+                    ?.modelId ?? 'Runtime 不可用'}
+                  。更换模型请新建道友。
+                </p>
+              ) : (
+                <label className="field">
+                  <span>Runtime Profile（创建后固定模型）</span>
+                  <select
+                    required
+                    value={form.currentRuntimeProfileId}
+                    onChange={(event) =>
+                      updateForm({ currentRuntimeProfileId: event.target.value })
+                    }
+                  >
+                    <option value="">选择运行配置</option>
+                    {runtimes.map((runtime) => (
+                      <option key={runtime.id} value={runtime.id}>
+                        {runtime.name} · {runtime.modelId}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               {!runtimes.length && (
                 <div className="prerequisite-note">
                   <p className="form-hint">
@@ -4091,29 +4078,21 @@ function TeammatesPage() {
                 <small>
                   {selected.executorKind === 'USER_BRIDGE'
                     ? '系统 Human Bridge 不绑定模型 Runtime，仅在明确委托的外部工作中执行。'
-                    : 'Runtime 切换不会改变此 ID，也不会迁移或丢失 Conversation 历史。'}
+                    : '此身份及模型绑定长期保持；Conversation 历史归属于此道友。'}
                 </small>
               </div>
               {selected.executorKind !== 'USER_BRIDGE' && (
                 <div className="profile-section">
                   <div className="section-heading">
                     <div>
-                      <h3>当前 Runtime Profile</h3>
-                      <p>Provider、Credential 和 Model 由运行配置管理。</p>
+                      <h3>固定模型绑定</h3>
+                      <p>Provider、Endpoint 与 Model 已封存；Credential 可安全轮换。</p>
                     </div>
                   </div>
-                  <select
-                    aria-label="切换 Runtime Profile"
-                    disabled={busy || selected.status !== 'ACTIVE'}
-                    value={selected.currentRuntimeProfileId ?? ''}
-                    onChange={(event) => void switchRuntime(event.target.value)}
-                  >
-                    {runtimes.map((runtime) => (
-                      <option key={runtime.id} value={runtime.id}>
-                        {runtime.name} · {runtime.modelId}
-                      </option>
-                    ))}
-                  </select>
+                  <p className="form-hint">
+                    {runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
+                      ?.modelId ?? 'Runtime 不可用'}
+                  </p>
                 </div>
               )}
               <div className="profile-actions">
@@ -4174,7 +4153,7 @@ function TeammatesPage() {
           ) : (
             <div className="empty-card">
               <h3>选择或创建道友</h3>
-              <p>道友身份和运行配置分别管理。</p>
+              <p>创建时选择并验证模型；成功后模型身份固定。</p>
             </div>
           )}
         </div>
@@ -4490,7 +4469,7 @@ function ChatPage() {
               <div className="chat-empty">
                 <span className="empty-icon">✦</span>
                 <h3>向 {teammate?.name ?? '道友'} 问好</h3>
-                <p>此会话的消息会持续保存，切换 Runtime 后仍归属于同一道友。</p>
+                <p>此会话的消息会持续保存，并始终归属于当前道友。</p>
               </div>
             ) : (
               messages.map((message) => (

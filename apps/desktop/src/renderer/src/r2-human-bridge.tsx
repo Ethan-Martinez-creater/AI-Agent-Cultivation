@@ -12,8 +12,6 @@ export interface HumanBridgeCapabilityView {
   enabled: boolean;
   priorScore: number | null;
   currentScore: number | null;
-  ratingCount: number;
-  evidenceWeight: number;
   source: string | null;
 }
 
@@ -58,11 +56,6 @@ export interface R2UiApi {
   accept(input: { requestId: string; publicResult?: string }): Promise<unknown>;
   reject(input: { requestId: string; reason?: string }): Promise<unknown>;
   cancel(input: { requestId: string }): Promise<unknown>;
-  submitRating(input: {
-    externalWorkRequestId: string;
-    stars?: number;
-    skip?: boolean;
-  }): Promise<unknown>;
   copyPrompt(id: string): Promise<void>;
   openTargetFolder(id: string): Promise<void>;
   onNavigate(callback: (path: string) => void): () => void;
@@ -331,7 +324,6 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
   const [detail, setDetail] = useState<ExternalWorkDetailView | null>(null);
   const [paths, setPaths] = useState<Record<string, string>>({});
   const [publicResult, setPublicResult] = useState('');
-  const [rating, setRating] = useState(0);
   const [displayName, setDisplayName] = useState('');
   const [appName, setAppName] = useState('');
   const [appVendor, setAppVendor] = useState('');
@@ -477,11 +469,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                 }
               />
               <span>{dimensionNames[entry.dimension]}</span>
-              <small>
-                {entry.enabled
-                  ? `当前 ${entry.currentScore ?? 1} · prior 1 · ${entry.ratingCount} 条评价`
-                  : '未启用'}
-              </small>
+              <small>{entry.enabled ? '已启用 · 固定能力值 1' : '未启用'}</small>
             </label>
           ))}
         </div>
@@ -740,51 +728,6 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                     退回修改
                   </button>
                 </>
-              )}
-              {request.state === 'ACCEPTED' && (
-                <div>
-                  <h3>评价本次实际能力</h3>
-                  <p>可跳过。评分只归属于这次 ACCEPTED 外部工作，Runtime 保持为空。</p>
-                  <select
-                    aria-label="本尊评分"
-                    value={rating}
-                    onChange={(event) => setRating(Number(event.target.value))}
-                  >
-                    <option value={0}>选择 1–5 星</option>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <option key={star} value={star}>
-                        {star} 星
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="button primary"
-                    disabled={busy || !rating}
-                    onClick={() =>
-                      void run(
-                        () =>
-                          api.submitRating({ externalWorkRequestId: request.id, stars: rating }),
-                        '评价已记录。',
-                        request.id,
-                      )
-                    }
-                  >
-                    提交评价
-                  </button>
-                  <button
-                    className="button secondary"
-                    disabled={busy}
-                    onClick={() =>
-                      void run(
-                        () => api.submitRating({ externalWorkRequestId: request.id, skip: true }),
-                        '已跳过评价。',
-                        request.id,
-                      )
-                    }
-                  >
-                    跳过
-                  </button>
-                </div>
               )}
               {activeStates.has(request.state) && request.state !== 'SUBMITTED' && (
                 <button

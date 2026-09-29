@@ -815,10 +815,12 @@ export class Gate3MissionService {
   }
 
   /** Startup recovery does not resume token streams or alter user approval/pause state. */
-  recoverInterrupted(): Mission[] {
+  recoverInterrupted(protectedMissionIds: ReadonlySet<string> = new Set()): Mission[] {
     const recovered: Mission[] = [];
     for (const mission of this.store.listRunningMissions()) {
       if (mission.state !== 'RUNNING') continue;
+      // A durable ExternalWork continuation owns this Run and must resume it in place.
+      if (protectedMissionIds.has(mission.id)) continue;
       const timestamp = this.clock.now();
       const next = this.transition(mission, 'INTERRUPTED', timestamp);
       this.store.transaction(() => {

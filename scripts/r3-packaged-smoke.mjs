@@ -105,6 +105,9 @@ try {
   await page.getByRole('heading', { name: '设置 Settings' }).waitFor();
   await page.getByRole('tab', { name: 'Jev Shadow（高级）' }).click();
   await page.getByText('Jev Shadow Decision Plane').waitFor();
+  const privacy = page.getByRole('note', { name: 'Cloud Shadow 隐私说明' });
+  assert.match(await privacy.innerText(), /Benchmark 能力档位/);
+  assert.match(await privacy.innerText(), /不发送 Credential／API Key/);
 
   const db = new Database(join(userData, 'data', 'cultivation.sqlite'), { readonly: true });
   try {
@@ -151,7 +154,7 @@ try {
     );
     assert.equal(
       db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get().version,
-      13,
+      14,
     );
   } finally {
     db.close();

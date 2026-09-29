@@ -189,7 +189,11 @@ try {
       behaviorPrompt: '',
       currentRuntimeProfileId: runtime.id,
     });
-    return { providerId: provider.id, runtimeId: runtime.id, teammateId: teammate.id };
+    return {
+      providerId: provider.id,
+      runtimeId: teammate.currentRuntimeProfileId,
+      teammateId: teammate.id,
+    };
   });
 
   const approvedOperations = [

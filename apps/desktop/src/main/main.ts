@@ -14,6 +14,7 @@ import {
   Gate5SqliteRepository,
   Gate6SqliteRepository,
   R0SqliteRepository,
+  R2ContinuationRepository,
   R3SqliteRepository,
   openDatabase,
 } from '@cultivation/persistence';
@@ -151,19 +152,11 @@ function createWindow(
       db.close();
     }
   });
-  registerGate1Ipc(
-    window,
-    validSender,
-    service,
-    (teammateId) => {
-      capabilities.rebuild(teammateId);
-    },
-    (runtimeProfileId) => {
-      for (const teammate of capabilityStore.listTeammatesUsingRuntime(runtimeProfileId)) {
-        capabilities.rebuild(teammate.id);
-      }
-    },
-  );
+  registerGate1Ipc(window, validSender, service, (runtimeProfileId) => {
+    for (const teammate of capabilityStore.listTeammatesUsingRuntime(runtimeProfileId)) {
+      capabilities.rebuild(teammate.id);
+    }
+  });
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
   registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties, (mission) =>
     r3Observer.observeMission(mission),
@@ -204,6 +197,7 @@ if (!squirrelStartup)
       const gate5Store = new Gate5SqliteRepository(db);
       const experience = new Gate6ExperienceService(new Gate6SqliteRepository(db));
       const capabilityStore = new R0SqliteRepository(db);
+      const externalWorkContinuations = new R2ContinuationRepository(db);
       const r3Store = new R3SqliteRepository(db);
       const capabilities = new R1CapabilityService(capabilityStore);
       const r2Store: R2HumanBridgeServiceStore = {
@@ -322,24 +316,28 @@ if (!squirrelStartup)
       const mcpHost = new McpHost();
       const tools = new Gate4ToolsService(gate4Store, registry, mcpHost);
       await tools.initialize();
-      const externalWork = new ExternalWorkService(r2Store, {
-        validateArtifact: async (relativePath, constraints) => {
-          const root = tools.getWorkspace().rootPath;
-          if (!root) throw new Error('请先选择 Workspace Root');
-          const inspected = await (
-            await FileWorkspace.open(root)
-          ).inspectArtifact(relativePath, constraints.maxSizeBytes);
-          if (!constraints.allowedExtensions.includes(inspected.extension)) {
-            throw new Error('Artifact extension 不符合要求');
-          }
-          return {
-            relativePath: inspected.path,
-            fileName: inspected.fileName,
-            extension: inspected.extension,
-            sizeBytes: inspected.sizeBytes,
-          };
+      const externalWork = new ExternalWorkService(
+        r2Store,
+        {
+          validateArtifact: async (relativePath, constraints) => {
+            const root = tools.getWorkspace().rootPath;
+            if (!root) throw new Error('请先选择 Workspace Root');
+            const inspected = await (
+              await FileWorkspace.open(root)
+            ).inspectArtifact(relativePath, constraints.maxSizeBytes);
+            if (!constraints.allowedExtensions.includes(inspected.extension)) {
+              throw new Error('Artifact extension 不符合要求');
+            }
+            return {
+              relativePath: inspected.path,
+              fileName: inspected.fileName,
+              extension: inspected.extension,
+              sizeBytes: inspected.sizeBytes,
+            };
+          },
         },
-      });
+        { continuations: externalWorkContinuations },
+      );
       app.once('before-quit', () => {
         void tools.close();
       });
@@ -375,9 +373,20 @@ if (!squirrelStartup)
         promptContext,
         toolRuntime,
       );
-      partyMissions.attachExternalWork(externalWork);
-      await missions.recoverInterrupted();
+      partyMissions.attachExternalWork(externalWork, externalWorkContinuations);
+      const pendingExternalWork = externalWork.listPendingContinuations();
+      const protectedMissionIds = new Set(pendingExternalWork.map((item) => item.missionId));
+      for (const continuation of pendingExternalWork) {
+        try {
+          await partyMissions.resumeExternalWork(continuation);
+        } catch {
+          // The durable continuation remains available for the next startup; do not interrupt its Run.
+        }
+      }
+      missions.recoverInterrupted(protectedMissionIds);
+      const pendingRequestIds = new Set(pendingExternalWork.map((item) => item.requestId));
       for (const continuation of externalWork.resumeFinalizedRequests()) {
+        if (pendingRequestIds.has(continuation.requestId)) continue;
         await partyMissions.resumeExternalWork(continuation);
       }
       experience.reconcileAll();

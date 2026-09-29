@@ -289,8 +289,16 @@ describe('Gate 6 experience ledger', () => {
     try {
       runMigrations(db, migrations.slice(0, 6));
       db.prepare(
-        `INSERT INTO teammates (id,name,created_at,updated_at)
-         VALUES ('a','A','now','now')`,
+        `INSERT INTO providers (id,name,kind,created_at,updated_at)
+         VALUES ('provider','Provider','OPENAI','now','now')`,
+      ).run();
+      db.prepare(
+        `INSERT INTO runtime_profiles (id,name,provider_id,model_id,created_at,updated_at)
+         VALUES ('runtime','Runtime','provider','model','now','now')`,
+      ).run();
+      db.prepare(
+        `INSERT INTO teammates (id,name,current_runtime_profile_id,created_at,updated_at)
+         VALUES ('a','A','runtime','now','now')`,
       ).run();
       db.prepare(
         `INSERT INTO missions (id,title,objective,initiator_type,initiator_id,
@@ -311,7 +319,7 @@ describe('Gate 6 experience ledger', () => {
         count: 0,
       });
       expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-        count: 13,
+        count: 14,
       });
     } finally {
       db.close();
@@ -403,7 +411,7 @@ describe('Gate 6 experience ledger', () => {
     runMigrations(db, migrations);
 
     expect(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toHaveLength(
-      13,
+      14,
     );
     expect(db.prepare('SELECT COUNT(*) AS count FROM mission_events').get()).toEqual(
       missionEventCount,

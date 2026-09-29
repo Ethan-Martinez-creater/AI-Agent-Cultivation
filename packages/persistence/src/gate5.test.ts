@@ -461,7 +461,8 @@ describe('Gate 5 SQLite persistence', () => {
          VALUES ('r','R','p','m','now','now')`,
       ).run();
       db.prepare(
-        `INSERT INTO teammates (id,name,created_at,updated_at) VALUES ('a','A','now','now'),('b','B','now','now')`,
+        `INSERT INTO teammates (id,name,current_runtime_profile_id,created_at,updated_at)
+         VALUES ('a','A','r','now','now'),('b','B','r','now','now')`,
       ).run();
       db.prepare(
         `INSERT INTO missions (id,title,objective,initiator_type,initiator_id,coordinator_teammate_id,
@@ -492,7 +493,7 @@ describe('Gate 5 SQLite persistence', () => {
       });
       expect(legacy.created_at).not.toBe('');
       expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-        count: 13,
+        count: 14,
       });
     } finally {
       db.close();

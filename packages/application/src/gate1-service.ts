@@ -9,6 +9,7 @@ import type {
   Skill,
   SkillAssignment,
   Teammate,
+  TeammateModelBinding,
   UsageRecord,
 } from '@cultivation/domain';
 import { DomainError } from '@cultivation/shared';
@@ -30,6 +31,14 @@ export interface Gate1Store {
   listRuntimeProfiles(): RuntimeProfile[];
   getRuntimeProfile(id: string): RuntimeProfile | null;
   saveRuntimeProfile(value: RuntimeProfile): void;
+  isRuntimeBound(id: string): boolean;
+  hasValidModelBinding(teammateId: string): boolean;
+  getModelBinding(teammateId: string): TeammateModelBinding | null;
+  createSealedTeammate(
+    teammate: Teammate,
+    sourceRuntimeProfileId: string,
+    verifiedAt: string,
+  ): { teammate: Teammate; binding: TeammateModelBinding };
   listTeammates(): Teammate[];
   getTeammate(id: string): Teammate | null;
   saveTeammate(value: Teammate): void;
@@ -152,6 +161,20 @@ export class Gate1Service {
     return summary;
   }
 
+  async rotateCredential(input: {
+    credentialId: string;
+    apiKey: string;
+  }): Promise<CredentialSummary> {
+    const previous = this.store.getCredential(input.credentialId);
+    if (!previous) notFound('凭证');
+    const ciphertext = await this.secrets.encrypt(required(input.apiKey, 'API Key'));
+    const updated: StoredCredential = { ...previous, ciphertext, updatedAt: now() };
+    this.store.saveCredential(updated);
+    const { ciphertext: _ciphertext, ...summary } = updated;
+    void _ciphertext;
+    return summary;
+  }
+
   listRuntimeProfiles(): RuntimeProfile[] {
     return this.store.listRuntimeProfiles();
   }
@@ -202,6 +225,15 @@ export class Gate1Service {
   }): RuntimeProfile {
     const previous = this.store.getRuntimeProfile(input.id);
     if (!previous) notFound('RuntimeProfile');
+    if (this.store.isRuntimeBound(input.id)) {
+      if (
+        input.providerId !== previous.providerId ||
+        input.modelId.trim() !== previous.modelId ||
+        input.credentialId !== previous.credentialId
+      ) {
+        throw new DomainError('INVALID_INPUT', '已封存道友的模型配置不可修改；请新建道友');
+      }
+    }
     this.validateRuntimeBinding(input.providerId, input.credentialId);
     const runtime: RuntimeProfile = {
       ...previous,
@@ -266,8 +298,27 @@ export class Gate1Service {
     identityPrompt: string;
     behaviorPrompt: string;
     currentRuntimeProfileId: string;
-  }): Teammate {
+  }): Promise<Teammate> {
     this.requireRuntime(input.currentRuntimeProfileId);
+    return this.createVerifiedTeammate(input);
+  }
+
+  private async createVerifiedTeammate(input: {
+    name: string;
+    avatar: string | null;
+    title: string | null;
+    description: string;
+    identityPrompt: string;
+    behaviorPrompt: string;
+    currentRuntimeProfileId: string;
+  }): Promise<Teammate> {
+    const connection = await this.testConnection(input.currentRuntimeProfileId);
+    if (!connection.ok) {
+      throw new DomainError(
+        'INVALID_INPUT',
+        '模型连接测试未通过；请先验证 Provider、Credential 与 Model ID',
+      );
+    }
     const timestamp = now();
     const teammate: Teammate = {
       id: id(),
@@ -286,8 +337,8 @@ export class Gate1Service {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    this.store.saveTeammate(teammate);
-    return teammate;
+    return this.store.createSealedTeammate(teammate, input.currentRuntimeProfileId, timestamp)
+      .teammate;
   }
 
   updateTeammate(input: {
@@ -304,6 +355,9 @@ export class Gate1Service {
     if (!previous) notFound('道友');
     if (previous.executorKind === 'USER_BRIDGE') {
       throw new DomainError('INVALID_INPUT', 'Human Bridge 不可通过道友运行配置接口编辑');
+    }
+    if (input.currentRuntimeProfileId !== previous.currentRuntimeProfileId) {
+      throw new DomainError('INVALID_INPUT', '道友模型已封存；如需其他模型请新建道友');
     }
     this.requireRuntime(input.currentRuntimeProfileId);
     const teammate: Teammate = {
@@ -324,12 +378,15 @@ export class Gate1Service {
   archiveTeammate(teammateId: string): Teammate {
     const previous = this.store.getTeammate(teammateId);
     if (!previous) notFound('道友');
+    if (previous.systemKind === 'HUMAN_BRIDGE' || previous.executorKind === 'USER_BRIDGE') {
+      throw new DomainError('INVALID_INPUT', '本尊 Human Bridge 不可归档');
+    }
     const teammate = { ...previous, status: 'ARCHIVED' as const, updatedAt: now() };
     this.store.saveTeammate(teammate);
     return teammate;
   }
 
-  duplicateTeammate(teammateId: string): Teammate {
+  async duplicateTeammate(teammateId: string): Promise<Teammate> {
     const previous = this.store.getTeammate(teammateId);
     if (!previous) notFound('道友');
     if (!previous.currentRuntimeProfileId)
@@ -348,17 +405,8 @@ export class Gate1Service {
   switchRuntime(input: { teammateId: string; runtimeProfileId: string }): Teammate {
     const previous = this.store.getTeammate(input.teammateId);
     if (!previous) notFound('道友');
-    if (previous.executorKind === 'USER_BRIDGE') {
-      throw new DomainError('INVALID_INPUT', 'Human Bridge 不可绑定模型运行配置');
-    }
-    this.requireRuntime(input.runtimeProfileId);
-    const teammate = {
-      ...previous,
-      currentRuntimeProfileId: input.runtimeProfileId,
-      updatedAt: now(),
-    };
-    this.store.saveTeammate(teammate);
-    return teammate;
+    void input.runtimeProfileId;
+    throw new DomainError('INVALID_INPUT', '道友模型已封存；如需其他模型请新建道友');
   }
 
   listConversations(teammateId: string): Conversation[] {
@@ -433,6 +481,14 @@ export class Gate1Service {
       throw new DomainError('INVALID_INPUT', '道友没有运行配置');
     const runtime = this.store.getRuntimeProfile(teammate.currentRuntimeProfileId);
     if (!runtime) notFound('RuntimeProfile');
+    const binding = this.store.getModelBinding(teammate.id);
+    if (
+      !binding ||
+      binding.runtimeProfileId !== runtime.id ||
+      !this.store.hasValidModelBinding(teammate.id)
+    ) {
+      throw new DomainError('INVALID_INPUT', '道友缺少有效的封存模型绑定');
+    }
     const text = required(input.text, '消息');
     this.activeConversations.add(input.conversationId);
     try {

@@ -17,6 +17,8 @@ import {
   HumanBridgeService,
   HUMAN_BRIDGE_SYSTEM_ID,
   type ExternalWorkRequestRecord,
+  type R2ExternalWorkContinuationRecord,
+  type R2ExternalWorkContinuationStore,
   type R2HumanBridgeServiceStore,
   type ValidatedWorkspaceArtifact,
   type WorkspaceArtifactConstraints,
@@ -25,7 +27,7 @@ import {
 
 const at = '2026-09-28T00:00:00.000Z';
 
-class MemoryStore implements R2HumanBridgeServiceStore {
+class MemoryStore implements R2HumanBridgeServiceStore, R2ExternalWorkContinuationStore {
   bridge: Teammate | null = null;
   bridgeCreationCount = 0;
   missions = new Map<string, Mission>();
@@ -38,6 +40,7 @@ class MemoryStore implements R2HumanBridgeServiceStore {
   states = new Map<string, TeammateCapabilityState[]>();
   evidence: CapabilityEvidence[] = [];
   requests = new Map<string, ExternalWorkRequestRecord>();
+  continuations = new Map<string, R2ExternalWorkContinuationRecord>();
   artifacts: ExternalWorkArtifact[] = [];
   missionEvents: MissionEvent[] = [];
   auditEvents: AuditEvent[] = [];
@@ -211,6 +214,62 @@ class MemoryStore implements R2HumanBridgeServiceStore {
       .map((artifact) => ({ ...artifact, metadataJson: { ...artifact.metadataJson } }));
   }
 
+  createPending(input: {
+    externalWorkRequestId: string;
+    missionId: string;
+    missionRunId: string;
+    createdAt: string;
+  }): R2ExternalWorkContinuationRecord {
+    const existing = this.continuations.get(input.externalWorkRequestId);
+    if (existing) {
+      if (existing.missionId !== input.missionId || existing.missionRunId !== input.missionRunId) {
+        throw new Error('continuation identity conflicts');
+      }
+      return { ...existing };
+    }
+    const value: R2ExternalWorkContinuationRecord = {
+      ...input,
+      state: 'PENDING',
+      updatedAt: input.createdAt,
+      consumedAt: null,
+    };
+    this.continuations.set(input.externalWorkRequestId, value);
+    return { ...value };
+  }
+
+  getByRequestId(requestId: string): R2ExternalWorkContinuationRecord | null {
+    const value = this.continuations.get(requestId);
+    return value ? { ...value } : null;
+  }
+
+  listRecoverable(): R2ExternalWorkContinuationRecord[] {
+    return [...this.continuations.values()]
+      .filter((value) => value.state !== 'CONSUMED')
+      .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
+      .map((value) => ({ ...value }));
+  }
+
+  markConsuming(requestId: string, atTime: string): boolean {
+    const current = this.continuations.get(requestId);
+    if (!current || current.state !== 'PENDING') return false;
+    this.continuations.set(requestId, { ...current, state: 'CONSUMING', updatedAt: atTime });
+    return true;
+  }
+
+  markConsumed(requestId: string, atTime: string): boolean {
+    const current = this.continuations.get(requestId);
+    if (!current) return false;
+    if (current.state === 'CONSUMED') return true;
+    if (current.state !== 'CONSUMING') return false;
+    this.continuations.set(requestId, {
+      ...current,
+      state: 'CONSUMED',
+      updatedAt: atTime,
+      consumedAt: atTime,
+    });
+    return true;
+  }
+
   getMission(id: string): Mission | null {
     const mission = this.missions.get(id);
     return mission ? { ...mission } : null;
@@ -248,6 +307,7 @@ class MemoryStore implements R2HumanBridgeServiceStore {
       ),
       evidence: this.evidence.map((value) => ({ ...value })),
       requests: new Map([...this.requests].map(([id, value]) => [id, cloneRequest(value)])),
+      continuations: new Map([...this.continuations].map(([id, value]) => [id, { ...value }])),
       artifacts: this.artifacts.map((value) => ({
         ...value,
         metadataJson: { ...value.metadataJson },
@@ -270,6 +330,7 @@ class MemoryStore implements R2HumanBridgeServiceStore {
       this.states = snapshot.states;
       this.evidence = snapshot.evidence;
       this.requests = snapshot.requests;
+      this.continuations = snapshot.continuations;
       this.artifacts = snapshot.artifacts;
       this.missionEvents = snapshot.missionEvents;
       this.auditEvents = snapshot.auditEvents;
@@ -337,7 +398,10 @@ function setup() {
   const clock = { now: () => at, newId: () => store.nextId() };
   const bridge = new HumanBridgeService(store, clock);
   const workspace = new FakeWorkspaceValidator();
-  const externalWork = new ExternalWorkService(store, workspace, clock);
+  const externalWork = new ExternalWorkService(store, workspace, {
+    ...clock,
+    continuations: store,
+  });
   return { store, bridge, externalWork, workspace };
 }
 
@@ -417,7 +481,7 @@ describe('R2 Human Bridge application services', () => {
       source: 'HUMAN_BRIDGE_EXPLICIT_PRIOR',
       ratingCount: 0,
     });
-    expect(store.listTeammateCapabilityStates(first.id)).toHaveLength(1);
+    expect(store.listTeammateCapabilityStates(first.id)).toEqual([]);
     const disabled = bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: false });
     expect(disabled.dimensions.find((item) => item.dimension === 'IMAGE_GENERATION')).toMatchObject(
       {
@@ -557,7 +621,7 @@ describe('R2 Human Bridge application services', () => {
     expect(store.listExternalWorkArtifacts(request.id)).toEqual([]);
   });
 
-  it('accepts only a submitted Artifact, resumes the same Run, and emits a bounded untrusted continuation', async () => {
+  it('accepts only a submitted Artifact, persists a pending continuation, and keeps the same Run waiting', async () => {
     const { bridge, externalWork, workspace, store } = setup();
     bridge.bootstrap();
     bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: true });
@@ -577,7 +641,12 @@ describe('R2 Human Bridge application services', () => {
       state: 'ACCEPTED',
       publicResult: 'The cover image is ready.',
     });
-    expect(store.getMission('mission-1')?.state).toBe('RUNNING');
+    expect(store.getMission('mission-1')?.state).toBe('WAITING_EXTERNAL_WORK');
+    expect(store.getByRequestId(submitted.id)).toMatchObject({
+      missionId: 'mission-1',
+      missionRunId: 'run-1',
+      state: 'PENDING',
+    });
     expect(store.listRuns('mission-1')).toMatchObject([
       { id: 'run-1', status: 'RUNNING', attempt: 1 },
     ]);
@@ -607,7 +676,7 @@ describe('R2 Human Bridge application services', () => {
     expect(result).not.toHaveProperty('toolId');
   });
 
-  it('records accepted Human Bridge ratings with a null Runtime, updates the score progressively, and skips without evidence', async () => {
+  it('keeps Human Bridge capability at score 1 and rejects dynamic ratings', async () => {
     const { store, bridge, externalWork, workspace } = setup();
     bridge.bootstrap();
     bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: true });
@@ -618,36 +687,75 @@ describe('R2 Human Bridge application services', () => {
 
     const submitted = await submittedRequest(externalWork, workspace);
     externalWork.accept({ requestId: submitted.id });
-    const rated = bridge.submitRating({ externalWorkRequestId: submitted.id, stars: 5 });
-
-    expect(rated.evidence).toMatchObject([
-      {
-        teammateId: HUMAN_BRIDGE_SYSTEM_ID,
-        runtimeProfileId: null,
-        missionId: 'mission-1',
-        runId: 'run-1',
-        dimension: 'IMAGE_GENERATION',
-        ratingValue: 100,
-      },
-    ]);
+    expect(() => bridge.submitRating({ externalWorkRequestId: submitted.id, stars: 5 })).toThrow(
+      /ratings are disabled/,
+    );
     expect(
-      rated.profile.dimensions.find((item) => item.dimension === 'IMAGE_GENERATION')?.currentScore,
-    ).toBe(12);
+      bridge.capabilityProfile().dimensions.find((item) => item.dimension === 'IMAGE_GENERATION')
+        ?.currentScore,
+    ).toBe(1);
 
-    const second = await submittedRequest(externalWork, workspace);
-    externalWork.accept({ requestId: second.id });
-    expect(bridge.submitRating({ externalWorkRequestId: second.id, skip: true })).toMatchObject({
-      evidence: [],
-      skipped: true,
-    });
-    expect(store.listCapabilityEvidence(HUMAN_BRIDGE_SYSTEM_ID)).toHaveLength(1);
+    expect(() => bridge.submitRating({ externalWorkRequestId: submitted.id, skip: true })).toThrow(
+      /ratings are disabled/,
+    );
+    expect(store.listCapabilityEvidence(HUMAN_BRIDGE_SYSTEM_ID)).toEqual([]);
+    expect(store.listTeammateCapabilityStates(HUMAN_BRIDGE_SYSTEM_ID)).toEqual([]);
 
     bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: false });
     expect(store.listTeammateCapabilityStates(HUMAN_BRIDGE_SYSTEM_ID)).toEqual([]);
     const reenabled = bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: true });
     expect(
       reenabled.dimensions.find((item) => item.dimension === 'IMAGE_GENERATION')?.currentScore,
-    ).toBe(12);
+    ).toBe(1);
+  });
+
+  it('replays accepted continuation after restart when the same Run is still RUNNING', async () => {
+    const { store, bridge, externalWork, workspace } = setup();
+    bridge.bootstrap();
+    bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: true });
+    const submitted = await submittedRequest(externalWork, workspace);
+
+    expect(await externalWork.resumePendingContinuations()).toEqual([]);
+    expect(store.getByRequestId(submitted.id)).toBeNull();
+
+    externalWork.accept({ requestId: submitted.id, publicResult: 'Accepted result' });
+    expect(store.getMission('mission-1')?.state).toBe('WAITING_EXTERNAL_WORK');
+    expect(store.getByRequestId(submitted.id)).toMatchObject({ state: 'PENDING' });
+    const waitingMission = store.getMission('mission-1')!;
+    expect(
+      store.transitionMission(
+        { ...waitingMission, state: 'RUNNING', updatedAt: at },
+        'WAITING_EXTERNAL_WORK',
+      ),
+    ).toBe(true);
+
+    const restarted = new ExternalWorkService(store, workspace, {
+      now: () => at,
+      newId: () => store.nextId(),
+      continuations: store,
+    });
+    const delivered: unknown[] = [];
+    restarted.subscribeContinuations(async (value) => {
+      delivered.push(value);
+    });
+    expect(restarted.listPendingContinuations()).toMatchObject([
+      { requestId: submitted.id, missionId: 'mission-1', runId: 'run-1', outcome: 'ACCEPTED' },
+    ]);
+    const recovered = await restarted.resumePendingContinuations();
+
+    expect(recovered).toHaveLength(1);
+    expect(recovered[0]).toMatchObject({
+      requestId: submitted.id,
+      missionId: 'mission-1',
+      runId: 'run-1',
+      outcome: 'ACCEPTED',
+      publicResult: 'Accepted result',
+      artifacts: [{ path: 'mission-output/cover.png' }],
+    });
+    expect(delivered).toEqual(recovered);
+    expect(store.getByRequestId(submitted.id)).toMatchObject({ state: 'PENDING' });
+    expect(store.getMission('mission-1')?.state).toBe('RUNNING');
+    expect(store.listRuns('mission-1')).toMatchObject([{ id: 'run-1', status: 'RUNNING' }]);
   });
 
   it('keeps rejected and cancelled outcomes explicit and never rates them as successful work', async () => {
@@ -663,8 +771,9 @@ describe('R2 Human Bridge application services', () => {
     expect(store.getMission('mission-1')?.state).toBe('WAITING_EXTERNAL_WORK');
     expect(store.missionEvents.at(-1)?.eventType).toBe('external_work.rejected');
     expect(store.auditEvents.at(-1)?.action).toBe('external_work.rejected');
+    expect(store.getByRequestId(submitted.id)).toBeNull();
     expect(() => bridge.submitRating({ externalWorkRequestId: submitted.id, stars: 5 })).toThrow(
-      /只有已接受/,
+      /ratings are disabled/,
     );
 
     externalWork.markInProgress(submitted.id);
@@ -678,16 +787,11 @@ describe('R2 Human Bridge application services', () => {
       requestId: submitted.id,
       artifacts: [{ targetArtifactId: 'cover', relativePath: 'mission-output/cover-revised.png' }],
     });
-    expect(externalWork.accept({ requestId: submitted.id }).artifacts).toMatchObject([
-      { path: 'mission-output/cover-revised.png', fileName: 'cover-revised.png' },
-    ]);
-    expect(store.getMission('mission-1')?.state).toBe('RUNNING');
-
-    const cancelledRequest = externalWork.createExplicit(createInput());
-    const cancelled = externalWork.cancel({ requestId: cancelledRequest.id });
+    const cancelled = externalWork.cancel({ requestId: submitted.id });
     expect(cancelled.outcome).toBe('CANCELLED');
     expect(cancelled.artifacts).toEqual([]);
     expect(store.getMission('mission-1')?.state).toBe('RUNNING');
     expect(store.listCapabilityEvidence(HUMAN_BRIDGE_SYSTEM_ID)).toEqual([]);
+    expect(store.getByRequestId(submitted.id)).toBeNull();
   });
 });

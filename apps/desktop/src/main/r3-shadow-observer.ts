@@ -44,7 +44,10 @@ export class R3ShadowMissionObserver {
       const key = await this.config.resolveKey();
       if (!key) return;
 
-      const candidates = buildR3ShadowCandidates(mission.coordinatorTeammateId, this.stores);
+      const candidates = buildR3ShadowCandidates(mission.coordinatorTeammateId, {
+        ...this.stores,
+        bindingEligibility: this.stores.teammates,
+      });
       const builder = new DecisionStateBuilder();
       const gateway = this.gatewayFactory(key, policy.timeoutMs);
       const shadow = new ShadowDecisionService({
