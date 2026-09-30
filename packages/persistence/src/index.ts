@@ -16,11 +16,17 @@ import dynamicCapabilitySql from '../../../migrations/0011_r1_dynamic_capability
 import humanBridgeSql from '../../../migrations/0012_r2_human_bridge.sql?raw';
 import r3DecisionPlaneSql from '../../../migrations/0013_r3_decision_plane.sql?raw';
 import r3_1IdentityCapabilitySql from '../../../migrations/0014_r3_1_identity_capability.sql?raw';
+import r3_2AvailabilitySql from '../../../migrations/0015_r3_2_availability.sql?raw';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
+import { R32AvailabilityRepository } from './r3-2-availability.js';
 
 export { R31BindingRepository } from './r3-1-binding.js';
 export type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
+export {
+  MAX_PERSISTED_AVAILABILITY_OUTCOMES,
+  R32AvailabilityRepository,
+} from './r3-2-availability.js';
 export { R2ContinuationRepository } from './r2-continuation.js';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
@@ -86,6 +92,7 @@ export const migrations: readonly Migration[] = [
   { version: 12, name: 'r2_human_bridge', sql: humanBridgeSql },
   { version: 13, name: 'r3_decision_plane', sql: r3DecisionPlaneSql },
   { version: 14, name: 'r3_1_identity_capability', sql: r3_1IdentityCapabilitySql },
+  { version: 15, name: 'r3_2_availability', sql: r3_2AvailabilitySql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
