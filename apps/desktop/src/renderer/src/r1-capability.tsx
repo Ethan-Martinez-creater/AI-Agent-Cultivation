@@ -48,8 +48,8 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
   const [supported, setSupported] = useState(true);
   const [score, setScore] = useState('');
   const [rawScore, setRawScore] = useState('');
-  const [source, setSource] = useState('用户填写');
-  const [benchmark, setBenchmark] = useState('手工评估');
+  const [source, setSource] = useState('');
+  const [benchmark, setBenchmark] = useState('');
   const [version, setVersion] = useState('1');
   const [snapshotDate, setSnapshotDate] = useState(dateOnly());
   const [sourceUrl, setSourceUrl] = useState('');
@@ -285,7 +285,6 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
                 maxLength={2000}
                 value={sourceUrl}
                 onChange={(event) => setSourceUrl(event.target.value)}
-                placeholder="https://…"
               />
             </label>
             {error && (
@@ -387,11 +386,10 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
     };
   }, [teammateId]);
   return (
-    <section className="profile-section r1-profile-section">
+    <section className="profile-section r1-profile-section teammate-benchmark-panel">
       <div className="section-heading">
         <div>
-          <h3>模型能力 · Benchmark</h3>
-          <p>能力分仅来自当前固定模型的有效 Benchmark；经历与功法只提供语义背景，不调整分数。</p>
+          <h3>Benchmark 能力</h3>
         </div>
       </div>
       {error && (
@@ -399,45 +397,57 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
           {error}
         </div>
       )}
-      {!profile && !error && <div className="loading-card">正在读取 Benchmark 能力画像…</div>}
+      {!profile && !error && <div className="loading-card">正在读取 Benchmark…</div>}
       {profile && (
         <>
-          <p className="form-hint">固定模型 Runtime：{profile.currentRuntimeProfileId ?? '无'}</p>
-          <div className="r1-capability-grid">
-            {profile.dimensions.map((item) => (
-              <article className="r1-capability-card" key={item.dimension}>
-                <strong>{labelDimension(item.dimension)}</strong>
-                {item.currentScore === null ? (
-                  <p>{item.prior && !item.prior.supported ? '明确不支持' : '未配置能力基准'}</p>
-                ) : (
-                  <p className="r1-score">
-                    {item.currentScore.toFixed(1)} <small>/ 100</small>
-                  </p>
-                )}
-                <small>
-                  Benchmark：
-                  {item.prior?.supported
-                    ? `${item.prior.normalizedScore} / 100`
-                    : item.prior
-                      ? '不支持'
-                      : '未配置'}
-                </small>
-                <small>
-                  来源：
-                  {item.prior
-                    ? `${item.prior.source} / ${item.prior.benchmark} (${item.prior.benchmarkVersion})`
-                    : '无'}
-                </small>
-                <small>
-                  {item.source === 'BENCHMARK_ONLY'
-                    ? '当前分数仅来自 Benchmark prior。'
-                    : item.source === 'UNSUPPORTED'
-                      ? '当前 Runtime 明确不支持，不能形成有效能力分数。'
-                      : '没有可用于未来路由的能力分数。'}
-                </small>
-              </article>
-            ))}
+          <div className="teammate-benchmark-rows">
+            {profile.dimensions.map((item) => {
+              const benchmarkScore = item.prior?.supported
+                ? item.prior.normalizedScore
+                : null;
+              const scoreLabel =
+                typeof benchmarkScore === 'number' ? String(Math.round(benchmarkScore)) : null;
+              const statusLabel = item.prior && !item.prior.supported ? '不支持' : '未配置';
+              return (
+                <div className="teammate-benchmark-row" key={item.dimension}>
+                  <strong>{labelDimension(item.dimension)}</strong>
+                  <progress
+                    max={100}
+                    value={benchmarkScore ?? 0}
+                    aria-label={`${labelDimension(item.dimension)} Benchmark`}
+                    aria-valuetext={scoreLabel ? `${scoreLabel} / 100` : statusLabel}
+                  />
+                  <span className="teammate-benchmark-score">
+                    {scoreLabel ?? <small>{statusLabel}</small>}
+                  </span>
+                </div>
+              );
+            })}
           </div>
+          <details className="teammate-benchmark-advanced">
+            <summary>高级信息 · Benchmark 来源</summary>
+            <dl>
+              {profile.dimensions.filter((item) => item.prior).map((item) => (
+                <div key={item.dimension}>
+                  <dt>{labelDimension(item.dimension)}</dt>
+                  <dd>
+                    {item.prior?.source} · {item.prior?.benchmark} · v
+                    {item.prior?.benchmarkVersion} · {item.prior?.snapshotDate.slice(0, 10)} ·{' '}
+                    {item.prior?.provenanceType}
+                  </dd>
+                  {item.prior?.sourceUrl && (
+                    <dd><code>{item.prior.sourceUrl}</code></dd>
+                  )}
+                </div>
+              ))}
+              {!profile.dimensions.some((item) => item.prior) && (
+                <div>
+                  <dt>来源</dt>
+                  <dd>尚无 Benchmark 来源记录。</dd>
+                </div>
+              )}
+            </dl>
+          </details>
         </>
       )}
     </section>

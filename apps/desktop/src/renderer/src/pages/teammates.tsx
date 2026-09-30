@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DynamicCapabilityPanel } from '.././r1-capability.js';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
-import { errorText, PageHeading, safeLabel, EmptyList, formatDate } from '../ui-shared.js';
+import { errorText, PageHeading, safeLabel, formatDate } from '../ui-shared.js';
+import './teammates.css';
 import type {
+  ProviderView,
   RuntimeProfileView,
   TeammateView,
   SkillView,
@@ -26,7 +28,7 @@ interface TeammateForm {
 
 const blankTeammate: TeammateForm = {
   name: '',
-  avatar: '友',
+  avatar: '',
   title: '',
   description: '',
   identityPrompt: '',
@@ -37,7 +39,9 @@ const blankTeammate: TeammateForm = {
 export function TeammatesPage() {
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
   const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
+  const [providers, setProviders] = useState<ProviderView[]>([]);
   const [selectedId, setSelectedId] = useState('');
+  const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState('');
   const [form, setForm] = useState<TeammateForm>(blankTeammate);
   const [loading, setLoading] = useState(true);
@@ -55,6 +59,7 @@ export function TeammatesPage() {
       ]);
       setTeammates(teammateRows);
       setRuntimes(runtimeRows);
+      void window.cultivation.providers.list().then(setProviders, () => setProviders([]));
       setSelectedId(
         (current) => current || teammateRows.find((item) => item.status === 'ACTIVE')?.id || '',
       );
@@ -68,13 +73,18 @@ export function TeammatesPage() {
     void refresh();
   }, []);
   const selected = teammates.find((item) => item.id === selectedId);
+  const selectedRuntime = selected?.currentRuntimeProfileId
+    ? runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
+    : undefined;
   const startCreate = () => {
+    setCreating(true);
     setEditingId('');
     setForm({ ...blankTeammate, currentRuntimeProfileId: runtimes[0]?.id ?? '' });
     setError('');
     setNotice('');
   };
   const startEdit = (teammate: TeammateView) => {
+    setCreating(false);
     setSelectedId(teammate.id);
     setEditingId(teammate.id);
     setForm({
@@ -105,6 +115,7 @@ export function TeammatesPage() {
         ? await window.cultivation.teammates.update({ id: editingId, ...payload })
         : await window.cultivation.teammates.create(payload);
       setSelectedId(saved.id);
+      setCreating(false);
       setEditingId('');
       setForm(blankTeammate);
       setNotice(editingId ? '道友资料已保存。' : '道友已创建。');
@@ -149,12 +160,8 @@ export function TeammatesPage() {
     setForm((current) => ({ ...current, ...patch }));
 
   return (
-    <section className="page wide-page">
-      <PageHeading
-        eyebrow="道友档案 · Teammate"
-        title="道友 Teammates"
-        description="普通道友创建时验证并封存 Provider、Endpoint 和 Model；如需其他模型，请创建新道友。"
-      />
+    <section className="page wide-page teammates-page">
+      <PageHeading eyebrow="" title="道友 Teammates" description="" />
       {error && (
         <div className="notice error notice-with-action" role="alert">
           {error}
@@ -169,73 +176,88 @@ export function TeammatesPage() {
         </div>
       )}
       <div className="teammate-workspace">
-        <aside className="teammate-list-card">
+        <aside className="teammate-list-card teammate-roster">
           <div className="list-heading">
             <div>
               <h2>道友</h2>
-              <p>{teammates.filter((item) => item.status === 'ACTIVE').length} 位活跃</p>
+              <p>{teammates.length}</p>
             </div>
-            <button className="icon-button" aria-label="创建道友" onClick={startCreate}>
-              ＋
+            <button className="button secondary small" type="button" onClick={startCreate}>
+              ＋ 新建道友
             </button>
           </div>
           {loading ? (
             <div className="list-empty">读取中…</div>
           ) : error && teammates.length === 0 ? (
-            <div className="list-empty">列表读取失败；可使用上方“重新读取”重试。</div>
+            <div className="list-empty">列表暂时无法读取。</div>
           ) : teammates.length ? (
-            teammates.map((teammate) => (
-              <button
-                key={teammate.id}
-                className={`teammate-list-item ${selectedId === teammate.id ? 'selected' : ''}`}
-                onClick={() => {
-                  setSelectedId(teammate.id);
-                  setEditingId('');
-                  setForm(blankTeammate);
-                }}
-              >
-                <span className="avatar small-avatar">
-                  {teammate.avatar || teammate.name.slice(0, 1)}
-                </span>
-                <span className="data-row-copy">
-                  <strong>{teammate.name}</strong>
-                  <small>{teammate.title || '道友'}</small>
-                  {teammate.executorKind === 'USER_BRIDGE' && <small>本尊 · Human Bridge</small>}
-                </span>
-                <span
-                  className={`status-pill ${teammate.status === 'ACTIVE' ? 'active' : 'archived'}`}
-                >
-                  {teammate.status === 'ACTIVE' ? '活跃' : '归档'}
-                </span>
-              </button>
-            ))
+            <div className="teammate-roster-list">
+              {teammates.map((teammate) => {
+                const runtime = runtimes.find(
+                  (item) => item.id === teammate.currentRuntimeProfileId,
+                );
+                const modelLabel =
+                  teammate.executorKind === 'USER_BRIDGE' ? 'Human Bridge' : runtime?.modelId;
+                return (
+                  <article
+                    className={`teammate-roster-row ${selectedId === teammate.id ? 'selected' : ''}`}
+                    key={teammate.id}
+                  >
+                    <button
+                      className="teammate-roster-select"
+                      type="button"
+                      aria-pressed={selectedId === teammate.id}
+                      onClick={() => {
+                        setSelectedId(teammate.id);
+                        setCreating(false);
+                        setEditingId('');
+                        setForm(blankTeammate);
+                      }}
+                    >
+                      <span className="avatar small-avatar">
+                        {teammate.avatar || teammate.name.slice(0, 1)}
+                      </span>
+                      <span className="teammate-roster-copy">
+                        <strong>{teammate.name}</strong>
+                        <small>{modelLabel ?? '模型未配置'}</small>
+                      </span>
+                    </button>
+                    <AvailabilityBadge
+                      teammateId={teammate.id}
+                      recheck={false}
+                      compact
+                    />
+                  </article>
+                );
+              })}
+            </div>
           ) : (
-            <EmptyList text="尚无道友。" />
+            <div className="teammate-empty-list">
+              <p>还没有道友</p>
+              <button className="button primary small" type="button" onClick={startCreate}>
+                创建道友
+              </button>
+            </div>
           )}
-          <button className="button secondary full-width" onClick={startCreate}>
-            ＋ 创建道友
-          </button>
         </aside>
         <div className="teammate-detail">
-          {editingId || (!selected && !loading) ? (
+          {creating || editingId ? (
             <form className="form-card teammate-form" onSubmit={(event) => void save(event)}>
               <div className="form-title-row">
                 <div>
-                  <p className="eyebrow">{editingId ? 'EDIT TEAMMATE' : 'NEW TEAMMATE'}</p>
                   <h2>{editingId ? '编辑道友' : '创建道友'}</h2>
                 </div>
-                {editingId && (
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => {
-                      setEditingId('');
-                      setForm(blankTeammate);
-                    }}
-                  >
-                    取消
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    setCreating(false);
+                    setEditingId('');
+                    setForm(blankTeammate);
+                  }}
+                >
+                  返回
+                </button>
               </div>
               <div className="field-grid">
                 <label className="field">
@@ -245,7 +267,6 @@ export function TeammatesPage() {
                     maxLength={80}
                     value={form.name}
                     onChange={(event) => updateForm({ name: event.target.value })}
-                    placeholder="例如：青岚"
                   />
                 </label>
                 <label className="field">
@@ -254,7 +275,6 @@ export function TeammatesPage() {
                     maxLength={8}
                     value={form.avatar}
                     onChange={(event) => updateForm({ avatar: event.target.value })}
-                    placeholder="友"
                   />
                 </label>
               </div>
@@ -264,7 +284,6 @@ export function TeammatesPage() {
                   maxLength={100}
                   value={form.title}
                   onChange={(event) => updateForm({ title: event.target.value })}
-                  placeholder="例如：研究搭档"
                 />
               </label>
               <label className="field">
@@ -274,7 +293,6 @@ export function TeammatesPage() {
                   maxLength={1000}
                   value={form.description}
                   onChange={(event) => updateForm({ description: event.target.value })}
-                  placeholder="简单描述道友的定位"
                 />
               </label>
               <label className="field">
@@ -284,7 +302,6 @@ export function TeammatesPage() {
                   maxLength={8000}
                   value={form.identityPrompt}
                   onChange={(event) => updateForm({ identityPrompt: event.target.value })}
-                  placeholder="定义稳定的身份、背景与表达方式"
                 />
               </label>
               <label className="field">
@@ -294,19 +311,17 @@ export function TeammatesPage() {
                   maxLength={8000}
                   value={form.behaviorPrompt}
                   onChange={(event) => updateForm({ behaviorPrompt: event.target.value })}
-                  placeholder="定义回答习惯与协作偏好"
                 />
               </label>
               {editingId ? (
                 <p className="form-hint">
-                  模型身份已固定：
+                  固定模型：
                   {runtimes.find((runtime) => runtime.id === form.currentRuntimeProfileId)
                     ?.modelId ?? 'Runtime 不可用'}
-                  。更换模型请新建道友。
                 </p>
               ) : (
                 <label className="field">
-                  <span>Runtime Profile（创建后固定模型）</span>
+                  <span>模型（创建后固定）</span>
                   <select
                     required
                     value={form.currentRuntimeProfileId}
@@ -314,10 +329,10 @@ export function TeammatesPage() {
                       updateForm({ currentRuntimeProfileId: event.target.value })
                     }
                   >
-                    <option value="">选择运行配置</option>
+                    <option value="">选择模型</option>
                     {runtimes.map((runtime) => (
                       <option key={runtime.id} value={runtime.id}>
-                        {runtime.name} · {runtime.modelId}
+                        {runtime.modelId}
                       </option>
                     ))}
                   </select>
@@ -325,130 +340,261 @@ export function TeammatesPage() {
               )}
               {!runtimes.length && (
                 <div className="prerequisite-note">
-                  <p className="form-hint">
-                    需要先添加 Provider、Credential，再创建 Runtime Profile。
-                  </p>
+                  <p className="form-hint">创建前先在设置中配置 Provider 和模型。</p>
                   <button
                     className="text-button"
                     type="button"
                     onClick={() => navigate('/settings')}
                   >
-                    前往 Settings 配置
+                    打开设置
                   </button>
                 </div>
               )}
               <button className="button primary" disabled={busy || !runtimes.length}>
-                {busy ? '保存中…' : editingId ? '保存道友' : '创建道友'}
+                {busy ? '保存中…' : editingId ? '保存' : '创建道友'}
               </button>
             </form>
           ) : selected ? (
-            <div className="profile-card">
-              <div className="profile-top">
-                <span className="avatar profile-avatar">
-                  {selected.avatar || selected.name.slice(0, 1)}
-                </span>
-                <div className="profile-main">
-                  <div className="profile-name-row">
+            <article className="profile-card teammate-profile-card">
+              <header className="teammate-profile-header">
+                <div className="teammate-profile-identity">
+                  <span className="avatar profile-avatar">
+                    {selected.avatar || selected.name.slice(0, 1)}
+                  </span>
+                  <div className="profile-main">
                     <h2>{selected.name}</h2>
-                    <span
-                      className={`status-pill ${selected.status === 'ACTIVE' ? 'active' : 'archived'}`}
-                    >
-                      {selected.status === 'ACTIVE' ? '活跃' : '归档'}
-                    </span>
+                    {selected.executorKind === 'USER_BRIDGE' ? (
+                      <p>人工任务协作</p>
+                    ) : (
+                      <p>
+                        {runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
+                          ?.modelId ?? '模型未配置'}
+                      </p>
+                    )}
                   </div>
-                  <p>
-                    {selected.title || '道友'}
-                    {selected.description ? ` · ${selected.description}` : ''}
-                  </p>
                 </div>
-              </div>
-              <div className="identity-panel">
-                <span>稳定身份 ID</span>
-                <code>{selected.id}</code>
-                <small>
-                  {selected.executorKind === 'USER_BRIDGE'
-                    ? '系统 Human Bridge 不绑定模型 Runtime，仅在明确委托的外部工作中执行。'
-                    : '此身份及模型绑定长期保持；Conversation 历史归属于此道友。'}
-                </small>
-              </div>
-              {selected.executorKind !== 'USER_BRIDGE' && (
-                <div className="profile-section">
-                  <div className="section-heading">
-                    <div>
-                      <h3>固定模型绑定</h3>
-                      <p>Provider、Endpoint 与 Model 已封存；Credential 可安全轮换。</p>
-                    </div>
-                  </div>
-                  <p className="form-hint">
-                    {runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
-                      ?.modelId ?? 'Runtime 不可用'}
-                  </p>
-                  <AvailabilityBadge teammateId={selected.id} />
+                <div className="teammate-profile-status">
+                  {selected.executorKind === 'USER_BRIDGE' ? (
+                    <span className="status-pill active">可接收委托</span>
+                  ) : selected.status === 'ACTIVE' ? (
+                    <AvailabilityBadge teammateId={selected.id} />
+                  ) : (
+                    <span className="status-pill archived">已归档</span>
+                  )}
                 </div>
-              )}
-              <div className="profile-actions">
-                {selected.executorKind === 'USER_BRIDGE' ? (
-                  <button className="button primary" onClick={() => navigate('/external-work')}>
-                    查看本尊待办与能力
-                  </button>
-                ) : (
-                  selected.status === 'ACTIVE' && (
+                <div className="teammate-profile-actions">
+                  {selected.executorKind === 'USER_BRIDGE' ? (
                     <button
                       className="button primary"
-                      onClick={() => navigate(`/chat/${encodeURIComponent(selected.id)}`)}
+                      type="button"
+                      onClick={() => navigate('/external-work')}
                     >
-                      打开对话
+                      查看人类任务
                     </button>
-                  )
-                )}
-                {selected.executorKind !== 'USER_BRIDGE' && (
-                  <button className="button secondary" onClick={() => startEdit(selected)}>
-                    编辑资料
-                  </button>
-                )}
-                {selected.executorKind !== 'USER_BRIDGE' && (
-                  <button
-                    className="button secondary"
-                    disabled={busy}
-                    onClick={() => void duplicate(selected)}
-                  >
-                    复制道友
-                  </button>
-                )}
-                {selected.executorKind !== 'USER_BRIDGE' && selected.status === 'ACTIVE' && (
-                  <button
-                    className="button danger-ghost"
-                    disabled={busy}
-                    onClick={() => void archive(selected)}
-                  >
-                    归档
-                  </button>
-                )}
-              </div>
+                  ) : (
+                    <>
+                      <button
+                        className="button primary"
+                        type="button"
+                        disabled={selected.status !== 'ACTIVE'}
+                        onClick={() => navigate(`/chat/${encodeURIComponent(selected.id)}`)}
+                      >
+                        开始对话
+                      </button>
+                      <button
+                        className="button secondary"
+                        type="button"
+                        disabled={selected.status !== 'ACTIVE'}
+                        onClick={() =>
+                          navigate(
+                            `/missions?teammateId=${encodeURIComponent(selected.id)}&create=1`,
+                          )
+                        }
+                      >
+                        发起历练
+                      </button>
+                    </>
+                  )}
+                  <details className="teammate-more-menu">
+                    <summary className="button secondary">更多</summary>
+                    <div className="teammate-more-content">
+                      {selected.executorKind !== 'USER_BRIDGE' && (
+                        <div className="teammate-more-actions">
+                          <button
+                            className="button secondary small"
+                            type="button"
+                            onClick={() => startEdit(selected)}
+                          >
+                            编辑资料
+                          </button>
+                          <button
+                            className="button secondary small"
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void duplicate(selected)}
+                          >
+                            复制道友
+                          </button>
+                          {selected.status === 'ACTIVE' && (
+                            <button
+                              className="button danger-ghost small"
+                              type="button"
+                              disabled={busy}
+                              onClick={() => void archive(selected)}
+                            >
+                              归档
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      <details className="teammate-advanced-details">
+                        <summary>高级信息</summary>
+                        <dl>
+                          <div>
+                            <dt>道友 ID</dt>
+                            <dd><code>{selected.id}</code></dd>
+                          </div>
+                          {selected.executorKind !== 'USER_BRIDGE' && (
+                            <>
+                              <div>
+                                <dt>Provider</dt>
+                                <dd>
+                                  {providers.find(
+                                    (provider) => provider.id === selectedRuntime?.providerId,
+                                  )?.name ?? '未配置'}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>Endpoint</dt>
+                                <dd>
+                                  {providers.find(
+                                    (provider) => provider.id === selectedRuntime?.providerId,
+                                  )?.baseUrl ?? '未配置'}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>Runtime ID</dt>
+                                <dd>
+                                  <code>{selected.currentRuntimeProfileId ?? '未配置'}</code>
+                                </dd>
+                              </div>
+                              {selected.description && (
+                                <div>
+                                  <dt>介绍</dt>
+                                  <dd>{selected.description}</dd>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </dl>
+                      </details>
+                    </div>
+                  </details>
+                </div>
+              </header>
               {selected.status === 'ARCHIVED' && (
-                <div className="notice">已归档的道友保留历史数据，不能继续发送新消息。</div>
+                <div className="notice">已归档的道友保留历史记录。</div>
               )}
-              {selected.executorKind !== 'USER_BRIDGE' && (
-                <TeammateSkillsPanel teammate={selected} />
-              )}
-              {selected.executorKind !== 'USER_BRIDGE' && (
+              {selected.executorKind === 'USER_BRIDGE' ? (
+                <HumanBridgeSummary />
+              ) : (
                 <DynamicCapabilityPanel
                   key={`${selected.id}:${selected.currentRuntimeProfileId}`}
                   teammateId={selected.id}
                 />
               )}
-              <TeammateExperiencePanel teammate={selected} />
-            </div>
+              {selected.executorKind !== 'USER_BRIDGE' && (
+                <details className="teammate-secondary-view">
+                  <summary>Skills</summary>
+                  <TeammateSkillsPanel teammate={selected} />
+                </details>
+              )}
+              <details className="teammate-secondary-view">
+                <summary>经历</summary>
+                <TeammateExperiencePanel teammate={selected} />
+              </details>
+            </article>
           ) : loading ? (
             <div className="loading-card">正在读取道友…</div>
           ) : (
-            <div className="empty-card">
-              <h3>选择或创建道友</h3>
-              <p>创建时选择并验证模型；成功后模型身份固定。</p>
+            <div className="empty-card teammate-detail-empty">
+              <h2>选择或创建道友</h2>
+              <button className="button primary" type="button" onClick={startCreate}>
+                创建道友
+              </button>
             </div>
           )}
         </div>
       </div>
+    </section>
+  );
+}
+
+const humanCapabilityLabels: Record<string, string> = {
+  GENERAL_REASONING: '通用推理',
+  LONG_CONTEXT_REASONING: '长上下文',
+  AGENTIC_EXECUTION: '任务执行',
+  CODING: '编程',
+  TOOL_USE: '工具使用',
+  VISUAL_UNDERSTANDING: '视觉理解',
+  IMAGE_GENERATION: '图像生成',
+  IMAGE_EDITING: '图像编辑',
+  VIDEO_GENERATION: '视频生成',
+  VIDEO_EDITING: '视频编辑',
+  SPEECH_UNDERSTANDING: '语音理解',
+  SPEECH_GENERATION: '语音生成',
+  SPEECH_TO_SPEECH: '语音转换',
+  MUSIC_GENERATION: '音乐生成',
+};
+
+function HumanBridgeSummary() {
+  const [enabledCapabilities, setEnabledCapabilities] = useState<string[]>([]);
+  const [openTaskCount, setOpenTaskCount] = useState<number | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all([
+      window.cultivation.r2.bridgeProfile(),
+      window.cultivation.r2.listRequests(),
+    ])
+      .then(([profile, requests]) => {
+        if (cancelled) return;
+        setEnabledCapabilities(
+          profile.dimensions.filter((item) => item.enabled).map((item) => item.dimension),
+        );
+        const activeStates = new Set(['PENDING', 'IN_PROGRESS', 'SUBMITTED', 'REJECTED']);
+        setOpenTaskCount(requests.filter((request) => activeStates.has(request.state)).length);
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取本尊能力和任务失败。'));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <section className="human-bridge-summary" aria-label="Human Bridge 能力与任务">
+      <div className="human-bridge-summary-heading">
+        <h3>可接手能力</h3>
+        <span>{openTaskCount === null ? '…' : `${openTaskCount} 项待处理任务`}</span>
+      </div>
+      {error ? (
+        <p className="inline-message error" role="alert">
+          {error}
+        </p>
+      ) : enabledCapabilities.length ? (
+        <div className="human-capability-list">
+          {enabledCapabilities.map((dimension) => (
+            <span className="human-capability-chip" key={dimension}>
+              {humanCapabilityLabels[dimension] ?? safeLabel(dimension)}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="human-bridge-summary-empty">尚未启用能力</p>
+      )}
     </section>
   );
 }

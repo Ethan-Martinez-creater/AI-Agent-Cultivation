@@ -1,0 +1,430 @@
+.teammates-page .teammate-workspace {
+  grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.teammates-page .teammate-list-card,
+.teammates-page .teammate-profile-card,
+.teammates-page .teammate-form {
+  border: 1px solid var(--border, #d9dee5);
+  border-radius: 16px;
+  background: var(--surface, #fff);
+  color: var(--text, #17212f);
+  box-shadow: 0 8px 24px rgb(31 41 55 / 4%);
+}
+
+.teammates-page .teammate-list-card {
+  padding: 16px 12px;
+}
+
+.teammates-page .teammate-list-card .list-heading {
+  gap: 12px;
+  padding: 0 4px 12px;
+}
+
+.teammates-page .teammate-list-card .list-heading h2,
+.teammates-page .teammate-list-card .list-heading p {
+  margin: 0;
+}
+
+.teammate-roster-list {
+  display: grid;
+  gap: 3px;
+}
+
+.teammate-roster-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+
+.teammate-roster-row.selected {
+  border-color: #cfe1f8;
+  background: #edf5ff;
+}
+
+.teammate-roster-select {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 7px 2px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.teammate-roster-select:hover {
+  background: transparent;
+}
+
+.teammate-roster-select:focus-visible {
+  outline: 2px solid #4593ec;
+  outline-offset: 2px;
+}
+
+.teammate-roster-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.teammate-roster-copy strong,
+.teammate-roster-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teammate-roster-copy strong {
+  font-size: 14px;
+}
+
+.teammate-roster-copy small {
+  color: var(--muted, #667085);
+  font-size: 12px;
+}
+
+.teammate-roster-row .availability-control {
+  display: inline-flex;
+  justify-content: center;
+  width: 14px;
+}
+
+.teammate-roster-row .availability-dot {
+  width: 9px;
+  height: 9px;
+}
+
+.teammate-empty-list {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 12px 4px 4px;
+}
+
+.teammate-empty-list p {
+  margin: 0;
+  color: var(--muted, #667085);
+}
+
+.teammate-profile-card {
+  display: grid;
+  gap: 20px;
+  padding: 22px;
+}
+
+.teammate-profile-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border, #e2e7ee);
+}
+
+.teammate-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.teammate-profile-identity .profile-main h2,
+.teammate-profile-identity .profile-main p {
+  margin: 0;
+}
+
+.teammate-profile-identity .profile-main p {
+  margin-top: 4px;
+  color: var(--muted, #667085);
+  font-size: 13px;
+}
+
+.teammate-profile-status {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.teammate-profile-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.teammate-more-menu {
+  position: relative;
+}
+
+.teammate-more-menu > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.teammate-more-menu > summary::-webkit-details-marker,
+.teammate-secondary-view > summary::-webkit-details-marker,
+.teammate-advanced-details > summary::-webkit-details-marker,
+.teammate-benchmark-advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+.teammate-more-menu > summary::after {
+  margin-left: 8px;
+  content: '⌄';
+}
+
+.teammate-more-content {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 6px);
+  right: 0;
+  display: grid;
+  gap: 14px;
+  width: min(360px, calc(100vw - 40px));
+  padding: 14px;
+  border: 1px solid var(--border, #d9dee5);
+  border-radius: 12px;
+  background: var(--surface, #fff);
+  box-shadow: 0 12px 28px rgb(31 41 55 / 12%);
+}
+
+.teammate-more-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.teammate-advanced-details,
+.teammate-benchmark-advanced {
+  border-top: 1px solid var(--border, #e2e7ee);
+  padding-top: 10px;
+}
+
+.teammate-advanced-details > summary,
+.teammate-benchmark-advanced > summary,
+.teammate-secondary-view > summary {
+  color: var(--text, #17212f);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.teammate-advanced-details dl,
+.teammate-benchmark-advanced dl {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+
+.teammate-advanced-details dl > div,
+.teammate-benchmark-advanced dl > div {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 5px 10px;
+  min-width: 0;
+}
+
+.teammate-advanced-details dt,
+.teammate-benchmark-advanced dt {
+  color: var(--muted, #667085);
+  font-size: 12px;
+}
+
+.teammate-advanced-details dd,
+.teammate-benchmark-advanced dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.teammate-advanced-details code,
+.teammate-benchmark-advanced code {
+  font-size: 11px;
+}
+
+.teammate-secondary-view {
+  border-top: 1px solid var(--border, #e2e7ee);
+  padding-top: 14px;
+}
+
+.teammate-secondary-view[open] > summary {
+  margin-bottom: 14px;
+}
+
+.teammate-secondary-view > .profile-section {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.teammate-detail-empty {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 22px;
+}
+
+.teammate-detail-empty h2 {
+  margin: 0;
+}
+
+.human-bridge-summary {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--border, #d9dee5);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+}
+
+.human-bridge-summary-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.human-bridge-summary-heading h3,
+.human-bridge-summary-heading span {
+  margin: 0;
+}
+
+.human-bridge-summary-heading span {
+  color: var(--muted, #667085);
+  font-size: 12px;
+}
+
+.human-capability-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.human-capability-chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #edf5ff;
+  color: #2666ad;
+  font-size: 12px;
+}
+
+.human-bridge-summary-empty {
+  margin: 0;
+  color: var(--muted, #667085);
+  font-size: 13px;
+}
+
+.teammates-page .teammate-benchmark-panel {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--border, #d9dee5);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+}
+
+.teammates-page .teammate-benchmark-panel .section-heading {
+  margin-bottom: 12px;
+}
+
+.teammate-benchmark-rows {
+  display: grid;
+  gap: 11px;
+}
+
+.teammate-benchmark-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 160px) minmax(80px, 1fr) 42px;
+  align-items: center;
+  gap: 12px;
+  min-height: 25px;
+}
+
+.teammate-benchmark-row > strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.teammate-benchmark-row progress {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  appearance: none;
+  background: #e9edf2;
+}
+
+.teammate-benchmark-row progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: #e9edf2;
+}
+
+.teammate-benchmark-row progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: #398bea;
+}
+
+.teammate-benchmark-row progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: #398bea;
+}
+
+.teammate-benchmark-score {
+  text-align: right;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.teammate-benchmark-score small {
+  color: var(--muted, #667085);
+  font-size: 10px;
+}
+
+.teammate-benchmark-advanced {
+  margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .teammates-page .teammate-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .teammates-page .teammate-profile-card {
+    padding: 16px;
+  }
+
+  .teammate-profile-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .teammate-profile-status {
+    justify-content: flex-start;
+  }
+
+  .teammate-profile-actions {
+    grid-column: auto;
+  }
+
+  .teammate-benchmark-row {
+    grid-template-columns: minmax(100px, 1fr) minmax(60px, 1.3fr) 38px;
+    gap: 8px;
+  }
+}
