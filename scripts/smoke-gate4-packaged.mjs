@@ -503,13 +503,16 @@ try {
   assert.equal(existsSync(join(workspaceRoot, 'denied.txt')), false);
 
   await navigateUi(second.page, '历练 Missions');
-  await second.page.getByRole('heading', { name: '历练 Missions' }).waitFor();
+  await second.page.getByRole('heading', { name: '历练', exact: true }).waitFor();
   await second.page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await second.page.getByRole('button', { name: /GATE4 MCP echo/ }).click();
-  await second.page.getByRole('heading', { name: '执行 Timeline' }).waitFor();
+  await second.page.getByRole('heading', { name: 'GATE4 MCP echo', exact: true }).waitFor();
+  await second.page.getByText('高级 · 完整执行记录', { exact: true }).click();
+  const fullTimeline = second.page.getByRole('heading', { name: '完整时间线', exact: true });
+  await fullTimeline.waitFor();
   await second.page
     .locator('section.mission-section')
-    .filter({ has: second.page.getByRole('heading', { name: '执行 Timeline' }) })
+    .filter({ has: fullTimeline })
     .getByText('tool.result', { exact: true })
     .first()
     .waitFor();

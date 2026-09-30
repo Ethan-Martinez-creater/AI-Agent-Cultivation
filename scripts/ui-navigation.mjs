@@ -8,11 +8,23 @@ export async function navigateUi(page, destination) {
     '记忆 Memory': '记忆',
     '设置 Settings': '设置',
   };
+  const settingsLinks = {
+    '工具与 MCP': '工具与 MCP',
+    '法宝 Tools': '工具与 MCP',
+    '功法管理': '功法管理',
+    '功法 Skills': '功法管理',
+    '用量记录': '用量记录',
+    '灵石 Usage': '用量记录',
+    本尊待办: '本尊待办',
+    '本尊待办 Human Bridge': '本尊待办',
+  };
   const navigation = page.getByRole('navigation', { name: '主导航' });
   if (labels[destination]) {
     await navigation.getByRole('link', { name: labels[destination], exact: true }).click();
     return;
   }
   await navigation.getByRole('link', { name: '设置', exact: true }).click();
-  await page.getByRole('link', { name: destination, exact: true }).first().click();
+  const link = settingsLinks[destination];
+  if (!link) throw new Error(`Unknown UI navigation destination: ${destination}`);
+  await page.getByRole('link', { name: link, exact: true }).click();
 }

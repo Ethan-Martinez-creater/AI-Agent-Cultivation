@@ -299,11 +299,18 @@ try {
     assert.ok(detail.audits.length > 0);
   }
   await navigateUi(second.page, '历练 Missions');
-  await second.page.getByRole('heading', { name: '历练 Missions' }).waitFor();
+  await second.page.getByRole('heading', { name: '历练', exact: true }).waitFor();
   await second.page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await second.page.getByRole('button', { name: /SOLO A/ }).click();
-  await second.page.getByRole('heading', { name: '执行 Timeline' }).waitFor();
-  await second.page.getByText('run.completed', { exact: true }).waitFor();
+  await second.page.getByRole('heading', { name: 'SOLO A', exact: true }).waitFor();
+  await second.page.getByText('高级 · 完整执行记录', { exact: true }).click();
+  const fullTimeline = second.page.getByRole('heading', { name: '完整时间线', exact: true });
+  await fullTimeline.waitFor();
+  await second.page
+    .locator('section.mission-section')
+    .filter({ has: fullTimeline })
+    .getByText('run.completed', { exact: true })
+    .waitFor();
 } finally {
   await second.app.close();
 }

@@ -29,13 +29,13 @@ try {
   await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
   for (const [link, heading] of [
     ['道友 Teammates', '道友 Teammates'],
-    ['队伍 Parties', '队伍 Parties'],
-    ['历练 Missions', '历练 Missions'],
+    ['队伍 Parties', '队伍'],
+    ['历练 Missions', '历练'],
     ['功法 Skills', '功法 Skills'],
     ['法宝 Tools', '法宝 Tools'],
-    ['记忆 Memory', '记忆 Memory'],
+    ['记忆 Memory', '记忆'],
     ['灵石 Usage', '灵石 Usage'],
-    ['设置 Settings', '设置 Settings'],
+    ['设置 Settings', '设置'],
   ]) {
     await navigateUi(page, link);
     await page.getByRole('heading', { name: heading }).waitFor();
