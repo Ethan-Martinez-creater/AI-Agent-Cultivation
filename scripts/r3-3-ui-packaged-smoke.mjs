@@ -30,7 +30,7 @@ const sourceAvatar = join(
   'src',
   'assets',
   'avatars',
-  '04.png',
+  'user.png',
 );
 const importedAvatar = join(fixturesDirectory, 'teammate-avatar.png');
 const manifestPath = join(userData, 'evidence-manifest.json');
@@ -80,6 +80,22 @@ async function waitForPaint(page) {
       new Promise((resolve) =>
         window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve(undefined))),
       ),
+  );
+}
+
+async function waitForStableRoute(page, quietPeriod = 600) {
+  await page.waitForFunction(
+    (requiredQuietPeriod) => {
+      const hash = window.location.hash;
+      const state = window.__r33RouteStability;
+      if (!state || state.hash !== hash) {
+        window.__r33RouteStability = { hash, changedAt: Date.now() };
+        return false;
+      }
+      return Date.now() - state.changedAt >= requiredQuietPeriod;
+    },
+    quietPeriod,
+    { polling: 50 },
   );
 }
 
@@ -349,9 +365,12 @@ try {
     missionId: fixtures.mission.id,
   });
 
-  await page.getByRole('heading', { name: '历练', exact: true, level: 1 }).waitFor();
-  await page.getByRole('heading', { name: fixtures.mission.title, exact: true }).waitFor();
+  await waitForStableRoute(page);
+  await navigateUi(page, '道友 Teammates');
+  await page.getByRole('heading', { name: '道友', exact: true, level: 1 }).waitFor();
   await navigateUi(page, '洞府 Home');
+  await waitForStableRoute(page);
+  assert.equal(await page.evaluate(() => window.location.hash), '#/');
   await page.getByRole('heading', { name: '首页', exact: true, level: 1 }).waitFor();
   await page
     .locator('.home-task-list')
@@ -371,14 +390,15 @@ try {
     teammate: fixtures.a.name,
   });
 
+  const createPanel = page.locator('.teammate-create-drawer');
   await page.getByRole('button', { name: '创建道友' }).click();
-  await page.getByRole('heading', { name: '先认识这位道友' }).waitFor();
+  await createPanel.getByRole('heading', { name: '先认识这位道友' }).waitFor();
   await pageMetrics(page);
   await capture(page, '05-create-teammate-identity-1440.png', 1440, 900, {
     route: '/teammates',
     drawer: 'identity',
   });
-  await page.getByLabel('名称', { exact: true }).fill('玄照 Upload Smoke');
+  await createPanel.getByLabel('名称', { exact: true }).fill('玄照 Upload Smoke');
   const mockDialogInstalled = await app.evaluate(({ dialog }, filePath) => {
     const target = dialog;
     const original = target.showOpenDialog;
@@ -394,19 +414,22 @@ try {
     );
     return button && !button.disabled;
   });
-  await page.getByRole('button', { name: '继续选择模型' }).click();
-  await page.getByRole('heading', { name: '为 玄照 Upload Smoke 选择模型' }).waitFor();
-  await page.getByRole('radio', { name: /r33-fixed-smoke-model/ }).check();
+  await createPanel.getByRole('button', { name: '继续选择模型' }).click();
+  await createPanel.getByRole('heading', { name: '为 玄照 Upload Smoke 选择模型' }).waitFor();
+  await createPanel.getByRole('radio', { name: /r33-fixed-smoke-model/ }).check();
   await pageMetrics(page);
   await capture(page, '06-create-teammate-model-1440.png', 1440, 900, {
     route: '/teammates',
     drawer: 'model',
   });
-  await page.getByRole('button', { name: '测试连接', exact: true }).click();
-  await page.getByRole('status').filter({ hasText: 'Fake model connection succeeded.' }).waitFor();
-  await page.getByRole('button', { name: '确认资料' }).click();
-  await page.getByRole('heading', { name: '检查道友资料' }).waitFor();
-  await page.getByRole('button', { name: '确认并创建道友' }).click();
+  await createPanel.getByRole('button', { name: '测试连接', exact: true }).click();
+  await createPanel
+    .getByRole('status')
+    .filter({ hasText: 'Fake model connection succeeded.' })
+    .waitFor();
+  await createPanel.getByRole('button', { name: '确认资料' }).click();
+  await createPanel.getByRole('heading', { name: '检查道友资料' }).waitFor();
+  await createPanel.getByRole('button', { name: '确认并创建道友' }).click();
   await page.getByRole('heading', { name: '玄照 Upload Smoke', exact: true }).waitFor();
   await app.evaluate(({ dialog }) => {
     if (globalThis.__r33OriginalOpenDialog)
@@ -435,38 +458,41 @@ try {
   recordAssertion('native-avatar-import-and-safe-reference', importedAvatarResult);
 
   await page.getByRole('button', { name: '创建道友' }).click();
-  await page.getByRole('heading', { name: '先认识这位道友' }).waitFor();
-  await page.getByLabel('名称', { exact: true }).fill('紫檀 New Model Smoke');
-  await page.getByRole('button', { name: '继续选择模型' }).click();
-  await page.getByRole('heading', { name: '为 紫檀 New Model Smoke 选择模型' }).waitFor();
-  await page.getByRole('button', { name: '添加新模型', exact: true }).click();
-  await page.getByLabel('Provider 类型', { exact: true }).selectOption('OPENAI_COMPATIBLE');
-  await page
+  await createPanel.getByRole('heading', { name: '先认识这位道友' }).waitFor();
+  await createPanel.getByLabel('名称', { exact: true }).fill('紫檀 New Model Smoke');
+  await createPanel.getByRole('button', { name: '继续选择模型' }).click();
+  await createPanel.getByRole('heading', { name: '为 紫檀 New Model Smoke 选择模型' }).waitFor();
+  await createPanel.getByRole('button', { name: '添加新模型', exact: true }).click();
+  await createPanel.getByLabel('Provider 类型', { exact: true }).selectOption('OPENAI_COMPATIBLE');
+  await createPanel
     .getByLabel('Endpoint（兼容服务需要）', { exact: true })
     .fill('http://127.0.0.1:9998/v1');
-  await page.getByLabel('Model ID', { exact: true }).fill('r33-new-model-smoke');
+  await createPanel.getByLabel('Model ID', { exact: true }).fill('r33-new-model-smoke');
   const smokeApiKey = 'r33-packaged-smoke-only-fake-key';
   await app.evaluate(({ clipboard }, key) => clipboard.writeText(key), smokeApiKey);
-  await page.getByRole('button', { name: '从剪贴板安全导入', exact: true }).click();
-  await page
+  await createPanel.getByRole('button', { name: '从剪贴板安全导入', exact: true }).click();
+  await createPanel
     .getByRole('status')
     .filter({ hasText: 'API Key 已安全导入，剪贴板已清空。' })
     .waitFor();
   assert.equal(await app.evaluate(({ clipboard }) => clipboard.readText()), '');
   assert.doesNotMatch(await page.locator('body').innerText(), new RegExp(smokeApiKey));
-  await page.getByRole('button', { name: '测试连接', exact: true }).click();
-  await page.getByRole('status').filter({ hasText: 'Fake model connection succeeded.' }).waitFor();
+  await createPanel.getByRole('button', { name: '测试连接', exact: true }).click();
+  await createPanel
+    .getByRole('status')
+    .filter({ hasText: 'Fake model connection succeeded.' })
+    .waitFor();
   await capture(page, 'create-teammate-new-model-tested-1440.png', 1440, 900, {
     route: '/teammates',
     drawer: 'new-model-tested',
   });
-  await page.getByRole('button', { name: '确认资料' }).click();
-  await page.getByRole('heading', { name: '检查道友资料' }).waitFor();
+  await createPanel.getByRole('button', { name: '确认资料' }).click();
+  await createPanel.getByRole('heading', { name: '检查道友资料' }).waitFor();
   await capture(page, 'create-teammate-new-model-confirm-1440.png', 1440, 900, {
     route: '/teammates',
     drawer: 'new-model-confirm',
   });
-  await page.getByRole('button', { name: '确认并创建道友' }).click();
+  await createPanel.getByRole('button', { name: '确认并创建道友' }).click();
   await page.getByRole('heading', { name: '紫檀 New Model Smoke', exact: true }).waitFor();
   const createdNewModelBinding = await page.evaluate(async (name) => {
     const api = window.cultivation;
