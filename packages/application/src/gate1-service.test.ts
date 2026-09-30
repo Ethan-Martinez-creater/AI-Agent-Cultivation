@@ -46,6 +46,24 @@ function setup(gateway: ModelGateway = new FakeModelGateway()) {
     },
     listRuntimeProfiles: () => [...runtimes.values()],
     getRuntimeProfile: (id) => runtimes.get(id) ?? null,
+    getRuntimeIdentitySnapshot: (id) => {
+      const runtime = runtimes.get(id);
+      if (!runtime) return null;
+      const provider = providers.get(runtime.providerId);
+      if (!provider) return null;
+      return {
+        providerId: runtime.providerId,
+        providerKind: provider.kind,
+        baseUrl: provider.baseUrl,
+        modelId: runtime.modelId,
+        credentialId: runtime.credentialId,
+        runtimeUpdatedAt: runtime.updatedAt,
+        providerUpdatedAt: provider.updatedAt,
+        credentialUpdatedAt: runtime.credentialId
+          ? (credentials.get(runtime.credentialId)?.updatedAt ?? null)
+          : null,
+      };
+    },
     saveRuntimeProfile: (value) => {
       runtimes.set(value.id, value);
     },
@@ -53,9 +71,13 @@ function setup(gateway: ModelGateway = new FakeModelGateway()) {
       [...bindings.values()].some((item) => item.runtimeProfileId === runtimeId),
     hasValidModelBinding: (teammateId) => bindings.has(teammateId),
     getModelBinding: (teammateId) => bindings.get(teammateId) ?? null,
-    createSealedTeammate: (teammate, sourceRuntimeProfileId, verifiedAt) => {
+    createSealedTeammate: (teammate, sourceRuntimeProfileId, verifiedIdentity, verifiedAt) => {
       const source = runtimes.get(sourceRuntimeProfileId)!;
       const provider = providers.get(source.providerId)!;
+      const currentIdentity = store.getRuntimeIdentitySnapshot(sourceRuntimeProfileId);
+      if (JSON.stringify(currentIdentity) !== JSON.stringify(verifiedIdentity)) {
+        throw new Error('Runtime identity changed after connection verification');
+      }
       const runtime = {
         ...source,
         id: crypto.randomUUID(),
@@ -160,6 +182,43 @@ describe('Gate 1 application vertical slice', () => {
     await expect(service.createTeammate(teammateInput(runtime.id))).rejects.toThrow(
       '连接测试未通过',
     );
+    expect(store.listTeammates()).toEqual([]);
+    expect(store.isRuntimeBound(runtime.id)).toBe(false);
+  });
+
+  it('rejects sealing if Runtime identity changes while connection verification is pending', async () => {
+    let finishTest!: (result: { ok: boolean; message: string }) => void;
+    const gateway = {
+      testConnection: () =>
+        new Promise<{ ok: boolean; message: string }>((resolve) => {
+          finishTest = resolve;
+        }),
+    } as unknown as ModelGateway;
+    const { service, store } = setup(gateway);
+    const provider = service.createProvider({
+      name: 'Local',
+      kind: 'OPENAI_COMPATIBLE',
+      baseUrl: 'http://localhost:9999/v1',
+    });
+    const runtime = service.createRuntimeProfile({
+      name: 'Local',
+      providerId: provider.id,
+      credentialId: null,
+      modelId: 'local-model',
+    });
+
+    const pendingCreation = service.createTeammate(teammateInput(runtime.id));
+    expect(finishTest).toBeTypeOf('function');
+    store.saveRuntimeProfile({
+      ...runtime,
+      modelId: 'temporary-model',
+      updatedAt: '2026-09-29T01:00:00.000Z',
+    });
+    // Restore the original identity values while retaining a new version stamp.
+    store.saveRuntimeProfile({ ...runtime, updatedAt: '2026-09-29T01:00:01.000Z' });
+    finishTest({ ok: true, message: 'ok' });
+
+    await expect(pendingCreation).rejects.toThrow('连接测试期间模型配置发生变化');
     expect(store.listTeammates()).toEqual([]);
     expect(store.isRuntimeBound(runtime.id)).toBe(false);
   });

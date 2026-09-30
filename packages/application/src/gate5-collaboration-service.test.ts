@@ -517,6 +517,59 @@ function acceptedExternalWork(
   };
 }
 
+async function consumingExternalWorkFixture() {
+  const fixture = useHumanBridgeMember(setup());
+  const externalWork = attachExternalWork(fixture);
+  const missionId = fixture.create('DELEGATION');
+  const waiting = await fixture.service.start(missionId);
+  await fixture.service.resolveCollaboration({
+    requestId: waiting.collaborations[0]!.id,
+    decision: 'APPROVED',
+    externalWork: humanBridgeWork,
+  });
+  const request = externalWork.requests[0]!;
+  const runId = waiting.runs[0]!.id;
+  fixture.store.createPending({
+    externalWorkRequestId: request.id,
+    missionId,
+    missionRunId: runId,
+    createdAt: at,
+  });
+  fixture.store.markConsuming(request.id, at);
+  const waitingMission = fixture.store.getMission(missionId)!;
+  expect(
+    fixture.store.transitionMission(
+      { ...waitingMission, state: 'RUNNING', updatedAt: at },
+      'WAITING_EXTERNAL_WORK',
+    ),
+  ).toBe(true);
+
+  const continuation = acceptedExternalWork(request);
+  fixture.store.appendMissionEvent({
+    id: `received-${request.id}`,
+    missionId,
+    runId,
+    eventType: 'external_work.continuation_received',
+    actorType: 'SYSTEM',
+    actorId: null,
+    payloadJson: {
+      kind: continuation.kind,
+      requestId: continuation.requestId,
+      missionId: continuation.missionId,
+      runId: continuation.runId,
+      requesterTeammateId: continuation.requesterTeammateId,
+      assigneeTeammateId: continuation.assigneeTeammateId,
+      capability: continuation.capability,
+      outcome: continuation.outcome,
+      publicResult: continuation.publicResult,
+      artifacts: continuation.artifacts,
+      trust: continuation.trust,
+    },
+    createdAt: at,
+  });
+  return { ...fixture, request, runId, missionId, continuation };
+}
+
 function synthesisInput(gateway: RecordingGateway): {
   publicResults: Array<{ kind: string; teammateId: string; content: string }>;
   collaborationOutcomes: Array<{
@@ -1534,6 +1587,164 @@ describe('Gate5CollaborationService', () => {
     ).toBe(false);
   });
 
+  it('safely resumes CONSUMING when this continuation has no synthesis or tool execution fact', async () => {
+    const fixture = await consumingExternalWorkFixture();
+    const { missionId, request, continuation, runId } = fixture;
+    // An earlier, unrelated attempt must not block recovery of the exact accepted Run.
+    fixture.store.appendMissionEvent({
+      id: 'unrelated-run-synthesis',
+      missionId,
+      runId: 'earlier-run',
+      eventType: 'model.call_started',
+      actorType: 'TEAMMATE',
+      actorId: 'a',
+      payloadJson: { phase: 'SYNTHESIS' },
+      createdAt: at,
+    });
+
+    const restarted = fixture.restart();
+    restarted.attachExternalWork({ createExplicit: () => request }, fixture.store);
+    const recovered = await restarted.resumeExternalWork(continuation);
+
+    expect(recovered.mission.state).toBe('COMPLETED');
+    expect(recovered.runs).toHaveLength(1);
+    expect(recovered.runs[0]).toMatchObject({ id: runId, status: 'COMPLETED' });
+    expect(fixture.store.getByRequestId(request.id)).toMatchObject({ state: 'CONSUMED' });
+    expect(recovered.artifacts.filter((artifact) => artifact.kind === 'FINAL')).toHaveLength(1);
+    expect(
+      fixture.gateway.requests.filter((item) =>
+        item.messages.some(
+          (message) => message.role === 'user' && message.content.startsWith('SYNTHESIS: '),
+        ),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('interrupts CONSUMING after SYNTHESIS model.call_started and requires explicit retry', async () => {
+    const fixture = await consumingExternalWorkFixture();
+    const { missionId, request, continuation, runId } = fixture;
+    fixture.store.appendMissionEvent({
+      id: `synthesis-started-${request.id}`,
+      missionId,
+      runId,
+      eventType: 'model.call_started',
+      actorType: 'TEAMMATE',
+      actorId: 'a',
+      payloadJson: { phase: 'SYNTHESIS', externalWorkRequestId: request.id },
+      createdAt: at,
+    });
+    const modelCallCount = fixture.gateway.requests.length;
+
+    const restarted = fixture.restart();
+    restarted.attachExternalWork({ createExplicit: () => request }, fixture.store);
+    const recovered = await restarted.resumeExternalWork(continuation);
+
+    expect(recovered.mission.state).toBe('INTERRUPTED');
+    expect(recovered.runs[0]).toMatchObject({
+      id: runId,
+      status: 'INTERRUPTED',
+      errorCode: 'EXTERNAL_WORK_SYNTHESIS_INTERRUPTED',
+    });
+    expect(fixture.store.getByRequestId(request.id)).toMatchObject({ state: 'CONSUMING' });
+    expect(fixture.gateway.requests).toHaveLength(modelCallCount);
+    expect(recovered.artifacts.filter((artifact) => artifact.kind === 'FINAL')).toEqual([]);
+    expect(
+      recovered.events.filter(
+        (event) =>
+          event.eventType === 'external_work.continuation_replay_blocked' &&
+          event.payloadJson.requestId === request.id,
+      ),
+    ).toHaveLength(1);
+
+    const repeated = fixture.restart();
+    repeated.attachExternalWork({ createExplicit: () => request }, fixture.store);
+    const afterSecondRestart = await repeated.resumeExternalWork(continuation);
+    expect(afterSecondRestart.mission.state).toBe('INTERRUPTED');
+    expect(fixture.store.getByRequestId(request.id)).toMatchObject({ state: 'CONSUMED' });
+    expect(fixture.gateway.requests).toHaveLength(modelCallCount);
+    expect(
+      afterSecondRestart.events.filter(
+        (event) =>
+          event.eventType === 'external_work.continuation_replay_blocked' &&
+          event.payloadJson.requestId === request.id,
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('detects a legacy untagged SYNTHESIS start sorted before the received marker at the same timestamp', async () => {
+    const fixture = await consumingExternalWorkFixture();
+    const { missionId, request, continuation, runId } = fixture;
+    const receivedIndex = fixture.store.events.findIndex(
+      (event) => event.id === `received-${request.id}`,
+    );
+    expect(receivedIndex).toBeGreaterThanOrEqual(0);
+    fixture.store.events.splice(receivedIndex, 0, {
+      id: `legacy-synthesis-started-${request.id}`,
+      missionId,
+      runId,
+      eventType: 'model.call_started',
+      actorType: 'TEAMMATE',
+      actorId: 'a',
+      payloadJson: { phase: 'SYNTHESIS' },
+      createdAt: at,
+    });
+    const modelCallCount = fixture.gateway.requests.length;
+
+    const restarted = fixture.restart();
+    restarted.attachExternalWork({ createExplicit: () => request }, fixture.store);
+    const recovered = await restarted.resumeExternalWork(continuation);
+
+    expect(recovered.mission.state).toBe('INTERRUPTED');
+    expect(recovered.runs[0]).toMatchObject({ id: runId, status: 'INTERRUPTED' });
+    expect(fixture.store.getByRequestId(request.id)).toMatchObject({ state: 'CONSUMING' });
+    expect(fixture.gateway.requests).toHaveLength(modelCallCount);
+    expect(
+      recovered.events.some(
+        (event) =>
+          event.eventType === 'external_work.continuation_replay_blocked' &&
+          event.payloadJson.evidenceEventId === `legacy-synthesis-started-${request.id}`,
+      ),
+    ).toBe(true);
+  });
+
+  it('interrupts CONSUMING after a correlated tool execution fact without rerunning it', async () => {
+    const fixture = await consumingExternalWorkFixture();
+    const { missionId, request, continuation, runId } = fixture;
+    fixture.store.appendMissionEvent({
+      id: `tool-result-${request.id}`,
+      missionId,
+      runId,
+      eventType: 'tool.result',
+      actorType: 'TEAMMATE',
+      actorId: 'a',
+      payloadJson: {
+        toolId: 'file.writeText',
+        externalWorkRequestId: request.id,
+        success: true,
+      },
+      createdAt: at,
+    });
+    const modelCallCount = fixture.gateway.requests.length;
+
+    const restarted = fixture.restart();
+    restarted.attachExternalWork({ createExplicit: () => request }, fixture.store);
+    const recovered = await restarted.resumeExternalWork(continuation);
+
+    expect(recovered.mission.state).toBe('INTERRUPTED');
+    expect(recovered.runs[0]).toMatchObject({ id: runId, status: 'INTERRUPTED' });
+    expect(fixture.store.getByRequestId(request.id)).toMatchObject({ state: 'CONSUMING' });
+    expect(fixture.gateway.requests).toHaveLength(modelCallCount);
+    expect(recovered.events.some((event) => event.eventType === 'tool.result')).toBe(true);
+    expect(
+      recovered.events.some(
+        (event) =>
+          event.eventType === 'external_work.continuation_replay_blocked' &&
+          event.payloadJson.requestId === request.id &&
+          event.payloadJson.evidenceEventId === `tool-result-${request.id}`,
+      ),
+    ).toBe(true);
+  });
+
   it('consumes a terminal failed Run continuation after restart without replaying synthesis', async () => {
     const fixture = useHumanBridgeMember(setup());
     const externalWork = attachExternalWork(fixture);
@@ -1588,6 +1799,53 @@ describe('Gate5CollaborationService', () => {
         ),
       ),
     ).toHaveLength(synthesisCallsBeforeRecovery);
+  });
+
+  it('consumes a terminal failed continuation with a started synthesis without replaying it', async () => {
+    const fixture = await consumingExternalWorkFixture();
+    const { missionId, request, continuation, runId } = fixture;
+    fixture.store.appendMissionEvent({
+      id: `synthesis-started-${request.id}`,
+      missionId,
+      runId,
+      eventType: 'model.call_started',
+      actorType: 'TEAMMATE',
+      actorId: 'a',
+      payloadJson: { phase: 'SYNTHESIS', externalWorkRequestId: request.id },
+      createdAt: at,
+    });
+    const run = fixture.store.getRun(runId)!;
+    expect(
+      fixture.store.finishRun({
+        ...run,
+        status: 'FAILED',
+        endedAt: at,
+        errorCode: 'COORDINATOR_GENERATION_FAILED',
+        errorMessage: 'COORDINATOR_GENERATION_FAILED',
+        resultText: JSON.stringify({ ok: false, code: 'COORDINATOR_GENERATION_FAILED' }),
+      }),
+    ).toBe(true);
+    const mission = fixture.store.getMission(missionId)!;
+    expect(
+      fixture.store.transitionMission({ ...mission, state: 'FAILED', updatedAt: at }, 'RUNNING'),
+    ).toBe(true);
+    const modelCallCount = fixture.gateway.requests.length;
+
+    const restarted = fixture.restart();
+    restarted.attachExternalWork({ createExplicit: () => request }, fixture.store);
+    const recovered = await restarted.resumeExternalWork(continuation);
+
+    expect(recovered.mission.state).toBe('FAILED');
+    expect(recovered.runs[0]).toMatchObject({ id: runId, status: 'FAILED' });
+    expect(fixture.store.getByRequestId(request.id)).toMatchObject({ state: 'CONSUMED' });
+    expect(fixture.gateway.requests).toHaveLength(modelCallCount);
+    expect(
+      recovered.events.some(
+        (event) =>
+          event.eventType === 'external_work.continuation_replay_blocked' &&
+          event.payloadJson.requestId === request.id,
+      ),
+    ).toBe(false);
   });
 
   it('fails the original Run explicitly when a Human Bridge task is cancelled', async () => {

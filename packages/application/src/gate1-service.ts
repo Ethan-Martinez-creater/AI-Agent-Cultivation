@@ -6,6 +6,7 @@ import type {
   ProviderConfig,
   ProviderKind,
   RuntimeProfile,
+  RuntimeIdentitySnapshot,
   Skill,
   SkillAssignment,
   Teammate,
@@ -31,12 +32,14 @@ export interface Gate1Store {
   listRuntimeProfiles(): RuntimeProfile[];
   getRuntimeProfile(id: string): RuntimeProfile | null;
   saveRuntimeProfile(value: RuntimeProfile): void;
+  getRuntimeIdentitySnapshot(id: string): RuntimeIdentitySnapshot | null;
   isRuntimeBound(id: string): boolean;
   hasValidModelBinding(teammateId: string): boolean;
   getModelBinding(teammateId: string): TeammateModelBinding | null;
   createSealedTeammate(
     teammate: Teammate,
     sourceRuntimeProfileId: string,
+    verifiedIdentity: RuntimeIdentitySnapshot,
     verifiedAt: string,
   ): { teammate: Teammate; binding: TeammateModelBinding };
   listTeammates(): Teammate[];
@@ -82,6 +85,23 @@ function required(value: string, label: string): string {
 
 function notFound(label: string): never {
   throw new DomainError('NOT_FOUND', `${label}不存在`);
+}
+
+function sameRuntimeIdentity(
+  left: RuntimeIdentitySnapshot,
+  right: RuntimeIdentitySnapshot | null,
+): boolean {
+  return (
+    right !== null &&
+    left.providerId === right.providerId &&
+    left.providerKind === right.providerKind &&
+    left.baseUrl === right.baseUrl &&
+    left.modelId === right.modelId &&
+    left.credentialId === right.credentialId &&
+    left.runtimeUpdatedAt === right.runtimeUpdatedAt &&
+    left.providerUpdatedAt === right.providerUpdatedAt &&
+    left.credentialUpdatedAt === right.credentialUpdatedAt
+  );
 }
 
 export class Gate1Service {
@@ -312,12 +332,18 @@ export class Gate1Service {
     behaviorPrompt: string;
     currentRuntimeProfileId: string;
   }): Promise<Teammate> {
+    const identityBeforeTest = this.store.getRuntimeIdentitySnapshot(input.currentRuntimeProfileId);
+    if (!identityBeforeTest) notFound('RuntimeProfile');
     const connection = await this.testConnection(input.currentRuntimeProfileId);
     if (!connection.ok) {
       throw new DomainError(
         'INVALID_INPUT',
         '模型连接测试未通过；请先验证 Provider、Credential 与 Model ID',
       );
+    }
+    const identityAfterTest = this.store.getRuntimeIdentitySnapshot(input.currentRuntimeProfileId);
+    if (!sameRuntimeIdentity(identityBeforeTest, identityAfterTest)) {
+      throw new DomainError('INVALID_INPUT', '连接测试期间模型配置发生变化；请重新测试后创建道友');
     }
     const timestamp = now();
     const teammate: Teammate = {
@@ -337,8 +363,12 @@ export class Gate1Service {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    return this.store.createSealedTeammate(teammate, input.currentRuntimeProfileId, timestamp)
-      .teammate;
+    return this.store.createSealedTeammate(
+      teammate,
+      input.currentRuntimeProfileId,
+      identityBeforeTest,
+      timestamp,
+    ).teammate;
   }
 
   updateTeammate(input: {

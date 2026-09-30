@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import Database from 'better-sqlite3';
-import type { ProviderKind as DomainProviderKind, TeammateModelBinding } from '@cultivation/domain';
+import type {
+  ProviderKind as DomainProviderKind,
+  RuntimeIdentitySnapshot,
+  TeammateModelBinding,
+} from '@cultivation/domain';
 import type { RuntimeProfileRecord, TeammateRecord } from './index.js';
 
 export type TeammateModelBindingRecord = TeammateModelBinding;
@@ -35,6 +39,8 @@ interface RuntimeProviderRow {
   provider_kind: DomainProviderKind;
   endpoint: string | null;
   provider_enabled: number;
+  provider_updated_at: string;
+  credential_updated_at: string | null;
 }
 
 interface ModelBenchmarkRow {
@@ -63,6 +69,7 @@ export class R31BindingRepository {
   createSealedTeammate(
     teammate: TeammateRecord,
     sourceRuntimeProfileId: string,
+    verifiedIdentity: RuntimeIdentitySnapshot,
     verifiedAt: string,
   ): SealedTeammateCreation {
     if (teammate.executorKind !== 'MODEL_RUNTIME' || teammate.systemKind !== null) {
@@ -85,13 +92,20 @@ export class R31BindingRepository {
       const source = this.db
         .prepare(
           `SELECT rp.*, p.kind AS provider_kind, p.base_url AS endpoint,
-                  p.enabled AS provider_enabled
+                  p.enabled AS provider_enabled, p.updated_at AS provider_updated_at,
+                  pc.updated_at AS credential_updated_at
            FROM runtime_profiles AS rp
            JOIN providers AS p ON p.id = rp.provider_id
+           LEFT JOIN provider_credentials AS pc ON pc.id = rp.credential_id
            WHERE rp.id = ?`,
         )
         .get(sourceRuntimeProfileId) as RuntimeProviderRow | undefined;
       if (!source) throw new Error(`Runtime profile ${sourceRuntimeProfileId} does not exist`);
+      if (!sameRuntimeIdentity(verifiedIdentity, runtimeIdentityFromRow(source))) {
+        throw new Error(
+          'Runtime identity changed after connection verification; retest before sealing',
+        );
+      }
       if (source.provider_enabled !== 1) {
         throw new Error('Cannot seal a Runtime whose Provider is disabled');
       }
@@ -185,6 +199,21 @@ export class R31BindingRepository {
       .prepare('SELECT * FROM teammate_model_bindings WHERE teammate_id = ?')
       .get(teammateId) as ModelBindingRow | undefined;
     return row ? mapModelBinding(row) : null;
+  }
+
+  getRuntimeIdentitySnapshot(runtimeProfileId: string): RuntimeIdentitySnapshot | null {
+    const row = this.db
+      .prepare(
+        `SELECT rp.*, p.kind AS provider_kind, p.base_url AS endpoint,
+                p.enabled AS provider_enabled, p.updated_at AS provider_updated_at,
+                pc.updated_at AS credential_updated_at
+         FROM runtime_profiles AS rp
+         JOIN providers AS p ON p.id = rp.provider_id
+         LEFT JOIN provider_credentials AS pc ON pc.id = rp.credential_id
+         WHERE rp.id = ?`,
+      )
+      .get(runtimeProfileId) as RuntimeProviderRow | undefined;
+    return row ? runtimeIdentityFromRow(row) : null;
   }
 
   isRuntimeBound(runtimeProfileId: string): boolean {
@@ -313,6 +342,35 @@ export class R31BindingRepository {
       });
     }
   }
+}
+
+function runtimeIdentityFromRow(row: RuntimeProviderRow): RuntimeIdentitySnapshot {
+  return {
+    providerId: row.provider_id,
+    providerKind: row.provider_kind,
+    baseUrl: row.endpoint,
+    modelId: row.model_id,
+    credentialId: row.credential_id,
+    runtimeUpdatedAt: row.updated_at,
+    providerUpdatedAt: row.provider_updated_at,
+    credentialUpdatedAt: row.credential_updated_at,
+  };
+}
+
+function sameRuntimeIdentity(
+  left: RuntimeIdentitySnapshot,
+  right: RuntimeIdentitySnapshot,
+): boolean {
+  return (
+    left.providerId === right.providerId &&
+    left.providerKind === right.providerKind &&
+    left.baseUrl === right.baseUrl &&
+    left.modelId === right.modelId &&
+    left.credentialId === right.credentialId &&
+    left.runtimeUpdatedAt === right.runtimeUpdatedAt &&
+    left.providerUpdatedAt === right.providerUpdatedAt &&
+    left.credentialUpdatedAt === right.credentialUpdatedAt
+  );
 }
 
 function mapModelBinding(row: ModelBindingRow): TeammateModelBindingRecord {

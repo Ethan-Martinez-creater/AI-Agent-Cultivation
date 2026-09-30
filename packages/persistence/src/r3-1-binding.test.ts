@@ -206,6 +206,7 @@ describe('R3.1 sealed teammate model binding', () => {
     const created = repository.createSealedTeammate(
       teammate('teammate-new', runtime.id),
       runtime.id,
+      repository.getRuntimeIdentitySnapshot(runtime.id)!,
       timestamp,
     );
 
@@ -254,6 +255,35 @@ describe('R3.1 sealed teammate model binding', () => {
     });
     expect(repository.getModelBinding('teammate-new')?.modelId).toBe('gpt-4o');
     expect(repository.hasValidModelBinding('teammate-new')).toBe(true);
+    db.close();
+  });
+
+  it('revalidates the verified identity inside the sealing transaction', () => {
+    const db = createDatabase();
+    const repository = new Gate1SqliteRepository(db);
+    const { runtime } = seedProviderRuntime(repository);
+    const verifiedIdentity = repository.getRuntimeIdentitySnapshot(runtime.id)!;
+
+    repository.saveRuntimeProfile({
+      ...runtime,
+      modelId: 'intermediate-model',
+      updatedAt: '2026-09-29T01:00:00.000Z',
+    });
+    repository.saveRuntimeProfile({
+      ...runtime,
+      updatedAt: '2026-09-29T01:00:01.000Z',
+    });
+
+    expect(() =>
+      repository.createSealedTeammate(
+        teammate('teammate-stale-verification', runtime.id),
+        runtime.id,
+        verifiedIdentity,
+        timestamp,
+      ),
+    ).toThrow('Runtime identity changed after connection verification');
+    expect(repository.getTeammate('teammate-stale-verification')).toBeNull();
+    expect(repository.isRuntimeBound(runtime.id)).toBe(false);
     db.close();
   });
 
@@ -320,6 +350,7 @@ describe('R3.1 sealed teammate model binding', () => {
     const created = repository.createSealedTeammate(
       teammate('teammate-sealed', runtime.id),
       runtime.id,
+      repository.getRuntimeIdentitySnapshot(runtime.id)!,
       timestamp,
     );
     repository.saveProvider({

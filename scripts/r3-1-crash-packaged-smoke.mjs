@@ -137,6 +137,9 @@ try {
     return {
       bridgeId: bridge.id,
       coordinatorId: coordinator.id,
+      coordinatorRuntimeId: coordinator.currentRuntimeProfileId,
+      providerId: provider.id,
+      partyId: party.id,
       missionId: mission.id,
       runId: waiting.runs[0].id,
       requestId: request?.id,
@@ -253,6 +256,8 @@ try {
 }
 
 const second = await launch();
+let secondKilled = false;
+let consumingFacts;
 try {
   const recovered = await second.page.waitForFunction(
     async ({ missionId, runId }) => {
@@ -319,10 +324,233 @@ try {
   } finally {
     db.close();
   }
+
+  consumingFacts = await second.page.evaluate(async ({ coordinatorId, partyId, bridgeId }) => {
+    const api = window.cultivation;
+    const mission = await api.missions.create({
+      title: 'R3.1 started synthesis crash',
+      objective: 'Consult Human Bridge, then synthesize after restart.',
+      coordinatorTeammateId: coordinatorId,
+      mode: 'CONSULTATION',
+      partyId,
+    });
+    await api.missions.ready(mission.id);
+    const waiting = await api.missions.start({ missionId: mission.id, approvalFixture: false });
+    const invite = waiting.collaborations.find(
+      (item) => item.state === 'PENDING' && item.targetTeammateId === bridgeId,
+    );
+    if (!invite) throw new Error('Started synthesis fixture has no Human Bridge invitation');
+    const afterApproval = await api.missions.resolveCollaboration({
+      requestId: invite.id,
+      decision: 'APPROVED',
+      externalWork: {
+        capability: 'IMAGE_GENERATION',
+        title: 'Prepare another image artifact',
+        prompt: 'Use the existing deliverables/result.png as the completed artifact.',
+        requirements: ['Provide one image'],
+        targetArtifacts: [
+          {
+            id: 'image-2',
+            name: 'Final image',
+            required: true,
+            allowedExtensions: ['.png'],
+            maxSizeBytes: 1048576,
+          },
+        ],
+        targetWorkspacePaths: ['deliverables'],
+        acceptanceCriteria: ['Image file exists in the workspace'],
+        externalAppProfileId: null,
+      },
+    });
+    if (afterApproval.mission.state !== 'WAITING_EXTERNAL_WORK') {
+      throw new Error('Started synthesis fixture did not wait for ExternalWork');
+    }
+    const request = (await api.r2.listRequests()).find((item) => item.missionId === mission.id);
+    if (!request) throw new Error('Started synthesis fixture has no ExternalWork request');
+    await api.r2.markInProgress(request.id);
+    const submitted = await api.r2.submitArtifacts({
+      requestId: request.id,
+      artifacts: [{ targetArtifactId: 'image-2', relativePath: 'deliverables/result.png' }],
+    });
+    if (submitted.state !== 'SUBMITTED')
+      throw new Error('Started synthesis artifact not submitted');
+    return { missionId: mission.id, runId: waiting.runs[0].id, requestId: request.id };
+  }, facts);
+
+  const holdStarted = new Database(databasePath);
+  try {
+    holdStarted.exec(`
+      CREATE TRIGGER r3_1_test_hold_started_synthesis
+      BEFORE UPDATE OF state ON r2_external_work_continuations
+      WHEN old.state = 'PENDING' AND new.state = 'CONSUMING'
+      BEGIN
+        SELECT RAISE(IGNORE);
+      END;
+    `);
+  } finally {
+    holdStarted.close();
+  }
+  const heldAccept = await second.page.evaluate(async (requestId) => {
+    try {
+      await window.cultivation.r2.accept({
+        requestId,
+        publicResult: 'The second accepted artifact is ready.',
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }, consumingFacts.requestId);
+  assert.equal(heldAccept, false, 'fault injection must stop before synthesis');
+  await forceKill(second.app);
+  secondKilled = true;
 } finally {
-  await second.app.close();
+  if (!secondKilled) await second.app.close();
+}
+
+const injectStarted = new Database(databasePath);
+try {
+  injectStarted.exec('DROP TRIGGER r3_1_test_hold_started_synthesis;');
+  const request = injectStarted
+    .prepare('SELECT * FROM external_work_requests WHERE id = ?')
+    .get(consumingFacts.requestId);
+  const artifact = injectStarted
+    .prepare(
+      `SELECT id, path, file_name, extension, size_bytes
+       FROM external_work_artifacts WHERE external_work_request_id = ?
+       ORDER BY submitted_at DESC, id DESC LIMIT 1`,
+    )
+    .get(consumingFacts.requestId);
+  assert.equal(request.state, 'ACCEPTED');
+  assert.ok(artifact);
+  const marked = injectStarted
+    .prepare(
+      `UPDATE r2_external_work_continuations
+       SET state = 'CONSUMING', updated_at = ?
+       WHERE external_work_request_id = ? AND state = 'PENDING'`,
+    )
+    .run(new Date().toISOString(), consumingFacts.requestId);
+  assert.equal(marked.changes, 1);
+  injectStarted
+    .prepare(
+      `UPDATE missions SET state = 'RUNNING', updated_at = ?
+       WHERE id = ? AND state = 'WAITING_EXTERNAL_WORK'`,
+    )
+    .run(new Date().toISOString(), consumingFacts.missionId);
+  const at = Date.now();
+  const receivedPayload = {
+    kind: 'EXTERNAL_WORK_CONTINUATION',
+    requestId: consumingFacts.requestId,
+    missionId: consumingFacts.missionId,
+    runId: consumingFacts.runId,
+    requesterTeammateId: facts.coordinatorId,
+    assigneeTeammateId: facts.bridgeId,
+    capability: request.capability,
+    outcome: 'ACCEPTED',
+    publicResult: request.public_result,
+    artifacts: [
+      {
+        id: artifact.id,
+        path: artifact.path,
+        fileName: artifact.file_name,
+        extension: artifact.extension,
+        sizeBytes: artifact.size_bytes,
+      },
+    ],
+    trust: 'UNTRUSTED_EXTERNAL_DATA',
+  };
+  const addEvent = injectStarted.prepare(
+    `INSERT INTO mission_events
+       (id, mission_id, run_id, event_type, actor_type, actor_id, payload_json, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  );
+  addEvent.run(
+    randomUUID(),
+    consumingFacts.missionId,
+    consumingFacts.runId,
+    'external_work.continuation_received',
+    'SYSTEM',
+    null,
+    JSON.stringify(receivedPayload),
+    new Date(at + 1000).toISOString(),
+  );
+  addEvent.run(
+    randomUUID(),
+    consumingFacts.missionId,
+    consumingFacts.runId,
+    'model.call_started',
+    'TEAMMATE',
+    facts.coordinatorId,
+    JSON.stringify({
+      phase: 'SYNTHESIS',
+      externalWorkRequestId: consumingFacts.requestId,
+      runtimeProfileId: facts.coordinatorRuntimeId,
+      providerId: facts.providerId,
+      modelId: 'r3-1-crash-fake',
+    }),
+    new Date(at + 2000).toISOString(),
+  );
+} finally {
+  injectStarted.close();
+}
+
+const third = await launch();
+try {
+  const interrupted = await third.page.waitForFunction(
+    async ({ missionId, runId }) => {
+      const detail = await window.cultivation.missions.detail(missionId);
+      return detail.mission.state === 'INTERRUPTED' && detail.runs[0]?.id === runId
+        ? detail
+        : false;
+    },
+    consumingFacts,
+    { timeout: 30_000 },
+  );
+  const detail = await interrupted.jsonValue();
+  assert.equal(detail.runs[0].status, 'INTERRUPTED');
+  assert.equal(detail.artifacts.filter((item) => item.kind === 'FINAL').length, 0);
+  const noReplay = new Database(databasePath, { readonly: true });
+  try {
+    assert.equal(
+      noReplay
+        .prepare(
+          `SELECT COUNT(*) AS count FROM mission_events
+           WHERE mission_id = ? AND run_id = ? AND event_type = 'model.call_started'
+             AND json_extract(payload_json, '$.phase') = 'SYNTHESIS'`,
+        )
+        .get(consumingFacts.missionId, consumingFacts.runId).count,
+      1,
+      'startup must not start synthesis again after a durable call-start fact',
+    );
+    assert.equal(
+      noReplay
+        .prepare(
+          'SELECT state FROM r2_external_work_continuations WHERE external_work_request_id = ?',
+        )
+        .get(consumingFacts.requestId).state,
+      'CONSUMING',
+    );
+    assert.equal(
+      noReplay
+        .prepare('SELECT state FROM external_work_requests WHERE id = ?')
+        .get(consumingFacts.requestId).state,
+      'ACCEPTED',
+    );
+    assert.equal(
+      noReplay
+        .prepare(
+          'SELECT COUNT(*) AS count FROM external_work_artifacts WHERE external_work_request_id = ?',
+        )
+        .get(consumingFacts.requestId).count,
+      1,
+    );
+  } finally {
+    noReplay.close();
+  }
+} finally {
+  await third.app.close();
 }
 
 console.log(
-  'R3_1_CRASH_PACKAGED_SMOKE_OK artifact_submitted_before_accept=ok accepted_running_pending_window=ok forced_kill=ok restart_same_run=ok synthesis_once=ok continuation_consumed=ok',
+  'R3_1_CRASH_PACKAGED_SMOKE_OK pending_restart_same_run=ok synthesis_once=ok continuation_consumed=ok consuming_started_interrupted=ok no_auto_replay=ok accepted_artifact_retained=ok',
 );

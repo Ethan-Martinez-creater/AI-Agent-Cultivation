@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import Database from 'better-sqlite3';
+import type { RuntimeIdentitySnapshot } from '@cultivation/domain';
 import initialSql from '../../../migrations/0001_initial.sql?raw';
 import gate1Sql from '../../../migrations/0002_gate1.sql?raw';
 import gate2Sql from '../../../migrations/0003_gate2.sql?raw';
@@ -428,9 +429,19 @@ export class Gate1SqliteRepository {
   createSealedTeammate(
     teammate: TeammateRecord,
     sourceRuntimeProfileId: string,
+    verifiedIdentity: RuntimeIdentitySnapshot,
     verifiedAt: string,
   ): SealedTeammateCreation {
-    return this.r31Bindings.createSealedTeammate(teammate, sourceRuntimeProfileId, verifiedAt);
+    return this.r31Bindings.createSealedTeammate(
+      teammate,
+      sourceRuntimeProfileId,
+      verifiedIdentity,
+      verifiedAt,
+    );
+  }
+
+  getRuntimeIdentitySnapshot(runtimeProfileId: string): RuntimeIdentitySnapshot | null {
+    return this.r31Bindings.getRuntimeIdentitySnapshot(runtimeProfileId);
   }
 
   getModelBinding(teammateId: string): TeammateModelBindingRecord | null {

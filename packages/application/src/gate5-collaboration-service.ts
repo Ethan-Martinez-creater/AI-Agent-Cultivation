@@ -986,6 +986,11 @@ export class Gate5CollaborationService {
     if (run && durable?.state === 'CONSUMING') {
       if (this.recoverFinalSynthesis(mission, run, requestId)) return this.detail(mission.id);
       if (this.recoverTerminalContinuation(mission, run, requestId)) return this.detail(mission.id);
+      const executionEvidence = this.externalWorkSynthesisEvidence(mission.id, run.id, requestId);
+      if (executionEvidence) {
+        this.interruptUnfinishedContinuation(mission, run, requestId, executionEvidence);
+        return this.detail(mission.id);
+      }
     }
     if (
       !continuation.requesterTeammateId ||
@@ -1142,6 +1147,140 @@ export class Gate5CollaborationService {
     if (running.state !== 'RUNNING') return false;
     this.complete(running, run, final.content, requestId);
     return true;
+  }
+
+  /**
+   * Returns only execution facts for this accepted continuation on this exact Run.
+   * Facts from a previous MissionRun cannot block recovery of the current attempt.
+   */
+  private externalWorkSynthesisEvidence(
+    missionId: string,
+    runId: string,
+    requestId: string,
+  ): MissionEvent | null {
+    const events = this.missionStore
+      .listMissionEvents(missionId)
+      .filter((event) => event.runId === runId);
+    const continuationIndex = events.findIndex(
+      (event) =>
+        event.eventType === 'external_work.continuation_received' &&
+        event.payloadJson.requestId === requestId,
+    );
+    if (continuationIndex < 0) return null;
+    const received = events[continuationIndex]!;
+
+    const isExecutionFact = (event: MissionEvent): boolean => {
+      const payload = event.payloadJson;
+      const correlationId = payload.externalWorkRequestId;
+      const synthesisStarted =
+        event.eventType === 'model.call_started' && payload.phase === 'SYNTHESIS';
+      const toolDispatched =
+        event.eventType === 'tool.proposed' ||
+        event.eventType === 'tool.result' ||
+        event.eventType === 'tool.execution_started' ||
+        event.eventType === 'tool.execution_completed';
+
+      return correlationId === requestId && (synthesisStarted || toolDispatched);
+    };
+    // Correlated facts are exact even if events share a timestamp and sort before the
+    // received marker. Legacy synthesis cannot precede ExternalWork on this Run; for
+    // legacy tool facts, an equal timestamp is conservatively treated as execution.
+    const correlated = events.find(isExecutionFact);
+    if (correlated) return correlated;
+
+    return (
+      events.find(
+        (event) =>
+          event.payloadJson.externalWorkRequestId === undefined &&
+          event.eventType === 'model.call_started' &&
+          event.payloadJson.phase === 'SYNTHESIS',
+      ) ??
+      events.find(
+        (event) =>
+          event.payloadJson.externalWorkRequestId === undefined &&
+          event.createdAt >= received.createdAt &&
+          (event.eventType === 'tool.proposed' ||
+            event.eventType === 'tool.result' ||
+            event.eventType === 'tool.execution_started' ||
+            event.eventType === 'tool.execution_completed'),
+      ) ??
+      null
+    );
+  }
+
+  /**
+   * An in-flight synthesis may already have invoked a provider or tool. Preserve its
+   * accepted ExternalWork facts and require a user retry instead of replaying side effects.
+   */
+  private interruptUnfinishedContinuation(
+    mission: Mission,
+    run: MissionRunRecord,
+    requestId: string,
+    evidence: MissionEvent,
+  ): void {
+    const replayBlocked = (event: MissionEvent) =>
+      event.eventType === 'external_work.continuation_replay_blocked' &&
+      event.runId === run.id &&
+      event.payloadJson.requestId === requestId;
+    if (this.missionStore.listMissionEvents(mission.id).some(replayBlocked)) return;
+
+    this.missionStore.transaction(() => {
+      if (this.missionStore.listMissionEvents(mission.id).some(replayBlocked)) return;
+
+      const currentMission = this.missionStore.getMission(mission.id) ?? mission;
+      const currentRun = this.missionStore.getRun(run.id) ?? run;
+      const latestRunId = this.missionStore.listRuns(mission.id).at(-1)?.id;
+      if (
+        currentRun.status === 'RUNNING' &&
+        currentMission.state === 'RUNNING' &&
+        latestRunId === run.id
+      ) {
+        const at = this.clock.now();
+        const interrupted = transition(currentMission, 'INTERRUPTED', at);
+        if (
+          !this.missionStore.finishRun({
+            ...currentRun,
+            status: 'INTERRUPTED',
+            endedAt: at,
+            errorCode: 'EXTERNAL_WORK_SYNTHESIS_INTERRUPTED',
+            errorMessage:
+              'Synthesis was interrupted after execution began; retry requires user action.',
+            resultText: JSON.stringify({ ok: false, code: 'EXTERNAL_WORK_SYNTHESIS_INTERRUPTED' }),
+          })
+        ) {
+          throw new DomainError('CONFLICT', 'ExternalWork synthesis Run interruption conflicted');
+        }
+        if (!this.missionStore.transitionMission(interrupted, currentMission.state)) {
+          throw new DomainError(
+            'CONFLICT',
+            'ExternalWork synthesis Mission interruption conflicted',
+          );
+        }
+        this.recordState(
+          currentMission,
+          interrupted,
+          'mission.external_work_interrupted',
+          'SYSTEM',
+          null,
+          run.id,
+        );
+      }
+
+      this.record(
+        currentMission,
+        run.id,
+        'external_work.continuation_replay_blocked',
+        'SYSTEM',
+        null,
+        {
+          requestId,
+          evidenceEventId: evidence.id,
+          evidenceEventType: evidence.eventType,
+          code: 'EXTERNAL_WORK_SYNTHESIS_INTERRUPTED',
+          retryRequiresUserAction: true,
+        },
+      );
+    });
   }
 
   private async startNewRun(mission: Mission, isRetry: boolean): Promise<PartyMissionDetail> {
@@ -1561,7 +1700,13 @@ export class Gate5CollaborationService {
             'model.call_started',
             'TEAMMATE',
             teammate.id,
-            this.modelPayload(runtime, { phase: task.phase, step: steps + 1 }),
+            this.modelPayload(runtime, {
+              phase: task.phase,
+              step: steps + 1,
+              ...(task.externalWorkContext
+                ? { externalWorkRequestId: task.externalWorkContext.requestId }
+                : {}),
+            }),
           );
           this.recordSkillUses(mission, run, teammate.id, skillIds);
         });
@@ -1654,6 +1799,9 @@ export class Gate5CollaborationService {
           source: dispatch.trace.source,
           capability: dispatch.trace.capability,
           inputSummary: dispatch.trace.inputSummary,
+          ...(task.externalWorkContext
+            ? { externalWorkRequestId: task.externalWorkContext.requestId }
+            : {}),
         });
         if (dispatch.kind === 'APPROVAL') {
           this.requestToolApproval(
@@ -1676,6 +1824,7 @@ export class Gate5CollaborationService {
           dispatch.trace.source,
           dispatch.trace.capability,
           null,
+          task.externalWorkContext?.requestId ?? null,
         );
         appendToolResult(messages, call, dispatch.result);
       }
@@ -1957,6 +2106,7 @@ export class Gate5CollaborationService {
       registration?.descriptor.source ?? 'UNKNOWN',
       approval.capability,
       approval.id,
+      saved.task.externalWorkContext?.requestId ?? null,
     );
     appendToolResult(saved.messages, saved.call, result);
     await this.runParticipant(running, run, saved.task, {
@@ -1975,6 +2125,7 @@ export class Gate5CollaborationService {
     source: string,
     capability: string | null,
     approvalId: string | null,
+    externalWorkRequestId: string | null = null,
   ): void {
     this.record(mission, run.id, 'tool.result', 'TEAMMATE', teammateId, {
       teammateId,
@@ -1985,6 +2136,7 @@ export class Gate5CollaborationService {
       success: result.ok,
       code: result.code,
       outputSummary: { bytes: Buffer.byteLength(result.content) },
+      ...(externalWorkRequestId ? { externalWorkRequestId } : {}),
     });
   }
 

@@ -53,6 +53,18 @@ export interface RuntimeProfile {
   updatedAt: IsoDateTime;
 }
 
+/** Immutable provider/model identity captured before live connection verification. */
+export interface RuntimeIdentitySnapshot {
+  providerId: Id;
+  providerKind: ProviderKind;
+  baseUrl: string | null;
+  modelId: string;
+  credentialId: Id | null;
+  runtimeUpdatedAt: IsoDateTime;
+  providerUpdatedAt: IsoDateTime;
+  credentialUpdatedAt: IsoDateTime | null;
+}
+
 /** Sealed provider/model identity for one MODEL_RUNTIME teammate. Credentials may rotate. */
 export interface TeammateModelBinding {
   teammateId: Id;
