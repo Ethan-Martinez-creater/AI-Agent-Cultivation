@@ -1,21 +1,38 @@
 .teammates-page .teammate-workspace {
   grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
   align-items: start;
-  gap: 20px;
+  gap: 0;
 }
 
 .teammates-page .teammate-list-card,
 .teammates-page .teammate-profile-card,
 .teammates-page .teammate-form {
-  border: 1px solid var(--border, #d9dee5);
-  border-radius: 16px;
-  background: var(--surface, #fff);
-  color: var(--text, #17212f);
-  box-shadow: 0 8px 24px rgb(31 41 55 / 4%);
+  color: var(--ink);
 }
 
 .teammates-page .teammate-list-card {
-  padding: 16px 12px;
+  min-height: 100%;
+  padding: 16px 16px 16px 0;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.teammates-page .teammate-profile-card {
+  padding: 0 0 0 20px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.teammates-page .teammate-form {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: none;
 }
 
 .teammates-page .teammate-list-card .list-heading {
@@ -45,8 +62,8 @@
 }
 
 .teammate-roster-row.selected {
-  border-color: #cfe1f8;
-  background: #edf5ff;
+  border-color: var(--line-strong);
+  background: var(--accent-soft);
 }
 
 .teammate-roster-select {
@@ -69,7 +86,7 @@
 }
 
 .teammate-roster-select:focus-visible {
-  outline: 2px solid #4593ec;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -87,12 +104,12 @@
 }
 
 .teammate-roster-copy strong {
-  font-size: 14px;
+  font-size: var(--font-body);
 }
 
 .teammate-roster-copy small {
-  color: var(--muted, #667085);
-  font-size: 12px;
+  color: var(--muted);
+  font-size: var(--font-caption);
 }
 
 .teammate-roster-row .availability-control {
@@ -106,6 +123,17 @@
   height: 9px;
 }
 
+.human-roster-status {
+  display: inline-flex;
+  justify-content: center;
+  width: 14px;
+}
+
+.human-roster-status .availability-dot {
+  width: 9px;
+  height: 9px;
+}
+
 .teammate-empty-list {
   display: grid;
   justify-items: start;
@@ -115,7 +143,7 @@
 
 .teammate-empty-list p {
   margin: 0;
-  color: var(--muted, #667085);
+  color: var(--muted);
 }
 
 .teammate-profile-card {
@@ -130,7 +158,7 @@
   align-items: center;
   gap: 16px 20px;
   padding-bottom: 18px;
-  border-bottom: 1px solid var(--border, #e2e7ee);
+  border-bottom: 1px solid var(--line);
 }
 
 .teammate-profile-identity {
@@ -145,10 +173,14 @@
   margin: 0;
 }
 
+.teammate-profile-identity .profile-main h2 {
+  font-size: var(--font-title);
+}
+
 .teammate-profile-identity .profile-main p {
   margin-top: 4px;
-  color: var(--muted, #667085);
-  font-size: 13px;
+  color: var(--muted);
+  font-size: var(--font-body);
 }
 
 .teammate-profile-status {
@@ -197,10 +229,10 @@
   gap: 14px;
   width: min(360px, calc(100vw - 40px));
   padding: 14px;
-  border: 1px solid var(--border, #d9dee5);
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: var(--surface, #fff);
-  box-shadow: 0 12px 28px rgb(31 41 55 / 12%);
+  background: var(--surface);
+  box-shadow: 0 12px 28px rgb(23 33 46 / 12%);
 }
 
 .teammate-more-actions {
@@ -211,15 +243,15 @@
 
 .teammate-advanced-details,
 .teammate-benchmark-advanced {
-  border-top: 1px solid var(--border, #e2e7ee);
+  border-top: 1px solid var(--line);
   padding-top: 10px;
 }
 
 .teammate-advanced-details > summary,
 .teammate-benchmark-advanced > summary,
 .teammate-secondary-view > summary {
-  color: var(--text, #17212f);
-  font-size: 13px;
+  color: var(--ink);
+  font-size: var(--font-section);
   font-weight: 600;
   cursor: pointer;
 }
@@ -241,8 +273,8 @@
 
 .teammate-advanced-details dt,
 .teammate-benchmark-advanced dt {
-  color: var(--muted, #667085);
-  font-size: 12px;
+  color: var(--muted);
+  font-size: var(--font-caption);
 }
 
 .teammate-advanced-details dd,
@@ -250,16 +282,16 @@
   min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
-  font-size: 12px;
+  font-size: var(--font-caption);
 }
 
 .teammate-advanced-details code,
 .teammate-benchmark-advanced code {
-  font-size: 11px;
+  font-size: var(--font-caption);
 }
 
 .teammate-secondary-view {
-  border-top: 1px solid var(--border, #e2e7ee);
+  border-top: 1px solid var(--line);
   padding-top: 14px;
 }
 
@@ -288,9 +320,9 @@
   display: grid;
   gap: 12px;
   padding: 18px;
-  border: 1px solid var(--border, #d9dee5);
+  border: 1px solid var(--line);
   border-radius: 14px;
-  background: var(--surface, #fff);
+  background: var(--surface);
 }
 
 .human-bridge-summary-heading {
@@ -306,8 +338,8 @@
 }
 
 .human-bridge-summary-heading span {
-  color: var(--muted, #667085);
-  font-size: 12px;
+  color: var(--muted);
+  font-size: var(--font-caption);
 }
 
 .human-capability-list {
@@ -319,23 +351,24 @@
 .human-capability-chip {
   padding: 6px 10px;
   border-radius: 999px;
-  background: #edf5ff;
-  color: #2666ad;
-  font-size: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--font-caption);
 }
 
 .human-bridge-summary-empty {
   margin: 0;
-  color: var(--muted, #667085);
-  font-size: 13px;
+  color: var(--muted);
+  font-size: var(--font-body);
 }
 
 .teammates-page .teammate-benchmark-panel {
   margin: 0;
-  padding: 18px;
-  border: 1px solid var(--border, #d9dee5);
-  border-radius: 14px;
-  background: var(--surface, #fff);
+  padding: 16px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
 }
 
 .teammates-page .teammate-benchmark-panel .section-heading {
@@ -356,7 +389,7 @@
 }
 
 .teammate-benchmark-row > strong {
-  font-size: 13px;
+  font-size: var(--font-body);
   font-weight: 500;
 }
 
@@ -367,33 +400,33 @@
   border: 0;
   border-radius: 999px;
   appearance: none;
-  background: #e9edf2;
+  background: var(--surface-soft);
 }
 
 .teammate-benchmark-row progress::-webkit-progress-bar {
   border-radius: 999px;
-  background: #e9edf2;
+  background: var(--surface-soft);
 }
 
 .teammate-benchmark-row progress::-webkit-progress-value {
   border-radius: 999px;
-  background: #398bea;
+  background: var(--accent);
 }
 
 .teammate-benchmark-row progress::-moz-progress-bar {
   border-radius: 999px;
-  background: #398bea;
+  background: var(--accent);
 }
 
 .teammate-benchmark-score {
   text-align: right;
-  font-size: 13px;
+  font-size: var(--font-body);
   font-variant-numeric: tabular-nums;
 }
 
 .teammate-benchmark-score small {
-  color: var(--muted, #667085);
-  font-size: 10px;
+  color: var(--muted);
+  font-size: var(--font-caption);
 }
 
 .teammate-benchmark-advanced {
@@ -403,12 +436,24 @@
 @media (max-width: 900px) {
   .teammates-page .teammate-workspace {
     grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .teammates-page .teammate-list-card {
+    min-height: auto;
+    padding: 0 0 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .teammates-page .teammate-profile-card {
+    padding: 0;
   }
 }
 
 @media (max-width: 560px) {
   .teammates-page .teammate-profile-card {
-    padding: 16px;
+    padding: 0;
   }
 
   .teammate-profile-header {

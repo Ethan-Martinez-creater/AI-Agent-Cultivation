@@ -222,11 +222,22 @@ export function TeammatesPage() {
                         <small>{modelLabel ?? '模型未配置'}</small>
                       </span>
                     </button>
-                    <AvailabilityBadge
-                      teammateId={teammate.id}
-                      recheck={false}
-                      compact
-                    />
+                    {teammate.executorKind === 'USER_BRIDGE' ? (
+                      <span
+                        className="human-roster-status"
+                        role="img"
+                        aria-label="可接收委托"
+                        title="可接收委托"
+                      >
+                        <span className="availability-dot available" aria-hidden="true" />
+                      </span>
+                    ) : (
+                      <AvailabilityBadge
+                        teammateId={teammate.id}
+                        recheck={false}
+                        compact
+                      />
+                    )}
                   </article>
                 );
               })}
