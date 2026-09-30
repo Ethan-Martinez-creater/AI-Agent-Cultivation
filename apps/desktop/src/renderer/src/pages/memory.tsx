@@ -52,6 +52,10 @@ export function MemoryPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    setNotice('');
+  }, [selectedTeammateId]);
+
+  useEffect(() => {
     void window.cultivation.teammates
       .list()
       .then((rows) => {

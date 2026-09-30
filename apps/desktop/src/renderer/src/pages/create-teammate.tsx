@@ -262,9 +262,6 @@ export function CreateTeammatePanel({
         identityPrompt: identity.identityPrompt.trim(),
         behaviorPrompt: identity.behaviorPrompt.trim(),
         currentRuntimeProfileId: activeRuntimeId,
-        executorKind: 'MODEL_RUNTIME',
-        routingPolicy: 'NORMAL',
-        systemKind: null,
       });
       await onCreated(created);
     } catch (cause) {

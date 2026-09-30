@@ -1,0 +1,322 @@
+[
+  {
+    "name": "01-home-empty-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "shell-logo-16.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "shell-logo-24.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "shell-logo-32.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "shell-logo-48.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "02-home-active-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "03-teammates-list-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "04-teammate-detail-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "05-create-teammate-identity-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "06-create-teammate-model-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "create-teammate-new-model-tested-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "create-teammate-new-model-confirm-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "07-party-detail-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "party-human-bridge-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "08-mission-detail-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "09-memory-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "10-settings-models-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "settings-credential-rotation-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "11-human-bridge-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "12-teammate-detail-1180.png",
+    "width": 1180,
+    "height": 780,
+    "innerWidth": 1180,
+    "innerHeight": 780,
+    "documentWidth": 1180,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "13-mission-detail-1180.png",
+    "width": 1180,
+    "height": 780,
+    "innerWidth": 1180,
+    "innerHeight": 780,
+    "documentWidth": 1180,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "14-home-900.png",
+    "width": 902,
+    "height": 602,
+    "innerWidth": 902,
+    "innerHeight": 602,
+    "documentWidth": 902,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "15-teammates-900.png",
+    "width": 902,
+    "height": 602,
+    "innerWidth": 902,
+    "innerHeight": 602,
+    "documentWidth": 902,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "16-settings-900.png",
+    "width": 902,
+    "height": 602,
+    "innerWidth": 902,
+    "innerHeight": 602,
+    "documentWidth": 902,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "settings-model-content-900.png",
+    "width": 902,
+    "height": 602,
+    "innerWidth": 902,
+    "innerHeight": 602,
+    "documentWidth": 902,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "chat-empty-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "chat-conversation-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "chat-streaming-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "chat-long-content-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "chat-unavailable-1440.png",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "documentWidth": 1440,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "chat-conversation-drawer-900.png",
+    "width": 902,
+    "height": 602,
+    "innerWidth": 902,
+    "innerHeight": 602,
+    "documentWidth": 902,
+    "placeholders": 0,
+    "unlabelled": []
+  },
+  {
+    "name": "chat-conversation-900.png",
+    "width": 902,
+    "height": 602,
+    "innerWidth": 902,
+    "innerHeight": 602,
+    "documentWidth": 902,
+    "placeholders": 0,
+    "unlabelled": []
+  }
+]

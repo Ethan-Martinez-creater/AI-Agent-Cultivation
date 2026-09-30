@@ -29,6 +29,41 @@ import type {
   MissionDetailView,
 } from '../ui-shared.js';
 
+/** Friendly labels for the default view; Advanced retains the original event identifiers. */
+function recentEventLabel(eventType: string): string {
+  const labels: Record<string, string> = {
+    'model.call_started': '开始调用模型',
+    'model.call_completed': '模型回复已完成',
+    'model.call_failed': '模型调用失败',
+    'collaboration.proposed': '提出协作请求',
+    'collaboration.approved': '协作已获批准',
+    'collaboration.denied': '协作请求已拒绝',
+    'collaboration.started': '道友开始协作',
+    'collaboration.completed': '道友完成协作',
+    'collaboration.failed': '协作未能完成',
+    'tool.call_started': '开始使用法宝',
+    'tool.execution_started': '开始使用法宝',
+    'tool.result': '收到法宝执行结果',
+    'approval.requested': '等待权限审批',
+    'approval.resolved': '权限审批已处理',
+    'usage.recorded': '用量已记录',
+    'run.completed': '本次历练完成',
+    'run.failed': '本次历练失败',
+    'run.started': '本次历练开始',
+    'run.interrupted': '本次执行已中断',
+    'external_work.accepted': '本尊交付已验收',
+    'external_work.submitted': '本尊已提交交付',
+  };
+  if (labels[eventType]) return labels[eventType];
+  if (eventType.startsWith('mission.state.'))
+    return missionStateLabel(eventType.slice('mission.state.'.length).toUpperCase());
+  if (eventType.startsWith('mission.')) {
+    const state = eventType.slice('mission.'.length).toUpperCase();
+    return state === 'CREATED' ? '历练已创建' : missionStateLabel(state);
+  }
+  return '执行记录已更新';
+}
+
 export function MissionPage() {
   const [missions, setMissions] = useState<MissionView[]>([]);
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
@@ -936,7 +971,13 @@ export function MissionPage() {
                             />
                             <div>
                               <strong>{teammateName(teammates, participant.teammateId)}</strong>
-                              <small>{safeLabel(participant.role)}</small>
+                              <small>
+                                {participant.role === 'COORDINATOR'
+                                  ? '队长'
+                                  : participant.role === 'REVIEWER'
+                                    ? '审查者'
+                                    : '成员'}
+                              </small>
                             </div>
                             {renderExecutorStatus(participant.teammateId)}
                           </article>
@@ -1158,7 +1199,7 @@ export function MissionPage() {
                         <span className="timeline-dot" />
                         <div className="timeline-card">
                           <div className="timeline-card-heading">
-                            <strong>{safeLabel(item.event.eventType)}</strong>
+                            <strong>{recentEventLabel(item.event.eventType)}</strong>
                             <time>{formatDate(item.time)}</time>
                           </div>
                           <div className="timeline-safe-meta">

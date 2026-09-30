@@ -1,0 +1,513 @@
+{
+  "runId": "2c80e8e2-be2d-4599-a93e-2bb95ef2d501",
+  "executablePath": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+  "userData": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501",
+  "screenshots": [
+    {
+      "name": "01-home-empty-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\01-home-empty-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/"
+    },
+    {
+      "name": "shell-logo-16.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\shell-logo-16.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "logoSize": 16
+    },
+    {
+      "name": "shell-logo-24.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\shell-logo-24.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "logoSize": 24
+    },
+    {
+      "name": "shell-logo-32.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\shell-logo-32.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "logoSize": 32
+    },
+    {
+      "name": "shell-logo-48.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\shell-logo-48.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "logoSize": 48
+    },
+    {
+      "name": "02-home-active-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\02-home-active-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/"
+    },
+    {
+      "name": "03-teammates-list-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\03-teammates-list-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/teammates"
+    },
+    {
+      "name": "04-teammate-detail-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\04-teammate-detail-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/teammates",
+      "teammate": "青岚 Smoke"
+    },
+    {
+      "name": "05-create-teammate-identity-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\05-create-teammate-identity-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/teammates",
+      "drawer": "identity"
+    },
+    {
+      "name": "06-create-teammate-model-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\06-create-teammate-model-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/teammates",
+      "drawer": "model"
+    },
+    {
+      "name": "create-teammate-new-model-tested-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\create-teammate-new-model-tested-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/teammates",
+      "drawer": "new-model-tested"
+    },
+    {
+      "name": "create-teammate-new-model-confirm-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\create-teammate-new-model-confirm-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/teammates",
+      "drawer": "new-model-confirm"
+    },
+    {
+      "name": "07-party-detail-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\07-party-detail-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/parties",
+      "party": "双人协作 Smoke"
+    },
+    {
+      "name": "party-human-bridge-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\party-human-bridge-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/parties",
+      "party": "本尊协作 Smoke"
+    },
+    {
+      "name": "08-mission-detail-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\08-mission-detail-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/missions",
+      "mission": "协作验收 Smoke"
+    },
+    {
+      "name": "09-memory-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\09-memory-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/memory",
+      "owner": "青岚 Smoke"
+    },
+    {
+      "name": "10-settings-models-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\10-settings-models-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/settings",
+      "tab": "模型配置"
+    },
+    {
+      "name": "settings-credential-rotation-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\settings-credential-rotation-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/settings",
+      "tab": "密钥凭据"
+    },
+    {
+      "name": "11-human-bridge-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\11-human-bridge-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/external-work"
+    },
+    {
+      "name": "12-teammate-detail-1180.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\12-teammate-detail-1180.png",
+      "viewport": {
+        "width": 1180,
+        "height": 780
+      },
+      "requestedSize": [1180, 780],
+      "route": "/teammates",
+      "teammate": "青岚 Smoke"
+    },
+    {
+      "name": "13-mission-detail-1180.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\13-mission-detail-1180.png",
+      "viewport": {
+        "width": 1180,
+        "height": 780
+      },
+      "requestedSize": [1180, 780],
+      "route": "/missions",
+      "mission": "协作验收 Smoke"
+    },
+    {
+      "name": "14-home-900.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\14-home-900.png",
+      "viewport": {
+        "width": 902,
+        "height": 602
+      },
+      "requestedSize": [900, 600],
+      "route": "/"
+    },
+    {
+      "name": "15-teammates-900.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\15-teammates-900.png",
+      "viewport": {
+        "width": 902,
+        "height": 602
+      },
+      "requestedSize": [900, 600],
+      "route": "/teammates"
+    },
+    {
+      "name": "16-settings-900.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\16-settings-900.png",
+      "viewport": {
+        "width": 902,
+        "height": 602
+      },
+      "requestedSize": [900, 600],
+      "route": "/settings",
+      "tab": "模型配置"
+    },
+    {
+      "name": "settings-model-content-900.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\settings-model-content-900.png",
+      "viewport": {
+        "width": 902,
+        "height": 602
+      },
+      "requestedSize": [900, 600],
+      "route": "/settings",
+      "tab": "模型配置",
+      "scrolledToModelForm": true
+    },
+    {
+      "name": "chat-empty-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\chat-empty-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/chat/07fd92f3-e8cc-4723-ab08-7b7f32ef2b94"
+    },
+    {
+      "name": "chat-conversation-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\chat-conversation-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/chat/07fd92f3-e8cc-4723-ab08-7b7f32ef2b94",
+      "conversationId": "persisted-after-visible-PING"
+    },
+    {
+      "name": "chat-streaming-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\chat-streaming-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/chat/07fd92f3-e8cc-4723-ab08-7b7f32ef2b94",
+      "streaming": true
+    },
+    {
+      "name": "chat-long-content-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\chat-long-content-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/chat/07fd92f3-e8cc-4723-ab08-7b7f32ef2b94",
+      "codeCharacters": 2062
+    },
+    {
+      "name": "chat-unavailable-1440.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\chat-unavailable-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "requestedSize": [1440, 900],
+      "route": "/chat/07fd92f3-e8cc-4723-ab08-7b7f32ef2b94",
+      "draftPreserved": true
+    },
+    {
+      "name": "chat-conversation-drawer-900.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\chat-conversation-drawer-900.png",
+      "viewport": {
+        "width": 902,
+        "height": 602
+      },
+      "requestedSize": [900, 600],
+      "route": "/chat/07fd92f3-e8cc-4723-ab08-7b7f32ef2b94",
+      "conversationDrawerOpen": true
+    },
+    {
+      "name": "chat-conversation-900.png",
+      "path": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\r3-3-ui-2c80e8e2-be2d-4599-a93e-2bb95ef2d501\\screenshots\\chat-conversation-900.png",
+      "viewport": {
+        "width": 902,
+        "height": 602
+      },
+      "requestedSize": [900, 600],
+      "route": "/chat/07fd92f3-e8cc-4723-ab08-7b7f32ef2b94",
+      "conversationDrawerOpen": false,
+      "realReplyAfterExplicitRecovery": true
+    }
+  ],
+  "assertions": [
+    {
+      "name": "real-browser-window-size",
+      "requested": [1440, 900],
+      "actual": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "home-empty-single-primary-action"
+    },
+    {
+      "name": "packaged-shell-menu-brand-and-drag-regions",
+      "menuIsNull": true,
+      "brandCount": 1,
+      "productNameOccurrences": 1,
+      "sidebarText": "首页\n道友\n队伍\n历练\n记忆\n设置\n本地数据库正常\nv0.0.1\n收起导航",
+      "titlebarDrag": "drag",
+      "controlsDrag": "no-drag"
+    },
+    {
+      "name": "packaged-logo-renders-at-16-24-32-48-px"
+    },
+    {
+      "name": "sidebar-collapse-expand"
+    },
+    {
+      "name": "titlebar-minimize-maximize-restore"
+    },
+    {
+      "name": "fake-provider-fixtures-seeded",
+      "teammateIds": [
+        "07fd92f3-e8cc-4723-ab08-7b7f32ef2b94",
+        "3c587566-ca5a-4044-9dd5-13576ea6bb91"
+      ],
+      "runtimeId": "91c7c3b3-caa4-43cd-9e2c-8e3c2315f837",
+      "missionId": "ee4cf204-a1b0-4305-97a6-5901dce9f677"
+    },
+    {
+      "name": "native-avatar-import-and-safe-reference",
+      "avatar": "local:f3cee9d6-66fb-4128-9955-f44b43a47871.png",
+      "imagePrefix": "data:image/png;base64,"
+    },
+    {
+      "name": "embedded-provider-model-test-and-seal",
+      "teammateName": "紫檀 New Model Smoke",
+      "runtimeId": "a43cc51e-2e53-45f2-92d0-521fa0ca95fc",
+      "runtimeName": "r33-new-model-smoke",
+      "modelId": "r33-new-model-smoke",
+      "credentialBound": true,
+      "providerKind": "OPENAI_COMPATIBLE",
+      "endpoint": "http://127.0.0.1:9998/v1",
+      "credentialLabel": "r33-new-model-smoke API Key"
+    },
+    {
+      "name": "human-bridge-party-member-has-delegation-status-only"
+    },
+    {
+      "name": "visible-mission-approval-and-completion"
+    },
+    {
+      "name": "memory-owner-isolation-both-directions"
+    },
+    {
+      "name": "sealed-runtime-is-read-only",
+      "runtimeIds": ["410967ea-22a2-420f-90de-97b5b743c455", "a43cc51e-2e53-45f2-92d0-521fa0ca95fc"]
+    },
+    {
+      "name": "credential-rotation-ui-preserves-sealed-model-identity"
+    },
+    {
+      "name": "human-bridge-has-no-model-availability",
+      "badges": 0,
+      "recheckButtons": 0
+    },
+    {
+      "name": "real-browser-window-size",
+      "requested": [1180, 780],
+      "actual": {
+        "width": 1180,
+        "height": 780
+      }
+    },
+    {
+      "name": "real-browser-window-size",
+      "requested": [1180, 780],
+      "actual": {
+        "width": 1180,
+        "height": 780
+      }
+    },
+    {
+      "name": "real-browser-window-size",
+      "requested": [900, 600],
+      "actual": {
+        "width": 902,
+        "height": 602
+      }
+    },
+    {
+      "name": "real-browser-window-size",
+      "requested": [1440, 900],
+      "actual": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "visible-chat-ping-pong-and-object-avatars",
+      "conversationId": "9d661f23-31cb-4492-9644-4780f2f59551",
+      "assistantAvatar": true,
+      "userAvatar": true
+    },
+    {
+      "name": "streaming-state-keeps-avatar-name-and-composer-visible",
+      "fixture": "real-IPC-first-delta-barrier",
+      "releasedEvents": 1701
+    },
+    {
+      "name": "safe-code-render-horizontal-container-and-typed-copy",
+      "documentWidth": 1440,
+      "innerWidth": 1440,
+      "codeScrollWidth": 11742,
+      "codeClientWidth": 610
+    },
+    {
+      "name": "archived-chat-does-not-probe-or-send",
+      "availabilityStatus": "AVAILABLE",
+      "eventCount": 0
+    },
+    {
+      "name": "titlebar-close"
+    },
+    {
+      "name": "local-avatar-survives-packaged-app-restart"
+    },
+    {
+      "name": "real-browser-window-size",
+      "requested": [1440, 900],
+      "actual": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "name": "unavailable-chat-keeps-draft-and-explicit-recovery-only"
+    },
+    {
+      "name": "real-browser-window-size",
+      "requested": [900, 600],
+      "actual": {
+        "width": 902,
+        "height": 602
+      }
+    },
+    {
+      "name": "chat-900-drawer-toggles-with-composer-available"
+    },
+    {
+      "name": "titlebar-close"
+    }
+  ]
+}

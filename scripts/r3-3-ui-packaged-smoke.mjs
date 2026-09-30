@@ -330,6 +330,28 @@ try {
       });
     const a = await createTeammate('青岚 Smoke', 'preset:02');
     const b = await createTeammate('明衡 Smoke', 'preset:07');
+    await api.capability.saveBenchmark({
+      runtimeProfileId: a.currentRuntimeProfileId,
+      modelAlias: runtime.modelId,
+      dimension: 'CODING',
+      supported: true,
+      normalizedScore: 86,
+      rawScore: null,
+      source: 'R3.3 deterministic visual fixture',
+      benchmark: 'UI acceptance fixture (not a real benchmark)',
+      benchmarkVersion: '1',
+      snapshotDate: '2026-09-30T00:00:00.000Z',
+      sourceUrl: null,
+      provenanceType: 'USER_ESTIMATE',
+    });
+    const skill = await api.skills.create({
+      name: '结构化分析',
+      description: '产品验收用声明式 Skill。',
+      instructions: '先整理要点，再给出简明结论。',
+      tags: ['analysis'],
+    });
+    await api.skills.assign({ teammateId: a.id, skillId: skill.id });
+    await api.skills.setEnabled({ teammateId: a.id, skillId: skill.id, enabled: true });
     const humanBridge = (await api.teammates.list()).find(
       (item) => item.executorKind === 'USER_BRIDGE' || item.systemKind === 'HUMAN_BRIDGE',
     );
@@ -416,17 +438,16 @@ try {
   });
   await createPanel.getByRole('button', { name: '继续选择模型' }).click();
   await createPanel.getByRole('heading', { name: '为 玄照 Upload Smoke 选择模型' }).waitFor();
-  await createPanel.getByRole('radio', { name: /r33-fixed-smoke-model/ }).check();
+  await createPanel
+    .locator(`input[name="existing-runtime"][value="${fixtures.runtime.id}"]`)
+    .check();
   await pageMetrics(page);
   await capture(page, '06-create-teammate-model-1440.png', 1440, 900, {
     route: '/teammates',
     drawer: 'model',
   });
   await createPanel.getByRole('button', { name: '测试连接', exact: true }).click();
-  await createPanel
-    .getByRole('status')
-    .filter({ hasText: 'Fake model connection succeeded.' })
-    .waitFor();
+  await createPanel.getByRole('status').filter({ hasText: '连接成功' }).waitFor();
   await createPanel.getByRole('button', { name: '确认资料' }).click();
   await createPanel.getByRole('heading', { name: '检查道友资料' }).waitFor();
   await createPanel.getByRole('button', { name: '确认并创建道友' }).click();
@@ -463,7 +484,7 @@ try {
   await createPanel.getByRole('button', { name: '继续选择模型' }).click();
   await createPanel.getByRole('heading', { name: '为 紫檀 New Model Smoke 选择模型' }).waitFor();
   await createPanel.getByRole('button', { name: '添加新模型', exact: true }).click();
-  await createPanel.getByLabel('Provider 类型', { exact: true }).selectOption('OPENAI_COMPATIBLE');
+  await createPanel.getByLabel('Provider 类型').selectOption('OPENAI_COMPATIBLE');
   await createPanel
     .getByLabel('Endpoint（兼容服务需要）', { exact: true })
     .fill('http://127.0.0.1:9998/v1');
@@ -478,10 +499,7 @@ try {
   assert.equal(await app.evaluate(({ clipboard }) => clipboard.readText()), '');
   assert.doesNotMatch(await page.locator('body').innerText(), new RegExp(smokeApiKey));
   await createPanel.getByRole('button', { name: '测试连接', exact: true }).click();
-  await createPanel
-    .getByRole('status')
-    .filter({ hasText: 'Fake model connection succeeded.' })
-    .waitFor();
+  await createPanel.getByRole('status').filter({ hasText: '连接成功' }).waitFor();
   await capture(page, 'create-teammate-new-model-tested-1440.png', 1440, 900, {
     route: '/teammates',
     drawer: 'new-model-tested',
@@ -558,6 +576,7 @@ try {
   recordAssertion('human-bridge-party-member-has-delegation-status-only');
 
   await navigateUi(page, '历练 Missions');
+  await page.getByRole('tab', { name: /^全部\s*\d/ }).click();
   await page
     .locator('button.mission-list-item')
     .filter({ hasText: fixtures.mission.title })
@@ -579,9 +598,9 @@ try {
   recordAssertion('visible-mission-approval-and-completion');
 
   await navigateUi(page, '记忆 Memory');
-  const memoryOwner = page.getByLabel('记忆所属道友', { exact: true });
+  const memoryOwner = page.getByLabel('记忆所属道友');
   await memoryOwner.selectOption(fixtures.a.id);
-  await page.getByRole('button', { name: '新增记忆', exact: true }).click();
+  await page.getByRole('button', { name: '新增记忆', exact: true }).first().click();
   await page.getByLabel('摘要', { exact: true }).fill('青岚的私有记忆');
   await page.getByLabel('内容', { exact: true }).fill('R33_A_PRIVATE_MEMORY');
   await page.getByRole('button', { name: '保存记忆', exact: true }).click();
@@ -593,7 +612,7 @@ try {
     0,
     'A teammate private memory must not appear in B scope.',
   );
-  await page.getByRole('button', { name: '新增记忆', exact: true }).click();
+  await page.getByRole('button', { name: '新增记忆', exact: true }).first().click();
   await page.getByLabel('摘要', { exact: true }).fill('明衡的私有记忆');
   await page.getByLabel('内容', { exact: true }).fill('R33_B_PRIVATE_MEMORY');
   await page.getByRole('button', { name: '保存记忆', exact: true }).click();
@@ -644,6 +663,49 @@ try {
     runtimeIds: [boundRuntimeId, createdNewModelRuntimeId],
   });
 
+  const rotationIdentity = await page.evaluate(async (id) => {
+    const api = window.cultivation;
+    const runtime = (await api.runtimes.list()).find((row) => row.id === id);
+    const provider = (await api.providers.list()).find((row) => row.id === runtime.providerId);
+    return {
+      runtimeId: runtime.id,
+      providerId: runtime.providerId,
+      credentialId: runtime.credentialId,
+      modelId: runtime.modelId,
+      providerKind: provider.kind,
+      endpoint: provider.baseUrl,
+    };
+  }, createdNewModelRuntimeId);
+  await page.getByRole('tab', { name: '密钥凭据', exact: true }).click();
+  await app.evaluate(({ clipboard }) => clipboard.writeText('r33-rotated-fake-key-main-only'));
+  await page
+    .locator('.data-row')
+    .filter({ hasText: 'r33-new-model-smoke API Key' })
+    .getByRole('button', { name: '轮换 Key', exact: true })
+    .click();
+  await page.getByRole('status').filter({ hasText: 'API Key 已轮换' }).waitFor();
+  assert.equal(await app.evaluate(({ clipboard }) => clipboard.readText()), '');
+  assert.ok(!(await page.locator('body').innerText()).includes('r33-rotated-fake-key-main-only'));
+  const afterRotation = await page.evaluate(async (id) => {
+    const api = window.cultivation;
+    const runtime = (await api.runtimes.list()).find((row) => row.id === id);
+    const provider = (await api.providers.list()).find((row) => row.id === runtime.providerId);
+    return {
+      runtimeId: runtime.id,
+      providerId: runtime.providerId,
+      credentialId: runtime.credentialId,
+      modelId: runtime.modelId,
+      providerKind: provider.kind,
+      endpoint: provider.baseUrl,
+    };
+  }, createdNewModelRuntimeId);
+  assert.deepEqual(afterRotation, rotationIdentity);
+  recordAssertion('credential-rotation-ui-preserves-sealed-model-identity');
+  await capture(page, 'settings-credential-rotation-1440.png', 1440, 900, {
+    route: '/settings',
+    tab: '密钥凭据',
+  });
+
   await navigateUi(page, '本尊待办 Human Bridge');
   await page.getByRole('heading', { name: '本尊待办', exact: true }).waitFor();
   const humanBridgeAvailability = await page.locator('main').evaluate((main) => ({
@@ -667,6 +729,7 @@ try {
   });
 
   await navigateUi(page, '历练 Missions');
+  await page.getByRole('tab', { name: /^全部\s*\d/ }).click();
   await page
     .locator('button.mission-list-item')
     .filter({ hasText: fixtures.mission.title })
@@ -694,6 +757,12 @@ try {
     route: '/settings',
     tab: '模型配置',
   });
+  await page.getByRole('button', { name: '创建模型配置', exact: true }).scrollIntoViewIfNeeded();
+  await capture(page, 'settings-model-content-900.png', 900, 600, {
+    route: '/settings',
+    tab: '模型配置',
+    scrolledToModelForm: true,
+  });
 
   await setWindowSize(app, page, 1440, 900);
   await navigateUi(page, '道友 Teammates');
@@ -709,7 +778,7 @@ try {
   await page.locator('[data-testid="empty-conversation"]').waitFor();
   await page.getByLabel('写消息', { exact: true }).waitFor();
   await sendChatText(page, 'PING');
-  await page.getByText('PONG', { exact: true }).waitFor();
+  await page.getByTestId('message-stream').getByText('PONG', { exact: true }).waitFor();
   await waitForChatIdle(page);
   const chatMessages = await page.locator('[data-testid="message-stream"]').evaluate((stream) => ({
     assistantAvatar: Boolean(
@@ -730,6 +799,33 @@ try {
   conversationId = conversationRows[0].id;
   recordAssertion('visible-chat-ping-pong-and-object-avatars', { conversationId, ...chatMessages });
 
+  // The deterministic Fake gateway finishes in one microtask burst. Hold only
+  // this request's real IPC events after its first delta so the genuine Renderer
+  // streaming view can be captured; do not manufacture message/DOM content.
+  await app.evaluate(({ BrowserWindow }) => {
+    const contents = BrowserWindow.getAllWindows()[0].webContents;
+    const originalSend = contents.send;
+    const queued = [];
+    let heldRequestId;
+    contents.send = function (channel, ...args) {
+      const payload = args[0];
+      if (channel === 'chat:event' && payload?.type === 'delta' && !heldRequestId) {
+        heldRequestId = payload.requestId;
+        return originalSend.call(this, channel, ...args);
+      }
+      if (channel === 'chat:event' && payload?.requestId === heldRequestId) {
+        queued.push([channel, ...args]);
+        return;
+      }
+      return originalSend.call(this, channel, ...args);
+    };
+    globalThis.__r33ReleaseChatEvents = () => {
+      contents.send = originalSend;
+      for (const [channel, ...args] of queued) originalSend.call(contents, channel, ...args);
+      delete globalThis.__r33ReleaseChatEvents;
+      return queued.length;
+    };
+  });
   const streamPrompt = `保留回复自然流动：${Array.from({ length: 850 }, (_, index) => `片段${index + 1}`).join(' ')}`;
   await page.evaluate(() => {
     window.__r33FirstDelta = new Promise((resolve) => {
@@ -752,8 +848,13 @@ try {
     route: `/chat/${fixtures.a.id}`,
     streaming: true,
   });
+  const releasedEvents = await app.evaluate(() => globalThis.__r33ReleaseChatEvents());
+  assert.ok(releasedEvents > 1, 'Real delta and terminal IPC events must be released in order.');
   await waitForChatIdle(page);
-  recordAssertion('streaming-state-keeps-avatar-name-and-composer-visible');
+  recordAssertion('streaming-state-keeps-avatar-name-and-composer-visible', {
+    fixture: 'real-IPC-first-delta-barrier',
+    releasedEvents,
+  });
 
   const codeBody = [
     'type SmokeRecord = { id: string; owner: "teammate"; content: string };',
@@ -930,6 +1031,21 @@ try {
     .locator('.teammate-profile')
     .getByRole('button', { name: '重新检测', exact: true })
     .click();
+  await restartedPage.waitForFunction(
+    (id) =>
+      window.cultivation.availability
+        .list()
+        .then(
+          (rows) =>
+            rows.find((row) => row.teammateId === id)?.recentOutcomes.at(-1)?.kind === 'SUCCESS',
+        ),
+    fixtures.a.id,
+  );
+  // Preserve R3.2's two-success recovery policy after a hard failure.
+  await restartedPage
+    .locator('.teammate-profile')
+    .getByRole('button', { name: '重新检测', exact: true })
+    .click();
   await restartedPage.locator('.teammate-profile [data-availability="AVAILABLE"]').waitFor();
   recordAssertion('unavailable-chat-keeps-draft-and-explicit-recovery-only');
 
@@ -940,7 +1056,7 @@ try {
   await restartedPage.locator('[data-testid="conversation-list"].is-open').waitFor();
   await restartedPage.getByLabel('写消息', { exact: true }).waitFor();
   await pageMetrics(restartedPage);
-  await capture(restartedPage, 'chat-conversation-900.png', 900, 600, {
+  await capture(restartedPage, 'chat-conversation-drawer-900.png', 900, 600, {
     route: `/chat/${fixtures.a.id}`,
     conversationDrawerOpen: true,
   });
@@ -948,6 +1064,19 @@ try {
   await restartedPage.locator('[data-testid="conversation-list"]:not(.is-open)').waitFor();
   assert.equal(await restartedPage.getByLabel('写消息', { exact: true }).isVisible(), true);
   recordAssertion('chat-900-drawer-toggles-with-composer-available');
+  await sendChatText(restartedPage, 'PING');
+  await restartedPage
+    .getByTestId('message-stream')
+    .getByText('PONG', { exact: true })
+    .last()
+    .waitFor();
+  await waitForChatIdle(restartedPage);
+  await pageMetrics(restartedPage);
+  await capture(restartedPage, 'chat-conversation-900.png', 900, 600, {
+    route: `/chat/${fixtures.a.id}`,
+    conversationDrawerOpen: false,
+    realReplyAfterExplicitRecovery: true,
+  });
 
   await closeWithTitlebar(app, restartedPage);
   try {

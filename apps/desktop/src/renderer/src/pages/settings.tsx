@@ -30,7 +30,6 @@ export function SettingsPage() {
   const [error, setError] = useState('');
 
   const refresh = async () => {
-    setLoading(true);
     setError('');
     try {
       const [providerRows, credentialRows, runtimeRows, embedding, teammateRows] =
