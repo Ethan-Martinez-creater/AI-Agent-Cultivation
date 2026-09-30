@@ -181,6 +181,15 @@ export class AiSdkModelAvailabilityProbe {
       });
 
       if (!response.ok) {
+        if (
+          runtime.kind === 'OPENAI_COMPATIBLE' &&
+          [400, 404, 405, 501].includes(response.status)
+        ) {
+          // Compatible servers are not required to expose the standard model
+          // catalog endpoint. Its absence says nothing about whether a
+          // configured model can accept generation requests.
+          return { kind: 'TRANSIENT_FAILURE', code: 'MODEL_METADATA_UNAVAILABLE' };
+        }
         if (checkByList && response.status === 404) {
           return { kind: 'TRANSIENT_FAILURE', code: 'MODEL_METADATA_UNAVAILABLE' };
         }
@@ -193,6 +202,11 @@ export class AiSdkModelAvailabilityProbe {
         const returnedId = payload?.id ?? payload?.name;
         if (typeof returnedId !== 'string') {
           return { kind: 'TRANSIENT_FAILURE', code: 'MODEL_METADATA_UNAVAILABLE' };
+        }
+        if (runtime.kind === 'ANTHROPIC' && payload?.type === 'model') {
+          // Anthropic's Get-a-Model endpoint accepts aliases and returns the
+          // canonical model id, so a different id is still a successful lookup.
+          return { kind: 'SUCCESS', code: 'MODEL_AVAILABLE' };
         }
         if (returnedId === modelId || returnedId === `models/${modelId}`) {
           return { kind: 'SUCCESS', code: 'MODEL_AVAILABLE' };

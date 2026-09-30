@@ -44,7 +44,10 @@ describe('AiSdkModelAvailabilityProbe', () => {
           const request = new Request(input, init);
           seen.push(request);
           const id = kind === 'GOOGLE' ? 'models/gemini-test' : 'fixture-model';
-          return jsonResponse({ [modelField]: id });
+          return jsonResponse({
+            [modelField]: id,
+            ...(kind === 'ANTHROPIC' ? { type: 'model' } : {}),
+          });
         },
       });
 
@@ -108,14 +111,64 @@ describe('AiSdkModelAvailabilityProbe', () => {
     });
   });
 
-  it('does not assume a compatible server with no model-list endpoint lacks the model', async () => {
-    const probe = new AiSdkModelAvailabilityProbe(async () => runtime('OPENAI_COMPATIBLE'), {
-      fetch: async () => new Response('route not found', { status: 404 }),
-    });
+  it('accepts Anthropic model aliases resolved to a canonical model id', async () => {
+    let requestedUrl: string | undefined;
+    const probe = new AiSdkModelAvailabilityProbe(
+      async () => runtime('ANTHROPIC', { modelId: 'claude-latest-alias' }),
+      {
+        fetch: async (input) => {
+          requestedUrl = String(input);
+          return jsonResponse({ id: 'claude-canonical-model', type: 'model' });
+        },
+      },
+    );
 
     await expect(probe.probe('runtime-1')).resolves.toEqual({
-      kind: 'TRANSIENT_FAILURE',
-      code: 'MODEL_METADATA_UNAVAILABLE',
+      kind: 'SUCCESS',
+      code: 'MODEL_AVAILABLE',
+    });
+    expect(requestedUrl).toBe('https://provider.example/v1/models/claude-latest-alias');
+  });
+
+  it.each([400, 404, 405, 501])(
+    'does not infer model unavailability from compatible metadata HTTP %s',
+    async (status) => {
+      const probe = new AiSdkModelAvailabilityProbe(async () => runtime('OPENAI_COMPATIBLE'), {
+        fetch: async () => new Response('metadata route unavailable', { status }),
+      });
+
+      await expect(probe.probe('runtime-1')).resolves.toEqual({
+        kind: 'TRANSIENT_FAILURE',
+        code: 'MODEL_METADATA_UNAVAILABLE',
+      });
+    },
+  );
+
+  it.each([401, 403])(
+    'keeps compatible metadata authentication HTTP %s as a hard failure',
+    async (status) => {
+      const probe = new AiSdkModelAvailabilityProbe(async () => runtime('OPENAI_COMPATIBLE'), {
+        fetch: async () => new Response('sensitive auth response', { status }),
+      });
+
+      await expect(probe.probe('runtime-1')).resolves.toEqual({
+        kind: 'HARD_FAILURE',
+        code: 'AUTHENTICATION_REJECTED',
+      });
+    },
+  );
+
+  it('still treats a complete valid compatible catalog that omits the configured model as hard unavailable', async () => {
+    const probe = new AiSdkModelAvailabilityProbe(
+      async () => runtime('OPENAI_COMPATIBLE', { modelId: 'missing-model' }),
+      {
+        fetch: async () => jsonResponse({ data: [{ id: 'available-model' }] }),
+      },
+    );
+
+    await expect(probe.probe('runtime-1')).resolves.toEqual({
+      kind: 'HARD_FAILURE',
+      code: 'MODEL_NOT_FOUND',
     });
   });
 
