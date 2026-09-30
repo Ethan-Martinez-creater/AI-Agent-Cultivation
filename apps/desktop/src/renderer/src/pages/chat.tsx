@@ -1,18 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AvailabilityBadge } from '.././r3-2-availability.js';
-import { errorText, makeId, PageHeading, formatDate, formatTime } from '../ui-shared.js';
+import { Avatar } from '../components/Avatar.js';
+import { Icon } from '../components/Icon.js';
+import { MessageContent } from '../components/MessageContent.js';
+import { AvailabilityBadge } from '../r3-2-availability.js';
+import { errorText, formatTime, makeId } from '../ui-shared.js';
 import type {
-  TeammateView,
   ConversationView,
   MessageView,
   RuntimeProfileView,
+  TeammateView,
 } from '../ui-shared.js';
+import './chat.css';
+
+type ActiveRequest = {
+  requestId: string | null;
+  teammateId: string;
+  conversationId: string;
+  pendingText: string;
+};
 
 export function ChatPage() {
+  const { teammateId = '' } = useParams();
+  const navigate = useNavigate();
   const [availabilityRefresh, setAvailabilityRefresh] = useState(0);
   const [modelUnavailable, setModelUnavailable] = useState(false);
-  const { teammateId = '' } = useParams();
+  const [recheckingAvailability, setRecheckingAvailability] = useState(false);
   const [teammate, setTeammate] = useState<TeammateView | null>(null);
   const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
   const [conversations, setConversations] = useState<ConversationView[]>([]);
@@ -27,18 +40,21 @@ export function ChatPage() {
   const [notice, setNotice] = useState('');
   const [extractingMessageId, setExtractingMessageId] = useState('');
   const [candidateReady, setCandidateReady] = useState(false);
-  const activeRequest = useRef<{
-    requestId: string | null;
-    teammateId: string;
-    conversationId: string;
-  }>({ requestId: null, teammateId, conversationId: '' });
-  const navigate = useNavigate();
+  const [conversationDrawerOpen, setConversationDrawerOpen] = useState(false);
+  const messageStreamRef = useRef<HTMLDivElement>(null);
+  const activeRequest = useRef<ActiveRequest>({
+    requestId: null,
+    teammateId,
+    conversationId: '',
+    pendingText: '',
+  });
 
   const refreshConversations = async (forTeammateId: string) => {
     const rows = await window.cultivation.chat.listConversations(forTeammateId);
     setConversations(rows);
     return rows;
   };
+
   const refreshMessages = async (forTeammateId: string, forConversationId: string) => {
     const rows = await window.cultivation.chat.listMessages({
       teammateId: forTeammateId,
@@ -54,12 +70,17 @@ export function ChatPage() {
     let cancelled = false;
     setLoading(true);
     setError('');
+    setNotice('');
     setConversationId('');
+    setConversations([]);
     setMessages([]);
+    setDraft('');
     setStreaming(false);
     setStreamText('');
     setPendingUserText('');
-    activeRequest.current = { requestId: null, teammateId, conversationId: '' };
+    setModelUnavailable(false);
+    activeRequest.current = { requestId: null, teammateId, conversationId: '', pendingText: '' };
+
     void Promise.all([
       window.cultivation.teammates.list(),
       window.cultivation.chat.listConversations(teammateId),
@@ -77,6 +98,7 @@ export function ChatPage() {
           requestId: null,
           teammateId,
           conversationId: initialConversationId,
+          pendingText: '',
         };
         if (initialConversationId) {
           void window.cultivation.chat
@@ -95,6 +117,7 @@ export function ChatPage() {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
@@ -109,20 +132,24 @@ export function ChatPage() {
         active.conversationId !== event.conversationId
       )
         return;
+
       if (event.type === 'delta') {
         setStreamText((current) => current + (event.text ?? ''));
         return;
       }
+
       if (event.type === 'error') {
         setModelUnavailable(event.code === 'MODEL_UNAVAILABLE');
         setAvailabilityRefresh((current) => current + 1);
-        setError(event.message || '生成回复失败。');
+        setError(event.message || '发送失败，请稍后重试。');
+        setDraft((current) => current || active.pendingText);
         setStreaming(false);
         setPendingUserText('');
         setStreamText('');
-        activeRequest.current = { ...active, requestId: null };
+        activeRequest.current = { ...active, requestId: null, pendingText: '' };
         return;
       }
+
       if (event.assistantMessage) {
         setModelUnavailable(false);
         setAvailabilityRefresh((current) => current + 1);
@@ -135,28 +162,40 @@ export function ChatPage() {
       setStreaming(false);
       setPendingUserText('');
       setStreamText('');
-      activeRequest.current = { ...active, requestId: null };
+      activeRequest.current = { ...active, requestId: null, pendingText: '' };
       void refreshMessages(event.teammateId, event.conversationId).catch(() => undefined);
+      void refreshConversations(event.teammateId).catch(() => undefined);
     });
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    const stream = messageStreamRef.current;
+    if (stream) stream.scrollTop = stream.scrollHeight;
+  }, [messages, pendingUserText, streamText, conversationId]);
+
   const selectConversation = async (id: string) => {
-    activeRequest.current = { requestId: null, teammateId, conversationId: id };
+    activeRequest.current = { requestId: null, teammateId, conversationId: id, pendingText: '' };
     setConversationId(id);
     setMessages([]);
+    setDraft('');
     setStreaming(false);
     setError('');
+    setNotice('');
     setStreamText('');
     setPendingUserText('');
+    setModelUnavailable(false);
     setCandidateReady(false);
+    setConversationDrawerOpen(false);
     try {
       await refreshMessages(teammateId, id);
     } catch (cause) {
       setError(errorText(cause, '读取消息失败。'));
     }
   };
+
   const createConversation = async () => {
+    if (!teammate || teammate.status !== 'ACTIVE' || isHumanBridge(teammate)) return;
     setError('');
     setNotice('');
     setCandidateReady(false);
@@ -165,25 +204,35 @@ export function ChatPage() {
       const rows = await refreshConversations(teammateId);
       setConversationId(created.id);
       setMessages([]);
+      setDraft('');
       setStreaming(false);
-      activeRequest.current = { requestId: null, teammateId, conversationId: created.id };
-      setNotice(`已创建 Conversation ${created.id.slice(0, 8)}。`);
+      setStreamText('');
+      setPendingUserText('');
+      activeRequest.current = {
+        requestId: null,
+        teammateId,
+        conversationId: created.id,
+        pendingText: '',
+      };
       if (!rows.some((item) => item.id === created.id))
         setConversations((current) => [created, ...current]);
     } catch (cause) {
       setError(errorText(cause, '创建对话失败。'));
     }
   };
+
   const send = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const text = draft.trim();
-    if (!text || !conversationId || !teammate || streaming || teammate.status !== 'ACTIVE') return;
+    if (!text || !conversationId || !teammate || !canChat(teammate) || streaming) return;
+
     const requestId = makeId();
-    activeRequest.current = { requestId, teammateId, conversationId };
+    activeRequest.current = { requestId, teammateId, conversationId, pendingText: text };
     setDraft('');
     setError('');
     setNotice('');
     setCandidateReady(false);
+    setModelUnavailable(false);
     setPendingUserText(text);
     setStreamText('');
     setStreaming(true);
@@ -198,11 +247,13 @@ export function ChatPage() {
         throw new Error('消息上下文校验失败，请重试。');
       }
     } catch (cause) {
-      if (activeRequest.current.requestId !== requestId) return;
-      activeRequest.current = { requestId: null, teammateId, conversationId };
+      const active = activeRequest.current;
+      if (active.requestId !== requestId) return;
+      activeRequest.current = { ...active, requestId: null, pendingText: '' };
       setStreaming(false);
       setPendingUserText('');
       setStreamText('');
+      setDraft((current) => current || text);
       setError(errorText(cause, '发送消息失败。'));
     }
   };
@@ -222,8 +273,8 @@ export function ChatPage() {
       setCandidateReady(candidates.length > 0);
       setNotice(
         candidates.length > 0
-          ? `已为 ${teammate.name} 创建 ${candidates.length} 条待确认的记忆候选。`
-          : '未发现值得保存的长期记忆。',
+          ? `已为${teammate.name}整理出 ${candidates.length} 条记忆候选，确认后才会保存。`
+          : '这条消息里没有需要长期保存的内容。',
       );
     } catch (cause) {
       setError(errorText(cause, '提取记忆候选失败；当前对话不受影响。'));
@@ -232,243 +283,526 @@ export function ChatPage() {
     }
   };
 
+  const recheckAvailability = async () => {
+    if (!teammate || !canRecheckAvailability(teammate)) return;
+    setRecheckingAvailability(true);
+    setError('');
+    try {
+      await window.cultivation.availability.recheck(teammate.id);
+      setAvailabilityRefresh((current) => current + 1);
+      setModelUnavailable(false);
+    } catch (cause) {
+      setError(errorText(cause, '检测失败，请稍后重试。'));
+    } finally {
+      setRecheckingAvailability(false);
+    }
+  };
+
+  const currentRuntime = teammate?.currentRuntimeProfileId
+    ? runtimes.find((item) => item.id === teammate.currentRuntimeProfileId)
+    : undefined;
+  const humanBridge = teammate ? isHumanBridge(teammate) : false;
+  const activeSummary = summarizeMessages(messages);
+  const noConversation = conversations.length === 0;
+
   if (!loading && !teammate) {
     return (
-      <section className="page">
-        <PageHeading
-          eyebrow="单道友 Conversation"
-          title="找不到道友"
-          description="此道友可能已删除或 ID 不存在。"
-        />
-        <p role="alert">道友不存在或当前无法读取，请返回列表重试。</p>
-        <button className="button secondary" onClick={() => navigate('/teammates')}>
-          返回道友列表
-        </button>
+      <section className="r33-chat-page r33-chat-not-found" data-testid="chat-page">
+        <div className="r33-not-found-panel">
+          <Icon name="User" size={30} />
+          <h1>找不到这位道友</h1>
+          <p>此道友可能已删除，或暂时无法读取。</p>
+          <button className="button secondary" onClick={() => navigate('/teammates')}>
+            返回道友列表
+          </button>
+        </div>
       </section>
     );
   }
-  const runtimeBadge =
-    teammate && teammate.currentRuntimeProfileId
-      ? (runtimes.find((item) => item.id === teammate.currentRuntimeProfileId)?.modelId ??
-        '模型不可读取')
-      : '尚未配置 Runtime';
+
   return (
-    <section className="page wide-page chat-page">
-      <PageHeading
-        eyebrow="持续对话 · Conversation"
-        title={teammate?.name ?? '正在打开对话'}
-        description="这是道友的独立 Conversation，不属于 Mission；日常交流与任务执行分别保存。"
-      />
-      {teammate && (
-        <div className="chat-context">
-          <button className="back-link" onClick={() => navigate('/teammates')}>
-            ‹ 道友列表
-          </button>
-          <span className="chat-context-avatar">
-            {teammate.avatar || teammate.name.slice(0, 1)}
-          </span>
-          <div className="chat-context-copy">
-            <strong>{teammate.name}</strong>
-            <small>{runtimeBadge}</small>
+    <section className="r33-chat-page" data-testid="chat-page">
+      <header className="r33-chat-header" data-testid="chat-header">
+        <button
+          className="r33-back-button"
+          type="button"
+          aria-label="返回道友列表"
+          title="返回道友列表"
+          onClick={() => navigate('/teammates')}
+        >
+          <Icon name="ChevronLeft" size={18} />
+        </button>
+        {teammate && (
+          <Avatar
+            avatar={teammate.avatar}
+            name={teammate.name}
+            kind={humanBridge ? 'HUMAN_BRIDGE' : 'TEAMMATE'}
+            size={44}
+            className="r33-header-avatar"
+          />
+        )}
+        <div className="r33-chat-identity">
+          <strong>{teammate?.name ?? '正在打开对话'}</strong>
+          <div className="r33-chat-subtitle">
+            {humanBridge ? (
+              <span>本尊 · 外部工作待办</span>
+            ) : teammate?.status === 'ARCHIVED' ? (
+              <span className="r33-status-pill archived">已归档</span>
+            ) : (
+              <span className="r33-model-name">
+                {currentRuntime?.modelId ??
+                  (teammate?.currentRuntimeProfileId ? '模型不可读取' : '尚未配置模型')}
+              </span>
+            )}
           </div>
-          {teammate.status === 'ARCHIVED' && <span className="status-pill archived">已归档</span>}
-          {teammate.executorKind !== 'USER_BRIDGE' && (
+        </div>
+        {teammate && canRecheckAvailability(teammate) && (
+          <div className="r33-header-availability" key={`${teammate.id}:${availabilityRefresh}`}>
             <AvailabilityBadge
-              key={`${teammate.id}:${availabilityRefresh}`}
               teammateId={teammate.id}
+              teammateStatus={teammate.status}
+              executorKind={teammate.executorKind ?? 'MODEL_RUNTIME'}
+              recheck={!modelUnavailable}
+            />
+          </div>
+        )}
+        {teammate && !humanBridge && (
+          <button
+            className="r33-header-action"
+            type="button"
+            onClick={() => navigate('/teammates')}
+          >
+            查看道友
+          </button>
+        )}
+        {!humanBridge && (
+          <button
+            className="r33-mobile-list-toggle"
+            type="button"
+            aria-label={conversationDrawerOpen ? '收起对话列表' : '展开对话列表'}
+            aria-expanded={conversationDrawerOpen}
+            onClick={() => setConversationDrawerOpen((open) => !open)}
+          >
+            <Icon name="Panel" size={18} />
+            <span>对话</span>
+          </button>
+        )}
+      </header>
+
+      {humanBridge ? (
+        <div className="r33-human-bridge" data-testid="chat-human-bridge">
+          {teammate && (
+            <Avatar avatar={teammate.avatar} name={teammate.name} kind="HUMAN_BRIDGE" size={84} />
+          )}
+          <div className="r33-human-bridge-copy">
+            <span className="r33-kicker">本尊待办</span>
+            <h1>需要你处理的外部工作会在这里等你</h1>
+            <p>本尊不使用模型对话。收到委托后，可在待办中查看内容并提交处理结果。</p>
+            <button className="button primary" onClick={() => navigate('/external-work')}>
+              查看本尊待办 <Icon name="ArrowUp" size={16} />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="r33-chat-workspace">
+          {conversationDrawerOpen && (
+            <button
+              className="r33-drawer-backdrop"
+              type="button"
+              aria-label="关闭对话列表"
+              onClick={() => setConversationDrawerOpen(false)}
             />
           )}
-        </div>
-      )}
-      <div className="chat-shell">
-        <aside className="conversation-sidebar">
-          <div className="list-heading">
-            <div>
-              <h2>Conversation</h2>
-              <p>{conversations.length} 个会话</p>
-            </div>
-            <button
-              className="icon-button"
-              aria-label="新建 Conversation"
-              disabled={!teammate || teammate.status !== 'ACTIVE'}
-              onClick={() => void createConversation()}
-            >
-              ＋
-            </button>
-          </div>
-          {conversations.map((conversation) => (
-            <button
-              key={conversation.id}
-              className={`conversation-item ${conversation.id === conversationId ? 'selected' : ''}`}
-              onClick={() => void selectConversation(conversation.id)}
-            >
-              <strong>对话 {conversation.id.slice(0, 8)}</strong>
-              <small>{formatDate(conversation.updatedAt)}</small>
-            </button>
-          ))}
-          {!conversations.length && !loading && (
-            <p className="sidebar-empty">创建一个 Conversation，开始持续交流。</p>
-          )}
-        </aside>
-        <div className="chat-main">
-          <div className="message-list" aria-live="polite">
-            {loading ? (
-              <div className="chat-empty">正在读取会话…</div>
-            ) : !conversationId ? (
-              <div className="chat-empty">
-                <span className="empty-icon">◌</span>
-                <h3>开始一段独立对话</h3>
-                <p>
-                  Conversation 会归属于 {teammate?.name ?? '此道友'}，和未来的 Mission 分开保存。
-                </p>
-                {teammate?.status === 'ACTIVE' && (
-                  <button className="button primary" onClick={() => void createConversation()}>
-                    新建 Conversation
-                  </button>
-                )}
-              </div>
-            ) : messages.length === 0 && !pendingUserText ? (
-              <div className="chat-empty">
-                <span className="empty-icon">✦</span>
-                <h3>向 {teammate?.name ?? '道友'} 问好</h3>
-                <p>此会话的消息会持续保存，并始终归属于当前道友。</p>
-              </div>
-            ) : (
-              messages.map((message) => (
-                <MessageBubble
-                  key={message.id}
-                  message={message}
-                  onExtract={extractMemoryCandidate}
-                  extracting={extractingMessageId === message.id}
-                />
-              ))
-            )}
-            {pendingUserText && (
-              <div className="message-row user-message">
-                <div className="message-bubble">
-                  <p>{pendingUserText}</p>
-                  <small>发送中</small>
+          <aside
+            className={`r33-conversation-list ${conversationDrawerOpen ? 'is-open' : ''}`}
+            aria-label="对话列表"
+            data-testid="conversation-list"
+          >
+            <div className="r33-list-heading">
+              <div>
+                <div className="r33-list-title">
+                  <Icon name="Chat" size={17} />
+                  <h2>对话</h2>
                 </div>
+                <p>{conversations.length} 段交流</p>
               </div>
-            )}
-            {streaming && (
-              <div className="message-row assistant-message">
-                <span className="message-avatar">{teammate?.avatar || '友'}</span>
-                <div className="message-bubble">
-                  <p>{streamText || <span className="typing-indicator">正在思考…</span>}</p>
-                  <small>流式回复</small>
-                </div>
-              </div>
-            )}
-            <div id="message-bottom" />
-          </div>
-          {error && (
-            <div className="chat-error" role="alert">
-              {error}
-              {modelUnavailable && (
-                <span className="button-row compact">
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => navigate('/teammates')}
-                  >
-                    选择其他道友
-                  </button>
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => {
-                      setError('');
-                      setModelUnavailable(false);
-                    }}
-                  >
-                    取消
-                  </button>
-                </span>
-              )}
-            </div>
-          )}
-          {notice && (
-            <div className="chat-notice" role="status">
-              {notice}
-              {candidateReady && (
+              {conversations.length > 0 && (
                 <button
-                  className="text-button"
-                  onClick={() => navigate(`/memory?teammateId=${encodeURIComponent(teammateId)}`)}
+                  className="r33-icon-button"
+                  type="button"
+                  aria-label="开始新对话"
+                  title="开始新对话"
+                  disabled={!teammate || teammate.status !== 'ACTIVE' || streaming}
+                  onClick={() => void createConversation()}
                 >
-                  前往审核
+                  <Icon name="Add" size={18} />
                 </button>
               )}
             </div>
-          )}
-          <form className="composer" onSubmit={(event) => void send(event)}>
-            <label htmlFor="chat-message">消息</label>
-            <textarea
-              id="chat-message"
-              rows={3}
-              value={draft}
-              disabled={!conversationId || !teammate || teammate.status !== 'ACTIVE' || streaming}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  event.preventDefault();
-                  event.currentTarget.form?.requestSubmit();
-                }
-              }}
-            />
-            <div className="composer-footer">
-              <span>{streaming ? '正在接收回复…' : 'Enter 发送 · Shift+Enter 换行'}</span>
-              <button
-                className="button primary send-button"
-                disabled={
-                  !draft.trim() ||
-                  !conversationId ||
-                  !teammate ||
-                  teammate.status !== 'ACTIVE' ||
-                  streaming
-                }
-              >
-                {streaming ? '生成中…' : '发送'} <span aria-hidden="true">↗</span>
-              </button>
+            {conversations.length > 0 ? (
+              <div className="r33-conversation-items">
+                {conversations.map((conversation, index) => {
+                  const selected = conversation.id === conversationId;
+                  const summary =
+                    selected && activeSummary
+                      ? activeSummary
+                      : `对话 ${conversations.length - index}`;
+                  return (
+                    <button
+                      key={conversation.id}
+                      type="button"
+                      className={`r33-conversation-item ${selected ? 'is-selected' : ''}`}
+                      aria-current={selected ? 'true' : undefined}
+                      onClick={() => void selectConversation(conversation.id)}
+                    >
+                      <span className="r33-conversation-copy">
+                        <strong>{summary}</strong>
+                        <time dateTime={conversation.updatedAt}>
+                          {conversationTime(conversation.updatedAt)}
+                        </time>
+                      </span>
+                      {selected && <span className="r33-selected-mark" aria-hidden="true" />}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="r33-sidebar-empty">还没有对话</p>
+            )}
+          </aside>
+
+          <div className="r33-chat-main">
+            <div
+              className="r33-message-stream"
+              aria-label="消息记录"
+              aria-busy={streaming}
+              ref={messageStreamRef}
+              data-testid="message-stream"
+            >
+              {loading ? (
+                <div className="r33-loading-state" role="status">
+                  <span className="r33-loading-dot" /> 正在读取对话
+                </div>
+              ) : noConversation ? (
+                <div className="r33-empty-state" data-testid="empty-chat">
+                  {teammate && (
+                    <Avatar
+                      avatar={teammate.avatar}
+                      name={teammate.name}
+                      kind="TEAMMATE"
+                      size={88}
+                    />
+                  )}
+                  <h1>和{teammate?.name ?? '这位道友'}开始交流</h1>
+                  <p>每段对话都会保存在这位道友名下。</p>
+                  {teammate?.status === 'ACTIVE' && (
+                    <button className="button primary" onClick={() => void createConversation()}>
+                      开始新对话 <Icon name="ArrowUp" size={16} />
+                    </button>
+                  )}
+                  {teammate?.status === 'ARCHIVED' && (
+                    <span className="r33-archived-hint">这位道友已归档，无法开始新对话。</span>
+                  )}
+                </div>
+              ) : messages.length === 0 && !pendingUserText ? (
+                <div className="r33-conversation-empty" data-testid="empty-conversation">
+                  {teammate && (
+                    <Avatar
+                      avatar={teammate.avatar}
+                      name={teammate.name}
+                      kind="TEAMMATE"
+                      size={54}
+                    />
+                  )}
+                  <span>向{teammate?.name ?? '这位道友'}问好吧。</span>
+                </div>
+              ) : (
+                <div className="r33-message-list">
+                  {messages.map((message) => (
+                    <MessageBubble
+                      key={message.id}
+                      message={message}
+                      teammate={teammate}
+                      onExtract={extractMemoryCandidate}
+                      extracting={extractingMessageId === message.id}
+                    />
+                  ))}
+                  {pendingUserText && (
+                    <MessageBubble
+                      message={{
+                        id: 'pending-user-message',
+                        actorType: 'USER',
+                        actorId: 'user',
+                        role: 'USER',
+                        missionId: null,
+                        conversationId,
+                        content: pendingUserText,
+                        createdAt: new Date().toISOString(),
+                      }}
+                      teammate={teammate}
+                      pending
+                    />
+                  )}
+                  {streaming && <StreamingMessage teammate={teammate} content={streamText} />}
+                </div>
+              )}
             </div>
-          </form>
+
+            {error && (
+              <div
+                className={`r33-inline-notice is-error ${modelUnavailable ? 'is-unavailable' : ''}`}
+                role="alert"
+                data-testid={modelUnavailable ? 'unavailable-notice' : 'chat-error'}
+              >
+                <Icon name="Alert" size={17} />
+                <span className="r33-notice-copy">{error}</span>
+                {modelUnavailable ? (
+                  <div className="r33-notice-actions">
+                    {canRecheckAvailability(teammate) && (
+                      <button
+                        type="button"
+                        className="r33-inline-action"
+                        disabled={recheckingAvailability}
+                        onClick={() => void recheckAvailability()}
+                      >
+                        {recheckingAvailability ? '检测中…' : '重新检测'}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="r33-inline-action"
+                      onClick={() => navigate('/teammates')}
+                    >
+                      选择其他道友
+                    </button>
+                    <button
+                      type="button"
+                      className="r33-inline-action"
+                      onClick={() => {
+                        setError('');
+                        setModelUnavailable(false);
+                      }}
+                    >
+                      取消
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {notice && (
+              <div
+                className="r33-inline-notice is-memory"
+                role="status"
+                data-testid="memory-notice"
+              >
+                <Icon name="Memory" size={17} />
+                <span className="r33-notice-copy">{notice}</span>
+                {candidateReady && (
+                  <button
+                    className="r33-inline-action"
+                    type="button"
+                    onClick={() => navigate(`/memory?teammateId=${encodeURIComponent(teammateId)}`)}
+                  >
+                    审核记忆
+                  </button>
+                )}
+              </div>
+            )}
+
+            <form
+              className="r33-composer"
+              onSubmit={(event) => void send(event)}
+              data-testid="chat-composer"
+            >
+              <label className="r33-visually-hidden" htmlFor="chat-message">
+                写消息
+              </label>
+              <textarea
+                id="chat-message"
+                rows={3}
+                value={draft}
+                aria-label="写消息"
+                disabled={!conversationId || !teammate || !canChat(teammate) || streaming}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                    event.preventDefault();
+                    event.currentTarget.form?.requestSubmit();
+                  }
+                }}
+              />
+              <div className="r33-composer-footer">
+                <span>
+                  {teammate?.status === 'ARCHIVED'
+                    ? '此道友已归档，无法发送新消息'
+                    : !conversationId
+                      ? '开始新对话后即可发送消息'
+                      : streaming
+                        ? '正在生成回复…'
+                        : 'Enter 发送 · Shift+Enter 换行'}
+                </span>
+                <button
+                  className="button primary r33-send-button"
+                  type="submit"
+                  disabled={
+                    !draft.trim() || !conversationId || !teammate || !canChat(teammate) || streaming
+                  }
+                >
+                  {streaming ? '生成中' : '发送'}
+                  <Icon name={streaming ? 'Refresh' : 'ArrowUp'} size={16} />
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
 
 export function MessageBubble({
   message,
+  teammate,
   onExtract,
   extracting = false,
+  pending = false,
 }: {
   message: MessageView;
+  teammate: TeammateView | null;
   onExtract?: (message: MessageView) => void;
   extracting?: boolean;
+  pending?: boolean;
 }) {
   const isUser = message.role === 'USER';
   const isAssistant = message.role === 'ASSISTANT';
+  if (!isUser && !isAssistant) {
+    return (
+      <div className="r33-event-row" data-testid="system-message">
+        <Icon name={message.role === 'TOOL' ? 'Tool' : 'Alert'} size={16} />
+        <span className="r33-event-label">{message.role === 'TOOL' ? '工具动态' : '系统提示'}</span>
+        <MessageContent content={message.content} />
+      </div>
+    );
+  }
+
+  const speaker = isUser ? '你' : (teammate?.name ?? '道友');
   return (
-    <div className={`message-row ${isUser ? 'user-message' : 'assistant-message'}`}>
-      {!isUser && <span className="message-avatar">{isAssistant ? '友' : '系'}</span>}
-      <div className="message-bubble">
-        <p>{message.content}</p>
-        <small>
-          {isUser ? '你' : isAssistant ? '道友' : message.role} · {formatTime(message.createdAt)}
-        </small>
-        {onExtract && (isUser || isAssistant) && message.missionId === null && (
+    <article className={`r33-message-row ${isUser ? 'is-user' : 'is-assistant'}`}>
+      {!isUser && teammate && (
+        <Avatar
+          avatar={teammate.avatar}
+          name={teammate.name}
+          kind="TEAMMATE"
+          size={34}
+          className="r33-message-avatar"
+        />
+      )}
+      <div className="r33-message-body">
+        <div className="r33-message-meta">
+          <strong>{speaker}</strong>
+          <time dateTime={message.createdAt}>
+            {pending ? '发送中' : formatTime(message.createdAt)}
+          </time>
+        </div>
+        <div className={`r33-message-surface ${isUser ? 'is-user' : 'is-assistant'}`}>
+          <MessageContent content={message.content} />
+        </div>
+        {!pending && onExtract && message.missionId === null && (
           <button
-            className="message-memory-action"
+            className="r33-memory-action"
             disabled={extracting}
             onClick={() => onExtract(message)}
             type="button"
           >
-            {extracting ? '正在生成候选…' : '提取为记忆候选'}
+            <Icon name="Memory" size={14} />
+            {extracting ? '整理中…' : '保存为记忆候选'}
           </button>
         )}
       </div>
-      {message.missionId !== null && <span className="safe-tag">Mission</span>}
-    </div>
+      {isUser && (
+        <Avatar kind="USER" name="你" size={34} className="r33-message-avatar r33-user-avatar" />
+      )}
+    </article>
   );
+}
+
+function StreamingMessage({
+  teammate,
+  content,
+}: {
+  teammate: TeammateView | null;
+  content: string;
+}) {
+  return (
+    <article className="r33-message-row is-assistant is-streaming" data-testid="streaming-message">
+      {teammate && (
+        <Avatar
+          avatar={teammate.avatar}
+          name={teammate.name}
+          kind="TEAMMATE"
+          size={34}
+          className="r33-message-avatar"
+        />
+      )}
+      <div className="r33-message-body">
+        <div className="r33-message-meta">
+          <strong>{teammate?.name ?? '道友'}</strong>
+          <span className="r33-stream-status">
+            <span className="r33-stream-dot" /> {content ? '正在回复…' : '正在生成…'}
+          </span>
+        </div>
+        <div className="r33-message-surface is-assistant">
+          {content ? (
+            <MessageContent content={content} />
+          ) : (
+            <span className="r33-thinking">正在生成…</span>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function isHumanBridge(teammate: TeammateView): boolean {
+  return teammate.executorKind === 'USER_BRIDGE' || teammate.systemKind === 'HUMAN_BRIDGE';
+}
+
+function canChat(teammate: TeammateView): boolean {
+  return teammate.status === 'ACTIVE' && !isHumanBridge(teammate);
+}
+
+function canRecheckAvailability(teammate: TeammateView | null): teammate is TeammateView {
+  return Boolean(
+    teammate &&
+      teammate.status === 'ACTIVE' &&
+      teammate.executorKind !== 'USER_BRIDGE' &&
+      teammate.systemKind !== 'HUMAN_BRIDGE' &&
+      teammate.currentRuntimeProfileId,
+  );
+}
+
+function summarizeMessages(messages: MessageView[]): string {
+  const latest = [...messages]
+    .reverse()
+    .find((message) => message.role === 'USER' || message.role === 'ASSISTANT');
+  if (!latest) return '';
+  const normalized = latest.content
+    .replace(/```[\s\S]*?```/g, '代码片段')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return normalized.length > 42 ? `${normalized.slice(0, 42)}…` : normalized;
+}
+
+function conversationTime(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const now = new Date();
+  const sameDay =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate();
+  return sameDay
+    ? new Intl.DateTimeFormat('zh-CN', { hour: '2-digit', minute: '2-digit' }).format(date)
+    : new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric' }).format(date);
 }
