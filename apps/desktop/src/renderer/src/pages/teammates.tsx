@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DynamicCapabilityPanel } from '.././r1-capability.js';
-import { AvailabilityBadge } from '.././r3-2-availability.js';
-import { errorText, PageHeading, safeLabel, formatDate } from '../ui-shared.js';
-import './teammates.css';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Avatar } from '../components/Avatar.js';
+import { AvatarPicker } from '../components/AvatarPicker.js';
+import { Drawer } from '../components/Drawer.js';
+import { Icon } from '../components/Icon.js';
+import { CreateTeammatePanel } from './create-teammate.js';
+import { DynamicCapabilityPanel } from '../r1-capability.js';
+import { AvailabilityBadge } from '../r3-2-availability.js';
+import { errorText, formatDate, missionStateLabel, PageHeading, safeLabel } from '../ui-shared.js';
 import type {
+  ExperienceOutcome,
+  ExperienceType,
+  MissionMode,
   ProviderView,
   RuntimeProfileView,
-  TeammateView,
-  SkillView,
   SkillAssignmentView,
-  ExperienceType,
-  ExperienceOutcome,
+  SkillView,
   TeammateExperienceView,
-  MissionMode,
+  TeammateView,
 } from '../ui-shared.js';
+import './teammates.css';
 
 interface TeammateForm {
   name: string;
@@ -23,17 +28,15 @@ interface TeammateForm {
   description: string;
   identityPrompt: string;
   behaviorPrompt: string;
-  currentRuntimeProfileId: string;
 }
 
 const blankTeammate: TeammateForm = {
   name: '',
-  avatar: '',
+  avatar: 'preset:01',
   title: '',
   description: '',
   identityPrompt: '',
   behaviorPrompt: '',
-  currentRuntimeProfileId: '',
 };
 
 export function TeammatesPage() {
@@ -48,7 +51,9 @@ export function TeammatesPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
   const refresh = async () => {
     setLoading(true);
     setError('');
@@ -60,8 +65,10 @@ export function TeammatesPage() {
       setTeammates(teammateRows);
       setRuntimes(runtimeRows);
       void window.cultivation.providers.list().then(setProviders, () => setProviders([]));
-      setSelectedId(
-        (current) => current || teammateRows.find((item) => item.status === 'ACTIVE')?.id || '',
+      setSelectedId((current) =>
+        teammateRows.some((item) => item.id === current)
+          ? current
+          : (teammateRows.find((item) => item.status === 'ACTIVE')?.id ?? ''),
       );
     } catch (cause) {
       setError(errorText(cause, '读取道友失败。'));
@@ -69,63 +76,92 @@ export function TeammatesPage() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     void refresh();
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get('create') === '1') setCreating(true);
+  }, [searchParams]);
+
   const selected = teammates.find((item) => item.id === selectedId);
   const selectedRuntime = selected?.currentRuntimeProfileId
     ? runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
     : undefined;
+  const selectedProvider = selectedRuntime
+    ? providers.find((provider) => provider.id === selectedRuntime.providerId)
+    : undefined;
+
+  const setCreateQuery = (enabled: boolean) => {
+    const next = new URLSearchParams(searchParams);
+    if (enabled) next.set('create', '1');
+    else next.delete('create');
+    setSearchParams(next, { replace: true });
+  };
+
   const startCreate = () => {
-    setCreating(true);
     setEditingId('');
-    setForm({ ...blankTeammate, currentRuntimeProfileId: runtimes[0]?.id ?? '' });
+    setCreating(true);
     setError('');
     setNotice('');
+    setCreateQuery(true);
   };
+
+  const closeCreate = () => {
+    setCreating(false);
+    setCreateQuery(false);
+  };
+
   const startEdit = (teammate: TeammateView) => {
     setCreating(false);
     setSelectedId(teammate.id);
     setEditingId(teammate.id);
     setForm({
       name: teammate.name,
-      avatar: teammate.avatar ?? '',
+      avatar: teammate.avatar ?? 'preset:01',
       title: teammate.title ?? '',
       description: teammate.description,
       identityPrompt: teammate.identityPrompt,
       behaviorPrompt: teammate.behaviorPrompt,
-      currentRuntimeProfileId: teammate.currentRuntimeProfileId ?? '',
     });
     setError('');
     setNotice('');
   };
-  const save = async (event: React.FormEvent<HTMLFormElement>) => {
+
+  const updateForm = (patch: Partial<TeammateForm>) =>
+    setForm((current) => ({ ...current, ...patch }));
+
+  const saveEdit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!editingId) return;
     setBusy(true);
     setError('');
     setNotice('');
     try {
-      const payload = {
-        ...form,
+      const saved = await window.cultivation.teammates.update({
+        id: editingId,
         name: form.name.trim(),
         avatar: form.avatar.trim() || null,
         title: form.title.trim() || null,
-      };
-      const saved = editingId
-        ? await window.cultivation.teammates.update({ id: editingId, ...payload })
-        : await window.cultivation.teammates.create(payload);
+        description: form.description.trim(),
+        identityPrompt: form.identityPrompt.trim(),
+        behaviorPrompt: form.behaviorPrompt.trim(),
+        currentRuntimeProfileId:
+          teammates.find((item) => item.id === editingId)?.currentRuntimeProfileId ?? null,
+      });
       setSelectedId(saved.id);
-      setCreating(false);
       setEditingId('');
       setForm(blankTeammate);
-      setNotice(editingId ? '道友资料已保存。' : '道友已创建。');
+      setNotice('道友资料已保存。');
       await refresh();
     } catch (cause) {
-      setError(errorText(cause, '保存道友失败。'));
+      setError(errorText(cause, '保存道友资料失败。'));
     } finally {
       setBusy(false);
     }
   };
+
   const archive = async (teammate: TeammateView) => {
     setBusy(true);
     setError('');
@@ -133,7 +169,7 @@ export function TeammatesPage() {
     try {
       const archived = await window.cultivation.teammates.archive(teammate.id);
       setSelectedId(archived.id);
-      setNotice(`${teammate.name} 已归档；身份与历史记录仍保留。`);
+      setNotice('道友已归档；身份与历史记录仍保留。');
       await refresh();
     } catch (cause) {
       setError(errorText(cause, '归档道友失败。'));
@@ -141,6 +177,7 @@ export function TeammatesPage() {
       setBusy(false);
     }
   };
+
   const duplicate = async (teammate: TeammateView) => {
     setBusy(true);
     setError('');
@@ -148,7 +185,7 @@ export function TeammatesPage() {
     try {
       const copy = await window.cultivation.teammates.duplicate(teammate.id);
       setSelectedId(copy.id);
-      setNotice(`已复制为「${copy.name}」，新的道友 ID 与原道友不同。`);
+      setNotice('已复制为「' + copy.name + '」，新的道友将重新完成连接检测。');
       await refresh();
     } catch (cause) {
       setError(errorText(cause, '复制道友失败。'));
@@ -156,12 +193,24 @@ export function TeammatesPage() {
       setBusy(false);
     }
   };
-  const updateForm = (patch: Partial<TeammateForm>) =>
-    setForm((current) => ({ ...current, ...patch }));
+
+  const completeCreate = async (teammate: TeammateView) => {
+    setSelectedId(teammate.id);
+    setNotice('道友已创建。');
+    closeCreate();
+    await refresh();
+  };
+
+  const modelSummary = (teammate: TeammateView) => {
+    if (teammate.executorKind === 'USER_BRIDGE') return 'Human Bridge';
+    const runtime = runtimes.find((item) => item.id === teammate.currentRuntimeProfileId);
+    const provider = runtime ? providers.find((item) => item.id === runtime.providerId) : undefined;
+    return [provider?.name, runtime?.modelId].filter(Boolean).join(' · ') || '模型未配置';
+  };
 
   return (
     <section className="page wide-page teammates-page">
-      <PageHeading eyebrow="" title="道友 Teammates" description="" />
+      <PageHeading eyebrow="" title="道友" description="" />
       {error && (
         <div className="notice error notice-with-action" role="alert">
           {error}
@@ -175,32 +224,37 @@ export function TeammatesPage() {
           {notice}
         </div>
       )}
+
       <div className="teammate-workspace">
-        <aside className="teammate-list-card teammate-roster">
-          <div className="list-heading">
+        <aside className="teammate-roster" aria-label="道友名单">
+          <div className="teammate-roster-heading">
             <div>
-              <h2>道友</h2>
-              <p>{teammates.length}</p>
+              <h2>名单</h2>
+              <span>{teammates.length} 位</span>
             </div>
-            <button className="button secondary small" type="button" onClick={startCreate}>
-              ＋ 新建道友
+            <button
+              className="button secondary small"
+              type="button"
+              onClick={startCreate}
+              aria-label="创建道友"
+            >
+              <Icon name="Add" size={16} /> 新建
             </button>
           </div>
           {loading ? (
-            <div className="list-empty">读取中…</div>
+            <div className="teammate-list-state">正在读取…</div>
           ) : error && teammates.length === 0 ? (
-            <div className="list-empty">列表暂时无法读取。</div>
+            <div className="teammate-list-state">名单暂时无法读取。</div>
           ) : teammates.length ? (
             <div className="teammate-roster-list">
               {teammates.map((teammate) => {
-                const runtime = runtimes.find(
-                  (item) => item.id === teammate.currentRuntimeProfileId,
-                );
-                const modelLabel =
-                  teammate.executorKind === 'USER_BRIDGE' ? 'Human Bridge' : runtime?.modelId;
+                const archived = teammate.status === 'ARCHIVED';
+                const human = teammate.executorKind === 'USER_BRIDGE';
                 return (
-                  <article
-                    className={`teammate-roster-row ${selectedId === teammate.id ? 'selected' : ''}`}
+                  <div
+                    className={
+                      'teammate-roster-row' + (selectedId === teammate.id ? ' selected' : '')
+                    }
                     key={teammate.id}
                   >
                     <button
@@ -211,182 +265,83 @@ export function TeammatesPage() {
                         setSelectedId(teammate.id);
                         setCreating(false);
                         setEditingId('');
-                        setForm(blankTeammate);
+                        closeCreate();
                       }}
                     >
-                      <span className="avatar small-avatar">
-                        {teammate.avatar || teammate.name.slice(0, 1)}
-                      </span>
+                      <Avatar
+                        avatar={teammate.avatar}
+                        name={teammate.name}
+                        kind={human ? 'HUMAN_BRIDGE' : 'TEAMMATE'}
+                        size={42}
+                      />
                       <span className="teammate-roster-copy">
                         <strong>{teammate.name}</strong>
-                        <small>{modelLabel ?? '模型未配置'}</small>
+                        <small>{modelSummary(teammate)}</small>
                       </span>
                     </button>
-                    {teammate.executorKind === 'USER_BRIDGE' ? (
-                      <span
-                        className="human-roster-status"
-                        role="img"
-                        aria-label="可接收委托"
-                        title="可接收委托"
-                      >
-                        <span className="availability-dot available" aria-hidden="true" />
+                    {archived ? (
+                      <span className="teammate-roster-archived">已归档</span>
+                    ) : human ? (
+                      <span className="teammate-roster-human" aria-label="本尊，可接收委托">
+                        <Icon name="HumanBridge" size={15} />
                       </span>
                     ) : (
-                      <AvailabilityBadge teammateId={teammate.id} recheck={false} compact />
+                      <AvailabilityBadge
+                        teammateId={teammate.id}
+                        teammateStatus={teammate.status}
+                        executorKind={teammate.executorKind ?? 'MODEL_RUNTIME'}
+                        recheck={false}
+                        compact
+                      />
                     )}
-                  </article>
+                  </div>
                 );
               })}
             </div>
           ) : (
-            <div className="teammate-empty-list">
-              <p>还没有道友</p>
+            <div className="teammate-list-state">
+              <p>还没有道友。</p>
               <button className="button primary small" type="button" onClick={startCreate}>
-                创建道友
+                <Icon name="Add" size={16} /> 创建第一位道友
               </button>
             </div>
           )}
         </aside>
+
         <div className="teammate-detail">
-          {creating || editingId ? (
-            <form className="form-card teammate-form" onSubmit={(event) => void save(event)}>
-              <div className="form-title-row">
-                <div>
-                  <h2>{editingId ? '编辑道友' : '创建道友'}</h2>
-                </div>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => {
-                    setCreating(false);
-                    setEditingId('');
-                    setForm(blankTeammate);
-                  }}
-                >
-                  返回
-                </button>
-              </div>
-              <div className="field-grid">
-                <label className="field">
-                  <span>名称</span>
-                  <input
-                    required
-                    maxLength={80}
-                    value={form.name}
-                    onChange={(event) => updateForm({ name: event.target.value })}
-                  />
-                </label>
-                <label className="field">
-                  <span>头像标记</span>
-                  <input
-                    maxLength={8}
-                    value={form.avatar}
-                    onChange={(event) => updateForm({ avatar: event.target.value })}
-                  />
-                </label>
-              </div>
-              <label className="field">
-                <span>称号</span>
-                <input
-                  maxLength={100}
-                  value={form.title}
-                  onChange={(event) => updateForm({ title: event.target.value })}
-                />
-              </label>
-              <label className="field">
-                <span>介绍</span>
-                <textarea
-                  rows={2}
-                  maxLength={1000}
-                  value={form.description}
-                  onChange={(event) => updateForm({ description: event.target.value })}
-                />
-              </label>
-              <label className="field">
-                <span>Identity Prompt</span>
-                <textarea
-                  rows={3}
-                  maxLength={8000}
-                  value={form.identityPrompt}
-                  onChange={(event) => updateForm({ identityPrompt: event.target.value })}
-                />
-              </label>
-              <label className="field">
-                <span>Behavior Prompt</span>
-                <textarea
-                  rows={3}
-                  maxLength={8000}
-                  value={form.behaviorPrompt}
-                  onChange={(event) => updateForm({ behaviorPrompt: event.target.value })}
-                />
-              </label>
-              {editingId ? (
-                <p className="form-hint">
-                  固定模型：
-                  {runtimes.find((runtime) => runtime.id === form.currentRuntimeProfileId)
-                    ?.modelId ?? 'Runtime 不可用'}
-                </p>
-              ) : (
-                <label className="field">
-                  <span>模型（创建后固定）</span>
-                  <select
-                    required
-                    value={form.currentRuntimeProfileId}
-                    onChange={(event) =>
-                      updateForm({ currentRuntimeProfileId: event.target.value })
-                    }
-                  >
-                    <option value="">选择模型</option>
-                    {runtimes.map((runtime) => (
-                      <option key={runtime.id} value={runtime.id}>
-                        {runtime.modelId}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-              {!runtimes.length && (
-                <div className="prerequisite-note">
-                  <p className="form-hint">创建前先在设置中配置 Provider 和模型。</p>
-                  <button
-                    className="text-button"
-                    type="button"
-                    onClick={() => navigate('/settings')}
-                  >
-                    打开设置
-                  </button>
-                </div>
-              )}
-              <button className="button primary" disabled={busy || !runtimes.length}>
-                {busy ? '保存中…' : editingId ? '保存' : '创建道友'}
-              </button>
-            </form>
-          ) : selected ? (
-            <article className="profile-card teammate-profile-card">
+          {selected ? (
+            <article className="teammate-profile">
               <header className="teammate-profile-header">
                 <div className="teammate-profile-identity">
-                  <span className="avatar profile-avatar">
-                    {selected.avatar || selected.name.slice(0, 1)}
-                  </span>
-                  <div className="profile-main">
+                  <Avatar
+                    avatar={selected.avatar}
+                    name={selected.name}
+                    kind={selected.executorKind === 'USER_BRIDGE' ? 'HUMAN_BRIDGE' : 'TEAMMATE'}
+                    size={68}
+                  />
+                  <div className="teammate-profile-copy">
                     <h2>{selected.name}</h2>
+                    {selected.title && <p className="teammate-profile-title">{selected.title}</p>}
                     {selected.executorKind === 'USER_BRIDGE' ? (
-                      <p>人工任务协作</p>
+                      <p>本尊 · Human Bridge</p>
                     ) : (
-                      <p>
-                        {runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
-                          ?.modelId ?? '模型未配置'}
-                      </p>
+                      <p>{modelSummary(selected)}</p>
                     )}
                   </div>
                 </div>
-                <div className="teammate-profile-status">
+                <div className="teammate-profile-state">
                   {selected.executorKind === 'USER_BRIDGE' ? (
-                    <span className="status-pill active">可接收委托</span>
-                  ) : selected.status === 'ACTIVE' ? (
-                    <AvailabilityBadge teammateId={selected.id} />
+                    <span className="teammate-human-status">
+                      <Icon name="HumanBridge" size={16} /> 可接收委托
+                    </span>
+                  ) : selected.status === 'ARCHIVED' ? (
+                    <span className="teammate-archived-status">已归档</span>
                   ) : (
-                    <span className="status-pill archived">已归档</span>
+                    <AvailabilityBadge
+                      teammateId={selected.id}
+                      teammateStatus={selected.status}
+                      executorKind={selected.executorKind ?? 'MODEL_RUNTIME'}
+                    />
                   )}
                 </div>
                 <div className="teammate-profile-actions">
@@ -396,34 +351,34 @@ export function TeammatesPage() {
                       type="button"
                       onClick={() => navigate('/external-work')}
                     >
-                      查看人类任务
+                      <Icon name="HumanBridge" size={16} /> 查看本尊待办
                     </button>
-                  ) : (
+                  ) : selected.status === 'ACTIVE' ? (
                     <>
                       <button
                         className="button primary"
                         type="button"
-                        disabled={selected.status !== 'ACTIVE'}
-                        onClick={() => navigate(`/chat/${encodeURIComponent(selected.id)}`)}
+                        onClick={() => navigate('/chat/' + encodeURIComponent(selected.id))}
                       >
-                        开始对话
+                        <Icon name="Chat" size={16} /> 开始对话
                       </button>
                       <button
                         className="button secondary"
                         type="button"
-                        disabled={selected.status !== 'ACTIVE'}
                         onClick={() =>
                           navigate(
-                            `/missions?teammateId=${encodeURIComponent(selected.id)}&create=1`,
+                            '/missions?teammateId=' + encodeURIComponent(selected.id) + '&create=1',
                           )
                         }
                       >
-                        发起历练
+                        <Icon name="Mission" size={16} /> 发起历练
                       </button>
                     </>
-                  )}
+                  ) : null}
                   <details className="teammate-more-menu">
-                    <summary className="button secondary">更多</summary>
+                    <summary className="button secondary">
+                      <Icon name="More" size={16} /> 更多
+                    </summary>
                     <div className="teammate-more-content">
                       {selected.executorKind !== 'USER_BRIDGE' && (
                         <div className="teammate-more-actions">
@@ -432,7 +387,7 @@ export function TeammatesPage() {
                             type="button"
                             onClick={() => startEdit(selected)}
                           >
-                            编辑资料
+                            <Icon name="Edit" size={15} /> 编辑资料
                           </button>
                           <button
                             className="button secondary small"
@@ -440,7 +395,7 @@ export function TeammatesPage() {
                             disabled={busy}
                             onClick={() => void duplicate(selected)}
                           >
-                            复制道友
+                            <Icon name="Copy" size={15} /> 复制道友
                           </button>
                           {selected.status === 'ACTIVE' && (
                             <button
@@ -449,13 +404,13 @@ export function TeammatesPage() {
                               disabled={busy}
                               onClick={() => void archive(selected)}
                             >
-                              归档
+                              <Icon name="Archive" size={15} /> 归档
                             </button>
                           )}
                         </div>
                       )}
                       <details className="teammate-advanced-details">
-                        <summary>高级信息</summary>
+                        <summary>高级身份与模型信息</summary>
                         <dl>
                           <div>
                             <dt>道友 ID</dt>
@@ -467,19 +422,11 @@ export function TeammatesPage() {
                             <>
                               <div>
                                 <dt>Provider</dt>
-                                <dd>
-                                  {providers.find(
-                                    (provider) => provider.id === selectedRuntime?.providerId,
-                                  )?.name ?? '未配置'}
-                                </dd>
+                                <dd>{selectedProvider?.name ?? '未配置'}</dd>
                               </div>
                               <div>
                                 <dt>Endpoint</dt>
-                                <dd>
-                                  {providers.find(
-                                    (provider) => provider.id === selectedRuntime?.providerId,
-                                  )?.baseUrl ?? '未配置'}
-                                </dd>
+                                <dd>{selectedProvider?.baseUrl ?? '未配置'}</dd>
                               </div>
                               <div>
                                 <dt>Runtime ID</dt>
@@ -487,12 +434,14 @@ export function TeammatesPage() {
                                   <code>{selected.currentRuntimeProfileId ?? '未配置'}</code>
                                 </dd>
                               </div>
-                              {selected.description && (
-                                <div>
-                                  <dt>介绍</dt>
-                                  <dd>{selected.description}</dd>
-                                </div>
-                              )}
+                              <div>
+                                <dt>Identity Prompt</dt>
+                                <dd>{selected.identityPrompt || '未设置'}</dd>
+                              </div>
+                              <div>
+                                <dt>Behavior Prompt</dt>
+                                <dd>{selected.behaviorPrompt || '未设置'}</dd>
+                              </div>
                             </>
                           )}
                         </dl>
@@ -501,40 +450,358 @@ export function TeammatesPage() {
                   </details>
                 </div>
               </header>
-              {selected.status === 'ARCHIVED' && (
-                <div className="notice">已归档的道友保留历史记录。</div>
+
+              {selected.description && (
+                <p className="teammate-profile-description">{selected.description}</p>
               )}
+
               {selected.executorKind === 'USER_BRIDGE' ? (
                 <HumanBridgeSummary />
               ) : (
-                <DynamicCapabilityPanel
-                  key={`${selected.id}:${selected.currentRuntimeProfileId}`}
-                  teammateId={selected.id}
-                />
+                <>
+                  <DynamicCapabilityPanel
+                    key={selected.id + ':' + selected.currentRuntimeProfileId}
+                    teammateId={selected.id}
+                  />
+                  <TeammateSkillSummary teammate={selected} />
+                </>
               )}
-              {selected.executorKind !== 'USER_BRIDGE' && (
-                <details className="teammate-secondary-view">
-                  <summary>Skills</summary>
-                  <TeammateSkillsPanel teammate={selected} />
-                </details>
-              )}
+              <TeammateRecentActivity teammate={selected} />
               <details className="teammate-secondary-view">
-                <summary>经历</summary>
+                <summary>经历档案</summary>
                 <TeammateExperiencePanel teammate={selected} />
               </details>
             </article>
           ) : loading ? (
-            <div className="loading-card">正在读取道友…</div>
+            <div className="teammate-detail-state">正在读取道友…</div>
           ) : (
-            <div className="empty-card teammate-detail-empty">
-              <h2>选择或创建道友</h2>
+            <div className="teammate-detail-state teammate-detail-empty">
+              <Avatar kind="TEAMMATE" name="新道友" size={64} />
+              <h2>选择一位道友</h2>
+              <p>查看能力、功法与最近活动。</p>
               <button className="button primary" type="button" onClick={startCreate}>
-                创建道友
+                <Icon name="Add" size={16} /> 创建道友
               </button>
             </div>
           )}
         </div>
       </div>
+
+      <CreateTeammatePanel
+        open={creating}
+        initialProviders={providers}
+        initialRuntimes={runtimes}
+        onClose={closeCreate}
+        onCreated={(teammate) => void completeCreate(teammate)}
+      />
+
+      <Drawer
+        title="编辑道友"
+        open={Boolean(editingId)}
+        onClose={() => setEditingId('')}
+        className="teammate-edit-drawer"
+      >
+        <form className="teammate-edit-form" onSubmit={(event) => void saveEdit(event)}>
+          <div className="edit-avatar-row">
+            <AvatarPicker
+              value={form.avatar || null}
+              onChange={(ref) => updateForm({ avatar: ref })}
+              kind="TEAMMATE"
+            />
+          </div>
+          <label className="field">
+            <span>名称</span>
+            <input
+              required
+              maxLength={80}
+              value={form.name}
+              onChange={(event) => updateForm({ name: event.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>称号（可选）</span>
+            <input
+              maxLength={100}
+              value={form.title}
+              onChange={(event) => updateForm({ title: event.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>简介（可选）</span>
+            <textarea
+              rows={3}
+              maxLength={4096}
+              value={form.description}
+              onChange={(event) => updateForm({ description: event.target.value })}
+            />
+          </label>
+          <details className="create-advanced-identity">
+            <summary>高级身份与行为设定</summary>
+            <label className="field">
+              <span>Identity Prompt</span>
+              <textarea
+                rows={4}
+                maxLength={8000}
+                value={form.identityPrompt}
+                onChange={(event) => updateForm({ identityPrompt: event.target.value })}
+              />
+            </label>
+            <label className="field">
+              <span>Behavior Prompt</span>
+              <textarea
+                rows={4}
+                maxLength={8000}
+                value={form.behaviorPrompt}
+                onChange={(event) => updateForm({ behaviorPrompt: event.target.value })}
+              />
+            </label>
+          </details>
+          {editingId && (
+            <p className="teammate-edit-fixed-model">
+              固定模型：{modelSummary(teammates.find((item) => item.id === editingId)!)}
+            </p>
+          )}
+          {error && (
+            <p className="create-form-message error" role="alert">
+              {error}
+            </p>
+          )}
+          <div className="create-flow-actions">
+            <button
+              className="button secondary"
+              type="button"
+              disabled={busy}
+              onClick={() => setEditingId('')}
+            >
+              取消
+            </button>
+            <button className="button primary" type="submit" disabled={busy}>
+              {busy ? '保存中…' : '保存资料'}
+            </button>
+          </div>
+        </form>
+      </Drawer>
+    </section>
+  );
+}
+
+function TeammateSkillSummary({ teammate }: { teammate: TeammateView }) {
+  const [skills, setSkills] = useState<SkillView[]>([]);
+  const [assignments, setAssignments] = useState<SkillAssignmentView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    void Promise.all([
+      window.cultivation.skills.list(),
+      window.cultivation.skills.listAssignments(teammate.id),
+    ])
+      .then(([skillRows, assignmentRows]) => {
+        if (cancelled) return;
+        setSkills(skillRows);
+        setAssignments(assignmentRows.filter((item) => item.teammateId === teammate.id));
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取已启用功法失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [teammate.id]);
+
+  const enabled = assignments
+    .filter((item) => item.enabled)
+    .map((item) => skills.find((skill) => skill.id === item.skillId))
+    .filter((skill): skill is SkillView => Boolean(skill && skill.status === 'ACTIVE'));
+
+  return (
+    <section className="teammate-skill-summary" aria-labelledby="teammate-skills-title">
+      <div className="teammate-section-heading">
+        <div>
+          <h3 id="teammate-skills-title">已启用功法</h3>
+          <p>只显示此道友当前启用的 Skill。</p>
+        </div>
+        <span className="teammate-section-count">{loading ? '…' : enabled.length}</span>
+      </div>
+      {error ? (
+        <p className="teammate-inline-error" role="alert">
+          {error}
+        </p>
+      ) : loading ? (
+        <p className="teammate-muted">正在读取 Skill…</p>
+      ) : enabled.length ? (
+        <div className="teammate-skill-chips">
+          {enabled.map((skill) => (
+            <span className="teammate-skill-chip" key={skill.id}>
+              {skill.name}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="teammate-muted">尚未启用 Skill。</p>
+      )}
+      <details className="teammate-skill-management">
+        <summary>管理 Skill 分配</summary>
+        <TeammateSkillsPanel teammate={teammate} />
+      </details>
+    </section>
+  );
+}
+
+interface RecentActivity {
+  id: string;
+  kind: 'MISSION' | 'CHAT' | 'EXPERIENCE';
+  title: string;
+  detail: string;
+  at: string;
+  href: string;
+}
+
+function TeammateRecentActivity({ teammate }: { teammate: TeammateView }) {
+  const [items, setItems] = useState<RecentActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    setItems([]);
+    void Promise.allSettled([
+      window.cultivation.missions.list(),
+      window.cultivation.experience.get(teammate.id),
+      window.cultivation.chat.listConversations(teammate.id),
+    ]).then(async ([missionResult, experienceResult, conversationResult]) => {
+      if (cancelled) return;
+      const result: RecentActivity[] = [];
+      const failures: string[] = [];
+      const missionRows =
+        missionResult.status === 'fulfilled'
+          ? missionResult.value.filter((item) => item.coordinatorTeammateId === teammate.id)
+          : [];
+      if (missionResult.status === 'rejected') failures.push('历练');
+
+      if (experienceResult.status === 'fulfilled') {
+        for (const event of experienceResult.value.events.slice(0, 8)) {
+          result.push({
+            id: 'experience:' + event.id,
+            kind: 'EXPERIENCE',
+            title: experienceTypeLabel(event.experienceType),
+            detail: experienceOutcomeLabel(event.outcome) + ' · ' + experienceModeLabel(event.mode),
+            at: event.createdAt,
+            href: '/missions?missionId=' + encodeURIComponent(event.missionId),
+          });
+        }
+      } else {
+        failures.push('经历');
+      }
+
+      if (conversationResult.status === 'fulfilled') {
+        const recentConversations = conversationResult.value
+          .slice()
+          .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+          .slice(0, 1);
+        const previews = await Promise.allSettled(
+          recentConversations.map((conversation) =>
+            window.cultivation.chat.listMessages({
+              teammateId: teammate.id,
+              conversationId: conversation.id,
+            }),
+          ),
+        );
+        if (cancelled) return;
+        recentConversations.forEach((conversation, index) => {
+          const messageResult = previews[index];
+          const messages = messageResult?.status === 'fulfilled' ? messageResult.value : [];
+          const lastMessage = messages[messages.length - 1];
+          result.push({
+            id: 'chat:' + conversation.id,
+            kind: 'CHAT',
+            title: lastMessage?.content
+              ? lastMessage.content.replace(/\s+/g, ' ').slice(0, 76)
+              : '新对话',
+            detail: lastMessage
+              ? lastMessage.role === 'USER'
+                ? '最近消息'
+                : '道友回复'
+              : '尚无消息',
+            at: conversation.updatedAt,
+            href: '/chat/' + encodeURIComponent(teammate.id),
+          });
+        });
+      } else {
+        failures.push('对话');
+      }
+
+      for (const mission of missionRows) {
+        result.push({
+          id: 'mission:' + mission.id,
+          kind: 'MISSION',
+          title: mission.title,
+          detail: missionStateLabel(mission.state) + ' · ' + mission.objective.slice(0, 72),
+          at: mission.updatedAt,
+          href: '/missions?missionId=' + encodeURIComponent(mission.id),
+        });
+      }
+      if (!cancelled) {
+        setItems(result.sort((left, right) => right.at.localeCompare(left.at)).slice(0, 8));
+        if (failures.length)
+          setError('部分最近记录暂时无法读取：' + [...new Set(failures)].join('、') + '。');
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [teammate.id]);
+
+  return (
+    <section className="teammate-recent-activity" aria-labelledby="teammate-recent-title">
+      <div className="teammate-section-heading">
+        <div>
+          <h3 id="teammate-recent-title">最近活动</h3>
+          <p>历练、对话和可核验经历按发生时间排列。</p>
+        </div>
+        <Link to="/missions">查看历练</Link>
+      </div>
+      {error && (
+        <p className="teammate-inline-error" role="status">
+          {error}
+        </p>
+      )}
+      {loading ? (
+        <p className="teammate-muted">正在读取最近记录…</p>
+      ) : items.length ? (
+        <ol className="teammate-activity-list">
+          {items.map((item) => (
+            <li key={item.id}>
+              <span className={'teammate-activity-mark ' + item.kind.toLowerCase()}>
+                <Icon
+                  name={
+                    item.kind === 'MISSION' ? 'Mission' : item.kind === 'CHAT' ? 'Chat' : 'History'
+                  }
+                  size={15}
+                />
+              </span>
+              <Link to={item.href} className="teammate-activity-copy">
+                <span className="teammate-activity-top">
+                  <strong>{item.title}</strong>
+                  <time>{formatDate(item.at)}</time>
+                </span>
+                <small>{item.detail}</small>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="teammate-muted">还没有历练、对话或经历记录。</p>
+      )}
     </section>
   );
 }

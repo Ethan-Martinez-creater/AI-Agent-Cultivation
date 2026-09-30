@@ -364,6 +364,15 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
   );
 }
 
+const primaryCapabilityDimensions: CapabilityDimension[] = [
+  'GENERAL_REASONING',
+  'LONG_CONTEXT_REASONING',
+  'AGENTIC_EXECUTION',
+  'CODING',
+  'TOOL_USE',
+  'VISUAL_UNDERSTANDING',
+];
+
 export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
   const [profile, setProfile] = useState<Awaited<
     ReturnType<typeof window.cultivation.capability.profile>
@@ -385,11 +394,51 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
       cancelled = true;
     };
   }, [teammateId]);
+
+  const configured = profile?.dimensions.filter((item) => item.prior) ?? [];
+  const configuredPrimary = configured.filter((item) =>
+    primaryCapabilityDimensions.includes(item.dimension),
+  );
+  const featured = (configuredPrimary.length ? configuredPrimary : configured).slice(0, 6);
+
+  const renderCapability = (
+    item: NonNullable<typeof profile>['dimensions'][number],
+    compact = false,
+  ) => {
+    const benchmarkScore =
+      item.prior?.supported && typeof item.prior.normalizedScore === 'number'
+        ? item.prior.normalizedScore
+        : null;
+    const scoreLabel =
+      typeof benchmarkScore === 'number' ? String(Math.round(benchmarkScore)) : null;
+    const statusLabel = item.prior && !item.prior.supported ? '不支持' : '未配置';
+    return (
+      <div className="teammate-benchmark-row" key={item.dimension}>
+        <strong>{labelDimension(item.dimension)}</strong>
+        <progress
+          max={100}
+          value={benchmarkScore ?? 0}
+          aria-label={labelDimension(item.dimension) + ' Benchmark'}
+          aria-valuetext={scoreLabel ? scoreLabel + ' / 100' : statusLabel}
+        />
+        <span className="teammate-benchmark-score">
+          {scoreLabel ?? <small>{statusLabel}</small>}
+        </span>
+        {!compact && item.prior && (
+          <small className="teammate-benchmark-source">
+            {item.prior.source} · {item.prior.benchmark} · v{item.prior.benchmarkVersion}
+          </small>
+        )}
+      </div>
+    );
+  };
+
   return (
     <section className="profile-section r1-profile-section teammate-benchmark-panel">
       <div className="section-heading">
         <div>
           <h3>Benchmark 能力</h3>
+          <p>只展示已配置的基准能力。</p>
         </div>
       </div>
       {error && (
@@ -400,30 +449,20 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
       {!profile && !error && <div className="loading-card">正在读取 Benchmark…</div>}
       {profile && (
         <>
-          <div className="teammate-benchmark-rows">
-            {profile.dimensions.map((item) => {
-              const benchmarkScore = item.prior?.supported ? item.prior.normalizedScore : null;
-              const scoreLabel =
-                typeof benchmarkScore === 'number' ? String(Math.round(benchmarkScore)) : null;
-              const statusLabel = item.prior && !item.prior.supported ? '不支持' : '未配置';
-              return (
-                <div className="teammate-benchmark-row" key={item.dimension}>
-                  <strong>{labelDimension(item.dimension)}</strong>
-                  <progress
-                    max={100}
-                    value={benchmarkScore ?? 0}
-                    aria-label={`${labelDimension(item.dimension)} Benchmark`}
-                    aria-valuetext={scoreLabel ? `${scoreLabel} / 100` : statusLabel}
-                  />
-                  <span className="teammate-benchmark-score">
-                    {scoreLabel ?? <small>{statusLabel}</small>}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          {featured.length ? (
+            <div className="teammate-benchmark-rows">
+              {featured.map((item) => renderCapability(item, true))}
+            </div>
+          ) : (
+            <p className="teammate-muted">
+              尚未配置 Benchmark 能力。录入基准后，主要能力会显示在这里。
+            </p>
+          )}
           <details className="teammate-benchmark-advanced">
-            <summary>高级信息 · Benchmark 来源</summary>
+            <summary>高级信息 · 全部 14 项能力与来源</summary>
+            <div className="teammate-benchmark-rows teammate-benchmark-all">
+              {profile.dimensions.map((item) => renderCapability(item))}
+            </div>
             <dl>
               {profile.dimensions
                 .filter((item) => item.prior)
@@ -442,7 +481,7 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
                     )}
                   </div>
                 ))}
-              {!profile.dimensions.some((item) => item.prior) && (
+              {!configured.length && (
                 <div>
                   <dt>来源</dt>
                   <dd>尚无 Benchmark 来源记录。</dd>
