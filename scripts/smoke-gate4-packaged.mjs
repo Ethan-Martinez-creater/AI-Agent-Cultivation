@@ -503,7 +503,7 @@ try {
   assert.equal(existsSync(join(workspaceRoot, 'denied.txt')), false);
 
   await navigateUi(second.page, '历练 Missions');
-  await second.page.getByRole('heading', { name: '历练', exact: true }).waitFor();
+  await second.page.getByRole('heading', { name: '历练', level: 1, exact: true }).waitFor();
   await second.page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await second.page.getByRole('button', { name: /GATE4 MCP echo/ }).click();
   await second.page.getByRole('heading', { name: 'GATE4 MCP echo', exact: true }).waitFor();

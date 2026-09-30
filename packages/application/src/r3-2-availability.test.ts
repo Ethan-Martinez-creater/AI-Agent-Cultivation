@@ -304,6 +304,33 @@ describe('R3.2 availability policy', () => {
 });
 
 describe('AvailabilityService and shared eligibility', () => {
+  it('rejects archived recheck without probing or changing the historical availability projection', async () => {
+    const context = fixture();
+    await context.service.recheck('teammate-a');
+    const before = structuredClone(context.stored);
+    const calls = context.probeCount;
+    context.teammate = { ...context.teammate, status: 'ARCHIVED' };
+    await expect(context.service.recheck('teammate-a')).rejects.toThrow('已归档');
+    expect(context.probeCount).toBe(calls);
+    expect(context.stored).toEqual(before);
+  });
+  it('discards a manual probe result if the teammate was archived while the probe was pending', async () => {
+    let finish!: (result: { kind: 'HARD_FAILURE'; code: string }) => void;
+    const context = fixture({
+      probe: () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    });
+    context.stored = projection('AVAILABLE', [outcome('SUCCESS')]);
+    const before = structuredClone(context.stored);
+    const pending = context.service.recheck('teammate-a');
+    await Promise.resolve();
+    context.teammate = { ...context.teammate, status: 'ARCHIVED' };
+    finish({ kind: 'HARD_FAILURE', code: 'PROBE_FAILED' });
+    await pending;
+    expect(context.stored).toEqual(before);
+  });
   it('probes UNKNOWN on use and returns a typed unavailable result without changing the selected teammate', async () => {
     const fixtureUnavailable = fixture({
       probe: async () => ({ kind: 'HARD_FAILURE', code: 'MODEL_NOT_FOUND' }),

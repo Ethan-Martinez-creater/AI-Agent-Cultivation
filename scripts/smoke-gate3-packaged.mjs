@@ -299,7 +299,7 @@ try {
     assert.ok(detail.audits.length > 0);
   }
   await navigateUi(second.page, '历练 Missions');
-  await second.page.getByRole('heading', { name: '历练', exact: true }).waitFor();
+  await second.page.getByRole('heading', { name: '历练', level: 1, exact: true }).waitFor();
   await second.page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await second.page.getByRole('button', { name: /SOLO A/ }).click();
   await second.page.getByRole('heading', { name: 'SOLO A', exact: true }).waitFor();

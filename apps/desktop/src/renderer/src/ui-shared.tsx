@@ -348,6 +348,8 @@ export interface ChatEvent {
 }
 
 export interface CultivationBridge {
+  desktop: PreloadBridge['desktop'];
+  avatars: PreloadBridge['avatars'];
   availability: PreloadBridge['availability'];
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };

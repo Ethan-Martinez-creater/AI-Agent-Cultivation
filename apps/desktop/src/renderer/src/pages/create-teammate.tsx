@@ -176,7 +176,7 @@ export function CreateTeammatePanel({
       setTestedRuntimeId('');
       setTestStatus('idle');
       setTestMessage('');
-      setNotice('API Key 已由 Main 安全导入并清理剪贴板；Renderer 不会读取 Key。');
+      setNotice('API Key 已安全导入，剪贴板已清空。');
     } catch (cause) {
       setError(errorText(cause, '导入 API Key 失败。请先复制 API Key 到剪贴板后重试。'));
     } finally {
@@ -272,7 +272,7 @@ export function CreateTeammatePanel({
       setStep('model');
       setTestedRuntimeId('');
       setTestStatus('failure');
-      setTestMessage('创建前的 Main 安全封存检测未通过，请检查连接并重新测试。');
+      setTestMessage('创建前的连接检测未通过，请检查连接并重新测试。');
     } finally {
       setBusy(false);
     }
@@ -300,7 +300,14 @@ export function CreateTeammatePanel({
   };
 
   return (
-    <Drawer title="创建道友" open={open} onClose={onClose} className="teammate-create-drawer">
+    <Drawer
+      title="创建道友"
+      open={open}
+      onClose={() => {
+        if (!busy) onClose();
+      }}
+      className="teammate-create-drawer"
+    >
       <div className="teammate-create-flow">
         <ol className="create-stepper" aria-label="创建流程">
           <li aria-current={step === 'identity' ? 'step' : undefined}>
@@ -404,7 +411,7 @@ export function CreateTeammatePanel({
           <section className="create-step-content" aria-labelledby="create-model-title">
             <div className="create-step-intro">
               <h3 id="create-model-title">为 {identity.name.trim() || '这位道友'} 选择模型</h3>
-              <p>创建前会真实测试连接；确认时 Main 会再次检测并封存模型身份。</p>
+              <p>先测试连接，再确认固定模型。创建后可轮换密钥。</p>
             </div>
             <div className="create-model-mode" role="group" aria-label="模型配置方式">
               <button
@@ -412,7 +419,7 @@ export function CreateTeammatePanel({
                 className={mode === 'existing' ? 'selected' : ''}
                 aria-pressed={mode === 'existing'}
                 onClick={() => chooseMode('existing')}
-                disabled={!runtimes.length}
+                disabled={busy || !runtimes.length}
               >
                 使用已有模型
               </button>
@@ -420,6 +427,7 @@ export function CreateTeammatePanel({
                 type="button"
                 className={mode === 'new' ? 'selected' : ''}
                 aria-pressed={mode === 'new'}
+                disabled={busy}
                 onClick={() => chooseMode('new')}
               >
                 添加新模型
@@ -440,6 +448,7 @@ export function CreateTeammatePanel({
                     >
                       <input
                         type="radio"
+                        disabled={busy}
                         name="existing-runtime"
                         value={runtime.id}
                         checked={selectedRuntimeId === runtime.id}
@@ -463,6 +472,7 @@ export function CreateTeammatePanel({
                 <label className="field">
                   <span>Provider 类型</span>
                   <select
+                    disabled={busy}
                     value={providerKind}
                     onChange={(event) => {
                       setProviderKind(event.target.value as ProviderKind);
@@ -482,6 +492,7 @@ export function CreateTeammatePanel({
                   <span>Endpoint（兼容服务需要）</span>
                   <input
                     type="url"
+                    disabled={busy}
                     maxLength={2048}
                     value={endpoint}
                     onChange={(event) => {
@@ -497,6 +508,7 @@ export function CreateTeammatePanel({
                   <input
                     required
                     maxLength={256}
+                    disabled={busy}
                     value={modelId}
                     onChange={(event) => {
                       setModelId(event.target.value);
@@ -509,10 +521,7 @@ export function CreateTeammatePanel({
                     <strong>
                       <Icon name="Credential" size={16} /> API Key
                     </strong>
-                    <p>
-                      先在系统剪贴板复制 API Key，再安全导入。导入时由 Main 读取并清理剪贴板； Key
-                      不会经过 Renderer。
-                    </p>
+                    <p>先复制 API Key，再点击导入。密钥会加密保存在本机，导入后清空剪贴板。</p>
                     {createdCredentialId && createdCredentialKey === providerKey ? (
                       <span className="create-key-status" role="status">
                         <Icon name="Check" size={15} /> 凭据已安全导入

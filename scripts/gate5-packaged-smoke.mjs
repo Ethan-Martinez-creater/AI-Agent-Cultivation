@@ -154,7 +154,7 @@ try {
   }, nonce);
 
   await navigateUi(page, '队伍 Parties');
-  await page.getByRole('heading', { name: '队伍', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '队伍', level: 1, exact: true }).waitFor();
   await page.locator('.party-summary-button').filter({ hasText: fixture.partyName }).waitFor();
 
   const startConsultation = async (title) => {
@@ -360,7 +360,7 @@ try {
   }
 
   await navigateUi(page, '历练 Missions');
-  await page.getByRole('heading', { name: '历练', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '历练', level: 1, exact: true }).waitFor();
   await page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await page
     .getByRole('button', { name: new RegExp(`Gate 5 collaboration approved ${nonce}`) })

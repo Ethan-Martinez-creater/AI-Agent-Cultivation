@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { ModelAvailabilityProjection } from '@cultivation/domain';
+import { Icon } from './components/Icon.js';
 
 const labels = {
   UNKNOWN: '尚未检测',
@@ -14,19 +15,30 @@ export function AvailabilityBadge({
   runtimeProfileId,
   recheck: showRecheck = true,
   compact = false,
+  teammateStatus,
+  executorKind,
 }: {
   teammateId?: string;
   runtimeProfileId?: string;
   recheck?: boolean;
   compact?: boolean;
+  teammateStatus?: string;
+  executorKind?: string;
 }) {
   const [state, setState] = useState<ModelAvailabilityProjection | null>(null);
+  const [identity, setIdentity] = useState<{
+    id: string;
+    status: string;
+    executorKind: string;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => {
     let disposed = false;
     setState(null);
+    setIdentity(null);
     setError('');
+    if (executorKind === 'USER_BRIDGE') return;
     const off = window.cultivation.availability.onChanged((value) => {
       if (
         !disposed &&
@@ -34,9 +46,20 @@ export function AvailabilityBadge({
       )
         setState(value);
     });
-    void window.cultivation.availability.list().then(
-      (rows) => {
-        if (!disposed)
+    void Promise.all([
+      window.cultivation.availability.list(),
+      window.cultivation.teammates.list(),
+    ]).then(
+      ([rows, teammates]) => {
+        const owner = teammates.find((row) =>
+          teammateId ? row.id === teammateId : row.currentRuntimeProfileId === runtimeProfileId,
+        );
+        if (!disposed) {
+          setIdentity(
+            owner
+              ? { id: owner.id, status: owner.status, executorKind: owner.executorKind ?? '' }
+              : null,
+          );
           setState(
             rows.find((row) =>
               teammateId
@@ -44,6 +67,7 @@ export function AvailabilityBadge({
                 : row.runtimeProfileId === runtimeProfileId,
             ) ?? null,
           );
+        }
       },
       () => {
         if (!disposed) setError('读取状态失败');
@@ -53,10 +77,10 @@ export function AvailabilityBadge({
       disposed = true;
       off();
     };
-  }, [teammateId, runtimeProfileId]);
+  }, [teammateId, runtimeProfileId, teammateStatus, executorKind]);
   const recheck = async () => {
     const id = teammateId ?? state?.teammateId;
-    if (!id) return;
+    if (!id || identity?.status !== 'ACTIVE' || identity.executorKind !== 'MODEL_RUNTIME') return;
     setBusy(true);
     setError('');
     try {
@@ -68,19 +92,24 @@ export function AvailabilityBadge({
     }
   };
   // Unbound Runtime templates have no teammate availability identity.
-  if (!teammateId && !state) return null;
+  if (executorKind === 'USER_BRIDGE' || identity?.executorKind === 'USER_BRIDGE') return null;
+  if (teammateStatus === 'ARCHIVED' || identity?.status === 'ARCHIVED')
+    return <span className="product-status neutral">已归档</span>;
+  if (!identity) return error ? <small role="alert">{error}</small> : null;
+  if (identity.executorKind !== 'MODEL_RUNTIME') return null;
   const status = state?.status ?? 'UNKNOWN';
   return (
     <span className="availability-control" data-availability={status} title={labels[status]}>
       <span className={`availability-dot ${status.toLowerCase()}`} aria-hidden="true" />
       {!compact && <span>{labels[status]}</span>}
-      {showRecheck && (
+      {showRecheck && identity.status === 'ACTIVE' && (
         <button
           className="text-button"
           type="button"
           disabled={busy}
           onClick={() => void recheck()}
         >
+          <Icon name="Refresh" size={14} />
           {busy ? '检测中…' : '重新检测'}
         </button>
       )}

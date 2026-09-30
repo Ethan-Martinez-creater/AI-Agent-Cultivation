@@ -103,7 +103,7 @@ try {
   );
 
   await navigateUi(page, '设置 Settings');
-  await page.getByRole('heading', { name: '设置', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '设置', level: 1, exact: true }).waitFor();
   await page.getByRole('tab', { name: 'Jev 观察', exact: true }).click();
   await page.locator('.shadow-diagnostics > summary').click();
   await page.getByText('Jev Shadow Decision Plane').waitFor();

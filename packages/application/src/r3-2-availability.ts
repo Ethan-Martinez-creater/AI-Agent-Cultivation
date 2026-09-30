@@ -269,6 +269,9 @@ export class AvailabilityService {
       throw new DomainError('INVALID_MODEL_IDENTITY', '此道友没有模型执行身份');
     }
     const runtimeProfileId = teammate.currentRuntimeProfileId;
+    if (teammate.status !== 'ACTIVE') {
+      throw new DomainError('TEAMMATE_ARCHIVED', '已归档道友不能重新检测模型');
+    }
     const identity = this.inspectIdentity(teammateId, runtimeProfileId);
     if (
       !identity.binding ||
@@ -292,6 +295,9 @@ export class AvailabilityService {
       probeResult = await this.probe.probe(runtimeProfileId);
     } catch (error) {
       probeResult = classifyFailure(error, 'PROBE_FAILED');
+    }
+    if (this.identities.getTeammate(teammateId)?.status !== 'ACTIVE') {
+      return this.get(teammateId) ?? unknownProjection(teammateId, runtimeProfileId);
     }
     if (revision !== this.identityRevision(teammateId, runtimeProfileId)) {
       return this.get(teammateId) ?? unknownProjection(teammateId, runtimeProfileId);

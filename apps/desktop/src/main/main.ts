@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Notification, safeStorage } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, Notification, safeStorage } from 'electron';
 import squirrelStartup from 'electron-squirrel-startup';
 import { join } from 'node:path';
 import { mkdirSync } from 'node:fs';
@@ -68,6 +68,7 @@ import { R3ShadowMissionObserver } from './r3-shadow-observer.js';
 import { registerR3Ipc } from './r3-ipc.js';
 import { registerAvailabilityIpc } from './r3-2-ipc.js';
 import type { ModelAvailabilityProjection } from '@cultivation/domain';
+import { registerDesktopIpc } from './desktop-ipc.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -111,6 +112,8 @@ function createWindow(
     minWidth: 900,
     minHeight: 600,
     show: false,
+    frame: false,
+    backgroundColor: '#f6f8fc',
     webPreferences: {
       preload,
       nodeIntegration: false,
@@ -118,6 +121,8 @@ function createWindow(
       sandbox: true,
     },
   });
+  Menu.setApplicationMenu(null);
+  window.setMenu(null);
   window.once('ready-to-show', () => window.show());
 
   const devUrl = MAIN_WINDOW_VITE_DEV_SERVER_URL;
@@ -150,6 +155,7 @@ function createWindow(
     }
   };
   const noArgs = z.tuple([]);
+  registerDesktopIpc(window, validSender, app.getPath('userData'));
   ipcMain.removeHandler('app:getVersion');
   ipcMain.removeHandler('health:ping');
   ipcMain.handle('app:getVersion', (event, ...args: unknown[]) => {

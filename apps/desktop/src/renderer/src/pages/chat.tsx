@@ -51,7 +51,7 @@ export function ChatPage() {
 
   const refreshConversations = async (forTeammateId: string) => {
     const rows = await window.cultivation.chat.listConversations(forTeammateId);
-    setConversations(rows);
+    if (activeRequest.current.teammateId === forTeammateId) setConversations(rows);
     return rows;
   };
 
@@ -104,7 +104,13 @@ export function ChatPage() {
           void window.cultivation.chat
             .listMessages({ teammateId, conversationId: initialConversationId })
             .then((items) => {
-              if (!cancelled) setMessages(items);
+              const active = activeRequest.current;
+              if (
+                !cancelled &&
+                active.teammateId === teammateId &&
+                active.conversationId === initialConversationId
+              )
+                setMessages(items);
             })
             .catch((cause: unknown) => {
               if (!cancelled) setError(errorText(cause, '读取消息失败。'));

@@ -157,6 +157,18 @@ export interface R3ShadowObservationView {
 }
 
 export interface CultivationBridge {
+  desktop: {
+    windowState(): Promise<{ maximized: boolean }>;
+    minimize(): Promise<void>;
+    toggleMaximize(): Promise<void>;
+    close(): Promise<void>;
+    copyText(text: string): Promise<void>;
+    onWindowStateChanged(callback: (state: { maximized: boolean }) => void): () => void;
+  };
+  avatars: {
+    import(): Promise<string | null>;
+    read(ref: string): Promise<string | null>;
+  };
   availability: {
     list(): Promise<ModelAvailabilityProjection[]>;
     recheck(teammateId: string): Promise<ModelAvailabilityProjection>;
@@ -397,6 +409,23 @@ export interface CultivationBridge {
 }
 
 const bridge: CultivationBridge = {
+  desktop: {
+    windowState: () => ipcRenderer.invoke('desktop:windowState'),
+    minimize: () => ipcRenderer.invoke('desktop:minimize'),
+    toggleMaximize: () => ipcRenderer.invoke('desktop:toggleMaximize'),
+    close: () => ipcRenderer.invoke('desktop:close'),
+    copyText: (text) => ipcRenderer.invoke('desktop:copyText', text),
+    onWindowStateChanged: (callback) => {
+      const listener = (_event: Electron.IpcRendererEvent, state: { maximized: boolean }) =>
+        callback(state);
+      ipcRenderer.on('desktop:windowStateChanged', listener);
+      return () => ipcRenderer.removeListener('desktop:windowStateChanged', listener);
+    },
+  },
+  avatars: {
+    import: () => ipcRenderer.invoke('avatars:import'),
+    read: (ref) => ipcRenderer.invoke('avatars:read', ref),
+  },
   availability: {
     list: () => ipcRenderer.invoke('availability:list'),
     recheck: (teammateId) => ipcRenderer.invoke('availability:recheck', teammateId),

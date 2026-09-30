@@ -38,7 +38,7 @@ try {
     ['设置 Settings', '设置'],
   ]) {
     await navigateUi(page, link);
-    await page.getByRole('heading', { name: heading }).waitFor();
+    await page.getByRole('heading', { name: heading, level: 1, exact: true }).waitFor();
   }
   const ping = await page.evaluate(() => window.cultivation.health.ping());
   assert.deepEqual(ping, { status: 'ok', database: 'sqlite' });
