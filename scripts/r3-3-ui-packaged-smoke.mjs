@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { _electron as electron } from 'playwright-core';
 import Database from 'better-sqlite3';
-import { navigateUi } from './ui-navigation.mjs';
 
 const root = process.cwd();
+const { navigateUi } = await import(pathToFileURL(join(root, 'scripts', 'ui-navigation.mjs')).href);
 const runId = randomUUID();
 const userData = join(root, '.test-data', `r3-3-ui-${runId}`);
 const tempDirectory = join(root, '.tmp', `r3-3-ui-${runId}`, 'temp');
@@ -61,10 +62,7 @@ function recordAssertion(name, details = {}) {
 function launchPackagedApp() {
   return electron.launch({
     executablePath,
-    args: [
-      '--gate1-fake-model',
-      `--user-data-dir=${chromiumProfile}`,
-    ],
+    args: ['--gate1-fake-model', `--user-data-dir=${chromiumProfile}`],
     timeout: 30000,
     env: {
       ...process.env,
@@ -80,7 +78,7 @@ async function waitForPaint(page) {
   await page.evaluate(
     () =>
       new Promise((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve(undefined))),
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve(undefined))),
       ),
   );
 }
@@ -92,7 +90,10 @@ async function setWindowSize(targetApp, page, width, height) {
   );
   await page.waitForTimeout(100);
   await waitForPaint(page);
-  const actual = await page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }));
+  const actual = await page.evaluate(() => ({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }));
   recordAssertion('real-browser-window-size', { requested: [width, height], actual });
   return actual;
 }
@@ -101,7 +102,10 @@ async function capture(page, name, width, height, details = {}) {
   const path = join(images, name);
   await waitForPaint(page);
   await page.screenshot({ path, fullPage: false, animations: 'disabled' });
-  const viewport = await page.evaluate(() => ({ width: innerWidth, height: innerHeight }));
+  const viewport = await page.evaluate(() => ({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }));
   const metrics = await pageMetrics(page);
   manifest.screenshots.push({ name, path, viewport, requestedSize: [width, height], ...details });
   measurements.push({ name, ...viewport, ...metrics });
@@ -114,7 +118,8 @@ async function pageMetrics(page) {
       const rect = element.getBoundingClientRect();
       return rect.width > 0 && rect.height > 0;
     };
-    const fields = [...document.querySelectorAll('input:not([type="checkbox"]),select,textarea')]
+    const doc = window.document;
+    const fields = [...doc.querySelectorAll('input:not([type="checkbox"]),select,textarea')]
       .filter(visible)
       .map((field) => ({
         labelCount: field.labels?.length ?? 0,
@@ -122,10 +127,10 @@ async function pageMetrics(page) {
         accessibleName: field.getAttribute('aria-label') ?? '',
       }));
     return {
-      innerWidth,
-      innerHeight,
-      documentWidth: document.documentElement.scrollWidth,
-      placeholders: document.querySelectorAll('[placeholder]').length,
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+      documentWidth: doc.documentElement.scrollWidth,
+      placeholders: doc.querySelectorAll('[placeholder]').length,
       unlabelled: fields.filter((field) => field.labelCount === 0 && !field.accessibleName),
     };
   });
@@ -140,7 +145,9 @@ async function pageMetrics(page) {
 
 async function waitForChatIdle(page) {
   await page.waitForFunction(
-    () => document.querySelector('[data-testid="message-stream"]')?.getAttribute('aria-busy') === 'false',
+    () =>
+      window.document.querySelector('[data-testid="message-stream"]')?.getAttribute('aria-busy') ===
+      'false',
   );
   await page.locator('[data-testid="streaming-message"]').waitFor({ state: 'detached' });
 }
@@ -191,6 +198,66 @@ try {
   await pageMetrics(page);
   await capture(page, '01-home-empty-1440.png', 1440, 900, { route: '/' });
   recordAssertion('home-empty-single-primary-action');
+
+  const appMenuIsNull = await app.evaluate(({ Menu }) => Menu.getApplicationMenu() === null);
+  assert.equal(
+    appMenuIsNull,
+    true,
+    'The packaged app must not expose the default application menu.',
+  );
+  const titlebarPresentation = await page.evaluate(() => {
+    const doc = window.document;
+    const titlebar = doc.querySelector('.app-titlebar');
+    const controls = doc.querySelector('.window-controls');
+    return {
+      brandCount: doc.querySelectorAll('.app-titlebar .titlebar-brand').length,
+      productNameOccurrences: (doc.body.innerText.match(/AI Agent Cultivation/g) ?? []).length,
+      sidebarText: doc.querySelector('.sidebar')?.innerText ?? '',
+      titlebarDrag: titlebar
+        ? window.getComputedStyle(titlebar).getPropertyValue('-webkit-app-region')
+        : '',
+      controlsDrag: controls
+        ? window.getComputedStyle(controls).getPropertyValue('-webkit-app-region')
+        : '',
+    };
+  });
+  assert.equal(titlebarPresentation.brandCount, 1);
+  assert.equal(titlebarPresentation.productNameOccurrences, 1);
+  assert.doesNotMatch(titlebarPresentation.sidebarText, /AI Agent Cultivation|Windows V1 Alpha/);
+  assert.equal(titlebarPresentation.titlebarDrag, 'drag');
+  assert.equal(titlebarPresentation.controlsDrag, 'no-drag');
+  recordAssertion('packaged-shell-menu-brand-and-drag-regions', {
+    menuIsNull: appMenuIsNull,
+    ...titlebarPresentation,
+  });
+
+  const logoImage = page.locator('.titlebar-brand img');
+  const originalLogoDimensions = await logoImage.evaluate((image) => ({
+    width: image.getAttribute('width'),
+    height: image.getAttribute('height'),
+    styleWidth: image.style.width,
+    styleHeight: image.style.height,
+  }));
+  for (const size of [16, 24, 32, 48]) {
+    const renderedSize = await logoImage.evaluate((image, dimension) => {
+      image.setAttribute('width', String(dimension));
+      image.setAttribute('height', String(dimension));
+      image.style.width = `${dimension}px`;
+      image.style.height = `${dimension}px`;
+      return image.getBoundingClientRect().width;
+    }, size);
+    assert.equal(renderedSize, size, `Logo should render at ${size}px.`);
+    await capture(page, `shell-logo-${size}.png`, 1440, 900, { logoSize: size });
+  }
+  await logoImage.evaluate((image, original) => {
+    if (original.width === null) image.removeAttribute('width');
+    else image.setAttribute('width', original.width);
+    if (original.height === null) image.removeAttribute('height');
+    else image.setAttribute('height', original.height);
+    image.style.width = original.styleWidth;
+    image.style.height = original.styleHeight;
+  }, originalLogoDimensions);
+  recordAssertion('packaged-logo-renders-at-16-24-32-48-px');
 
   await page.getByRole('button', { name: '折叠导航' }).click();
   await page.locator('.layout.sidebar-collapsed').waitFor();
@@ -247,12 +314,22 @@ try {
       });
     const a = await createTeammate('青岚 Smoke', 'preset:02');
     const b = await createTeammate('明衡 Smoke', 'preset:07');
+    const humanBridge = (await api.teammates.list()).find(
+      (item) => item.executorKind === 'USER_BRIDGE' || item.systemKind === 'HUMAN_BRIDGE',
+    );
     const party = await api.parties.create({
       name: '双人协作 Smoke',
       description: '由两位固定模型道友组成的队伍。',
       type: 'FIXED',
       coordinatorTeammateId: a.id,
       memberTeammateIds: [a.id, b.id],
+    });
+    const partyWithHumanBridge = await api.parties.create({
+      name: '本尊协作 Smoke',
+      description: '验证本尊在队伍中的委托状态，不显示模型可用性。',
+      type: 'FIXED',
+      coordinatorTeammateId: a.id,
+      memberTeammateIds: [a.id, humanBridge.id],
     });
     const mission = await api.missions.create({
       title: '协作验收 Smoke',
@@ -263,10 +340,7 @@ try {
     });
     await api.missions.ready(mission.id);
     await api.missions.start({ missionId: mission.id, approvalFixture: false });
-    const humanBridge = (await api.teammates.list()).find(
-      (item) => item.executorKind === 'USER_BRIDGE' || item.systemKind === 'HUMAN_BRIDGE',
-    );
-    return { provider, runtime, a, b, party, mission, humanBridge };
+    return { provider, runtime, a, b, party, partyWithHumanBridge, mission, humanBridge };
   });
   assert.ok(fixtures.humanBridge, 'The packaged app should expose its Human Bridge teammate.');
   recordAssertion('fake-provider-fixtures-seeded', {
@@ -275,8 +349,15 @@ try {
     missionId: fixtures.mission.id,
   });
 
+  await page.getByRole('heading', { name: '历练', exact: true, level: 1 }).waitFor();
+  await page.getByRole('heading', { name: fixtures.mission.title, exact: true }).waitFor();
   await navigateUi(page, '洞府 Home');
-  await page.getByText('协作验收 Smoke', { exact: true }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true, level: 1 }).waitFor();
+  await page
+    .locator('.home-task-list')
+    .getByText(fixtures.mission.title, { exact: true })
+    .first()
+    .waitFor();
   await pageMetrics(page);
   await capture(page, '02-home-active-1440.png', 1440, 900, { route: '/' });
 
@@ -298,20 +379,17 @@ try {
     drawer: 'identity',
   });
   await page.getByLabel('名称', { exact: true }).fill('玄照 Upload Smoke');
-  const mockDialogInstalled = await app.evaluate(
-    ({ dialog }, filePath) => {
-      const target = dialog;
-      const original = target.showOpenDialog;
-      target.showOpenDialog = async () => ({ canceled: false, filePaths: [filePath] });
-      globalThis.__r33OriginalOpenDialog = original;
-      return true;
-    },
-    importedAvatar,
-  );
+  const mockDialogInstalled = await app.evaluate(({ dialog }, filePath) => {
+    const target = dialog;
+    const original = target.showOpenDialog;
+    target.showOpenDialog = async () => ({ canceled: false, filePaths: [filePath] });
+    globalThis.__r33OriginalOpenDialog = original;
+    return true;
+  }, importedAvatar);
   assert.equal(mockDialogInstalled, true);
   await page.getByRole('button', { name: '从电脑选择' }).click();
   await page.waitForFunction(() => {
-    const button = [...document.querySelectorAll('button')].find((item) =>
+    const button = [...window.document.querySelectorAll('button')].find((item) =>
       item.textContent?.includes('从电脑选择'),
     );
     return button && !button.disabled;
@@ -344,11 +422,86 @@ try {
       imagePrefix: image?.slice(0, 22) ?? '',
     };
   }, '玄照 Upload Smoke');
-  assert.ok(importedAvatarResult?.avatar?.startsWith('local:'), 'Import should return opaque local ref.');
-  assert.ok(!importedAvatarResult.avatar.includes(importedAvatar), 'Absolute file path must not persist.');
+  assert.ok(
+    importedAvatarResult?.avatar?.startsWith('local:'),
+    'Import should return opaque local ref.',
+  );
+  assert.ok(
+    !importedAvatarResult.avatar.includes(importedAvatar),
+    'Absolute file path must not persist.',
+  );
   assert.ok(importedAvatarResult.imagePrefix.startsWith('data:image/png;base64,'));
   await page.locator('.teammate-profile .object-avatar img').waitFor();
   recordAssertion('native-avatar-import-and-safe-reference', importedAvatarResult);
+
+  await page.getByRole('button', { name: '创建道友' }).click();
+  await page.getByRole('heading', { name: '先认识这位道友' }).waitFor();
+  await page.getByLabel('名称', { exact: true }).fill('紫檀 New Model Smoke');
+  await page.getByRole('button', { name: '继续选择模型' }).click();
+  await page.getByRole('heading', { name: '为 紫檀 New Model Smoke 选择模型' }).waitFor();
+  await page.getByRole('button', { name: '添加新模型', exact: true }).click();
+  await page.getByLabel('Provider 类型', { exact: true }).selectOption('OPENAI_COMPATIBLE');
+  await page
+    .getByLabel('Endpoint（兼容服务需要）', { exact: true })
+    .fill('http://127.0.0.1:9998/v1');
+  await page.getByLabel('Model ID', { exact: true }).fill('r33-new-model-smoke');
+  const smokeApiKey = 'r33-packaged-smoke-only-fake-key';
+  await app.evaluate(({ clipboard }, key) => clipboard.writeText(key), smokeApiKey);
+  await page.getByRole('button', { name: '从剪贴板安全导入', exact: true }).click();
+  await page
+    .getByRole('status')
+    .filter({ hasText: 'API Key 已安全导入，剪贴板已清空。' })
+    .waitFor();
+  assert.equal(await app.evaluate(({ clipboard }) => clipboard.readText()), '');
+  assert.doesNotMatch(await page.locator('body').innerText(), new RegExp(smokeApiKey));
+  await page.getByRole('button', { name: '测试连接', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Fake model connection succeeded.' }).waitFor();
+  await capture(page, 'create-teammate-new-model-tested-1440.png', 1440, 900, {
+    route: '/teammates',
+    drawer: 'new-model-tested',
+  });
+  await page.getByRole('button', { name: '确认资料' }).click();
+  await page.getByRole('heading', { name: '检查道友资料' }).waitFor();
+  await capture(page, 'create-teammate-new-model-confirm-1440.png', 1440, 900, {
+    route: '/teammates',
+    drawer: 'new-model-confirm',
+  });
+  await page.getByRole('button', { name: '确认并创建道友' }).click();
+  await page.getByRole('heading', { name: '紫檀 New Model Smoke', exact: true }).waitFor();
+  const createdNewModelBinding = await page.evaluate(async (name) => {
+    const api = window.cultivation;
+    const teammate = (await api.teammates.list()).find((item) => item.name === name);
+    if (!teammate?.currentRuntimeProfileId) return null;
+    const runtime = (await api.runtimes.list()).find(
+      (item) => item.id === teammate.currentRuntimeProfileId,
+    );
+    const provider = runtime
+      ? (await api.providers.list()).find((item) => item.id === runtime.providerId)
+      : null;
+    const credentials = provider ? await api.credentials.list(provider.id) : [];
+    return {
+      teammateName: teammate.name,
+      runtimeId: runtime?.id,
+      runtimeName: runtime?.name,
+      modelId: runtime?.modelId,
+      credentialBound: Boolean(runtime?.credentialId),
+      providerKind: provider?.kind,
+      endpoint: provider?.baseUrl,
+      credentialLabel: credentials[0]?.label ?? '',
+    };
+  }, '紫檀 New Model Smoke');
+  assert.ok(createdNewModelBinding?.runtimeId, 'New model creation must bind a runtime profile.');
+  const { runtimeId: createdNewModelRuntimeId, ...newModelBindingDetails } = createdNewModelBinding;
+  assert.deepEqual(newModelBindingDetails, {
+    teammateName: '紫檀 New Model Smoke',
+    runtimeName: 'r33-new-model-smoke',
+    modelId: 'r33-new-model-smoke',
+    credentialBound: true,
+    providerKind: 'OPENAI_COMPATIBLE',
+    endpoint: 'http://127.0.0.1:9998/v1',
+    credentialLabel: 'r33-new-model-smoke API Key',
+  });
+  recordAssertion('embedded-provider-model-test-and-seal', createdNewModelBinding);
 
   await navigateUi(page, '队伍 Parties');
   await page.locator('.party-summary-button').filter({ hasText: '双人协作 Smoke' }).click();
@@ -358,9 +511,31 @@ try {
     route: '/parties',
     party: fixtures.party.name,
   });
+  await page
+    .locator('.party-summary-button')
+    .filter({ hasText: fixtures.partyWithHumanBridge.name })
+    .click();
+  const humanBridgePartyMember = page
+    .locator('.party-detail-member')
+    .filter({ hasText: fixtures.humanBridge.name });
+  await humanBridgePartyMember.waitFor();
+  assert.match(await humanBridgePartyMember.innerText(), /可接收委托/);
+  assert.equal(await humanBridgePartyMember.locator('[data-availability]').count(), 0);
+  assert.equal(
+    await humanBridgePartyMember.getByRole('button', { name: '重新检测', exact: true }).count(),
+    0,
+  );
+  await capture(page, 'party-human-bridge-1440.png', 1440, 900, {
+    route: '/parties',
+    party: fixtures.partyWithHumanBridge.name,
+  });
+  recordAssertion('human-bridge-party-member-has-delegation-status-only');
 
   await navigateUi(page, '历练 Missions');
-  await page.locator('button.mission-list-item').filter({ hasText: fixtures.mission.title }).click();
+  await page
+    .locator('button.mission-list-item')
+    .filter({ hasText: fixtures.mission.title })
+    .click();
   await page.getByRole('heading', { name: fixtures.mission.title, exact: true }).waitFor();
   await pageMetrics(page);
   await capture(page, '08-mission-detail-1440.png', 1440, 900, {
@@ -386,10 +561,7 @@ try {
   await page.getByRole('button', { name: '保存记忆', exact: true }).click();
   await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
   await memoryOwner.selectOption(fixtures.b.id);
-  await page.getByText(fixtures.b.name, { exact: true }).waitFor();
-  await page.waitForFunction(
-    () => ![...document.querySelectorAll('.loading-card')].some((item) => item.textContent?.includes('记忆')),
-  );
+  await page.getByText('还没有符合筛选的记忆', { exact: true }).waitFor();
   assert.equal(
     await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).count(),
     0,
@@ -401,10 +573,11 @@ try {
   await page.getByRole('button', { name: '保存记忆', exact: true }).click();
   await page.locator('.memory-card').filter({ hasText: 'R33_B_PRIVATE_MEMORY' }).waitFor();
   await memoryOwner.selectOption(fixtures.a.id);
-  await page.waitForFunction(
-    () => ![...document.querySelectorAll('.loading-card')].some((item) => item.textContent?.includes('记忆')),
+  await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
+  assert.equal(
+    await page.locator('.memory-card').filter({ hasText: 'R33_B_PRIVATE_MEMORY' }).count(),
+    0,
   );
-  assert.equal(await page.locator('.memory-card').filter({ hasText: 'R33_B_PRIVATE_MEMORY' }).count(), 0);
   await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
   await pageMetrics(page);
   await capture(page, '09-memory-1440.png', 1440, 900, {
@@ -415,19 +588,35 @@ try {
 
   await navigateUi(page, '设置 Settings');
   await page.getByRole('tab', { name: '模型配置', exact: true }).click();
-  const sealedRuntime = page
-    .locator('.runtime-item-sealed')
-    .filter({ hasText: fixtures.runtime.modelId });
+  const sealedRuntime = page.locator('.runtime-item-sealed').filter({ hasText: fixtures.a.name });
   await sealedRuntime.waitFor();
   await sealedRuntime.getByText(/已固定给/).waitFor();
+  await sealedRuntime.getByText(fixtures.runtime.modelId, { exact: true }).waitFor();
+  const boundRuntimeId = fixtures.a.currentRuntimeProfileId;
+  assert.ok(boundRuntimeId, 'A model-backed teammate should have its sealed runtime profile.');
+  const teammateBoundRuntime = await page.evaluate(
+    (runtimeId) =>
+      window.cultivation.runtimes.list().then((rows) => rows.find((row) => row.id === runtimeId)),
+    boundRuntimeId,
+  );
+  assert.equal(teammateBoundRuntime?.modelId, fixtures.runtime.modelId);
   assert.equal(await sealedRuntime.getByRole('button', { name: '编辑模板' }).count(), 0);
   assert.equal(await sealedRuntime.getByRole('button', { name: '测试连接' }).count(), 0);
+  const newModelSealedRuntime = page
+    .locator('.runtime-item-sealed')
+    .filter({ hasText: createdNewModelBinding.modelId });
+  await newModelSealedRuntime.waitFor();
+  await newModelSealedRuntime.getByText(/已固定给/).waitFor();
+  assert.equal(await newModelSealedRuntime.getByRole('button', { name: '编辑模板' }).count(), 0);
+  assert.equal(await newModelSealedRuntime.getByRole('button', { name: '测试连接' }).count(), 0);
   await pageMetrics(page);
   await capture(page, '10-settings-models-1440.png', 1440, 900, {
     route: '/settings',
     tab: '模型配置',
   });
-  recordAssertion('sealed-runtime-is-read-only', { runtimeId: fixtures.runtime.id });
+  recordAssertion('sealed-runtime-is-read-only', {
+    runtimeIds: [boundRuntimeId, createdNewModelRuntimeId],
+  });
 
   await navigateUi(page, '本尊待办 Human Bridge');
   await page.getByRole('heading', { name: '本尊待办', exact: true }).waitFor();
@@ -452,7 +641,10 @@ try {
   });
 
   await navigateUi(page, '历练 Missions');
-  await page.locator('button.mission-list-item').filter({ hasText: fixtures.mission.title }).click();
+  await page
+    .locator('button.mission-list-item')
+    .filter({ hasText: fixtures.mission.title })
+    .click();
   await page.getByRole('heading', { name: fixtures.mission.title, exact: true }).waitFor();
   await setWindowSize(app, page, 1180, 780);
   await pageMetrics(page);
@@ -484,14 +676,19 @@ try {
   await page.locator('[data-testid="empty-chat"]').waitFor();
   await pageMetrics(page);
   await capture(page, 'chat-empty-1440.png', 1440, 900, { route: `/chat/${fixtures.a.id}` });
-  await page.locator('[data-testid="empty-chat"]').getByRole('button', { name: /开始新对话/ }).click();
+  await page
+    .locator('[data-testid="empty-chat"]')
+    .getByRole('button', { name: /开始新对话/ })
+    .click();
   await page.locator('[data-testid="empty-conversation"]').waitFor();
   await page.getByLabel('写消息', { exact: true }).waitFor();
   await sendChatText(page, 'PING');
   await page.getByText('PONG', { exact: true }).waitFor();
   await waitForChatIdle(page);
   const chatMessages = await page.locator('[data-testid="message-stream"]').evaluate((stream) => ({
-    assistantAvatar: Boolean(stream.querySelector('.r33-message-row.is-assistant .r33-message-avatar')),
+    assistantAvatar: Boolean(
+      stream.querySelector('.r33-message-row.is-assistant .r33-message-avatar'),
+    ),
     userAvatar: Boolean(stream.querySelector('.r33-message-row.is-user .r33-user-avatar')),
   }));
   assert.deepEqual(chatMessages, { assistantAvatar: true, userAvatar: true });
@@ -499,7 +696,10 @@ try {
     route: `/chat/${fixtures.a.id}`,
     conversationId: 'persisted-after-visible-PING',
   });
-  const conversationRows = await page.evaluate((id) => window.cultivation.chat.listConversations(id), fixtures.a.id);
+  const conversationRows = await page.evaluate(
+    (id) => window.cultivation.chat.listConversations(id),
+    fixtures.a.id,
+  );
   assert.ok(conversationRows.length > 0);
   conversationId = conversationRows[0].id;
   recordAssertion('visible-chat-ping-pong-and-object-avatars', { conversationId, ...chatMessages });
@@ -549,10 +749,10 @@ try {
   const clipboardText = await app.evaluate(({ clipboard }) => clipboard.readText());
   assert.equal(clipboardText, copiedCode, 'Code Copy must use the typed Main clipboard port.');
   const codeLayout = await page.evaluate(() => ({
-    documentWidth: document.documentElement.scrollWidth,
-    innerWidth,
-    codeScrollWidth: document.querySelector('.r33-code-scroll')?.scrollWidth ?? 0,
-    codeClientWidth: document.querySelector('.r33-code-scroll')?.clientWidth ?? 0,
+    documentWidth: window.document.documentElement.scrollWidth,
+    innerWidth: window.innerWidth,
+    codeScrollWidth: window.document.querySelector('.r33-code-scroll')?.scrollWidth ?? 0,
+    codeClientWidth: window.document.querySelector('.r33-code-scroll')?.clientWidth ?? 0,
   }));
   assert.ok(codeLayout.documentWidth <= codeLayout.innerWidth + 1, JSON.stringify(codeLayout));
   assert.ok(codeLayout.codeScrollWidth > codeLayout.codeClientWidth, JSON.stringify(codeLayout));
@@ -564,10 +764,11 @@ try {
 
   await navigateUi(page, '道友 Teammates');
   await page.locator('.teammate-roster-select').filter({ hasText: fixtures.b.name }).click();
-  await page.locator('.teammate-profile').getByRole('button', { name: '重新检测', exact: true }).click();
   await page
-    .locator('.teammate-profile [data-availability="AVAILABLE"]')
-    .waitFor();
+    .locator('.teammate-profile')
+    .getByRole('button', { name: '重新检测', exact: true })
+    .click();
+  await page.locator('.teammate-profile [data-availability="AVAILABLE"]').waitFor();
   const beforeArchive = await readAvailabilityRow(fixtures.b.id);
   assert.ok(beforeArchive);
   await page.locator('.teammate-more-menu > summary').click();
@@ -591,14 +792,22 @@ try {
   const archiveEvents = await page.evaluate(() => window.__r33AvailabilityEvents.length);
   const afterArchive = await readAvailabilityRow(fixtures.b.id);
   assert.equal(archiveEvents, 0, 'Mounting an archived Chat must not initiate a probe.');
-  assert.deepEqual(afterArchive, beforeArchive, 'Archived Chat must preserve the availability projection.');
+  assert.deepEqual(
+    afterArchive,
+    beforeArchive,
+    'Archived Chat must preserve the availability projection.',
+  );
   recordAssertion('archived-chat-does-not-probe-or-send', {
     availabilityStatus: beforeArchive.status,
     eventCount: archiveEvents,
   });
 
   await closeWithTitlebar(app, page);
-  await app.close();
+  try {
+    await app.close();
+  } catch {
+    // The titlebar close control may have already ended the packaged process.
+  }
   app = undefined;
 
   const db = new Database(databasePath);
@@ -631,7 +840,10 @@ try {
   const restartedPage = await app.firstWindow();
   await restartedPage.getByRole('heading', { name: '首页', exact: true }).waitFor();
   await navigateUi(restartedPage, '道友 Teammates');
-  await restartedPage.locator('.teammate-roster-select').filter({ hasText: '玄照 Upload Smoke' }).click();
+  await restartedPage
+    .locator('.teammate-roster-select')
+    .filter({ hasText: '玄照 Upload Smoke' })
+    .click();
   const persistedImage = restartedPage.locator('.teammate-profile .object-avatar img');
   await persistedImage.waitFor();
   const persistedSource = await persistedImage.getAttribute('src');
@@ -643,10 +855,11 @@ try {
   assert.ok((await persistedAvatarPort)?.startsWith('data:image/png;base64,'));
   recordAssertion('local-avatar-survives-packaged-app-restart');
 
-  await restartedPage.locator('.teammate-roster-select').filter({ hasText: fixtures.a.name }).click();
   await restartedPage
-    .locator('.teammate-profile [data-availability="UNAVAILABLE"]')
-    .waitFor();
+    .locator('.teammate-roster-select')
+    .filter({ hasText: fixtures.a.name })
+    .click();
+  await restartedPage.locator('.teammate-profile [data-availability="UNAVAILABLE"]').waitFor();
   await restartedPage.getByRole('button', { name: '开始对话', exact: true }).click();
   await restartedPage.locator('[data-testid="chat-page"]').waitFor();
   await restartedPage.getByLabel('写消息', { exact: true }).fill('blocked UI send');
@@ -655,7 +868,10 @@ try {
   await restartedPage.getByRole('button', { name: '选择其他道友', exact: true }).waitFor();
   await restartedPage.getByRole('button', { name: '重新检测', exact: true }).waitFor();
   await restartedPage.getByRole('button', { name: '取消', exact: true }).waitFor();
-  assert.equal(await restartedPage.getByLabel('写消息', { exact: true }).inputValue(), 'blocked UI send');
+  assert.equal(
+    await restartedPage.getByLabel('写消息', { exact: true }).inputValue(),
+    'blocked UI send',
+  );
   const blockedMessages = await restartedPage.evaluate(
     ({ teammateId, conversationId: targetConversationId }) =>
       window.cultivation.chat.listMessages({
@@ -664,7 +880,10 @@ try {
       }),
     { teammateId: fixtures.a.id, conversationId },
   );
-  assert.equal(blockedMessages.some((message) => message.content === 'blocked UI send'), false);
+  assert.equal(
+    blockedMessages.some((message) => message.content === 'blocked UI send'),
+    false,
+  );
   await setWindowSize(app, restartedPage, 1440, 900);
   await capture(restartedPage, 'chat-unavailable-1440.png', 1440, 900, {
     route: `/chat/${fixtures.a.id}`,
@@ -677,7 +896,10 @@ try {
     'Canceling the inline notice must leave the unsent draft intact.',
   );
   await navigateUi(restartedPage, '道友 Teammates');
-  await restartedPage.locator('.teammate-roster-select').filter({ hasText: fixtures.a.name }).click();
+  await restartedPage
+    .locator('.teammate-roster-select')
+    .filter({ hasText: fixtures.a.name })
+    .click();
   await restartedPage
     .locator('.teammate-profile')
     .getByRole('button', { name: '重新检测', exact: true })
@@ -702,7 +924,11 @@ try {
   recordAssertion('chat-900-drawer-toggles-with-composer-available');
 
   await closeWithTitlebar(app, restartedPage);
-  await app.close();
+  try {
+    await app.close();
+  } catch {
+    // The titlebar close control may have already ended the packaged process.
+  }
   app = undefined;
 } catch (error) {
   if (app) {
@@ -754,14 +980,20 @@ const requiredScreenshots = [
   'chat-conversation-900.png',
 ];
 assert.deepEqual(
-  manifest.screenshots.map((item) => item.name).filter((name) => requiredScreenshots.includes(name)),
+  manifest.screenshots
+    .map((item) => item.name)
+    .filter((name) => requiredScreenshots.includes(name)),
   requiredScreenshots,
   'The complete v1.1 screenshot set must be captured in order.',
 );
-writeFileSync(join(userData, 'ui-measurements.json'), JSON.stringify(measurements, null, 2), 'utf8');
+writeFileSync(
+  join(userData, 'ui-measurements.json'),
+  JSON.stringify(measurements, null, 2),
+  'utf8',
+);
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
 console.log(
-  'R3_3_UI_PACKAGED_SMOKE_OK screenshots=22 chat=streaming,long-content,copy,unavailable,memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900',
+  `R3_3_UI_PACKAGED_SMOKE_OK screenshots=${manifest.screenshots.length} chat=streaming,long-content,copy,unavailable memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900`,
 );
 console.log(`R3_3_UI_EVIDENCE_DIR ${userData}`);
 console.log(`R3_3_UI_EVIDENCE_MANIFEST ${manifestPath}`);
