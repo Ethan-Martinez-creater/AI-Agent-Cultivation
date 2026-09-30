@@ -198,9 +198,9 @@ export function ToolsPage() {
   return (
     <section className="page wide-page tools-page">
       <PageHeading
-        eyebrow="Gate 4 · Tool Runtime"
+        eyebrow="设置 · 工具"
         title="法宝 Tools"
-        description="选择文件工作区，查看可用内置工具，并手动配置受控的 MCP stdio Server。工具调用由 Mission Runtime 统一验证、授权和审计。"
+        description="管理文件工作区、内置工具与 MCP 服务。"
       />
       {error && (
         <div className="notice error" role="alert">
@@ -253,176 +253,182 @@ export function ToolsPage() {
         )}
       </section>
 
-      <div className="mcp-workspace">
-        <form className="tool-panel mcp-form" onSubmit={(event) => void saveServer(event)}>
-          <div className="form-title-row">
-            <div>
-              <p className="eyebrow">MANUAL STDIO CONFIG</p>
-              <h2>{editingId ? '编辑 MCP Server' : '添加 MCP Server'}</h2>
-            </div>
-            {editingId && (
-              <button
-                className="text-button"
-                type="button"
-                onClick={() => {
-                  setEditingId('');
-                  setForm(blankMcpServerForm);
-                }}
-              >
-                取消
+      <details className="mcp-disclosure">
+        <summary>
+          <span>MCP Server 配置</span>
+          <span className="count-badge">{servers.length}</span>
+        </summary>
+        <div className="mcp-disclosure-content">
+          <div className="mcp-workspace">
+            <form className="tool-panel mcp-form" onSubmit={(event) => void saveServer(event)}>
+              <div className="form-title-row">
+                <div>
+                  <h2>{editingId ? '编辑 MCP Server' : '添加 MCP Server'}</h2>
+                </div>
+                {editingId && (
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => {
+                      setEditingId('');
+                      setForm(blankMcpServerForm);
+                    }}
+                  >
+                    取消
+                  </button>
+                )}
+              </div>
+              <label className="field">
+                <span>名称</span>
+                <input
+                  required
+                  maxLength={100}
+                  value={form.name}
+                  onChange={(event) => updateForm({ name: event.target.value })}
+                />
+              </label>
+              <label className="field">
+                <span>本地命令</span>
+                <input
+                  required
+                  maxLength={1000}
+                  value={form.command}
+                  onChange={(event) => updateForm({ command: event.target.value })}
+                />
+              </label>
+              <label className="field">
+                <span>
+                  参数 <small>每行一个</small>
+                </span>
+                <textarea
+                  rows={3}
+                  maxLength={4000}
+                  value={form.argsText}
+                  onChange={(event) => updateForm({ argsText: event.target.value })}
+                />
+              </label>
+              <label className="field">
+                <span>
+                  环境变量名称白名单 <small>只填写变量名称，不填写变量值</small>
+                </span>
+                <textarea
+                  rows={3}
+                  maxLength={2000}
+                  value={form.envWhitelistText}
+                  onChange={(event) => updateForm({ envWhitelistText: event.target.value })}
+                />
+              </label>
+              <label className="field">
+                <span>
+                  工作目录 <small>可选</small>
+                </span>
+                <input
+                  maxLength={1000}
+                  value={form.cwd}
+                  onChange={(event) => updateForm({ cwd: event.target.value })}
+                />
+              </label>
+              <label className="tool-enabled-toggle">
+                <input
+                  type="checkbox"
+                  checked={form.enabled}
+                  onChange={(event) => updateForm({ enabled: event.target.checked })}
+                />
+                <span>启用此 MCP Server</span>
+              </label>
+              <p className="form-hint">
+                仅保存你手动提供的 stdio 配置。应用不会替你安装
+                Server；连接与工具发现需由你明确点击。
+              </p>
+              <button className="button primary full-width" disabled={busy}>
+                {busy ? '保存中…' : editingId ? '保存配置' : '添加 Server'}
               </button>
-            )}
-          </div>
-          <label className="field">
-            <span>名称</span>
-            <input
-              required
-              maxLength={100}
-              value={form.name}
-              onChange={(event) => updateForm({ name: event.target.value })}
-            />
-          </label>
-          <label className="field">
-            <span>本地命令</span>
-            <input
-              required
-              maxLength={1000}
-              value={form.command}
-              onChange={(event) => updateForm({ command: event.target.value })}
-              placeholder="例如：node"
-            />
-          </label>
-          <label className="field">
-            <span>
-              参数 <small>每行一个</small>
-            </span>
-            <textarea
-              rows={3}
-              maxLength={4000}
-              value={form.argsText}
-              onChange={(event) => updateForm({ argsText: event.target.value })}
-              placeholder="例如：server.js"
-            />
-          </label>
-          <label className="field">
-            <span>
-              环境变量名称白名单 <small>只填写变量名称，不填写变量值</small>
-            </span>
-            <textarea
-              rows={3}
-              maxLength={2000}
-              value={form.envWhitelistText}
-              onChange={(event) => updateForm({ envWhitelistText: event.target.value })}
-              placeholder="每行一个，例如：MCP_DATA_DIR"
-            />
-          </label>
-          <label className="field">
-            <span>
-              工作目录 <small>可选</small>
-            </span>
-            <input
-              maxLength={1000}
-              value={form.cwd}
-              onChange={(event) => updateForm({ cwd: event.target.value })}
-              placeholder="留空使用应用默认目录"
-            />
-          </label>
-          <label className="tool-enabled-toggle">
-            <input
-              type="checkbox"
-              checked={form.enabled}
-              onChange={(event) => updateForm({ enabled: event.target.checked })}
-            />
-            <span>启用此 MCP Server</span>
-          </label>
-          <p className="form-hint">
-            仅保存你手动提供的 stdio 配置。应用不会替你安装 Server；连接与工具发现需由你明确点击。
-          </p>
-          <button className="button primary full-width" disabled={busy}>
-            {busy ? '保存中…' : editingId ? '保存配置' : '添加 Server'}
-          </button>
-        </form>
+            </form>
 
-        <section className="tool-panel mcp-server-list">
-          <div className="section-heading">
-            <div>
-              <h2>MCP Servers</h2>
-              <p>连接状态只在手动发现工具后更新。</p>
-            </div>
-            <span className="count-badge">{servers.length}</span>
+            <section className="tool-panel mcp-server-list">
+              <div className="section-heading">
+                <div>
+                  <h2>MCP Servers</h2>
+                  <p>连接状态只在手动发现工具后更新。</p>
+                </div>
+                <span className="count-badge">{servers.length}</span>
+              </div>
+              {loading ? (
+                <div className="loading-card">正在读取 Server…</div>
+              ) : servers.length ? (
+                <div className="mcp-server-stack">
+                  {servers.map((server) => {
+                    const state = serverStatus[server.id];
+                    return (
+                      <article className="mcp-server-card" key={server.id}>
+                        <div className="mcp-server-top">
+                          <div>
+                            <h3>{server.name}</h3>
+                            <p className="mcp-server-command">{server.command}</p>
+                          </div>
+                          <span className={`status-pill ${server.enabled ? 'active' : 'archived'}`}>
+                            {server.enabled ? '已启用' : '已停用'}
+                          </span>
+                        </div>
+                        <div className="mcp-server-meta">
+                          <span>参数 {server.args.length} 项</span>
+                          <span>环境白名单 {server.envWhitelist.length} 项</span>
+                          {server.cwd && <span>工作目录已设置</span>}
+                        </div>
+                        <div className="mcp-discovery-status">
+                          <span
+                            className={`status-dot ${state?.status === 'READY' ? '' : 'muted'}`}
+                          />
+                          {state?.status === 'READY'
+                            ? `已连接 · ${state.tools.length} 个工具`
+                            : state?.status === 'ERROR'
+                              ? '连接失败'
+                              : '尚未连接'}
+                        </div>
+                        {state?.status === 'READY' && state.tools.length > 0 && (
+                          <div className="mcp-discovered-tools">
+                            {state.tools.map((tool) => (
+                              <ToolDescriptorCard key={tool.id} tool={tool} compact />
+                            ))}
+                          </div>
+                        )}
+                        <div className="button-row compact">
+                          <button
+                            className="button secondary small"
+                            type="button"
+                            disabled={busy || !server.enabled}
+                            onClick={() => void discoverTools(server)}
+                          >
+                            连接并发现工具
+                          </button>
+                          <button
+                            className="button ghost small"
+                            type="button"
+                            disabled={busy}
+                            onClick={() => editServer(server)}
+                          >
+                            编辑
+                          </button>
+                          <button
+                            className="button danger-ghost small"
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void removeServer(server)}
+                          >
+                            移除
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="list-empty">尚未配置 MCP Server。</div>
+              )}
+            </section>
           </div>
-          {loading ? (
-            <div className="loading-card">正在读取 Server…</div>
-          ) : servers.length ? (
-            <div className="mcp-server-stack">
-              {servers.map((server) => {
-                const state = serverStatus[server.id];
-                return (
-                  <article className="mcp-server-card" key={server.id}>
-                    <div className="mcp-server-top">
-                      <div>
-                        <h3>{server.name}</h3>
-                        <p className="mcp-server-command">{server.command}</p>
-                      </div>
-                      <span className={`status-pill ${server.enabled ? 'active' : 'archived'}`}>
-                        {server.enabled ? '已启用' : '已停用'}
-                      </span>
-                    </div>
-                    <div className="mcp-server-meta">
-                      <span>参数 {server.args.length} 项</span>
-                      <span>环境白名单 {server.envWhitelist.length} 项</span>
-                      {server.cwd && <span>工作目录已设置</span>}
-                    </div>
-                    <div className="mcp-discovery-status">
-                      <span className={`status-dot ${state?.status === 'READY' ? '' : 'muted'}`} />
-                      {state?.status === 'READY'
-                        ? `已连接 · ${state.tools.length} 个工具`
-                        : state?.status === 'ERROR'
-                          ? '连接失败'
-                          : '尚未连接'}
-                    </div>
-                    {state?.status === 'READY' && state.tools.length > 0 && (
-                      <div className="mcp-discovered-tools">
-                        {state.tools.map((tool) => (
-                          <ToolDescriptorCard key={tool.id} tool={tool} compact />
-                        ))}
-                      </div>
-                    )}
-                    <div className="button-row compact">
-                      <button
-                        className="button secondary small"
-                        type="button"
-                        disabled={busy || !server.enabled}
-                        onClick={() => void discoverTools(server)}
-                      >
-                        连接并发现工具
-                      </button>
-                      <button
-                        className="button ghost small"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => editServer(server)}
-                      >
-                        编辑
-                      </button>
-                      <button
-                        className="button danger-ghost small"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => void removeServer(server)}
-                      >
-                        移除
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="list-empty">尚未配置 MCP Server。</div>
-          )}
-        </section>
-      </div>
+        </div>
+      </details>
     </section>
   );
 }

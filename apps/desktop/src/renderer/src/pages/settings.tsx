@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { BenchmarkPanel } from '.././r1-capability.js';
 import { R3ShadowPanel } from '.././r3-shadow-panel.js';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
@@ -11,13 +12,7 @@ import type {
   TeammateView,
 } from '../ui-shared.js';
 
-type SettingsTab =
-  | 'providers'
-  | 'credentials'
-  | 'runtimes'
-  | 'benchmark'
-  | 'embedding'
-  | 'decision';
+type SettingsTab = 'providers' | 'credentials' | 'runtimes' | 'benchmark' | 'embedding' | 'shadow';
 
 export function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('providers');
@@ -56,33 +51,31 @@ export function SettingsPage() {
   }, []);
 
   return (
-    <section className="page wide-page">
-      <PageHeading
-        eyebrow="Provider · Credential · RuntimeProfile"
-        title="设置 Settings"
-        description="Main Process 从剪贴板读取并加密密钥。Renderer 不接收明文或密文。"
-      />
-      <div className="settings-summary">
-        <SummaryMetric label="服务商" value={providers.length} />
-        <SummaryMetric label="凭据" value={credentials.length} />
-        <SummaryMetric label="运行配置" value={runtimes.length} />
-      </div>
-      <div className="tab-list" role="tablist" aria-label="设置类别">
+    <section className="page wide-page settings-page">
+      <PageHeading eyebrow="设置" title="设置 Settings" description="管理模型连接与高级功能。" />
+      <nav className="settings-links" aria-label="其他设置页面">
+        <Link to="/tools">法宝 Tools</Link>
+        <Link to="/skills">功法 Skills</Link>
+        <Link to="/usage">灵石 Usage</Link>
+        <Link to="/external-work">本尊待办 Human Bridge</Link>
+      </nav>
+      <div className="settings-section-nav" role="tablist" aria-label="设置类别">
         {(
           [
-            ['providers', '服务商'],
-            ['credentials', '凭据'],
-            ['runtimes', 'Runtime Profiles'],
-            ['benchmark', '能力画像 / Benchmark'],
-            ['embedding', '记忆向量检索'],
-            ['decision', 'Jev Shadow（高级）'],
+            ['providers', 'Provider'],
+            ['credentials', 'Credential'],
+            ['runtimes', 'Runtime'],
+            ['benchmark', 'Benchmark'],
+            ['embedding', 'Embedding'],
+            ['shadow', 'Jev Shadow'],
           ] as const
         ).map(([id, label]) => (
           <button
             key={id}
-            className={tab === id ? 'tab active' : 'tab'}
+            className={tab === id ? 'settings-tab active' : 'settings-tab'}
             role="tab"
             aria-selected={tab === id}
+            aria-controls="settings-tab-panel"
             onClick={() => setTab(id)}
           >
             {label}
@@ -97,7 +90,7 @@ export function SettingsPage() {
       {loading ? (
         <div className="loading-card">正在读取设置…</div>
       ) : (
-        <div className="settings-content">
+        <div className="settings-content" id="settings-tab-panel" role="tabpanel">
           {tab === 'providers' && <ProvidersPanel providers={providers} onCreated={refresh} />}
           {tab === 'credentials' && (
             <CredentialsPanel providers={providers} credentials={credentials} onCreated={refresh} />
@@ -111,7 +104,7 @@ export function SettingsPage() {
             />
           )}
           {tab === 'benchmark' && <BenchmarkPanel runtimes={runtimes} />}
-          {tab === 'decision' && <R3ShadowPanel />}
+          {tab === 'shadow' && <R3ShadowPanel />}
           {tab === 'embedding' && (
             <EmbeddingPanel
               providers={providers}
@@ -310,7 +303,6 @@ export function ProvidersPanel({
             maxLength={80}
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="例如：个人 OpenAI"
           />
         </label>
         <label className="field">
@@ -332,7 +324,6 @@ export function ProvidersPanel({
             required={kind === 'OPENAI_COMPATIBLE'}
             value={baseUrl}
             onChange={(event) => setBaseUrl(event.target.value)}
-            placeholder="https://api.example.com/v1"
           />
         </label>
         {error && <InlineMessage tone="error">{error}</InlineMessage>}
@@ -449,7 +440,6 @@ export function CredentialsPanel({
             maxLength={80}
             value={label}
             onChange={(event) => setLabel(event.target.value)}
-            placeholder="例如：默认 API Key"
           />
         </label>
         {error && <InlineMessage tone="error">{error}</InlineMessage>}
@@ -593,7 +583,6 @@ export function RuntimesPanel({
             maxLength={80}
             value={form.name}
             onChange={(event) => update({ name: event.target.value })}
-            placeholder="例如：快速日常对话"
           />
         </label>
         <label className="field">
@@ -634,7 +623,6 @@ export function RuntimesPanel({
             maxLength={160}
             value={form.modelId}
             onChange={(event) => update({ modelId: event.target.value })}
-            placeholder="例如：gpt-4.1-mini"
           />
         </label>
         {error && <InlineMessage tone="error">{error}</InlineMessage>}

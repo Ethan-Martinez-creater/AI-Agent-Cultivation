@@ -15,6 +15,7 @@ export function R3ShadowPanel() {
   const [config, setConfig] = useState<R3DecisionConfigView | null>(null);
   const [observations, setObservations] = useState<R3ShadowObservationView[]>([]);
   const [busy, setBusy] = useState(false);
+  const [privacyConsent, setPrivacyConsent] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
@@ -90,10 +91,11 @@ export function R3ShadowPanel() {
           </button>
           <button
             className="button"
-            disabled={busy || !config?.configured}
+            disabled={busy || !config?.configured || (!config.enabled && !privacyConsent)}
             onClick={() =>
               void execute(async () => {
                 await window.cultivation.r3.setEnabled(!config?.enabled);
+                if (config?.enabled) setPrivacyConsent(false);
                 return config?.enabled ? 'Cloud Shadow 已暂停。' : 'Cloud Shadow 已启用。';
               })
             }
@@ -105,13 +107,28 @@ export function R3ShadowPanel() {
           先复制 TypeSafe API Key，再点击保存。Key 只由 Main Process 从剪贴板读取；Renderer
           不接收明文或密文。 未启用时，现有流程照常运行。
         </p>
-        <div className="muted" role="note" aria-label="Cloud Shadow 隐私说明">
-          <strong>启用前请确认发送范围：</strong>Cloud Shadow 会向 TypeSafe
-          发送有界任务摘要、候选道友的 ID／角色、模型可用状态、Benchmark 能力档位、已启用 Skill
-          元数据及可核验 Experience 摘要。 不发送 Credential／API Key、私有 Memory
-          原文、完整文件、完整聊天历史、Mission Event／Audit 全文或 Tool secret／output 原文。Cloud
-          Shadow 默认关闭，仅在你主动启用后运行。
-        </div>
+        <details className="shadow-privacy">
+          <summary>启用前查看 Cloud Shadow 数据发送范围</summary>
+          <div className="shadow-privacy-copy" role="note">
+            <p>
+              启用后会向 TypeSafe 发送有界任务摘要、候选道友的 ID 与角色、模型可用状态、Benchmark
+              能力档位、已启用 Skill 元数据及可核验 Experience 摘要。
+            </p>
+            <p>
+              不发送 Credential 或 API Key、私有 Memory 原文、完整文件、完整聊天历史、Mission Event
+              或 Audit 全文，也不发送 Tool secret 或 output 原文。Cloud Shadow
+              默认关闭，仅在你主动启用后运行。
+            </p>
+            <label className="field shadow-consent">
+              <input
+                type="checkbox"
+                checked={privacyConsent}
+                onChange={(event) => setPrivacyConsent(event.target.checked)}
+              />
+              <span>我已阅读发送范围，并同意启用 Cloud Shadow。</span>
+            </label>
+          </div>
+        </details>
       </div>
       {error && (
         <div className="notice error" role="alert">
@@ -123,42 +140,45 @@ export function R3ShadowPanel() {
           {notice}
         </div>
       )}
-      <div className="card">
-        <div className="shadow-heading">
-          <div>
-            <h3>Shadow Observability</h3>
-            <p>仅显示有界建议、真实选择和安全错误码；不显示私有 Memory、完整任务文本或 Key。</p>
+      <details className="card shadow-diagnostics">
+        <summary>高级：Shadow 观察记录（{observations.length}）</summary>
+        <div className="shadow-diagnostics-content">
+          <div className="shadow-heading">
+            <div>
+              <h3>Shadow Observability</h3>
+              <p>显示有界建议、真实选择和安全错误码。</p>
+            </div>
+            <button className="button secondary" disabled={busy} onClick={() => void refresh()}>
+              刷新
+            </button>
           </div>
-          <button className="button secondary" disabled={busy} onClick={() => void refresh()}>
-            刷新
-          </button>
+          {observations.length === 0 ? (
+            <p className="muted">尚无观察记录。</p>
+          ) : (
+            <div className="shadow-observations">
+              {observations.map((item) => (
+                <article className="shadow-observation" key={item.id}>
+                  <div className="shadow-observation-title">
+                    <strong>{item.decisionType}</strong>
+                    <span>{item.status}</span>
+                    <time>{displayTime(item.createdAt)}</time>
+                  </div>
+                  <p>
+                    Jev 建议：{item.recommendation ?? '—'} · 置信度：
+                    {displayConfidence(item.confidence)} · 真实选择：{item.actualAction ?? '—'}
+                  </p>
+                  <small>
+                    {item.provider}/{item.model} · question {item.questionVersion} · policy{' '}
+                    {item.policyVersion} · {item.latencyMs ?? '—'} ms · input{' '}
+                    {item.inputTokens ?? '—'} tokens
+                    {item.errorCode ? ` · ${item.errorCode}` : ''}
+                  </small>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
-        {observations.length === 0 ? (
-          <p className="muted">尚无 Shadow 观察。创建历练后可在这里查看异步结果。</p>
-        ) : (
-          <div className="shadow-observations">
-            {observations.map((item) => (
-              <article className="shadow-observation" key={item.id}>
-                <div className="shadow-observation-title">
-                  <strong>{item.decisionType}</strong>
-                  <span>{item.status}</span>
-                  <time>{displayTime(item.createdAt)}</time>
-                </div>
-                <p>
-                  Jev 建议：{item.recommendation ?? '—'} · 置信度：
-                  {displayConfidence(item.confidence)} · 真实选择：{item.actualAction ?? '—'}
-                </p>
-                <small>
-                  {item.provider}/{item.model} · question {item.questionVersion} · policy{' '}
-                  {item.policyVersion} · {item.latencyMs ?? '—'} ms · input{' '}
-                  {item.inputTokens ?? '—'} tokens
-                  {item.errorCode ? ` · ${item.errorCode}` : ''}
-                </small>
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
+      </details>
     </div>
   );
 }
