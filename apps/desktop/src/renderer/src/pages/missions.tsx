@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AvailabilityBadge } from '.././r3-2-availability.js';
+import './mission-party.css';
 import { HumanBridgeApproval } from '.././r2-human-bridge.js';
 import {
   errorText,
@@ -46,7 +48,10 @@ export function MissionPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [missionFilter, setMissionFilter] = useState<'running' | 'history' | 'all'>('running');
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const handledCreateQuery = useRef('');
   const availableTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
   const activeTeammates = availableTeammates.filter(
     (teammate) => teammate.executorKind !== 'USER_BRIDGE',
@@ -60,6 +65,57 @@ export function MissionPage() {
         availableTeammates.some((teammate) => teammate.id === member.teammateId),
       ),
   );
+  const isHistoryMission = (item: MissionView) =>
+    ['COMPLETED', 'FAILED', 'CANCELLED'].includes(item.state);
+  const visibleMissions = missions.filter((item) =>
+    missionFilter === 'all'
+      ? true
+      : missionFilter === 'history'
+        ? isHistoryMission(item)
+        : !isHistoryMission(item),
+  );
+
+  useEffect(() => {
+    const query = searchParams.toString();
+    const requestedMissionId = searchParams.get('missionId') ?? '';
+    const shouldCreate = searchParams.get('create') === '1';
+    if (!shouldCreate && !requestedMissionId) {
+      handledCreateQuery.current = '';
+      return;
+    }
+    if (loading || handledCreateQuery.current === query) return;
+    handledCreateQuery.current = query;
+    if (requestedMissionId) {
+      setMissionFilter('all');
+      setCreating(false);
+      setEditing(false);
+      setSelectedId(requestedMissionId);
+      if (!missions.some((item) => item.id === requestedMissionId)) {
+        setError('找不到这次历练。');
+      }
+      setSearchParams({}, { replace: true });
+      return;
+    }
+    const requestedTeammateId = searchParams.get('teammateId') ?? '';
+    const requestedPartyId = searchParams.get('partyId') ?? '';
+    const selectedParty = activeParties.find((party) => party.id === requestedPartyId);
+    const selectedTeammate = activeTeammates.find(
+      (teammate) => teammate.id === requestedTeammateId,
+    );
+    setSelectedId('');
+    setDetail(null);
+    setCreating(true);
+    setEditing(false);
+    setTitle('');
+    setObjective('');
+    setMissionMode(selectedParty ? 'CONSULTATION' : 'SOLO');
+    setPartyId(selectedParty?.id ?? activeParties[0]?.id ?? '');
+    setCoordinatorId(selectedTeammate?.id ?? activeTeammates[0]?.id ?? '');
+    setMissionFilter('all');
+    setError('');
+    setNotice('');
+    setSearchParams({}, { replace: true });
+  }, [loading, missions, searchParams, setSearchParams, activeParties, activeTeammates]);
 
   const refreshMissions = async (preferredId?: string) => {
     const rows = await window.cultivation.missions.list();
@@ -163,6 +219,21 @@ export function MissionPage() {
     }
   };
 
+  const beginCreateMission = () => {
+    setSelectedId('');
+    setDetail(null);
+    setCreating(true);
+    setEditing(false);
+    setTitle('');
+    setObjective('');
+    setMissionMode('SOLO');
+    setPartyId(activeParties[0]?.id ?? '');
+    setCoordinatorId(activeTeammates[0]?.id ?? '');
+    setMissionFilter('all');
+    setError('');
+    setNotice('');
+  };
+
   const runAction = async (label: string, action: () => Promise<unknown>) => {
     setBusy(true);
     setError('');
@@ -170,6 +241,7 @@ export function MissionPage() {
     try {
       await action();
       await refreshMissions();
+      setMissionFilter('all');
       if (selectedId) {
         const refreshed = await window.cultivation.missions.detail(selectedId);
         setDetail(refreshed);
@@ -257,6 +329,8 @@ export function MissionPage() {
       audit,
     })),
   ].sort((left, right) => right.time.localeCompare(left.time));
+  const missionTimeline = sortedTimeline.filter((item) => item.kind === 'MISSION_EVENT');
+  const auditTimeline = sortedTimeline.filter((item) => item.kind === 'AUDIT_EVENT');
 
   return (
     <section className="page wide-page mission-page">
@@ -265,16 +339,6 @@ export function MissionPage() {
         title="历练 Missions"
         description="先用 SOLO Mission 完成单人历练；准备队伍后，再选择 Party 协作模式。每位道友的 Runtime、Memory 与 Skill 保持独立。"
       />
-      <div className="workflow-note mission-flow-note">
-        <strong>从 SOLO 到 Collaboration</strong>
-        <p>
-          SOLO Mission 适合熟悉目标、审批与独立 Run。需要多位道友时，先在 Parties
-          建队，再选择咨询、审查或委托；发出的协作请求会显示原因、子任务和预计收益，供你批准或拒绝。
-        </p>
-        <button className="text-button" type="button" onClick={() => navigate('/parties')}>
-          管理 Party 队伍
-        </button>
-      </div>
       {error && (
         <div className="notice error" role="alert">
           {error}
@@ -289,35 +353,63 @@ export function MissionPage() {
         <aside className="mission-list-card">
           <div className="list-heading">
             <div>
-              <h2>历练清单</h2>
-              <p>{missions.length} 个 Mission</p>
+              <h2>历练</h2>
+              <p>{visibleMissions.length} 项</p>
             </div>
             <button
-              className="icon-button"
-              aria-label="新建 Mission"
+              className="button primary small"
               disabled={busy || (activeTeammates.length === 0 && activeParties.length === 0)}
-              onClick={() => {
-                setSelectedId('');
-                setDetail(null);
-                setCreating(true);
-                setEditing(false);
-                setTitle('');
-                setObjective('');
-                setMissionMode('SOLO');
-                setPartyId(activeParties[0]?.id ?? '');
-                setCoordinatorId(activeTeammates[0]?.id ?? '');
-                setError('');
-                setNotice('');
-              }}
+              onClick={beginCreateMission}
             >
-              +
+              + 发起历练
             </button>
+          </div>
+          <div className="mission-filter-tabs" role="tablist" aria-label="筛选历练">
+            {(
+              [
+                ['running', '运行中'],
+                ['history', '历史'],
+                ['all', '全部'],
+              ] as const
+            ).map(([filter, label]) => {
+              const count =
+                filter === 'all'
+                  ? missions.length
+                  : filter === 'history'
+                    ? missions.filter(isHistoryMission).length
+                    : missions.filter((item) => !isHistoryMission(item)).length;
+              return (
+                <button
+                  key={filter}
+                  className={`mission-filter-tab ${missionFilter === filter ? 'active' : ''}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={missionFilter === filter}
+                  onClick={() => {
+                    const next = missions.filter((item) =>
+                      filter === 'all'
+                        ? true
+                        : filter === 'history'
+                          ? isHistoryMission(item)
+                          : !isHistoryMission(item),
+                    );
+                    setMissionFilter(filter);
+                    setSelectedId(next[0]?.id ?? '');
+                    setCreating(false);
+                    setEditing(false);
+                  }}
+                >
+                  {label}
+                  <span>{count}</span>
+                </button>
+              );
+            })}
           </div>
           {loading ? (
             <div className="loading-card">正在读取 Mission…</div>
-          ) : missions.length ? (
+          ) : visibleMissions.length ? (
             <div className="mission-list">
-              {missions.map((item) => (
+              {visibleMissions.map((item) => (
                 <button
                   key={item.id}
                   className={
@@ -347,7 +439,9 @@ export function MissionPage() {
               ))}
             </div>
           ) : (
-            <div className="list-empty">还没有历练。创建 Mission 草稿以定义目标。</div>
+            <div className="list-empty">
+              {missions.length ? '此筛选下没有历练。' : '还没有历练。'}
+            </div>
           )}
         </aside>
 
@@ -361,9 +455,6 @@ export function MissionPage() {
                 <div>
                   <p className="eyebrow">{creating ? 'NEW MISSION' : 'MISSION'}</p>
                   <h2>{creating ? '创建 Mission 草稿' : '编辑 Mission'}</h2>
-                  <p className="muted-copy">
-                    Mission 只描述目标与参与队伍，由 Runtime 状态机安排协作。
-                  </p>
                 </div>
                 {!creating && (
                   <button type="button" className="text-button" onClick={resetEditor}>
@@ -378,7 +469,6 @@ export function MissionPage() {
                   maxLength={120}
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  placeholder="为这次历练命名"
                 />
               </label>
               <label className="field">
@@ -389,40 +479,60 @@ export function MissionPage() {
                   maxLength={12000}
                   value={objective}
                   onChange={(event) => setObjective(event.target.value)}
-                  placeholder="描述希望完成的结果和约束"
                 />
               </label>
               {creating && (
                 <>
                   <label className="field">
-                    <span>Mission 模式</span>
+                    <span>执行方式</span>
                     <select
-                      value={missionMode}
-                      onChange={(event) => setMissionMode(event.target.value as MissionMode)}
+                      value={missionMode === 'SOLO' ? 'SOLO' : 'PARTY'}
+                      onChange={(event) =>
+                        setMissionMode((current) =>
+                          event.target.value === 'SOLO'
+                            ? 'SOLO'
+                            : current === 'SOLO'
+                              ? 'CONSULTATION'
+                              : current,
+                        )
+                      }
                     >
-                      <option value="SOLO">SOLO · 单道友执行</option>
-                      <option value="CONSULTATION">CONSULTATION · 独立咨询并汇总</option>
-                      <option value="REVIEW">REVIEW · 起草、独立审查、定稿</option>
-                      <option value="DELEGATION">DELEGATION · 委托单个子任务</option>
+                      <option value="SOLO">指定道友</option>
+                      <option value="PARTY">指定队伍</option>
                     </select>
                   </label>
                   {missionMode === 'SOLO' ? (
-                    <label className="field">
-                      <span>执行道友</span>
-                      <select
-                        required
-                        value={coordinatorId}
-                        onChange={(event) => setCoordinatorId(event.target.value)}
-                      >
-                        {activeTeammates.map((teammate) => (
-                          <option key={teammate.id} value={teammate.id}>
-                            {teammate.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <>
+                      <label className="field">
+                        <span>执行道友</span>
+                        <select
+                          required
+                          value={coordinatorId}
+                          onChange={(event) => setCoordinatorId(event.target.value)}
+                        >
+                          <option value="">选择道友</option>
+                          {activeTeammates.map((teammate) => (
+                            <option key={teammate.id} value={teammate.id}>
+                              {teammate.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      {coordinatorId && <AvailabilityBadge teammateId={coordinatorId} />}
+                    </>
                   ) : (
                     <>
+                      <label className="field">
+                        <span>协作方式</span>
+                        <select
+                          value={missionMode}
+                          onChange={(event) => setMissionMode(event.target.value as MissionMode)}
+                        >
+                          <option value="CONSULTATION">咨询</option>
+                          <option value="REVIEW">审查</option>
+                          <option value="DELEGATION">委托</option>
+                        </select>
+                      </label>
                       <label className="field">
                         <span>参与队伍</span>
                         <select
@@ -455,7 +565,6 @@ export function MissionPage() {
                               {teammateName(teammates, member.teammateId)}
                             </span>
                           ))}
-                        <small>成员的 Runtime、Memory、Skills 和工具权限保持独立。</small>
                       </div>
                     </>
                   )}
@@ -487,10 +596,97 @@ export function MissionPage() {
 
           {!creating && mission && detail && (
             <>
+              {(pendingApprovals.length > 0 || pendingCollaborations.length > 0) && (
+                <nav className="mission-pending-summary" aria-label="待处理事项">
+                  <strong>待我处理</strong>
+                  {pendingApprovals.length > 0 && (
+                    <a href="#mission-pending-approvals">审批 {pendingApprovals.length}</a>
+                  )}
+                  {pendingCollaborations.length > 0 && (
+                    <a href="#mission-pending-collaboration">
+                      协作请求 {pendingCollaborations.length}
+                    </a>
+                  )}
+                </nav>
+              )}
+              {pendingApprovals.length > 0 && (
+                <section
+                  className="mission-section approval-section"
+                  id="mission-pending-approvals"
+                >
+                  <div className="section-heading">
+                    <div>
+                      <h2>待处理审批</h2>
+                    </div>
+                    <span className="count-badge">{pendingApprovals.length}</span>
+                  </div>
+                  <div className="approval-list">
+                    {pendingApprovals.map((approval) => (
+                      <article className="approval-card" key={approval.id}>
+                        <div className="approval-card-copy">
+                          <strong>{approval.capability}</strong>
+                          <span>
+                            {approval.actionType} · 风险 {approval.riskLevel}
+                          </span>
+                          <small>
+                            Run {runAttemptLabel(detail.runs, approval.runId)} · 请求于{' '}
+                            {formatDate(approval.createdAt)}
+                          </small>
+                        </div>
+                        <div className="button-row compact">
+                          {approval.actionType === 'TOOL_CALL' && (
+                            <button
+                              className="button secondary small"
+                              disabled={busy}
+                              onClick={() =>
+                                void runAction('Mission 授权已记录，Runtime 将继续执行。', () =>
+                                  window.cultivation.missions.resolveApproval({
+                                    approvalId: approval.id,
+                                    decision: 'ALLOW_MISSION',
+                                  }),
+                                )
+                              }
+                            >
+                              Allow This Mission
+                            </button>
+                          )}
+                          <button
+                            className="button primary small"
+                            disabled={busy}
+                            onClick={() =>
+                              void runAction('审批已批准，Runtime 将继续执行。', () =>
+                                window.cultivation.missions.resolveApproval({
+                                  approvalId: approval.id,
+                                  decision: 'APPROVED',
+                                }),
+                              )
+                            }
+                          >
+                            批准
+                          </button>
+                          <button
+                            className="button danger-ghost small"
+                            disabled={busy}
+                            onClick={() =>
+                              void runAction('审批已拒绝，拒绝结果已交还 Runtime。', () =>
+                                window.cultivation.missions.resolveApproval({
+                                  approvalId: approval.id,
+                                  decision: 'DENIED',
+                                }),
+                              )
+                            }
+                          >
+                            拒绝
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
               <article className="mission-overview">
                 <div className="mission-overview-top">
                   <div>
-                    <p className="eyebrow">MISSION OBJECTIVE</p>
                     <h2>{mission.title}</h2>
                     <p className="mission-overview-meta">
                       {missionModeLabel(mission.mode ?? 'SOLO')} · 协调道友{' '}
@@ -502,10 +698,10 @@ export function MissionPage() {
                     {missionStateLabel(mission.state)}
                   </span>
                 </div>
+                <AvailabilityBadge teammateId={mission.coordinatorTeammateId} compact />
                 <p className="mission-objective">{mission.objective}</p>
                 {mission.state === 'WAITING_EXTERNAL_WORK' && (
                   <div className="notice">
-                    <p>原 Mission Run 正在等待本尊完成外部工作。提交并验收后会继续同一个 Run。</p>
                     <button
                       className="button secondary small"
                       onClick={() => navigate('/external-work')}
@@ -539,14 +735,17 @@ export function MissionPage() {
                   )}
                   {mission.state === 'READY' && (
                     <>
-                      <label className="mission-fixture-toggle">
-                        <input
-                          type="checkbox"
-                          checked={approvalFixture}
-                          onChange={(event) => setApprovalFixture(event.target.checked)}
-                        />
-                        <span>触发确定性审批示例</span>
-                      </label>
+                      <details className="mission-run-options">
+                        <summary>高级启动选项</summary>
+                        <label className="mission-fixture-toggle">
+                          <input
+                            type="checkbox"
+                            checked={approvalFixture}
+                            onChange={(event) => setApprovalFixture(event.target.checked)}
+                          />
+                          <span>触发确定性审批示例</span>
+                        </label>
+                      </details>
                       <button
                         className="button primary small"
                         disabled={busy}
@@ -628,7 +827,6 @@ export function MissionPage() {
                   <div className="section-heading">
                     <div>
                       <h2>参与道友</h2>
-                      <p>每位成员以自己的 Runtime、Memory、Skills 和权限独立执行。</p>
                     </div>
                     <span className="count-badge">{detail.participants.length}</span>
                   </div>
@@ -655,10 +853,10 @@ export function MissionPage() {
 
               {pendingCollaborations.length > 0 && (
                 <section className="mission-section collaboration-approval-section">
+                  <span id="mission-pending-collaboration" />
                   <div className="section-heading">
                     <div>
                       <h2>待处理协作请求</h2>
-                      <p>批准后才会启动目标道友；拒绝时目标不会发生模型调用。</p>
                     </div>
                     <span className="count-badge">{pendingCollaborations.length}</span>
                   </div>
@@ -752,7 +950,6 @@ export function MissionPage() {
                   <div className="section-heading">
                     <div>
                       <h2>协作成果</h2>
-                      <p>仅展示本 Mission 产生的公开结果，不包含成员私有记忆。</p>
                     </div>
                     <span className="count-badge">{detail.artifacts.length}</span>
                   </div>
@@ -779,164 +976,59 @@ export function MissionPage() {
                 </section>
               )}
 
-              {pendingApprovals.length > 0 && (
-                <section className="mission-section approval-section">
+              <details className="mission-advanced">
+                <summary>高级 · Run 记录</summary>
+                <section className="mission-section">
                   <div className="section-heading">
                     <div>
-                      <h2>待处理审批</h2>
-                      <p>批准或拒绝会恢复同一个 Mission Run；拒绝结果会返回执行 Runtime。</p>
+                      <h2>Mission Runs</h2>
                     </div>
-                    <span className="count-badge">{pendingApprovals.length}</span>
+                    <span className="count-badge">{detail.runs.length}</span>
                   </div>
-                  <div className="approval-list">
-                    {pendingApprovals.map((approval) => (
-                      <article className="approval-card" key={approval.id}>
-                        <div className="approval-card-copy">
-                          <strong>{approval.capability}</strong>
-                          <span>
-                            {approval.actionType} · 风险 {approval.riskLevel}
-                          </span>
-                          <small>
-                            Run {runAttemptLabel(detail.runs, approval.runId)} · 请求于{' '}
-                            {formatDate(approval.createdAt)}
-                          </small>
-                        </div>
-                        <div className="button-row compact">
-                          {approval.actionType === 'TOOL_CALL' && (
-                            <button
-                              className="button secondary small"
-                              disabled={busy}
-                              onClick={() =>
-                                void runAction('Mission 授权已记录，Runtime 将继续执行。', () =>
-                                  window.cultivation.missions.resolveApproval({
-                                    approvalId: approval.id,
-                                    decision: 'ALLOW_MISSION',
-                                  }),
-                                )
-                              }
-                            >
-                              Allow This Mission
-                            </button>
-                          )}
-                          <button
-                            className="button primary small"
-                            disabled={busy}
-                            onClick={() =>
-                              void runAction('审批已批准，Runtime 将继续执行。', () =>
-                                window.cultivation.missions.resolveApproval({
-                                  approvalId: approval.id,
-                                  decision: 'APPROVED',
-                                }),
-                              )
-                            }
-                          >
-                            批准
-                          </button>
-                          <button
-                            className="button danger-ghost small"
-                            disabled={busy}
-                            onClick={() =>
-                              void runAction('审批已拒绝，拒绝结果已交还 Runtime。', () =>
-                                window.cultivation.missions.resolveApproval({
-                                  approvalId: approval.id,
-                                  decision: 'DENIED',
-                                }),
-                              )
-                            }
-                          >
-                            拒绝
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              <section className="mission-section">
-                <div className="section-heading">
-                  <div>
-                    <h2>Mission Runs</h2>
-                    <p>每次执行与重试都保留独立 attempt。</p>
-                  </div>
-                  <span className="count-badge">{detail.runs.length}</span>
-                </div>
-                {detail.runs.length ? (
-                  <div className="mission-run-list">
-                    {[...detail.runs]
-                      .sort((a, b) => a.attempt - b.attempt)
-                      .map((run) => (
-                        <article className="mission-run-card" key={run.id}>
-                          <div className="mission-run-heading">
-                            <strong>Attempt {run.attempt}</strong>
-                            <span className={`mission-state state-${stateClass(run.status)}`}>
-                              {missionStateLabel(run.status)}
-                            </span>
-                          </div>
-                          <small>开始于 {formatDate(run.startedAt)}</small>
-                          {run.endedAt && <small>结束于 {formatDate(run.endedAt)}</small>}
-                          {run.errorCode && (
-                            <small className="mission-error-code">错误代码：{run.errorCode}</small>
-                          )}
-                          {run.resultText && (
-                            <details className="mission-run-result">
-                              <summary>查看本次执行结果</summary>
-                              <pre>{run.resultText}</pre>
-                            </details>
-                          )}
-                        </article>
-                      ))}
-                  </div>
-                ) : (
-                  <div className="mission-empty-inline">
-                    就绪后开始历练，此处会记录每个独立 Run。
-                  </div>
-                )}
-              </section>
-
-              <section className="mission-section">
-                <div className="section-heading">
-                  <div>
-                    <h2>执行 Timeline</h2>
-                    <p>MissionEvent 与 AuditEvent 分开展示；仅显示安全的类型、动作和运行元数据。</p>
-                  </div>
-                  <span className="count-badge">{sortedTimeline.length}</span>
-                </div>
-                {sortedTimeline.length ? (
-                  <ol className="mission-timeline">
-                    {sortedTimeline.map((item) => (
-                      <li className="mission-timeline-item" key={item.id}>
-                        <span
-                          className={`timeline-dot ${item.kind === 'AUDIT_EVENT' ? 'audit' : ''}`}
-                        />
-                        <div className="timeline-card">
-                          <div className="timeline-card-heading">
-                            <span
-                              className={`timeline-kind ${item.kind === 'AUDIT_EVENT' ? 'audit' : ''}`}
-                            >
-                              {item.kind === 'MISSION_EVENT' ? 'Mission Event' : 'Audit Event'}
-                            </span>
-                            <time>{formatDate(item.time)}</time>
-                          </div>
-                          {item.kind === 'MISSION_EVENT' ? (
-                            <div className="timeline-safe-meta">
-                              <strong>{safeLabel(item.event.eventType)}</strong>
-                              <span>
-                                参与者:{' '}
-                                {timelineActorName(
-                                  teammates,
-                                  item.event.actorType,
-                                  item.event.actorId,
-                                )}
+                  {detail.runs.length ? (
+                    <div className="mission-run-list">
+                      {[...detail.runs]
+                        .sort((a, b) => a.attempt - b.attempt)
+                        .map((run) => (
+                          <article className="mission-run-card" key={run.id}>
+                            <div className="mission-run-heading">
+                              <strong>Attempt {run.attempt}</strong>
+                              <span className={`mission-state state-${stateClass(run.status)}`}>
+                                {missionStateLabel(run.status)}
                               </span>
-                              {item.event.runId && (
-                                <span>Run {runAttemptLabel(detail.runs, item.event.runId)}</span>
-                              )}
-                              {renderToolTimelineMetadata(item.event.payloadJson)}
                             </div>
-                          ) : (
-                            <div className="timeline-safe-meta">
+                            <small>开始于 {formatDate(run.startedAt)}</small>
+                            {run.endedAt && <small>结束于 {formatDate(run.endedAt)}</small>}
+                            {run.errorCode && (
+                              <small className="mission-error-code">
+                                错误代码：{run.errorCode}
+                              </small>
+                            )}
+                          </article>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="mission-empty-inline">
+                      就绪后开始历练，此处会记录每个独立 Run。
+                    </div>
+                  )}
+                </section>
+              </details>
+
+              {auditTimeline.length > 0 && (
+                <details className="mission-advanced">
+                  <summary>高级 · 审计记录 ({auditTimeline.length})</summary>
+                  <section className="mission-section">
+                    <ol className="mission-timeline">
+                      {auditTimeline.map((item) => (
+                        <li className="mission-timeline-item" key={item.id}>
+                          <span className="timeline-dot audit" />
+                          <div className="timeline-card">
+                            <div className="timeline-card-heading">
                               <strong>{safeLabel(item.audit.action)}</strong>
+                              <time>{formatDate(item.time)}</time>
+                            </div>
+                            <div className="timeline-safe-meta">
                               <span>Target: {safeLabel(item.audit.targetType ?? 'UNKNOWN')}</span>
                               <span>
                                 参与者:{' '}
@@ -948,7 +1040,48 @@ export function MissionPage() {
                               </span>
                               {renderToolTimelineMetadata(item.audit.payloadJson)}
                             </div>
-                          )}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                </details>
+              )}
+
+              <section className="mission-section">
+                <div className="section-heading">
+                  <div>
+                    <h2>执行 Timeline</h2>
+                  </div>
+                  <span className="count-badge">{missionTimeline.length}</span>
+                </div>
+                {missionTimeline.length ? (
+                  <ol className="mission-timeline">
+                    {missionTimeline.map((item) => (
+                      <li className="mission-timeline-item" key={item.id}>
+                        <span className="timeline-dot" />
+                        <div className="timeline-card">
+                          <div className="timeline-card-heading">
+                            <strong>{safeLabel(item.event.eventType)}</strong>
+                            <time>{formatDate(item.time)}</time>
+                          </div>
+                          <div className="timeline-safe-meta">
+                            <span>
+                              参与者:{' '}
+                              {timelineActorName(
+                                teammates,
+                                item.event.actorType,
+                                item.event.actorId,
+                              )}
+                            </span>
+                            {item.event.runId && (
+                              <span>Run {runAttemptLabel(detail.runs, item.event.runId)}</span>
+                            )}
+                            <details className="timeline-event-details">
+                              <summary>高级事件元数据</summary>
+                              {renderToolTimelineMetadata(item.event.payloadJson)}
+                            </details>
+                          </div>
                         </div>
                       </li>
                     ))}
@@ -960,59 +1093,61 @@ export function MissionPage() {
                 )}
               </section>
 
-              <section className="mission-section">
-                <div className="section-heading">
-                  <div>
-                    <h2>Mission Usage</h2>
-                    <p>用量属于具体 Mission、Run、道友和 Runtime Profile。</p>
-                  </div>
-                  <span className="count-badge">{detail.usage.length}</span>
-                </div>
-                {detail.usage.length ? (
-                  <div className="table-card mission-usage-table">
-                    <div className="table-scroll">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>时间 / Run</th>
-                            <th>道友</th>
-                            <th>Provider / Model</th>
-                            <th>Runtime Profile</th>
-                            <th>输入</th>
-                            <th>输出</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {detail.usage.map((item, index) => (
-                            <tr key={item.id ?? `${item.runId}-${item.createdAt}-${index}`}>
-                              <td>
-                                {formatDate(item.createdAt)}
-                                <small className="cell-id">
-                                  Run {runAttemptLabel(detail.runs, item.runId ?? '')}
-                                </small>
-                              </td>
-                              <td>{teammateName(teammates, item.teammateId)}</td>
-                              <td>
-                                <strong>{item.provider}</strong>
-                                <small className="cell-id">{item.model}</small>
-                              </td>
-                              <td>
-                                <code>{item.runtimeProfileId.slice(0, 12)}</code>
-                              </td>
-                              <td>{formatToken(item.inputTokens)}</td>
-                              <td>{formatToken(item.outputTokens)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+              <details className="mission-advanced">
+                <summary>高级 · 用量明细</summary>
+                <section className="mission-section">
+                  <div className="section-heading">
+                    <div>
+                      <h2>Mission Usage</h2>
                     </div>
+                    <span className="count-badge">{detail.usage.length}</span>
                   </div>
-                ) : (
-                  <div className="mission-empty-inline">
-                    模型调用完成后，其 UsageRecord 会关联到相应 Run。
-                  </div>
-                )}
-              </section>
+                  {detail.usage.length ? (
+                    <div className="table-card mission-usage-table">
+                      <div className="table-scroll">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>时间 / Run</th>
+                              <th>道友</th>
+                              <th>Provider / Model</th>
+                              <th>Runtime Profile</th>
+                              <th>输入</th>
+                              <th>输出</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {detail.usage.map((item, index) => (
+                              <tr key={item.id ?? `${item.runId}-${item.createdAt}-${index}`}>
+                                <td>
+                                  {formatDate(item.createdAt)}
+                                  <small className="cell-id">
+                                    Run {runAttemptLabel(detail.runs, item.runId ?? '')}
+                                  </small>
+                                </td>
+                                <td>{teammateName(teammates, item.teammateId)}</td>
+                                <td>
+                                  <strong>{item.provider}</strong>
+                                  <small className="cell-id">{item.model}</small>
+                                </td>
+                                <td>
+                                  <code>{item.runtimeProfileId.slice(0, 12)}</code>
+                                </td>
+                                <td>{formatToken(item.inputTokens)}</td>
+                                <td>{formatToken(item.outputTokens)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mission-empty-inline">
+                      模型调用完成后，其 UsageRecord 会关联到相应 Run。
+                    </div>
+                  )}
+                </section>
+              </details>
             </>
           )}
 
@@ -1035,11 +1170,7 @@ export function MissionPage() {
             <div className="empty-card mission-empty-state">
               <span className="empty-icon">◇</span>
               <h3>{detailLoading ? '正在读取 Mission 详情' : 'Mission 详情暂不可用'}</h3>
-              <p>
-                {detailLoading
-                  ? '请稍候，正在读取此 Mission 的 Run、审批与时间线。'
-                  : error || '可以重新读取此 Mission 的执行详情。'}
-              </p>
+              {!detailLoading && error && <p>{error}</p>}
               {detailLoading ? (
                 <div className="loading-card">读取中…</div>
               ) : (
@@ -1057,24 +1188,34 @@ export function MissionPage() {
           {!creating && !mission && !loading && !error && (
             <div className="empty-card mission-empty-state">
               <span className="empty-icon">◇</span>
-              <h3>{activeTeammates.length ? '建立一次独立历练' : '先准备一位可用道友'}</h3>
-              <p>
-                {activeTeammates.length
-                  ? 'SOLO Mission 有独立的执行状态、审批和事件时间线，不会变成普通 Chat Conversation。'
-                  : 'SOLO Mission 需要一位活跃道友和可用 Runtime。先配置 Provider，再创建道友。'}
-              </p>
-              {activeTeammates.length > 0 ? (
+              <h3>
+                {missions.length
+                  ? '此筛选下没有历练'
+                  : activeTeammates.length || activeParties.length
+                    ? '发起一次历练'
+                    : '先准备一位可用道友'}
+              </h3>
+              {!missions.length && (
+                <p>
+                  {activeTeammates.length || activeParties.length
+                    ? '填写任务目标并指定执行道友或队伍。'
+                    : '先创建或启用一位道友。'}
+                </p>
+              )}
+              {missions.length ? (
                 <button
-                  className="button primary"
+                  className="button secondary"
+                  type="button"
                   onClick={() => {
-                    setCreating(true);
-                    setTitle('');
-                    setObjective('');
-                    setMissionMode('SOLO');
-                    setCoordinatorId(activeTeammates[0]!.id);
+                    setMissionFilter('all');
+                    setSelectedId(missions[0]?.id ?? '');
                   }}
                 >
-                  创建 Mission 草稿
+                  查看全部历练
+                </button>
+              ) : activeTeammates.length || activeParties.length ? (
+                <button className="button primary" type="button" onClick={beginCreateMission}>
+                  发起历练
                 </button>
               ) : (
                 <div className="button-row centered">

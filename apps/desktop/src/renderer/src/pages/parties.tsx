@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AvailabilityBadge } from '.././r3-2-availability.js';
+import './mission-party.css';
 import { errorText, PageHeading, teammateName } from '../ui-shared.js';
 import type { TeammateView, PartyType, PartyView } from '../ui-shared.js';
 
@@ -24,6 +26,8 @@ export function PartiesPage() {
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
   const [form, setForm] = useState<PartyForm>(blankPartyForm);
   const [editingId, setEditingId] = useState('');
+  const [selectedPartyId, setSelectedPartyId] = useState('');
+  const [partyFilter, setPartyFilter] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE');
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -40,6 +44,7 @@ export function PartiesPage() {
     ]);
     setParties(partyRows);
     setTeammates(teammateRows);
+    return partyRows;
   };
 
   useEffect(() => {
@@ -51,6 +56,11 @@ export function PartiesPage() {
         if (cancelled) return;
         setParties(partyRows);
         setTeammates(teammateRows);
+        setSelectedPartyId((current) =>
+          current && partyRows.some((party) => party.id === current)
+            ? current
+            : (partyRows.find((party) => party.status === 'ACTIVE')?.id ?? ''),
+        );
       })
       .catch((cause: unknown) => {
         if (!cancelled) setError(errorText(cause, '读取队伍失败。'));
@@ -71,6 +81,8 @@ export function PartiesPage() {
       coordinatorTeammateId: initial[0] ?? '',
     });
     setEditingId('');
+    setSelectedPartyId('');
+    setPartyFilter('ACTIVE');
     setCreating(true);
     setError('');
     setNotice('');
@@ -89,6 +101,7 @@ export function PartiesPage() {
       memberTeammateIds,
     });
     setEditingId(party.id);
+    setSelectedPartyId(party.id);
     setCreating(false);
     setError('');
     setNotice('');
@@ -132,9 +145,12 @@ export function PartiesPage() {
         coordinatorTeammateId: form.coordinatorTeammateId,
         memberTeammateIds: selectedActive,
       };
-      if (editingId) await window.cultivation.parties.update({ id: editingId, ...input });
-      else await window.cultivation.parties.create(input);
+      const saved = editingId
+        ? await window.cultivation.parties.update({ id: editingId, ...input })
+        : await window.cultivation.parties.create(input);
       await refresh();
+      setSelectedPartyId(saved.id);
+      setPartyFilter('ACTIVE');
       setEditingId('');
       setCreating(false);
       setForm(blankPartyForm);
@@ -156,6 +172,7 @@ export function PartiesPage() {
         setEditingId('');
         setForm(blankPartyForm);
       }
+      if (selectedPartyId === party.id) setSelectedPartyId('');
       setNotice(`队伍「${party.name}」已归档。`);
     } catch (cause) {
       setError(errorText(cause, '归档队伍失败。'));
@@ -166,24 +183,14 @@ export function PartiesPage() {
 
   const activeParties = parties.filter((party) => party.status === 'ACTIVE');
   const archivedParties = parties.filter((party) => party.status === 'ARCHIVED');
+  const visibleParties = partyFilter === 'ACTIVE' ? activeParties : archivedParties;
+  const selectedParty = parties.find((party) => party.id === selectedPartyId) ?? null;
+  const orderedMembers = (party: PartyView) =>
+    party.members.slice().sort((left, right) => left.order - right.order);
 
   return (
     <section className="page wide-page party-page">
-      <PageHeading
-        eyebrow="组队协作 · Party"
-        title="队伍 Parties"
-        description="组合 2–4 位持久道友并指定协调者。队伍成员保持各自的 Runtime、Memory、Skill 与工具权限。"
-      />
-      <div className="workflow-note">
-        <strong>协作建议</strong>
-        <p>
-          先用 SOLO Mission 熟悉单人运行；准备至少两位可用道友后创建 Party，再从 Party Mission
-          选择咨询、审查或委托。每次跨道友协作都会生成可审阅的请求。
-        </p>
-        <button className="text-button" type="button" onClick={() => navigate('/missions')}>
-          前往 Mission
-        </button>
-      </div>
+      <PageHeading eyebrow="组队协作 · Party" title="队伍 Parties" description="队伍" />
       {error && (
         <div className="notice error notice-with-action" role="alert">
           {error}
@@ -202,10 +209,10 @@ export function PartiesPage() {
         </div>
       )}
       <div className="party-layout">
-        <section className="list-card party-roster">
+        <section className="party-roster">
           <div className="list-heading">
             <div>
-              <h2>我的队伍</h2>
+              <h2>队伍</h2>
               <p>
                 {activeParties.length} 支可用队伍 · {archivedParties.length} 支已归档
               </p>
@@ -217,6 +224,34 @@ export function PartiesPage() {
               onClick={beginCreate}
             >
               新建队伍
+            </button>
+          </div>
+          <div className="party-filter-tabs" role="tablist" aria-label="筛选队伍">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={partyFilter === 'ACTIVE'}
+              className={partyFilter === 'ACTIVE' ? 'active' : ''}
+              onClick={() => {
+                setPartyFilter('ACTIVE');
+                setSelectedPartyId(activeParties[0]?.id ?? '');
+              }}
+            >
+              可用 <span>{activeParties.length}</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={partyFilter === 'ARCHIVED'}
+              className={partyFilter === 'ARCHIVED' ? 'active' : ''}
+              onClick={() => {
+                setPartyFilter('ARCHIVED');
+                setSelectedPartyId(archivedParties[0]?.id ?? '');
+                setCreating(false);
+                setEditingId('');
+              }}
+            >
+              已归档 <span>{archivedParties.length}</span>
             </button>
           </div>
           {loading ? (
@@ -233,70 +268,86 @@ export function PartiesPage() {
                 重新读取
               </button>
             </div>
-          ) : activeParties.length ? (
-            <div className="party-list">
-              {activeParties.map((party) => (
+          ) : visibleParties.length ? (
+            <div className="party-compact-list">
+              {visibleParties.map((party) => (
                 <article
-                  className={`party-card ${editingId === party.id ? 'selected' : ''}`}
+                  className={`party-compact-item ${selectedPartyId === party.id ? 'selected' : ''}`}
                   key={party.id}
                 >
-                  <div className="party-card-heading">
-                    <div>
-                      <h3>{party.name}</h3>
-                      <span className={`party-type-pill ${party.type.toLowerCase()}`}>
-                        {party.type === 'FIXED' ? '固定队伍' : '临时队伍'}
-                      </span>
-                    </div>
-                    <span className="count-badge">{party.members.length}/4</span>
-                  </div>
-                  <p>{party.description || '暂无说明。'}</p>
-                  <div className="party-member-list">
-                    {party.members
-                      .slice()
-                      .sort((left, right) => left.order - right.order)
-                      .map((member) => (
-                        <span
-                          className={`party-member-chip ${member.role === 'COORDINATOR' ? 'coordinator' : ''}`}
+                  <button
+                    className="party-summary-button"
+                    type="button"
+                    aria-pressed={selectedPartyId === party.id}
+                    onClick={() => {
+                      setSelectedPartyId(party.id);
+                      setCreating(false);
+                      setEditingId('');
+                    }}
+                  >
+                    <span className="party-summary-copy">
+                      <strong>{party.name}</strong>
+                      <small>协调者 · {teammateName(teammates, party.coordinatorTeammateId)}</small>
+                    </span>
+                    <span
+                      className="party-summary-members"
+                      aria-label={`${party.members.length} 位成员`}
+                    >
+                      {orderedMembers(party).map((member) => {
+                        const teammate = teammates.find((item) => item.id === member.teammateId);
+                        return (
+                          <span className="avatar" key={member.teammateId}>
+                            {teammate?.avatar ||
+                              teammateName(teammates, member.teammateId).slice(0, 1)}
+                          </span>
+                        );
+                      })}
+                    </span>
+                    <span className="party-summary-count">{party.members.length}/4</span>
+                    <span className="party-summary-availability">
+                      {orderedMembers(party).map((member) => (
+                        <AvailabilityBadge
                           key={member.teammateId}
-                        >
-                          {member.role === 'COORDINATOR' ? '协调者 · ' : ''}
-                          {teammateName(teammates, member.teammateId)}
-                          {teammates.find((teammate) => teammate.id === member.teammateId)
-                            ?.status !== 'ACTIVE' && ' · 不可用'}
-                        </span>
+                          teammateId={member.teammateId}
+                          recheck={false}
+                          compact
+                        />
                       ))}
-                  </div>
-                  <div className="button-row compact">
-                    <button
-                      className="button secondary small"
-                      type="button"
-                      disabled={busy}
-                      onClick={() => beginEdit(party)}
-                    >
-                      编辑
-                    </button>
-                    <button
-                      className="button danger-ghost small"
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void archive(party)}
-                    >
-                      归档
-                    </button>
-                  </div>
+                    </span>
+                  </button>
+                  {party.status === 'ACTIVE' && (
+                    <div className="party-compact-actions">
+                      <button
+                        className="text-button"
+                        type="button"
+                        disabled={busy}
+                        onClick={() => beginEdit(party)}
+                      >
+                        编辑
+                      </button>
+                      <button
+                        className="text-button danger-text"
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void archive(party)}
+                      >
+                        归档
+                      </button>
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
           ) : (
             <div className="empty-card party-empty-state">
-              <span className="empty-icon">◇</span>
-              <h3>{activeTeammates.length < 2 ? '组队需要两位可用道友' : '还没有可用队伍'}</h3>
-              <p>
-                {activeTeammates.length < 2
-                  ? '创建或启用第二位道友后，便可指定协调者并开始 Party Mission。'
-                  : '创建一支包含 2–4 位道友的队伍，之后可在 Party Mission 中发起协作。'}
-              </p>
-              {activeTeammates.length < 2 ? (
+              <h3>
+                {partyFilter === 'ARCHIVED'
+                  ? '没有已归档队伍'
+                  : activeTeammates.length < 2
+                    ? '组队需要两位可用道友'
+                    : '还没有可用队伍'}
+              </h3>
+              {partyFilter === 'ACTIVE' && activeTeammates.length < 2 && (
                 <div className="button-row centered">
                   <button
                     className="button secondary"
@@ -313,153 +364,220 @@ export function PartiesPage() {
                     创建道友
                   </button>
                 </div>
-              ) : (
-                <button className="button primary" type="button" onClick={beginCreate}>
-                  新建队伍
-                </button>
               )}
             </div>
           )}
-          {archivedParties.length > 0 && (
-            <details className="archived-party-list">
-              <summary>已归档队伍 ({archivedParties.length})</summary>
-              {archivedParties.map((party) => (
-                <div className="archived-party-row" key={party.id}>
-                  <strong>{party.name}</strong>
-                  <span>
-                    {party.type === 'FIXED' ? '固定' : '临时'} · {party.members.length} 位成员
-                  </span>
-                </div>
-              ))}
-            </details>
-          )}
         </section>
 
-        {(creating || editingId) && (
-          <form className="form-card party-editor" onSubmit={(event) => void submit(event)}>
-            <div className="form-title-row">
-              <div>
-                <p className="eyebrow">PARTY CONFIGURATION</p>
-                <h2>{creating ? '创建队伍' : '编辑队伍'}</h2>
-                <p className="muted-copy">新 Mission 只能使用由可用持久道友组成的队伍。</p>
+        <div className="party-detail-column">
+          {(creating || editingId) && (
+            <form className="form-card party-editor" onSubmit={(event) => void submit(event)}>
+              <div className="form-title-row">
+                <div>
+                  <p className="eyebrow">PARTY CONFIGURATION</p>
+                  <h2>{creating ? '创建队伍' : '编辑队伍'}</h2>
+                </div>
+                <button
+                  className="text-button"
+                  type="button"
+                  onClick={() => {
+                    setCreating(false);
+                    setEditingId('');
+                    setForm(blankPartyForm);
+                  }}
+                >
+                  取消
+                </button>
               </div>
+              <label className="field">
+                <span>队伍名称</span>
+                <input
+                  required
+                  maxLength={100}
+                  value={form.name}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, name: event.target.value }))
+                  }
+                />
+              </label>
+              <label className="field">
+                <span>
+                  说明 <small>可选</small>
+                </span>
+                <textarea
+                  rows={3}
+                  maxLength={1000}
+                  value={form.description}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, description: event.target.value }))
+                  }
+                />
+              </label>
+              <label className="field">
+                <span>类型</span>
+                <select
+                  value={form.type}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, type: event.target.value as PartyType }))
+                  }
+                >
+                  <option value="FIXED">FIXED · 固定队伍</option>
+                  <option value="AD_HOC">AD_HOC · 临时队伍</option>
+                </select>
+              </label>
+              <fieldset className="party-member-fieldset">
+                <legend>成员 · 选择 2–4 位可用道友</legend>
+                {teammates.map((teammate) => {
+                  const checked = form.memberTeammateIds.includes(teammate.id);
+                  const archivedSelected = checked && teammate.status !== 'ACTIVE';
+                  return (
+                    <label
+                      className={`party-member-option ${teammate.status !== 'ACTIVE' ? 'unavailable' : ''}`}
+                      key={teammate.id}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={
+                          busy ||
+                          (teammate.status !== 'ACTIVE' && !checked) ||
+                          (!checked && form.memberTeammateIds.length >= 4)
+                        }
+                        onChange={(event) => updateMembers(teammate.id, event.target.checked)}
+                      />
+                      <span>
+                        <strong>{teammate.name}</strong>
+                        <small>
+                          {teammate.title || '道友'}
+                          {archivedSelected
+                            ? ' · 当前已归档，请移除后保存'
+                            : teammate.status !== 'ACTIVE'
+                              ? ' · 不可加入新队伍'
+                              : ''}
+                        </small>
+                      </span>
+                    </label>
+                  );
+                })}
+              </fieldset>
+              <label className="field">
+                <span>协调道友</span>
+                <select
+                  required
+                  value={form.coordinatorTeammateId}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      coordinatorTeammateId: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">选择协调者</option>
+                  {form.memberTeammateIds
+                    .filter((id) =>
+                      activeTeammates.some(
+                        (teammate) => teammate.id === id && teammate.executorKind !== 'USER_BRIDGE',
+                      ),
+                    )
+                    .map((id) => (
+                      <option key={id} value={id}>
+                        {teammateName(teammates, id)}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              {form.memberTeammateIds.length < 2 && <p className="form-hint">至少选择两位道友。</p>}
               <button
-                className="text-button"
-                type="button"
-                onClick={() => {
-                  setCreating(false);
-                  setEditingId('');
-                  setForm(blankPartyForm);
-                }}
-              >
-                取消
-              </button>
-            </div>
-            <label className="field">
-              <span>队伍名称</span>
-              <input
-                required
-                maxLength={100}
-                value={form.name}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, name: event.target.value }))
-                }
-                placeholder="例如：研究小队"
-              />
-            </label>
-            <label className="field">
-              <span>
-                说明 <small>可选</small>
-              </span>
-              <textarea
-                rows={3}
-                maxLength={1000}
-                value={form.description}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, description: event.target.value }))
-                }
-                placeholder="这支队伍适合处理什么任务？"
-              />
-            </label>
-            <label className="field">
-              <span>类型</span>
-              <select
-                value={form.type}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, type: event.target.value as PartyType }))
-                }
-              >
-                <option value="FIXED">FIXED · 固定队伍</option>
-                <option value="AD_HOC">AD_HOC · 临时队伍</option>
-              </select>
-            </label>
-            <fieldset className="party-member-fieldset">
-              <legend>成员 · 选择 2–4 位可用道友</legend>
-              {teammates.map((teammate) => {
-                const checked = form.memberTeammateIds.includes(teammate.id);
-                const archivedSelected = checked && teammate.status !== 'ACTIVE';
-                return (
-                  <label
-                    className={`party-member-option ${teammate.status !== 'ACTIVE' ? 'unavailable' : ''}`}
-                    key={teammate.id}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      disabled={
-                        busy ||
-                        (teammate.status !== 'ACTIVE' && !checked) ||
-                        (!checked && form.memberTeammateIds.length >= 4)
-                      }
-                      onChange={(event) => updateMembers(teammate.id, event.target.checked)}
-                    />
-                    <span>
-                      <strong>{teammate.name}</strong>
-                      <small>
-                        {teammate.title || '道友'}
-                        {archivedSelected
-                          ? ' · 当前已归档，请移除后保存'
-                          : teammate.status !== 'ACTIVE'
-                            ? ' · 不可加入新队伍'
-                            : ''}
-                      </small>
-                    </span>
-                  </label>
-                );
-              })}
-            </fieldset>
-            <label className="field">
-              <span>协调道友</span>
-              <select
-                required
-                value={form.coordinatorTeammateId}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, coordinatorTeammateId: event.target.value }))
-                }
-              >
-                <option value="">选择协调者</option>
-                {form.memberTeammateIds
-                  .filter((id) =>
-                    activeTeammates.some(
-                      (teammate) => teammate.id === id && teammate.executorKind !== 'USER_BRIDGE',
-                    ),
+                className="button primary"
+                disabled={
+                  busy ||
+                  !form.name.trim() ||
+                  form.memberTeammateIds.length < 2 ||
+                  form.memberTeammateIds.length > 4 ||
+                  !form.memberTeammateIds.includes(form.coordinatorTeammateId) ||
+                  form.memberTeammateIds.some(
+                    (id) => !activeTeammates.some((teammate) => teammate.id === id),
                   )
-                  .map((id) => (
-                    <option key={id} value={id}>
-                      {teammateName(teammates, id)}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            {form.memberTeammateIds.length < 2 && <p className="form-hint">至少选择两位道友。</p>}
-            <button
-              className="button primary"
-              disabled={busy || !form.name.trim() || form.memberTeammateIds.length < 2}
-            >
-              {busy ? '保存中…' : '保存队伍'}
-            </button>
-          </form>
-        )}
+                }
+              >
+                {busy ? '保存中…' : '保存队伍'}
+              </button>
+            </form>
+          )}
+          {!creating && !editingId && selectedParty && (
+            <section className="party-detail-card">
+              <div className="party-detail-heading">
+                <div>
+                  <h2>{selectedParty.name}</h2>
+                  <div className="party-detail-meta">
+                    <span>{selectedParty.type === 'FIXED' ? '固定队伍' : '临时队伍'}</span>
+                    <span>{selectedParty.status === 'ACTIVE' ? '可用' : '已归档'}</span>
+                    <span>{selectedParty.members.length}/4</span>
+                  </div>
+                </div>
+                {selectedParty.status === 'ACTIVE' && (
+                  <button
+                    className="button primary small"
+                    type="button"
+                    onClick={() =>
+                      navigate(`/missions?partyId=${encodeURIComponent(selectedParty.id)}&create=1`)
+                    }
+                  >
+                    发起队伍历练
+                  </button>
+                )}
+              </div>
+              {selectedParty.description && (
+                <p className="party-description">{selectedParty.description}</p>
+              )}
+              <div className="party-detail-members">
+                {orderedMembers(selectedParty).map((member) => {
+                  const teammate = teammates.find((item) => item.id === member.teammateId);
+                  return (
+                    <article className="party-detail-member" key={member.teammateId}>
+                      <span className="avatar">
+                        {teammate?.avatar || teammateName(teammates, member.teammateId).slice(0, 1)}
+                      </span>
+                      <div className="party-detail-member-copy">
+                        <strong>{teammateName(teammates, member.teammateId)}</strong>
+                        <small>
+                          {member.role === 'COORDINATOR' ? '协调者' : '成员'}
+                          {teammate?.status !== 'ACTIVE' ? ' · 不可用' : ''}
+                        </small>
+                      </div>
+                      <AvailabilityBadge teammateId={member.teammateId} />
+                    </article>
+                  );
+                })}
+              </div>
+              {selectedParty.status === 'ACTIVE' && (
+                <div className="button-row compact party-detail-actions">
+                  <button
+                    className="button secondary small"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => beginEdit(selectedParty)}
+                  >
+                    编辑队伍
+                  </button>
+                  <button
+                    className="button danger-ghost small"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void archive(selectedParty)}
+                  >
+                    归档队伍
+                  </button>
+                </div>
+              )}
+            </section>
+          )}
+          {!creating && !editingId && !selectedParty && !loading && (
+            <div className="empty-card party-empty-state">
+              <h3>选择一支队伍</h3>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
