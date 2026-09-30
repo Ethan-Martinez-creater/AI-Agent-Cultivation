@@ -305,6 +305,28 @@ try {
   await page.getByRole('button', { name: '最小化窗口' }).waitFor();
   recordAssertion('titlebar-minimize-maximize-restore');
 
+  await navigateUi(page, '道友 Teammates');
+  await page.getByRole('button', { name: '创建道友', exact: true }).click();
+  const emptyModelPanel = page.locator('.teammate-create-drawer');
+  await emptyModelPanel.getByLabel('名称', { exact: true }).fill('Empty template check');
+  await emptyModelPanel.getByRole('button', { name: '继续选择模型' }).click();
+  await emptyModelPanel.getByRole('button', { name: '使用已有模型', exact: true }).click();
+  await emptyModelPanel
+    .getByText('暂无可复用的模型配置，请添加新模型。', { exact: true })
+    .waitFor();
+  assert.equal(await emptyModelPanel.locator('input[name="existing-runtime"]').count(), 0);
+  await capture(page, 'create-teammate-no-template-1440.png', 1440, 900, {
+    drawer: 'no-reusable-template',
+  });
+  await emptyModelPanel
+    .locator('.create-empty-models')
+    .getByRole('button', { name: '添加新模型', exact: true })
+    .click();
+  await emptyModelPanel.getByLabel('Provider 类型').waitFor();
+  await emptyModelPanel.getByRole('button', { name: '关闭面板', exact: true }).click();
+  recordAssertion('creation-empty-template-guides-to-new-model');
+  await navigateUi(page, '洞府 Home');
+
   fixtures = await page.evaluate(async () => {
     const api = window.cultivation;
     const provider = await api.providers.create({
@@ -438,6 +460,17 @@ try {
   });
   await createPanel.getByRole('button', { name: '继续选择模型' }).click();
   await createPanel.getByRole('heading', { name: '为 玄照 Upload Smoke 选择模型' }).waitFor();
+  await createPanel.locator('input[name="existing-runtime"]').first().waitFor();
+  const templateCandidates = await createPanel
+    .locator('input[name="existing-runtime"]')
+    .evaluateAll((inputs) => inputs.map((input) => input.value));
+  assert.deepEqual(templateCandidates, [fixtures.runtime.id]);
+  assert.notEqual(fixtures.a.currentRuntimeProfileId, fixtures.runtime.id);
+  assert.notEqual(fixtures.b.currentRuntimeProfileId, fixtures.runtime.id);
+  recordAssertion('creation-only-unbound-template-no-duplicate-private-runtimes', {
+    templateCandidates,
+    excludedBoundRuntimes: [fixtures.a.currentRuntimeProfileId, fixtures.b.currentRuntimeProfileId],
+  });
   await createPanel
     .locator(`input[name="existing-runtime"][value="${fixtures.runtime.id}"]`)
     .check();
@@ -546,6 +579,99 @@ try {
     credentialLabel: 'r33-new-model-smoke API Key',
   });
   recordAssertion('embedded-provider-model-test-and-seal', createdNewModelBinding);
+
+  // Exercise the real creation UI without importing a key or invoking the clipboard path.
+  await page.getByRole('button', { name: '创建道友' }).click();
+  await createPanel.getByRole('heading', { name: '先认识这位道友' }).waitFor();
+  await createPanel.getByLabel('名称', { exact: true }).fill('无钥 Keyless Smoke');
+  await createPanel.getByRole('button', { name: '继续选择模型' }).click();
+  await createPanel.getByRole('heading', { name: '为 无钥 Keyless Smoke 选择模型' }).waitFor();
+  await createPanel.getByRole('button', { name: '添加新模型', exact: true }).click();
+  await createPanel.getByLabel('Provider 类型').selectOption('OPENAI');
+  await createPanel.getByLabel('Model ID', { exact: true }).fill('r33-keyless-smoke');
+  assert.equal(
+    await createPanel.getByRole('button', { name: '测试连接', exact: true }).isEnabled(),
+    false,
+  );
+  await createPanel.getByLabel('Provider 类型').selectOption('OPENAI_COMPATIBLE');
+  await createPanel.getByText('API Key（可选）', { exact: true }).waitFor();
+  assert.equal(
+    await createPanel.getByRole('button', { name: '测试连接', exact: true }).isEnabled(),
+    false,
+  );
+  await createPanel
+    .getByLabel('Endpoint（兼容服务需要）', { exact: true })
+    .fill('http://127.0.0.1:9997/v1');
+  assert.equal(
+    await createPanel.getByRole('button', { name: '测试连接', exact: true }).isEnabled(),
+    true,
+  );
+  await app.evaluate(({ clipboard }) => clipboard.writeText('r33-keyless-clipboard-untouched'));
+  await createPanel.getByRole('button', { name: '测试连接', exact: true }).click();
+  await createPanel.getByRole('status').filter({ hasText: '连接成功' }).waitFor();
+  await capture(page, 'create-teammate-keyless-tested-1440.png', 1440, 900, {
+    route: '/teammates',
+    drawer: 'keyless-model-tested',
+  });
+  await createPanel.getByRole('button', { name: '确认资料' }).click();
+  await createPanel.getByRole('heading', { name: '检查道友资料' }).waitFor();
+  await capture(page, 'create-teammate-keyless-confirm-1440.png', 1440, 900, {
+    route: '/teammates',
+    drawer: 'keyless-model-confirm',
+  });
+  await createPanel.getByRole('button', { name: '确认并创建道友' }).click();
+  await page.getByRole('heading', { name: '无钥 Keyless Smoke', exact: true }).waitFor();
+  assert.equal(
+    await app.evaluate(({ clipboard }) => clipboard.readText()),
+    'r33-keyless-clipboard-untouched',
+  );
+  await app.evaluate(({ clipboard }) => clipboard.clear());
+  const keylessDb = new Database(databasePath, { readonly: true });
+  try {
+    const sealedKeyless = keylessDb
+      .prepare(
+        `
+      SELECT b.provider_kind, b.endpoint, b.model_id, b.credential_id,
+        b.verified_at, b.sealed_at, b.verification_source,
+        rp.credential_id AS runtime_credential_id, p.kind AS provider_kind_actual,
+        p.base_url AS provider_endpoint_actual, rp.model_id AS runtime_model_id
+      FROM teammates AS t
+      JOIN teammate_model_bindings AS b ON b.teammate_id = t.id
+      JOIN runtime_profiles AS rp ON rp.id = b.runtime_profile_id
+      JOIN providers AS p ON p.id = rp.provider_id
+      WHERE t.name = ? AND t.current_runtime_profile_id = b.runtime_profile_id
+    `,
+      )
+      .get('无钥 Keyless Smoke');
+    assert.ok(sealedKeyless);
+    const { verified_at, sealed_at, ...identity } = sealedKeyless;
+    assert.ok(verified_at && sealed_at);
+    assert.deepEqual(identity, {
+      provider_kind: 'OPENAI_COMPATIBLE',
+      endpoint: 'http://127.0.0.1:9997/v1',
+      model_id: 'r33-keyless-smoke',
+      credential_id: null,
+      verification_source: 'LIVE_TEST',
+      runtime_credential_id: null,
+      provider_kind_actual: 'OPENAI_COMPATIBLE',
+      provider_endpoint_actual: 'http://127.0.0.1:9997/v1',
+      runtime_model_id: 'r33-keyless-smoke',
+    });
+    assert.equal(
+      keylessDb
+        .prepare(
+          `
+      SELECT count(*) AS total FROM provider_credentials AS c
+      JOIN providers AS p ON p.id = c.provider_id WHERE p.base_url = ?
+    `,
+        )
+        .get('http://127.0.0.1:9997/v1').total,
+      0,
+    );
+    recordAssertion('keyless-ui-test-create-sealed-sqlite-identity', sealedKeyless);
+  } finally {
+    keylessDb.close();
+  }
 
   await navigateUi(page, '队伍 Parties');
   await page.locator('.party-summary-button').filter({ hasText: '双人协作 Smoke' }).click();
@@ -677,6 +803,7 @@ try {
     };
   }, createdNewModelRuntimeId);
   await page.getByRole('tab', { name: '密钥凭据', exact: true }).click();
+  await page.getByLabel('关联服务商').selectOption(rotationIdentity.providerId);
   await app.evaluate(({ clipboard }) => clipboard.writeText('r33-rotated-fake-key-main-only'));
   await page
     .locator('.data-row')
@@ -1148,7 +1275,7 @@ writeFileSync(
 );
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
 console.log(
-  `R3_3_UI_PACKAGED_SMOKE_OK screenshots=${manifest.screenshots.length} chat=streaming,long-content,copy,unavailable memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900`,
+  `R3_3_UI_PACKAGED_SMOKE_OK screenshots=${manifest.screenshots.length} creation=unbound-templates,keyless-sealed chat=streaming,long-content,copy,unavailable memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900`,
 );
 console.log(`R3_3_UI_EVIDENCE_DIR ${userData}`);
 console.log(`R3_3_UI_EVIDENCE_MANIFEST ${manifestPath}`);

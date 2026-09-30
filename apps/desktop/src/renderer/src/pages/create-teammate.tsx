@@ -3,7 +3,11 @@ import { Avatar } from '../components/Avatar.js';
 import { AvatarPicker } from '../components/AvatarPicker.js';
 import { Drawer } from '../components/Drawer.js';
 import { Icon } from '../components/Icon.js';
-import { AvailabilityBadge } from '../r3-2-availability.js';
+import {
+  canTestNewModel,
+  newModelCredentialId,
+  reusableRuntimeTemplates,
+} from './create-model-policy.js';
 import { errorText, providerKinds, safeLabel } from '../ui-shared.js';
 import type { ProviderKind, ProviderView, RuntimeProfileView, TeammateView } from '../ui-shared.js';
 import './create-teammate.css';
@@ -49,10 +53,12 @@ export function CreateTeammatePanel({
 }: CreateTeammatePanelProps) {
   const [step, setStep] = useState<FlowStep>('identity');
   const [identity, setIdentity] = useState<IdentityDraft>(emptyIdentity);
-  const [mode, setMode] = useState<ModelMode>(initialRuntimes.length ? 'existing' : 'new');
+  const [mode, setMode] = useState<ModelMode>('new');
   const [providers, setProviders] = useState(initialProviders);
   const [runtimes, setRuntimes] = useState(initialRuntimes);
-  const [selectedRuntimeId, setSelectedRuntimeId] = useState(initialRuntimes[0]?.id ?? '');
+  const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [selectedRuntimeId, setSelectedRuntimeId] = useState('');
   const [providerKind, setProviderKind] = useState<ProviderKind>('OPENAI');
   const [endpoint, setEndpoint] = useState('');
   const [modelId, setModelId] = useState('');
@@ -69,9 +75,12 @@ export function CreateTeammatePanel({
   const [notice, setNotice] = useState('');
 
   const providerKey = providerKind + '|' + endpoint.trim();
-  const selectedRuntime = runtimes.find((item) => item.id === selectedRuntimeId);
+  const templates = templatesLoaded ? reusableRuntimeTemplates(runtimes, teammates) : [];
+  const selectedRuntime = templates.find((item) => item.id === selectedRuntimeId);
   const draftRuntime = runtimes.find((item) => item.id === draftRuntimeId);
-  const activeRuntimeId = mode === 'existing' ? selectedRuntimeId : draftRuntimeId;
+  const activeRuntimeId = mode === 'existing' ? (selectedRuntime?.id ?? '') : draftRuntimeId;
+  const importedCredentialId =
+    createdCredentialKey === providerKey ? createdCredentialId || null : null;
   const isTested = Boolean(activeRuntimeId && testedRuntimeId === activeRuntimeId);
   const modelLabel = useMemo(() => {
     if (mode === 'existing' && selectedRuntime) {
@@ -97,6 +106,7 @@ export function CreateTeammatePanel({
     setIdentity(emptyIdentity);
     setMode('new');
     setSelectedRuntimeId('');
+    setTemplatesLoaded(false);
     setProviderKind('OPENAI');
     setEndpoint('');
     setModelId('');
@@ -111,15 +121,24 @@ export function CreateTeammatePanel({
     setError('');
     setNotice('');
     let cancelled = false;
-    void Promise.all([window.cultivation.providers.list(), window.cultivation.runtimes.list()])
-      .then(([providerRows, runtimeRows]) => {
+    void Promise.all([
+      window.cultivation.providers.list(),
+      window.cultivation.runtimes.list(),
+      window.cultivation.teammates.list(),
+    ])
+      .then(([providerRows, runtimeRows, teammateRows]) => {
         if (cancelled) return;
         setProviders(providerRows);
         setRuntimes(runtimeRows);
-        setSelectedRuntimeId(runtimeRows[0]?.id ?? '');
-        setMode(runtimeRows.length ? 'existing' : 'new');
+        setTeammates(teammateRows);
+        setTemplatesLoaded(true);
+        const reusable = reusableRuntimeTemplates(runtimeRows, teammateRows);
+        setSelectedRuntimeId(reusable[0]?.id ?? '');
+        setMode(reusable.length ? 'existing' : 'new');
       })
-      .catch(() => undefined);
+      .catch((cause) => {
+        if (!cancelled) setError(errorText(cause, '模型配置加载失败，请关闭后重试。'));
+      });
     return () => {
       cancelled = true;
     };
@@ -185,7 +204,7 @@ export function CreateTeammatePanel({
   };
 
   const testConnection = async () => {
-    const runtimeId = mode === 'existing' ? selectedRuntimeId : draftRuntimeId;
+    const runtimeId = mode === 'existing' ? (selectedRuntime?.id ?? '') : draftRuntimeId;
     if (mode === 'existing' && !runtimeId) {
       setError('请选择一个已配置模型。');
       return;
@@ -201,7 +220,7 @@ export function CreateTeammatePanel({
       );
       return;
     }
-    if (mode === 'new' && (!createdCredentialId || createdCredentialKey !== providerKey)) {
+    if (mode === 'new' && providerKind !== 'OPENAI_COMPATIBLE' && !importedCredentialId) {
       setError('请先复制 API Key，再通过安全导入完成凭据配置。');
       return;
     }
@@ -215,10 +234,12 @@ export function CreateTeammatePanel({
       let targetRuntimeId = runtimeId;
       if (mode === 'new') {
         const providerId = await ensureProvider();
-        const credentialId = createdCredentialKey === providerKey ? createdCredentialId : '';
-        if (!credentialId) {
-          throw new Error('请先复制 API Key，再通过安全导入完成凭据配置。');
-        }
+        const credentialId = newModelCredentialId(
+          providerKind,
+          createdCredentialId,
+          createdCredentialKey,
+          providerKey,
+        );
         const runtimeInput = {
           name: modelId.trim().slice(0, 120),
           providerId,
@@ -416,7 +437,7 @@ export function CreateTeammatePanel({
                 className={mode === 'existing' ? 'selected' : ''}
                 aria-pressed={mode === 'existing'}
                 onClick={() => chooseMode('existing')}
-                disabled={busy || !runtimes.length}
+                disabled={busy}
               >
                 使用已有模型
               </button>
@@ -433,7 +454,7 @@ export function CreateTeammatePanel({
 
             {mode === 'existing' ? (
               <div className="create-existing-models" role="radiogroup" aria-label="已配置模型">
-                {runtimes.map((runtime) => {
+                {templates.map((runtime) => {
                   const provider = providers.find((item) => item.id === runtime.providerId);
                   return (
                     <label
@@ -456,12 +477,25 @@ export function CreateTeammatePanel({
                         <small>{runtime.modelId}</small>
                         {provider?.baseUrl && <small>{provider.baseUrl}</small>}
                       </span>
-                      <AvailabilityBadge runtimeProfileId={runtime.id} recheck={false} compact />
                     </label>
                   );
                 })}
-                {!runtimes.length && (
-                  <p className="create-empty-models">尚无可用配置，请添加新模型。</p>
+                {!templates.length && (
+                  <div className="create-empty-models">
+                    <p>
+                      {templatesLoaded
+                        ? '暂无可复用的模型配置，请添加新模型。'
+                        : '正在加载模型配置…'}
+                    </p>
+                    <button
+                      className="button secondary"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => chooseMode('new')}
+                    >
+                      添加新模型
+                    </button>
+                  </div>
                 )}
               </div>
             ) : (
@@ -517,8 +551,13 @@ export function CreateTeammatePanel({
                   <div>
                     <strong>
                       <Icon name="Credential" size={16} /> API Key
+                      {providerKind === 'OPENAI_COMPATIBLE' ? '（可选）' : '（必填）'}
                     </strong>
-                    <p>先复制 API Key，再点击导入。密钥会加密保存在本机，导入后清空剪贴板。</p>
+                    <p>
+                      {providerKind === 'OPENAI_COMPATIBLE'
+                        ? '无需密钥可直接测试连接。若服务要求密钥，可从剪贴板安全导入。'
+                        : '先复制 API Key，再点击导入。密钥会加密保存在本机，导入后清空剪贴板。'}
+                    </p>
                     {createdCredentialId && createdCredentialKey === providerKey ? (
                       <span className="create-key-status" role="status">
                         <Icon name="Check" size={15} /> 凭据已安全导入
@@ -595,8 +634,9 @@ export function CreateTeammatePanel({
                   type="button"
                   disabled={
                     busy ||
-                    (mode === 'existing' && !selectedRuntimeId) ||
-                    (mode === 'new' && (!modelId.trim() || !createdCredentialId))
+                    (mode === 'existing' && !selectedRuntime) ||
+                    (mode === 'new' &&
+                      !canTestNewModel(providerKind, endpoint, modelId, importedCredentialId))
                   }
                   onClick={() => void testConnection()}
                 >

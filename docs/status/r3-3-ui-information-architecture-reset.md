@@ -100,3 +100,40 @@ FakeModelGateway 的同步流会在一次 microtask burst 中完成。仅为 str
 头像导入上限为 2 MB/2048px；预置资源与用户本地导入是不同入口。完整 Audit、Benchmark provenance 与长期事件仍需展开高级区。验收覆盖三种常用窗口尺寸，不宣称覆盖所有多屏/DPI 组合。本轮交付 Windows x64 packaged app，不重新生成 installer。
 
 未实现 R4、Workflow/W1、自动路由、Human Bridge 自动 fallback、Skill/Memory/Tool shortlist、Availability 后台轮询、动态能力/评分、Runtime switch、Scheduler、Browser/Computer Use、Shell 或其他新 Agent 能力。完成后等待 R3.3 审批。
+
+## 最终 corrective repair（基线 main@91b5e35）
+
+本轮只修正创建道友的模型候选与无密钥兼容服务路径，没有扩展 UI 重构范围。
+
+- 创建面板通过已有 `teammates.list()` 的 `currentRuntimeProfileId` 排除全部已绑定 Runtime，包括已归档道友的固定身份。身份列表尚未加载成功时不展示候选；多个道友使用同一模型时只显示未绑定的可复用模板。封存配置继续在 Settings Advanced 以只读身份展示，不增加 ModelBinding IPC。
+- 没有模板时展示“暂无可复用的模型配置”，并提供“添加新模型”入口。未绑定模板没有道友模型 Availability，因此候选项不展示模型状态点；道友详情及其他实际执行身份的 Availability 保持。
+- `OPENAI_COMPATIBLE` 的 API Key 标记为可选，Endpoint + Model ID 即可测试、确认、创建。无 Key 时显式传递 `credentialId: null`；可选 Key 仍复用 Main 剪贴板安全导入。其他四种 Provider 的 Key 仍为必填，切换 Provider/Endpoint 后不能复用旧身份的凭据。
+- Main 仍重新测试固定模型并 seal，未改变 Provider/Credential/Runtime 架构、连接测试 TOCTOU 防线、Credential rotation、typed IPC 或 secret boundary。没有新增依赖、IPC、migration，也没有进入 R4/Workflow/W1。
+
+### 回归证据
+
+新增 10 项确定性测试：模型模板过滤（包含归档/多个私有 Runtime）、空候选、无 Key 的 Endpoint/Model 校验、可选凭据、错误 Provider 凭据隔离、四种必填 Key Provider，以及 application 层完整 keyless test/create/seal 身份检查。
+
+真实 Windows packaged UI smoke 额外验证：
+
+1. 全新数据下没有模板时可以从空状态切换到添加新模型。
+2. A/B 已绑定同一模型的两个私有 Runtime 后，候选 radio 仅包含一个原始未绑定模板。
+3. 不导入 Key，真实点击 Endpoint/Model → 测试连接 → 确认 → 创建。直接只读查询 native SQLite，检查 `LIVE_TEST`、verified/sealed 时间、Provider/Endpoint/Model 精确一致，binding 与 Runtime 的 Credential 均为 null，且该 Provider 没有 Credential 行。此流程不读取或清空剪贴板。
+4. 原有导入 Key 创建、sealed 只读、专用 Credential rotation、Human Bridge、Availability、Avatar、Chat 和 Gate 0–6/R0–R3.2 packaged 回归继续执行。
+
+验收日期：2026-09-30。六项最终验证均退出 0：
+
+| 命令                    | 结果                                                   |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run test`          | 44 个文件、341 项全部通过（新增 10 项）                |
+| `npm run typecheck`     | 通过                                                   |
+| `npm run lint`          | 通过                                                   |
+| `npm run format:check`  | 通过                                                   |
+| `npm run package`       | Windows x64 / Electron 44.4.3；native dependencies 1/1 |
+| `npm run smoke:package` | Gate 0–6、R0–R3.3 全量通过；真实 UI 35 张截图          |
+
+成功 UI run：`b923b1b3-b10b-4334-a3fc-b241a399f57f`。[本轮补充证据](../evidence/r3-3-corrective/README.md) 提交四张相关原始截图和完整运行 manifest；完整 35 张原件位于仓库 `.test-data/r3-3-ui-b923b1b3-b10b-4334-a3fc-b241a399f57f`。三种实际窗口尺寸、原有 Chat/Availability/Avatar 等交互检查继续通过。keyless UI 使用 FakeModelGateway，真实 typed IPC/native SQLite/seal 均执行；不宣称外网 Provider 联调。
+
+首轮测试曾在与类型检查/lint 并行时触发既有 R3.2 集成测试的 5 秒 timeout，单独全量重跑后全部通过，没有调整超时或断言。新增 keyless Provider 后，首次 packaged 轮换回归选中了默认服务商，harness 已改为显式选择待轮换 Credential 的 Provider；随后完整 smoke 通过，未修改产品 Credential rotation 行为。
+
+fixed model identity、sealed Runtime readonly、Credential rotation、Availability、Human Bridge、Avatar、Chat 与 secret boundary 保持。所有缓存、profile 和新证据均在当前仓库内，未新增依赖或 schema。完成后仅等待 R3.3 审批，不推进 R4。

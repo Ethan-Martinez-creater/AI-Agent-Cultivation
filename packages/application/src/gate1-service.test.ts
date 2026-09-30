@@ -163,6 +163,33 @@ async function collect(
 }
 
 describe('Gate 1 application vertical slice', () => {
+  it('tests and seals a keyless compatible model with null credential and fixed identity', async () => {
+    const { service, store, credentials } = setup();
+    const provider = service.createProvider({
+      name: 'Keyless local service',
+      kind: 'OPENAI_COMPATIBLE',
+      baseUrl: 'http://localhost:9999/v1',
+    });
+    const runtime = service.createRuntimeProfile({
+      name: 'Keyless model',
+      providerId: provider.id,
+      credentialId: null,
+      modelId: 'keyless-model',
+    });
+    expect((await service.testConnection(runtime.id)).ok).toBe(true);
+    const teammate = await service.createTeammate(teammateInput(runtime.id));
+    expect(store.getModelBinding(teammate.id)).toMatchObject({
+      providerKind: 'OPENAI_COMPATIBLE',
+      endpoint: 'http://localhost:9999/v1',
+      modelId: 'keyless-model',
+      credentialId: null,
+      verificationSource: 'LIVE_TEST',
+    });
+    expect(teammate.currentRuntimeProfileId).not.toBe(runtime.id);
+    expect(store.getRuntimeProfile(teammate.currentRuntimeProfileId!)?.credentialId).toBeNull();
+    expect(credentials.size).toBe(0);
+  });
+
   it('does not create or seal a teammate when connection verification fails', async () => {
     const gateway = {
       testConnection: async () => ({ ok: false, message: 'offline' }),
