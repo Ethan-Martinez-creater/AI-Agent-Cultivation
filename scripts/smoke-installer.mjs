@@ -107,7 +107,7 @@ const createdTeammate = await withInstalledApp(
   installation.executable,
   installerEnv,
   async (page) => {
-    await page.getByRole('heading', { name: '洞府 Home' }).waitFor({ timeout: 60_000 });
+    await page.getByRole('heading', { name: '首页', exact: true }).waitFor({ timeout: 60_000 });
     return page.evaluate(async (name) => {
       const provider = await window.cultivation.providers.create({
         name: `${name} Provider`,
@@ -155,7 +155,7 @@ const sizeBeforeUninstall = statSync(databasePath).size;
 assert.ok(sizeBeforeUninstall > 0, 'The app did not create its userData SQLite database.');
 
 await withInstalledApp(installation.executable, installerEnv, async (page) => {
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor({ timeout: 60_000 });
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor({ timeout: 60_000 });
   const teammates = await page.evaluate(() => window.cultivation.teammates.list());
   assert.ok(
     teammates.some((teammate) => teammate.id === createdTeammate.id),
@@ -194,7 +194,7 @@ await waitUntil(
 assert.ok(isPathWithin(localAppData, installation.root));
 await stopAppProcesses(installation.root);
 await withInstalledApp(installation.executable, installerEnv, async (page) => {
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor({ timeout: 60_000 });
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor({ timeout: 60_000 });
   const teammates = await page.evaluate(() => window.cultivation.teammates.list());
   assert.ok(
     teammates.some((teammate) => teammate.id === createdTeammate.id),

@@ -26,9 +26,9 @@ const app = await electron.launch({
 let initialCredentialCiphertext;
 try {
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   for (const [link, heading] of [
-    ['道友 Teammates', '道友 Teammates'],
+    ['道友 Teammates', '道友'],
     ['队伍 Parties', '队伍'],
     ['历练 Missions', '历练'],
     ['功法 Skills', '功法 Skills'],

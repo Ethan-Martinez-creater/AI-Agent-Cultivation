@@ -28,7 +28,7 @@ let runtimeProfileId;
 let conversationId;
 try {
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   const result = await page.evaluate(async () => {
     const api = window.cultivation;
     const provider = await api.providers.create({
@@ -206,7 +206,7 @@ const sdkApp = await electron.launch({
 });
 try {
   const page = await sdkApp.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   const setup = await page.evaluate(async (baseUrl) => {
     const api = window.cultivation;
     const provider = await api.providers.create({
@@ -326,7 +326,7 @@ const databasePath = join(userData, 'data', 'cultivation.sqlite');
 app = await launch();
 try {
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   const beforeDb = new Database(databasePath, { readonly: true });
   const countBefore = beforeDb.prepare('SELECT count(*) AS n FROM usage_records').get().n;
   beforeDb.close();

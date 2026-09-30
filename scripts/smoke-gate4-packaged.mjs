@@ -59,7 +59,7 @@ async function launch() {
     },
   });
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   return { app, page };
 }
 
@@ -391,7 +391,7 @@ try {
   assert.ok(discovered.tools.some((tool) => tool.id === `${serverId}:echo`));
   assert.ok(discovered.tools.some((tool) => tool.id === `${serverId}:env`));
   await navigateUi(first.page, '洞府 Home');
-  await first.page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await first.page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   await navigateUi(first.page, '法宝 Tools');
   await first.page.getByRole('heading', { name: '法宝 Tools' }).waitFor();
   await first.page.locator('.mcp-disclosure > summary').click();

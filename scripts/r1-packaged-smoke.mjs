@@ -23,7 +23,7 @@ const app = await electron.launch({
 let facts;
 try {
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   facts = await page.evaluate(async () => {
     const api = window.cultivation;
     const provider = await api.providers.create({

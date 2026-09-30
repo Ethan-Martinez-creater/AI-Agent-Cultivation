@@ -27,7 +27,7 @@ let missionId;
 let teammateId;
 try {
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   const before = await page.evaluate(() => window.cultivation.r3.getConfig());
   assert.deepEqual(
     { provider: before.provider, model: before.model, mode: before.mode, enabled: before.enabled },
@@ -175,7 +175,7 @@ const failedApp = await electron.launch({
 });
 try {
   const page = await failedApp.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   const failedMission = await page.evaluate(
     (coordinatorTeammateId) =>
       window.cultivation.missions.create({

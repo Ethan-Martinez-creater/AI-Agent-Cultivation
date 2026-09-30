@@ -26,7 +26,7 @@ export async function verifyGate6Packaged(evidence) {
   let beforeRestart;
   try {
     const page = await app.firstWindow();
-    await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+    await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
     beforeRestart = await page.evaluate(
       async ({ fixture, deniedMissionId, approvedMissionId }) => {
         const api = window.cultivation;
@@ -239,7 +239,7 @@ export async function verifyGate6Packaged(evidence) {
   const reopened = await launch();
   try {
     const page = await reopened.firstWindow();
-    await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+    await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
     const afterRestart = await page.evaluate(
       (teammateId) => window.cultivation.experience.get(teammateId),
       fixture.bId,

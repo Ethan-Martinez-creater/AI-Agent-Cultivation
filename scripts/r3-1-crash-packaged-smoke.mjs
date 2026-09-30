@@ -34,7 +34,7 @@ async function launch() {
     env: { ...process.env, CULTIVATION_USER_DATA_DIR: userData },
   });
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   return { app, page };
 }
 

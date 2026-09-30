@@ -50,7 +50,7 @@ let deniedDetail;
 let approvedDetail;
 try {
   const page = await app.firstWindow();
-  await page.getByRole('heading', { name: '洞府 Home' }).waitFor();
+  await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
 
   fixture = await page.evaluate(async (nonce) => {
     const api = window.cultivation;
