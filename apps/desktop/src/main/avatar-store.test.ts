@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { AvatarStore, AVATAR_MAX_BYTES, validateAvatarInput } from './avatar-store.js';
 
 const preset = readFileSync(
-  join(process.cwd(), 'apps/desktop/src/renderer/src/assets/avatars/01.png'),
+  join(process.cwd(), 'apps/desktop/src/renderer/src/assets/avatars/user.png'),
 );
 const folder = () => {
   const root = join(process.cwd(), '.test-data', `avatars-${randomUUID()}`);
