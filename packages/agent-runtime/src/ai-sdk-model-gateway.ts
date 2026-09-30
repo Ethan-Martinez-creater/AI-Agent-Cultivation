@@ -33,6 +33,7 @@ import type {
   ModelUsage,
 } from '@cultivation/application';
 import { createDeepSeek } from '@ai-sdk/deepseek';
+import { classifyProviderError, type AvailabilityFailureKind } from './provider-availability.js';
 
 export type RuntimeProviderKind =
   | 'OPENAI'
@@ -74,9 +75,19 @@ const safeErrorMessages: Record<ModelGatewayErrorCode, string> = {
 
 /** Safe to return across IPC: it never retains the provider error or its cause. */
 export class ModelGatewayError extends Error {
-  constructor(readonly code: ModelGatewayErrorCode) {
+  readonly availabilityKind: AvailabilityFailureKind;
+
+  constructor(
+    readonly code: ModelGatewayErrorCode,
+    availabilityKind?: AvailabilityFailureKind,
+  ) {
     super(safeErrorMessages[code]);
     this.name = 'ModelGatewayError';
+    this.availabilityKind =
+      availabilityKind ??
+      (code === 'RUNTIME_NOT_FOUND' || code === 'INVALID_RUNTIME' || code === 'UNSUPPORTED_PROVIDER'
+        ? 'HARD_FAILURE'
+        : 'TRANSIENT_FAILURE');
   }
 }
 
@@ -396,7 +407,7 @@ export class AiSdkModelGateway implements ModelGateway, MemoryCandidateExtractor
             usage: providerReportedUsage(runtime.kind, providerUsage ?? part.totalUsage),
           };
         } else if (part.type === 'error') {
-          throw new ModelGatewayError('PROVIDER_REQUEST_FAILED');
+          throw this.toSafeError(part.error);
         }
       }
 
@@ -553,8 +564,8 @@ export class AiSdkModelGateway implements ModelGateway, MemoryCandidateExtractor
     let runtime: ResolvedRuntime | null;
     try {
       runtime = await this.resolveRuntime(runtimeProfileId);
-    } catch {
-      throw new ModelGatewayError('RUNTIME_UNAVAILABLE');
+    } catch (error) {
+      throw new ModelGatewayError('RUNTIME_UNAVAILABLE', classifyProviderError(error).kind);
     }
 
     if (!runtime) throw new ModelGatewayError('RUNTIME_NOT_FOUND');
@@ -602,6 +613,6 @@ export class AiSdkModelGateway implements ModelGateway, MemoryCandidateExtractor
 
   private toSafeError(error: unknown): ModelGatewayError {
     if (error instanceof ModelGatewayError) return error;
-    return new ModelGatewayError('PROVIDER_REQUEST_FAILED');
+    return new ModelGatewayError('PROVIDER_REQUEST_FAILED', classifyProviderError(error).kind);
   }
 }

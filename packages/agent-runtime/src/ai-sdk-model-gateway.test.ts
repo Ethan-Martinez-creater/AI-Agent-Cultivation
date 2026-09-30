@@ -5,7 +5,11 @@ import type {
   ModelToolResultPart,
 } from '@cultivation/application';
 import type { ToolDescriptor } from '@cultivation/domain';
-import { AiSdkModelGateway, type RuntimeProviderKind } from './ai-sdk-model-gateway.js';
+import {
+  AiSdkModelGateway,
+  ModelGatewayError,
+  type RuntimeProviderKind,
+} from './ai-sdk-model-gateway.js';
 
 const request: ModelRequest = {
   runtimeProfileId: 'runtime-1',
@@ -569,5 +573,71 @@ describe('AiSdkModelGateway', () => {
       message: 'Provider request failed. Check provider settings and connectivity.',
     });
     expect(result.message).not.toContain(secret);
+  });
+
+  it.each([
+    [401, 'HARD_FAILURE'],
+    [404, 'HARD_FAILURE'],
+    [429, 'TRANSIENT_FAILURE'],
+    [503, 'TRANSIENT_FAILURE'],
+  ] as const)(
+    'adds a safe availability classification for provider HTTP %s',
+    async (status, kind) => {
+      const availabilitySecret = 'gateway-availability-secret';
+      const secretError = Object.assign(new Error(`response includes ${availabilitySecret}`), {
+        statusCode: status,
+      });
+      const gateway = new AiSdkModelGateway(
+        async () => ({
+          kind: 'OPENAI',
+          baseUrl: null,
+          modelId: 'fixture-model',
+          apiKey: availabilitySecret,
+        }),
+        {
+          fetch: async () => {
+            throw secretError;
+          },
+        },
+      );
+
+      const thrown = await gateway.generate(request).catch((error: unknown) => error);
+      expect(thrown).toBeInstanceOf(ModelGatewayError);
+      expect(thrown).toMatchObject({
+        code: 'PROVIDER_REQUEST_FAILED',
+        availabilityKind: kind,
+        message: 'Provider request failed. Check provider settings and connectivity.',
+      });
+      expect((thrown as Error).message).not.toContain(availabilitySecret);
+    },
+  );
+
+  it('keeps the originating failure classification for streamed provider errors', async () => {
+    const availabilitySecret = 'gateway-stream-availability-secret';
+    const gateway = new AiSdkModelGateway(
+      async () => ({
+        kind: 'OPENAI',
+        baseUrl: null,
+        modelId: 'fixture-model',
+        apiKey: availabilitySecret,
+      }),
+      {
+        fetch: async () =>
+          new Response(JSON.stringify({ error: { message: `rejected ${availabilitySecret}` } }), {
+            status: 401,
+            headers: { 'content-type': 'application/json' },
+          }),
+      },
+    );
+
+    const thrown = await (async () => {
+      const events = [];
+      for await (const event of gateway.stream(request)) events.push(event);
+      expect(events).toEqual([]);
+      return null;
+    })().catch((error: unknown) => error);
+    expect(thrown).toBeInstanceOf(ModelGatewayError);
+    expect(thrown).toMatchObject({ availabilityKind: 'HARD_FAILURE' });
+    expect((thrown as Error).message).not.toContain(availabilitySecret);
   });
 });

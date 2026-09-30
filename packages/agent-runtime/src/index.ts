@@ -20,6 +20,16 @@ export type {
   TypeSafeDecisionResult,
 } from './typesafe-decision-gateway.js';
 export { AiSdkModelGateway, ModelGatewayError } from './ai-sdk-model-gateway.js';
+export { AiSdkModelAvailabilityProbe } from './ai-sdk-model-availability-probe.js';
+export type {
+  AiSdkModelAvailabilityProbeOptions,
+  ModelAvailabilityProbeKind,
+  ModelAvailabilityProbeResult,
+} from './ai-sdk-model-availability-probe.js';
+export type {
+  AvailabilityFailureClassification,
+  AvailabilityFailureKind,
+} from './provider-availability.js';
 export type {
   AiSdkModelGatewayOptions,
   ModelGatewayErrorCode,
