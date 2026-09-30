@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Icon } from '../components/Icon.js';
 import { BenchmarkPanel } from '.././r1-capability.js';
 import { R3ShadowPanel } from '.././r3-shadow-panel.js';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
+import './product-pages.css';
 import { providerKinds, errorText, PageHeading, InlineMessage, EmptyList } from '../ui-shared.js';
 import type {
   ProviderKind,
@@ -19,6 +21,7 @@ export function SettingsPage() {
   const [providers, setProviders] = useState<ProviderView[]>([]);
   const [credentials, setCredentials] = useState<CredentialView[]>([]);
   const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
+  const [teammates, setTeammates] = useState<TeammateView[]>([]);
   const [embeddingConfig, setEmbeddingConfig] = useState<{
     available: boolean;
     runtimeProfileId: string | null;
@@ -30,16 +33,19 @@ export function SettingsPage() {
     setLoading(true);
     setError('');
     try {
-      const [providerRows, credentialRows, runtimeRows, embedding] = await Promise.all([
-        window.cultivation.providers.list(),
-        window.cultivation.credentials.list(),
-        window.cultivation.runtimes.list(),
-        window.cultivation.embedding.getConfig(),
-      ]);
+      const [providerRows, credentialRows, runtimeRows, embedding, teammateRows] =
+        await Promise.all([
+          window.cultivation.providers.list(),
+          window.cultivation.credentials.list(),
+          window.cultivation.runtimes.list(),
+          window.cultivation.embedding.getConfig(),
+          window.cultivation.teammates.list(),
+        ]);
       setProviders(providerRows);
       setCredentials(credentialRows);
       setRuntimes(runtimeRows);
       setEmbeddingConfig(embedding);
+      setTeammates(teammateRows);
     } catch (cause) {
       setError(errorText(cause, '读取设置失败。'));
     } finally {
@@ -52,69 +58,141 @@ export function SettingsPage() {
 
   return (
     <section className="page wide-page settings-page">
-      <PageHeading eyebrow="设置" title="设置 Settings" description="管理模型连接与高级功能。" />
-      <nav className="settings-links" aria-label="其他设置页面">
-        <Link to="/tools">法宝 Tools</Link>
-        <Link to="/skills">功法 Skills</Link>
-        <Link to="/usage">灵石 Usage</Link>
-        <Link to="/external-work">本尊待办 Human Bridge</Link>
-      </nav>
-      <div className="settings-section-nav" role="tablist" aria-label="设置类别">
-        {(
-          [
-            ['providers', 'Provider'],
-            ['credentials', 'Credential'],
-            ['runtimes', 'Runtime'],
-            ['benchmark', 'Benchmark'],
-            ['embedding', 'Embedding'],
-            ['shadow', 'Jev Shadow'],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            className={tab === id ? 'settings-tab active' : 'settings-tab'}
-            role="tab"
-            aria-selected={tab === id}
-            aria-controls="settings-tab-panel"
-            onClick={() => setTab(id)}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="settings-layout">
+        <aside className="settings-sidebar" aria-label="设置分组">
+          <div className="settings-nav-group">
+            <h2>模型与连接</h2>
+            <div className="settings-section-nav" role="tablist" aria-label="模型与连接">
+              {(
+                [
+                  ['providers', '服务商'],
+                  ['credentials', '密钥凭据'],
+                  ['runtimes', '模型配置'],
+                  ['embedding', '记忆检索'],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  className={tab === id ? 'settings-tab active' : 'settings-tab'}
+                  role="tab"
+                  aria-selected={tab === id}
+                  aria-controls="settings-tab-panel"
+                  onClick={() => setTab(id)}
+                >
+                  <Icon
+                    name={
+                      id === 'providers'
+                        ? 'Provider'
+                        : id === 'credentials'
+                          ? 'Credential'
+                          : id === 'runtimes'
+                            ? 'Model'
+                            : 'Embedding'
+                    }
+                    size={17}
+                  />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="settings-nav-group">
+            <h2>AI 能力</h2>
+            <div className="settings-section-nav" role="tablist" aria-label="AI 能力">
+              {(
+                [
+                  ['benchmark', '能力评测'],
+                  ['shadow', 'Jev 观察'],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  className={tab === id ? 'settings-tab active' : 'settings-tab'}
+                  role="tab"
+                  aria-selected={tab === id}
+                  aria-controls="settings-tab-panel"
+                  onClick={() => setTab(id)}
+                >
+                  <Icon name={id === 'benchmark' ? 'Benchmark' : 'Jev'} size={17} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="settings-nav-group">
+            <h2>工具与集成</h2>
+            <nav className="settings-route-links" aria-label="工具与集成">
+              <Link to="/tools">
+                <Icon name="Tool" size={17} />
+                工具与 MCP
+              </Link>
+              <Link to="/skills">
+                <Icon name="Skill" size={17} />
+                功法管理
+              </Link>
+            </nav>
+          </div>
+          <div className="settings-nav-group">
+            <h2>隐私与高级</h2>
+            <nav className="settings-route-links" aria-label="隐私与高级">
+              <Link to="/usage">
+                <Icon name="Usage" size={17} />
+                用量记录
+              </Link>
+              <Link to="/external-work">
+                <Icon name="HumanBridge" size={17} />
+                本尊待办
+              </Link>
+            </nav>
+            <p className="settings-nav-note">历练审计与运行诊断可在对应历练记录中查看。</p>
+          </div>
+        </aside>
+        <main className="settings-main">
+          <PageHeading
+            eyebrow="应用管理"
+            title="设置"
+            description="管理连接、能力与隐私相关功能。"
+          />
+          {error && (
+            <div className="notice error" role="alert">
+              {error}
+            </div>
+          )}
+          {loading ? (
+            <div className="loading-card">正在读取设置…</div>
+          ) : (
+            <div className="settings-content" id="settings-tab-panel" role="tabpanel">
+              {tab === 'providers' && <ProvidersPanel providers={providers} onCreated={refresh} />}
+              {tab === 'credentials' && (
+                <CredentialsPanel
+                  providers={providers}
+                  credentials={credentials}
+                  onCreated={refresh}
+                />
+              )}
+              {tab === 'runtimes' && (
+                <RuntimesPanel
+                  providers={providers}
+                  credentials={credentials}
+                  runtimes={runtimes}
+                  teammates={teammates}
+                  onChanged={refresh}
+                />
+              )}
+              {tab === 'benchmark' && <BenchmarkPanel runtimes={runtimes} />}
+              {tab === 'shadow' && <R3ShadowPanel />}
+              {tab === 'embedding' && (
+                <EmbeddingPanel
+                  providers={providers}
+                  runtimes={runtimes}
+                  config={embeddingConfig}
+                  onChanged={refresh}
+                />
+              )}
+            </div>
+          )}
+        </main>
       </div>
-      {error && (
-        <div className="notice error" role="alert">
-          {error}
-        </div>
-      )}
-      {loading ? (
-        <div className="loading-card">正在读取设置…</div>
-      ) : (
-        <div className="settings-content" id="settings-tab-panel" role="tabpanel">
-          {tab === 'providers' && <ProvidersPanel providers={providers} onCreated={refresh} />}
-          {tab === 'credentials' && (
-            <CredentialsPanel providers={providers} credentials={credentials} onCreated={refresh} />
-          )}
-          {tab === 'runtimes' && (
-            <RuntimesPanel
-              providers={providers}
-              credentials={credentials}
-              runtimes={runtimes}
-              onChanged={refresh}
-            />
-          )}
-          {tab === 'benchmark' && <BenchmarkPanel runtimes={runtimes} />}
-          {tab === 'shadow' && <R3ShadowPanel />}
-          {tab === 'embedding' && (
-            <EmbeddingPanel
-              providers={providers}
-              runtimes={runtimes}
-              config={embeddingConfig}
-              onChanged={refresh}
-            />
-          )}
-        </div>
-      )}
     </section>
   );
 }
@@ -507,11 +585,13 @@ export function RuntimesPanel({
   providers,
   credentials,
   runtimes,
+  teammates,
   onChanged,
 }: {
   providers: ProviderView[];
   credentials: CredentialView[];
   runtimes: RuntimeProfileView[];
+  teammates: TeammateView[];
   onChanged: () => Promise<void>;
 }) {
   const [form, setForm] = useState<RuntimeForm>(blankRuntime);
@@ -520,14 +600,22 @@ export function RuntimesPanel({
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const selectedCredentials = credentials.filter((item) => item.providerId === form.providerId);
+  const sealedTeammates = (runtimeProfileId: string) =>
+    teammates.filter((teammate) => teammate.currentRuntimeProfileId === runtimeProfileId);
+  const isSealed = (runtimeProfileId: string) => sealedTeammates(runtimeProfileId).length > 0;
   const update = (patch: Partial<RuntimeForm>) => setForm((current) => ({ ...current, ...patch }));
   const beginEdit = (runtime: RuntimeProfileView) => {
+    if (isSealed(runtime.id)) return;
     setForm({ ...runtime, credentialId: runtime.credentialId ?? '' });
     setError('');
     setNotice('');
   };
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (form.id && isSealed(form.id)) {
+      setError('这项模型配置已固定给道友，无法修改。');
+      return;
+    }
     setBusy(true);
     setError('');
     setNotice('');
@@ -550,6 +638,7 @@ export function RuntimesPanel({
     }
   };
   const testConnection = async (id: string) => {
+    if (isSealed(id)) return;
     setTestingId(id);
     setError('');
     setNotice('');
@@ -567,8 +656,8 @@ export function RuntimesPanel({
       <form className="form-card" onSubmit={(event) => void submit(event)}>
         <div className="form-title-row">
           <div>
-            <h2>{form.id ? '编辑 Runtime Profile' : '创建 Runtime Profile'}</h2>
-            <p className="muted-copy">手工指定模型 ID；道友引用此配置而不持有 Provider 身份。</p>
+            <h2>{form.id ? '编辑模型配置' : '新建模型配置'}</h2>
+            <p className="muted-copy">为未绑定的模型模板设置服务商、凭据与模型编号。</p>
           </div>
           {form.id && (
             <button type="button" className="text-button" onClick={() => setForm(blankRuntime)}>
@@ -586,7 +675,7 @@ export function RuntimesPanel({
           />
         </label>
         <label className="field">
-          <span>Provider</span>
+          <span>服务商</span>
           <select
             required
             value={form.providerId}
@@ -617,7 +706,7 @@ export function RuntimesPanel({
           </select>
         </label>
         <label className="field">
-          <span>Model ID</span>
+          <span>模型编号</span>
           <input
             required
             maxLength={160}
@@ -628,7 +717,7 @@ export function RuntimesPanel({
         {error && <InlineMessage tone="error">{error}</InlineMessage>}
         {notice && <InlineMessage tone="success">{notice}</InlineMessage>}
         <button className="button primary" disabled={busy || providers.length === 0}>
-          {busy ? '保存中…' : form.id ? '保存更改' : '创建运行配置'}
+          {busy ? '保存中…' : form.id ? '保存更改' : '创建模型配置'}
         </button>
         {providers.length === 0 && <p className="form-hint">请先配置 Provider 和凭据。</p>}
       </form>
@@ -641,31 +730,88 @@ export function RuntimesPanel({
           runtimes.map((runtime) => {
             const provider = providers.find((item) => item.id === runtime.providerId);
             const credential = credentials.find((item) => item.id === runtime.credentialId);
+            const bindings = sealedTeammates(runtime.id);
+            const archivedBindings = bindings.filter((teammate) => teammate.status !== 'ACTIVE');
+            const activeBinding = bindings.find((teammate) => teammate.status === 'ACTIVE');
             return (
-              <div className="runtime-item" key={runtime.id}>
+              <div
+                className={`runtime-item ${bindings.length ? 'runtime-item-sealed' : ''}`}
+                key={runtime.id}
+              >
                 <div className="runtime-item-heading">
-                  <span className="runtime-mark">R</span>
+                  <span className="runtime-mark">
+                    <Icon name="Model" size={17} />
+                  </span>
                   <div className="data-row-copy">
                     <strong>{runtime.name}</strong>
                     <small>
-                      {provider?.name ?? 'Provider'} · {runtime.modelId}
+                      {provider?.name ?? '服务商'} · {runtime.modelId}
                     </small>
                   </div>
                 </div>
-                <div className="runtime-meta">凭据：{credential?.label ?? '未找到'}</div>
-                <AvailabilityBadge runtimeProfileId={runtime.id} />
-                <div className="button-row compact">
-                  <button className="button small secondary" onClick={() => beginEdit(runtime)}>
-                    编辑
-                  </button>
-                  <button
-                    className="button small ghost"
-                    disabled={testingId === runtime.id}
-                    onClick={() => void testConnection(runtime.id)}
-                  >
-                    {testingId === runtime.id ? '测试中…' : 'Test Connection'}
-                  </button>
-                </div>
+                {bindings.length > 0 ? (
+                  <>
+                    <div className="runtime-sealed-label">
+                      <Icon name="Credential" size={15} />
+                      {archivedBindings.length === bindings.length
+                        ? `已归档 · ${archivedBindings.map((teammate) => teammate.name).join('、')}`
+                        : `已固定给 ${bindings.map((teammate) => teammate.name).join('、')}`}
+                    </div>
+                    <dl className="runtime-identity-details">
+                      <div>
+                        <dt>服务商</dt>
+                        <dd>{provider?.name ?? '不可用'}</dd>
+                      </div>
+                      <div>
+                        <dt>连接地址</dt>
+                        <dd>{provider?.baseUrl || '服务商默认地址'}</dd>
+                      </div>
+                      <div>
+                        <dt>模型编号</dt>
+                        <dd>
+                          <code>{runtime.modelId}</code>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>凭据身份</dt>
+                        <dd>{credential?.label ?? '未绑定凭据'}</dd>
+                      </div>
+                    </dl>
+                    <p className="runtime-sealed-note">
+                      道友创建后固定使用此模型身份。需要更新密钥时，请前往“密钥凭据”轮换。
+                    </p>
+                    {activeBinding ? (
+                      <AvailabilityBadge
+                        teammateId={activeBinding.id}
+                        teammateStatus={activeBinding.status}
+                        executorKind={activeBinding.executorKind}
+                      />
+                    ) : (
+                      <span className="product-status muted">道友已归档</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="runtime-meta">凭据：{credential?.label ?? '未绑定凭据'}</div>
+                    <div className="button-row compact">
+                      <button
+                        className="button small secondary"
+                        type="button"
+                        onClick={() => beginEdit(runtime)}
+                      >
+                        编辑模板
+                      </button>
+                      <button
+                        className="button small ghost"
+                        type="button"
+                        disabled={testingId === runtime.id}
+                        onClick={() => void testConnection(runtime.id)}
+                      >
+                        {testingId === runtime.id ? '测试中…' : '测试连接'}
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             );
           })

@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Avatar } from './components/Avatar.js';
+import { Icon } from './components/Icon.js';
+import './pages/product-pages.css';
 import type {
   CapabilityDimension,
   ExternalAppProfile,
@@ -460,9 +463,23 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
   return (
     <section className="page wide-page human-bridge-page">
       <div className="page-heading">
-        <p className="eyebrow">本尊 · Human Bridge</p>
-        <h1>本尊待办</h1>
-        <p>处理外部工作并审核交付内容。</p>
+        <div className="human-bridge-page-identity">
+          <Avatar
+            avatar={profile?.teammate.avatar}
+            name={profile?.teammate.name ?? '本尊'}
+            kind="HUMAN_BRIDGE"
+            size={52}
+          />
+          <div>
+            <p className="eyebrow">本尊</p>
+            <h1>本尊待办</h1>
+            <p>接收明确委托，提交交付内容并处理验收。</p>
+          </div>
+          <span className="product-status bridge">
+            <Icon name="HumanBridge" size={15} />
+            可接收委托
+          </span>
+        </div>
       </div>
       <nav className="advanced-page-navigation" aria-label="高级页面导航">
         <Link to="/settings">返回设置</Link>
@@ -511,15 +528,18 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
           <div className="form-card human-bridge-detail">
             {request ? (
               <>
-                <p className="eyebrow">
-                  {stateLabel(request.state)} · Mission {request.missionId.slice(0, 8)} · Run{' '}
-                  {request.runId.slice(0, 8)}
-                </p>
+                <p className="eyebrow">{stateLabel(request.state)}</p>
                 <h2>{request.title}</h2>
                 <p>
-                  请求道友：{teammateNames[request.requesterTeammateId] ?? '道友不可读取'} · 能力：
+                  委托道友：{teammateNames[request.requesterTeammateId] ?? '道友不可读取'} · 能力：
                   {dimensionNames[request.capability]}
                 </p>
+                <details className="human-bridge-record-meta">
+                  <summary>查看历练关联</summary>
+                  <span>
+                    历练 {request.missionId.slice(0, 8)} · 执行记录 {request.runId.slice(0, 8)}
+                  </span>
+                </details>
                 {recommendation && (
                   <p>
                     建议应用：{recommendation.name}
@@ -536,7 +556,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                 ) : (
                   <p className="muted-copy">无附加要求。</p>
                 )}
-                <h3>完整 Prompt</h3>
+                <h3>任务说明</h3>
                 <pre className="r2-prompt">{request.prompt}</pre>
                 <div className="button-row">
                   <button
@@ -544,10 +564,10 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                     type="button"
                     disabled={busy}
                     onClick={() =>
-                      void run(() => api.copyPrompt(request.id), 'Prompt 已复制。', request.id)
+                      void run(() => api.copyPrompt(request.id), '任务说明已复制。', request.id)
                     }
                   >
-                    复制 Prompt
+                    复制任务说明
                   </button>
                   <button
                     className="button secondary"
@@ -575,7 +595,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                   <p className="muted-copy">未提供验收标准。</p>
                 )}
                 <p>
-                  目标 Workspace 路径：
+                  交付目录：
                   {stringArray(request.targetWorkspacePathsJson).join('、') ||
                     '当前 Workspace Root'}
                 </p>
@@ -725,13 +745,22 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
 
       <section className="human-bridge-settings" aria-label="本尊设置">
         <details className="form-card human-bridge-settings-panel">
-          <summary>本尊资料与能力（{enabledCapabilities} 项已启用）</summary>
+          <summary>本尊资料与可接手能力（{enabledCapabilities} 项已启用）</summary>
           <div className="human-bridge-settings-content">
-            <h2>{profile?.teammate.name ?? '本尊 / Human Bridge'}</h2>
-            <p>
-              系统道友 · USER_BRIDGE · FALLBACK_ONLY。此身份不绑定模型 Runtime，能力值不改变
-              fallback-only 规则。
-            </p>
+            <div className="human-bridge-profile-heading">
+              <Avatar
+                avatar={profile?.teammate.avatar}
+                name={profile?.teammate.name ?? '本尊'}
+                kind="HUMAN_BRIDGE"
+                size={42}
+              />
+              <div>
+                <h2>{profile?.teammate.name ?? '本尊'}</h2>
+                <p>
+                  本尊是队伍中由你亲自执行的成员，不会调用模型。能力设置决定哪些委托可以交给你。
+                </p>
+              </div>
+            </div>
             <label className="field">
               <span>显示名称</span>
               <input

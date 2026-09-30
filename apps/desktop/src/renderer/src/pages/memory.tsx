@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Avatar } from '../components/Avatar.js';
+import { Drawer } from '../components/Drawer.js';
+import { EmptyState } from '../components/EmptyState.js';
+import { Icon } from '../components/Icon.js';
+import './product-pages.css';
 import { memoryTypes, blankMemoryForm, errorText, PageHeading, formatDate } from '../ui-shared.js';
 import type {
   TeammateView,
@@ -8,6 +13,24 @@ import type {
   MemoryView,
   MemoryForm,
 } from '../ui-shared.js';
+
+const memoryTypeNames: Record<MemoryType, string> = {
+  IDENTITY: '身份',
+  PREFERENCE: '偏好',
+  FACT: '事实',
+  EPISODE: '经历',
+  PROCEDURE: '流程',
+  OBSERVATION: '观察',
+};
+
+const memoryTypeIcons: Record<MemoryType, string> = {
+  IDENTITY: 'User',
+  PREFERENCE: 'Settings',
+  FACT: 'Memory',
+  EPISODE: 'History',
+  PROCEDURE: 'Skill',
+  OBSERVATION: 'Review',
+};
 
 export function MemoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,6 +41,7 @@ export function MemoryPage() {
   const [memories, setMemories] = useState<MemoryView[]>([]);
   const [status, setStatus] = useState<MemoryStatus | 'ALL'>('ALL');
   const [form, setForm] = useState<MemoryForm>(blankMemoryForm);
+  const [createOpen, setCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState('');
   const [reviewId, setReviewId] = useState('');
   const [reviewForm, setReviewForm] = useState<MemoryForm>(blankMemoryForm);
@@ -55,6 +79,7 @@ export function MemoryPage() {
     setMemories([]);
     setEditingId('');
     setReviewId('');
+    setCreateOpen(false);
     if (!selectedTeammateId) {
       setLoading(false);
       return () => {
@@ -86,6 +111,8 @@ export function MemoryPage() {
   }, [selectedTeammateId, status, refreshKey]);
 
   const selectedTeammate = teammates.find((item) => item.id === selectedTeammateId);
+  const editingMemory = memories.find((memory) => memory.id === editingId);
+  const reviewingMemory = memories.find((memory) => memory.id === reviewId);
   const updateForm = (patch: Partial<MemoryForm>) =>
     setForm((current) => ({ ...current, ...patch }));
   const updateReviewForm = (patch: Partial<MemoryForm>) =>
@@ -104,6 +131,7 @@ export function MemoryPage() {
         ...form,
       });
       setForm(blankMemoryForm);
+      setCreateOpen(false);
       setNotice(`记忆已保存到 ${selectedTeammate?.name ?? '当前道友'} 的专属空间。`);
       refresh();
     } catch (cause) {
@@ -196,6 +224,7 @@ export function MemoryPage() {
         id: memory.id,
         ...reviewForm,
       });
+      setReviewId('');
       setNotice('候选修改已保存，仍保持待确认状态。');
       refresh();
     } catch (cause) {
@@ -221,15 +250,11 @@ export function MemoryPage() {
   };
 
   return (
-    <section className="page wide-page">
-      <PageHeading
-        eyebrow="Memory · owner scoped review"
-        title="记忆 Memory"
-        description="每条记忆都绑定一个具体道友。模型提取的内容仅创建 PROPOSED 候选；你确认后才会进入 ACTIVE 检索。"
-      />
-      <div className="memory-toolbar">
+    <section className="page wide-page memory-page">
+      <PageHeading eyebrow="道友记忆" title="记忆" description="按道友查看、整理并审核记忆内容。" />
+      <div className="memory-toolbar memory-product-toolbar">
         <label className="field">
-          <span>当前道友（记忆归属）</span>
+          <span>记忆所属道友</span>
           <select
             value={selectedTeammateId}
             onChange={(event) => setSelectedTeammateId(event.target.value)}
@@ -237,13 +262,13 @@ export function MemoryPage() {
             <option value="">选择道友</option>
             {teammates.map((item) => (
               <option key={item.id} value={item.id}>
-                {item.name} · {item.status === 'ACTIVE' ? '活跃' : '归档'}
+                {item.name} · {item.status === 'ACTIVE' ? '可用' : '已归档'}
               </option>
             ))}
           </select>
         </label>
         <label className="field">
-          <span>状态</span>
+          <span>筛选状态</span>
           <select
             value={status}
             onChange={(event) => setStatus(event.target.value as MemoryStatus | 'ALL')}
@@ -256,7 +281,20 @@ export function MemoryPage() {
           </select>
         </label>
         <button className="button secondary" disabled={!selectedTeammateId} onClick={refresh}>
+          <Icon name="Refresh" size={16} />
           刷新
+        </button>
+        <button
+          className="button primary"
+          type="button"
+          disabled={!selectedTeammateId}
+          onClick={() => {
+            setForm(blankMemoryForm);
+            setCreateOpen(true);
+          }}
+        >
+          <Icon name="Add" size={16} />
+          新增记忆
         </button>
       </div>
       {error && (
@@ -270,75 +308,87 @@ export function MemoryPage() {
         </div>
       )}
       {!selectedTeammateId ? (
-        <div className="empty-card">
-          <h3>先创建一位道友</h3>
-          <p>Memory 会按道友隔离保存和检索。</p>
-        </div>
+        <EmptyState icon="Memory" title="先选择一位道友" description="记忆按道友分别保存和检索。" />
       ) : (
         <>
-          <div className="memory-scope-note">
-            <strong>{selectedTeammate?.name ?? '当前道友'}</strong>
-            <span>仅显示此道友拥有的 Memory · {selectedTeammateId.slice(0, 12)}</span>
+          <div className="memory-scope-note memory-owner-summary">
+            <Avatar
+              avatar={selectedTeammate?.avatar}
+              name={selectedTeammate?.name ?? '当前道友'}
+              kind={selectedTeammate?.executorKind === 'USER_BRIDGE' ? 'HUMAN_BRIDGE' : 'TEAMMATE'}
+              size={38}
+            />
+            <div>
+              <strong>{selectedTeammate?.name ?? '当前道友'}</strong>
+              <span>仅显示这位道友的专属记忆</span>
+            </div>
+            <details className="memory-owner-advanced">
+              <summary>归属详情</summary>
+              <code>{selectedTeammateId}</code>
+            </details>
           </div>
-          <form
-            className="form-card memory-create-form"
-            onSubmit={(event) => void createMemory(event)}
+          <Drawer
+            title="新增记忆"
+            open={createOpen}
+            onClose={() => setCreateOpen(false)}
+            className="memory-editor-drawer"
           >
-            <div className="form-title-row">
-              <div>
-                <p className="eyebrow">MANUAL MEMORY</p>
-                <h2>添加已确认记忆</h2>
+            <form className="memory-create-form" onSubmit={(event) => void createMemory(event)}>
+              <p className="product-drawer-intro">
+                新增内容会直接保存为已确认记忆，并归属于当前道友。
+              </p>
+              <div className="memory-form-grid">
+                <label className="field">
+                  <span>类型</span>
+                  <select
+                    value={form.memoryType}
+                    onChange={(event) =>
+                      updateForm({ memoryType: event.target.value as MemoryType })
+                    }
+                  >
+                    {memoryTypes.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {memoryTypeNames[item.value]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <span>重要度 · 0–1</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={form.importance}
+                    onChange={(event) => updateForm({ importance: Number(event.target.value) })}
+                  />
+                </label>
+                <label className="field memory-summary-field">
+                  <span>摘要</span>
+                  <input
+                    required
+                    maxLength={240}
+                    value={form.summary}
+                    onChange={(event) => updateForm({ summary: event.target.value })}
+                  />
+                </label>
               </div>
-            </div>
-            <div className="memory-form-grid">
               <label className="field">
-                <span>类型</span>
-                <select
-                  value={form.memoryType}
-                  onChange={(event) => updateForm({ memoryType: event.target.value as MemoryType })}
-                >
-                  {memoryTypes.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span>重要度 · 0–1</span>
-                <input
-                  type="number"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={form.importance}
-                  onChange={(event) => updateForm({ importance: Number(event.target.value) })}
-                />
-              </label>
-              <label className="field memory-summary-field">
-                <span>摘要</span>
-                <input
+                <span>内容</span>
+                <textarea
                   required
-                  maxLength={240}
-                  value={form.summary}
-                  onChange={(event) => updateForm({ summary: event.target.value })}
+                  rows={3}
+                  maxLength={8000}
+                  value={form.content}
+                  onChange={(event) => updateForm({ content: event.target.value })}
                 />
               </label>
-            </div>
-            <label className="field">
-              <span>内容</span>
-              <textarea
-                required
-                rows={3}
-                maxLength={8000}
-                value={form.content}
-                onChange={(event) => updateForm({ content: event.target.value })}
-              />
-            </label>
-            <button className="button primary" disabled={busyId === 'create'}>
-              {busyId === 'create' ? '保存中…' : '保存记忆'}
-            </button>
-          </form>
+              <button className="button primary" disabled={busyId === 'create'}>
+                {busyId === 'create' ? '保存中…' : '保存记忆'}
+              </button>
+            </form>
+          </Drawer>
           <div className="section-heading">
             <div>
               <h2>记忆记录</h2>
@@ -355,7 +405,7 @@ export function MemoryPage() {
                   const editing = editingId === memory.id;
                   const reviewing = reviewId === memory.id;
                   return (
-                    <article className="memory-card" key={memory.id}>
+                    <article className="memory-card memory-product-row" key={memory.id}>
                       <div className="memory-card-heading">
                         <div>
                           <span
@@ -370,70 +420,64 @@ export function MemoryPage() {
                                   : '已归档'}
                           </span>
                           <span className="memory-type-label">
-                            {memoryTypes.find((item) => item.value === memory.memoryType)?.label ??
-                              memory.memoryType}
+                            <Icon name={memoryTypeIcons[memory.memoryType]} size={15} />
+                            {memoryTypeNames[memory.memoryType]}
                           </span>
                         </div>
-                        <small>创建于 {formatDate(memory.createdAt)}</small>
+                        <small>{formatDate(memory.createdAt)}</small>
                       </div>
-                      {editing ? (
-                        <MemoryEditFields form={form} onChange={updateForm} />
-                      ) : (
-                        <>
-                          <h3>{memory.summary}</h3>
-                          <p className="memory-content">{memory.content}</p>
-                        </>
-                      )}
-                      <div className="memory-provenance">
-                        <span>
-                          来源：{memory.sourceType === 'MANUAL' ? '手动创建' : '对话提取'}
-                        </span>
-                        <span>重要度 {memory.importance.toFixed(2)}</span>
-                        {memory.confidence !== null && (
-                          <span>提取置信度 {memory.confidence.toFixed(2)}</span>
-                        )}
-                        {memory.confirmedAt && <span>确认于 {formatDate(memory.confirmedAt)}</span>}
-                        {memory.sourceConversationId && (
-                          <span>Conversation {memory.sourceConversationId.slice(0, 10)}</span>
-                        )}
-                        {memory.sourceMessageId && (
-                          <span>Message {memory.sourceMessageId.slice(0, 10)}</span>
-                        )}
-                        {memory.sourceId && memory.sourceId !== memory.sourceMessageId && (
-                          <span>Source {memory.sourceId.slice(0, 10)}</span>
-                        )}
-                      </div>
-                      {reviewing && (
-                        <div className="candidate-edit-panel">
-                          <p>检查并修改候选内容，然后明确接受；保存后才会进入 ACTIVE。</p>
-                          <MemoryEditFields form={reviewForm} onChange={updateReviewForm} />
-                          <div className="button-row">
-                            <button
-                              className="button primary small"
-                              disabled={busyId === memory.id}
-                              onClick={() => void acceptCandidate(memory, true)}
-                              type="button"
-                            >
-                              保存修改并接受
-                            </button>
-                            <button
-                              className="button secondary small"
-                              disabled={busyId === memory.id}
-                              onClick={() => void saveCandidateEdit(memory)}
-                              type="button"
-                            >
-                              保存修改，继续审核
-                            </button>
-                            <button
-                              className="button ghost small"
-                              onClick={() => setReviewId('')}
-                              type="button"
-                            >
-                              取消
-                            </button>
+                      <h3>{memory.summary}</h3>
+                      <p className="memory-content-preview">{memory.content}</p>
+                      <details className="memory-advanced">
+                        <summary>完整内容与来源</summary>
+                        <p className="memory-content-full">{memory.content}</p>
+                        <dl className="memory-metadata">
+                          <div>
+                            <dt>来源</dt>
+                            <dd>{memory.sourceType === 'MANUAL' ? '手动创建' : '对话提取'}</dd>
                           </div>
-                        </div>
-                      )}
+                          <div>
+                            <dt>重要度</dt>
+                            <dd>{memory.importance.toFixed(2)}</dd>
+                          </div>
+                          {memory.confidence !== null && (
+                            <div>
+                              <dt>提取置信度</dt>
+                              <dd>{memory.confidence.toFixed(2)}</dd>
+                            </div>
+                          )}
+                          {memory.confirmedAt && (
+                            <div>
+                              <dt>确认时间</dt>
+                              <dd>{formatDate(memory.confirmedAt)}</dd>
+                            </div>
+                          )}
+                          {memory.sourceConversationId && (
+                            <div>
+                              <dt>对话编号</dt>
+                              <dd>
+                                <code>{memory.sourceConversationId.slice(0, 10)}</code>
+                              </dd>
+                            </div>
+                          )}
+                          {memory.sourceMessageId && (
+                            <div>
+                              <dt>消息编号</dt>
+                              <dd>
+                                <code>{memory.sourceMessageId.slice(0, 10)}</code>
+                              </dd>
+                            </div>
+                          )}
+                          {memory.sourceId && memory.sourceId !== memory.sourceMessageId && (
+                            <div>
+                              <dt>来源编号</dt>
+                              <dd>
+                                <code>{memory.sourceId.slice(0, 10)}</code>
+                              </dd>
+                            </div>
+                          )}
+                        </dl>
+                      </details>
                       <div className="button-row compact memory-actions">
                         {memory.status === 'PROPOSED' && !reviewing && (
                           <>
@@ -476,36 +520,95 @@ export function MemoryPage() {
                             </button>
                           </>
                         )}
-                        {editing && (
-                          <>
-                            <button
-                              className="button primary small"
-                              disabled={busyId === memory.id}
-                              onClick={() => void saveEdit(memory)}
-                              type="button"
-                            >
-                              保存编辑
-                            </button>
-                            <button
-                              className="button ghost small"
-                              onClick={() => setEditingId('')}
-                              type="button"
-                            >
-                              取消
-                            </button>
-                          </>
-                        )}
                       </div>
                     </article>
                   );
                 })}
             </div>
           ) : (
-            <div className="empty-card subdued">
-              <h3>还没有符合筛选的记忆</h3>
-              <p>你可以手动添加记忆，或从 Chat 消息提取待确认候选。</p>
-            </div>
+            <EmptyState
+              icon="Memory"
+              title="还没有符合筛选的记忆"
+              description="可以新增一条记忆，也可以从对话中整理待确认内容。"
+              action={
+                <button
+                  className="button primary"
+                  type="button"
+                  onClick={() => setCreateOpen(true)}
+                >
+                  新增记忆
+                </button>
+              }
+            />
           )}
+          <Drawer
+            title="编辑记忆"
+            open={Boolean(editingId && editingMemory)}
+            onClose={() => setEditingId('')}
+            className="memory-editor-drawer"
+          >
+            {editingMemory && (
+              <form
+                className="memory-create-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void saveEdit(editingMemory);
+                }}
+              >
+                <p className="product-drawer-intro">修改后仍只保存在当前道友的记忆空间中。</p>
+                <MemoryEditFields form={form} onChange={updateForm} />
+                <div className="button-row drawer-actions">
+                  <button className="button primary" disabled={busyId === editingMemory.id}>
+                    {busyId === editingMemory.id ? '保存中…' : '保存修改'}
+                  </button>
+                  <button className="button ghost" type="button" onClick={() => setEditingId('')}>
+                    取消
+                  </button>
+                </div>
+              </form>
+            )}
+          </Drawer>
+          <Drawer
+            title="审核记忆候选"
+            open={Boolean(reviewId && reviewingMemory)}
+            onClose={() => setReviewId('')}
+            className="memory-editor-drawer"
+          >
+            {reviewingMemory && (
+              <div className="memory-create-form">
+                <p className="product-drawer-intro">
+                  检查内容后再决定接受、保存修改或拒绝。只有接受的内容会进入记忆检索。
+                </p>
+                <MemoryEditFields form={reviewForm} onChange={updateReviewForm} />
+                <div className="button-row drawer-actions memory-review-actions">
+                  <button
+                    className="button primary"
+                    disabled={busyId === reviewingMemory.id}
+                    type="button"
+                    onClick={() => void acceptCandidate(reviewingMemory, true)}
+                  >
+                    保存并接受
+                  </button>
+                  <button
+                    className="button secondary"
+                    disabled={busyId === reviewingMemory.id}
+                    type="button"
+                    onClick={() => void saveCandidateEdit(reviewingMemory)}
+                  >
+                    保存，稍后审核
+                  </button>
+                  <button
+                    className="button danger-ghost"
+                    disabled={busyId === reviewingMemory.id}
+                    type="button"
+                    onClick={() => void rejectCandidate(reviewingMemory)}
+                  >
+                    拒绝候选
+                  </button>
+                </div>
+              </div>
+            )}
+          </Drawer>
         </>
       )}
     </section>
@@ -530,7 +633,7 @@ export function MemoryEditFields({
           >
             {memoryTypes.map((item) => (
               <option key={item.value} value={item.value}>
-                {item.label}
+                {memoryTypeNames[item.value]}
               </option>
             ))}
           </select>

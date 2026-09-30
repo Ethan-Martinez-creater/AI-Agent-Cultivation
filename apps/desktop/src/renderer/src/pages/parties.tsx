@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
+import { Avatar } from '../components/Avatar.js';
+import { Drawer } from '../components/Drawer.js';
+import { EmptyState } from '../components/EmptyState.js';
+import { Icon } from '../components/Icon.js';
 import './mission-party.css';
+import './product-pages.css';
 import { errorText, PageHeading, teammateName } from '../ui-shared.js';
 import type { TeammateView, PartyType, PartyView } from '../ui-shared.js';
 
@@ -75,10 +80,15 @@ export function PartiesPage() {
 
   const beginCreate = () => {
     const initial = activeTeammates.slice(0, 2).map((teammate) => teammate.id);
+    const coordinatorTeammateId =
+      initial.find(
+        (id) =>
+          activeTeammates.find((teammate) => teammate.id === id)?.executorKind !== 'USER_BRIDGE',
+      ) ?? '';
     setForm({
       ...blankPartyForm,
       memberTeammateIds: initial,
-      coordinatorTeammateId: initial[0] ?? '',
+      coordinatorTeammateId,
     });
     setEditingId('');
     setSelectedPartyId('');
@@ -187,10 +197,39 @@ export function PartiesPage() {
   const selectedParty = parties.find((party) => party.id === selectedPartyId) ?? null;
   const orderedMembers = (party: PartyView) =>
     party.members.slice().sort((left, right) => left.order - right.order);
+  const closeEditor = () => {
+    setCreating(false);
+    setEditingId('');
+    setForm(blankPartyForm);
+  };
+  const memberStatus = (memberTeammateId: string, compact = false) => {
+    const teammate = teammates.find((item) => item.id === memberTeammateId);
+    if (!teammate) return <span className="product-status muted">道友资料不可用</span>;
+    if (teammate.status !== 'ACTIVE') {
+      return <span className="product-status muted">已归档</span>;
+    }
+    if (teammate.executorKind === 'USER_BRIDGE') {
+      return (
+        <span className="product-status bridge">
+          <Icon name="HumanBridge" size={14} />
+          可接收委托
+        </span>
+      );
+    }
+    return (
+      <AvailabilityBadge
+        teammateId={teammate.id}
+        teammateStatus={teammate.status}
+        executorKind={teammate.executorKind}
+        recheck={false}
+        compact={compact}
+      />
+    );
+  };
 
   return (
     <section className="page wide-page party-page">
-      <PageHeading eyebrow="组队协作 · Party" title="队伍 Parties" description="队伍" />
+      <PageHeading eyebrow="组队协作" title="队伍" description="队伍" />
       {error && (
         <div className="notice error notice-with-action" role="alert">
           {error}
@@ -296,22 +335,25 @@ export function PartiesPage() {
                       {orderedMembers(party).map((member) => {
                         const teammate = teammates.find((item) => item.id === member.teammateId);
                         return (
-                          <span className="avatar" key={member.teammateId}>
-                            {teammate?.avatar ||
-                              teammateName(teammates, member.teammateId).slice(0, 1)}
-                          </span>
+                          <Avatar
+                            key={member.teammateId}
+                            avatar={teammate?.avatar}
+                            name={teammateName(teammates, member.teammateId)}
+                            kind={
+                              teammate?.executorKind === 'USER_BRIDGE' ? 'HUMAN_BRIDGE' : 'TEAMMATE'
+                            }
+                            size={28}
+                            className="party-avatar"
+                          />
                         );
                       })}
                     </span>
                     <span className="party-summary-count">{party.members.length}/4</span>
                     <span className="party-summary-availability">
                       {orderedMembers(party).map((member) => (
-                        <AvailabilityBadge
-                          key={member.teammateId}
-                          teammateId={member.teammateId}
-                          recheck={false}
-                          compact
-                        />
+                        <span className="party-member-state" key={member.teammateId}>
+                          {memberStatus(member.teammateId, true)}
+                        </span>
                       ))}
                     </span>
                   </button>
@@ -350,13 +392,6 @@ export function PartiesPage() {
               {partyFilter === 'ACTIVE' && activeTeammates.length < 2 && (
                 <div className="button-row centered">
                   <button
-                    className="button secondary"
-                    type="button"
-                    onClick={() => navigate('/settings')}
-                  >
-                    配置 Provider
-                  </button>
-                  <button
                     className="button primary"
                     type="button"
                     onClick={() => navigate('/teammates')}
@@ -370,25 +405,86 @@ export function PartiesPage() {
         </section>
 
         <div className="party-detail-column">
-          {(creating || editingId) && (
-            <form className="form-card party-editor" onSubmit={(event) => void submit(event)}>
-              <div className="form-title-row">
+          {!creating && !editingId && selectedParty && (
+            <section className="party-detail-card">
+              <div className="party-detail-heading">
                 <div>
-                  <p className="eyebrow">PARTY CONFIGURATION</p>
-                  <h2>{creating ? '创建队伍' : '编辑队伍'}</h2>
+                  <h2>{selectedParty.name}</h2>
+                  <div className="party-detail-meta">
+                    <span>{selectedParty.type === 'FIXED' ? '固定队伍' : '临时队伍'}</span>
+                    <span>{selectedParty.status === 'ACTIVE' ? '可用' : '已归档'}</span>
+                    <span>{selectedParty.members.length}/4 位成员</span>
+                  </div>
                 </div>
-                <button
-                  className="text-button"
-                  type="button"
-                  onClick={() => {
-                    setCreating(false);
-                    setEditingId('');
-                    setForm(blankPartyForm);
-                  }}
-                >
-                  取消
-                </button>
+                {selectedParty.status === 'ACTIVE' && (
+                  <button
+                    className="button primary small"
+                    type="button"
+                    onClick={() =>
+                      navigate(`/missions?partyId=${encodeURIComponent(selectedParty.id)}&create=1`)
+                    }
+                  >
+                    发起队伍历练
+                  </button>
+                )}
               </div>
+              {selectedParty.description && (
+                <p className="party-description">{selectedParty.description}</p>
+              )}
+              <div className="party-detail-members">
+                {orderedMembers(selectedParty).map((member) => {
+                  const teammate = teammates.find((item) => item.id === member.teammateId);
+                  return (
+                    <article className="party-detail-member" key={member.teammateId}>
+                      <Avatar
+                        avatar={teammate?.avatar}
+                        name={teammateName(teammates, member.teammateId)}
+                        kind={
+                          teammate?.executorKind === 'USER_BRIDGE' ? 'HUMAN_BRIDGE' : 'TEAMMATE'
+                        }
+                        size={36}
+                      />
+                      <div className="party-detail-member-copy">
+                        <strong>{teammateName(teammates, member.teammateId)}</strong>
+                        <small>{member.role === 'COORDINATOR' ? '协调道友' : '队伍成员'}</small>
+                      </div>
+                      {memberStatus(member.teammateId)}
+                    </article>
+                  );
+                })}
+              </div>
+              {selectedParty.status === 'ACTIVE' && (
+                <div className="button-row compact party-detail-actions">
+                  <button
+                    className="button secondary small"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => beginEdit(selectedParty)}
+                  >
+                    编辑队伍
+                  </button>
+                  <button
+                    className="button danger-ghost small"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void archive(selectedParty)}
+                  >
+                    归档队伍
+                  </button>
+                </div>
+              )}
+            </section>
+          )}
+          <Drawer
+            title={creating ? '新建队伍' : '编辑队伍'}
+            open={creating || Boolean(editingId)}
+            onClose={closeEditor}
+            className="party-editor-drawer"
+          >
+            <form className="party-editor" onSubmit={(event) => void submit(event)}>
+              <p className="product-drawer-intro">
+                为这支队伍命名，选择 2–4 位可用道友并指定协调道友。
+              </p>
               <label className="field">
                 <span>队伍名称</span>
                 <input
@@ -445,10 +541,17 @@ export function PartiesPage() {
                         }
                         onChange={(event) => updateMembers(teammate.id, event.target.checked)}
                       />
+                      <Avatar
+                        avatar={teammate.avatar}
+                        name={teammate.name}
+                        kind={teammate.executorKind === 'USER_BRIDGE' ? 'HUMAN_BRIDGE' : 'TEAMMATE'}
+                        size={32}
+                      />
                       <span>
                         <strong>{teammate.name}</strong>
                         <small>
                           {teammate.title || '道友'}
+                          {teammate.executorKind === 'USER_BRIDGE' ? ' · 本尊 · 可接收委托' : ''}
                           {archivedSelected
                             ? ' · 当前已归档，请移除后保存'
                             : teammate.status !== 'ACTIVE'
@@ -487,95 +590,34 @@ export function PartiesPage() {
                 </select>
               </label>
               {form.memberTeammateIds.length < 2 && <p className="form-hint">至少选择两位道友。</p>}
-              <button
-                className="button primary"
-                disabled={
-                  busy ||
-                  !form.name.trim() ||
-                  form.memberTeammateIds.length < 2 ||
-                  form.memberTeammateIds.length > 4 ||
-                  !form.memberTeammateIds.includes(form.coordinatorTeammateId) ||
-                  form.memberTeammateIds.some(
-                    (id) => !activeTeammates.some((teammate) => teammate.id === id),
-                  )
-                }
-              >
-                {busy ? '保存中…' : '保存队伍'}
-              </button>
+              <div className="button-row drawer-actions">
+                <button
+                  className="button primary"
+                  disabled={
+                    busy ||
+                    !form.name.trim() ||
+                    form.memberTeammateIds.length < 2 ||
+                    form.memberTeammateIds.length > 4 ||
+                    !form.memberTeammateIds.includes(form.coordinatorTeammateId) ||
+                    form.memberTeammateIds.some(
+                      (id) => !activeTeammates.some((teammate) => teammate.id === id),
+                    )
+                  }
+                >
+                  {busy ? '保存中…' : '保存队伍'}
+                </button>
+                <button type="button" className="button ghost" onClick={closeEditor}>
+                  取消
+                </button>
+              </div>
             </form>
-          )}
-          {!creating && !editingId && selectedParty && (
-            <section className="party-detail-card">
-              <div className="party-detail-heading">
-                <div>
-                  <h2>{selectedParty.name}</h2>
-                  <div className="party-detail-meta">
-                    <span>{selectedParty.type === 'FIXED' ? '固定队伍' : '临时队伍'}</span>
-                    <span>{selectedParty.status === 'ACTIVE' ? '可用' : '已归档'}</span>
-                    <span>{selectedParty.members.length}/4</span>
-                  </div>
-                </div>
-                {selectedParty.status === 'ACTIVE' && (
-                  <button
-                    className="button primary small"
-                    type="button"
-                    onClick={() =>
-                      navigate(`/missions?partyId=${encodeURIComponent(selectedParty.id)}&create=1`)
-                    }
-                  >
-                    发起队伍历练
-                  </button>
-                )}
-              </div>
-              {selectedParty.description && (
-                <p className="party-description">{selectedParty.description}</p>
-              )}
-              <div className="party-detail-members">
-                {orderedMembers(selectedParty).map((member) => {
-                  const teammate = teammates.find((item) => item.id === member.teammateId);
-                  return (
-                    <article className="party-detail-member" key={member.teammateId}>
-                      <span className="avatar">
-                        {teammate?.avatar || teammateName(teammates, member.teammateId).slice(0, 1)}
-                      </span>
-                      <div className="party-detail-member-copy">
-                        <strong>{teammateName(teammates, member.teammateId)}</strong>
-                        <small>
-                          {member.role === 'COORDINATOR' ? '协调者' : '成员'}
-                          {teammate?.status !== 'ACTIVE' ? ' · 不可用' : ''}
-                        </small>
-                      </div>
-                      <AvailabilityBadge teammateId={member.teammateId} />
-                    </article>
-                  );
-                })}
-              </div>
-              {selectedParty.status === 'ACTIVE' && (
-                <div className="button-row compact party-detail-actions">
-                  <button
-                    className="button secondary small"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => beginEdit(selectedParty)}
-                  >
-                    编辑队伍
-                  </button>
-                  <button
-                    className="button danger-ghost small"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void archive(selectedParty)}
-                  >
-                    归档队伍
-                  </button>
-                </div>
-              )}
-            </section>
-          )}
+          </Drawer>
           {!creating && !editingId && !selectedParty && !loading && (
-            <div className="empty-card party-empty-state">
-              <h3>选择一支队伍</h3>
-            </div>
+            <EmptyState
+              icon="Users"
+              title="选择一支队伍"
+              description="查看成员身份、队伍状态并发起协作历练。"
+            />
           )}
         </div>
       </div>

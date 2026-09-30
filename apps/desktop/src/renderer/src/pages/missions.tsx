@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
+import { Avatar } from '../components/Avatar.js';
+import { EmptyState } from '../components/EmptyState.js';
 import './mission-party.css';
+import './product-pages.css';
 import { HumanBridgeApproval } from '.././r2-human-bridge.js';
 import {
   errorText,
   PageHeading,
   missionStateLabel,
-  missionModeLabel,
   artifactKindLabel,
   timelineActorName,
   stateClass,
@@ -74,6 +76,54 @@ export function MissionPage() {
         ? isHistoryMission(item)
         : !isHistoryMission(item),
   );
+  const modeLabel = (mode: MissionMode) => {
+    const labels: Record<MissionMode, string> = {
+      SOLO: '单人历练',
+      CONSULTATION: '咨询协作',
+      REVIEW: '审查协作',
+      DELEGATION: '委托协作',
+    };
+    return labels[mode];
+  };
+  const teammateFor = (teammateId: string) => teammates.find((item) => item.id === teammateId);
+  const renderExecutorStatus = (teammateId: string) => {
+    const teammate = teammateFor(teammateId);
+    if (!teammate) return <span className="product-status muted">道友资料不可用</span>;
+    if (teammate.status !== 'ACTIVE') return <span className="product-status muted">已归档</span>;
+    if (teammate.executorKind === 'USER_BRIDGE') {
+      return <span className="product-status bridge">本尊 · 可接收委托</span>;
+    }
+    return (
+      <AvailabilityBadge
+        teammateId={teammate.id}
+        teammateStatus={teammate.status}
+        executorKind={teammate.executorKind}
+      />
+    );
+  };
+  const renderActor = (actorType: string, actorId: string | null) => {
+    const teammate = actorId ? teammateFor(actorId) : undefined;
+    if (teammate) {
+      return (
+        <span className="mission-actor">
+          <Avatar
+            avatar={teammate.avatar}
+            name={teammate.name}
+            kind={teammate.executorKind === 'USER_BRIDGE' ? 'HUMAN_BRIDGE' : 'TEAMMATE'}
+            size={22}
+          />
+          <span>{teammate.name}</span>
+        </span>
+      );
+    }
+    const name = timelineActorName(teammates, actorType, actorId);
+    return (
+      <span className="mission-actor">
+        {actorType === 'USER' && <Avatar name={name} kind="USER" size={22} />}
+        <span>{name}</span>
+      </span>
+    );
+  };
 
   useEffect(() => {
     const query = searchParams.toString();
@@ -340,9 +390,9 @@ export function MissionPage() {
   return (
     <section className="page wide-page mission-page">
       <PageHeading
-        eyebrow="任务历练 · Mission"
-        title="历练 Missions"
-        description="先用 SOLO Mission 完成单人历练；准备队伍后，再选择 Party 协作模式。每位道友的 Runtime、Memory 与 Skill 保持独立。"
+        eyebrow="任务中心"
+        title="历练"
+        description="查看进行中的任务、待处理事项与过往结果。"
       />
       {error && (
         <div className="notice error" role="alert">
@@ -436,9 +486,9 @@ export function MissionPage() {
                   </span>
                   <small>
                     {teammateName(teammates, item.coordinatorTeammateId)} ·{' '}
-                    {missionModeLabel(item.mode ?? 'SOLO')}
+                    {modeLabel(item.mode ?? 'SOLO')}
                     {item.partyId &&
-                      ` · ${parties.find((party) => party.id === item.partyId)?.name ?? 'Party'}`}
+                      ` · ${parties.find((party) => party.id === item.partyId)?.name ?? '队伍'}`}
                   </small>
                 </button>
               ))}
@@ -458,8 +508,8 @@ export function MissionPage() {
             >
               <div className="form-title-row">
                 <div>
-                  <p className="eyebrow">{creating ? 'NEW MISSION' : 'MISSION'}</p>
-                  <h2>{creating ? '创建 Mission 草稿' : '编辑 Mission'}</h2>
+                  <p className="eyebrow">{creating ? '新建任务' : '任务设置'}</p>
+                  <h2>{creating ? '发起历练' : '编辑历练'}</h2>
                 </div>
                 {!creating && (
                   <button type="button" className="text-button" onClick={resetEditor}>
@@ -477,7 +527,7 @@ export function MissionPage() {
                 />
               </label>
               <label className="field">
-                <span>目标 Objective</span>
+                <span>任务目标</span>
                 <textarea
                   required
                   rows={5}
@@ -489,7 +539,7 @@ export function MissionPage() {
               {creating && (
                 <>
                   <label className="field">
-                    <span>执行方式</span>
+                    <span>指定执行者</span>
                     <select
                       value={missionMode === 'SOLO' ? 'SOLO' : 'PARTY'}
                       onChange={(event) =>
@@ -509,7 +559,7 @@ export function MissionPage() {
                   {missionMode === 'SOLO' ? (
                     <>
                       <label className="field">
-                        <span>执行道友</span>
+                        <span>选择道友</span>
                         <select
                           required
                           value={coordinatorId}
@@ -523,7 +573,7 @@ export function MissionPage() {
                           ))}
                         </select>
                       </label>
-                      {coordinatorId && <AvailabilityBadge teammateId={coordinatorId} />}
+                      {coordinatorId && renderExecutorStatus(coordinatorId)}
                     </>
                   ) : (
                     <>
@@ -694,16 +744,30 @@ export function MissionPage() {
                   <div>
                     <h2>{mission.title}</h2>
                     <p className="mission-overview-meta">
-                      {missionModeLabel(mission.mode ?? 'SOLO')} · 协调道友{' '}
-                      {teammateName(teammates, mission.coordinatorTeammateId)} · 创建于{' '}
-                      {formatDate(mission.createdAt)}
+                      {modeLabel(mission.mode ?? 'SOLO')} · 创建于 {formatDate(mission.createdAt)}
                     </p>
                   </div>
                   <span className={`mission-state large state-${stateClass(mission.state)}`}>
                     {missionStateLabel(mission.state)}
                   </span>
                 </div>
-                <AvailabilityBadge teammateId={mission.coordinatorTeammateId} compact />
+                <div className="mission-executor-summary">
+                  <Avatar
+                    avatar={teammateFor(mission.coordinatorTeammateId)?.avatar}
+                    name={teammateName(teammates, mission.coordinatorTeammateId)}
+                    kind={
+                      teammateFor(mission.coordinatorTeammateId)?.executorKind === 'USER_BRIDGE'
+                        ? 'HUMAN_BRIDGE'
+                        : 'TEAMMATE'
+                    }
+                    size={38}
+                  />
+                  <div>
+                    <small>执行者</small>
+                    <strong>{teammateName(teammates, mission.coordinatorTeammateId)}</strong>
+                    {renderExecutorStatus(mission.coordinatorTeammateId)}
+                  </div>
+                </div>
                 <p className="mission-objective">{mission.objective}</p>
                 {mission.state === 'WAITING_EXTERNAL_WORK' && (
                   <div className="notice">
@@ -853,19 +917,31 @@ export function MissionPage() {
                     {detail.participants
                       .slice()
                       .sort((left, right) => left.sortOrder - right.sortOrder)
-                      .map((participant) => (
-                        <article className="mission-participant-card" key={participant.teammateId}>
-                          <span className="avatar">
-                            {teammates.find((teammate) => teammate.id === participant.teammateId)
-                              ?.avatar ||
-                              teammateName(teammates, participant.teammateId).slice(0, 1)}
-                          </span>
-                          <div>
-                            <strong>{teammateName(teammates, participant.teammateId)}</strong>
-                            <small>{safeLabel(participant.role)}</small>
-                          </div>
-                        </article>
-                      ))}
+                      .map((participant) => {
+                        const teammate = teammateFor(participant.teammateId);
+                        return (
+                          <article
+                            className="mission-participant-card"
+                            key={participant.teammateId}
+                          >
+                            <Avatar
+                              avatar={teammate?.avatar}
+                              name={teammateName(teammates, participant.teammateId)}
+                              kind={
+                                teammate?.executorKind === 'USER_BRIDGE'
+                                  ? 'HUMAN_BRIDGE'
+                                  : 'TEAMMATE'
+                              }
+                              size={32}
+                            />
+                            <div>
+                              <strong>{teammateName(teammates, participant.teammateId)}</strong>
+                              <small>{safeLabel(participant.role)}</small>
+                            </div>
+                            {renderExecutorStatus(participant.teammateId)}
+                          </article>
+                        );
+                      })}
                   </div>
                 </section>
               )}
@@ -1056,12 +1132,7 @@ export function MissionPage() {
                             <div className="timeline-safe-meta">
                               <span>Target: {safeLabel(item.audit.targetType ?? 'UNKNOWN')}</span>
                               <span>
-                                参与者:{' '}
-                                {timelineActorName(
-                                  teammates,
-                                  item.audit.actorType,
-                                  item.audit.actorId,
-                                )}
+                                操作者：{renderActor(item.audit.actorType, item.audit.actorId)}
                               </span>
                               {renderToolTimelineMetadata(item.audit.payloadJson)}
                             </div>
@@ -1073,16 +1144,16 @@ export function MissionPage() {
                 </details>
               )}
 
-              <section className="mission-section">
+              <section className="mission-section mission-recent-timeline">
                 <div className="section-heading">
                   <div>
-                    <h2>执行 Timeline</h2>
+                    <h2>最近动态</h2>
                   </div>
                   <span className="count-badge">{missionTimeline.length}</span>
                 </div>
                 {missionTimeline.length ? (
                   <ol className="mission-timeline">
-                    {missionTimeline.map((item) => (
+                    {missionTimeline.slice(0, 4).map((item) => (
                       <li className="mission-timeline-item" key={item.id}>
                         <span className="timeline-dot" />
                         <div className="timeline-card">
@@ -1092,20 +1163,8 @@ export function MissionPage() {
                           </div>
                           <div className="timeline-safe-meta">
                             <span>
-                              参与者:{' '}
-                              {timelineActorName(
-                                teammates,
-                                item.event.actorType,
-                                item.event.actorId,
-                              )}
+                              操作者：{renderActor(item.event.actorType, item.event.actorId)}
                             </span>
-                            {item.event.runId && (
-                              <span>Run {runAttemptLabel(detail.runs, item.event.runId)}</span>
-                            )}
-                            <details className="timeline-event-details">
-                              <summary>高级事件元数据</summary>
-                              {renderToolTimelineMetadata(item.event.payloadJson)}
-                            </details>
                           </div>
                         </div>
                       </li>
@@ -1113,10 +1172,49 @@ export function MissionPage() {
                   </ol>
                 ) : (
                   <div className="mission-empty-inline">
-                    状态变化、审批和模型调用事件会追加到此时间线。
+                    历练开始后，状态变化和处理记录会显示在这里。
                   </div>
                 )}
               </section>
+
+              <details className="mission-advanced">
+                <summary>高级 · 完整执行记录</summary>
+                {missionTimeline.length > 0 && (
+                  <section className="mission-section">
+                    <div className="section-heading">
+                      <div>
+                        <h2>完整时间线</h2>
+                      </div>
+                      <span className="count-badge">{missionTimeline.length}</span>
+                    </div>
+                    <ol className="mission-timeline">
+                      {missionTimeline.map((item) => (
+                        <li className="mission-timeline-item" key={item.id}>
+                          <span className="timeline-dot" />
+                          <div className="timeline-card">
+                            <div className="timeline-card-heading">
+                              <strong>{safeLabel(item.event.eventType)}</strong>
+                              <time>{formatDate(item.time)}</time>
+                            </div>
+                            <div className="timeline-safe-meta">
+                              <span>
+                                操作者：{renderActor(item.event.actorType, item.event.actorId)}
+                              </span>
+                              {item.event.runId && (
+                                <span>运行 #{runAttemptLabel(detail.runs, item.event.runId)}</span>
+                              )}
+                              <details className="timeline-event-details">
+                                <summary>事件详情</summary>
+                                {renderToolTimelineMetadata(item.event.payloadJson)}
+                              </details>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                )}
+              </details>
 
               <details className="mission-advanced">
                 <summary>高级 · 用量明细</summary>
@@ -1211,46 +1309,39 @@ export function MissionPage() {
           )}
 
           {!creating && !mission && !loading && !error && (
-            <div className="empty-card mission-empty-state">
-              <span className="empty-icon">◇</span>
-              <h3>
-                {missions.length
+            <EmptyState
+              icon="Mission"
+              title={
+                missions.length
                   ? '此筛选下没有历练'
                   : activeTeammates.length || activeParties.length
                     ? '发起一次历练'
-                    : '先准备一位可用道友'}
-              </h3>
-              {!missions.length && (
-                <p>
-                  {activeTeammates.length || activeParties.length
-                    ? '填写任务目标并指定执行道友或队伍。'
-                    : '先创建或启用一位道友。'}
-                </p>
-              )}
-              {missions.length ? (
-                <button
-                  className="button secondary"
-                  type="button"
-                  onClick={() => {
-                    setMissionFilter('all');
-                    setSelectedId(missions[0]?.id ?? '');
-                  }}
-                >
-                  查看全部历练
-                </button>
-              ) : activeTeammates.length || activeParties.length ? (
-                <button className="button primary" type="button" onClick={beginCreateMission}>
-                  发起历练
-                </button>
-              ) : (
-                <div className="button-row centered">
+                    : '先准备一位可用道友'
+              }
+              description={
+                missions.length
+                  ? undefined
+                  : activeTeammates.length || activeParties.length
+                    ? '填写任务目标并指定道友或队伍。'
+                    : '先创建或启用一位道友。'
+              }
+              action={
+                missions.length ? (
                   <button
                     className="button secondary"
                     type="button"
-                    onClick={() => navigate('/settings')}
+                    onClick={() => {
+                      setMissionFilter('all');
+                      setSelectedId(missions[0]?.id ?? '');
+                    }}
                   >
-                    配置 Provider
+                    查看全部历练
                   </button>
+                ) : activeTeammates.length || activeParties.length ? (
+                  <button className="button primary" type="button" onClick={beginCreateMission}>
+                    发起历练
+                  </button>
+                ) : (
                   <button
                     className="button primary"
                     type="button"
@@ -1258,9 +1349,9 @@ export function MissionPage() {
                   >
                     创建道友
                   </button>
-                </div>
-              )}
-            </div>
+                )
+              }
+            />
           )}
         </div>
       </div>
