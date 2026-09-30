@@ -23,14 +23,14 @@
   border-radius: 6px;
   color: var(--muted);
   background: transparent;
-  font-size: 11px;
+  font-size: var(--font-caption, 12px);
   cursor: pointer;
 }
 
 .mission-filter-tab span,
 .party-filter-tabs button span {
   color: inherit;
-  font-size: 10px;
+  font-size: var(--font-caption, 12px);
   opacity: 0.72;
 }
 
@@ -38,7 +38,6 @@
 .party-filter-tabs button.active {
   color: var(--ink);
   background: var(--surface, var(--panel));
-  box-shadow: 0 1px 3px rgb(15 23 42 / 10%);
   font-weight: 600;
 }
 
@@ -52,7 +51,7 @@
   border-radius: 10px;
   color: var(--ink);
   background: var(--accent-soft, #eaf4ff);
-  font-size: 12px;
+  font-size: var(--font-caption, 12px);
 }
 
 .mission-pending-summary a {
@@ -72,9 +71,32 @@
   margin: 10px 0 0;
 }
 
+.mission-result-content {
+  color: var(--ink);
+  font-size: var(--font-body, 14px);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mission-run-result {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border, var(--line));
+}
+
+.mission-run-result summary {
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.mission-run-result .mission-result-content {
+  margin-top: 8px;
+}
+
 .mission-run-options {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-caption, 12px);
 }
 
 .mission-run-options summary {
@@ -96,7 +118,7 @@
 .mission-advanced > summary {
   padding: 12px 15px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-caption, 12px);
   font-weight: 600;
   cursor: pointer;
   list-style-position: inside;
@@ -115,7 +137,7 @@
 .timeline-event-details {
   margin-top: 5px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-caption, 12px);
 }
 
 .timeline-event-details summary {
@@ -185,7 +207,7 @@
 
 .party-summary-copy strong {
   overflow: hidden;
-  font-size: 13px;
+  font-size: var(--font-body, 14px);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -193,7 +215,7 @@
 .party-summary-copy small {
   overflow: hidden;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-caption, 12px);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -208,7 +230,7 @@
   height: 26px;
   margin-left: -5px;
   border: 2px solid var(--surface, #fff);
-  font-size: 10px;
+  font-size: var(--font-caption, 12px);
 }
 
 .party-summary-members .avatar:first-child {
@@ -217,7 +239,7 @@
 
 .party-summary-count {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-caption, 12px);
   white-space: nowrap;
 }
 
@@ -232,7 +254,7 @@
   gap: 4px;
   margin: 0;
   padding: 2px 0;
-  font-size: 10px;
+  font-size: var(--font-caption, 12px);
 }
 
 .party-summary-availability .availability-control > button,
@@ -249,7 +271,7 @@
 
 .party-compact-actions .text-button {
   padding: 2px 0;
-  font-size: 11px;
+  font-size: var(--font-caption, 12px);
 }
 
 .danger-text {
@@ -272,7 +294,7 @@
 
 .party-detail-heading h2 {
   margin: 0 0 7px;
-  font-size: 18px;
+  font-size: var(--font-title, 20px);
 }
 
 .party-detail-meta {
@@ -280,7 +302,7 @@
   flex-wrap: wrap;
   gap: 6px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-caption, 12px);
 }
 
 .party-detail-meta span {
@@ -292,7 +314,7 @@
 .party-description {
   margin: 14px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-body, 14px);
   line-height: 1.6;
   white-space: pre-wrap;
 }
@@ -317,7 +339,7 @@
 .party-detail-member .avatar {
   width: 32px;
   height: 32px;
-  font-size: 12px;
+  font-size: var(--font-caption, 12px);
 }
 
 .party-detail-member-copy {
@@ -326,12 +348,12 @@
 }
 
 .party-detail-member-copy strong {
-  font-size: 12px;
+  font-size: var(--font-caption, 12px);
 }
 
 .party-detail-member-copy small {
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--font-caption, 12px);
 }
 
 .party-detail-actions {

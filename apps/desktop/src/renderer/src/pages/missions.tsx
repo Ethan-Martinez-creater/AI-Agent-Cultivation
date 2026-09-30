@@ -331,6 +331,11 @@ export function MissionPage() {
   ].sort((left, right) => right.time.localeCompare(left.time));
   const missionTimeline = sortedTimeline.filter((item) => item.kind === 'MISSION_EVENT');
   const auditTimeline = sortedTimeline.filter((item) => item.kind === 'AUDIT_EVENT');
+  const latestResultRun =
+    detail?.runs
+      .slice()
+      .sort((left, right) => right.attempt - left.attempt)
+      .find((run) => Boolean(run.resultText?.trim())) ?? null;
 
   return (
     <section className="page wide-page mission-page">
@@ -662,7 +667,7 @@ export function MissionPage() {
                               )
                             }
                           >
-                            批准
+                            批准并继续
                           </button>
                           <button
                             className="button danger-ghost small"
@@ -821,6 +826,20 @@ export function MissionPage() {
                   )}
                 </div>
               </article>
+
+              {latestResultRun?.resultText && (
+                <section className="mission-section mission-result-section">
+                  <div className="section-heading">
+                    <div>
+                      <h2>结果</h2>
+                    </div>
+                    <span className="count-badge">
+                      Run {runAttemptLabel(detail.runs, latestResultRun.id)}
+                    </span>
+                  </div>
+                  <div className="mission-result-content">{latestResultRun.resultText}</div>
+                </section>
+              )}
 
               {detail.participants.length > 0 && (
                 <section className="mission-section mission-participants">
@@ -1003,6 +1022,12 @@ export function MissionPage() {
                               <small className="mission-error-code">
                                 错误代码：{run.errorCode}
                               </small>
+                            )}
+                            {run.resultText && run.id !== latestResultRun?.id && (
+                              <details className="mission-run-result">
+                                <summary>查看 Attempt {run.attempt} 结果</summary>
+                                <div className="mission-result-content">{run.resultText}</div>
+                              </details>
                             )}
                           </article>
                         ))}
