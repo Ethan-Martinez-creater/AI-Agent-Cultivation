@@ -144,6 +144,8 @@ export interface ModelRequest {
   teammateId: string;
   messages: ModelMessage[];
   externalWorkContext?: ModelExternalWorkContext;
+  /** Durable call-start evidence is written after availability preflight and before provider I/O. */
+  onCallStarted?: () => void | Promise<void>;
 }
 export interface ModelUsage {
   inputTokens: number | null;
@@ -185,12 +187,18 @@ export interface CollaborationProposalRequest {
   publicDraft: string | null;
   /** Composed context for the requesting Teammate only; never another member's private context. */
   systemContext: string;
+  /** Durable proposal-call start, invoked after availability preflight and before provider I/O. */
+  onCallStarted?: () => void | Promise<void>;
 }
 export interface CollaborationProposalResult {
   proposal: CollaborationProposal;
   usage: ModelUsage;
 }
 export interface ModelGateway {
+  /** True when this gateway invokes request.onCallStarted only after its own preflight. */
+  handlesCallStart?: true;
+  /** Optional availability/eligibility preflight before durable execution facts. */
+  prepare?(request: { teammateId: string; runtimeProfileId: string }): Promise<void>;
   generate(request: ModelRequest): Promise<ModelResponse>;
   generateWithTools?(
     request: ModelRequest & { tools: ToolDescriptor[] },
@@ -315,3 +323,20 @@ export type {
   WorkspaceArtifactConstraints,
   WorkspaceArtifactValidator,
 } from './r2-human-bridge-service.js';
+
+export {
+  AvailabilityAwareModelGateway,
+  AvailabilityService,
+  ModelUnavailableError,
+  RoutingEligibilityService,
+} from './r3-2-availability.js';
+export type {
+  AvailabilityIdentityStore,
+  AvailabilityServiceOptions,
+  AvailabilityStore,
+  ModelAvailabilityProbe,
+  ModelUnavailableResult,
+  PrepareModelOutcome,
+  PrepareModelResult,
+  RoutingEligibilityOptions,
+} from './r3-2-availability.js';
