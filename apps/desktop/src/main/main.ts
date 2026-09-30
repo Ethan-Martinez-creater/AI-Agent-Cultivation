@@ -16,6 +16,7 @@ import {
   R0SqliteRepository,
   R2ContinuationRepository,
   R3SqliteRepository,
+  R32AvailabilityRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -27,7 +28,13 @@ import {
   FakeModelGateway,
   FakeDecisionGateway,
   TypeSafeDecisionGateway,
+  AiSdkModelAvailabilityProbe,
 } from '@cultivation/agent-runtime';
+import {
+  AvailabilityService,
+  AvailabilityAwareModelGateway,
+  RoutingEligibilityService,
+} from '@cultivation/application';
 import type {
   EmbeddingGateway,
   MemoryCandidateExtractor,
@@ -59,6 +66,14 @@ import { FileWorkspace } from './file-workspace.js';
 import { R3DecisionConfigController } from './r3-config.js';
 import { R3ShadowMissionObserver } from './r3-shadow-observer.js';
 import { registerR3Ipc } from './r3-ipc.js';
+import { registerAvailabilityIpc } from './r3-2-ipc.js';
+import type { ModelAvailabilityProjection } from '@cultivation/domain';
+
+function notifyAvailability(value: ModelAvailabilityProjection): void {
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) window.webContents.send('availability:event', value);
+  }
+}
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -87,6 +102,7 @@ function createWindow(
   r3Config: R3DecisionConfigController,
   r3Store: R3SqliteRepository,
   r3Observer: R3ShadowMissionObserver,
+  availability: AvailabilityService,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -152,11 +168,46 @@ function createWindow(
       db.close();
     }
   });
-  registerGate1Ipc(window, validSender, service, (runtimeProfileId) => {
-    for (const teammate of capabilityStore.listTeammatesUsingRuntime(runtimeProfileId)) {
-      capabilities.rebuild(teammate.id);
-    }
-  });
+  registerGate1Ipc(
+    window,
+    validSender,
+    service,
+    (runtimeProfileId) => {
+      for (const teammate of capabilityStore.listTeammatesUsingRuntime(runtimeProfileId)) {
+        capabilities.rebuild(teammate.id);
+      }
+    },
+    async (runtimeProfileId) => {
+      const teammate = service
+        .listTeammates()
+        .find(
+          (row) =>
+            row.executorKind === 'MODEL_RUNTIME' &&
+            row.currentRuntimeProfileId === runtimeProfileId,
+        );
+      if (!teammate) return service.testConnection(runtimeProfileId);
+      const state = await availability.recheck(teammate.id);
+      return {
+        ok: state.status === 'AVAILABLE',
+        message:
+          state.status === 'AVAILABLE'
+            ? '模型可用'
+            : state.status === 'UNSTABLE'
+              ? '连接不稳定'
+              : '模型不可用，请检查配置后重新检测',
+      };
+    },
+    (credentialId) => {
+      for (const teammate of service.listTeammates()) {
+        const runtime = service
+          .listRuntimeProfiles()
+          .find((row) => row.id === teammate.currentRuntimeProfileId);
+        if (runtime?.credentialId !== credentialId) continue;
+        const state = availability.get(teammate.id);
+        if (state) notifyAvailability(state);
+      }
+    },
+  );
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
   registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties, (mission) =>
     r3Observer.observeMission(mission),
@@ -166,6 +217,7 @@ function createWindow(
   registerR1Ipc(validSender, capabilities);
   registerR2Ipc(validSender, humanBridge, externalWork, partyMissions, tools);
   registerR3Ipc(validSender, r3Config, r3Store);
+  registerAvailabilityIpc(validSender, availability, service);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -272,10 +324,36 @@ if (!squirrelStartup)
         const result = await gateway.testConnection();
         return { ok: result.ok, model: result.model };
       });
-      const gateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
+      const rawGateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
         process.argv.includes('--gate1-fake-model')
           ? new FakeModelGateway()
           : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
+      const availability = new AvailabilityService(
+        new R32AvailabilityRepository(db),
+        store,
+        process.argv.includes('--gate1-fake-model')
+          ? { probe: async () => ({ kind: 'SUCCESS' as const, code: 'PROBE_SUCCEEDED' }) }
+          : new AiSdkModelAvailabilityProbe((runtimeProfileId) =>
+              service.resolveRuntime(runtimeProfileId),
+            ),
+        { onChanged: notifyAvailability },
+      );
+      const eligibility = new RoutingEligibilityService(
+        store,
+        availability,
+        (teammateId, dimension) =>
+          capabilities
+            .profile(teammateId)
+            .dimensions.some(
+              (item) => item.dimension === dimension && item.prior?.supported === true,
+            ),
+      );
+      // Both production and Fake adapters implement these ancillary ports; the
+      // decorator preserves exactly the methods present on its wrapped adapter.
+      const gateway = new AvailabilityAwareModelGateway(
+        rawGateway,
+        availability,
+      ) as AvailabilityAwareModelGateway & MemoryCandidateExtractor & EmbeddingGateway;
       const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
       const hybridMemory = new Gate2HybridMemoryService(store, memoryService, vectorStore, gateway);
       const skillStore: SkillServiceStore = {
@@ -360,6 +438,7 @@ if (!squirrelStartup)
           experiences: new Gate6SqliteRepository(db),
           capabilities,
           humanBridge,
+          eligibility,
         },
         r3GatewayFactory,
       );
@@ -408,6 +487,7 @@ if (!squirrelStartup)
         r3Config,
         r3Store,
         r3Observer,
+        availability,
       );
       externalWork.subscribeCreated((created) => {
         try {
@@ -444,6 +524,7 @@ if (!squirrelStartup)
             r3Config,
             r3Store,
             r3Observer,
+            availability,
           );
       });
     })

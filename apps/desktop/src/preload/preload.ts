@@ -34,7 +34,9 @@ import type {
   ExternalAppProfile,
   ExternalWorkArtifact,
   ExternalWorkRequest,
+  ModelAvailabilityProjection,
 } from '@cultivation/domain';
+import type { AvailabilityService } from '@cultivation/application';
 import type { R1CapabilityProfile } from '@cultivation/application/r1-capability-service';
 
 export type ChatStreamEvent =
@@ -58,6 +60,8 @@ export type ChatStreamEvent =
       teammateId: string;
       conversationId: string;
       message: string;
+      code?: 'MODEL_UNAVAILABLE';
+      availability?: Awaited<ReturnType<AvailabilityService['prepare']>>;
     };
 
 export interface ProviderInput {
@@ -153,6 +157,12 @@ export interface R3ShadowObservationView {
 }
 
 export interface CultivationBridge {
+  availability: {
+    list(): Promise<ModelAvailabilityProjection[]>;
+    recheck(teammateId: string): Promise<ModelAvailabilityProjection>;
+    prepare(teammateId: string): ReturnType<AvailabilityService['prepare']>;
+    onChanged(callback: (projection: ModelAvailabilityProjection) => void): () => void;
+  };
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
   r3: {
@@ -387,6 +397,17 @@ export interface CultivationBridge {
 }
 
 const bridge: CultivationBridge = {
+  availability: {
+    list: () => ipcRenderer.invoke('availability:list'),
+    recheck: (teammateId) => ipcRenderer.invoke('availability:recheck', teammateId),
+    prepare: (teammateId) => ipcRenderer.invoke('availability:prepare', teammateId),
+    onChanged: (callback) => {
+      const listener = (_event: Electron.IpcRendererEvent, value: ModelAvailabilityProjection) =>
+        callback(value);
+      ipcRenderer.on('availability:event', listener);
+      return () => ipcRenderer.removeListener('availability:event', listener);
+    },
+  },
   app: { getVersion: () => ipcRenderer.invoke('app:getVersion') },
   health: { ping: () => ipcRenderer.invoke('health:ping') },
   r3: {

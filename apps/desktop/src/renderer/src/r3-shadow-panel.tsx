@@ -107,8 +107,8 @@ export function R3ShadowPanel() {
         </p>
         <div className="muted" role="note" aria-label="Cloud Shadow 隐私说明">
           <strong>启用前请确认发送范围：</strong>Cloud Shadow 会向 TypeSafe
-          发送有界任务摘要、候选道友的 ID／角色、Benchmark 能力档位、已启用 Skill 元数据及可核验
-          Experience 摘要。 不发送 Credential／API Key、私有 Memory
+          发送有界任务摘要、候选道友的 ID／角色、模型可用状态、Benchmark 能力档位、已启用 Skill
+          元数据及可核验 Experience 摘要。 不发送 Credential／API Key、私有 Memory
           原文、完整文件、完整聊天历史、Mission Event／Audit 全文或 Tool secret／output 原文。Cloud
           Shadow 默认关闭，仅在你主动启用后运行。
         </div>

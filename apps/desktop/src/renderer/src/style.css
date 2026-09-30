@@ -2954,3 +2954,26 @@ td code {
 .shadow-observation p {
   margin: 0.5rem 0;
 }
+/* R3.2: current model availability, without changing page layout. */
+.availability-control {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+}
+.availability-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+.availability-dot.available {
+  background: #22c55e;
+}
+.availability-dot.unstable {
+  background: #f59e0b;
+}
+.availability-dot.unavailable {
+  background: #ef4444;
+}

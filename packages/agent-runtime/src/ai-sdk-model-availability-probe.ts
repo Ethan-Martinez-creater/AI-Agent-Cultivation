@@ -214,8 +214,18 @@ export class AiSdkModelAvailabilityProbe {
         return { kind: 'HARD_FAILURE', code: 'MODEL_ID_MISMATCH' };
       }
 
-      const modelIds = listModelIds(await readJsonBounded(response));
+      const catalog = await readJsonBounded(response);
+      const modelIds = listModelIds(catalog);
       if (!modelIds) return { kind: 'TRANSIENT_FAILURE', code: 'MODEL_METADATA_UNAVAILABLE' };
+      const page = asRecord(catalog);
+      if (
+        !matchesModelId(modelIds, runtime.modelId) &&
+        (page?.has_more === true ||
+          typeof page?.next_page_token === 'string' ||
+          typeof page?.next === 'string')
+      ) {
+        return { kind: 'TRANSIENT_FAILURE', code: 'MODEL_METADATA_INCOMPLETE' };
+      }
       return matchesModelId(modelIds, runtime.modelId)
         ? { kind: 'SUCCESS', code: 'MODEL_AVAILABLE' }
         : { kind: 'HARD_FAILURE', code: 'MODEL_NOT_FOUND' };

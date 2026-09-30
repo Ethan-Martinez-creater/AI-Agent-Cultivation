@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { Buffer } from 'node:buffer';
+import { setTimeout as delay } from 'node:timers/promises';
 import { _electron as electron } from 'playwright-core';
 import Database from 'better-sqlite3';
 
@@ -39,9 +40,26 @@ async function launch() {
 async function forceKill(app) {
   const child = app.process();
   if (child.exitCode !== null || child.signalCode !== null) return;
-  const exited = new Promise((resolve) => child.once('exit', resolve));
+  const closed = new Promise((resolve) => child.once('close', resolve));
   execFileSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
-  await exited;
+  await closed;
+  // Windows can briefly retain a killed process's mapped SQLite SHM handle.
+  // Verify write readiness before injecting the next crash window; do not
+  // retry application execution or hide persistent database errors.
+  const deadline = Date.now() + 5000;
+  for (;;) {
+    let db;
+    try {
+      db = new Database(databasePath);
+      db.exec('BEGIN IMMEDIATE; COMMIT;');
+      return;
+    } catch (error) {
+      if (error.code !== 'SQLITE_IOERR_TRUNCATE' || Date.now() >= deadline) throw error;
+    } finally {
+      db?.close();
+    }
+    await delay(100);
+  }
 }
 
 const first = await launch();
@@ -319,7 +337,7 @@ try {
     );
     assert.equal(
       db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get().version,
-      14,
+      15,
     );
   } finally {
     db.close();

@@ -1,9 +1,14 @@
 import { createHash } from 'node:crypto';
-import type { CapabilityDimension, ExperienceEvent, MissionMode } from '@cultivation/domain';
+import type {
+  CapabilityDimension,
+  ExperienceEvent,
+  MissionMode,
+  ModelAvailabilityStatus,
+} from '@cultivation/domain';
 import type { DecisionQuestion, DecisionRequest, DecisionType } from './r0-decision.js';
 import { CAPABILITY_DIMENSIONS } from './r1-capability-scoring.js';
 
-export const R3_DECISION_STATE_VERSION = 'r3-decision-state-v1';
+export const R3_DECISION_STATE_VERSION = 'r3-decision-state-v2-availability';
 export const R3_SHADOW_POLICY_VERSION = 'r3-shadow-policy-v1';
 export const R3_DECISION_QUESTION_VERSIONS = Object.freeze({
   TASK_CAPABILITY: 'r3-task-capability-atomic-v1',
@@ -56,6 +61,8 @@ export interface VerifiedExperienceSummary {
 /** Only bounded metadata and derived bands cross the decision boundary. */
 export interface DecisionCandidateInput {
   id: string;
+  modelAvailability?: ModelAvailabilityStatus;
+  stabilityPenalty?: 'UNSTABLE' | null;
   roleTitle: string;
   capabilities: Partial<Record<CapabilityDimension, CapabilityStateInput>>;
   enabledSkills: readonly DecisionSkillMetadata[];
@@ -261,6 +268,8 @@ export class DecisionStateBuilder {
 
 interface NormalizedCandidate {
   id: string;
+  modelAvailability?: ModelAvailabilityStatus;
+  stabilityPenalty?: 'UNSTABLE' | null;
   roleTitle: string;
   capabilities: Partial<
     Record<CapabilityDimension, { status: CapabilityAvailability; band: CapabilityBand | null }>
@@ -324,6 +333,12 @@ function normalizeCandidate(input: DecisionCandidateInput): NormalizedCandidate 
     .slice(0, DECISION_STATE_BUDGET.experienceCountPerCandidate);
   return {
     id,
+    ...(input.modelAvailability
+      ? {
+          modelAvailability: input.modelAvailability,
+          stabilityPenalty: input.stabilityPenalty === 'UNSTABLE' ? ('UNSTABLE' as const) : null,
+        }
+      : {}),
     roleTitle: boundedPublicText(input.roleTitle, 120),
     capabilities,
     enabledSkills,

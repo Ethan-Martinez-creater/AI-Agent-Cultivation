@@ -174,7 +174,7 @@ export class AvailabilityService {
     code: string;
     identityRevision?: string | null;
   }): Promise<ModelAvailabilityProjection> {
-    const identity = this.inspectIdentity(input.teammateId, input.runtimeProfileId);
+    const identity = this.inspectIdentity(input.teammateId, input.runtimeProfileId, true);
     if (!identity.binding || identity.reason === 'RUNTIME_MISMATCH') {
       throw new DomainError('INVALID_MODEL_IDENTITY', '道友模型绑定已变化，无法记录可用性结果');
     }
@@ -229,7 +229,6 @@ export class AvailabilityService {
     return JSON.stringify({
       teammateId,
       executorKind: teammate.executorKind,
-      teammateStatus: teammate.status,
       teammateRuntime: teammate.currentRuntimeProfileId,
       bindingRuntime: binding.runtimeProfileId,
       bindingProvider: binding.providerKind,
@@ -256,8 +255,7 @@ export class AvailabilityService {
     return !!(
       teammate?.executorKind === 'MODEL_RUNTIME' &&
       teammate.currentRuntimeProfileId === runtimeProfileId &&
-      binding?.runtimeProfileId === runtimeProfileId &&
-      this.identities.hasValidModelBinding(teammateId)
+      binding?.runtimeProfileId === runtimeProfileId
     );
   }
 
@@ -309,7 +307,11 @@ export class AvailabilityService {
     });
   }
 
-  private inspectIdentity(teammateId: string, runtimeProfileId: string): ModelIdentityInspection {
+  private inspectIdentity(
+    teammateId: string,
+    runtimeProfileId: string,
+    allowInactive = false,
+  ): ModelIdentityInspection {
     const teammate = this.identities.getTeammate(teammateId);
     if (
       !teammate ||
@@ -319,7 +321,8 @@ export class AvailabilityService {
       return { binding: null, reason: 'BINDING_INVALID' };
     }
     if (teammate.systemKind !== null) return { binding: null, reason: 'BINDING_INVALID' };
-    if (teammate.status !== 'ACTIVE') return { binding: null, reason: 'TEAMMATE_INACTIVE' };
+    if (!allowInactive && teammate.status !== 'ACTIVE')
+      return { binding: null, reason: 'TEAMMATE_INACTIVE' };
     const binding = this.identities.getModelBinding(teammateId);
     if (!binding || binding.runtimeProfileId !== teammate.currentRuntimeProfileId) {
       return { binding: binding ?? null, reason: 'BINDING_INVALID' };

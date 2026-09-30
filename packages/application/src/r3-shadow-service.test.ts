@@ -53,6 +53,30 @@ function completeTaskAnswer() {
 }
 
 describe('ShadowDecisionService', () => {
+  it('accepts only bounded availability signals and stays strictly SHADOW', async () => {
+    const { service, gateway } = setup({
+      answers: { teammate: 'a' },
+      confidence: {},
+      selectedAction: 'a',
+    });
+    const request = new DecisionStateBuilder().buildTeammateFit({
+      taskSummary: 'Answer',
+      candidates: [
+        {
+          id: 'a',
+          roleTitle: 'Fixture',
+          capabilities: {},
+          enabledSkills: [],
+          verifiedExperiences: [],
+          modelAvailability: 'UNSTABLE',
+          stabilityPenalty: 'UNSTABLE',
+        },
+      ],
+    });
+    const result = await service.evaluate(request, { actualAction: 'explicit-a' });
+    expect(gateway.calls).toBe(1);
+    expect(result.status).toBe('RECORDED');
+  });
   it('appends a SHADOW receipt with provider metadata and records, but never applies, the recommendation', async () => {
     const request = taskRequest();
     const { service, receipts, observations } = setup({

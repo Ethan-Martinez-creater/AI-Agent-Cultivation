@@ -19,7 +19,6 @@ import r3_1IdentityCapabilitySql from '../../../migrations/0014_r3_1_identity_ca
 import r3_2AvailabilitySql from '../../../migrations/0015_r3_2_availability.sql?raw';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
-import { R32AvailabilityRepository } from './r3-2-availability.js';
 
 export { R31BindingRepository } from './r3-1-binding.js';
 export type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';

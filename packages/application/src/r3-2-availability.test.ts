@@ -594,4 +594,49 @@ describe('AvailabilityAwareModelGateway', () => {
       'provider secret details',
     );
   });
+
+  it('does not bypass availability for a bound embedding when its provider is disabled', async () => {
+    const state = fixture();
+    state.currentProvider = { ...state.currentProvider, enabled: false };
+    let calls = 0;
+    const gateway = new AvailabilityAwareModelGateway(
+      {
+        generate: async () => ({ text: 'unused', usage: usage() }),
+        stream: async function* () {},
+        testConnection: async () => ({ ok: true, message: 'unused' }),
+        embed: async () => {
+          calls += 1;
+          return { vector: [1], usage: usage() };
+        },
+      },
+      state.service,
+    );
+    await expect(
+      gateway.embed!({ teammateId: 'teammate-a', runtimeProfileId: 'runtime-a', text: 'data' }),
+    ).rejects.toMatchObject({ code: 'MODEL_UNAVAILABLE' });
+    expect(calls).toBe(0);
+    expect(state.service.get('teammate-a')?.status).toBe('UNAVAILABLE');
+  });
+
+  it('records an in-flight result after archive while refusing new requests', async () => {
+    const state = fixture();
+    const gateway = new AvailabilityAwareModelGateway(
+      {
+        generate: async () => {
+          state.teammate = { ...state.teammate, status: 'ARCHIVED' };
+          return { text: 'completed request', usage: usage() };
+        },
+        stream: async function* () {},
+        testConnection: async () => ({ ok: true, message: 'unused' }),
+      },
+      state.service,
+    );
+    await expect(gateway.generate(basicRequest())).resolves.toMatchObject({
+      text: 'completed request',
+    });
+    expect(state.service.get('teammate-a')?.recentOutcomes.at(-1)?.code).toBe('REQUEST_SUCCEEDED');
+    await expect(gateway.generate(basicRequest())).rejects.toMatchObject({
+      code: 'MODEL_UNAVAILABLE',
+    });
+  });
 });

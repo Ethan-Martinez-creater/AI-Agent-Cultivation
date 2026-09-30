@@ -157,6 +157,7 @@ interface ToolContinuation {
 }
 type ParticipantOutcome =
   | { kind: 'DONE'; text: string; failureCode?: string }
+  | { kind: 'UNAVAILABLE'; code: string }
   | { kind: 'WAITING' };
 
 const POLICY =
@@ -1358,6 +1359,16 @@ export class Gate5CollaborationService {
       requesterTeammateId: request.requesterTeammateId,
       targetTeammateId: request.targetTeammateId,
       state: request.state,
+      executionOutcome: this.missionStore
+        .listMissionEvents(mission.id)
+        .some(
+          (event) =>
+            event.runId === run.id &&
+            event.eventType === 'collaboration.unavailable' &&
+            event.payloadJson.requestId === request.id,
+        )
+        ? 'MODEL_UNAVAILABLE'
+        : null,
       reasonSummary: summary(request.reason),
       taskSummary: summary(request.proposedTask),
     }));
@@ -1389,6 +1400,17 @@ export class Gate5CollaborationService {
     }
     const coordinator = this.requireTeammate(mission.coordinatorTeammateId);
     const runtime = this.requireRuntime(coordinator);
+    try {
+      await this.gateway.prepare?.({ teammateId: coordinator.id, runtimeProfileId: runtime.id });
+    } catch (error) {
+      if (!this.active(mission, run)) return;
+      await this.fail(
+        mission,
+        run,
+        error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE',
+      );
+      return;
+    }
     if (!this.canCallModel(mission, run)) {
       await this.fail(mission, run, 'MODEL_CALL_LIMIT_REACHED');
       return;
@@ -1425,20 +1447,25 @@ export class Gate5CollaborationService {
     const skillIds = skillIdsInPromptSection(composition.sections.activeSkills);
     const systemContext =
       composition.messages.find((message) => message.role === 'system')?.content ?? POLICY;
-    this.missionStore.transaction(() => {
-      this.record(
-        mission,
-        run.id,
-        'model.call_started',
-        'TEAMMATE',
-        coordinator.id,
-        this.modelPayload(runtime, { phase: 'COLLABORATION_PROPOSAL' }),
-      );
-      this.recordSkillUses(mission, run, coordinator.id, skillIds);
-    });
+    if (!this.active(mission, run)) return;
+    const recordModelStart = () =>
+      this.missionStore.transaction(() => {
+        if (!this.active(mission, run))
+          throw new DomainError('MISSION_INVALID_STATE', 'Mission 已停止执行');
+        this.record(
+          mission,
+          run.id,
+          'model.call_started',
+          'TEAMMATE',
+          coordinator.id,
+          this.modelPayload(runtime, { phase: 'COLLABORATION_PROPOSAL' }),
+        );
+        this.recordSkillUses(mission, run, coordinator.id, skillIds);
+      });
     let result: { proposal: CollaborationProposal; usage: ModelUsage };
     this.busy.add(mission.id);
     try {
+      if (!this.gateway.handlesCallStart) recordModelStart();
       result = await this.gateway.proposeCollaboration({
         teammateId: coordinator.id,
         runtimeProfileId: runtime.id,
@@ -1447,9 +1474,15 @@ export class Gate5CollaborationService {
         eligibleTargetIds,
         publicDraft: draft,
         systemContext,
+        ...(this.gateway.handlesCallStart ? { onCallStarted: recordModelStart } : {}),
       });
-    } catch {
+    } catch (error) {
       this.busy.delete(mission.id);
+      if (!this.active(mission, run)) return;
+      if (error instanceof DomainError && error.code === 'MODEL_UNAVAILABLE') {
+        await this.fail(mission, run, error.code);
+        return;
+      }
       await this.fail(mission, run, 'COLLABORATION_PROPOSAL_FAILED');
       return;
     } finally {
@@ -1571,17 +1604,32 @@ export class Gate5CollaborationService {
         return;
       }
     }
-    if (collaborationRequest && !resume) {
-      this.record(mission, run.id, 'collaboration.started', 'TEAMMATE', task.teammateId, {
-        requestId: collaborationRequest.id,
-        requesterTeammateId: collaborationRequest.requesterTeammateId,
-        targetTeammateId: task.teammateId,
-        participantTeammateId: task.teammateId,
-        mode: mission.mode,
-        outcome: 'STARTED',
-        taskSummary: summary(task.task),
+    const teammate = this.requireTeammate(task.teammateId);
+    const runtime = this.requireRuntime(teammate);
+    try {
+      await this.gateway.prepare?.({ teammateId: teammate.id, runtimeProfileId: runtime.id });
+    } catch (error) {
+      const code = error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE';
+      if (!this.active(mission, run)) return;
+      this.record(mission, run.id, 'runtime.model_unavailable', 'SYSTEM', null, {
+        teammateId: teammate.id,
+        runtimeProfileId: runtime.id,
+        code,
       });
+      if (!collaborationRequest) {
+        await this.fail(mission, run, code);
+        return;
+      }
+      this.record(mission, run.id, 'collaboration.unavailable', 'SYSTEM', null, {
+        requestId: collaborationRequest.id,
+        targetTeammateId: teammate.id,
+        requesterTeammateId: collaborationRequest.requesterTeammateId,
+        code,
+      });
+      await this.continueRun(mission, run);
+      return;
     }
+    if (!this.active(mission, run)) return;
     let outcome: ParticipantOutcome;
     try {
       outcome = await this.executeParticipant(mission, run, task, resume);
@@ -1598,6 +1646,20 @@ export class Gate5CollaborationService {
       };
     }
     if (outcome.kind === 'WAITING' || !this.active(mission, run)) return;
+    if (outcome.kind === 'UNAVAILABLE') {
+      if (!collaborationRequest) {
+        await this.fail(mission, run, outcome.code);
+        return;
+      }
+      this.record(mission, run.id, 'collaboration.unavailable', 'SYSTEM', null, {
+        requestId: collaborationRequest.id,
+        requesterTeammateId: collaborationRequest.requesterTeammateId,
+        targetTeammateId: task.teammateId,
+        code: outcome.code,
+      });
+      await this.continueRun(mission, run);
+      return;
+    }
     if (outcome.text === '{"ok":false,"code":"MODEL_CALL_LIMIT_REACHED"}') {
       await this.fail(mission, run, 'MODEL_CALL_LIMIT_REACHED');
       return;
@@ -1693,29 +1755,60 @@ export class Gate5CollaborationService {
             kind: 'DONE',
             text: JSON.stringify({ ok: false, code: 'MODEL_CALL_LIMIT_REACHED' }),
           };
-        this.missionStore.transaction(() => {
-          this.record(
-            mission,
-            run.id,
-            'model.call_started',
-            'TEAMMATE',
-            teammate.id,
-            this.modelPayload(runtime, {
-              phase: task.phase,
-              step: steps + 1,
-              ...(task.externalWorkContext
-                ? { externalWorkRequestId: task.externalWorkContext.requestId }
-                : {}),
-            }),
-          );
-          this.recordSkillUses(mission, run, teammate.id, skillIds);
-        });
+        try {
+          await this.gateway.prepare?.({ teammateId: teammate.id, runtimeProfileId: runtime.id });
+        } catch (error) {
+          const code = error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE';
+          if (steps === 0) return { kind: 'UNAVAILABLE', code };
+          return { kind: 'DONE', text: JSON.stringify({ ok: false, code }), failureCode: code };
+        }
+        if (!this.active(mission, run)) return { kind: 'WAITING' };
+        let modelStarted = false;
+        const callStarted = () =>
+          this.missionStore.transaction(() => {
+            if (!this.active(mission, run))
+              throw new DomainError('MISSION_INVALID_STATE', 'Mission 已停止执行');
+            if (task.phase === 'PARTICIPANT' && steps === 0 && !resume) {
+              const request = task.requestId
+                ? this.store.getCollaborationRequest(task.requestId)
+                : null;
+              if (!request || request.state !== 'APPROVED')
+                throw new DomainError('COLLABORATION_PROVENANCE_INVALID', '协作请求状态无效');
+              this.record(mission, run.id, 'collaboration.started', 'TEAMMATE', task.teammateId, {
+                requestId: request.id,
+                requesterTeammateId: request.requesterTeammateId,
+                targetTeammateId: task.teammateId,
+                participantTeammateId: task.teammateId,
+                mode: mission.mode,
+                outcome: 'STARTED',
+                taskSummary: summary(task.task),
+              });
+            }
+            this.record(
+              mission,
+              run.id,
+              'model.call_started',
+              'TEAMMATE',
+              teammate.id,
+              this.modelPayload(runtime, {
+                phase: task.phase,
+                step: steps + 1,
+                ...(task.externalWorkContext
+                  ? { externalWorkRequestId: task.externalWorkContext.requestId }
+                  : {}),
+              }),
+            );
+            this.recordSkillUses(mission, run, teammate.id, skillIds);
+            modelStarted = true;
+          });
         let response;
         try {
+          if (!this.gateway.handlesCallStart) callStarted();
           const modelRequest = {
             teammateId: teammate.id,
             runtimeProfileId: runtime.id,
             messages,
+            ...(this.gateway.handlesCallStart ? { onCallStarted: callStarted } : {}),
             ...(task.externalWorkContext ? { externalWorkContext: task.externalWorkContext } : {}),
           };
           response =
@@ -1728,7 +1821,12 @@ export class Gate5CollaborationService {
                   ...(await this.gateway.generate(modelRequest)),
                   toolCalls: [],
                 };
-        } catch {
+        } catch (error) {
+          if (!modelStarted && steps === 0)
+            return {
+              kind: 'UNAVAILABLE',
+              code: error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE',
+            };
           this.record(
             mission,
             run.id,

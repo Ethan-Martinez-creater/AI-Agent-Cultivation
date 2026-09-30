@@ -6,6 +6,7 @@ import { CAPABILITY_DIMENSIONS } from './r1-capability-scoring.js';
 import {
   DECISION_STATE_BUDGET,
   R3_DECISION_QUESTION_VERSIONS,
+  R3_DECISION_STATE_VERSION,
   R3_SHADOW_POLICY_VERSION,
   canonicalDecisionJson,
 } from './r3-decision-state.js';
@@ -382,7 +383,7 @@ function assertSafeRequest(request: DecisionRequest): void {
   if (request.state.decisionType !== request.decisionType)
     throw new Error('Decision type mismatch.');
   if (
-    request.state.schemaVersion !== 'r3-decision-state-v1' ||
+    request.state.schemaVersion !== R3_DECISION_STATE_VERSION ||
     request.questionVersion !== R3_DECISION_QUESTION_VERSIONS[request.decisionType] ||
     request.policyVersion !== R3_SHADOW_POLICY_VERSION
   ) {
@@ -488,7 +489,7 @@ function assertAllowlistedNestedState(
   decisionType: DecisionRequest['decisionType'],
   state: Record<string, unknown>,
 ): void {
-  if (state.schemaVersion !== 'r3-decision-state-v1')
+  if (state.schemaVersion !== R3_DECISION_STATE_VERSION)
     throw new Error('Unsupported decision state version.');
   if (typeof state.taskSummary !== 'string' || state.taskSummary.length > 1_200) {
     throw new Error('Invalid decision task summary.');
@@ -513,6 +514,8 @@ function assertAllowlistedNestedState(
       'capabilities',
       'enabledSkills',
       'verifiedExperiences',
+      'modelAvailability',
+      'stabilityPenalty',
     ]);
     for (const candidate of state.candidates) {
       if (!isRecord(candidate) || Object.keys(candidate).some((key) => !candidateKeys.has(key))) {
@@ -531,6 +534,19 @@ function assertAllowlistedNestedState(
         candidate.verifiedExperiences.length > 6
       ) {
         throw new Error('Invalid candidate state.');
+      }
+      if (
+        candidate.modelAvailability !== undefined &&
+        !['UNKNOWN', 'AVAILABLE', 'UNSTABLE'].includes(String(candidate.modelAvailability))
+      ) {
+        throw new Error('Invalid candidate model availability.');
+      }
+      if (
+        candidate.stabilityPenalty !== undefined &&
+        candidate.stabilityPenalty !== null &&
+        (candidate.stabilityPenalty !== 'UNSTABLE' || candidate.modelAvailability !== 'UNSTABLE')
+      ) {
+        throw new Error('Invalid candidate stability signal.');
       }
       if (
         Object.keys(candidate.capabilities).some(

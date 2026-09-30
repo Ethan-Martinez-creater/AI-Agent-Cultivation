@@ -1012,6 +1012,17 @@ export class Gate3MissionService {
       this.failBeforeModel(mission, run, 'RUNTIME_PROFILE_UNAVAILABLE');
       return;
     }
+    try {
+      await this.gateway.prepare?.({ teammateId: teammate.id, runtimeProfileId: runtime.id });
+    } catch (error) {
+      if (!this.isRunActive(mission, run)) return;
+      this.failBeforeModel(
+        mission,
+        run,
+        error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE',
+      );
+      return;
+    }
 
     let context: Awaited<ReturnType<ChatPromptContext['load']>> = {
       relevantMemories: [],
@@ -1066,31 +1077,50 @@ export class Gate3MissionService {
       return;
     }
 
-    this.store.transaction(() => {
-      this.appendEvent(mission, run.id, 'model.call_started', 'TEAMMATE', teammate.id, {
-        runtimeProfileId: runtime.id,
-        providerId: runtime.providerId,
-        modelId: runtime.modelId,
+    const recordModelStart = () =>
+      this.store.transaction(() => {
+        if (!this.isRunActive(mission, run))
+          throw new DomainError('MISSION_INVALID_STATE', 'Mission 已停止执行');
+        this.appendEvent(mission, run.id, 'model.call_started', 'TEAMMATE', teammate.id, {
+          runtimeProfileId: runtime.id,
+          providerId: runtime.providerId,
+          modelId: runtime.modelId,
+        });
+        this.recordSkillUses(mission, run, teammate.id, skillIds);
+        this.appendAudit(mission, 'model.call_started', 'TEAMMATE', teammate.id, {
+          runId: run.id,
+          runtimeProfileId: runtime.id,
+          providerId: runtime.providerId,
+          modelId: runtime.modelId,
+        });
       });
-      this.recordSkillUses(mission, run, teammate.id, skillIds);
-      this.appendAudit(mission, 'model.call_started', 'TEAMMATE', teammate.id, {
-        runId: run.id,
-        runtimeProfileId: runtime.id,
-        providerId: runtime.providerId,
-        modelId: runtime.modelId,
-      });
-    });
 
     let response;
+    let modelStarted = false;
+    const callStarted = () => {
+      recordModelStart();
+      modelStarted = true;
+    };
     this.busy.add(mission.id);
     try {
+      if (!this.gateway.handlesCallStart) callStarted();
       response = await this.gateway.generate({
         teammateId: teammate.id,
         runtimeProfileId: runtime.id,
         messages,
+        ...(this.gateway.handlesCallStart ? { onCallStarted: callStarted } : {}),
       });
-    } catch {
+    } catch (error) {
       this.busy.delete(mission.id);
+      if (!modelStarted) {
+        if (this.isRunActive(mission, run))
+          this.failBeforeModel(
+            mission,
+            run,
+            error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE',
+          );
+        return;
+      }
       this.failModelCall(mission, run, teammate.id, runtime, null);
       return;
     } finally {
@@ -1153,33 +1183,61 @@ export class Gate3MissionService {
     try {
       while (steps < MAX_TOOL_STEPS) {
         if (!this.isRunActive(mission, run)) return;
-        this.store.transaction(() => {
-          this.appendEvent(mission, run.id, 'model.call_started', 'TEAMMATE', teammateId, {
-            runtimeProfileId: runtime.id,
-            providerId: runtime.providerId,
-            modelId: runtime.modelId,
-            step: steps + 1,
-          });
-          this.recordSkillUses(mission, run, teammateId, skillIds);
-          this.appendAudit(mission, 'model.call_started', 'TEAMMATE', teammateId, {
-            runId: run.id,
-            runtimeProfileId: runtime.id,
-            providerId: runtime.providerId,
-            modelId: runtime.modelId,
-            step: steps + 1,
-          });
-        });
-        let response;
         try {
+          await this.gateway.prepare?.({ teammateId, runtimeProfileId: runtime.id });
+        } catch (error) {
+          if (!this.isRunActive(mission, run)) return;
+          this.failBeforeModel(
+            mission,
+            run,
+            error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE',
+          );
+          return;
+        }
+        if (!this.isRunActive(mission, run)) return;
+        const recordModelStart = () =>
+          this.store.transaction(() => {
+            if (!this.isRunActive(mission, run))
+              throw new DomainError('MISSION_INVALID_STATE', 'Mission 已停止执行');
+            this.appendEvent(mission, run.id, 'model.call_started', 'TEAMMATE', teammateId, {
+              runtimeProfileId: runtime.id,
+              providerId: runtime.providerId,
+              modelId: runtime.modelId,
+              step: steps + 1,
+            });
+            this.recordSkillUses(mission, run, teammateId, skillIds);
+            this.appendAudit(mission, 'model.call_started', 'TEAMMATE', teammateId, {
+              runId: run.id,
+              runtimeProfileId: runtime.id,
+              providerId: runtime.providerId,
+              modelId: runtime.modelId,
+              step: steps + 1,
+            });
+          });
+        let response;
+        let modelStarted = false;
+        const callStarted = () => {
+          recordModelStart();
+          modelStarted = true;
+        };
+        try {
+          if (!this.gateway.handlesCallStart) callStarted();
           response = await this.gateway.generateWithTools({
             teammateId,
             runtimeProfileId: runtime.id,
             messages,
             tools: this.toolRuntime.registry.list(),
+            ...(this.gateway.handlesCallStart ? { onCallStarted: callStarted } : {}),
           });
-        } catch {
+        } catch (error) {
           if (this.isRunActive(mission, run)) {
-            this.failModelCall(mission, run, teammateId, runtime, null);
+            if (modelStarted) this.failModelCall(mission, run, teammateId, runtime, null);
+            else
+              this.failBeforeModel(
+                mission,
+                run,
+                error instanceof DomainError ? error.code : 'MODEL_UNAVAILABLE',
+              );
           }
           return;
         }

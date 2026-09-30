@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Mission } from '@cultivation/domain';
 import type { DecisionGateway } from '@cultivation/application/r0-decision';
+import type { RoutingEligibilityService } from '@cultivation/application';
 import {
   DecisionStateBuilder,
   canonicalDecisionJson,
@@ -31,6 +32,7 @@ export class R3ShadowMissionObserver {
       experiences: Gate6SqliteRepository;
       capabilities: R1CapabilityService;
       humanBridge: HumanBridgeService;
+      eligibility: RoutingEligibilityService;
     },
     private readonly gatewayFactory: (apiKey: string, timeoutMs: number) => DecisionGateway,
   ) {}
@@ -46,7 +48,6 @@ export class R3ShadowMissionObserver {
 
       const candidates = buildR3ShadowCandidates(mission.coordinatorTeammateId, {
         ...this.stores,
-        bindingEligibility: this.stores.teammates,
       });
       const builder = new DecisionStateBuilder();
       const gateway = this.gatewayFactory(key, policy.timeoutMs);

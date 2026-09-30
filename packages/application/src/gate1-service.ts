@@ -511,15 +511,18 @@ export class Gate1Service {
       throw new DomainError('INVALID_INPUT', '道友没有运行配置');
     const runtime = this.store.getRuntimeProfile(teammate.currentRuntimeProfileId);
     if (!runtime) notFound('RuntimeProfile');
+    const text = required(input.text, '消息');
     const binding = this.store.getModelBinding(teammate.id);
-    if (
-      !binding ||
-      binding.runtimeProfileId !== runtime.id ||
-      !this.store.hasValidModelBinding(teammate.id)
-    ) {
+    if (!binding || binding.runtimeProfileId !== runtime.id) {
       throw new DomainError('INVALID_INPUT', '道友缺少有效的封存模型绑定');
     }
-    const text = required(input.text, '消息');
+    await this.gateway.prepare?.({ teammateId: teammate.id, runtimeProfileId: runtime.id });
+    if (this.activeConversations.has(input.conversationId)) {
+      throw new DomainError('CHAT_BUSY', '该对话正在生成回复');
+    }
+    if (!this.store.hasValidModelBinding(teammate.id)) {
+      throw new DomainError('INVALID_INPUT', '道友缺少有效的封存模型绑定');
+    }
     this.activeConversations.add(input.conversationId);
     try {
       const userMessage: Message = {
@@ -568,11 +571,15 @@ export class Gate1Service {
       let modelCalled = false;
       let usageRecorded = false;
       try {
-        modelCalled = true;
+        const callStarted = () => {
+          modelCalled = true;
+        };
+        if (!this.gateway.handlesCallStart) callStarted();
         for await (const event of this.gateway.stream({
           teammateId: teammate.id,
           runtimeProfileId: runtime.id,
           messages,
+          ...(this.gateway.handlesCallStart ? { onCallStarted: callStarted } : {}),
         })) {
           if (event.type === 'text-delta') {
             answer += event.text;
@@ -596,10 +603,12 @@ export class Gate1Service {
         usageRecorded = true;
         this.store.saveMessage(assistantMessage);
         yield { type: 'done', assistantMessage };
-      } catch {
-        if (modelCalled && !usageRecorded) {
+      } catch (error) {
+        const unavailable = error instanceof DomainError && error.code === 'MODEL_UNAVAILABLE';
+        if (modelCalled && !usageRecorded && !unavailable) {
           this.store.saveUsage(this.usageRecord(teammate.id, runtime, null));
         }
+        if (unavailable) throw error;
         throw new DomainError('MODEL_CALL_FAILED', '模型调用失败，请检查配置与网络');
       }
     } finally {

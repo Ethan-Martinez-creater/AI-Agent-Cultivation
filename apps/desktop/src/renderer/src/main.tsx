@@ -21,6 +21,7 @@ import {
   type R2UiApi,
 } from './r2-human-bridge.js';
 import { R3ShadowPanel } from './r3-shadow-panel.js';
+import { AvailabilityBadge } from './r3-2-availability.js';
 import './style.css';
 
 type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -351,9 +352,11 @@ interface ChatEvent {
   text?: string;
   assistantMessage?: MessageView;
   message?: string;
+  code?: 'MODEL_UNAVAILABLE';
 }
 
 interface CultivationBridge {
+  availability: PreloadBridge['availability'];
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
   r3: PreloadBridge['r3'];
@@ -3683,6 +3686,7 @@ function RuntimesPanel({
                   </div>
                 </div>
                 <div className="runtime-meta">凭据：{credential?.label ?? '未找到'}</div>
+                <AvailabilityBadge runtimeProfileId={runtime.id} />
                 <div className="button-row compact">
                   <button className="button small secondary" onClick={() => beginEdit(runtime)}>
                     编辑
@@ -4093,6 +4097,7 @@ function TeammatesPage() {
                     {runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
                       ?.modelId ?? 'Runtime 不可用'}
                   </p>
+                  <AvailabilityBadge teammateId={selected.id} />
                 </div>
               )}
               <div className="profile-actions">
@@ -4163,6 +4168,8 @@ function TeammatesPage() {
 }
 
 function ChatPage() {
+  const [availabilityRefresh, setAvailabilityRefresh] = useState(0);
+  const [modelUnavailable, setModelUnavailable] = useState(false);
   const { teammateId = '' } = useParams();
   const [teammate, setTeammate] = useState<TeammateView | null>(null);
   const [conversations, setConversations] = useState<ConversationView[]>([]);
@@ -4262,6 +4269,8 @@ function ChatPage() {
         return;
       }
       if (event.type === 'error') {
+        setModelUnavailable(event.code === 'MODEL_UNAVAILABLE');
+        setAvailabilityRefresh((current) => current + 1);
         setError(event.message || '生成回复失败。');
         setStreaming(false);
         setPendingUserText('');
@@ -4270,6 +4279,8 @@ function ChatPage() {
         return;
       }
       if (event.assistantMessage) {
+        setModelUnavailable(false);
+        setAvailabilityRefresh((current) => current + 1);
         setMessages((current) =>
           current.some((item) => item.id === event.assistantMessage?.id)
             ? current
@@ -4416,6 +4427,12 @@ function ChatPage() {
             </small>
           </div>
           {teammate.status === 'ARCHIVED' && <span className="status-pill archived">已归档</span>}
+          {teammate.executorKind !== 'USER_BRIDGE' && (
+            <AvailabilityBadge
+              key={`${teammate.id}:${availabilityRefresh}`}
+              teammateId={teammate.id}
+            />
+          )}
         </div>
       )}
       <div className="chat-shell">
@@ -4503,6 +4520,27 @@ function ChatPage() {
           {error && (
             <div className="chat-error" role="alert">
               {error}
+              {modelUnavailable && (
+                <span className="button-row compact">
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => navigate('/teammates')}
+                  >
+                    选择其他道友
+                  </button>
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => {
+                      setError('');
+                      setModelUnavailable(false);
+                    }}
+                  >
+                    取消
+                  </button>
+                </span>
+              )}
             </div>
           )}
           {notice && (

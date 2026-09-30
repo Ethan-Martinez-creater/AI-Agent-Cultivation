@@ -130,6 +130,17 @@ describe('AiSdkModelAvailabilityProbe', () => {
     expect(requestedUrl).toBe('https://provider.example/v1/models/claude-latest-alias');
   });
 
+  it('does not infer an absent model from a bounded partial catalog', async () => {
+    const probe = new AiSdkModelAvailabilityProbe(
+      async () => runtime('OPENAI_COMPATIBLE', { modelId: 'next-page-model' }),
+      { fetch: async () => jsonResponse({ data: [{ id: 'first-page-model' }], has_more: true }) },
+    );
+    await expect(probe.probe('runtime-1')).resolves.toEqual({
+      kind: 'TRANSIENT_FAILURE',
+      code: 'MODEL_METADATA_INCOMPLETE',
+    });
+  });
+
   it.each([400, 404, 405, 501])(
     'does not infer model unavailability from compatible metadata HTTP %s',
     async (status) => {

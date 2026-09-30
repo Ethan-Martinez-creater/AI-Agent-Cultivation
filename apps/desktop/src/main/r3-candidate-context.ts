@@ -1,4 +1,5 @@
 import { CAPABILITY_DIMENSIONS } from '@cultivation/application';
+import type { RoutingEligibilityService } from '@cultivation/application';
 import type { DecisionCandidateInput } from '@cultivation/application/r3-decision-state';
 import type { R1CapabilityService } from '@cultivation/application/r1-capability-service';
 import type {
@@ -7,10 +8,7 @@ import type {
   Gate6SqliteRepository,
 } from '@cultivation/persistence';
 
-export interface R3CandidateBindingEligibility {
-  /** True only for a sealed binding whose Provider and Runtime snapshot are structurally valid. */
-  hasValidModelBinding(teammateId: string): boolean;
-}
+export type R3CandidateBindingEligibility = Pick<RoutingEligibilityService, 'evaluate'>;
 
 /** Reads only allowlisted summaries; Memory, messages, files and events are never queried. */
 export function buildR3ShadowCandidates(
@@ -20,19 +18,15 @@ export function buildR3ShadowCandidates(
     skills: Gate2SqliteRepository;
     experiences: Gate6SqliteRepository;
     capabilities: R1CapabilityService;
-    bindingEligibility: R3CandidateBindingEligibility;
+    eligibility: R3CandidateBindingEligibility;
   },
 ): DecisionCandidateInput[] {
   const eligible = stores.teammates
     .listTeammates()
     .filter(
       (teammate) =>
-        teammate.status === 'ACTIVE' &&
-        teammate.executorKind === 'MODEL_RUNTIME' &&
-        teammate.systemKind !== 'HUMAN_BRIDGE' &&
-        teammate.routingPolicy !== 'FALLBACK_ONLY' &&
-        teammate.currentRuntimeProfileId !== null &&
-        stores.bindingEligibility.hasValidModelBinding(teammate.id),
+        stores.eligibility.evaluate(teammate.id, { explicit: teammate.id === selectedTeammateId })
+          .eligible,
     )
     .sort((a, b) =>
       a.id === selectedTeammateId ? -1 : b.id === selectedTeammateId ? 1 : a.id.localeCompare(b.id),
@@ -86,6 +80,12 @@ export function buildR3ShadowCandidates(
       }));
     return {
       id: teammate.id,
+      modelAvailability:
+        stores.eligibility.evaluate(teammate.id, { explicit: teammate.id === selectedTeammateId })
+          .availability ?? 'UNKNOWN',
+      stabilityPenalty: stores.eligibility.evaluate(teammate.id, {
+        explicit: teammate.id === selectedTeammateId,
+      }).stabilityPenalty,
       roleTitle: teammate.title ?? teammate.name,
       capabilities,
       enabledSkills,

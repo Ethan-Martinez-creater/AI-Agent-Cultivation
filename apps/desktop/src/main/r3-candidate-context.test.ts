@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { RoutingEligibilityService } from '@cultivation/application';
 import type { R1CapabilityProfile } from '@cultivation/application/r1-capability-service';
 import type { DecisionCandidateInput } from '@cultivation/application/r3-decision-state';
 import type { R1CapabilityService } from '@cultivation/application/r1-capability-service';
@@ -105,10 +106,61 @@ function profile(teammateId: string): R1CapabilityProfile {
 function stores(input: {
   teammates: TeammateRecord[];
   validBindings: ReadonlySet<string>;
+  unavailable?: ReadonlySet<string>;
 }): Parameters<typeof buildR3ShadowCandidates>[1] {
-  const bindingEligibility: R3CandidateBindingEligibility = {
-    hasValidModelBinding: (teammateId) => input.validBindings.has(teammateId),
-  };
+  const eligibility: R3CandidateBindingEligibility = new RoutingEligibilityService(
+    {
+      getTeammate: (id) => input.teammates.find((row) => row.id === id) ?? null,
+      getModelBinding: (id) =>
+        input.validBindings.has(id)
+          ? {
+              teammateId: id,
+              runtimeProfileId: `runtime-${id}`,
+              providerKind: 'OPENAI_COMPATIBLE',
+              endpoint: 'http://localhost:1234/v1',
+              modelId: 'fixed-model',
+              credentialId: null,
+              verifiedAt: null,
+              verificationSource: 'LEGACY_STRUCTURAL',
+              sealedAt: '2026-09-30T00:00:00Z',
+            }
+          : null,
+      hasValidModelBinding: (id) => input.validBindings.has(id),
+      getRuntimeProfile: (id) => ({
+        id,
+        name: id,
+        providerId: 'provider',
+        credentialId: null,
+        modelId: 'fixed-model',
+        parameters: {},
+        capabilityOverrides: {},
+        createdAt: '2026-09-30T00:00:00Z',
+        updatedAt: '2026-09-30T00:00:00Z',
+      }),
+      getProvider: () => ({
+        id: 'provider',
+        name: 'fixture',
+        kind: 'OPENAI_COMPATIBLE',
+        baseUrl: 'http://localhost:1234/v1',
+        enabled: true,
+        createdAt: '2026-09-30T00:00:00Z',
+        updatedAt: '2026-09-30T00:00:00Z',
+      }),
+      getCredential: () => null,
+    },
+    {
+      get: (id) => ({
+        teammateId: id,
+        runtimeProfileId: `runtime-${id}`,
+        status: input.unavailable?.has(id) ? 'UNAVAILABLE' : 'UNKNOWN',
+        lastCheckedAt: null,
+        lastSuccessAt: null,
+        lastFailureAt: null,
+        recentOutcomes: [],
+        policyVersion: 'r3-2-v1',
+      }),
+    },
+  );
   return {
     teammates: {
       listTeammates: () => input.teammates,
@@ -123,7 +175,7 @@ function stores(input: {
     capabilities: {
       profile: (teammateId: string) => profile(teammateId),
     } as unknown as R1CapabilityService,
-    bindingEligibility,
+    eligibility,
   };
 }
 
@@ -157,7 +209,7 @@ describe('R3 shadow candidate context', () => {
       }),
     );
 
-    expect(candidates.map((candidate) => candidate.id)).toEqual(['selected', 'manual']);
+    expect(candidates.map((candidate) => candidate.id)).toEqual(['selected']);
   });
 
   it('uses the current fixed model Benchmark score and preserves supported zero', () => {
@@ -176,5 +228,18 @@ describe('R3 shadow candidate context', () => {
       status: 'UNCONFIGURED',
       score: null,
     });
+  });
+
+  it('excludes UNAVAILABLE and reads UNKNOWN candidates without any probe surface', () => {
+    const candidates = buildR3ShadowCandidates(
+      'selected',
+      stores({
+        teammates: [teammate('selected'), teammate('unavailable'), teammate('unknown')],
+        validBindings: new Set(['selected', 'unavailable', 'unknown']),
+        unavailable: new Set(['unavailable']),
+      }),
+    );
+    expect(candidates.map((row) => row.id)).toEqual(['selected', 'unknown']);
+    expect(candidates.every((row) => row.modelAvailability === 'UNKNOWN')).toBe(true);
   });
 });

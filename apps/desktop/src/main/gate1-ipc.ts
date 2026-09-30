@@ -2,6 +2,7 @@ import { clipboard, ipcMain, type BrowserWindow, type IpcMainInvokeEvent } from 
 import { z } from 'zod';
 import { Gate1Service } from '@cultivation/application/gate1-service';
 import { DomainError } from '@cultivation/shared';
+import { ModelUnavailableError } from '@cultivation/application';
 import type { ChatStreamEvent } from '../preload/preload.js';
 
 const idSchema = z.string().min(1).max(128);
@@ -60,6 +61,8 @@ export function registerGate1Ipc(
   validSender: (event: IpcMainInvokeEvent) => boolean,
   service: Gate1Service,
   onRuntimeUpdated?: (runtimeProfileId: string) => void | Promise<void>,
+  onConnectionTest?: (runtimeProfileId: string) => Promise<{ ok: boolean; message: string }>,
+  onCredentialRotated?: (credentialId: string) => void,
 ): void {
   const activeRequests = new Set<string>();
   const register = (
@@ -110,7 +113,9 @@ export function registerGate1Ipc(
     if (!apiKey || apiKey.length > 16_384) {
       throw new DomainError('INVALID_INPUT', '请先复制有效的 API Key 到剪贴板');
     }
-    return service.rotateCredential({ credentialId, apiKey });
+    const summary = await service.rotateCredential({ credentialId, apiKey });
+    onCredentialRotated?.(credentialId);
+    return summary;
   });
   register('runtimes:list', (_event, args) => {
     noArgs(args);
@@ -126,9 +131,10 @@ export function registerGate1Ipc(
     await onRuntimeUpdated?.(updated.id);
     return updated;
   });
-  register('runtimes:testConnection', (_event, args) =>
-    service.testConnection(one(args, idSchema)),
-  );
+  register('runtimes:testConnection', (_event, args) => {
+    const runtimeId = one(args, idSchema);
+    return onConnectionTest ? onConnectionTest(runtimeId) : service.testConnection(runtimeId);
+  });
   register('teammates:list', (_event, args) => {
     noArgs(args);
     return service.listTeammates();
@@ -190,6 +196,9 @@ export function registerGate1Ipc(
           teammateId: input.teammateId,
           conversationId: input.conversationId,
           message: publicError(error),
+          ...(error instanceof ModelUnavailableError
+            ? { code: 'MODEL_UNAVAILABLE' as const, availability: error.result }
+            : {}),
         });
       } finally {
         activeRequests.delete(input.requestId);
