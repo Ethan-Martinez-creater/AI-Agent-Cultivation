@@ -232,11 +232,7 @@ export function TeammatesPage() {
                         <span className="availability-dot available" aria-hidden="true" />
                       </span>
                     ) : (
-                      <AvailabilityBadge
-                        teammateId={teammate.id}
-                        recheck={false}
-                        compact
-                      />
+                      <AvailabilityBadge teammateId={teammate.id} recheck={false} compact />
                     )}
                   </article>
                 );
@@ -463,7 +459,9 @@ export function TeammatesPage() {
                         <dl>
                           <div>
                             <dt>道友 ID</dt>
-                            <dd><code>{selected.id}</code></dd>
+                            <dd>
+                              <code>{selected.id}</code>
+                            </dd>
                           </div>
                           {selected.executorKind !== 'USER_BRIDGE' && (
                             <>
@@ -565,10 +563,7 @@ function HumanBridgeSummary() {
 
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([
-      window.cultivation.r2.bridgeProfile(),
-      window.cultivation.r2.listRequests(),
-    ])
+    void Promise.all([window.cultivation.r2.bridgeProfile(), window.cultivation.r2.listRequests()])
       .then(([profile, requests]) => {
         if (cancelled) return;
         setEnabledCapabilities(

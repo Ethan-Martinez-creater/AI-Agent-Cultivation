@@ -339,6 +339,20 @@ function stateLabel(state: string): string {
 }
 
 export function HumanBridgePage({ api }: { api: R2UiApi }) {
+  const [teammateNames, setTeammateNames] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let active = true;
+    void window.cultivation.teammates.list().then(
+      (people) => {
+        if (active)
+          setTeammateNames(Object.fromEntries(people.map((person) => [person.id, person.name])));
+      },
+      () => undefined,
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
   const [searchParams] = useSearchParams();
   const requestId = searchParams.get('requestId') ?? '';
   const [profile, setProfile] = useState<HumanBridgeProfileView | null>(null);
@@ -503,7 +517,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                 </p>
                 <h2>{request.title}</h2>
                 <p>
-                  请求道友：{request.requesterTeammateId} · 能力：
+                  请求道友：{teammateNames[request.requesterTeammateId] ?? '道友不可读取'} · 能力：
                   {dimensionNames[request.capability]}
                 </p>
                 {recommendation && (

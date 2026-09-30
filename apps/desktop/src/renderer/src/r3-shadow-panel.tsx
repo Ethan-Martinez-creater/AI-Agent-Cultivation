@@ -109,7 +109,7 @@ export function R3ShadowPanel() {
         </p>
         <details className="shadow-privacy">
           <summary>启用前查看 Cloud Shadow 数据发送范围</summary>
-          <div className="shadow-privacy-copy" role="note">
+          <div className="shadow-privacy-copy" role="note" aria-label="Cloud Shadow 隐私说明">
             <p>
               启用后会向 TypeSafe 发送有界任务摘要、候选道友的 ID 与角色、模型可用状态、Benchmark
               能力档位、已启用 Skill 元数据及可核验 Experience 摘要。

@@ -12,9 +12,13 @@ const labels = {
 export function AvailabilityBadge({
   teammateId,
   runtimeProfileId,
+  recheck: showRecheck = true,
+  compact = false,
 }: {
   teammateId?: string;
   runtimeProfileId?: string;
+  recheck?: boolean;
+  compact?: boolean;
 }) {
   const [state, setState] = useState<ModelAvailabilityProjection | null>(null);
   const [busy, setBusy] = useState(false);
@@ -67,12 +71,19 @@ export function AvailabilityBadge({
   if (!teammateId && !state) return null;
   const status = state?.status ?? 'UNKNOWN';
   return (
-    <span className="availability-control" data-availability={status}>
+    <span className="availability-control" data-availability={status} title={labels[status]}>
       <span className={`availability-dot ${status.toLowerCase()}`} aria-hidden="true" />
-      <span>{labels[status]}</span>
-      <button className="text-button" type="button" disabled={busy} onClick={() => void recheck()}>
-        {busy ? '检测中…' : '重新检测'}
-      </button>
+      {!compact && <span>{labels[status]}</span>}
+      {showRecheck && (
+        <button
+          className="text-button"
+          type="button"
+          disabled={busy}
+          onClick={() => void recheck()}
+        >
+          {busy ? '检测中…' : '重新检测'}
+        </button>
+      )}
       {error && <small role="alert">{error}</small>}
     </span>
   );

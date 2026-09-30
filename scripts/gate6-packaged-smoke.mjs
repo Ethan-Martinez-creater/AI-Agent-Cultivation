@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { _electron as electron } from 'playwright-core';
@@ -195,11 +196,12 @@ export async function verifyGate6Packaged(evidence) {
       ),
       'Every Experience row needs durable actor, Run, source, and timestamp provenance',
     );
-    await page.getByRole('link', { name: '道友 Teammates' }).click();
+    await navigateUi(page, '道友 Teammates');
     await page
-      .locator('button.teammate-list-item')
+      .locator('button.teammate-roster-select')
       .filter({ hasText: `Gate 5 Member ${fixture.nonce}` })
       .click();
+    await page.locator('.teammate-secondary-view > summary').filter({ hasText: '经历' }).click();
     await page.getByRole('heading', { name: '经历 / 能力' }).waitFor();
     await page.getByText('炼气 · 正式能力考核尚未开启').waitFor();
     await page.locator('.experience-event').first().waitFor();

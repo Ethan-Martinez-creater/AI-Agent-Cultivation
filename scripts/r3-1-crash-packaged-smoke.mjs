@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -69,7 +70,7 @@ try {
   await first.app.evaluate(({ dialog }, folder) => {
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
   }, workspaceRoot);
-  await first.page.getByRole('link', { name: '本尊待办 Human Bridge' }).click();
+  await navigateUi(first.page, '本尊待办 Human Bridge');
   await first.page.getByRole('heading', { name: '本尊待办' }).waitFor();
   facts = await first.page.evaluate(async () => {
     const api = window.cultivation;

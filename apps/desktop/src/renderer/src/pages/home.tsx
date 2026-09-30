@@ -1,197 +1,192 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { errorText, PageHeading } from '../ui-shared.js';
-import type { TeammateView } from '../ui-shared.js';
+import { Link } from 'react-router-dom';
+import type { ExternalWorkRequest } from '@cultivation/domain';
+import type { MissionView, TeammateView } from '../ui-shared.js';
+import { errorText, formatDate, missionStateLabel, stateClass } from '../ui-shared.js';
 
 export function HomePage() {
+  const [missions, setMissions] = useState<MissionView[]>([]);
+  const [work, setWork] = useState<ExternalWorkRequest[]>([]);
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [refresh, setRefresh] = useState(0);
   useEffect(() => {
-    let cancelled = false;
+    let disposed = false;
     setLoading(true);
-    setError('');
-    void window.cultivation.teammates
-      .list()
-      .then((items) => {
-        if (!cancelled)
-          setTeammates(
-            items.filter((item) => item.status === 'ACTIVE' && item.executorKind !== 'USER_BRIDGE'),
-          );
-      })
-      .catch((cause: unknown) => {
-        if (!cancelled) setError(errorText(cause, '读取道友失败。'));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    void Promise.allSettled([
+      window.cultivation.missions.list(),
+      window.cultivation.r2.listRequests(),
+      window.cultivation.teammates.list(),
+    ]).then(([tasks, external, people]) => {
+      if (disposed) return;
+      const failures: string[] = [];
+      if (tasks.status === 'fulfilled') setMissions(tasks.value);
+      else failures.push(errorText(tasks.reason, '历练读取失败'));
+      if (external.status === 'fulfilled') setWork(external.value);
+      else failures.push(errorText(external.reason, '本尊待办读取失败'));
+      if (people.status === 'fulfilled') setTeammates(people.value);
+      else failures.push(errorText(people.reason, '道友读取失败'));
+      setErrors(failures);
+      setLoading(false);
+    });
     return () => {
-      cancelled = true;
+      disposed = true;
     };
-  }, [loadAttempt]);
-  const navigate = useNavigate();
-  return (
-    <section className="page wide-page">
-      <PageHeading
-        eyebrow="初入洞府 · Home"
-        title="洞府 Home"
-        description="从模型配置开始，逐步建立道友、日常对话与可追溯的任务协作。"
-      />
-      <div className="home-banner">
-        <div>
-          <span className="banner-kicker">当前阶段</span>
-          <h2>从配置 Provider 到开始协作</h2>
-          <p>普通 Conversation 会持续保存；Mission 和队伍协作有各自独立的运行记录。</p>
-        </div>
-        <button className="button primary" onClick={() => navigate('/teammates')}>
-          管理道友
-        </button>
-      </div>
-      <HomeOnboardingGuide teammateId={teammates[0]?.id ?? ''} />
-      <div className="section-heading">
-        <div>
-          <h2>我的道友</h2>
-          <p>对话与经历记录都归属于道友身份；模型在创建时验证并固定。</p>
-        </div>
-        <span className="count-badge">{teammates.length}</span>
-      </div>
-      {loading ? (
-        <div className="loading-card">正在读取道友…</div>
-      ) : error ? (
-        <div className="empty-card onboarding-empty">
-          <h3>暂时无法读取道友</h3>
-          <p>{error}</p>
-          <button
-            className="button secondary"
-            type="button"
-            onClick={() => setLoadAttempt((current) => current + 1)}
-          >
-            重新读取
-          </button>
-        </div>
-      ) : teammates.length ? (
-        <div className="teammate-grid">
-          {teammates.map((teammate) => (
-            <button
-              key={teammate.id}
-              className="teammate-card"
-              onClick={() => navigate(`/chat/${encodeURIComponent(teammate.id)}`)}
-            >
-              <span className="avatar">{teammate.avatar || teammate.name.slice(0, 1)}</span>
-              <span className="teammate-card-copy">
-                <strong>{teammate.name}</strong>
-                <small>{teammate.title || '道友'}</small>
-              </span>
-              <span className="card-arrow">›</span>
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div className="empty-card">
-          <span className="empty-icon">◇</span>
-          <h3>还没有可用道友</h3>
-          <p>先在设置中添加 Provider、Credential 和 Runtime Profile，再创建第一位道友。</p>
-          <div className="button-row centered">
-            <button className="button secondary" onClick={() => navigate('/settings')}>
-              配置模型
-            </button>
-            <button className="button primary" onClick={() => navigate('/teammates')}>
-              创建道友
-            </button>
-          </div>
-        </div>
-      )}
-    </section>
+  }, [refresh]);
+  const active = missions.filter((item) =>
+    [
+      'RUNNING',
+      'WAITING_APPROVAL',
+      'WAITING_COLLABORATION',
+      'WAITING_EXTERNAL_WORK',
+      'PAUSED',
+      'INTERRUPTED',
+    ].includes(item.state),
   );
-}
-
-export function HomeOnboardingGuide({ teammateId }: { teammateId: string }) {
-  const navigate = useNavigate();
-  const steps = [
-    {
-      label: 'Provider 与 Runtime',
-      detail: '添加服务商、凭据，并建立模型运行配置。',
-      action: '打开设置',
-      path: '/settings',
-    },
-    {
-      label: 'Teammate 道友',
-      detail: '用 Runtime 创建一个有稳定身份的道友。',
-      action: '创建道友',
-      path: '/teammates',
-    },
-    {
-      label: 'Chat 对话',
-      detail: '从独立 Conversation 开始交流。',
-      action: teammateId ? '打开对话' : '先创建道友',
-      path: teammateId ? `/chat/${encodeURIComponent(teammateId)}` : '/teammates',
-    },
-    {
-      label: 'Memory / Skill',
-      detail: '按需整理长期记忆，或给道友分配可复用的 Skill。',
-      action: '记忆',
-      path: '/memory',
-      secondAction: 'Skills',
-      secondPath: '/skills',
-    },
-    {
-      label: 'SOLO Mission',
-      detail: '先为一位道友设定目标，查看独立 Run 与审批记录。',
-      action: '创建历练',
-      path: '/missions',
-    },
-    {
-      label: 'Party 队伍',
-      detail: '准备至少两位可用道友，指定协调者。',
-      action: '管理队伍',
-      path: '/parties',
-    },
-    {
-      label: 'Collaboration 协作',
-      detail: '在 Party Mission 中选择咨询、审查或委托，并处理协作请求。',
-      action: '查看历练',
-      path: '/missions',
-    },
-  ];
+  const recent = [...missions].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 8);
+  const pending = work.filter(
+    (item) => !['ACCEPTED', 'REJECTED', 'CANCELLED'].includes(item.state),
+  );
+  const ordinary = teammates.filter(
+    (item) => item.status === 'ACTIVE' && item.executorKind !== 'USER_BRIDGE',
+  );
+  const taskLink = (id: string) => '/missions?missionId=' + encodeURIComponent(id);
   return (
-    <section className="onboarding-guide" aria-labelledby="onboarding-title">
-      <div className="onboarding-heading">
-        <div>
-          <p className="eyebrow">首次使用 · Getting started</p>
-          <h2 id="onboarding-title">建议上手路径</h2>
+    <section className="page wide-page home-page">
+      <header className="page-toolbar">
+        <h1>洞府 Home</h1>
+        <div className="button-row">
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => setRefresh((value) => value + 1)}
+          >
+            刷新
+          </button>
+          <Link className="button primary" to="/missions?create=1">
+            ＋ 发起历练
+          </Link>
         </div>
-        <p>每一步都可稍后完成；对话、记忆、任务和队伍记录各自归属清晰。</p>
-      </div>
-      <ol className="onboarding-steps">
-        {steps.map((step, index) => (
-          <li className="onboarding-step" key={step.label}>
-            <span className="onboarding-step-number">{index + 1}</span>
-            <div className="onboarding-step-copy">
-              <strong>{step.label}</strong>
-              <small>{step.detail}</small>
+      </header>
+      {errors.map((error, index) => (
+        <div key={index} className="notice error" role="alert">
+          {error}
+        </div>
+      ))}
+      {loading ? (
+        <div className="loading-card">正在读取工作台…</div>
+      ) : (
+        <>
+          {!ordinary.length && !errors.length && (
+            <section className="getting-started" aria-labelledby="first-use-title">
+              <h2 id="first-use-title">开始使用</h2>
+              <p>先配置模型，再创建第一位道友。</p>
+              <div className="button-row">
+                <Link className="button primary" to="/settings">
+                  配置 Provider
+                </Link>
+                <Link className="button secondary" to="/teammates">
+                  创建道友
+                </Link>
+              </div>
+              <details>
+                <summary>查看上手路径</summary>
+                <ol className="first-use-steps">
+                  <li>
+                    <Link to="/settings">Provider 与固定模型配置</Link>
+                  </li>
+                  <li>
+                    <Link to="/teammates">创建道友并开始对话</Link>
+                  </li>
+                  <li>
+                    <Link to="/memory">整理记忆</Link> · <Link to="/skills">编写功法 Skill</Link>
+                  </li>
+                  <li>
+                    <Link to="/missions?create=1">发起单人历练</Link>
+                  </li>
+                  <li>
+                    <Link to="/parties">建立队伍并审批协作</Link>
+                  </li>
+                </ol>
+              </details>
+            </section>
+          )}
+          <section className="home-section">
+            <div className="section-heading">
+              <h2>进行中 / 等待用户动作</h2>
+              <Link to="/missions">查看历练</Link>
             </div>
-            <div className="onboarding-step-actions">
-              <button
-                className="text-button onboarding-link"
-                type="button"
-                onClick={() => navigate(step.path)}
-              >
-                {step.action}
-              </button>
-              {step.secondAction && step.secondPath && (
-                <button
-                  className="text-button onboarding-link"
-                  type="button"
-                  onClick={() => navigate(step.secondPath)}
-                >
-                  {step.secondAction}
-                </button>
-              )}
+            {active.length ? (
+              <div className="task-rows">
+                {active.map((item) => (
+                  <Link className="task-row" key={item.id} to={taskLink(item.id)}>
+                    <span>
+                      <strong>{item.title}</strong>
+                      <small>{item.objective.slice(0, 100)}</small>
+                    </span>
+                    <span className={'mission-state ' + stateClass(item.state)}>
+                      {missionStateLabel(item.state)}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="quiet-empty">当前没有进行中的历练。</p>
+            )}
+          </section>
+          <section className="home-section">
+            <div className="section-heading">
+              <h2>本尊待办</h2>
+              <Link to="/external-work">本尊待办 Human Bridge</Link>
             </div>
-          </li>
-        ))}
-      </ol>
+            {pending.length ? (
+              <div className="task-rows">
+                {pending.slice(0, 5).map((item) => (
+                  <Link
+                    className="task-row"
+                    key={item.id}
+                    to={'/external-work?requestId=' + encodeURIComponent(item.id)}
+                  >
+                    <span>
+                      <strong>{item.title}</strong>
+                      <small>
+                        {item.state === 'SUBMITTED' ? '已提交 · 等待验收' : '等待外部工作'}
+                      </small>
+                    </span>
+                    <span aria-hidden="true">›</span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="quiet-empty">没有等待处理的外部工作。</p>
+            )}
+          </section>
+          <section className="home-section">
+            <div className="section-heading">
+              <h2>最近历练</h2>
+              <Link to="/missions">全部历练</Link>
+            </div>
+            {recent.length ? (
+              <div className="task-rows">
+                {recent.map((item) => (
+                  <Link className="task-row" key={item.id} to={taskLink(item.id)}>
+                    <strong>{item.title}</strong>
+                    <span className={'mission-state ' + stateClass(item.state)}>
+                      {missionStateLabel(item.state)}
+                    </span>
+                    <time>{formatDate(item.updatedAt)}</time>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="quiet-empty">
+                还没有历练。<Link to="/missions?create=1">发起第一项历练</Link>
+              </div>
+            )}
+          </section>
+        </>
+      )}
     </section>
   );
 }

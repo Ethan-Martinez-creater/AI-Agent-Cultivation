@@ -135,7 +135,6 @@ export function SkillsPage() {
               maxLength={100}
               value={form.name}
               onChange={(event) => updateForm({ name: event.target.value })}
-              placeholder="例如：代码审查习惯"
             />
           </label>
           <label className="field">
@@ -144,7 +143,6 @@ export function SkillsPage() {
               maxLength={500}
               value={form.description}
               onChange={(event) => updateForm({ description: event.target.value })}
-              placeholder="Skill 的用途"
             />
           </label>
           <label className="field">
@@ -155,7 +153,6 @@ export function SkillsPage() {
               maxLength={400}
               value={form.tagsText}
               onChange={(event) => updateForm({ tagsText: event.target.value })}
-              placeholder="coding, review"
             />
           </label>
           <label className="field">
@@ -166,7 +163,6 @@ export function SkillsPage() {
               maxLength={12000}
               value={form.instructions}
               onChange={(event) => updateForm({ instructions: event.target.value })}
-              placeholder="描述道友在指定任务中应遵循的做法"
             />
           </label>
           <p className="form-hint">此处文本作为提示内容使用，不会被当作脚本或命令执行。</p>

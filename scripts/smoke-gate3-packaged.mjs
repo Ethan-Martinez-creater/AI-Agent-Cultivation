@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { mkdirSync } from 'node:fs';
@@ -297,8 +298,9 @@ try {
     assert.ok(detail.events.length > 0);
     assert.ok(detail.audits.length > 0);
   }
-  await second.page.getByRole('link', { name: '历练 Missions' }).click();
+  await navigateUi(second.page, '历练 Missions');
   await second.page.getByRole('heading', { name: '历练 Missions' }).waitFor();
+  await second.page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await second.page.getByRole('button', { name: /SOLO A/ }).click();
   await second.page.getByRole('heading', { name: '执行 Timeline' }).waitFor();
   await second.page.getByText('run.completed', { exact: true }).waitFor();

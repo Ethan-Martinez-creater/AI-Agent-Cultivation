@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import {
   existsSync,
@@ -162,7 +163,7 @@ try {
     'file.writeText',
   ]);
 
-  await first.page.getByRole('link', { name: '法宝 Tools' }).click();
+  await navigateUi(first.page, '法宝 Tools');
   await first.page.getByRole('heading', { name: '法宝 Tools' }).waitFor();
   await first.page.getByRole('heading', { name: '文件工作区' }).waitFor();
   await first.page.getByRole('button', { name: '选择工作区' }).waitFor();
@@ -389,10 +390,11 @@ try {
   assert.equal(discovered.status, 'READY');
   assert.ok(discovered.tools.some((tool) => tool.id === `${serverId}:echo`));
   assert.ok(discovered.tools.some((tool) => tool.id === `${serverId}:env`));
-  await first.page.getByRole('link', { name: '洞府 Home' }).click();
+  await navigateUi(first.page, '洞府 Home');
   await first.page.getByRole('heading', { name: '洞府 Home' }).waitFor();
-  await first.page.getByRole('link', { name: '法宝 Tools' }).click();
+  await navigateUi(first.page, '法宝 Tools');
   await first.page.getByRole('heading', { name: '法宝 Tools' }).waitFor();
+  await first.page.locator('.mcp-disclosure > summary').click();
   await first.page.getByText(server.name).waitFor();
   await first.page.getByRole('button', { name: '连接并发现工具' }).click();
   await first.page.getByText(/已连接 · \d+ 个工具/).waitFor();
@@ -500,11 +502,17 @@ try {
   assertMissionAttribution(restartResolved, fixture.teammateId, fixture.runtimeId);
   assert.equal(existsSync(join(workspaceRoot, 'denied.txt')), false);
 
-  await second.page.getByRole('link', { name: '历练 Missions' }).click();
+  await navigateUi(second.page, '历练 Missions');
   await second.page.getByRole('heading', { name: '历练 Missions' }).waitFor();
+  await second.page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await second.page.getByRole('button', { name: /GATE4 MCP echo/ }).click();
   await second.page.getByRole('heading', { name: '执行 Timeline' }).waitFor();
-  await second.page.getByText('tool.result', { exact: true }).first().waitFor();
+  await second.page
+    .locator('section.mission-section')
+    .filter({ has: second.page.getByRole('heading', { name: '执行 Timeline' }) })
+    .getByText('tool.result', { exact: true })
+    .first()
+    .waitFor();
 } finally {
   await second.app.close();
 }

@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { mkdirSync } from 'node:fs';
@@ -101,13 +102,15 @@ try {
     teammateId,
   );
 
-  await page.getByRole('link', { name: '设置 Settings' }).click();
+  await navigateUi(page, '设置 Settings');
   await page.getByRole('heading', { name: '设置 Settings' }).waitFor();
-  await page.getByRole('tab', { name: 'Jev Shadow（高级）' }).click();
+  await page.getByRole('tab', { name: 'Jev Shadow' }).click();
+  await page.locator('.shadow-diagnostics > summary').click();
   await page.getByText('Jev Shadow Decision Plane').waitFor();
+  await page.locator('.shadow-privacy > summary').click();
   const privacy = page.getByRole('note', { name: 'Cloud Shadow 隐私说明' });
   assert.match(await privacy.innerText(), /Benchmark 能力档位/);
-  assert.match(await privacy.innerText(), /不发送 Credential／API Key/);
+  assert.match(await privacy.innerText(), /不发送 Credential 或 API Key/);
 
   const db = new Database(join(userData, 'data', 'cultivation.sqlite'), { readonly: true });
   try {

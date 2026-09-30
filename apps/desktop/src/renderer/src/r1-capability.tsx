@@ -402,9 +402,7 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
         <>
           <div className="teammate-benchmark-rows">
             {profile.dimensions.map((item) => {
-              const benchmarkScore = item.prior?.supported
-                ? item.prior.normalizedScore
-                : null;
+              const benchmarkScore = item.prior?.supported ? item.prior.normalizedScore : null;
               const scoreLabel =
                 typeof benchmarkScore === 'number' ? String(Math.round(benchmarkScore)) : null;
               const statusLabel = item.prior && !item.prior.supported ? '不支持' : '未配置';
@@ -427,19 +425,23 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
           <details className="teammate-benchmark-advanced">
             <summary>高级信息 · Benchmark 来源</summary>
             <dl>
-              {profile.dimensions.filter((item) => item.prior).map((item) => (
-                <div key={item.dimension}>
-                  <dt>{labelDimension(item.dimension)}</dt>
-                  <dd>
-                    {item.prior?.source} · {item.prior?.benchmark} · v
-                    {item.prior?.benchmarkVersion} · {item.prior?.snapshotDate.slice(0, 10)} ·{' '}
-                    {item.prior?.provenanceType}
-                  </dd>
-                  {item.prior?.sourceUrl && (
-                    <dd><code>{item.prior.sourceUrl}</code></dd>
-                  )}
-                </div>
-              ))}
+              {profile.dimensions
+                .filter((item) => item.prior)
+                .map((item) => (
+                  <div key={item.dimension}>
+                    <dt>{labelDimension(item.dimension)}</dt>
+                    <dd>
+                      {item.prior?.source} · {item.prior?.benchmark} · v
+                      {item.prior?.benchmarkVersion} · {item.prior?.snapshotDate.slice(0, 10)} ·{' '}
+                      {item.prior?.provenanceType}
+                    </dd>
+                    {item.prior?.sourceUrl && (
+                      <dd>
+                        <code>{item.prior.sourceUrl}</code>
+                      </dd>
+                    )}
+                  </div>
+                ))}
               {!profile.dimensions.some((item) => item.prior) && (
                 <div>
                   <dt>来源</dt>

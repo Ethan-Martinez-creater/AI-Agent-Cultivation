@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -97,7 +98,8 @@ try {
   assert.equal(facts.runtimeModelId, 'r1-benchmark-model');
   assert.equal(facts.missionState, 'COMPLETED');
   assert.equal(facts.ratingApisRemoved, true);
-  await page.getByRole('link', { name: '历练 Missions' }).click();
+  await navigateUi(page, '历练 Missions');
+  await page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await page.getByRole('button', { name: /R1 benchmark-only completion/ }).click();
   assert.equal(await page.getByText('本次历练评价 · 可跳过').count(), 0);
   const row = (dimension) => facts.profile.dimensions.find((item) => item.dimension === dimension);

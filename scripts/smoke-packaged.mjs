@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { existsSync, mkdirSync } from 'node:fs';
@@ -36,7 +37,7 @@ try {
     ['灵石 Usage', '灵石 Usage'],
     ['设置 Settings', '设置 Settings'],
   ]) {
-    await page.getByRole('link', { name: link }).click();
+    await navigateUi(page, link);
     await page.getByRole('heading', { name: heading }).waitFor();
   }
   const ping = await page.evaluate(() => window.cultivation.health.ping());
@@ -735,3 +736,4 @@ await import('./r2-packaged-smoke.mjs');
 await import('./r3-packaged-smoke.mjs');
 await import('./r3-1-crash-packaged-smoke.mjs');
 await import('./r3-2-packaged-smoke.mjs');
+await import('./r3-3-ui-packaged-smoke.mjs');

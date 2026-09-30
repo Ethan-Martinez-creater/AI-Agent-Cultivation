@@ -2,13 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
 import { errorText, makeId, PageHeading, formatDate, formatTime } from '../ui-shared.js';
-import type { TeammateView, ConversationView, MessageView } from '../ui-shared.js';
+import type {
+  TeammateView,
+  ConversationView,
+  MessageView,
+  RuntimeProfileView,
+} from '../ui-shared.js';
 
 export function ChatPage() {
   const [availabilityRefresh, setAvailabilityRefresh] = useState(0);
   const [modelUnavailable, setModelUnavailable] = useState(false);
   const { teammateId = '' } = useParams();
   const [teammate, setTeammate] = useState<TeammateView | null>(null);
+  const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
   const [conversations, setConversations] = useState<ConversationView[]>([]);
   const [conversationId, setConversationId] = useState('');
   const [messages, setMessages] = useState<MessageView[]>([]);
@@ -57,11 +63,13 @@ export function ChatPage() {
     void Promise.all([
       window.cultivation.teammates.list(),
       window.cultivation.chat.listConversations(teammateId),
+      window.cultivation.runtimes.list(),
     ])
-      .then(([teammates, rows]) => {
+      .then(([teammates, rows, runtimeRows]) => {
         if (cancelled) return;
         const found = teammates.find((item) => item.id === teammateId) ?? null;
         setTeammate(found);
+        setRuntimes(runtimeRows);
         setConversations(rows);
         const initialConversationId = rows[0]?.id ?? '';
         setConversationId(initialConversationId);
@@ -232,6 +240,7 @@ export function ChatPage() {
           title="找不到道友"
           description="此道友可能已删除或 ID 不存在。"
         />
+        <p role="alert">道友不存在或当前无法读取，请返回列表重试。</p>
         <button className="button secondary" onClick={() => navigate('/teammates')}>
           返回道友列表
         </button>
@@ -240,7 +249,8 @@ export function ChatPage() {
   }
   const runtimeBadge =
     teammate && teammate.currentRuntimeProfileId
-      ? `Runtime ${teammate.currentRuntimeProfileId.slice(0, 8)}`
+      ? (runtimes.find((item) => item.id === teammate.currentRuntimeProfileId)?.modelId ??
+        '模型不可读取')
       : '尚未配置 Runtime';
   return (
     <section className="page wide-page chat-page">
@@ -259,9 +269,7 @@ export function ChatPage() {
           </span>
           <div className="chat-context-copy">
             <strong>{teammate.name}</strong>
-            <small>
-              {runtimeBadge} · ID {teammate.id.slice(0, 12)}
-            </small>
+            <small>{runtimeBadge}</small>
           </div>
           {teammate.status === 'ARCHIVED' && <span className="status-pill archived">已归档</span>}
           {teammate.executorKind !== 'USER_BRIDGE' && (
@@ -394,7 +402,9 @@ export function ChatPage() {
             </div>
           )}
           <form className="composer" onSubmit={(event) => void send(event)}>
+            <label htmlFor="chat-message">消息</label>
             <textarea
+              id="chat-message"
               rows={3}
               value={draft}
               disabled={!conversationId || !teammate || teammate.status !== 'ACTIVE' || streaming}
@@ -405,19 +415,9 @@ export function ChatPage() {
                   event.currentTarget.form?.requestSubmit();
                 }
               }}
-              placeholder={
-                teammate?.status === 'ARCHIVED'
-                  ? '已归档道友无法发送消息'
-                  : conversationId
-                    ? '输入消息…（Enter 发送，Shift+Enter 换行）'
-                    : '先创建一个 Conversation'
-              }
             />
             <div className="composer-footer">
-              <span>
-                由 Main Process 调用模型 ·{' '}
-                {streaming ? '正在接收流式回复' : '消息仅属于当前道友 Conversation'}
-              </span>
+              <span>{streaming ? '正在接收回复…' : 'Enter 发送 · Shift+Enter 换行'}</span>
               <button
                 className="button primary send-button"
                 disabled={

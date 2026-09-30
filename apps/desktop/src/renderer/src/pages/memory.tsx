@@ -288,7 +288,6 @@ export function MemoryPage() {
               <div>
                 <p className="eyebrow">MANUAL MEMORY</p>
                 <h2>添加已确认记忆</h2>
-                <p className="muted-copy">手动输入的内容保存到当前道友，不会分享给其他道友。</p>
               </div>
             </div>
             <div className="memory-form-grid">
@@ -323,7 +322,6 @@ export function MemoryPage() {
                   maxLength={240}
                   value={form.summary}
                   onChange={(event) => updateForm({ summary: event.target.value })}
-                  placeholder="用于快速识别这条记忆"
                 />
               </label>
             </div>
@@ -335,7 +333,6 @@ export function MemoryPage() {
                 maxLength={8000}
                 value={form.content}
                 onChange={(event) => updateForm({ content: event.target.value })}
-                placeholder="写下希望这位道友在后续对话中记住的内容"
               />
             </label>
             <button className="button primary" disabled={busyId === 'create'}>
@@ -345,7 +342,6 @@ export function MemoryPage() {
           <div className="section-heading">
             <div>
               <h2>记忆记录</h2>
-              <p>PROPOSED 候选只在你接受后才会参与检索。</p>
             </div>
             <span className="count-badge">{memories.length}</span>
           </div>

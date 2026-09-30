@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -152,9 +153,9 @@ try {
     };
   }, nonce);
 
-  await page.getByRole('link', { name: '队伍 Parties' }).click();
+  await navigateUi(page, '队伍 Parties');
   await page.getByRole('heading', { name: '队伍 Parties' }).waitFor();
-  await page.getByText(fixture.partyName, { exact: true }).waitFor();
+  await page.locator('.party-summary-button').filter({ hasText: fixture.partyName }).waitFor();
 
   const startConsultation = async (title) => {
     const mission = await page.evaluate(
@@ -358,8 +359,9 @@ try {
     );
   }
 
-  await page.getByRole('link', { name: '历练 Missions' }).click();
+  await navigateUi(page, '历练 Missions');
   await page.getByRole('heading', { name: '历练 Missions' }).waitFor();
+  await page.locator('.mission-filter-tabs').getByRole('tab', { name: /全部/ }).click();
   await page
     .getByRole('button', { name: new RegExp(`Gate 5 collaboration approved ${nonce}`) })
     .click();

@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { HashRouter, Navigate, NavLink, Route, Routes, useNavigate } from 'react-router-dom';
+import {
+  HashRouter,
+  Link,
+  Navigate,
+  NavLink,
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { HumanBridgePage } from './r2-human-bridge.js';
 import { HomePage } from './pages/home.js';
 import { ToolsPage } from './pages/tools.js';
@@ -15,20 +24,49 @@ import { UsagePage } from './pages/usage.js';
 import './style.css';
 
 const pages = [
-  ['/', '洞府 Home', '你的本地工作台。管理长期道友并继续上次的对话。'],
-  ['/teammates', '道友 Teammates', '创建道友身份，选择运行配置并开启持续对话。'],
-  ['/parties', '队伍 Parties', '管理固定与临时队伍，指定协调道友和成员。'],
-  ['/missions', '历练 Missions', '以独立 Mission Run 跟踪目标、审批与执行事件。'],
-  ['/external-work', '本尊待办 Human Bridge', '处理等待你在外部应用完成的 Mission 工作。'],
-  ['/skills', '功法 Skills', '为道友编写可复用的声明式指引。'],
-  ['/tools', '法宝 Tools', '设置文件工作区并管理内置工具与手动配置的 MCP stdio Server。'],
-  ['/memory', '记忆 Memory', '查看、确认并管理专属于道友的长期记忆。'],
-  ['/usage', '灵石 Usage', '按道友和运行配置查看模型调用用量。'],
-  ['/settings', '设置 Settings', '管理服务商、凭据和运行配置。'],
+  ['/', '首页'],
+  ['/teammates', '道友'],
+  ['/parties', '队伍'],
+  ['/missions', '历练'],
+  ['/memory', '记忆'],
+  ['/settings', '设置'],
 ] as const;
+
+function NavigationIcon({ index }: { index: number }) {
+  const paths = [
+    'M3 10 12 3l9 7v11h-6v-7H9v7H3Z',
+    'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M20 21v-2a4 4 0 0 0-3-3.87M16 3a4 4 0 0 1 0 8',
+    'M3 21v-2a4 4 0 0 1 4-4h3a4 4 0 0 1 4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M16 12h6M19 9v6M17 18h5v3',
+    'm3 21 6-12 4 5 3-10 6 17ZM15 3h5l-2 4',
+    'M12 5C8 2 5 2 2 3v17c4-1 7-1 10 1 3-2 6-2 10-1V3c-3-1-6-1-10 2v16',
+    'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8M9 2h6l1 4 4 1 2 5-3 3-1 4-6 3-3-3-4-1-3-6 3-3 1-4Z',
+  ];
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d={paths[index]} />
+    </svg>
+  );
+}
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
+  const activePath = location.pathname.startsWith('/chat')
+    ? '/teammates'
+    : location.pathname === '/external-work'
+      ? '/missions'
+      : ['/tools', '/skills', '/usage'].includes(location.pathname)
+        ? '/settings'
+        : location.pathname;
   const [version, setVersion] = useState('…');
   const [health, setHealth] = useState('检查中');
   const [bridgeReady, setBridgeReady] = useState(true);
@@ -51,34 +89,59 @@ function App() {
       .catch(() => setHealth('数据库异常'));
   }, []);
   return (
-    <div className="layout">
+    <div className={`layout ${collapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">修</span>
+          <span className="brand-mark" aria-hidden="true">
+            A
+          </span>
           <div>
             <strong>AI Agent Cultivation</strong>
-            <small>长期 AI 队友</small>
+            <small>Windows V1 Alpha</small>
           </div>
         </div>
         <nav aria-label="主导航">
-          {pages.map(([path, label]) => (
+          {pages.map(([path, label], index) => (
             <NavLink
               key={path}
               to={path}
               end={path === '/'}
-              className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+              aria-label={label}
+              title={collapsed ? label : undefined}
+              className={activePath === path ? 'nav-link active' : 'nav-link'}
             >
-              {label}
+              <NavigationIcon index={index} />
+              <span className="nav-label">{label}</span>
             </NavLink>
           ))}
         </nav>
         <div className="sidebar-footer">
-          <span className={health === '本地数据库正常' ? 'status-dot' : 'status-dot muted'} />
-          {health}
-          <small>v{version}</small>
+          <button
+            type="button"
+            className="sidebar-toggle"
+            aria-label={collapsed ? '展开导航' : '折叠导航'}
+            aria-expanded={!collapsed}
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? '›' : '‹'}
+            <span>{collapsed ? '' : '收起导航'}</span>
+          </button>
+          <div className="sidebar-health">
+            <span className={health === '本地数据库正常' ? 'status-dot' : 'status-dot muted'} />
+            {health}
+            <small>v{version}</small>
+          </div>
         </div>
       </aside>
       <main>
+        {['/skills', '/tools', '/usage'].includes(location.pathname) && (
+          <nav className="settings-links advanced-page-navigation" aria-label="设置导航">
+            <Link to="/settings">设置 Settings</Link>
+            <Link to="/skills">功法 Skills</Link>
+            <Link to="/tools">法宝 Tools</Link>
+            <Link to="/usage">灵石 Usage</Link>
+          </nav>
+        )}
         {!bridgeReady && (
           <div className="notice error" role="status">
             Main Process 功能接口尚未连接。请重新启动应用后重试。

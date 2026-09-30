@@ -1,3 +1,4 @@
+import { navigateUi } from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -117,7 +118,7 @@ try {
   assert.equal(result.completed.mission.state, 'COMPLETED');
   assert.equal(result.states.find((r) => r.teammateId === result.b.id).status, 'AVAILABLE');
   assert.ok(!result.states.some((r) => r.teammateId === result.bridge.teammate.id));
-  await page.getByRole('link', { name: '道友 Teammates' }).click();
+  await navigateUi(page, '道友 Teammates');
   await page.getByText('Availability A', { exact: true }).first().click();
   await page.locator('[data-availability="AVAILABLE"]').first().waitFor();
 } finally {
