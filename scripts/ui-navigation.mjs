@@ -11,9 +11,9 @@ export async function navigateUi(page, destination) {
   const settingsLinks = {
     '工具与 MCP': '工具与 MCP',
     '法宝 Tools': '工具与 MCP',
-    '功法管理': '功法管理',
+    功法管理: '功法管理',
     '功法 Skills': '功法管理',
-    '用量记录': '用量记录',
+    用量记录: '用量记录',
     '灵石 Usage': '用量记录',
     本尊待办: '本尊待办',
     '本尊待办 Human Bridge': '本尊待办',
