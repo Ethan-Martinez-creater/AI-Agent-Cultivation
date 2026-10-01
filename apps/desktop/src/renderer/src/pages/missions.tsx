@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
 import { Avatar } from '../components/Avatar.js';
 import { EmptyState } from '../components/EmptyState.js';
@@ -665,6 +665,12 @@ export function MissionPage() {
         title="历练"
         description="查看进行中的任务、待处理事项与过往结果。"
       />
+      <nav className="workflow-hub-switch" aria-label="历练类型">
+        <Link to="/missions" aria-current="page" className="active">
+          自由历练
+        </Link>
+        <Link to="/workflows">工作流历练</Link>
+      </nav>
       {error && (
         <div className="notice error" role="alert">
           {error}

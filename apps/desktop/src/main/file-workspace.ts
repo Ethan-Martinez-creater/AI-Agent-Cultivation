@@ -11,6 +11,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const MAX_TEXT_BYTES = 64 * 1024;
 
@@ -80,7 +81,14 @@ export class FileWorkspace {
   async inspectArtifact(
     relativePath: string,
     maxBytes: number,
-  ): Promise<{ path: string; fileName: string; extension: string; sizeBytes: number }> {
+    includeHash = false,
+  ): Promise<{
+    path: string;
+    fileName: string;
+    extension: string;
+    sizeBytes: number;
+    contentHash?: string;
+  }> {
     const target = this.resolveRelative(relativePath);
     await this.verifyPath(target, false);
     const flags = fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0);
@@ -103,11 +111,42 @@ export class FileWorkspace {
       if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
         throw new FileWorkspaceError('FILE_WORKSPACE_PATH_ESCAPE', 'Path escapes the workspace');
       }
+      let contentHash: string | undefined;
+      if (includeHash) {
+        const hash = createHash('sha256');
+        const buffer = Buffer.alloc(64 * 1024);
+        let total = 0;
+        for (;;) {
+          const { bytesRead } = await this.withIo(() =>
+            handle.read(buffer, 0, buffer.length, total),
+          );
+          if (bytesRead === 0) break;
+          total += bytesRead;
+          if (total > maxBytes)
+            throw new FileWorkspaceError(
+              'FILE_WORKSPACE_TOO_LARGE',
+              'Artifact exceeds its size limit',
+            );
+          hash.update(buffer.subarray(0, bytesRead));
+        }
+        const after = await this.withIo(() => handle.stat());
+        const current = await this.withIo(() => lstat(target));
+        await this.verifyPath(target, false);
+        if (
+          total !== info.size ||
+          after.size !== info.size ||
+          after.mtimeMs !== info.mtimeMs ||
+          !this.sameFile(after, current)
+        )
+          throw new FileWorkspaceError('FILE_WORKSPACE_IO', 'Artifact changed during validation');
+        contentHash = hash.digest('hex');
+      }
       return {
         path: relative,
         fileName: path.basename(canonical),
         extension: path.extname(canonical).toLowerCase(),
         sizeBytes: info.size,
+        ...(contentHash ? { contentHash } : {}),
       };
     } finally {
       await this.withIo(() => handle.close());

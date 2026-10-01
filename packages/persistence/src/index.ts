@@ -18,6 +18,7 @@ import r3DecisionPlaneSql from '../../../migrations/0013_r3_decision_plane.sql?r
 import r3_1IdentityCapabilitySql from '../../../migrations/0014_r3_1_identity_capability.sql?raw';
 import r3_2AvailabilitySql from '../../../migrations/0015_r3_2_availability.sql?raw';
 import r4RoutingSql from '../../../migrations/0016_r4_controlled_routing.sql?raw';
+import w1WorkflowFoundationSql from '../../../migrations/0017_w1_workflow_foundation.sql?raw';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
 
@@ -30,6 +31,7 @@ export {
 export { R2ContinuationRepository } from './r2-continuation.js';
 export { R4RoutingRepository } from './r4-routing.js';
 export type { RoutingMissionAssignmentRecord, RoutingHumanBridgeDraft } from './r4-routing.js';
+export { W1WorkflowRepository } from './w1-workflow.js';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
 export type { MemorySearchResult } from './gate2.js';
@@ -96,6 +98,7 @@ export const migrations: readonly Migration[] = [
   { version: 14, name: 'r3_1_identity_capability', sql: r3_1IdentityCapabilitySql },
   { version: 15, name: 'r3_2_availability', sql: r3_2AvailabilitySql },
   { version: 16, name: 'r4_controlled_routing', sql: r4RoutingSql },
+  { version: 17, name: 'w1_workflow_foundation', sql: w1WorkflowFoundationSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

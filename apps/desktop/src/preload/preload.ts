@@ -37,6 +37,9 @@ import type {
   ModelAvailabilityProjection,
   RoutingTaskContext,
   RoutingDecisionReceipt,
+  WorkflowDetail,
+  WorkflowRun,
+  WorkflowVersion,
 } from '@cultivation/domain';
 import type { RoutingMissionCreationResult } from '@cultivation/application';
 import type { AvailabilityService } from '@cultivation/application';
@@ -377,6 +380,18 @@ export interface CultivationBridge {
       };
     }): Promise<MissionDetail>;
   };
+  workflows: {
+    versions(): Promise<WorkflowVersion[]>;
+    list(): Promise<WorkflowRun[]>;
+    detail(id: string): Promise<WorkflowDetail>;
+    create(input: { definitionId: string; version: number }): Promise<WorkflowDetail>;
+    advance(id: string): Promise<WorkflowDetail>;
+    retryMission(id: string): Promise<WorkflowDetail>;
+    retryStep(id: string): Promise<WorkflowDetail>;
+    pause(id: string): Promise<WorkflowDetail>;
+    resume(id: string): Promise<WorkflowDetail>;
+    cancel(id: string): Promise<WorkflowDetail>;
+  };
   parties: {
     list(): Promise<PartyView[]>;
     create(input: {
@@ -570,6 +585,18 @@ const bridge: CultivationBridge = {
     cancel: (id) => ipcRenderer.invoke('missions:cancel', id),
     resolveApproval: (input) => ipcRenderer.invoke('missions:resolveApproval', input),
     resolveCollaboration: (input) => ipcRenderer.invoke('missions:resolveCollaboration', input),
+  },
+  workflows: {
+    versions: () => ipcRenderer.invoke('workflows:versions'),
+    list: () => ipcRenderer.invoke('workflows:list'),
+    detail: (id) => ipcRenderer.invoke('workflows:detail', id),
+    create: (input) => ipcRenderer.invoke('workflows:create', input),
+    advance: (id) => ipcRenderer.invoke('workflows:advance', id),
+    retryMission: (id) => ipcRenderer.invoke('workflows:retryMission', id),
+    retryStep: (id) => ipcRenderer.invoke('workflows:retryStep', id),
+    pause: (id) => ipcRenderer.invoke('workflows:pause', id),
+    resume: (id) => ipcRenderer.invoke('workflows:resume', id),
+    cancel: (id) => ipcRenderer.invoke('workflows:cancel', id),
   },
   parties: {
     list: () => ipcRenderer.invoke('parties:list'),

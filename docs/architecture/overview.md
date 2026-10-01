@@ -1,4 +1,8 @@
-# Windows Alpha / R4 架构总览
+# Windows Alpha / W1 架构总览
+
+## W1 Workflow Foundation
+
+Workflow 只管理冻结 Definition version、顺序 Step、Artifact 交接、声明分支和恢复。TASK/REVIEW 经通用 R4 context 创建原 Mission；Step→Mission 与创建事务原子绑定。DECISION 读取已验证的结构化事实，不调用模型或修改 graph。完成必须验证原 Mission terminal、required output、exit 与 checkpoint；未知执行结果等待用户，不能自动重放。详情见 [W1 状态](../status/w1-workflow-foundation.md)。
 
 ```text
 React Renderer --方法级 typed IPC--> Preload --> Electron Main
@@ -26,7 +30,7 @@ Memory 检索首先在 SQL 中按 `owner_type + owner_id + status` 缩小到当�
 
 ## R4 受控路由
 
-`RoutingTaskContext → RoutingPlanner → TaskExecutionAssignment` 不依赖 Mission；上下文可带 bounded artifact metadata、output contract 和 opaque execution context。单独的 `RoutingMissionService` 将 assignment 适配为原有 SOLO 或 AD_HOC Party Mission，复用既有状态机、Permission/Approval、工具、安全 transcript 与协作深度限制。没有 Workflow domain、table 或执行器。
+`RoutingTaskContext → RoutingPlanner → TaskExecutionAssignment` 不依赖 Mission；上下文可带 bounded artifact metadata、output contract 和 opaque execution context。单独的 `RoutingMissionService` 将 assignment 适配为原有 SOLO 或 AD_HOC Party Mission，复用既有状态机、Permission/Approval、工具、安全 transcript 与协作深度限制。W1 从外层复用 R4，不在路由层引入 Workflow 执行器。
 
 Jev 任务需求经 schema/confidence 校验；代码使用共享 Eligibility 和有效 Benchmark prior 过滤、排序，再把 Top-4 的 bounded 公共摘要交给 Jev。语义加分最多 8，UNSTABLE 罚分 10，均不修改 Benchmark。按排序顺序仅复探准备使用的模型，绝不并发批量探测全队。显式选择失败返回 USER_ACTION_REQUIRED。无满足硬能力要求的可用模型且本尊启用了全部必要能力时，复用 ExternalWork 交付；SOLO 本尊验收以同 Run 的幂等 continuation 完成，不产生模型调用或伪造模型 Usage。
 

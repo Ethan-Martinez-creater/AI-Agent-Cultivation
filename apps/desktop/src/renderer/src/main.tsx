@@ -14,6 +14,7 @@ import { HomePage } from './pages/home.js';
 import { ToolsPage } from './pages/tools.js';
 import { PartiesPage } from './pages/parties.js';
 import { MissionPage } from './pages/missions.js';
+import { WorkflowsPage } from './pages/workflows.js';
 import { SettingsPage } from './pages/settings.js';
 import { TeammatesPage } from './pages/teammates.js';
 import { ChatPage } from './pages/chat.js';
@@ -32,7 +33,7 @@ function App() {
   const [collapsed, setCollapsed] = useState(false);
   const activePath = location.pathname.startsWith('/chat')
     ? '/teammates'
-    : location.pathname === '/external-work'
+    : ['/external-work', '/workflows'].includes(location.pathname)
       ? '/missions'
       : ['/tools', '/skills', '/usage'].includes(location.pathname)
         ? '/settings'
@@ -103,6 +104,7 @@ function App() {
             <Route path="/usage" element={<UsagePage />} />
             <Route path="/parties" element={<PartiesPage />} />
             <Route path="/missions" element={<MissionPage />} />
+            <Route path="/workflows" element={<WorkflowsPage />} />
             <Route
               path="/external-work"
               element={<HumanBridgePage api={window.cultivation.r2} />}

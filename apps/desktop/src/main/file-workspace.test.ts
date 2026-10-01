@@ -1,9 +1,22 @@
 import { mkdir, mkdtemp, readFile, rmdir, symlink, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { FileWorkspace, FileWorkspaceError } from './file-workspace.js';
 
 const testDataRoot = path.join(process.cwd(), '.test-data');
+it('hashes a verified W1 file snapshot without changing the legacy inspection response', async () => {
+  const content = 'bounded verified artifact';
+  await createFile(path.join(workspaceRoot, 'result.txt'), content);
+  const workspace = await FileWorkspace.open(workspaceRoot);
+  expect(await workspace.inspectArtifact('result.txt', 1000)).not.toHaveProperty('contentHash');
+  expect((await workspace.inspectArtifact('result.txt', 1000, true)).contentHash).toBe(
+    createHash('sha256').update(content).digest('hex'),
+  );
+  await expect(workspace.inspectArtifact('result.txt', 1, true)).rejects.toMatchObject({
+    code: 'FILE_WORKSPACE_TOO_LARGE',
+  });
+});
 let testRoot = '';
 let workspaceRoot = '';
 let outsideRoot = '';

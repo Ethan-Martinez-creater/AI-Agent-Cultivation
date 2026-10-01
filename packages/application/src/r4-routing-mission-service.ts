@@ -41,10 +41,15 @@ export class RoutingMissionService {
     private readonly parties: Gate5PartyService,
     private readonly hasWorkspace: () => boolean,
   ) {}
-  async createMission(input: {
-    title: string;
-    context: RoutingTaskContext;
-  }): Promise<RoutingMissionCreationResult> {
+  async createMission(
+    input: {
+      title: string;
+      context: RoutingTaskContext;
+      /** Main-only bounded execution context. Never sent to Jev or persisted in routing receipts. */
+      executionObjective?: string;
+    },
+    onCreated?: (mission: Mission) => void,
+  ): Promise<RoutingMissionCreationResult> {
     const plan = await this.planner.plan(input.context);
     if (plan.status !== 'ASSIGNED') return plan;
     if (plan.assignment.kind === 'HUMAN_BRIDGE' && !this.hasWorkspace()) {
@@ -65,13 +70,13 @@ export class RoutingMissionService {
       if (assignment.kind === 'HUMAN_BRIDGE') {
         created = this.solo.createHumanBridgeMission({
           title: input.title,
-          objective: input.context.objective,
+          objective: input.executionObjective ?? input.context.objective,
           coordinatorTeammateId: assignment.coordinatorTeammateId,
         });
       } else if (assignment.kind === 'SOLO') {
         created = this.solo.create({
           title: input.title,
-          objective: input.context.objective,
+          objective: input.executionObjective ?? input.context.objective,
           coordinatorTeammateId: assignment.coordinatorTeammateId,
         });
       } else {
@@ -86,7 +91,7 @@ export class RoutingMissionService {
           }).id;
         created = this.partyMissions.create({
           title: input.title,
-          objective: input.context.objective,
+          objective: input.executionObjective ?? input.context.objective,
           mode: assignment.mode as 'CONSULTATION' | 'REVIEW' | 'DELEGATION',
           partyId,
         });
@@ -131,6 +136,8 @@ export class RoutingMissionService {
         payloadJson: payload,
         createdAt: at,
       });
+      // A Workflow Step binding shares this transaction; callback failure rolls back the Mission.
+      onCreated?.(created);
       return created;
     });
     return { status: 'CREATED', mission, receipt: plan.receipt };

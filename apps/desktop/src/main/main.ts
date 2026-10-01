@@ -18,6 +18,7 @@ import {
   R3SqliteRepository,
   R32AvailabilityRepository,
   R4RoutingRepository,
+  W1WorkflowRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -38,6 +39,8 @@ import {
   RoutingPlanner,
   RoutingMissionService,
   R4DecisionService,
+  WorkflowService,
+  workflowArtifactContext,
 } from '@cultivation/application';
 import type {
   EmbeddingGateway,
@@ -76,6 +79,9 @@ import { registerDesktopIpc } from './desktop-ipc.js';
 import { registerRoutingIpc } from './r4-ipc.js';
 import { buildR3ShadowCandidates } from './r3-candidate-context.js';
 import { routingFixtureGateway } from './r4-fixture-decision.js';
+import { WorkflowMissionAdapter } from './w1-mission-adapter.js';
+import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.js';
+import { registerWorkflowIpc } from './w1-ipc.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -113,6 +119,7 @@ function createWindow(
   availability: AvailabilityService,
   routing: RoutingMissionService,
   routingStore: R4RoutingRepository,
+  workflows: WorkflowService,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -243,6 +250,7 @@ function createWindow(
   registerRoutingIpc(validSender, routing, routingStore, r3Config, (mission) =>
     r3Observer.observeMission(mission),
   );
+  registerWorkflowIpc(validSender, workflows);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -352,7 +360,9 @@ if (!squirrelStartup)
       });
       const rawGateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
         process.argv.includes('--gate1-fake-model')
-          ? new FakeModelGateway()
+          ? process.argv.includes('--w1-fake-workflow')
+            ? new WorkflowFixtureGateway()
+            : new FakeModelGateway()
           : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
       const availability = new AvailabilityService(
         new R32AvailabilityRepository(db),
@@ -592,6 +602,9 @@ if (!squirrelStartup)
         parties,
         () => Boolean(tools.getWorkspace().rootPath),
       );
+      const workflowStore = new W1WorkflowRepository(db);
+      missions.attachArtifactContext((id) => workflowArtifactContext(workflowStore, id));
+      partyMissions.attachArtifactContext((id) => workflowArtifactContext(workflowStore, id));
       const pendingExternalWork = externalWork.listPendingContinuations();
       const protectedMissionIds = new Set(pendingExternalWork.map((item) => item.missionId));
       for (const continuation of pendingExternalWork) {
@@ -608,6 +621,32 @@ if (!squirrelStartup)
         await resumeExternalWork(continuation);
       }
       experience.reconcileAll();
+      const workflowMissions = new WorkflowMissionAdapter(
+        routing,
+        gate3Store,
+        missions,
+        partyMissions,
+        externalWork,
+        () => tools.getWorkspace().rootPath,
+      );
+      if (
+        process.argv.includes('--w1-fake-workflow') &&
+        process.argv.includes('--w1-stop-before-step-commit')
+      ) {
+        const collect = workflowMissions.collectOutputs.bind(workflowMissions);
+        workflowMissions.collectOutputs = async (id, root) => {
+          const snapshot = await collect(id, root);
+          await new Promise<void>(() => {});
+          return snapshot;
+        };
+      }
+      const workflows = new WorkflowService(workflowStore, workflowMissions);
+      if (
+        process.argv.includes('--w1-fake-workflow') &&
+        process.argv.includes('--gate1-fake-model')
+      )
+        registerWorkflowFixtures(workflows);
+      await workflows.recover();
       let activeWindow = createWindow(
         service,
         memoryService,
@@ -629,6 +668,7 @@ if (!squirrelStartup)
         availability,
         routing,
         routingStore,
+        workflows,
       );
       externalWork.subscribeCreated((created) => {
         try {
@@ -668,6 +708,7 @@ if (!squirrelStartup)
             availability,
             routing,
             routingStore,
+            workflows,
           );
       });
     })

@@ -13,6 +13,9 @@ import type {
   Teammate,
   ToolDescriptor,
 } from '@cultivation/domain';
+export * from './w1-workflow-ports.js';
+export * from './w1-workflow-service.js';
+export * from './w1-artifact-context.js';
 
 export { Gate6ExperienceService, buildCapabilityProfile } from './gate6-experience-service.js';
 export type { Gate6ExperienceSnapshot, Gate6ExperienceStore } from './gate6-experience-service.js';

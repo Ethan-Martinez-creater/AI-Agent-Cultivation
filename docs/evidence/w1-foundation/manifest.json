@@ -1,0 +1,162 @@
+{
+  "nonce": "a7511547-5ab6-4971-b3c1-d8439681bd36",
+  "userData": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w1-packaged-a7511547-5ab6-4971-b3c1-d8439681bd36",
+  "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w1-workspace-a7511547-5ab6-4971-b3c1-d8439681bd36",
+  "facts": {
+    "teammate": {
+      "id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+      "name": "W1 fixture executor",
+      "avatar": null,
+      "title": null,
+      "description": "",
+      "identityPrompt": "Return the declared bounded output.",
+      "behaviorPrompt": "",
+      "executorKind": "MODEL_RUNTIME",
+      "routingPolicy": "NORMAL",
+      "systemKind": null,
+      "status": "ACTIVE",
+      "realm": "QI_REFINING",
+      "currentRuntimeProfileId": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+      "createdAt": "2026-10-01T09:53:38.362Z",
+      "updatedAt": "2026-10-01T09:53:38.362Z"
+    },
+    "member": {
+      "id": "ad5f2016-6c2e-4295-912f-3df0cc855398",
+      "name": "W1 fixture member",
+      "avatar": null,
+      "title": null,
+      "description": "",
+      "identityPrompt": "Provide an independent bounded opinion.",
+      "behaviorPrompt": "",
+      "executorKind": "MODEL_RUNTIME",
+      "routingPolicy": "NORMAL",
+      "systemKind": null,
+      "status": "ACTIVE",
+      "realm": "QI_REFINING",
+      "currentRuntimeProfileId": "6a08bd5f-9d44-4f58-b723-fe5f5f831a4d",
+      "createdAt": "2026-10-01T09:53:38.378Z",
+      "updatedAt": "2026-10-01T09:53:38.378Z"
+    },
+    "sequenceId": "4cfa1c24-b65d-4aa1-8a1c-3237243934aa",
+    "sequenceMissions": [
+      "f5f18bd6-bbd8-46ca-b5ab-78066ad032d3",
+      "08bdb385-7ffd-4039-a8b8-a35ec3ad549c",
+      "73cd024c-acac-4e43-9e03-f794d442540d"
+    ],
+    "partyWorkflowId": "96186f9b-dca5-4ddf-8bdb-7281c47b3808",
+    "invalidId": "ebe4459d-0273-4c25-ab5a-21c22bad6e25",
+    "approvalId": "e25daec2-6174-492d-b1d1-6f3e9514c829",
+    "approvalMissionId": "6c16f347-7466-4531-ae81-2fa864298e3c",
+    "approvalRunId": "b6759713-d1c6-4a45-9500-e1d0030c72c2",
+    "externalId": "03f19c98-2691-401f-a85e-6032bc29e058",
+    "externalMissionId": "7c03e527-686b-494b-89d1-76096cd2c697",
+    "externalRunId": "b50a99b5-b959-43f1-b04f-3f6ec9fe80d0",
+    "requestId": "397dfc25-8600-4d09-8c72-9108af172c1f",
+    "initialCalls": 9,
+    "commitCrashId": "00b5406e-7efb-4d99-b0e0-e62bfdffc245",
+    "commitCrashMission": "76bb7243-0788-451a-aa67-05dcf7498ac4",
+    "executionCrashId": "0170c6a2-ed86-494f-b87e-c52d526ffc72",
+    "executionCrashMission": "0a7d06d1-3e7c-4547-bc2e-15ec146fd88e"
+  },
+  "durable": {
+    "migration": 17,
+    "foreignKeys": [],
+    "artifactCount": 11,
+    "checkpointCount": 11,
+    "usage": [
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "08bdb385-7ffd-4039-a8b8-a35ec3ad549c",
+        "run_id": "5dc6001f-bec9-42d5-a4b6-d03fc0a955b8"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "14c91440-aa07-4a67-a1e8-5243f29b85aa",
+        "run_id": "c62c4f67-048c-4ec2-b228-0c2bedae798f"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "14c91440-aa07-4a67-a1e8-5243f29b85aa",
+        "run_id": "c62c4f67-048c-4ec2-b228-0c2bedae798f"
+      },
+      {
+        "teammate_id": "ad5f2016-6c2e-4295-912f-3df0cc855398",
+        "runtime_profile_id": "6a08bd5f-9d44-4f58-b723-fe5f5f831a4d",
+        "mission_id": "14c91440-aa07-4a67-a1e8-5243f29b85aa",
+        "run_id": "c62c4f67-048c-4ec2-b228-0c2bedae798f"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "6c16f347-7466-4531-ae81-2fa864298e3c",
+        "run_id": "b6759713-d1c6-4a45-9500-e1d0030c72c2"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "6c16f347-7466-4531-ae81-2fa864298e3c",
+        "run_id": "b6759713-d1c6-4a45-9500-e1d0030c72c2"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "73cd024c-acac-4e43-9e03-f794d442540d",
+        "run_id": "3092ffe3-7d3b-45fd-a114-a668e131fdae"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "76bb7243-0788-451a-aa67-05dcf7498ac4",
+        "run_id": "b5da5451-2bdc-4fbc-82ee-008ffa78e901"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "81d85b0b-d4cd-4916-83b0-a3f21b581d83",
+        "run_id": "010cc9e0-7b1f-4073-8d24-6f8c1d03df9b"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "b2968cb9-2027-4c91-b927-e1e89460f2cb",
+        "run_id": "e5ba5a5e-d045-4c7a-9b55-8108836ba76d"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "e3c2cd86-d771-47c1-bf2e-6342b707605b",
+        "run_id": "7e376451-a3ca-46b3-a7c3-7cb6db738a2c"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "e5aff302-608a-4dc7-bf22-be79f09d0c8b",
+        "run_id": "b63abbbf-97f4-416c-8893-f7747fc73fbb"
+      },
+      {
+        "teammate_id": "ac032a5d-6cef-4367-a68a-9391f39c5506",
+        "runtime_profile_id": "d1b1059e-1125-4c04-b3cd-9a2287404732",
+        "mission_id": "f5f18bd6-bbd8-46ca-b5ab-78066ad032d3",
+        "run_id": "b6e5099d-53a5-479c-b74d-07eefb418539"
+      }
+    ]
+  },
+  "scenarios": [
+    "typed IPC/UI run creation",
+    "TASK→R4→Mission",
+    "PARTY→original collaboration approval/runtime/actor Usage",
+    "REVIEW structured verdict",
+    "declared DECISION branch",
+    "artifact lineage/validation/checkpoint",
+    "completed restart zero replay",
+    "approval same Run restart",
+    "external work same Run restart/accept/file hash",
+    "Step retry preserves old Artifact",
+    "terminal Mission crash before Step commit",
+    "in-flight execution crash WAITING_USER zero replay",
+    "restart reconciliation idempotent"
+  ]
+}
