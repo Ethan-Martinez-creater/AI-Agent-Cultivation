@@ -61,6 +61,9 @@ export function registerR2Ipc(
   work: ExternalWorkService,
   party: Gate5CollaborationService,
   tools: Gate4ToolsService,
+  resumeContinuation: (
+    continuation: Parameters<Gate5CollaborationService['resumeExternalWork']>[0],
+  ) => Promise<unknown> = (continuation) => party.resumeExternalWork(continuation),
 ): void {
   const register = (
     channel: string,
@@ -105,7 +108,7 @@ export function registerR2Ipc(
       z.object({ requestId: id, publicResult: z.string().max(4000).optional() }).strict(),
     );
     const continuation = work.accept(input);
-    await party.resumeExternalWork(continuation);
+    await resumeContinuation(continuation);
     return continuation;
   });
   register('r2:reject', (args) =>
@@ -115,7 +118,7 @@ export function registerR2Ipc(
   );
   register('r2:cancel', async (args) => {
     const continuation = work.cancel(one(args, z.object({ requestId: id }).strict()));
-    await party.resumeExternalWork(continuation);
+    await resumeContinuation(continuation);
     return continuation;
   });
   ipcMain.removeHandler('r2:submitRating');

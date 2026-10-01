@@ -6,6 +6,17 @@ import { EmptyState } from '../components/EmptyState.js';
 import './mission-party.css';
 import './product-pages.css';
 import { HumanBridgeApproval } from '.././r2-human-bridge.js';
+import type {
+  CapabilityDimension,
+  RoutingDecisionReceipt,
+  RoutingTaskContext,
+} from '@cultivation/domain';
+import {
+  CapabilityPicker,
+  RoutingActions,
+  RoutingReceiptPanel,
+  routingReasonLabel,
+} from '../r4-routing.js';
 import {
   errorText,
   PageHeading,
@@ -28,6 +39,13 @@ import type {
   ApprovalRequestView,
   MissionDetailView,
 } from '../ui-shared.js';
+import type { CreateMissionRoutingResult } from '../r4-routing.js';
+
+type AssignmentMode = 'AUTO' | 'SOLO' | 'PARTY';
+type RoutingRequiredResult = Extract<
+  CreateMissionRoutingResult,
+  { status: 'USER_ACTION_REQUIRED' }
+>;
 
 /** Friendly labels for the default view; Advanced retains the original event identifiers. */
 function recentEventLabel(eventType: string): string {
@@ -75,6 +93,18 @@ export function MissionPage() {
   const [coordinatorId, setCoordinatorId] = useState('');
   const [missionMode, setMissionMode] = useState<MissionMode>('SOLO');
   const [partyId, setPartyId] = useState('');
+  const [assignmentMode, setAssignmentMode] = useState<AssignmentMode>('AUTO');
+  const [requiredCapabilities, setRequiredCapabilities] = useState<CapabilityDimension[]>([]);
+  const [capabilitySelectionRequired, setCapabilitySelectionRequired] = useState(false);
+  const [capabilityPickerOpen, setCapabilityPickerOpen] = useState(false);
+  const [expectedOutputEnabled, setExpectedOutputEnabled] = useState(false);
+  const [expectedOutputName, setExpectedOutputName] = useState('交付成果');
+  const [expectedOutputExtension, setExpectedOutputExtension] = useState('.txt');
+  const [expectedOutputSizeMb, setExpectedOutputSizeMb] = useState('10');
+  const [routingPrompt, setRoutingPrompt] = useState<RoutingRequiredResult | null>(null);
+  const [routingReceipts, setRoutingReceipts] = useState<RoutingDecisionReceipt[]>([]);
+  const [receiptLoading, setReceiptLoading] = useState(false);
+  const [receiptError, setReceiptError] = useState('');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
   const [approvalFixture, setApprovalFixture] = useState(false);
@@ -89,6 +119,7 @@ export function MissionPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const handledCreateQuery = useRef('');
+  const assignmentSelectRef = useRef<HTMLSelectElement>(null);
   const availableTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
   const activeTeammates = availableTeammates.filter(
     (teammate) => teammate.executorKind !== 'USER_BRIDGE',
@@ -183,19 +214,24 @@ export function MissionPage() {
     }
     const requestedTeammateId = searchParams.get('teammateId') ?? '';
     const requestedPartyId = searchParams.get('partyId') ?? '';
-    const selectedParty = activeParties.find((party) => party.id === requestedPartyId);
-    const selectedTeammate = activeTeammates.find(
-      (teammate) => teammate.id === requestedTeammateId,
-    );
     setSelectedId('');
     setDetail(null);
     setCreating(true);
     setEditing(false);
     setTitle('');
     setObjective('');
-    setMissionMode(selectedParty ? 'CONSULTATION' : 'SOLO');
-    setPartyId(selectedParty?.id ?? activeParties[0]?.id ?? '');
-    setCoordinatorId(selectedTeammate?.id ?? activeTeammates[0]?.id ?? '');
+    setAssignmentMode(requestedPartyId ? 'PARTY' : requestedTeammateId ? 'SOLO' : 'AUTO');
+    setMissionMode(requestedPartyId ? 'CONSULTATION' : 'SOLO');
+    setPartyId(requestedPartyId || activeParties[0]?.id || '');
+    setCoordinatorId(requestedTeammateId || activeTeammates[0]?.id || '');
+    setRequiredCapabilities([]);
+    setCapabilitySelectionRequired(false);
+    setCapabilityPickerOpen(false);
+    setExpectedOutputEnabled(false);
+    setExpectedOutputName('交付成果');
+    setExpectedOutputExtension('.txt');
+    setExpectedOutputSizeMb('10');
+    setRoutingPrompt(null);
     setMissionFilter('all');
     setError('');
     setNotice('');
@@ -284,8 +320,36 @@ export function MissionPage() {
     };
   }, [selectedId, detailLoadAttempt]);
 
+  useEffect(() => {
+    if (!selectedId) {
+      setRoutingReceipts([]);
+      setReceiptLoading(false);
+      setReceiptError('');
+      return;
+    }
+    let cancelled = false;
+    setRoutingReceipts([]);
+    setReceiptLoading(true);
+    setReceiptError('');
+    void window.cultivation.routing
+      .receipts(selectedId)
+      .then((rows) => {
+        if (!cancelled) setRoutingReceipts(rows);
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setReceiptError(errorText(cause, '读取智能分配记录失败。'));
+      })
+      .finally(() => {
+        if (!cancelled) setReceiptLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
   const mission = detail?.mission ?? missions.find((item) => item.id === selectedId) ?? null;
   const canEdit = !mission || mission.state === 'DRAFT' || mission.state === 'READY';
+  const routingAssignmentLocked = routingReceipts.some((receipt) => receipt.outcome === 'ASSIGNED');
   const isPendingApproval = (approval: ApprovalRequestView) =>
     approval.state !== 'APPROVED' && approval.state !== 'DENIED' && !approval.resolvedAt;
 
@@ -301,7 +365,13 @@ export function MissionPage() {
       setTitle('');
       setObjective('');
       setMissionMode('SOLO');
+      setAssignmentMode('AUTO');
+      setRequiredCapabilities([]);
+      setCapabilitySelectionRequired(false);
+      setCapabilityPickerOpen(false);
+      setExpectedOutputEnabled(false);
     }
+    setRoutingPrompt(null);
   };
 
   const beginCreateMission = () => {
@@ -312,8 +382,18 @@ export function MissionPage() {
     setTitle('');
     setObjective('');
     setMissionMode('SOLO');
+    setAssignmentMode('AUTO');
     setPartyId(activeParties[0]?.id ?? '');
     setCoordinatorId(activeTeammates[0]?.id ?? '');
+    setRequiredCapabilities([]);
+    setCapabilitySelectionRequired(false);
+    setCapabilityPickerOpen(false);
+    setExpectedOutputEnabled(false);
+    setExpectedOutputName('交付成果');
+    setExpectedOutputExtension('.txt');
+    setExpectedOutputSizeMb('10');
+    setRoutingPrompt(null);
+    setRoutingReceipts([]);
     setMissionFilter('all');
     setError('');
     setNotice('');
@@ -343,43 +423,187 @@ export function MissionPage() {
     }
   };
 
+  const createRoutingMission = async () => {
+    if (
+      capabilitySelectionRequired &&
+      assignmentMode === 'AUTO' &&
+      requiredCapabilities.length === 0
+    ) {
+      setCapabilityPickerOpen(true);
+      return;
+    }
+    if (assignmentMode === 'SOLO' && !coordinatorId) {
+      setError('请选择要指定的道友。');
+      return;
+    }
+    if (assignmentMode === 'PARTY' && !partyId) {
+      setError('请选择要指定的队伍。');
+      return;
+    }
+    const outputSizeMb = Number(expectedOutputSizeMb);
+    if (
+      expectedOutputEnabled &&
+      (!expectedOutputName.trim() || !Number.isFinite(outputSizeMb) || outputSizeMb < 1)
+    ) {
+      setError('请填写有效的文件名称和至少 1 MB 的大小上限。');
+      return;
+    }
+
+    const context: RoutingTaskContext = {
+      objective: objective.trim(),
+      executionConstraint: assignmentMode,
+      ...(requiredCapabilities.length > 0 ? { requiredCapabilities } : {}),
+      ...(assignmentMode === 'SOLO' ? { explicitTeammateId: coordinatorId } : {}),
+      ...(assignmentMode === 'PARTY'
+        ? {
+            explicitPartyId: partyId,
+            partyMode: missionMode === 'SOLO' ? 'CONSULTATION' : missionMode,
+          }
+        : {}),
+      ...(expectedOutputEnabled
+        ? {
+            expectedOutputContract: {
+              name: expectedOutputName.trim(),
+              allowedExtensions: [expectedOutputExtension],
+              maxSizeBytes: Math.round(outputSizeMb * 1024 * 1024),
+            },
+          }
+        : {}),
+    };
+
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await window.cultivation.routing.createMission({
+        title: title.trim(),
+        context,
+      });
+      if (result.status === 'USER_ACTION_REQUIRED') {
+        setRoutingPrompt(result);
+        if (
+          result.actions.includes('CONFIGURE_CAPABILITY') ||
+          ['TASK_DEMAND_LOW_CONFIDENCE', 'TASK_DEMAND_REQUIRES_CONFIRMATION'].includes(
+            result.reason,
+          )
+        ) {
+          setCapabilitySelectionRequired(true);
+          setCapabilityPickerOpen(true);
+        }
+        return;
+      }
+      setRoutingPrompt(null);
+      setCapabilitySelectionRequired(false);
+      setRoutingReceipts([result.receipt]);
+      await refreshMissions(result.mission.id);
+      setDetail(await window.cultivation.missions.detail(result.mission.id));
+      setCreating(false);
+      setEditing(false);
+      setMissionFilter('all');
+      setNotice('已完成执行者分配，历练草稿已创建。');
+    } catch (cause) {
+      setError(errorText(cause, '智能分配或创建历练失败。'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const recheckAndRetryRouting = async () => {
+    if (!routingPrompt) return;
+
+    const activeModelTeammate = (teammateId: string) => {
+      const teammate = teammates.find((item) => item.id === teammateId);
+      return teammate?.status === 'ACTIVE' && teammate.executorKind === 'MODEL_RUNTIME'
+        ? teammate
+        : undefined;
+    };
+    let teammateIds: string[] = [];
+    if (assignmentMode === 'SOLO') {
+      if (activeModelTeammate(coordinatorId)) teammateIds = [coordinatorId];
+    } else if (assignmentMode === 'PARTY') {
+      const selectedParty = parties.find((item) => item.id === partyId);
+      if (selectedParty?.status === 'ACTIVE') {
+        teammateIds = selectedParty.members
+          .slice()
+          .sort((left, right) => left.order - right.order)
+          .map((member) => member.teammateId)
+          .filter((teammateId) => Boolean(activeModelTeammate(teammateId)));
+      }
+    } else {
+      const failedCandidate = routingPrompt.receipt.candidates
+        .filter(
+          (candidate) =>
+            (candidate.availability === 'UNAVAILABLE' ||
+              candidate.reason === 'MODEL_UNAVAILABLE') &&
+            candidate.benchmarkScore !== null &&
+            candidate.runtimeProfileId !== null &&
+            activeModelTeammate(candidate.teammateId)?.currentRuntimeProfileId ===
+              candidate.runtimeProfileId,
+        )
+        .slice()
+        .sort(
+          (left, right) =>
+            (right.benchmarkScore ?? -1) - (left.benchmarkScore ?? -1) ||
+            left.teammateId.localeCompare(right.teammateId),
+        )[0];
+      if (failedCandidate) teammateIds = [failedCandidate.teammateId];
+    }
+
+    const uniqueTeammateIds = [...new Set(teammateIds)];
+    if (uniqueTeammateIds.length === 0) {
+      setError(
+        assignmentMode === 'AUTO'
+          ? '当前记录中没有可重新检测的已绑定模型候选。请明确选择能力需求或选择其他执行者。'
+          : '所选执行者中没有当前可重新检测的模型道友。请检查选择后重试。',
+      );
+      return;
+    }
+
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      for (const teammateId of uniqueTeammateIds) {
+        await window.cultivation.availability.recheck(teammateId);
+      }
+    } catch (cause) {
+      setError(errorText(cause, '重新检测执行者失败。请检查连接后重试。'));
+      return;
+    } finally {
+      setBusy(false);
+    }
+
+    await createRoutingMission();
+  };
+
+  const chooseWorkspaceAndRetry = async () => {
+    setBusy(true);
+    setError('');
+    setNotice('');
+    let selectedWorkspace = false;
+    try {
+      const result = await window.cultivation.tools.chooseWorkspace();
+      selectedWorkspace = Boolean(result.rootPath);
+      if (!selectedWorkspace) setNotice('未选择工作区。');
+    } catch (cause) {
+      setError(errorText(cause, '选择工作区失败。'));
+    } finally {
+      setBusy(false);
+    }
+    if (selectedWorkspace) await createRoutingMission();
+  };
+
   const saveMission = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (
-      creating &&
-      (missionMode === 'SOLO'
-        ? !activeTeammates.some((teammate) => teammate.id === coordinatorId)
-        : !activeParties.some((party) => party.id === partyId))
-    ) {
-      setError(
-        missionMode === 'SOLO'
-          ? '请选择一位当前可用的执行道友。'
-          : '请选择一支由 2–4 位当前可用道友组成的队伍。',
-      );
+    if (creating) {
+      await createRoutingMission();
       return;
     }
     setBusy(true);
     setError('');
     setNotice('');
     try {
-      if (creating) {
-        const created = await window.cultivation.missions.create({
-          title: title.trim(),
-          objective: objective.trim(),
-          coordinatorTeammateId:
-            missionMode === 'SOLO'
-              ? coordinatorId
-              : (activeParties.find((party) => party.id === partyId)?.coordinatorTeammateId ??
-                coordinatorId),
-          mode: missionMode,
-          partyId: missionMode === 'SOLO' ? null : partyId,
-        });
-        await refreshMissions(created.id);
-        setDetail(await window.cultivation.missions.detail(created.id));
-        setCreating(false);
-        setEditing(false);
-        setNotice('Mission 草稿已创建。');
-      } else if (mission) {
+      if (mission) {
         const updated = await window.cultivation.missions.update({
           id: mission.id,
           title: title.trim(),
@@ -446,11 +670,7 @@ export function MissionPage() {
               <h2>历练</h2>
               <p>{visibleMissions.length} 项</p>
             </div>
-            <button
-              className="button primary small"
-              disabled={busy || (activeTeammates.length === 0 && activeParties.length === 0)}
-              onClick={beginCreateMission}
-            >
+            <button className="button primary small" disabled={busy} onClick={beginCreateMission}>
               + 发起历练
             </button>
           </div>
@@ -558,7 +778,10 @@ export function MissionPage() {
                   required
                   maxLength={120}
                   value={title}
-                  onChange={(event) => setTitle(event.target.value)}
+                  onChange={(event) => {
+                    setTitle(event.target.value);
+                    setRoutingPrompt(null);
+                  }}
                 />
               </label>
               <label className="field">
@@ -568,39 +791,57 @@ export function MissionPage() {
                   rows={5}
                   maxLength={12000}
                   value={objective}
-                  onChange={(event) => setObjective(event.target.value)}
+                  readOnly={creating ? false : routingAssignmentLocked}
+                  onChange={(event) => {
+                    setObjective(event.target.value);
+                    setRoutingPrompt(null);
+                  }}
                 />
+                {!creating && routingAssignmentLocked && (
+                  <small className="form-hint">
+                    智能分配后任务目标已锁定，以保持原执行分配一致；你仍可修改标题。
+                  </small>
+                )}
               </label>
               {creating && (
                 <>
                   <label className="field">
-                    <span>指定执行者</span>
+                    <span>分配方式</span>
                     <select
-                      value={missionMode === 'SOLO' ? 'SOLO' : 'PARTY'}
-                      onChange={(event) =>
-                        setMissionMode((current) =>
-                          event.target.value === 'SOLO'
-                            ? 'SOLO'
-                            : current === 'SOLO'
-                              ? 'CONSULTATION'
-                              : current,
-                        )
-                      }
+                      ref={assignmentSelectRef}
+                      value={assignmentMode}
+                      onChange={(event) => {
+                        const next = event.target.value as AssignmentMode;
+                        setAssignmentMode(next);
+                        if (next === 'PARTY' && missionMode === 'SOLO') {
+                          setMissionMode('CONSULTATION');
+                        }
+                        setRoutingPrompt(null);
+                      }}
                     >
+                      <option value="AUTO">自动分配</option>
                       <option value="SOLO">指定道友</option>
                       <option value="PARTY">指定队伍</option>
                     </select>
                   </label>
-                  {missionMode === 'SOLO' ? (
+                  {assignmentMode === 'SOLO' ? (
                     <>
                       <label className="field">
                         <span>选择道友</span>
                         <select
-                          required
                           value={coordinatorId}
-                          onChange={(event) => setCoordinatorId(event.target.value)}
+                          onChange={(event) => {
+                            setCoordinatorId(event.target.value);
+                            setRoutingPrompt(null);
+                          }}
                         >
                           <option value="">选择道友</option>
+                          {coordinatorId &&
+                            !activeTeammates.some((teammate) => teammate.id === coordinatorId) && (
+                              <option value={coordinatorId} disabled>
+                                {teammateFor(coordinatorId)?.name ?? '指定道友'} · 当前不可用
+                              </option>
+                            )}
                           {activeTeammates.map((teammate) => (
                             <option key={teammate.id} value={teammate.id}>
                               {teammate.name}
@@ -610,13 +851,16 @@ export function MissionPage() {
                       </label>
                       {coordinatorId && renderExecutorStatus(coordinatorId)}
                     </>
-                  ) : (
+                  ) : assignmentMode === 'PARTY' ? (
                     <>
                       <label className="field">
                         <span>协作方式</span>
                         <select
                           value={missionMode}
-                          onChange={(event) => setMissionMode(event.target.value as MissionMode)}
+                          onChange={(event) => {
+                            setMissionMode(event.target.value as MissionMode);
+                            setRoutingPrompt(null);
+                          }}
                         >
                           <option value="CONSULTATION">咨询</option>
                           <option value="REVIEW">审查</option>
@@ -626,11 +870,19 @@ export function MissionPage() {
                       <label className="field">
                         <span>参与队伍</span>
                         <select
-                          required
                           value={partyId}
-                          onChange={(event) => setPartyId(event.target.value)}
+                          onChange={(event) => {
+                            setPartyId(event.target.value);
+                            setRoutingPrompt(null);
+                          }}
                         >
                           <option value="">选择可用队伍</option>
+                          {partyId && !activeParties.some((party) => party.id === partyId) && (
+                            <option value={partyId} disabled>
+                              {parties.find((party) => party.id === partyId)?.name ?? '指定队伍'} ·
+                              当前不可用
+                            </option>
+                          )}
                           {activeParties.map((party) => (
                             <option key={party.id} value={party.id}>
                               {party.name} · {party.members.length} 位 ·{' '}
@@ -657,6 +909,132 @@ export function MissionPage() {
                           ))}
                       </div>
                     </>
+                  ) : (
+                    <p className="form-hint">
+                      系统会根据任务需要分配道友或队伍；如无法可靠判断能力需求，会请你明确选择，不会填入默认能力。
+                    </p>
+                  )}
+                  <div className="routing-capability-field">
+                    <button
+                      className="text-button"
+                      type="button"
+                      aria-expanded={capabilityPickerOpen}
+                      onClick={() => setCapabilityPickerOpen((open) => !open)}
+                    >
+                      {capabilityPickerOpen ? '收起能力需求' : '可选：指定必需能力'}
+                      {requiredCapabilities.length > 0 ? `（${requiredCapabilities.length}）` : ''}
+                    </button>
+                    <p className="form-hint">
+                      {capabilitySelectionRequired &&
+                      assignmentMode === 'AUTO' &&
+                      requiredCapabilities.length === 0
+                        ? '当前无法可靠判断任务能力。请至少选择一项必需能力后再分配。'
+                        : '留空时由系统分析；只有你明确选择的能力才会作为必需项，不会伪造“通用推理”默认值。'}
+                    </p>
+                    {capabilityPickerOpen && (
+                      <CapabilityPicker
+                        selected={requiredCapabilities}
+                        onChange={(next) => {
+                          setRequiredCapabilities(next);
+                          setRoutingPrompt(null);
+                        }}
+                      />
+                    )}
+                  </div>
+                  <details className="mission-routing-advanced">
+                    <summary>高级：Human Bridge 文件交付</summary>
+                    <p className="form-hint">
+                      仅当你需要本尊后备交付文件时设置。默认扩展名为 .txt；工作区仍由应用验证。
+                    </p>
+                    <label className="routing-capability-option">
+                      <input
+                        type="checkbox"
+                        checked={expectedOutputEnabled}
+                        onChange={(event) => {
+                          setExpectedOutputEnabled(event.target.checked);
+                          setRoutingPrompt(null);
+                        }}
+                      />
+                      <span>附加期望交付文件约定</span>
+                    </label>
+                    {expectedOutputEnabled && (
+                      <div className="routing-output-contract">
+                        <label className="field">
+                          <span>交付文件名称</span>
+                          <input
+                            required
+                            maxLength={120}
+                            value={expectedOutputName}
+                            onChange={(event) => setExpectedOutputName(event.target.value)}
+                          />
+                        </label>
+                        <label className="field">
+                          <span>允许的文件类型</span>
+                          <select
+                            value={expectedOutputExtension}
+                            onChange={(event) => setExpectedOutputExtension(event.target.value)}
+                          >
+                            <option value=".txt">.txt</option>
+                            <option value=".md">.md</option>
+                            <option value=".pdf">.pdf</option>
+                            <option value=".png">.png</option>
+                            <option value=".csv">.csv</option>
+                          </select>
+                        </label>
+                        <label className="field">
+                          <span>最大文件大小（MB）</span>
+                          <input
+                            required
+                            type="number"
+                            min="1"
+                            max="1024"
+                            step="1"
+                            value={expectedOutputSizeMb}
+                            onChange={(event) => setExpectedOutputSizeMb(event.target.value)}
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </details>
+                  {routingPrompt && (
+                    <div className="routing-action-required" role="status">
+                      <strong>{routingReasonLabel(routingPrompt.reason)}</strong>
+                      {routingPrompt.reason === 'WORKSPACE_REQUIRED' && (
+                        <button
+                          className="button secondary small"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void chooseWorkspaceAndRetry()}
+                        >
+                          选择工作区并重新评估
+                        </button>
+                      )}
+                      <RoutingActions
+                        actions={routingPrompt.actions}
+                        disabled={busy}
+                        onRecheck={() => void recheckAndRetryRouting()}
+                        onSelectOther={() => assignmentSelectRef.current?.focus()}
+                        onCancel={() => {
+                          setRoutingPrompt(null);
+                          setCreating(false);
+                        }}
+                        onConfigureCapability={() => setCapabilityPickerOpen(true)}
+                      />
+                      <RoutingReceiptPanel
+                        receipt={routingPrompt.receipt}
+                        teammates={teammates}
+                        parties={parties}
+                        priorityTeammateIds={
+                          assignmentMode === 'SOLO'
+                            ? [coordinatorId]
+                            : assignmentMode === 'PARTY'
+                              ? (parties
+                                  .find((party) => party.id === partyId)
+                                  ?.members.map((member) => member.teammateId) ?? [])
+                              : []
+                        }
+                      />
+                    </div>
                   )}
                 </>
               )}
@@ -668,12 +1046,14 @@ export function MissionPage() {
                     !title.trim() ||
                     !objective.trim() ||
                     (creating &&
-                      (missionMode === 'SOLO'
-                        ? !activeTeammates.some((teammate) => teammate.id === coordinatorId)
-                        : !activeParties.some((party) => party.id === partyId)))
+                      ((assignmentMode === 'SOLO' && !coordinatorId) ||
+                        (assignmentMode === 'PARTY' && !partyId) ||
+                        (capabilitySelectionRequired &&
+                          assignmentMode === 'AUTO' &&
+                          requiredCapabilities.length === 0)))
                   }
                 >
-                  {busy ? '保存中…' : creating ? '创建草稿' : '保存更改'}
+                  {busy ? '正在分配…' : creating ? '分配并创建草稿' : '保存更改'}
                 </button>
                 {creating && (
                   <button type="button" className="button ghost" onClick={resetEditor}>
@@ -804,6 +1184,27 @@ export function MissionPage() {
                   </div>
                 </div>
                 <p className="mission-objective">{mission.objective}</p>
+                {routingReceipts.length > 0 && (
+                  <div className="routing-receipt-list">
+                    {routingReceipts
+                      .slice()
+                      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+                      .slice(0, 3)
+                      .map((receipt) => (
+                        <RoutingReceiptPanel
+                          key={receipt.id}
+                          receipt={receipt}
+                          teammates={teammates}
+                          parties={parties}
+                        />
+                      ))}
+                  </div>
+                )}
+                {receiptError && (
+                  <p className="form-hint" role="status">
+                    {receiptError}
+                  </p>
+                )}
                 {mission.state === 'WAITING_EXTERNAL_WORK' && (
                   <div className="notice">
                     <button
@@ -818,10 +1219,10 @@ export function MissionPage() {
                   {canEdit && !editing && (
                     <button
                       className="button secondary small"
-                      disabled={busy}
+                      disabled={busy || receiptLoading}
                       onClick={() => setEditing(true)}
                     >
-                      编辑目标
+                      {routingAssignmentLocked ? '编辑标题' : '编辑目标'}
                     </button>
                   )}
                   {mission.state === 'DRAFT' && (

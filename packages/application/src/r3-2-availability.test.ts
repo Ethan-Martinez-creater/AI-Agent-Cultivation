@@ -304,6 +304,26 @@ describe('R3.2 availability policy', () => {
 });
 
 describe('AvailabilityService and shared eligibility', () => {
+  it('rechecks a shortlisted cached AVAILABLE executor only when R4 explicitly requests a fresh probe', async () => {
+    const context = fixture({
+      probe: async () => ({ kind: 'HARD_FAILURE', code: 'MODEL_NOT_FOUND' }),
+    });
+    context.stored = projection('AVAILABLE', [outcome('SUCCESS')]);
+    const cached = await context.service.prepare({
+      teammateId: 'teammate-a',
+      runtimeProfileId: 'runtime-a',
+    });
+    expect(cached.ok).toBe(true);
+    expect(context.probeCount).toBe(0);
+    const fresh = await context.service.prepare({
+      teammateId: 'teammate-a',
+      runtimeProfileId: 'runtime-a',
+      freshProbe: true,
+    });
+    expect(fresh.ok).toBe(false);
+    expect(fresh.availability.status).toBe('UNAVAILABLE');
+    expect(context.probeCount).toBe(1);
+  });
   it('rejects archived recheck without probing or changing the historical availability projection', async () => {
     const context = fixture();
     await context.service.recheck('teammate-a');

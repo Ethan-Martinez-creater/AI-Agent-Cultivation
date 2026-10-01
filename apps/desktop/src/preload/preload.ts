@@ -35,7 +35,10 @@ import type {
   ExternalWorkArtifact,
   ExternalWorkRequest,
   ModelAvailabilityProjection,
+  RoutingTaskContext,
+  RoutingDecisionReceipt,
 } from '@cultivation/domain';
+import type { RoutingMissionCreationResult } from '@cultivation/application';
 import type { AvailabilityService } from '@cultivation/application';
 import type { R1CapabilityProfile } from '@cultivation/application/r1-capability-service';
 
@@ -157,6 +160,15 @@ export interface R3ShadowObservationView {
 }
 
 export interface CultivationBridge {
+  routing: {
+    config(): Promise<{ cloudEnabled: boolean; policyVersion: string }>;
+    setCloudEnabled(enabled: boolean): Promise<{ cloudEnabled: boolean; policyVersion: string }>;
+    createMission(input: {
+      title: string;
+      context: RoutingTaskContext;
+    }): Promise<RoutingMissionCreationResult>;
+    receipts(missionId?: string): Promise<RoutingDecisionReceipt[]>;
+  };
   desktop: {
     windowState(): Promise<{ maximized: boolean }>;
     minimize(): Promise<void>;
@@ -409,6 +421,12 @@ export interface CultivationBridge {
 }
 
 const bridge: CultivationBridge = {
+  routing: {
+    config: () => ipcRenderer.invoke('routing:config'),
+    setCloudEnabled: (enabled) => ipcRenderer.invoke('routing:setCloudEnabled', enabled),
+    createMission: (input) => ipcRenderer.invoke('routing:createMission', input),
+    receipts: (missionId) => ipcRenderer.invoke('routing:receipts', missionId),
+  },
   desktop: {
     windowState: () => ipcRenderer.invoke('desktop:windowState'),
     minimize: () => ipcRenderer.invoke('desktop:minimize'),

@@ -4,6 +4,7 @@ import { Icon } from '../components/Icon.js';
 import { BenchmarkPanel } from '.././r1-capability.js';
 import { R3ShadowPanel } from '.././r3-shadow-panel.js';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
+import { RoutingConfigPanel } from '../r4-routing.js';
 import './product-pages.css';
 import { providerKinds, errorText, PageHeading, InlineMessage, EmptyList } from '../ui-shared.js';
 import type {
@@ -14,7 +15,14 @@ import type {
   TeammateView,
 } from '../ui-shared.js';
 
-type SettingsTab = 'providers' | 'credentials' | 'runtimes' | 'benchmark' | 'embedding' | 'shadow';
+type SettingsTab =
+  | 'providers'
+  | 'credentials'
+  | 'runtimes'
+  | 'benchmark'
+  | 'embedding'
+  | 'shadow'
+  | 'routing';
 
 export function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('providers');
@@ -22,6 +30,10 @@ export function SettingsPage() {
   const [credentials, setCredentials] = useState<CredentialView[]>([]);
   const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [routingConfig, setRoutingConfig] = useState<{
+    cloudEnabled: boolean;
+    policyVersion: string;
+  }>({ cloudEnabled: false, policyVersion: '—' });
   const [embeddingConfig, setEmbeddingConfig] = useState<{
     available: boolean;
     runtimeProfileId: string | null;
@@ -32,19 +44,21 @@ export function SettingsPage() {
   const refresh = async () => {
     setError('');
     try {
-      const [providerRows, credentialRows, runtimeRows, embedding, teammateRows] =
+      const [providerRows, credentialRows, runtimeRows, embedding, teammateRows, routing] =
         await Promise.all([
           window.cultivation.providers.list(),
           window.cultivation.credentials.list(),
           window.cultivation.runtimes.list(),
           window.cultivation.embedding.getConfig(),
           window.cultivation.teammates.list(),
+          window.cultivation.routing.config(),
         ]);
       setProviders(providerRows);
       setCredentials(credentialRows);
       setRuntimes(runtimeRows);
       setEmbeddingConfig(embedding);
       setTeammates(teammateRows);
+      setRoutingConfig(routing);
     } catch (cause) {
       setError(errorText(cause, '读取设置失败。'));
     } finally {
@@ -101,6 +115,7 @@ export function SettingsPage() {
               {(
                 [
                   ['benchmark', '能力评测'],
+                  ['routing', '智能分配'],
                   ['shadow', 'Jev 观察'],
                 ] as const
               ).map(([id, label]) => (
@@ -180,6 +195,23 @@ export function SettingsPage() {
               )}
               {tab === 'benchmark' && <BenchmarkPanel runtimes={runtimes} />}
               {tab === 'shadow' && <R3ShadowPanel />}
+              {tab === 'routing' && (
+                <RoutingConfigPanel
+                  config={routingConfig}
+                  onChange={async (enabled) => {
+                    const result = await window.cultivation.routing.setCloudEnabled(enabled);
+                    setRoutingConfig(result);
+                    if (result.cloudEnabled !== enabled) {
+                      throw new Error(
+                        enabled
+                          ? 'Cloud 未启用。请先配置 Jev 凭据并检查连接状态。'
+                          : '无法确认 Cloud 已关闭，请刷新设置后重试。',
+                      );
+                    }
+                  }}
+                  onOpenJevSettings={() => setTab('shadow')}
+                />
+              )}
               {tab === 'embedding' && (
                 <EmbeddingPanel
                   providers={providers}

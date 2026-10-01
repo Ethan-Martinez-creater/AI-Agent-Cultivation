@@ -12,10 +12,19 @@ import type {
   PermissionRule,
   RiskLevel,
   RuntimeProfile,
+  Teammate,
   UsageRecord,
 } from '@cultivation/domain';
 import { DomainError } from '@cultivation/shared';
 import { transition } from '@cultivation/domain';
+import type {
+  CreateExplicitExternalWorkInput,
+  ExternalWorkContinuation,
+  ExternalWorkDetail,
+  ExternalWorkRequestRecord,
+  HumanBridgeExternalWorkDraft,
+  R2ExternalWorkContinuationStore,
+} from './r2-human-bridge-service.js';
 import type {
   ModelGateway,
   ModelToolCall,
@@ -128,6 +137,33 @@ const FIXTURE_CAPABILITY: PermissionCapability = 'SPEND_BUDGET';
 const MAX_TITLE_LENGTH = 160;
 const MAX_OBJECTIVE_LENGTH = 8_000;
 const MAX_RESULT_LENGTH = 40_000;
+const MAX_EXTERNAL_WORK_PUBLIC_RESULT_LENGTH = 8_000;
+
+export interface Gate3HumanBridgeAssignment {
+  externalWorkDraft: HumanBridgeExternalWorkDraft;
+}
+
+/** Durable routing assignment lookup, implemented by the R4 persistence adapter. */
+export interface Gate3HumanBridgeAssignmentStore {
+  getByMissionId(missionId: string): Gate3HumanBridgeAssignment | null;
+}
+
+/** Guards R4 semantic inputs after a routing assignment has been persisted. */
+export interface Gate3MissionAssignmentGuard {
+  hasAssignment(missionId: string): boolean;
+}
+
+/** Existing R2 ExternalWork application service, kept behind a narrow Runtime port. */
+export interface Gate3ExternalWorkService {
+  createExplicit(input: CreateExplicitExternalWorkInput): ExternalWorkRequestRecord;
+  cancelForMission(input: {
+    requestId: string;
+    missionId: string;
+    runId: string;
+  }): ExternalWorkRequestRecord;
+  getExternalWorkRequest(id: string): ExternalWorkDetail | null;
+  listExternalWorkRequests(missionId?: string, runId?: string): ExternalWorkRequestRecord[];
+}
 const MAX_TOOL_STEPS = 8;
 const MAX_TOOL_CALLS = 8;
 
@@ -314,6 +350,17 @@ function requiredText(value: string, label: string, max: number): string {
   return text;
 }
 
+function isHumanBridgeTeammate(value: Teammate | null): value is Teammate {
+  return Boolean(
+    value &&
+      value.status === 'ACTIVE' &&
+      value.executorKind === 'USER_BRIDGE' &&
+      value.systemKind === 'HUMAN_BRIDGE' &&
+      value.routingPolicy === 'FALLBACK_ONLY' &&
+      value.currentRuntimeProfileId === null,
+  );
+}
+
 function absent(label: string): never {
   throw new DomainError('NOT_FOUND', `${label}不存在`);
 }
@@ -358,8 +405,13 @@ function skillIdsInPromptSection(section: string): string[] {
 export class Gate3MissionService {
   private readonly busy = new Set<string>();
   private readonly composer = new PromptComposer();
+  private readonly externalWorkContinuationsInFlight = new Set<string>();
   private toolRuntime: ToolRuntime | null = null;
   private pendingTools: PendingMissionToolStore | null = null;
+  private externalWork: Gate3ExternalWorkService | null = null;
+  private externalWorkContinuations: R2ExternalWorkContinuationStore | null = null;
+  private humanBridgeAssignments: Gate3HumanBridgeAssignmentStore | null = null;
+  private assignmentGuard: Gate3MissionAssignmentGuard | null = null;
 
   constructor(
     private readonly store: Gate3MissionStore,
@@ -373,6 +425,21 @@ export class Gate3MissionService {
   attachTools(runtime: ToolRuntime, pending: PendingMissionToolStore): void {
     this.toolRuntime = runtime;
     this.pendingTools = pending;
+  }
+
+  /** Reuses the R2 ExternalWork lifecycle for R4 SOLO Human Bridge execution. */
+  attachHumanBridgeExecution(
+    externalWork: Gate3ExternalWorkService,
+    continuations: R2ExternalWorkContinuationStore,
+    assignments: Gate3HumanBridgeAssignmentStore,
+  ): void {
+    this.externalWork = externalWork;
+    this.externalWorkContinuations = continuations;
+    this.humanBridgeAssignments = assignments;
+  }
+
+  attachAssignmentGuard(guard: Gate3MissionAssignmentGuard): void {
+    this.assignmentGuard = guard;
   }
 
   list(): Mission[] {
@@ -426,6 +493,15 @@ export class Gate3MissionService {
     return mission;
   }
 
+  /** Creates the SOLO Mission shape used when R4 explicitly assigns its Human Bridge. */
+  createHumanBridgeMission(input: CreateMissionInput): Mission {
+    const teammate = this.gate1.getTeammate(input.coordinatorTeammateId);
+    if (!isHumanBridgeTeammate(teammate)) {
+      throw new DomainError('INVALID_INPUT', 'Human Bridge 必须是 SOLO Mission Coordinator');
+    }
+    return this.create(input);
+  }
+
   update(input: UpdateMissionInput): Mission {
     const previous = this.requireMission(input.id);
     if (previous.state !== 'DRAFT' && previous.state !== 'READY') {
@@ -438,6 +514,15 @@ export class Gate3MissionService {
       updatedAt: this.clock.now(),
     };
     this.store.transaction(() => {
+      if (
+        updated.objective !== previous.objective &&
+        this.assignmentGuard?.hasAssignment(updated.id)
+      ) {
+        throw new DomainError(
+          'MISSION_INVALID_STATE',
+          '已路由 Mission 的目标不可编辑；请创建新的 Mission 重新路由',
+        );
+      }
       if (!this.store.updateMissionDetails(updated)) {
         throw new DomainError('CONFLICT', 'Mission 已被其他操作修改');
       }
@@ -463,6 +548,10 @@ export class Gate3MissionService {
     if (mission.state !== 'READY') {
       throw new DomainError('MISSION_INVALID_STATE', '只有 READY Mission 可以运行');
     }
+    if (this.isHumanBridgeCoordinator(mission)) this.requireHumanBridgeExecutionSetup(mission);
+    if (this.isHumanBridgeCoordinator(mission) && input.approvalFixture) {
+      throw new DomainError('INVALID_INPUT', 'Human Bridge Mission 不支持模型审批测试场景');
+    }
     return this.startNewRun(mission, input.approvalFixture, false);
   }
 
@@ -476,6 +565,7 @@ export class Gate3MissionService {
     if (!latest || (latest.status !== 'FAILED' && latest.status !== 'INTERRUPTED')) {
       throw new DomainError('MISSION_INVALID_STATE', '没有可重试的失败 Run');
     }
+    if (this.isHumanBridgeCoordinator(mission)) this.requireHumanBridgeExecutionSetup(mission);
     mission = this.transitionAndRecord(mission, 'READY', 'USER', LOCAL_USER_ID, {
       eventType: 'mission.retry_ready',
       runId: latest.id,
@@ -520,6 +610,29 @@ export class Gate3MissionService {
     const timestamp = this.clock.now();
     let cancelled!: Mission;
     this.store.transaction(() => {
+      const activeRun = this.store.listRuns(mission.id).find((run) => run.status === 'RUNNING');
+      if (
+        mission.state === 'WAITING_EXTERNAL_WORK' &&
+        activeRun &&
+        this.isHumanBridgeCoordinator(mission)
+      ) {
+        const pendingWork = this.externalWork
+          ?.listExternalWorkRequests(mission.id, activeRun.id)
+          .find((request) => ['PENDING', 'IN_PROGRESS', 'SUBMITTED'].includes(request.state));
+        if (pendingWork) {
+          if (!this.externalWork) {
+            throw new DomainError('EXTERNAL_WORK_UNAVAILABLE', 'ExternalWork 服务不可用');
+          }
+          const resolved = this.externalWork.cancelForMission({
+            requestId: pendingWork.id,
+            missionId: mission.id,
+            runId: activeRun.id,
+          });
+          if (resolved.state !== 'CANCELLED') {
+            throw new DomainError('CONFLICT', 'ExternalWork 未能随 Mission 一起取消');
+          }
+        }
+      }
       const pending = this.store
         .listApprovals(mission.id)
         .filter((approval) => approval.state === 'PENDING');
@@ -540,7 +653,6 @@ export class Gate3MissionService {
       if (!this.store.transitionMission(cancelled, mission.state)) {
         throw new DomainError('CONFLICT', 'Mission 状态已被其他操作修改');
       }
-      const activeRun = this.store.listRuns(mission.id).find((run) => run.status === 'RUNNING');
       if (activeRun) {
         this.finishRun({
           ...activeRun,
@@ -548,6 +660,9 @@ export class Gate3MissionService {
           endedAt: timestamp,
           errorCode: 'MISSION_CANCELLED',
           errorMessage: 'Mission cancelled by user.',
+          ...(this.isHumanBridgeCoordinator(mission)
+            ? { resultText: JSON.stringify({ ok: false, code: 'MISSION_CANCELLED' }) }
+            : {}),
         });
         this.appendEvent(cancelled, activeRun.id, 'run.cancelled', 'USER', LOCAL_USER_ID, {
           attempt: activeRun.attempt,
@@ -821,6 +936,9 @@ export class Gate3MissionService {
       if (mission.state !== 'RUNNING') continue;
       // A durable ExternalWork continuation owns this Run and must resume it in place.
       if (protectedMissionIds.has(mission.id)) continue;
+      // A crash can occur after Run creation but before the R2 request transaction.
+      // The durable R4 assignment lets the same Run enter ExternalWork on restart.
+      if (this.recoverHumanBridgeRunWithoutRequest(mission)) continue;
       const timestamp = this.clock.now();
       const next = this.transition(mission, 'INTERRUPTED', timestamp);
       this.store.transaction(() => {
@@ -849,6 +967,300 @@ export class Gate3MissionService {
       recovered.push(next);
     }
     return recovered;
+  }
+
+  /** Consumes a durable R2 continuation for a SOLO Mission coordinated by Human Bridge. */
+  async resumeExternalWork(continuation: ExternalWorkContinuation): Promise<MissionDetail> {
+    if (
+      continuation.kind !== 'EXTERNAL_WORK_CONTINUATION' ||
+      continuation.trust !== 'UNTRUSTED_EXTERNAL_DATA' ||
+      !continuation.requestId ||
+      !continuation.missionId ||
+      !continuation.runId
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation 数据无效');
+    }
+    const mission = this.requireMission(continuation.missionId);
+    const run = this.store.getRun(continuation.runId);
+    const durable = this.externalWorkContinuations?.getByRequestId(continuation.requestId) ?? null;
+    if (
+      !run ||
+      run.missionId !== mission.id ||
+      this.store.listRuns(mission.id).at(-1)?.id !== run.id ||
+      mission.mode !== 'SOLO' ||
+      !this.isHumanBridgeCoordinator(mission) ||
+      continuation.requesterTeammateId !== mission.coordinatorTeammateId ||
+      continuation.assigneeTeammateId !== mission.coordinatorTeammateId ||
+      (durable && (durable.missionId !== mission.id || durable.missionRunId !== run.id))
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation 与 SOLO Run 不匹配');
+    }
+    if (continuation.outcome === 'ACCEPTED' && !durable) {
+      throw new DomainError(
+        'PERSISTENCE_INVALID',
+        'Accepted ExternalWork 缺少 durable continuation',
+      );
+    }
+    if (durable?.state === 'CONSUMED') return this.detail(mission.id);
+    if (continuation.outcome !== 'ACCEPTED') {
+      const request = this.externalWork?.getExternalWorkRequest(continuation.requestId)?.request;
+      if (
+        !request ||
+        request.state !== continuation.outcome ||
+        request.missionId !== mission.id ||
+        request.runId !== run.id ||
+        request.requesterTeammateId !== mission.coordinatorTeammateId ||
+        request.assigneeTeammateId !== continuation.assigneeTeammateId
+      ) {
+        throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork 拒绝或取消请求无效');
+      }
+      if (
+        run.status !== 'RUNNING' ||
+        !['RUNNING', 'WAITING_EXTERNAL_WORK'].includes(mission.state)
+      ) {
+        return this.detail(mission.id);
+      }
+      const code =
+        continuation.outcome === 'REJECTED' ? 'EXTERNAL_WORK_REJECTED' : 'EXTERNAL_WORK_CANCELLED';
+      this.failHumanBridgeRun(mission, run, code);
+      return this.detail(mission.id);
+    }
+    if (!durable || (durable.state !== 'PENDING' && durable.state !== 'CONSUMING')) {
+      throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation 状态无效');
+    }
+    const continuationState: 'PENDING' | 'CONSUMING' = durable.state;
+    if (this.externalWorkContinuationsInFlight.has(continuation.requestId)) {
+      return this.detail(mission.id);
+    }
+
+    const externalWork = this.externalWork;
+    const request = externalWork?.getExternalWorkRequest(continuation.requestId)?.request;
+    if (
+      !request ||
+      request.state !== 'ACCEPTED' ||
+      request.missionId !== mission.id ||
+      request.runId !== run.id ||
+      request.requesterTeammateId !== mission.coordinatorTeammateId ||
+      request.assigneeTeammateId !== continuation.assigneeTeammateId ||
+      request.capability !== continuation.capability ||
+      request.publicResult !== continuation.publicResult ||
+      (request.publicResult !== null &&
+        request.publicResult.length > MAX_EXTERNAL_WORK_PUBLIC_RESULT_LENGTH)
+    ) {
+      throw new DomainError('PERSISTENCE_INVALID', 'Accepted ExternalWork 请求或结果无效');
+    }
+
+    const terminalRun = ['COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED'].includes(run.status);
+    const terminalMission = ['COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED'].includes(
+      mission.state,
+    );
+    if (terminalRun || terminalMission) {
+      if (!terminalRun || !terminalMission) {
+        throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork Run/Mission 终态不一致');
+      }
+      this.consumeExternalWorkContinuation(continuation.requestId, durable.state);
+      return this.detail(mission.id);
+    }
+    if (run.status !== 'RUNNING' || !['RUNNING', 'WAITING_EXTERNAL_WORK'].includes(mission.state)) {
+      throw new DomainError('MISSION_INVALID_STATE', 'ExternalWork 对应的当前 Run 无效');
+    }
+
+    this.externalWorkContinuationsInFlight.add(continuation.requestId);
+    try {
+      const at = this.clock.now();
+      const running =
+        mission.state === 'WAITING_EXTERNAL_WORK'
+          ? this.transition(mission, 'RUNNING', at)
+          : mission;
+      const completed = this.transition(running, 'COMPLETED', at);
+      this.store.transaction(() => {
+        this.claimExternalWorkContinuation(continuation.requestId, continuationState);
+        if (running !== mission) {
+          if (!this.store.transitionMission(running, mission.state)) {
+            throw new DomainError('CONFLICT', 'Mission 状态已在 ExternalWork 恢复前改变');
+          }
+          this.appendStateEvents(
+            mission,
+            running,
+            'SYSTEM',
+            null,
+            'mission.external_work_resumed',
+            {
+              runId: run.id,
+              requestId: continuation.requestId,
+            },
+          );
+        }
+        this.finishRun({
+          ...run,
+          status: 'COMPLETED',
+          endedAt: at,
+          errorCode: null,
+          errorMessage: null,
+          resultText: request.publicResult,
+        });
+        if (!this.store.transitionMission(completed, running.state)) {
+          throw new DomainError('CONFLICT', 'Mission 状态已在 ExternalWork 完成前改变');
+        }
+        if (!this.externalWorkContinuations?.markConsumed(continuation.requestId, at)) {
+          throw new DomainError('CONFLICT', 'ExternalWork continuation 无法标记为已消费');
+        }
+        this.appendEvent(completed, run.id, 'external_work.continuation_received', 'SYSTEM', null, {
+          requestId: continuation.requestId,
+          outcome: 'ACCEPTED',
+          publicResultLength: request.publicResult?.length ?? 0,
+          artifactCount: continuation.artifacts.length,
+          trust: continuation.trust,
+        });
+        this.appendEvent(completed, run.id, 'run.completed', 'SYSTEM', null, {
+          attempt: run.attempt,
+          source: 'EXTERNAL_WORK',
+          requestId: continuation.requestId,
+        });
+        this.appendStateEvents(running, completed, 'SYSTEM', null, 'mission.completed', {
+          runId: run.id,
+          attempt: run.attempt,
+          source: 'EXTERNAL_WORK',
+          requestId: continuation.requestId,
+        });
+      });
+      return this.detail(mission.id);
+    } finally {
+      this.externalWorkContinuationsInFlight.delete(continuation.requestId);
+    }
+  }
+
+  private requireHumanBridgeExecutionSetup(mission: Mission): {
+    externalWork: Gate3ExternalWorkService;
+    assignment: Gate3HumanBridgeAssignment;
+  } {
+    const externalWork = this.externalWork;
+    const assignments = this.humanBridgeAssignments;
+    if (!externalWork || !this.externalWorkContinuations || !assignments) {
+      throw new DomainError('EXTERNAL_WORK_UNAVAILABLE', 'Human Bridge SOLO 执行依赖尚未配置');
+    }
+    if (!this.isHumanBridgeCoordinator(mission)) {
+      throw new DomainError('INVALID_INPUT', 'Mission Coordinator 不是 Human Bridge');
+    }
+    const assignment = assignments.getByMissionId(mission.id);
+    if (!assignment) {
+      throw new DomainError(
+        'PERSISTENCE_INVALID',
+        'Human Bridge Mission 缺少 R4 routing assignment',
+      );
+    }
+    return { externalWork, assignment };
+  }
+
+  private isHumanBridgeCoordinator(mission: Mission): boolean {
+    return isHumanBridgeTeammate(this.gate1.getTeammate(mission.coordinatorTeammateId));
+  }
+
+  private startHumanBridgeExternalWork(mission: Mission, run: MissionRunRecord): void {
+    let externalWork: Gate3ExternalWorkService;
+    let assignment: Gate3HumanBridgeAssignment;
+    try {
+      ({ externalWork, assignment } = this.requireHumanBridgeExecutionSetup(mission));
+      const created = externalWork.createExplicit({
+        ...assignment.externalWorkDraft,
+        missionId: mission.id,
+        runId: run.id,
+        requesterTeammateId: mission.coordinatorTeammateId,
+      });
+      const currentMission = this.store.getMission(mission.id);
+      if (
+        created.missionId !== mission.id ||
+        created.runId !== run.id ||
+        created.requesterTeammateId !== mission.coordinatorTeammateId ||
+        created.state !== 'PENDING' ||
+        currentMission?.state !== 'WAITING_EXTERNAL_WORK'
+      ) {
+        throw new DomainError('PERSISTENCE_INVALID', 'Human Bridge ExternalWork 创建结果无效');
+      }
+    } catch (error) {
+      const currentMission = this.store.getMission(mission.id);
+      const currentRun = this.store.getRun(run.id);
+      if (
+        currentMission &&
+        currentRun?.status === 'RUNNING' &&
+        ['RUNNING', 'WAITING_EXTERNAL_WORK'].includes(currentMission.state)
+      ) {
+        const code =
+          error instanceof DomainError && /^[A-Z0-9_]{1,80}$/.test(error.code)
+            ? error.code
+            : 'EXTERNAL_WORK_REQUEST_FAILED';
+        this.failHumanBridgeRun(currentMission, currentRun, code);
+      }
+    }
+  }
+
+  private recoverHumanBridgeRunWithoutRequest(mission: Mission): boolean {
+    if (!this.isHumanBridgeCoordinator(mission)) return false;
+    const run = this.store.listRuns(mission.id).at(-1);
+    if (!run || run.status !== 'RUNNING') return false;
+    const assignments = this.humanBridgeAssignments;
+    const externalWork = this.externalWork;
+    if (!assignments || !externalWork || !this.externalWorkContinuations) return false;
+    if (!assignments.getByMissionId(mission.id)) return false;
+    if (externalWork.listExternalWorkRequests(mission.id, run.id).length > 0) return false;
+    this.startHumanBridgeExternalWork(mission, run);
+    return this.store.getMission(mission.id)?.state !== 'RUNNING';
+  }
+
+  private failHumanBridgeRun(mission: Mission, run: MissionRunRecord, code: string): void {
+    const currentMission = this.store.getMission(mission.id);
+    const currentRun = this.store.getRun(run.id);
+    if (
+      !currentMission ||
+      currentRun?.status !== 'RUNNING' ||
+      !['RUNNING', 'WAITING_EXTERNAL_WORK'].includes(currentMission.state)
+    ) {
+      return;
+    }
+    const at = this.clock.now();
+    const failed = this.transition(currentMission, 'FAILED', at);
+    const resultText = JSON.stringify({ ok: false, code });
+    this.store.transaction(() => {
+      this.finishRun({
+        ...currentRun,
+        status: 'FAILED',
+        endedAt: at,
+        errorCode: code,
+        errorMessage: code,
+        resultText,
+      });
+      if (!this.store.transitionMission(failed, currentMission.state)) {
+        throw new DomainError('CONFLICT', 'Human Bridge Mission 状态已改变');
+      }
+      this.appendEvent(failed, run.id, 'external_work.failed', 'SYSTEM', null, {
+        requestId:
+          this.externalWork?.listExternalWorkRequests(mission.id, run.id).at(-1)?.id ?? null,
+        code,
+      });
+      this.appendStateEvents(currentMission, failed, 'SYSTEM', null, 'mission.failed', {
+        runId: run.id,
+        reason: code,
+      });
+    });
+  }
+
+  private claimExternalWorkContinuation(requestId: string, state: 'PENDING' | 'CONSUMING'): void {
+    if (state === 'CONSUMING') return;
+    if (!this.externalWorkContinuations?.markConsuming(requestId, this.clock.now())) {
+      const latest = this.externalWorkContinuations?.getByRequestId(requestId);
+      if (!latest || !['CONSUMING', 'CONSUMED'].includes(latest.state)) {
+        throw new DomainError('CONFLICT', 'ExternalWork continuation claim conflict');
+      }
+    }
+  }
+
+  private consumeExternalWorkContinuation(requestId: string, state: 'PENDING' | 'CONSUMING'): void {
+    this.store.transaction(() => {
+      this.claimExternalWorkContinuation(requestId, state);
+      if (!this.externalWorkContinuations?.markConsumed(requestId, this.clock.now())) {
+        throw new DomainError('CONFLICT', 'ExternalWork continuation 无法标记为已消费');
+      }
+    });
   }
 
   private async startNewRun(
@@ -882,6 +1294,11 @@ export class Gate3MissionService {
         retry,
       });
     });
+
+    if (this.isHumanBridgeCoordinator(running)) {
+      this.startHumanBridgeExternalWork(running, run);
+      return this.detail(running.id);
+    }
 
     if (approvalFixture) {
       const decision = this.permissions.evaluate({

@@ -340,3 +340,6 @@ export type {
   PrepareModelResult,
   RoutingEligibilityOptions,
 } from './r3-2-availability.js';
+export * from './r4-routing-planner.js';
+export * from './r4-decision-service.js';
+export * from './r4-routing-mission-service.js';

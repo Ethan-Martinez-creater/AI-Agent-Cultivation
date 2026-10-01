@@ -214,7 +214,7 @@ export class ShadowDecisionService {
 
 class DecisionSchemaError extends Error {}
 
-function validateDecisionResult(value: unknown, request: DecisionRequest): DecisionResult {
+export function validateDecisionResult(value: unknown, request: DecisionRequest): DecisionResult {
   if (!isRecord(value) || !isRecord(value.answers) || !isRecord(value.confidence)) {
     throw new DecisionSchemaError('Decision response schema mismatch.');
   }
@@ -367,7 +367,7 @@ function sanitizeValue(value: unknown, depth: number): unknown {
   return result;
 }
 
-function assertSafeRequest(request: DecisionRequest): void {
+export function assertSafeRequest(request: DecisionRequest): void {
   if (!isRecord(request) || !isRecord(request.state) || !isRecord(request.questions)) {
     throw new Error('Invalid decision request.');
   }

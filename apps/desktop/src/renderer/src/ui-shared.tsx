@@ -348,6 +348,7 @@ export interface ChatEvent {
 }
 
 export interface CultivationBridge {
+  routing: PreloadBridge['routing'];
   desktop: PreloadBridge['desktop'];
   avatars: PreloadBridge['avatars'];
   availability: PreloadBridge['availability'];

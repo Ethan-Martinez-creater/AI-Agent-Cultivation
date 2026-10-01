@@ -17,6 +17,7 @@ import {
   R2ContinuationRepository,
   R3SqliteRepository,
   R32AvailabilityRepository,
+  R4RoutingRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -34,6 +35,9 @@ import {
   AvailabilityService,
   AvailabilityAwareModelGateway,
   RoutingEligibilityService,
+  RoutingPlanner,
+  RoutingMissionService,
+  R4DecisionService,
 } from '@cultivation/application';
 import type {
   EmbeddingGateway,
@@ -69,6 +73,9 @@ import { registerR3Ipc } from './r3-ipc.js';
 import { registerAvailabilityIpc } from './r3-2-ipc.js';
 import type { ModelAvailabilityProjection } from '@cultivation/domain';
 import { registerDesktopIpc } from './desktop-ipc.js';
+import { registerRoutingIpc } from './r4-ipc.js';
+import { buildR3ShadowCandidates } from './r3-candidate-context.js';
+import { routingFixtureGateway } from './r4-fixture-decision.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -104,6 +111,8 @@ function createWindow(
   r3Store: R3SqliteRepository,
   r3Observer: R3ShadowMissionObserver,
   availability: AvailabilityService,
+  routing: RoutingMissionService,
+  routingStore: R4RoutingRepository,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -221,9 +230,19 @@ function createWindow(
   registerGate4Ipc(window, validSender, tools);
   registerGate6Ipc(validSender, experience);
   registerR1Ipc(validSender, capabilities);
-  registerR2Ipc(validSender, humanBridge, externalWork, partyMissions, tools);
+  registerR2Ipc(validSender, humanBridge, externalWork, partyMissions, tools, (continuation) =>
+    missionStore.getMission(continuation.missionId)?.mode === 'SOLO'
+      ? missions.resumeExternalWork({
+          ...continuation,
+          publicResult: continuation.publicResult ?? null,
+        })
+      : partyMissions.resumeExternalWork(continuation),
+  );
   registerR3Ipc(validSender, r3Config, r3Store);
   registerAvailabilityIpc(validSender, availability, service);
+  registerRoutingIpc(validSender, routing, routingStore, r3Config, (mission) =>
+    r3Observer.observeMission(mission),
+  );
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -257,6 +276,7 @@ if (!squirrelStartup)
       const capabilityStore = new R0SqliteRepository(db);
       const externalWorkContinuations = new R2ContinuationRepository(db);
       const r3Store = new R3SqliteRepository(db);
+      const routingStore = new R4RoutingRepository(db);
       const capabilities = new R1CapabilityService(capabilityStore);
       const r2Store: R2HumanBridgeServiceStore = {
         ensureHumanBridgeTeammate: (input) => capabilityStore.ensureHumanBridgeTeammate(input),
@@ -459,11 +479,124 @@ if (!squirrelStartup)
         toolRuntime,
       );
       partyMissions.attachExternalWork(externalWork, externalWorkContinuations);
+      missions.attachHumanBridgeExecution(externalWork, externalWorkContinuations, {
+        getByMissionId: (id) => {
+          const assignment = routingStore.getByMissionId(id);
+          return assignment?.externalWorkDraft
+            ? { externalWorkDraft: assignment.externalWorkDraft }
+            : null;
+        },
+      });
+      missions.attachAssignmentGuard({
+        hasAssignment: (id) => routingStore.getByMissionId(id) !== null,
+      });
+      const resumeExternalWork = (
+        continuation: Parameters<Gate5CollaborationService['resumeExternalWork']>[0],
+      ) =>
+        gate3Store.getMission(continuation.missionId)?.mode === 'SOLO'
+          ? missions.resumeExternalWork({
+              ...continuation,
+              publicResult: continuation.publicResult ?? null,
+            })
+          : partyMissions.resumeExternalWork(continuation);
+      const routingDecision = new R4DecisionService({
+        gateway: async () => {
+          if (!routingStore.config().cloudEnabled) return null;
+          const key = await r3Config.resolveKey();
+          if (!key) return null;
+          return process.argv.includes('--gate1-fake-model') &&
+            process.argv.includes('--r4-fake-routing')
+            ? routingFixtureGateway()
+            : r3GatewayFactory(key, 6000);
+        },
+      });
+      const routingPlanner = new RoutingPlanner(
+        {
+          listTeammates: () => store.listTeammates(),
+          benchmarkScores: (id) =>
+            Object.fromEntries(
+              capabilities
+                .profile(id)
+                .dimensions.map((item) => [
+                  item.dimension,
+                  item.prior?.supported &&
+                  typeof item.prior.normalizedScore === 'number' &&
+                  Number.isFinite(item.prior.normalizedScore)
+                    ? item.prior.normalizedScore
+                    : null,
+                ]),
+            ),
+          semanticMetadata: (id) => {
+            const candidate = buildR3ShadowCandidates(id, {
+              teammates: store,
+              skills: gate2Store,
+              experiences: new Gate6SqliteRepository(db),
+              capabilities,
+              eligibility,
+            }).find((item) => item.id === id);
+            if (!candidate) throw new Error('Routing candidate is no longer eligible');
+            return candidate;
+          },
+          getParty: (id) => {
+            const party = gate5Store.getParty(id);
+            return party
+              ? {
+                  ...party,
+                  memberTeammateIds: gate5Store
+                    .listPartyMembers(id)
+                    .map((member) => member.teammateId),
+                }
+              : null;
+          },
+          humanBridgeSupports: (id, dimensions) => {
+            const profile = humanBridge.capabilityProfile();
+            return (
+              profile.teammate.id === id &&
+              dimensions.every((dimension) =>
+                profile.dimensions.some((item) => item.dimension === dimension && item.enabled),
+              )
+            );
+          },
+          appendRoutingReceipt: (receipt) =>
+            gate3Store.transaction(() => {
+              routingStore.appendRoutingReceipt(receipt);
+              gate3Store.appendAuditEvent({
+                id: crypto.randomUUID(),
+                actorType: 'SYSTEM',
+                actorId: null,
+                action: 'routing.decided',
+                targetType: 'ROUTING_RECEIPT',
+                targetId: receipt.id,
+                payloadJson: {
+                  receiptId: receipt.id,
+                  outcome: receipt.outcome,
+                  reason: receipt.reason,
+                  policyVersion: receipt.policyVersion,
+                  assignmentKind: receipt.assignment?.kind ?? null,
+                  coordinatorTeammateId: receipt.assignment?.coordinatorTeammateId ?? null,
+                },
+                createdAt: receipt.createdAt,
+              });
+            }),
+        },
+        eligibility,
+        availability,
+        routingDecision,
+      );
+      const routing = new RoutingMissionService(
+        routingPlanner,
+        routingStore,
+        gate3Store,
+        missions,
+        partyMissions,
+        parties,
+        () => Boolean(tools.getWorkspace().rootPath),
+      );
       const pendingExternalWork = externalWork.listPendingContinuations();
       const protectedMissionIds = new Set(pendingExternalWork.map((item) => item.missionId));
       for (const continuation of pendingExternalWork) {
         try {
-          await partyMissions.resumeExternalWork(continuation);
+          await resumeExternalWork(continuation);
         } catch {
           // The durable continuation remains available for the next startup; do not interrupt its Run.
         }
@@ -472,7 +605,7 @@ if (!squirrelStartup)
       const pendingRequestIds = new Set(pendingExternalWork.map((item) => item.requestId));
       for (const continuation of externalWork.resumeFinalizedRequests()) {
         if (pendingRequestIds.has(continuation.requestId)) continue;
-        await partyMissions.resumeExternalWork(continuation);
+        await resumeExternalWork(continuation);
       }
       experience.reconcileAll();
       let activeWindow = createWindow(
@@ -494,6 +627,8 @@ if (!squirrelStartup)
         r3Store,
         r3Observer,
         availability,
+        routing,
+        routingStore,
       );
       externalWork.subscribeCreated((created) => {
         try {
@@ -531,6 +666,8 @@ if (!squirrelStartup)
             r3Store,
             r3Observer,
             availability,
+            routing,
+            routingStore,
           );
       });
     })

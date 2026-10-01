@@ -608,3 +608,4 @@ export interface ExternalAppProfile {
 export { canTransition, transition } from './mission-state.js';
 
 export * from './r3-2-availability.js';
+export * from './r4-routing.js';

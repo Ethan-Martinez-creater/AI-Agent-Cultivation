@@ -1,0 +1,99 @@
+{
+  "verifiedAt": "2026-10-01T03:46:03.492Z",
+  "migration": 16,
+  "decisionMode": "ACTIVE",
+  "shadowEnabled": false,
+  "checks": [
+    "automatic SOLO Benchmark 90 > 60",
+    "automatic AD_HOC Party uses existing approval and actor Runtime attribution",
+    "denied collaborator has zero model calls and usage",
+    "Human Bridge fallback survives restart and ACCEPT completes the same Run",
+    "Human Bridge has zero model/tool calls and usage",
+    "explicit UNAVAILABLE identity is retained without substitution",
+    "unsupported capability creates no Mission",
+    "routing receipt and assignment Event/Audit are durable"
+  ],
+  "ui": {
+    "missionId": "b2335025-0acf-49e3-bee3-2fb858a6441c",
+    "missionTitle": "R4 自动分配 UI 30240834",
+    "assignedTeammate": {
+      "id": "53bb9fdb-effe-4c07-8fe1-1513b6cbfbdf",
+      "name": "R4 A90 cab53d7c-fd23-453f-8995-4b53cbaf6ad7"
+    },
+    "unavailableTeammate": {
+      "id": "205276aa-10b6-4e42-b440-5b68d00a1eef",
+      "name": "R4 B60 cab53d7c-fd23-453f-8995-4b53cbaf6ad7 副本",
+      "status": "ARCHIVED"
+    },
+    "unavailableReason": "EXPLICIT_TEAMMATE_UNAVAILABLE",
+    "capabilityDefaultsChecked": 0,
+    "routingCloudEnabled": true,
+    "shadowEnabledBefore": false,
+    "shadowEnabledAfter": false,
+    "screenshots": [
+      {
+        "path": "missions-auto-create-1180.png",
+        "viewportWidth": 1180,
+        "documentWidth": 1180,
+        "bodyWidth": 1180
+      },
+      {
+        "path": "mission-receipt-1180.png",
+        "viewportWidth": 1180,
+        "documentWidth": 1180,
+        "bodyWidth": 1180
+      },
+      {
+        "path": "mission-unavailable-choice-1180.png",
+        "viewportWidth": 1180,
+        "documentWidth": 1180,
+        "bodyWidth": 1180
+      },
+      {
+        "path": "settings-routing-900.png",
+        "viewportWidth": 900,
+        "documentWidth": 900,
+        "bodyWidth": 900
+      }
+    ]
+  },
+  "missions": {
+    "solo": "975f9fbe-a958-4485-8fb1-f03201a1c386",
+    "deniedParty": "103707c2-2319-49ff-aced-5442dc012e65",
+    "approvedParty": "686537ee-5fde-4e8e-b704-a555fff33f31",
+    "humanBridge": "7c70d8f3-5736-4346-985d-e514122fdb78",
+    "humanBridgeRun": "caaf6d93-4969-472e-8a08-1c11a049b19b"
+  },
+  "baseline": "a9f6482760d236541e3bb0e1ffde6494e4f1f195",
+  "deterministicTests": {
+    "files": 50,
+    "tests": 375
+  },
+  "validation": [
+    {
+      "command": "npm run test",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run format:check",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run package",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run smoke:package",
+      "exitCode": 0
+    }
+  ],
+  "legacyUiEvidence": ".test-data/r3-3-ui-85da8c6e-4f2e-44c2-8d75-a2b02028cd8b/evidence-manifest.json"
+}

@@ -97,7 +97,7 @@ function projection(
 }
 
 describe('R3.2 availability persistence', () => {
-  it('upgrades a Migration 1 database to Migration 15 with an UNKNOWN legacy projection', () => {
+  it('upgrades a Migration 1 database to latest migration with an UNKNOWN legacy projection', () => {
     const db = database([migrations[0]!]);
     db.prepare(
       `INSERT INTO providers (id, name, kind, created_at, updated_at)
@@ -116,7 +116,7 @@ describe('R3.2 availability persistence', () => {
     runMigrations(db, migrations);
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 15,
+      version: 16,
     });
     expect(new R32AvailabilityRepository(db).getAvailability('teammate-legacy')).toEqual({
       teammateId: 'teammate-legacy',

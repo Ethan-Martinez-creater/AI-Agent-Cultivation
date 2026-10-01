@@ -128,6 +128,8 @@ export class AvailabilityService {
   async prepare(input: {
     teammateId: string;
     runtimeProfileId: string;
+    /** R4 checks only a shortlisted executor, never every candidate. */
+    freshProbe?: boolean;
   }): Promise<PrepareModelOutcome> {
     const identity = this.inspectIdentity(input.teammateId, input.runtimeProfileId);
     let availability = this.get(input.teammateId);
@@ -143,7 +145,11 @@ export class AvailabilityService {
       }
       return unavailable(input.teammateId, input.runtimeProfileId, availability);
     }
-    if (availability.status === 'UNKNOWN') availability = await this.recheck(input.teammateId);
+    if (
+      availability.status === 'UNKNOWN' ||
+      (input.freshProbe && availability.status !== 'UNAVAILABLE')
+    )
+      availability = await this.recheck(input.teammateId);
     const refreshed = this.inspectIdentity(input.teammateId, input.runtimeProfileId);
     availability = this.get(input.teammateId) ?? availability;
     if (refreshed.reason) {

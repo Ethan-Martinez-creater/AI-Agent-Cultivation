@@ -310,10 +310,8 @@ export interface ExternalWorkArtifactTarget {
   maxSizeBytes: number;
 }
 
-export interface CreateExplicitExternalWorkInput {
-  missionId: string;
-  runId: string;
-  requesterTeammateId: string;
+/** Structured, user-authored work sent to the Human Bridge for one capability. */
+export interface HumanBridgeExternalWorkDraft {
   capability: CapabilityDimension;
   title: string;
   prompt: string;
@@ -322,6 +320,12 @@ export interface CreateExplicitExternalWorkInput {
   targetWorkspacePaths: string[];
   acceptanceCriteria: string[];
   externalAppProfileId?: string | null;
+}
+
+export interface CreateExplicitExternalWorkInput extends HumanBridgeExternalWorkDraft {
+  missionId: string;
+  runId: string;
+  requesterTeammateId: string;
 }
 
 export interface WorkspaceArtifactConstraints {
@@ -638,6 +642,41 @@ export class ExternalWorkService {
     const continuation = this.resolveRequest(request, 'CANCELLED', null);
     this.publishContinuation(continuation);
     return continuation;
+  }
+
+  /** Cancels work with its owning Mission, leaving that Mission terminal in the caller's transaction. */
+  cancelForMission(input: {
+    requestId: string;
+    missionId: string;
+    runId: string;
+  }): ExternalWorkRequestRecord {
+    const request = this.requireRequest(input.requestId);
+    if (
+      request.missionId !== input.missionId ||
+      request.runId !== input.runId ||
+      !['PENDING', 'IN_PROGRESS', 'SUBMITTED'].includes(request.state)
+    ) {
+      throw new DomainError('CONFLICT', 'ExternalWork 不属于可取消的当前 MissionRun');
+    }
+    const mission = this.store.getMission(request.missionId);
+    const run = this.store.listRuns(request.missionId).find((value) => value.id === request.runId);
+    if (
+      mission?.state !== 'WAITING_EXTERNAL_WORK' ||
+      !run ||
+      run.status !== 'RUNNING' ||
+      this.store.listRuns(request.missionId).at(-1)?.id !== run.id
+    ) {
+      throw new DomainError('MISSION_INVALID_STATE', 'ExternalWork 对应的 MissionRun 不可取消');
+    }
+    const at = this.now();
+    let cancelled!: ExternalWorkRequestRecord;
+    this.store.transaction(() => {
+      cancelled = this.transitionRequest(request, 'CANCELLED', null, at);
+      this.recordLifecycle(cancelled, 'external_work.cancelled', at, {
+        cancelledWithMission: true,
+      });
+    });
+    return cancelled;
   }
 
   /**
