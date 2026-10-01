@@ -40,7 +40,7 @@ describe('SQLite bootstrap', () => {
         .run(),
     ).toThrow();
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 17,
+      count: 18,
     });
     const tables = db
       .prepare("SELECT name FROM sqlite_master WHERE type IN ('table', 'view')")
@@ -98,6 +98,7 @@ describe('SQLite bootstrap', () => {
       'workflow_artifact_inputs',
       'workflow_artifact_bindings',
       'workflow_validation_receipts',
+      'workflow_run_output_validations',
       'workflow_decisions',
       'workflow_checkpoints',
       'workflow_events',
@@ -114,12 +115,12 @@ describe('SQLite bootstrap', () => {
     );
     runMigrations(db, migrations);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 17,
+      count: 18,
     });
     db.close();
     db = openDatabase(path);
     expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-      count: 17,
+      count: 18,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     db.close();
@@ -215,6 +216,7 @@ describe('SQLite bootstrap', () => {
       { version: 15 },
       { version: 16 },
       { version: 17 },
+      { version: 18 },
     ]);
     db.close();
   });

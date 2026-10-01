@@ -38,6 +38,7 @@ import type {
   RoutingTaskContext,
   RoutingDecisionReceipt,
   WorkflowDetail,
+  WorkflowInputs,
   WorkflowRun,
   WorkflowVersion,
 } from '@cultivation/domain';
@@ -384,7 +385,11 @@ export interface CultivationBridge {
     versions(): Promise<WorkflowVersion[]>;
     list(): Promise<WorkflowRun[]>;
     detail(id: string): Promise<WorkflowDetail>;
-    create(input: { definitionId: string; version: number }): Promise<WorkflowDetail>;
+    create(input: {
+      definitionId: string;
+      version: number;
+      inputs?: WorkflowInputs;
+    }): Promise<WorkflowDetail>;
     advance(id: string): Promise<WorkflowDetail>;
     retryMission(id: string): Promise<WorkflowDetail>;
     retryStep(id: string): Promise<WorkflowDetail>;

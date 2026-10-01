@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type {
   WorkflowArtifact,
   WorkflowDetail,
+  WorkflowInputs,
   WorkflowRun,
   WorkflowRunState,
   WorkflowStepRun,
@@ -10,8 +11,10 @@ import type {
   WorkflowVersion,
   WorkflowWaitReason,
 } from '@cultivation/domain';
+import { EMPTY_WORKFLOW_INPUT_SCHEMA } from '@cultivation/domain';
 import type { CultivationBridge as PreloadBridge } from '../../../preload/preload.js';
 import { EmptyState } from '../components/EmptyState.js';
+import { WorkflowInputForm } from '../components/WorkflowInputForm.js';
 import { PageHeading } from '../ui-shared.js';
 import './mission-party.css';
 import './product-pages.css';
@@ -100,6 +103,17 @@ function workflowApi() {
 
 function isTerminal(state: WorkflowRunState): boolean {
   return state === 'COMPLETED' || state === 'CANCELLED';
+}
+
+function isWorkflowInputError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const candidate = error as { code?: unknown; message?: unknown };
+  return (
+    candidate.code === 'WORKFLOW_INPUT_INVALID' ||
+    (typeof candidate.message === 'string' &&
+      (candidate.message.includes('工作流输入无效') ||
+        candidate.message.includes('工作流输入字段 ')))
+  );
 }
 
 function ArtifactDisclosure({ artifact, label }: { artifact: WorkflowArtifact; label: string }) {
@@ -241,7 +255,7 @@ export function WorkflowsPage() {
     if (selectId) setSelectedRunId(selectId);
   };
 
-  const startRun = async () => {
+  const startRun = async (inputs: WorkflowInputs) => {
     if (!selectedVersion) return;
     setBusy(true);
     setError('');
@@ -250,6 +264,7 @@ export function WorkflowsPage() {
       const nextDetail = await workflowApi().create({
         definitionId: selectedVersion.definition.id,
         version: selectedVersion.version,
+        inputs,
       });
       setDetail(nextDetail);
       setSelectedRunId(nextDetail.run.id);
@@ -259,8 +274,12 @@ export function WorkflowsPage() {
       } catch {
         setError('运行已创建，但运行历史刷新失败。请重新选择或稍后重试。');
       }
-    } catch {
-      setError('创建工作流运行失败，请检查所选 Definition 后重试。');
+    } catch (error) {
+      setError(
+        isWorkflowInputError(error)
+          ? '工作流输入校验失败，请检查必填项、格式和范围后重试。'
+          : '创建工作流运行失败，请检查所选 Definition 后重试。',
+      );
     } finally {
       setBusy(false);
     }
@@ -468,7 +487,7 @@ export function WorkflowsPage() {
           <section className="workflow-launch-card">
             <div>
               <h2>启动一次运行</h2>
-              <p>运行会固定到所选版本。创建后请检查步骤，再手动开始执行。</p>
+              <p>运行会固定到所选版本。填写该版本声明的输入后创建，再检查步骤并手动开始执行。</p>
             </div>
             {orderedVersions.length ? (
               <div className="workflow-launch-controls">
@@ -486,14 +505,6 @@ export function WorkflowsPage() {
                       </option>
                     ))}
                   </select>
-                  <button
-                    className="button primary"
-                    type="button"
-                    disabled={busy || !selectedVersion}
-                    onClick={() => void startRun()}
-                  >
-                    {busy ? '处理中…' : '创建运行'}
-                  </button>
                 </div>
                 {selectedVersion && (
                   <p className="workflow-version-description">
@@ -503,6 +514,14 @@ export function WorkflowsPage() {
                       {selectedVersion.definition.source} · {selectedVersion.steps.length} 个步骤
                     </span>
                   </p>
+                )}
+                {selectedVersion && (
+                  <WorkflowInputForm
+                    key={versionKey(selectedVersion)}
+                    schema={selectedVersion.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA}
+                    busy={busy}
+                    onSubmit={startRun}
+                  />
                 )}
               </div>
             ) : (
@@ -544,6 +563,16 @@ export function WorkflowsPage() {
                     )}
                     {lastStep && missionLink(lastStep.missionId)}
                   </div>
+                )}
+                {detail.run.inputSnapshot !== undefined && (
+                  <details className="workflow-input-snapshot">
+                    <summary>本次冻结输入（只读）</summary>
+                    {Object.keys(detail.run.inputSnapshot).length ? (
+                      <pre>{JSON.stringify(detail.run.inputSnapshot, null, 2)}</pre>
+                    ) : (
+                      <p>本次运行没有输入字段。</p>
+                    )}
+                  </details>
                 )}
                 <div className="workflow-actions">
                   {(detail.run.state === 'READY' ||

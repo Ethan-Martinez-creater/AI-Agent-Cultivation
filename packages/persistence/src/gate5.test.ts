@@ -493,7 +493,7 @@ describe('Gate 5 SQLite persistence', () => {
       });
       expect(legacy.created_at).not.toBe('');
       expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-        count: 17,
+        count: 18,
       });
     } finally {
       db.close();

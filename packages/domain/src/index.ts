@@ -1,5 +1,6 @@
 import type { Id, IsoDateTime } from '@cultivation/shared';
 export * from './w1-workflow.js';
+export * from './w1-workflow-contract.js';
 
 export type TeammateStatus = 'ACTIVE' | 'ARCHIVED';
 export type Realm = 'QI_REFINING' | 'FOUNDATION' | 'CORE' | 'NASCENT_SOUL';

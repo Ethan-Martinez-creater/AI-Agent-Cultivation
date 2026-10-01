@@ -19,6 +19,7 @@ import r3_1IdentityCapabilitySql from '../../../migrations/0014_r3_1_identity_ca
 import r3_2AvailabilitySql from '../../../migrations/0015_r3_2_availability.sql?raw';
 import r4RoutingSql from '../../../migrations/0016_r4_controlled_routing.sql?raw';
 import w1WorkflowFoundationSql from '../../../migrations/0017_w1_workflow_foundation.sql?raw';
+import w1WorkflowIoSql from '../../../migrations/0018_w1_workflow_io.sql?raw';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
 
@@ -99,6 +100,7 @@ export const migrations: readonly Migration[] = [
   { version: 15, name: 'r3_2_availability', sql: r3_2AvailabilitySql },
   { version: 16, name: 'r4_controlled_routing', sql: r4RoutingSql },
   { version: 17, name: 'w1_workflow_foundation', sql: w1WorkflowFoundationSql },
+  { version: 18, name: 'w1_workflow_io', sql: w1WorkflowIoSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

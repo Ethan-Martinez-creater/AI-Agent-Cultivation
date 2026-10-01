@@ -12,6 +12,7 @@ import type {
   RoutingTaskContext,
   Mission,
   MissionRun,
+  WorkflowFinalValidation,
 } from '@cultivation/domain';
 
 export interface WorkflowRepository {
@@ -32,6 +33,7 @@ export interface WorkflowRepository {
   appendDecision(value: WorkflowDecisionFact): void;
   appendCheckpoint(value: WorkflowCheckpoint): void;
   appendEvent(value: WorkflowEvent): void;
+  appendFinalValidation(value: WorkflowFinalValidation): void;
 }
 export interface WorkflowMissionSnapshot {
   mission: Mission;

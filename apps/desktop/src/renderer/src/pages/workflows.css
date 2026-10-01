@@ -186,6 +186,186 @@
   font-size: 11px;
 }
 
+.workflow-input-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.workflow-input-fields {
+  display: grid;
+  gap: 13px;
+}
+
+.workflow-input-field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.workflow-input-label,
+.workflow-input-group legend {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.workflow-input-required {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.workflow-input-field input:not([type='checkbox']),
+.workflow-input-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--surface);
+  font: inherit;
+  font-size: 12px;
+}
+
+.workflow-input-field input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.workflow-input-control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-input-control-row > input:not([type='checkbox']),
+.workflow-input-control-row > select {
+  flex: 1;
+}
+
+.workflow-input-clear {
+  width: fit-content;
+  min-height: 30px;
+  padding: 3px 9px;
+  font-size: 11px;
+}
+
+.workflow-input-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 30px;
+}
+
+.workflow-input-checkbox-row .workflow-input-label {
+  cursor: pointer;
+}
+
+.workflow-input-description,
+.workflow-input-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.workflow-input-group {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.workflow-input-group legend {
+  padding: 0 5px;
+}
+
+.workflow-input-group > .workflow-input-description,
+.workflow-input-group > .workflow-input-hint {
+  margin: 0 0 10px;
+}
+
+.workflow-input-array-items {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+.workflow-input-array-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.workflow-input-remove {
+  margin-bottom: 1px;
+}
+
+.workflow-input-date-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.workflow-input-error {
+  margin: 0;
+  color: #a63329;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.workflow-input-submit-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.workflow-input-snapshot {
+  margin-top: 14px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.workflow-input-snapshot > summary {
+  width: fit-content;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.workflow-input-snapshot pre {
+  max-height: 260px;
+  overflow: auto;
+  margin: 10px 0 0;
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  font: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.workflow-input-snapshot p {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
 .workflow-no-definitions {
   padding: 14px;
   border: 1px solid var(--line);
@@ -629,6 +809,11 @@
 
   .workflow-confirmation-actions {
     justify-content: flex-end;
+  }
+
+  .workflow-input-array-item,
+  .workflow-input-date-pair {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .workflow-attempt-list,

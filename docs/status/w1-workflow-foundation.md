@@ -66,6 +66,41 @@ W1 提供 inline 文本长度/章节、JSON 必需字段及外部文件 metadata
 
 整合过程中修正 smoke 的旧导航标识/label，并将旧阶段“最新 schema 总数”断言由 16 同步为 17；不修改其业务测试断言或任何历史 migration。最终六项以上表为准。
 
+## W1 corrective repair：I/O contract 与版本语义
+
+修复基线 `main@06b122829013fd0af0bf2a42cefecc24a1798fdd`，验收日期 2026-10-01。新增 `0018_w1_workflow_io.sql`；0001–0017 完全不改。没有新增依赖。
+
+### 冻结输入与最终输出
+
+Version 正式支持 `inputSchema` 和 `outputSchema`。W1 使用 closed、bounded 的声明式 schema subset：string、number/integer、boolean、enum、array、object、ISO date/dateRange 和 opaque ArtifactRef metadata。禁止未知字段、类型强制转换、默认补值、任意表达式或路径权限。集中策略 `w1-io-v1` 限制 schema 深度 4、object 字段 16、array 项 20、string 长度 4000、Run 输入 32768 UTF-8 bytes、单 Step 输入 8000 UTF-8 bytes。不是完整 JSON Schema，也没有文件导入流程。
+
+`createRun` 在写入任何 Run/Step 前按冻结版本校验 `inputs`，持久化独立 `input_snapshot_json`。repository 再验证，SQLite UPDATE trigger 禁止改写；typed IPC 仅提供创建入口，没有修改 snapshot 或任意状态入口。Renderer 显示 schema-driven 外部 Label 表单与只读快照。旧无输入 Version 等价于空 closed schema，旧 Run 升级获得 `{}`，继续正常运行。
+
+Step 必须通过 `workflowInputKeys` 明确声明可见字段；默认看不到任何 Workflow Input。原始输入只进入 bounded assistant untrusted data report，不做模板插值，不放入 system/user instruction、Mission objective 或 R4 routing context。ArtifactRef 仅有 id/kind/name/contentHash 元数据，不查找文件或获得读取、Permission、状态修改 authority。
+
+`outputSchema.outputs` 指向冻结版本明确声明的 Step/outputKey，可指定 required 和独立的最终 validator。所有 Step 完成后重新验证最新 attempt 的真实 Artifact、Step validation、Mission/Run provenance 与 final validator；失败时 Run 保持 WAITING/USER_CONFIRMATION，不因模型声称完成而推进。final receipt 与 Run 完成同事务提交。新增 append-only `workflow_run_output_validations` 保存 input/state hash、精确 output bindings 和错误；SQL 完成 guard 要求 valid receipt，验证当前 producer/MissionRun/hash，禁止缺失 required final output。final contract 与 producer Step contract 可以不同。重复 reconcile/restart 不重复生成相同 receipt，不重放模型/工具。既有 COMPLETED Run 不回填或重跑。
+
+### Version 演进
+
+Definition ID/source 保持稳定；每个 `(definitionId, version)` 完全 immutable。name/description/category、I/O schema、Reference Basis metadata、Step Graph 在新 Version 中可合法变更，旧 Run 永远读取自己的 pinned version。原 `workflow_definitions` 保留 bootstrap metadata，不作为所有版本的展示真相；版本化 metadata 从 `version_json` 读取。旧 Version UPDATE/DELETE、相同版本改内容及跨版本改 source 仍拒绝。
+
+### 本轮完整验证
+
+新增 29 项测试，总计 57 文件、469 项全部通过。覆盖 missing/unknown、enum/range/array bounds、日期与 opaque reference、snapshot immutable/restart、Step allowlist、Renderer/IPC 边界、final output 不满足不完成、真实 SQLite receipt guard、v1 Run 启动后发布 v2、版本化 metadata/I-O/graph、旧 Version UPDATE/DELETE 与旧 W1/Gate 0–6/R0–R4 全量回归。
+
+| 命令                    | 结果                                                   |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run test`          | 57 文件、469 项通过                                    |
+| `npm run typecheck`     | 通过                                                   |
+| `npm run lint`          | 通过                                                   |
+| `npm run format:check`  | 通过                                                   |
+| `npm run package`       | Windows x64 / Electron 44.4.3；native dependencies 1/1 |
+| `npm run smoke:package` | Gate 0–6、R0–R4、W1 全量真实 packaged 通过             |
+
+[本轮 packaged evidence](../evidence/w1-corrective-io/README.md) 包含六张截图、三尺寸布局与 SQLite I/O facts。UI 实际提交输入，验证 malicious data role、未声明字段隔离、v1 frozen snapshot、Renderer mutation/DB trigger、最终校验失败和重启幂等。原 Party/Tool/Human Bridge 审批同 Run 恢复及两处 crash zero replay 再次通过。首次专项 smoke 的历史列表取第一项假设已修成按 definition/version 找当前 Run，随后专项和完整 smoke 均通过。
+
+Package exe SHA-256：`ED9AEE90E5BF8696A6CE83EB8E7E17423899552892147E562AF974435818A394`。所有本轮 profile/缓存/worktree 在项目内；构建的 R: 临时映射已解除。测试环境曾被子代理误用 pnpm 移动部分原依赖目录，已逐个恢复原位置；未安装/升级依赖，package.json/lockfile 无变化。旧阶段 schema 总数断言同步为 18，不修改业务断言或历史 migration。
+
 ## 明确未实现
 
 无 Built-in Workflow、用户编辑器、Import Existing Work、SUBWORKFLOW、并行 DAG、任意循环、Revision Group、W2 Artifact Contract Registry、R5 Harness optimization 或动态生成节点。没有新的 Agent 能力、Runtime switch、动态 Capability/评价、Realm 晋级或自动副作用重放。没有新增依赖。

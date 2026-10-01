@@ -116,7 +116,7 @@ describe('R3.2 availability persistence', () => {
     runMigrations(db, migrations);
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 17,
+      version: 18,
     });
     expect(new R32AvailabilityRepository(db).getAvailability('teammate-legacy')).toEqual({
       teammateId: 'teammate-legacy',

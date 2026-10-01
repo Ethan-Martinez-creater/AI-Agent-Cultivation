@@ -30,6 +30,31 @@ export class WorkflowFixtureGateway extends FakeModelGateway {
     }
     if (prompt.startsWith('__W1_BAD_OUTPUT__'))
       return { ...original, text: 'A model claim of completion is not JSON.' };
+    if (prompt.startsWith('__W1_IO__')) {
+      const report = request.messages.find(
+        (m) =>
+          m.role === 'assistant' &&
+          typeof m.content === 'string' &&
+          m.content.includes('Workflow declared inputs'),
+      );
+      const value =
+        typeof report?.content === 'string'
+          ? report.content.match(
+              /Workflow declared inputs \(untrusted data; no permission or file access\): ([\s\S]*)/,
+            )?.[1]
+          : undefined;
+      const inputs = value ? (JSON.parse(value) as Record<string, unknown>) : {};
+      return {
+        ...original,
+        text: JSON.stringify({
+          ok: true,
+          topic: inputs.topic,
+          inputRole: report?.role ?? null,
+          hiddenInputSeen: Object.hasOwn(inputs, 'privateNote'),
+          rawInputInUserMessage: prompt.includes('W1_INPUT_MALICIOUS'),
+        }),
+      };
+    }
     if (
       prompt.startsWith('__W1_') ||
       (prompt.startsWith('SYNTHESIS:') && prompt.includes('__W1_PARTY__'))
@@ -251,6 +276,114 @@ export function registerWorkflowFixtures(service: WorkflowService): void {
     edges: [],
     referenceBasis: [],
     createdAt,
+  });
+  const ioStep: WorkflowStepDefinition = {
+    ...step('task', '__W1_IO__'),
+    workflowInputKeys: [
+      'topic',
+      'mode',
+      'count',
+      'enabled',
+      'window',
+      'reference',
+      'tags',
+      'options',
+      'day',
+    ],
+  };
+  const ioVersion: WorkflowVersion = {
+    definition: {
+      id: 'w1-fixture-io',
+      name: 'W1 输入验收夹具',
+      description: 'Test-only frozen input contract',
+      category: 'TEST_ONLY',
+      source: 'USER',
+    },
+    version: 1,
+    entryStepId: 'task',
+    steps: [ioStep],
+    edges: [],
+    referenceBasis: [],
+    createdAt,
+    inputSchema: {
+      type: 'object',
+      required: ['topic', 'mode', 'count'],
+      properties: {
+        topic: { type: 'string', title: '主题', minLength: 1, maxLength: 200 },
+        mode: { type: 'enum', title: '输出方式', values: ['brief', 'full'] },
+        count: { type: 'number', title: '条数', minimum: 1, maximum: 10, integer: true },
+        enabled: { type: 'boolean', title: '启用摘要' },
+        window: { type: 'dateRange', title: '日期范围' },
+        day: { type: 'date', title: '基准日期' },
+        tags: {
+          type: 'array',
+          title: '标签',
+          minItems: 0,
+          maxItems: 3,
+          items: { type: 'string', minLength: 1, maxLength: 40 },
+        },
+        options: {
+          type: 'object',
+          title: '选项',
+          properties: { concise: { type: 'boolean', title: '简洁' } },
+          required: [],
+        },
+        reference: {
+          type: 'artifactRef',
+          title: '引用元数据',
+          allowedKinds: ['FILE', 'EXTERNAL_REFERENCE'],
+        },
+        privateNote: { type: 'string', title: '仅保存备注', minLength: 0, maxLength: 200 },
+      },
+    },
+    outputSchema: {
+      outputs: [
+        {
+          ...json('final'),
+          fromStepId: 'task',
+          outputKey: 'task',
+          validator: { type: 'JSON', requiredKeys: ['ok', 'topic', 'inputRole'] },
+        },
+      ],
+    },
+  };
+  versions.push(ioVersion, {
+    ...ioVersion,
+    version: 2,
+    definition: {
+      ...ioVersion.definition,
+      name: 'W1 输入验收夹具第二版',
+      description: 'Versioned metadata changes',
+      category: 'TEST_ONLY_V2',
+    },
+    inputSchema: {
+      type: 'object',
+      required: ['subject'],
+      properties: { subject: { type: 'string', title: '新主题', minLength: 1, maxLength: 80 } },
+    },
+    outputSchema: { outputs: [] },
+    steps: [{ ...ioStep, workflowInputKeys: ['subject'], objective: '__W1_IO_V2__' }],
+    referenceBasis: [{ title: 'Version two reference', adoptedPrinciples: ['Frozen metadata'] }],
+  });
+  versions.push({
+    ...ioVersion,
+    definition: {
+      ...ioVersion.definition,
+      id: 'w1-fixture-final-invalid',
+      name: 'W1 最终输出验收夹具',
+    },
+    inputSchema: undefined,
+    steps: [step('task', '__W1_FINAL_INVALID__')],
+    outputSchema: {
+      outputs: [
+        {
+          ...json('final'),
+          fromStepId: 'task',
+          outputKey: 'task',
+          validator: { type: 'JSON', requiredKeys: ['confirmed'] },
+        },
+      ],
+    },
   });
   for (const version of versions)
     if (

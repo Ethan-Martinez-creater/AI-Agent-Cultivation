@@ -5,6 +5,9 @@ import {
   transitionWorkflowRun,
   transitionWorkflowStep,
   validateWorkflowVersion,
+  EMPTY_WORKFLOW_INPUT_SCHEMA,
+  validateWorkflowInputs,
+  workflowInputsForStep,
 } from '@cultivation/domain';
 import type {
   WorkflowRun,
@@ -17,6 +20,8 @@ import type {
   WorkflowWaitReason,
   WorkflowEdge,
   WorkflowArtifactBinding,
+  WorkflowInputs,
+  WorkflowFinalValidation,
 } from '@cultivation/domain';
 import type {
   WorkflowRepository,
@@ -115,15 +120,25 @@ export class WorkflowService {
     if (!detail) throw new DomainError('NOT_FOUND', 'Workflow Run 不存在');
     return detail;
   }
-  createRun(input: { definitionId: string; version: number }): WorkflowDetail {
+  createRun(input: {
+    definitionId: string;
+    version: number;
+    inputs?: WorkflowInputs;
+  }): WorkflowDetail {
     const version = this.store.getVersion(input.definitionId, input.version);
     if (!version) throw new DomainError('NOT_FOUND', 'Workflow 版本不存在');
     validateWorkflowVersion(version);
+    const snapshot = validateWorkflowInputs(
+      version.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA,
+      input.inputs ?? {},
+    );
+    for (const step of version.steps) workflowInputsForStep(version, snapshot, step.id);
     const at = this.clock.now();
     const run: WorkflowRun = {
       id: this.clock.id(),
       definitionId: input.definitionId,
       definitionVersion: input.version,
+      inputSnapshot: snapshot,
       state: 'DRAFT',
       waitReason: null,
       createdAt: at,
@@ -794,7 +809,73 @@ export class WorkflowService {
   }
   private finishRun(detail: WorkflowDetail): void {
     if (this.active(detail, true)) return;
+    const outputBindings: WorkflowFinalValidation['outputBindings'] = [];
+    const errors: string[] = [];
+    for (const spec of detail.version.outputSchema?.outputs ?? []) {
+      const producer = detail.steps
+        .filter((s) => s.stepId === spec.fromStepId)
+        .sort((a, b) => b.attempt - a.attempt)[0];
+      const binding =
+        producer?.state === 'COMPLETED'
+          ? detail.bindings.find(
+              (b) => b.stepRunId === producer.id && b.role === 'OUTPUT' && b.key === spec.outputKey,
+            )
+          : undefined;
+      const artifact = detail.artifacts.find(
+        (a) =>
+          a.id === binding?.artifactId &&
+          a.producerStepRunId === producer?.id &&
+          a.missionRunId === producer?.missionRunId,
+      );
+      if (!artifact) {
+        if (spec.required) errors.push(`MISSING_FINAL_OUTPUT:${spec.key}`);
+        continue;
+      }
+      if (
+        !detail.validations.some(
+          (v) =>
+            v.artifactId === artifact.id &&
+            v.stepRunId === producer?.id &&
+            v.contentHash === artifact.contentHash &&
+            v.valid,
+        )
+      )
+        errors.push(`UNVALIDATED_FINAL_OUTPUT:${spec.key}`);
+      errors.push(...validateWorkflowArtifact(spec, artifact).map((code) => `${code}:${spec.key}`));
+      outputBindings.push({
+        key: spec.key,
+        artifactId: artifact.id,
+        contentHash: artifact.contentHash,
+      });
+    }
+    const inputHash = workflowHash(detail.run.inputSnapshot ?? {});
+    const stateHash = workflowHash({
+      version: detail.run.definitionVersion,
+      inputHash,
+      outputBindings,
+      errors,
+      policy: 'w1-io-v1',
+    });
+    const receipt: WorkflowFinalValidation = {
+      id: this.clock.id(),
+      workflowRunId: detail.run.id,
+      definitionVersion: detail.run.definitionVersion,
+      inputHash,
+      stateHash,
+      outputBindings,
+      valid: errors.length === 0,
+      errors,
+      createdAt: this.clock.now(),
+    };
     this.store.transaction(() => {
+      if (!detail.finalValidations?.some((v) => v.stateHash === stateHash))
+        this.store.appendFinalValidation(receipt);
+      if (errors.length) {
+        this.setRun(this.detail(detail.run.id).run, 'WAITING', 'USER_CONFIRMATION');
+        if (!detail.finalValidations?.some((v) => v.stateHash === stateHash))
+          this.event(detail.run.id, null, 'workflow.final_output_invalid', { code: errors[0]! });
+        return;
+      }
       for (const s of detail.steps) if (s.state === 'PENDING') this.setStep(s, 'SKIPPED');
       this.setRun(this.detail(detail.run.id).run, 'COMPLETED');
       this.event(detail.run.id, null, 'workflow.completed', {});

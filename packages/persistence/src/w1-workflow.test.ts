@@ -1,10 +1,13 @@
 import { createHash } from 'node:crypto';
+import { existsSync, unlinkSync } from 'node:fs';
+import { join } from 'node:path';
 import Database from 'better-sqlite3';
 import { describe, expect, it } from 'vitest';
 import type {
   WorkflowArtifact,
   WorkflowArtifactSpec,
   WorkflowCheckpoint,
+  WorkflowFinalValidation,
   Mission,
   WorkflowRun,
   WorkflowStepDefinition,
@@ -94,12 +97,14 @@ function createRun(
   repository: W1WorkflowRepository,
   frozenVersion: WorkflowVersion,
   id = 'workflow-run-1',
+  inputSnapshot: WorkflowRun['inputSnapshot'] = {},
 ): { run: WorkflowRun; steps: WorkflowStepRun[] } {
   repository.publishVersion(frozenVersion);
   const run: WorkflowRun = {
     id,
     definitionId: frozenVersion.definition.id,
     definitionVersion: frozenVersion.version,
+    inputSnapshot,
     state: 'DRAFT',
     waitReason: null,
     createdAt: NOW,
@@ -200,6 +205,12 @@ function stable(value: unknown): unknown {
     );
   }
   return value;
+}
+
+function jsonHash(value: unknown): string {
+  return createHash('sha256')
+    .update(JSON.stringify(stable(value)))
+    .digest('hex');
 }
 
 function artifactHash(content: string, metadata: WorkflowArtifact['metadata']): string {
@@ -375,14 +386,14 @@ function sqliteMissionPort(
 }
 
 describe('W1 SQLite persistence', () => {
-  it('upgrades a version 1 database through migration 17 with foreign keys enabled', () => {
+  it('upgrades a version 1 database through migration 18 with foreign keys enabled', () => {
     const db = new Database(':memory:');
     db.pragma('foreign_keys = ON');
     runMigrations(db, [migrations[0]!]);
     runMigrations(db, migrations.slice(1));
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 17,
+      version: 18,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     expect(
@@ -394,6 +405,202 @@ describe('W1 SQLite persistence', () => {
     ).toEqual({ '1': 1 });
     db.close();
   });
+
+  it('keeps legacy completed Runs readable without backfilling final receipts', () => {
+    const db = new Database(':memory:');
+    db.pragma('foreign_keys = ON');
+    runMigrations(db, migrations.slice(0, 17));
+    const frozenVersion = version();
+    db.prepare(
+      `INSERT INTO workflow_definitions (id, name, description, category, source, created_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    ).run(
+      frozenVersion.definition.id,
+      frozenVersion.definition.name,
+      frozenVersion.definition.description,
+      frozenVersion.definition.category,
+      frozenVersion.definition.source,
+      frozenVersion.createdAt,
+    );
+    db.prepare(
+      `INSERT INTO workflow_versions
+        (definition_id, version, entry_step_id, version_json, content_hash, created_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    ).run(
+      frozenVersion.definition.id,
+      frozenVersion.version,
+      frozenVersion.entryStepId,
+      JSON.stringify(frozenVersion),
+      HASH,
+      frozenVersion.createdAt,
+    );
+    db.prepare(
+      `INSERT INTO workflow_runs
+        (id, definition_id, definition_version, state, created_at, updated_at)
+       VALUES ('legacy-completed-run', ?, ?, 'DRAFT', ?, ?)`,
+    ).run(frozenVersion.definition.id, frozenVersion.version, NOW, NOW);
+    db.prepare("UPDATE workflow_runs SET state = 'READY' WHERE id = 'legacy-completed-run'").run();
+    db.prepare(
+      "UPDATE workflow_runs SET state = 'RUNNING' WHERE id = 'legacy-completed-run'",
+    ).run();
+    db.prepare(
+      "UPDATE workflow_runs SET state = 'COMPLETED' WHERE id = 'legacy-completed-run'",
+    ).run();
+
+    runMigrations(db, migrations.slice(17));
+
+    expect(
+      db
+        .prepare(
+          "SELECT state, input_snapshot_json FROM workflow_runs WHERE id = 'legacy-completed-run'",
+        )
+        .get(),
+    ).toEqual({
+      state: 'COMPLETED',
+      input_snapshot_json: '{}',
+    });
+    expect(
+      db
+        .prepare('SELECT id FROM workflow_run_output_validations WHERE workflow_run_id = ?')
+        .all('legacy-completed-run'),
+    ).toEqual([]);
+    expect(new W1WorkflowRepository(db).listRuns()[0]?.inputSnapshot).toEqual({});
+    db.close();
+  });
+
+  it('requires a valid exact final binding receipt before completing a Run', () => {
+    const db = database();
+    const repository = new W1WorkflowRepository(db);
+    const resultSpec = outputSpec();
+    const finalSpec = {
+      ...resultSpec,
+      key: 'final-result',
+      contractId: 'contract.final-result',
+      contractVersion: '2',
+      fromStepId: 'work',
+      outputKey: resultSpec.key,
+    };
+    const frozenVersion: WorkflowVersion = {
+      ...version([step('work', { outputs: [resultSpec] })]),
+      outputSchema: { outputs: [finalSpec] },
+    };
+    const { run, steps } = createRun(repository, frozenVersion, 'final-validation-run');
+
+    expect(() =>
+      repository.saveRun({ ...run, state: 'COMPLETED', updatedAt: 'completed' }, 'RUNNING'),
+    ).toThrow();
+
+    const mission = addMission(db, 'mission-final-output', { resultText: 'Final result' });
+    const bound = bindMission(repository, steps[0]!, mission);
+    const artifact = missionArtifact(bound, mission, 'Final result', {
+      metadata: { outputKey: resultSpec.key },
+    });
+    persistOutput(repository, bound, artifact, resultSpec);
+    repository.appendCheckpoint(checkpoint(run, [bound.id]));
+    expect(
+      repository.saveStep({ ...bound, state: 'COMPLETED', updatedAt: 'completed' }, 'RUNNING'),
+    ).toBe(true);
+
+    const receipt: WorkflowFinalValidation = {
+      id: 'final-validation-1',
+      workflowRunId: run.id,
+      definitionVersion: run.definitionVersion,
+      inputHash: jsonHash({}),
+      stateHash: HASH,
+      outputBindings: [
+        { key: finalSpec.key, artifactId: artifact.id, contentHash: artifact.contentHash },
+      ],
+      valid: true,
+      errors: [],
+      createdAt: NOW,
+    };
+    expect(() =>
+      repository.appendFinalValidation({ ...receipt, inputHash: 'b'.repeat(64) }),
+    ).toThrow('inputHash');
+    expect(() => repository.appendFinalValidation({ ...receipt, outputBindings: [] })).toThrow();
+    expect(() =>
+      repository.appendFinalValidation({
+        ...receipt,
+        outputBindings: [{ ...receipt.outputBindings[0]!, contentHash: 'b'.repeat(64) }],
+      }),
+    ).toThrow();
+
+    repository.appendFinalValidation(receipt);
+    expect(repository.detail(run.id)?.finalValidations).toEqual([receipt]);
+    expect(() =>
+      db
+        .prepare('UPDATE workflow_run_output_validations SET valid = 0 WHERE id = ?')
+        .run(receipt.id),
+    ).toThrow();
+    expect(() =>
+      db.prepare('DELETE FROM workflow_run_output_validations WHERE id = ?').run(receipt.id),
+    ).toThrow();
+    expect(
+      repository.saveRun({ ...run, state: 'COMPLETED', updatedAt: 'completed' }, 'RUNNING'),
+    ).toBe(true);
+    expect(repository.detail(run.id)?.run.state).toBe('COMPLETED');
+    db.close();
+  });
+
+  it('validates, freezes, and restores the immutable Run input snapshot', () => {
+    const path = join(process.cwd(), `.w1-input-snapshot-${crypto.randomUUID()}.sqlite`);
+    let db: Database.Database | null = new Database(path);
+    try {
+      db.pragma('foreign_keys = ON');
+      runMigrations(db, migrations);
+      const repository = new W1WorkflowRepository(db);
+      const frozenVersion: WorkflowVersion = {
+        ...version(),
+        inputSchema: {
+          type: 'object',
+          properties: { topic: { type: 'string', minLength: 1, maxLength: 40 } },
+          required: ['topic'],
+        },
+      };
+      repository.publishVersion(frozenVersion);
+      const run: WorkflowRun = {
+        id: 'snapshot-restart-run',
+        definitionId: frozenVersion.definition.id,
+        definitionVersion: frozenVersion.version,
+        inputSnapshot: { topic: 'frozen input' },
+        state: 'DRAFT',
+        waitReason: null,
+        createdAt: NOW,
+        updatedAt: NOW,
+      };
+      repository.insertRun(run);
+
+      expect(repository.detail(run.id)?.run.inputSnapshot).toEqual({ topic: 'frozen input' });
+      expect(() =>
+        repository.insertRun({ ...run, id: 'missing-required-input', inputSnapshot: {} }),
+      ).toThrow();
+      expect(() =>
+        repository.saveRun({ ...run, inputSnapshot: { topic: 'changed input' } }, 'DRAFT'),
+      ).toThrow('input snapshot is immutable');
+      expect(() =>
+        db
+          ?.prepare('UPDATE workflow_runs SET input_snapshot_json = ? WHERE id = ?')
+          .run('{"topic":"changed input"}', run.id),
+      ).toThrow();
+
+      db.close();
+      const reopenedDb = new Database(path);
+      db = reopenedDb;
+      reopenedDb.pragma('foreign_keys = ON');
+      runMigrations(reopenedDb, migrations);
+      const restarted = new W1WorkflowRepository(reopenedDb);
+      expect(restarted.detail(run.id)?.run.inputSnapshot).toEqual({ topic: 'frozen input' });
+      expect(restarted.listRuns()[0]?.inputSnapshot).toEqual({ topic: 'frozen input' });
+      expect(() =>
+        reopenedDb
+          .prepare('UPDATE workflow_runs SET input_snapshot_json = ? WHERE id = ?')
+          .run('{"topic":"changed input"}', run.id),
+      ).toThrow();
+    } finally {
+      if (db?.open) db.close();
+      if (existsSync(path)) unlinkSync(path);
+    }
+  }, 30_000);
 
   it('completes a real WorkflowService execution through the SQLite repository', async () => {
     const db = database();
@@ -463,10 +670,54 @@ describe('W1 SQLite persistence', () => {
     const repository = new W1WorkflowRepository(db);
     const v1 = version();
     createRun(repository, v1, 'pinned-run');
-    repository.publishVersion({ ...v1, version: 2, createdAt: 'version-2' });
+    const finalOutput = outputSpec();
+    const v2: WorkflowVersion = {
+      ...v1,
+      version: 2,
+      createdAt: 'version-2',
+      definition: {
+        ...v1.definition,
+        name: 'Version Two',
+        description: 'Updated description',
+        category: 'updated',
+      },
+      inputSchema: {
+        type: 'object',
+        properties: { topic: { type: 'string', minLength: 1, maxLength: 64 } },
+        required: ['topic'],
+      },
+      outputSchema: {
+        outputs: [{ ...finalOutput, key: 'final', fromStepId: 'finish', outputKey: 'result' }],
+      },
+      entryStepId: 'finish',
+      steps: [step('finish', { outputs: [finalOutput] })],
+      edges: [],
+    };
+    repository.publishVersion(v2);
+    repository.publishVersion(v1);
+    expect(() =>
+      repository.publishVersion({ ...v1, definition: { ...v1.definition, name: 'Changed v1' } }),
+    ).toThrow('Workflow version is immutable');
+    expect(() => repository.publishVersion({ ...v1, inputSchema: v2.inputSchema })).toThrow(
+      'Workflow version is immutable',
+    );
+    expect(() => repository.publishVersion({ ...v1, outputSchema: { outputs: [] } })).toThrow(
+      'Workflow version is immutable',
+    );
+    createRun(repository, v2, 'v2-run', { topic: 'version two input' });
 
     expect(repository.detail('pinned-run')?.run.definitionVersion).toBe(1);
-    expect(repository.detail('pinned-run')?.version.version).toBe(1);
+    expect(repository.detail('pinned-run')?.version).toEqual(v1);
+    expect(repository.detail('pinned-run')?.steps.map(({ stepId }) => stepId)).toEqual(['work']);
+    expect(repository.detail('v2-run')?.version).toEqual(v2);
+    expect(repository.detail('v2-run')?.run.inputSnapshot).toEqual({ topic: 'version two input' });
+    expect(
+      db
+        .prepare(
+          'SELECT name, description, category, source FROM workflow_definitions WHERE id = ?',
+        )
+        .get('workflow-1'),
+    ).toEqual({ name: 'Workflow', description: '', category: 'test', source: 'USER' });
     expect(() =>
       db.prepare("UPDATE workflow_runs SET definition_version = 2 WHERE id = 'pinned-run'").run(),
     ).toThrow();
@@ -483,7 +734,11 @@ describe('W1 SQLite persistence', () => {
         .run(),
     ).toThrow();
     expect(() =>
-      repository.publishVersion({ ...v1, definition: { ...v1.definition, name: 'Changed' } }),
+      repository.publishVersion({
+        ...v2,
+        version: 3,
+        definition: { ...v2.definition, source: 'IMPORTED' },
+      }),
     ).toThrow();
     expect(() =>
       db

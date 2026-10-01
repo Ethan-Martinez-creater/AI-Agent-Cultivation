@@ -3,6 +3,9 @@ import Database from 'better-sqlite3';
 import {
   canTransitionWorkflowRun,
   canTransitionWorkflowStep,
+  EMPTY_WORKFLOW_INPUT_SCHEMA,
+  W1_INPUT_POLICY,
+  validateWorkflowInputs,
   validateWorkflowVersion,
   type WorkflowArtifact,
   type WorkflowArtifactBinding,
@@ -10,6 +13,8 @@ import {
   type WorkflowDecisionFact,
   type WorkflowDetail,
   type WorkflowEvent,
+  type WorkflowFinalValidation,
+  type WorkflowInputs,
   type WorkflowRun,
   type WorkflowStepRun,
   type WorkflowValidationReceipt,
@@ -22,10 +27,6 @@ interface VersionRow {
 }
 
 interface DefinitionRow {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
   source: WorkflowVersion['definition']['source'];
 }
 
@@ -35,8 +36,21 @@ interface RunRow {
   definition_version: number;
   state: WorkflowRun['state'];
   wait_reason: WorkflowRun['waitReason'];
+  input_snapshot_json: string;
   created_at: string;
   updated_at: string;
+}
+
+interface FinalValidationRow {
+  id: string;
+  workflow_run_id: string;
+  definition_version: number;
+  input_hash: string;
+  state_hash: string;
+  output_bindings_json: string;
+  valid: number;
+  errors_json: string;
+  created_at: string;
 }
 
 interface StepRunRow {
@@ -155,20 +169,12 @@ export class W1WorkflowRepository implements WorkflowRepository {
 
     this.transaction(() => {
       const priorDefinition = this.db
-        .prepare(
-          'SELECT id, name, description, category, source FROM workflow_definitions WHERE id = ?',
-        )
+        .prepare('SELECT source FROM workflow_definitions WHERE id = ?')
         .get(value.definition.id) as DefinitionRow | undefined;
-      if (priorDefinition) {
-        if (
-          priorDefinition.name !== value.definition.name ||
-          priorDefinition.description !== value.definition.description ||
-          priorDefinition.category !== value.definition.category ||
-          priorDefinition.source !== value.definition.source
-        ) {
-          throw new Error('Workflow definition identity is immutable');
-        }
-      } else {
+      if (priorDefinition && priorDefinition.source !== value.definition.source) {
+        throw new Error('Workflow definition id and source are immutable');
+      }
+      if (!priorDefinition) {
         this.db
           .prepare(
             `INSERT INTO workflow_definitions
@@ -260,11 +266,23 @@ export class W1WorkflowRepository implements WorkflowRepository {
     if (value.state !== 'DRAFT' || value.waitReason !== null) {
       throw new Error('Workflow Runs must start as DRAFT');
     }
+    const version = this.getVersion(value.definitionId, value.definitionVersion);
+    if (!version) throw new Error('Workflow Run requires an existing frozen version');
+    const inputSnapshot = validateWorkflowInputs(
+      version.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA,
+      value.inputSnapshot ?? {},
+    );
+    const inputSnapshotJson = canonicalJson(inputSnapshot);
+    if (Buffer.byteLength(inputSnapshotJson, 'utf8') > W1_INPUT_POLICY.maxSnapshotBytes) {
+      throw new Error('Workflow input snapshot is too large');
+    }
     this.db
       .prepare(
         `INSERT INTO workflow_runs
-          (id, definition_id, definition_version, state, wait_reason, created_at, updated_at)
-         VALUES (@id, @definitionId, @definitionVersion, @state, @waitReason, @createdAt, @updatedAt)`,
+          (id, definition_id, definition_version, state, wait_reason, input_snapshot_json,
+           created_at, updated_at)
+         VALUES (@id, @definitionId, @definitionVersion, @state, @waitReason, @inputSnapshot,
+           @createdAt, @updatedAt)`,
       )
       .run({
         id: value.id,
@@ -272,6 +290,7 @@ export class W1WorkflowRepository implements WorkflowRepository {
         definitionVersion: value.definitionVersion,
         state: value.state,
         waitReason: value.waitReason,
+        inputSnapshot: inputSnapshotJson,
         createdAt: value.createdAt,
         updatedAt: value.updatedAt,
       });
@@ -292,6 +311,15 @@ export class W1WorkflowRepository implements WorkflowRepository {
       current.created_at !== value.createdAt
     ) {
       throw new Error('Workflow Run identity and version pin are immutable');
+    }
+    const version = this.getVersion(current.definition_id, current.definition_version);
+    if (!version) throw new Error('Workflow Run references a missing frozen version');
+    const inputSnapshot = validateWorkflowInputs(
+      version.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA,
+      value.inputSnapshot ?? {},
+    );
+    if (canonicalJson(inputSnapshot) !== current.input_snapshot_json) {
+      throw new Error('Workflow Run input snapshot is immutable');
     }
     return (
       this.db
@@ -426,6 +454,11 @@ export class W1WorkflowRepository implements WorkflowRepository {
         'SELECT * FROM workflow_validation_receipts WHERE workflow_run_id = ? ORDER BY created_at, id',
       )
       .all(runId) as ValidationRow[];
+    const finalValidations = this.db
+      .prepare(
+        'SELECT * FROM workflow_run_output_validations WHERE workflow_run_id = ? ORDER BY created_at, id',
+      )
+      .all(runId) as FinalValidationRow[];
     const decisions = this.db
       .prepare('SELECT * FROM workflow_decisions WHERE workflow_run_id = ? ORDER BY created_at, id')
       .all(runId) as DecisionRow[];
@@ -442,6 +475,7 @@ export class W1WorkflowRepository implements WorkflowRepository {
       artifacts: artifacts.map((row) => mapArtifact(row, inputIds.get(row.id) ?? [])),
       bindings: bindings.map(mapBinding),
       validations: validations.map(mapValidation),
+      finalValidations: finalValidations.map(mapFinalValidation),
       decisions: decisions.map(mapDecision),
       checkpoints: checkpoints.map(mapCheckpoint),
       events: events.map(mapEvent),
@@ -542,6 +576,46 @@ export class W1WorkflowRepository implements WorkflowRepository {
     }
   }
 
+  appendFinalValidation(value: WorkflowFinalValidation): void {
+    validateFinalValidation(value);
+    const run = this.db
+      .prepare(
+        'SELECT definition_id, definition_version, input_snapshot_json FROM workflow_runs WHERE id = ?',
+      )
+      .get(value.workflowRunId) as
+      | { definition_id: string; definition_version: number; input_snapshot_json: string }
+      | undefined;
+    if (!run) throw new Error('Workflow final validation must reference an existing Run');
+    if (run.definition_version !== value.definitionVersion) {
+      throw new Error('Workflow final validation must match its pinned version');
+    }
+    const expectedInputHash = sha256(
+      canonicalJson(JSON.parse(run.input_snapshot_json) as WorkflowInputs),
+    );
+    if (value.inputHash !== expectedInputHash) {
+      throw new Error('Workflow final validation inputHash must match the frozen Run inputs');
+    }
+    this.db
+      .prepare(
+        `INSERT INTO workflow_run_output_validations
+          (id, workflow_run_id, definition_version, input_hash, state_hash,
+           output_bindings_json, valid, errors_json, created_at)
+         VALUES (@id, @workflowRunId, @definitionVersion, @inputHash, @stateHash,
+           @outputBindings, @valid, @errors, @createdAt)`,
+      )
+      .run({
+        id: value.id,
+        workflowRunId: value.workflowRunId,
+        definitionVersion: value.definitionVersion,
+        inputHash: value.inputHash,
+        stateHash: value.stateHash,
+        outputBindings: canonicalJson(value.outputBindings),
+        valid: value.valid ? 1 : 0,
+        errors: canonicalJson(value.errors),
+        createdAt: value.createdAt,
+      });
+  }
+
   appendDecision(value: WorkflowDecisionFact): void {
     validateDecision(value);
     this.db
@@ -609,10 +683,27 @@ function mapRun(row: RunRow): WorkflowRun {
     id: row.id,
     definitionId: row.definition_id,
     definitionVersion: row.definition_version,
+    inputSnapshot: JSON.parse(row.input_snapshot_json) as WorkflowInputs,
     state: row.state,
     waitReason: row.wait_reason,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function mapFinalValidation(row: FinalValidationRow): WorkflowFinalValidation {
+  return {
+    id: row.id,
+    workflowRunId: row.workflow_run_id,
+    definitionVersion: row.definition_version,
+    inputHash: row.input_hash,
+    stateHash: row.state_hash,
+    outputBindings: JSON.parse(
+      row.output_bindings_json,
+    ) as WorkflowFinalValidation['outputBindings'],
+    valid: row.valid === 1,
+    errors: JSON.parse(row.errors_json) as string[],
+    createdAt: row.created_at,
   };
 }
 
@@ -735,6 +826,44 @@ function validateRun(value: WorkflowRun): void {
   ) {
     throw new Error('Invalid Workflow wait reason');
   }
+}
+
+function validateFinalValidation(value: WorkflowFinalValidation): void {
+  validateId(value.id, 'Workflow final validation');
+  validateId(value.workflowRunId, 'Workflow Run');
+  if (!Number.isInteger(value.definitionVersion) || value.definitionVersion < 1) {
+    throw new Error('Invalid Workflow final validation version');
+  }
+  validateHash(value.inputHash, 'Workflow final validation inputHash');
+  validateHash(value.stateHash, 'Workflow final validation stateHash');
+  if (typeof value.valid !== 'boolean') throw new Error('Invalid Workflow final validation status');
+  if (!Array.isArray(value.outputBindings) || value.outputBindings.length > 12) {
+    throw new Error('Workflow final validation has too many output bindings');
+  }
+  const outputKeys = new Set<string>();
+  for (const binding of value.outputBindings) {
+    if (
+      binding === null ||
+      typeof binding !== 'object' ||
+      Object.keys(binding).some((key) => !['key', 'artifactId', 'contentHash'].includes(key))
+    ) {
+      throw new Error('Invalid Workflow final output binding');
+    }
+    validateText(binding.key, 'Workflow final output key', 128);
+    validateId(binding.artifactId, 'Workflow final output Artifact');
+    validateHash(binding.contentHash, 'Workflow final output contentHash');
+    if (outputKeys.has(binding.key)) throw new Error('Duplicate Workflow final output binding');
+    outputKeys.add(binding.key);
+  }
+  if (!Array.isArray(value.errors) || value.errors.length > 64) {
+    throw new Error('Workflow final validation has too many errors');
+  }
+  if (value.valid && value.errors.length > 0) {
+    throw new Error('Valid Workflow final validation cannot contain errors');
+  }
+  for (const error of value.errors)
+    validateText(error, 'Workflow final validation error', 512, true);
+  validateTimestamp(value.createdAt);
 }
 
 function validateStepRun(value: WorkflowStepRun): void {

@@ -1,5 +1,15 @@
 import { DomainError } from '@cultivation/shared';
 import type { RoutingTaskContext } from './r4-routing.js';
+import {
+  EMPTY_WORKFLOW_INPUT_SCHEMA,
+  validateWorkflowInputSchema,
+} from './w1-workflow-contract.js';
+import type {
+  WorkflowObjectSchema,
+  WorkflowOutputSchema,
+  WorkflowInputs,
+  WorkflowFinalValidation,
+} from './w1-workflow-contract.js';
 
 export type WorkflowRunState =
   | 'DRAFT'
@@ -54,6 +64,8 @@ export interface WorkflowStepDefinition {
   objective: string;
   routing: Omit<RoutingTaskContext, 'objective' | 'inputArtifactMetadata' | 'executionContext'>;
   inputs: WorkflowInputBinding[];
+  /** Selected frozen Workflow Input fields; absent means none. */
+  workflowInputKeys?: string[];
   outputs: WorkflowArtifactSpec[];
   maxAttempts: number;
   exitCondition: 'VALID_OUTPUTS' | 'REVIEW_PASS';
@@ -87,6 +99,9 @@ export interface WorkflowDefinition {
 export interface WorkflowVersion {
   definition: WorkflowDefinition;
   version: number;
+  /** Absent only on legacy no-input versions, equivalent to an empty closed object schema. */
+  inputSchema?: WorkflowObjectSchema;
+  outputSchema?: WorkflowOutputSchema;
   entryStepId: string;
   steps: WorkflowStepDefinition[];
   edges: WorkflowEdge[];
@@ -110,6 +125,8 @@ export interface WorkflowRun {
   id: string;
   definitionId: string;
   definitionVersion: number;
+  /** Legacy absent snapshots are empty; all newly created Runs persist this immutable value. */
+  inputSnapshot?: WorkflowInputs;
   state: WorkflowRunState;
   waitReason: WorkflowWaitReason | null;
   createdAt: string;
@@ -207,6 +224,7 @@ export interface WorkflowDetail {
   decisions: WorkflowDecisionFact[];
   checkpoints: WorkflowCheckpoint[];
   events: WorkflowEvent[];
+  finalValidations?: WorkflowFinalValidation[];
 }
 
 const runTransitions: Record<WorkflowRunState, WorkflowRunState[]> = {
@@ -267,6 +285,7 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
   const invalid = (message: string): never => {
     throw new DomainError('INVALID_INPUT', message);
   };
+  validateWorkflowInputSchema(value.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA);
   if (
     !value.definition.id ||
     !value.definition.name.trim() ||
@@ -279,6 +298,24 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
   )
     invalid('Invalid bounded Workflow definition');
   const ids = new Set(value.steps.map((s) => s.id));
+  if (value.outputSchema !== undefined) {
+    const outputs = value.outputSchema.outputs;
+    if (
+      Object.keys(value.outputSchema).some((k) => k !== 'outputs') ||
+      !Array.isArray(outputs) ||
+      outputs.length > 12 ||
+      new Set(outputs.map((o) => o.key)).size !== outputs.length
+    )
+      invalid('Invalid final output schema');
+    for (const output of outputs) {
+      if (
+        !value.steps
+          .find((s) => s.id === output.fromStepId)
+          ?.outputs.some((o) => o.key === output.outputKey && o.kind === output.kind)
+      )
+        invalid('Final output must reference a declared Step output');
+    }
+  }
   if (
     ids.size !== value.steps.length ||
     !ids.has(value.entryStepId) ||
@@ -286,6 +323,14 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
   )
     invalid('Duplicate or missing Workflow identity');
   for (const s of value.steps) {
+    if (
+      s.workflowInputKeys !== undefined &&
+      (!Array.isArray(s.workflowInputKeys) ||
+        s.workflowInputKeys.length > 16 ||
+        new Set(s.workflowInputKeys).size !== s.workflowInputKeys.length ||
+        s.workflowInputKeys.some((k) => !Object.hasOwn(value.inputSchema?.properties ?? {}, k)))
+    )
+      invalid('Step references undeclared Workflow Input');
     if (
       !s.id ||
       !s.title.trim() ||
@@ -313,7 +358,10 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
       new Set(s.inputs.map((o) => o.key)).size !== s.inputs.length
     )
       invalid('Duplicate Artifact key');
-    for (const o of s.outputs) {
+    for (const o of [
+      ...s.outputs,
+      ...(value.outputSchema?.outputs ?? []).filter((o) => o.fromStepId === s.id),
+    ]) {
       if (
         !/^[A-Za-z0-9._-]{1,128}$/.test(o.key) ||
         !o.contractId ||

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IpcMainInvokeEvent } from 'electron';
 import type { WorkflowDetail } from '@cultivation/domain';
+import { DomainError } from '@cultivation/shared';
 import type { WorkflowServicePort } from './w1-ipc.js';
 
 const mocks = vi.hoisted(() => ({
@@ -65,6 +66,55 @@ describe('W1 typed Workflow IPC boundary', () => {
     });
   });
 
+  it('accepts only bounded JSON input snapshots and preserves the legacy no-input call', async () => {
+    const inputs = {
+      topic: 'workflow inputs',
+      count: 3,
+      enabled: false,
+      tags: ['a', 'b'],
+      nested: { range: { start: '2026-01-01', end: '2026-01-02' } },
+    };
+    await mocks.handlers.get('workflows:create')!(sender, {
+      definitionId: 'definition-1',
+      version: 2,
+      inputs,
+    });
+    expect(serviceMocks.createRun).toHaveBeenCalledWith({
+      definitionId: 'definition-1',
+      version: 2,
+      inputs,
+    });
+    await mocks.handlers.get('workflows:create')!(sender, {
+      definitionId: 'definition-1',
+      version: 1,
+    });
+
+    await mocks.handlers.get('workflows:create')!(sender, {
+      definitionId: 'definition-1',
+      version: 1,
+      inputs: { tooDeep: { one: { two: { three: { four: { five: 'value' } } } } } },
+    }).then(
+      () => {
+        throw new Error('Expected over-deep JSON to be rejected');
+      },
+      (error) => expect(error).toHaveProperty('message', '请求参数无效'),
+    );
+    await mocks.handlers.get('workflows:create')!(sender, {
+      definitionId: 'definition-1',
+      version: 1,
+      inputs: { secret: 'x'.repeat(4001) },
+    }).then(
+      () => {
+        throw new Error('Expected oversized field to be rejected');
+      },
+      (error) => expect(error).toHaveProperty('message', '请求参数无效'),
+    );
+    expect(serviceMocks.createRun).toHaveBeenLastCalledWith({
+      definitionId: 'definition-1',
+      version: 1,
+    });
+  });
+
   it('keeps operational errors generic and registers the exposed workflow operations', async () => {
     expect([...mocks.handlers.keys()].sort()).toEqual(
       [
@@ -84,5 +134,19 @@ describe('W1 typed Workflow IPC boundary', () => {
     await expect(mocks.handlers.get('workflows:advance')!(sender, 'run-1')).rejects.toThrow(
       '工作流操作失败，请检查运行状态后重试',
     );
+
+    serviceMocks.createRun.mockImplementationOnce(() => {
+      throw new DomainError('WORKFLOW_INPUT_INVALID', '缺少必填输入 workflow.topic');
+    });
+    await expect(
+      mocks.handlers.get('workflows:create')!(sender, {
+        definitionId: 'definition-1',
+        version: 1,
+        inputs: { prompt: 'private-user-value' },
+      }),
+    ).rejects.toMatchObject({
+      code: 'WORKFLOW_INPUT_INVALID',
+      message: '工作流输入字段 workflow.topic 无效，请检查该字段后重试',
+    });
   });
 });

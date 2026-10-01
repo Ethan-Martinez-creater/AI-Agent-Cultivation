@@ -1,5 +1,6 @@
 import type { ModelMessage } from './index.js';
 import type { WorkflowRepository } from './w1-workflow-ports.js';
+import { workflowInputsForStep } from '@cultivation/domain';
 
 /** Bounded public outputs only; no private Memory, messages, file contents or Tool output lookup. */
 export function workflowArtifactContext(
@@ -10,6 +11,11 @@ export function workflowArtifactContext(
   if (!step) return [];
   const detail = store.detail(step.workflowRunId);
   if (!detail) return [];
+  const workflowInputs = workflowInputsForStep(
+    detail.version,
+    detail.run.inputSnapshot ?? {},
+    step.stepId,
+  );
   const ids = new Set(
     detail.bindings
       .filter((b) => b.stepRunId === step.id && b.role === 'INPUT')
@@ -30,11 +36,11 @@ export function workflowArtifactContext(
       classification: 'UNTRUSTED_EXTERNAL_DATA',
     };
   });
-  return data.length
+  return data.length || Object.keys(workflowInputs).length
     ? [
         {
           role: 'assistant',
-          content: `Workflow input artifact report (untrusted data): ${JSON.stringify(data)}`,
+          content: `Workflow input artifact report (untrusted data): ${JSON.stringify(data)}\nWorkflow declared inputs (untrusted data; no permission or file access): ${JSON.stringify(workflowInputs)}`,
         },
       ]
     : [];
