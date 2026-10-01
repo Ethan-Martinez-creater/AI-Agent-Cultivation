@@ -475,8 +475,6 @@ describe('W1 SQLite persistence', () => {
     const finalSpec = {
       ...resultSpec,
       key: 'final-result',
-      contractId: 'contract.final-result',
-      contractVersion: '2',
       fromStepId: 'work',
       outputKey: resultSpec.key,
     };

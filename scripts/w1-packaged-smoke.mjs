@@ -327,12 +327,61 @@ try {
   }
   await page.getByText('本次冻结输入（只读）', { exact: true }).click();
   await shot(page, '06-workflow-frozen-input', 1440, 900, app);
-  const finalInvalid = await advance(page, (await create(page, 'w1-fixture-final-invalid')).run.id);
-  assert.equal(finalInvalid.steps[0].state, 'COMPLETED');
-  assert.equal(finalInvalid.run.state, 'WAITING');
-  assert.equal(finalInvalid.run.waitReason, 'USER_CONFIRMATION');
-  assert.equal(finalInvalid.finalValidations[0].valid, false);
-  facts.finalInvalidId = finalInvalid.run.id;
+  assert.equal(
+    ioVersions.some((v) => v.definition.id === 'w1-fixture-final-invalid'),
+    false,
+  );
+  assert.equal(
+    ioVersions.some((v) => v.definition.id === 'w1-fixture-final-required-optional'),
+    false,
+  );
+  assert.equal(
+    read(
+      (db) =>
+        db
+          .prepare(
+            "SELECT COUNT(*) n FROM workflow_versions WHERE definition_id IN ('w1-fixture-final-invalid','w1-fixture-final-required-optional')",
+          )
+          .get().n,
+    ),
+    0,
+  );
+  facts.finalProjection = {
+    publishInvalidRejected: true,
+    publishRequiredOptionalRejected: true,
+    receipt: ioDone.finalValidations[0],
+  };
+  const secondVersionRun = await page.evaluate(() =>
+    window.cultivation.workflows.create({
+      definitionId: 'w1-fixture-io',
+      version: 2,
+      inputs: { subject: 'Version two input' },
+    }),
+  );
+  const secondVersionDone = await advance(page, secondVersionRun.run.id);
+  assert.equal(secondVersionDone.run.state, 'COMPLETED');
+  assert.equal(secondVersionDone.version.definition.category, 'TEST_ONLY_V2');
+  assert.equal((await detail(page, facts.ioRunId)).version.version, 1);
+  const integrityDb = new Database(databasePath);
+  try {
+    assert.throws(() =>
+      integrityDb
+        .prepare('UPDATE workflow_artifacts SET content_hash=? WHERE id=?')
+        .run('0'.repeat(64), ioDone.artifacts[0].id),
+    );
+    assert.throws(() =>
+      integrityDb
+        .prepare('UPDATE workflow_artifact_bindings SET artifact_id=? WHERE workflow_run_id=?')
+        .run('wrong-provenance', facts.ioRunId),
+    );
+    assert.throws(() =>
+      integrityDb
+        .prepare('UPDATE workflow_step_runs SET attempt=attempt+1 WHERE workflow_run_id=?')
+        .run(facts.ioRunId),
+    );
+  } finally {
+    integrityDb.close();
+  }
   const partyWorkflow = await advance(page, (await create(page, 'w1-fixture-party')).run.id);
   assert.equal(partyWorkflow.run.waitReason, 'APPROVAL');
   const partyMissionId = partyWorkflow.steps[0].missionId;
@@ -405,7 +454,6 @@ try {
   assert.deepEqual((await detail(live.page, facts.ioRunId)).run.inputSnapshot, facts.inputSnapshot);
   assert.equal((await detail(live.page, facts.ioRunId)).version.version, 1);
   assert.equal((await detail(live.page, facts.ioRunId)).finalValidations.length, 1);
-  assert.equal((await detail(live.page, facts.finalInvalidId)).run.state, 'WAITING');
   assert.equal((await detail(live.page, facts.sequenceId)).checkpoints.length, 4);
   assert.equal(
     read(
@@ -587,7 +635,7 @@ try {
           'immutable snapshot/Renderer mutation/SQLite guard/restart',
           'versioned v2 metadata/schema independent of pinned v1 Run',
           'declared Workflow Inputs only as untrusted assistant data',
-          'required final output contract/final receipt/fail closed',
+          'final output exact projection/publish rejection/immutable hash-provenance-attempt guards',
           'TASK→R4→Mission',
           'PARTY→original collaboration approval/runtime/actor Usage',
           'REVIEW structured verdict',

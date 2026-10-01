@@ -552,6 +552,12 @@ export function WorkflowsPage() {
                     {runLabels[detail.run.state]}
                   </span>
                 </div>
+                {detail.events.some((event) => event.type === 'workflow.integrity_failed') && (
+                  <div className="workflow-wait-panel" role="alert">
+                    <strong>持久化完整性异常 · WORKFLOW_INTEGRITY_ERROR</strong>
+                    <p>运行已停止。请保留诊断记录；已完成步骤不会自动重放。</p>
+                  </div>
+                )}
                 {detail.run.state === 'WAITING' && detail.run.waitReason && (
                   <div className="workflow-wait-panel">
                     <strong>{waitLabels[detail.run.waitReason]}</strong>

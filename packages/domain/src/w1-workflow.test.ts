@@ -55,6 +55,73 @@ function version(overrides: Partial<WorkflowVersion> = {}): WorkflowVersion {
 }
 
 describe('W1 workflow domain', () => {
+  const producer = {
+    key: 'result',
+    kind: 'JSON' as const,
+    required: true,
+    contractId: 'result-contract',
+    contractVersion: '1',
+    maxSizeBytes: 1000,
+    description: 'Producer output',
+    validator: { type: 'JSON' as const, requiredKeys: ['ok', 'summary'] },
+  };
+  const projection = () => ({
+    ...structuredClone(producer),
+    key: 'final',
+    fromStepId: 'task',
+    outputKey: 'result',
+  });
+  it.each([
+    'fromStepId',
+    'outputKey',
+    'kind',
+    'contractId',
+    'contractVersion',
+    'maxSizeBytes',
+    'validator',
+    'weakerValidator',
+    'differentValidator',
+    'required',
+  ])('rejects incompatible final %s before a Definition can be published', (field) => {
+    const final = projection();
+    const source = structuredClone(producer);
+    if (field === 'fromStepId') final.fromStepId = 'missing';
+    if (field === 'outputKey') final.outputKey = 'missing';
+    if (field === 'kind')
+      Object.assign(final, {
+        kind: 'TEXT',
+        validator: { type: 'TEXT', minLength: 1, requiredSections: [] },
+      });
+    if (field === 'contractId') final.contractId = 'another';
+    if (field === 'contractVersion') final.contractVersion = '2';
+    if (field === 'maxSizeBytes') final.maxSizeBytes = 500;
+    if (field === 'validator') final.validator.requiredKeys = ['ok', 'summary', 'stronger'];
+    if (field === 'weakerValidator') final.validator.requiredKeys = ['ok'];
+    if (field === 'differentValidator') final.validator.requiredKeys = ['ok', 'different'];
+    if (field === 'required') source.required = false;
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          steps: [step('task', { outputs: [source] })],
+          edges: [],
+          outputSchema: { outputs: [final] },
+        }),
+      ),
+    ).toThrow(DomainError);
+  });
+  it('allows exact final projection with reordered equivalent validator lists', () => {
+    const final = projection();
+    final.validator = { type: 'JSON', requiredKeys: ['summary', 'ok'] };
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          steps: [step('task', { outputs: [producer] })],
+          edges: [],
+          outputSchema: { outputs: [final] },
+        }),
+      ),
+    ).not.toThrow();
+  });
   it('allows only declared run and step transitions', () => {
     expect(canTransitionWorkflowRun('WAITING', 'RUNNING')).toBe(true);
     expect(canTransitionWorkflowRun('COMPLETED', 'RUNNING')).toBe(false);

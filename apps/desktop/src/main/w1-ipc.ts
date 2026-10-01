@@ -164,6 +164,11 @@ export function registerWorkflowIpc(
         if (error instanceof DomainError && error.code === 'WORKFLOW_INPUT_INVALID') {
           throw publicWorkflowInputError(error);
         }
+        if (error instanceof DomainError && error.code === 'WORKFLOW_INTEGRITY_ERROR')
+          throw new DomainError(
+            'WORKFLOW_INTEGRITY_ERROR',
+            '工作流持久化完整性异常，已停止；不会重放步骤',
+          );
         throw new Error('工作流操作失败，请检查运行状态后重试');
       }
     });

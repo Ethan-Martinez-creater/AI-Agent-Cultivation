@@ -68,6 +68,8 @@ W1 提供 inline 文本长度/章节、JSON 必需字段及外部文件 metadata
 
 ## W1 corrective repair：I/O contract 与版本语义
 
+以下记录对应 `0c7092f` 历史验收；其中“独立最终 validator / final validation failure → WAITING”策略已由下方最后一轮 final projection repair 替代。历史证据保留，不用于描述当前完成语义。
+
 修复基线 `main@06b122829013fd0af0bf2a42cefecc24a1798fdd`，验收日期 2026-10-01。新增 `0018_w1_workflow_io.sql`；0001–0017 完全不改。没有新增依赖。
 
 ### 冻结输入与最终输出
@@ -100,6 +102,37 @@ Definition ID/source 保持稳定；每个 `(definitionId, version)` 完全 immu
 [本轮 packaged evidence](../evidence/w1-corrective-io/README.md) 包含六张截图、三尺寸布局与 SQLite I/O facts。UI 实际提交输入，验证 malicious data role、未声明字段隔离、v1 frozen snapshot、Renderer mutation/DB trigger、最终校验失败和重启幂等。原 Party/Tool/Human Bridge 审批同 Run 恢复及两处 crash zero replay 再次通过。首次专项 smoke 的历史列表取第一项假设已修成按 definition/version 找当前 Run，随后专项和完整 smoke 均通过。
 
 Package exe SHA-256：`ED9AEE90E5BF8696A6CE83EB8E7E17423899552892147E562AF974435818A394`。所有本轮 profile/缓存/worktree 在项目内；构建的 R: 临时映射已解除。测试环境曾被子代理误用 pnpm 移动部分原依赖目录，已逐个恢复原位置；未安装/升级依赖，package.json/lockfile 无变化。旧阶段 schema 总数断言同步为 18，不修改业务断言或历史 migration。
+
+## W1 最后一轮 corrective repair：Final Output Projection
+
+基线 `main@0c7092f1cde21017756708b137eeb4531185376b`。本轮无新增 migration；0017、0018 与更早 migration 全部不修改。无新增依赖。
+
+Workflow `outputSchema` 现在仅选择/投影 producer 的冻结输出，不再定义独立、更强或不同的 Contract。publish/createRun 在 domain validation 拒绝不兼容版本：fromStepId/outputKey 必须真实存在；kind、contractId、contractVersion、maxSizeBytes 与 validator 语义必须一致；final required=true 必须来自 required producer。JSON requiredKeys、TEXT requiredSections、METADATA allowedExtensions 按集合比较，顺序不影响语义；更强、更弱或不同的 validator 均拒绝。final key/展示说明可与 producer 不同。
+
+`finishRun` 仍检查最新 completed attempt、OUTPUT binding、Workflow/Step/Mission/Run provenance、当前终态 MissionRun、真实模型公开结果 actor/source、Artifact content+metadata 的重算 hash、对应 producer contract 的有效 validation receipt/validator version、冻结投影与 required final output。ExternalWork 继续依赖原受验证 Artifact provenance/Step receipt 和原 Mission/Run，完成投影不额外读取外部文件或授予权限。
+
+正常已完成 Step 不会因为独立最终 Contract 再进入不可恢复 WAITING。理论上不可能的事实矛盾持久化为 FAILED、`workflow.integrity_failed` / `WORKFLOW_INTEGRITY_ERROR` 与 bounded reason/false final receipt；不是 WAITING_USER。final receipt 持久化异常事务回滚后同样停止为明确 integrity error，IPC 使用安全固定错误文本，UI 显示异常和保留诊断记录的提示。后续 advance 不重放；restart 不重复 receipt 或 Mission/Tool。没有 graph rewind、自动 Retry 或 completed Step 重跑；SQLite 自身不可写时错误继续向上报告，不能伪造成功。
+
+旧冻结版本/已完成 Run 不重写。尚未完成的旧独立 final Contract 如违反当前投影边界，会在最终 reconcile fail closed；不能用旧版本开始新 Run。正常 Step validation failure 仍由原有 WAITING Step / 显式 Retry 处理。inputSchema、immutable snapshot、workflowInputKeys、版本 pin、Artifact lineage 和现有 R4/Mission/Party/Human Bridge authority 均保持。
+
+### Final projection 最终验收
+
+新增 21 项确定性测试；57 文件、490 项通过。覆盖 publish 更强/更弱/不同 validator、contract/kind/size/source 不兼容、required final→optional producer 拒绝、等价 validator 顺序、正常投影完成、损坏 content/hash/MissionRun/binding/contract/receipt/latest attempt fail closed、advance/startup 的 final persistence error quarantine、幂等 restart 与安全 IPC 错误。
+
+| 命令                    | 最终结果                                               |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run test`          | 57 文件、490 项通过                                    |
+| `npm run typecheck`     | 通过                                                   |
+| `npm run lint`          | 通过                                                   |
+| `npm run format:check`  | 通过                                                   |
+| `npm run package`       | Windows x64 / Electron 44.4.3；native dependencies 1/1 |
+| `npm run smoke:package` | Gate 0–6、R0–R4、W1 全量真实 packaged 通过             |
+
+[本轮 evidence](../evidence/w1-final-projection/README.md) 包含六张截图、三尺寸布局与直接 SQLite projection facts。验证 actual publish rejection、v1/v2 正常完成与固定版本、精确 final receipt、hash/provenance/attempt 更新被正式 SQLite 防线拒绝、restart receipt 幂等和零重放；原 Party/Permission/Tool/MCP/Human Bridge/crash 回归全部通过。
+
+一次并发 test/lint/typecheck/format/packaged 验证产生旧 SQLite migration 测试 timeout，以及强制关闭后 fault-injection WAL 的 SQLITE_IOERR_TRUNCATE；磁盘可用空间约 72 GB。未放宽 timeout、断言或正式 SQLite 防线，结束并发进程后串行完整 test/smoke 均通过，以上表格为最终结果。
+
+Package exe SHA-256：`86E098CAF8741188A7762393F93910EFBB4AAEB7CD9BBA8BB40B05CA5B47D187`。schema 仍为 18，package.json/lockfile 无变化，临时 profile/缓存在项目内，构建 R: 映射已解除。未实现 W2.0、Built-in Workflow、graph rewind 或新的执行系统。
 
 ## 明确未实现
 

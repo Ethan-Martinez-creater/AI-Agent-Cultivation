@@ -281,6 +281,30 @@ export function transitionWorkflowStep(
 }
 
 /** W1 has one active path, forward edges only. Model output never becomes a graph. */
+export function workflowOutputProjectionMatches(
+  output: WorkflowArtifactSpec,
+  producer: WorkflowArtifactSpec,
+): boolean {
+  // Validator lists are conjunctions/sets, so their ordering is not semantic.
+  const semantic = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? [...new Set(value)].sort().map(semantic)
+      : value && typeof value === 'object'
+        ? Object.fromEntries(
+            Object.entries(value)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([key, child]) => [key, semantic(child)]),
+          )
+        : value;
+  return (
+    output.kind === producer.kind &&
+    output.contractId === producer.contractId &&
+    output.contractVersion === producer.contractVersion &&
+    output.maxSizeBytes === producer.maxSizeBytes &&
+    (!output.required || producer.required) &&
+    JSON.stringify(semantic(output.validator)) === JSON.stringify(semantic(producer.validator))
+  );
+}
 export function validateWorkflowVersion(value: WorkflowVersion): void {
   const invalid = (message: string): never => {
     throw new DomainError('INVALID_INPUT', message);
@@ -308,12 +332,11 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
     )
       invalid('Invalid final output schema');
     for (const output of outputs) {
-      if (
-        !value.steps
-          .find((s) => s.id === output.fromStepId)
-          ?.outputs.some((o) => o.key === output.outputKey && o.kind === output.kind)
-      )
-        invalid('Final output must reference a declared Step output');
+      const producer = value.steps
+        .find((s) => s.id === output.fromStepId)
+        ?.outputs.find((o) => o.key === output.outputKey);
+      if (!producer || !workflowOutputProjectionMatches(output, producer))
+        invalid('Final output must project the exact declared producer contract');
     }
   }
   if (

@@ -8,6 +8,7 @@ import {
   EMPTY_WORKFLOW_INPUT_SCHEMA,
   validateWorkflowInputs,
   workflowInputsForStep,
+  workflowOutputProjectionMatches,
 } from '@cultivation/domain';
 import type {
   WorkflowRun,
@@ -175,6 +176,11 @@ export class WorkflowService {
       if (['COMPLETED', 'CANCELLED'].includes(detail.run.state)) return detail;
       if (detail.run.state === 'PAUSED')
         throw new DomainError('WORKFLOW_PAUSED', '请先恢复 Workflow');
+      if (detail.events.some((e) => e.type === 'workflow.integrity_failed'))
+        throw new DomainError(
+          'WORKFLOW_INTEGRITY_ERROR',
+          '工作流持久化完整性异常，已停止；不会重放步骤',
+        );
       if (detail.run.state === 'FAILED')
         throw new DomainError('WORKFLOW_RETRY_REQUIRED', '请明确重试失败 Step');
       this.store.transaction(() => this.setRun(detail.run, 'RUNNING'));
@@ -265,6 +271,10 @@ export class WorkflowService {
       }
       return this.detail(id);
     } catch (error) {
+      if (error instanceof DomainError && error.code === 'WORKFLOW_INTEGRITY_ERROR') {
+        this.failIntegrity(id, 'FINAL_PERSISTENCE_ERROR');
+        throw error;
+      }
       const current = this.detail(id);
       const step = this.active(current);
       if (step && ['RUNNING', 'WAITING'].includes(step.state))
@@ -282,20 +292,27 @@ export class WorkflowService {
   async recover(): Promise<void> {
     for (const run of this.store.listRuns()) {
       if (!['RUNNING', 'WAITING'].includes(run.state)) continue;
-      const detail = this.detail(run.id);
-      const step = this.active(detail);
-      if (!step) {
-        this.finishRun(detail);
-        continue;
+      try {
+        const detail = this.detail(run.id);
+        const step = this.active(detail);
+        if (!step) {
+          this.finishRun(detail);
+          continue;
+        }
+        if (step.state === 'READY') continue;
+        if (!step.missionId) {
+          if (this.definition(detail, step).type === 'DECISION')
+            this.completeDecision(detail, step);
+          else this.wait(step, 'USER_CONFIRMATION', 'MISSION_CREATION_INTERRUPTED');
+          continue;
+        }
+        if (step.waitReason === 'USER_CONFIRMATION') continue;
+        await this.reconcileStep(detail, step, this.missions.snapshot(step.missionId));
+      } catch (error) {
+        if (!(error instanceof DomainError) || error.code !== 'WORKFLOW_INTEGRITY_ERROR')
+          throw error;
+        this.failIntegrity(run.id, 'FINAL_PERSISTENCE_ERROR');
       }
-      if (step.state === 'READY') continue;
-      if (!step.missionId) {
-        if (this.definition(detail, step).type === 'DECISION') this.completeDecision(detail, step);
-        else this.wait(step, 'USER_CONFIRMATION', 'MISSION_CREATION_INTERRUPTED');
-        continue;
-      }
-      if (step.waitReason === 'USER_CONFIRMATION') continue;
-      await this.reconcileStep(detail, step, this.missions.snapshot(step.missionId));
     }
   }
   async retryMission(id: string): Promise<WorkflowDetail> {
@@ -808,10 +825,18 @@ export class WorkflowService {
     if (!next) this.finishRun(this.detail(detail.run.id));
   }
   private finishRun(detail: WorkflowDetail): void {
+    if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(detail.run.state)) return;
     if (this.active(detail, true)) return;
     const outputBindings: WorkflowFinalValidation['outputBindings'] = [];
     const errors: string[] = [];
     for (const spec of detail.version.outputSchema?.outputs ?? []) {
+      const contract = detail.version.steps
+        .find((s) => s.id === spec.fromStepId)
+        ?.outputs.find((o) => o.key === spec.outputKey);
+      if (!contract || !workflowOutputProjectionMatches(spec, contract)) {
+        errors.push(`FROZEN_CONTRACT_MISMATCH:${spec.key}`);
+        continue;
+      }
       const producer = detail.steps
         .filter((s) => s.stepId === spec.fromStepId)
         .sort((a, b) => b.attempt - a.attempt)[0];
@@ -821,22 +846,50 @@ export class WorkflowService {
               (b) => b.stepRunId === producer.id && b.role === 'OUTPUT' && b.key === spec.outputKey,
             )
           : undefined;
-      const artifact = detail.artifacts.find(
-        (a) =>
-          a.id === binding?.artifactId &&
-          a.producerStepRunId === producer?.id &&
-          a.missionRunId === producer?.missionRunId,
-      );
+      const artifact = detail.artifacts.find((a) => a.id === binding?.artifactId);
       if (!artifact) {
-        if (spec.required) errors.push(`MISSING_FINAL_OUTPUT:${spec.key}`);
+        if (spec.required || binding) errors.push(`MISSING_FINAL_OUTPUT:${spec.key}`);
         continue;
       }
+      let snapshot: WorkflowMissionSnapshot | null = null;
+      try {
+        if (producer?.missionId) snapshot = this.missions.snapshot(producer.missionId);
+      } catch {
+        errors.push(`FINAL_MISSION_FACT_UNAVAILABLE:${spec.key}`);
+      }
+      if (
+        binding?.workflowRunId !== detail.run.id ||
+        binding.contractId !== contract.contractId ||
+        binding.contractVersion !== contract.contractVersion ||
+        artifact.workflowRunId !== detail.run.id ||
+        artifact.producerStepRunId !== producer?.id ||
+        artifact.missionId !== producer?.missionId ||
+        artifact.missionRunId !== producer?.missionRunId ||
+        snapshot?.mission.id !== producer?.missionId ||
+        snapshot?.mission.state !== 'COMPLETED' ||
+        snapshot?.run?.id !== producer?.missionRunId ||
+        snapshot?.run?.missionId !== producer?.missionId ||
+        snapshot?.run?.status !== 'COMPLETED' ||
+        (artifact.source === 'MISSION' &&
+          !snapshot?.outputs.some(
+            (o) =>
+              o.sourceId === artifact.sourceId &&
+              o.actorId === artifact.actorId &&
+              o.source === artifact.source,
+          )) ||
+        artifact.contentHash !==
+          workflowHash({ content: artifact.content, metadata: artifact.metadata })
+      )
+        errors.push(`FINAL_PROVENANCE_MISMATCH:${spec.key}`);
       if (
         !detail.validations.some(
           (v) =>
             v.artifactId === artifact.id &&
             v.stepRunId === producer?.id &&
             v.contentHash === artifact.contentHash &&
+            v.contractId === contract.contractId &&
+            v.contractVersion === contract.contractVersion &&
+            v.validatorVersion === W1_VALIDATOR_VERSION &&
             v.valid,
         )
       )
@@ -867,18 +920,36 @@ export class WorkflowService {
       errors,
       createdAt: this.clock.now(),
     };
-    this.store.transaction(() => {
-      if (!detail.finalValidations?.some((v) => v.stateHash === stateHash))
-        this.store.appendFinalValidation(receipt);
-      if (errors.length) {
-        this.setRun(this.detail(detail.run.id).run, 'WAITING', 'USER_CONFIRMATION');
+    try {
+      this.store.transaction(() => {
         if (!detail.finalValidations?.some((v) => v.stateHash === stateHash))
-          this.event(detail.run.id, null, 'workflow.final_output_invalid', { code: errors[0]! });
-        return;
-      }
-      for (const s of detail.steps) if (s.state === 'PENDING') this.setStep(s, 'SKIPPED');
-      this.setRun(this.detail(detail.run.id).run, 'COMPLETED');
-      this.event(detail.run.id, null, 'workflow.completed', {});
+          this.store.appendFinalValidation(receipt);
+        if (errors.length) {
+          this.setRun(this.detail(detail.run.id).run, 'FAILED');
+          if (!detail.finalValidations?.some((v) => v.stateHash === stateHash))
+            this.event(detail.run.id, null, 'workflow.integrity_failed', {
+              code: 'WORKFLOW_INTEGRITY_ERROR',
+              reason: errors[0]!,
+            });
+          return;
+        }
+        for (const s of detail.steps) if (s.state === 'PENDING') this.setStep(s, 'SKIPPED');
+        this.setRun(this.detail(detail.run.id).run, 'COMPLETED');
+        this.event(detail.run.id, null, 'workflow.completed', {});
+      });
+    } catch {
+      throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '最终输出事实无法持久化；不会重放步骤');
+    }
+  }
+  private failIntegrity(id: string, reason: string): void {
+    const detail = this.detail(id);
+    if (detail.events.some((e) => e.type === 'workflow.integrity_failed')) return;
+    this.store.transaction(() => {
+      this.setRun(detail.run, 'FAILED');
+      this.event(id, null, 'workflow.integrity_failed', {
+        code: 'WORKFLOW_INTEGRITY_ERROR',
+        reason,
+      });
     });
   }
   private wait(step: WorkflowStepRun, reason: WorkflowWaitReason, code: string | null): void {

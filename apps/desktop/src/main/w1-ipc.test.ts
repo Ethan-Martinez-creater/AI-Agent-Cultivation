@@ -134,6 +134,13 @@ describe('W1 typed Workflow IPC boundary', () => {
     await expect(mocks.handlers.get('workflows:advance')!(sender, 'run-1')).rejects.toThrow(
       '工作流操作失败，请检查运行状态后重试',
     );
+    serviceMocks.advance.mockRejectedValueOnce(
+      new DomainError('WORKFLOW_INTEGRITY_ERROR', 'private database detail'),
+    );
+    await expect(mocks.handlers.get('workflows:advance')!(sender, 'run-1')).rejects.toMatchObject({
+      code: 'WORKFLOW_INTEGRITY_ERROR',
+      message: '工作流持久化完整性异常，已停止；不会重放步骤',
+    });
 
     serviceMocks.createRun.mockImplementationOnce(() => {
       throw new DomainError('WORKFLOW_INPUT_INVALID', '缺少必填输入 workflow.topic');

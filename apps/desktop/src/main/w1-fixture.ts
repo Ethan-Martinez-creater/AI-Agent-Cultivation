@@ -279,6 +279,9 @@ export function registerWorkflowFixtures(service: WorkflowService): void {
   });
   const ioStep: WorkflowStepDefinition = {
     ...step('task', '__W1_IO__'),
+    outputs: [
+      { ...json('task'), validator: { type: 'JSON', requiredKeys: ['ok', 'topic', 'inputRole'] } },
+    ],
     workflowInputKeys: [
       'topic',
       'mode',
@@ -339,10 +342,10 @@ export function registerWorkflowFixtures(service: WorkflowService): void {
     outputSchema: {
       outputs: [
         {
-          ...json('final'),
+          ...ioStep.outputs[0]!,
+          key: 'final',
           fromStepId: 'task',
           outputKey: 'task',
-          validator: { type: 'JSON', requiredKeys: ['ok', 'topic', 'inputRole'] },
         },
       ],
     },
@@ -362,10 +365,17 @@ export function registerWorkflowFixtures(service: WorkflowService): void {
       properties: { subject: { type: 'string', title: '新主题', minLength: 1, maxLength: 80 } },
     },
     outputSchema: { outputs: [] },
-    steps: [{ ...ioStep, workflowInputKeys: ['subject'], objective: '__W1_IO_V2__' }],
+    steps: [
+      {
+        ...ioStep,
+        outputs: [json('task')],
+        workflowInputKeys: ['subject'],
+        objective: '__W1_IO_V2__',
+      },
+    ],
     referenceBasis: [{ title: 'Version two reference', adoptedPrinciples: ['Frozen metadata'] }],
   });
-  versions.push({
+  const invalidFinal: WorkflowVersion = {
     ...ioVersion,
     definition: {
       ...ioVersion.definition,
@@ -377,14 +387,36 @@ export function registerWorkflowFixtures(service: WorkflowService): void {
     outputSchema: {
       outputs: [
         {
-          ...json('final'),
+          ...json('task'),
+          key: 'final',
           fromStepId: 'task',
           outputKey: 'task',
           validator: { type: 'JSON', requiredKeys: ['confirmed'] },
         },
       ],
     },
-  });
+  };
+  // These are rejected Definition proposals, never published runnable fixtures.
+  for (const invalid of [
+    invalidFinal,
+    {
+      ...invalidFinal,
+      definition: { ...invalidFinal.definition, id: 'w1-fixture-final-required-optional' },
+      steps: [{ ...invalidFinal.steps[0]!, outputs: [{ ...json('task'), required: false }] }],
+      outputSchema: {
+        outputs: [{ ...json('task'), key: 'final', fromStepId: 'task', outputKey: 'task' }],
+      },
+    },
+  ]) {
+    let rejected = false;
+    try {
+      service.publish(invalid);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('producer contract')) rejected = true;
+      else throw error;
+    }
+    if (!rejected) throw new Error('Incompatible W1 final projection was accepted');
+  }
   for (const version of versions)
     if (
       !service
