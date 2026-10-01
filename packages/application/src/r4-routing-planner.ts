@@ -57,6 +57,13 @@ export class RoutingPlanner {
 
   async plan(context: RoutingTaskContext): Promise<RoutingPlanResult> {
     this.assertContext(context);
+    const teammates = this.store.listTeammates().sort((a, b) => a.id.localeCompare(b.id));
+    const explicitTeammate = teammates.find((item) => item.id === context.explicitTeammateId);
+    // Validate user intent before IDs, decision calls, probes or durable receipts.
+    this.assertExecutionConstraint(context, explicitTeammate);
+    const bridgeRequested =
+      context.executionConstraint === 'HUMAN_BRIDGE' ||
+      explicitTeammate?.executorKind === 'USER_BRIDGE';
     const id = this.options.newId?.() ?? randomUUID();
     const taskRequest = this.builder.buildTaskCapability({ taskSummary: context.objective });
     const receipt: RoutingDecisionReceipt = {
@@ -96,11 +103,18 @@ export class RoutingPlanner {
       };
       receipt.assignment = assignment;
       receipt.outcome = 'ASSIGNED';
-      receipt.reason = input.kind === 'HUMAN_BRIDGE' ? 'HUMAN_BRIDGE_FALLBACK' : 'SELECTED';
+      receipt.reason =
+        input.kind === 'HUMAN_BRIDGE'
+          ? bridgeRequested
+            ? 'HUMAN_BRIDGE_SELECTED'
+            : 'HUMAN_BRIDGE_FALLBACK'
+          : 'SELECTED';
       this.store.appendRoutingReceipt(receipt);
       return { status: 'ASSIGNED', assignment, receipt };
     };
     const explicit = Boolean(context.explicitTeammateId || context.explicitPartyId);
+    if (bridgeRequested && !context.requiredCapabilities?.length)
+      return actionRequired('HUMAN_BRIDGE_CAPABILITY_REQUIRED');
     if (context.requiredCapabilities?.length) {
       receipt.demand = context.requiredCapabilities.map((dimension) => ({
         dimension,
@@ -138,7 +152,6 @@ export class RoutingPlanner {
         return actionRequired('TASK_DEMAND_REQUIRES_CONFIRMATION');
     }
     const required = receipt.demand.filter((item) => item.required).map((item) => item.dimension);
-    const teammates = this.store.listTeammates().sort((a, b) => a.id.localeCompare(b.id));
     const traceFor = (teammateId: string, explicitChoice = false): RoutingCandidateTrace => {
       const evaluated = this.eligibility.evaluate(teammateId, {
         requiredCapabilities: required,
@@ -340,7 +353,13 @@ export class RoutingPlanner {
       }
     };
     const coordinator = await takeNext();
-    if (!coordinator) return bridge();
+    if (!coordinator) {
+      if (context.executionConstraint === 'SOLO')
+        return actionRequired('SOLO_REQUIRES_MODEL_EXECUTOR');
+      if (context.executionConstraint === 'PARTY')
+        return actionRequired('PARTY_REQUIRES_TWO_EXECUTORS');
+      return bridge();
+    }
     if (wantsParty) {
       let member = viable.find((item) => item.teammateId !== coordinator.teammateId);
       for (const candidate of candidates.filter((item) => !checked.has(item.teammateId))) {
@@ -432,6 +451,22 @@ export class RoutingPlanner {
       });
       return null;
     }
+  }
+
+  private assertExecutionConstraint(
+    context: RoutingTaskContext,
+    explicitTeammate: Teammate | undefined,
+  ): void {
+    if (!context.executionConstraint) return;
+    const expected = context.explicitPartyId
+      ? 'PARTY'
+      : context.explicitTeammateId
+        ? explicitTeammate?.executorKind === 'USER_BRIDGE'
+          ? 'HUMAN_BRIDGE'
+          : 'SOLO'
+        : null;
+    if (expected && context.executionConstraint !== expected)
+      throw new DomainError('INVALID_INPUT', '执行约束与显式指定对象冲突');
   }
 
   private assertContext(context: RoutingTaskContext): void {

@@ -42,10 +42,12 @@ const REASON_LABELS: Record<string, string> = {
   TASK_CAPABILITY_UNAVAILABLE: '暂时无法判断任务所需的能力，请明确选择后重试。',
   TASK_DEMAND_LOW_CONFIDENCE: '系统无法可靠判断任务需要的能力，请选择能力需求后重试。',
   TASK_DEMAND_REQUIRES_CONFIRMATION: '请确认此任务必需的能力后继续。',
+  SOLO_REQUIRES_MODEL_EXECUTOR: '单人历练需要一位可用模型道友；系统不会改由本尊执行。',
+  HUMAN_BRIDGE_CAPABILITY_REQUIRED: '本尊执行需要至少选择一项必需能力。',
   NO_CAPABLE_EXECUTOR: '当前没有可执行这项任务的道友。',
   EXPLICIT_TEAMMATE_UNAVAILABLE: '你指定的道友当前不可用；系统没有改派给其他人。',
   EXPLICIT_PARTY_UNAVAILABLE: '你指定的队伍当前不可用；系统没有改派到其他队伍。',
-  PARTY_REQUIRES_TWO_EXECUTORS: '所选队伍没有两位当前可用的执行道友。',
+  PARTY_REQUIRES_TWO_EXECUTORS: '满足队伍执行约束的当前可用模型道友不足两位。',
   WORKSPACE_REQUIRED: '本尊交付需要先配置可用工作区。',
 };
 

@@ -4,6 +4,7 @@ import type { CapabilityDimension, MissionMode, ModelAvailabilityStatus } from '
 export interface RoutingTaskContext {
   objective: string;
   requiredCapabilities?: CapabilityDimension[];
+  /** Hard execution kind; explicit model/bridge/Party permits only its matching kind or omission. */
   executionConstraint?: 'AUTO' | 'SOLO' | 'PARTY' | 'HUMAN_BRIDGE';
   explicitTeammateId?: string;
   explicitPartyId?: string;

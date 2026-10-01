@@ -41,7 +41,7 @@ import type {
 } from '../ui-shared.js';
 import type { CreateMissionRoutingResult } from '../r4-routing.js';
 
-type AssignmentMode = 'AUTO' | 'SOLO' | 'PARTY';
+type AssignmentMode = 'AUTO' | 'SOLO' | 'PARTY' | 'HUMAN_BRIDGE';
 type RoutingRequiredResult = Extract<
   CreateMissionRoutingResult,
   { status: 'USER_ACTION_REQUIRED' }
@@ -123,6 +123,9 @@ export function MissionPage() {
   const availableTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
   const activeTeammates = availableTeammates.filter(
     (teammate) => teammate.executorKind !== 'USER_BRIDGE',
+  );
+  const humanBridge = availableTeammates.find(
+    (teammate) => teammate.executorKind === 'USER_BRIDGE' && teammate.systemKind === 'HUMAN_BRIDGE',
   );
   const activeParties = parties.filter(
     (party) =>
@@ -424,6 +427,11 @@ export function MissionPage() {
   };
 
   const createRoutingMission = async () => {
+    if (assignmentMode === 'HUMAN_BRIDGE' && requiredCapabilities.length === 0) {
+      setCapabilityPickerOpen(true);
+      setError('本尊执行需要至少选择一项本次历练实际涉及的必需能力。');
+      return;
+    }
     if (
       capabilitySelectionRequired &&
       assignmentMode === 'AUTO' &&
@@ -510,6 +518,10 @@ export function MissionPage() {
 
   const recheckAndRetryRouting = async () => {
     if (!routingPrompt) return;
+    if (assignmentMode === 'HUMAN_BRIDGE') {
+      setError('本尊执行不会检测普通模型。请调整本尊已启用的能力或取消。');
+      return;
+    }
 
     const activeModelTeammate = (teammateId: string) => {
       const teammate = teammates.find((item) => item.id === teammateId);
@@ -813,6 +825,8 @@ export function MissionPage() {
                       onChange={(event) => {
                         const next = event.target.value as AssignmentMode;
                         setAssignmentMode(next);
+                        setCapabilitySelectionRequired(next === 'HUMAN_BRIDGE');
+                        if (next === 'HUMAN_BRIDGE') setCapabilityPickerOpen(true);
                         if (next === 'PARTY' && missionMode === 'SOLO') {
                           setMissionMode('CONSULTATION');
                         }
@@ -822,6 +836,7 @@ export function MissionPage() {
                       <option value="AUTO">自动分配</option>
                       <option value="SOLO">指定道友</option>
                       <option value="PARTY">指定队伍</option>
+                      <option value="HUMAN_BRIDGE">本尊执行</option>
                     </select>
                   </label>
                   {assignmentMode === 'SOLO' ? (
@@ -909,6 +924,15 @@ export function MissionPage() {
                           ))}
                       </div>
                     </>
+                  ) : assignmentMode === 'HUMAN_BRIDGE' ? (
+                    <div className="mission-party-preview" aria-label="本尊执行者">
+                      <strong>执行者</strong>
+                      {humanBridge ? (
+                        <span>{humanBridge.name} · 不探测普通模型</span>
+                      ) : (
+                        <span>本尊尚不可用；系统不会改派给普通模型。</span>
+                      )}
+                    </div>
                   ) : (
                     <p className="form-hint">
                       系统会根据任务需要分配道友或队伍；如无法可靠判断能力需求，会请你明确选择，不会填入默认能力。
@@ -921,16 +945,27 @@ export function MissionPage() {
                       aria-expanded={capabilityPickerOpen}
                       onClick={() => setCapabilityPickerOpen((open) => !open)}
                     >
-                      {capabilityPickerOpen ? '收起能力需求' : '可选：指定必需能力'}
+                      {capabilityPickerOpen
+                        ? '收起能力需求'
+                        : assignmentMode === 'HUMAN_BRIDGE'
+                          ? '选择必需能力'
+                          : '可选：指定必需能力'}
                       {requiredCapabilities.length > 0 ? `（${requiredCapabilities.length}）` : ''}
                     </button>
                     <p className="form-hint">
-                      {capabilitySelectionRequired &&
-                      assignmentMode === 'AUTO' &&
-                      requiredCapabilities.length === 0
-                        ? '当前无法可靠判断任务能力。请至少选择一项必需能力后再分配。'
-                        : '留空时由系统分析；只有你明确选择的能力才会作为必需项，不会伪造“通用推理”默认值。'}
+                      {assignmentMode === 'HUMAN_BRIDGE'
+                        ? '本尊执行需要至少一项已启用的能力；请只选择本次历练实际涉及的必需能力。'
+                        : capabilitySelectionRequired &&
+                            assignmentMode === 'AUTO' &&
+                            requiredCapabilities.length === 0
+                          ? '当前无法可靠判断任务能力。请至少选择一项必需能力后再分配。'
+                          : '留空时由系统分析；只有你明确选择的能力才会作为必需项，不会伪造“通用推理”默认值。'}
                     </p>
+                    {assignmentMode === 'HUMAN_BRIDGE' && requiredCapabilities.length === 0 && (
+                      <p className="form-hint" role="status">
+                        尚未选择必需能力，当前不能创建本尊历练。
+                      </p>
+                    )}
                     {capabilityPickerOpen && (
                       <CapabilityPicker
                         selected={requiredCapabilities}
@@ -1010,7 +1045,16 @@ export function MissionPage() {
                         </button>
                       )}
                       <RoutingActions
-                        actions={routingPrompt.actions}
+                        actions={
+                          assignmentMode === 'HUMAN_BRIDGE'
+                            ? [
+                                ...new Set([
+                                  ...routingPrompt.actions.filter((action) => action !== 'RECHECK'),
+                                  'CONFIGURE_CAPABILITY' as const,
+                                ]),
+                              ]
+                            : routingPrompt.actions
+                        }
                         disabled={busy}
                         onRecheck={() => void recheckAndRetryRouting()}
                         onSelectOther={() => assignmentSelectRef.current?.focus()}
@@ -1048,6 +1092,7 @@ export function MissionPage() {
                     (creating &&
                       ((assignmentMode === 'SOLO' && !coordinatorId) ||
                         (assignmentMode === 'PARTY' && !partyId) ||
+                        (assignmentMode === 'HUMAN_BRIDGE' && requiredCapabilities.length === 0) ||
                         (capabilitySelectionRequired &&
                           assignmentMode === 'AUTO' &&
                           requiredCapabilities.length === 0)))

@@ -51,7 +51,6 @@ async function main() {
   let facts;
   try {
     const { app, page } = first;
-    await selectWorkspace(app, page);
     const initial = await page.evaluate(async () => ({
       routing: await window.cultivation.routing.config(),
       shadow: await window.cultivation.r3.getConfig(),
@@ -128,6 +127,7 @@ async function main() {
       const a = await make('A90', 90);
       const b = await make('B60', 60);
       const bridge = await api.r2.bridgeProfile();
+      await api.r2.setCapability({ dimension: 'GENERAL_REASONING', enabled: true });
       await api.r2.setCapability({ dimension: 'VIDEO_GENERATION', enabled: true });
       await api.r2.setCapability({ dimension: 'MUSIC_GENERATION', enabled: false });
       const updatedBridge = await api.r2.bridgeProfile();
@@ -146,6 +146,28 @@ async function main() {
     assert.notEqual(seeded.a.id, seeded.b.id);
     assert.notEqual(seeded.a.runtimeProfileId, seeded.b.runtimeProfileId);
 
+    const missingWorkspace = await page.evaluate(() =>
+      window.cultivation.routing.createMission({
+        title: 'R4 explicit Human Bridge without Workspace',
+        context: {
+          objective: 'Wait for an explicitly chosen Workspace before external work.',
+          executionConstraint: 'HUMAN_BRIDGE',
+          requiredCapabilities: ['GENERAL_REASONING'],
+        },
+      }),
+    );
+    assert.equal(missingWorkspace.status, 'USER_ACTION_REQUIRED');
+    assert.equal(missingWorkspace.reason, 'WORKSPACE_REQUIRED');
+    assert.equal(missingWorkspace.receipt.assignment.kind, 'HUMAN_BRIDGE');
+    assert.equal(missingWorkspace.receipt.candidates.length, 0);
+    assert.equal(
+      (await page.evaluate(() => window.cultivation.missions.list())).some(
+        (mission) => mission.title === 'R4 explicit Human Bridge without Workspace',
+      ),
+      false,
+    );
+    await selectWorkspace(app, page);
+
     // R4 UI actions run with both sealed model identities available and the
     // independent routing opt-in active. Shadow remains disabled throughout.
     const availability = await page.evaluate(
@@ -158,7 +180,98 @@ async function main() {
       { a: seeded.a.id, b: seeded.b.id },
     );
     assert.ok(availability.every((item) => item.ok));
+
+    const conflicts = await page.evaluate(
+      async ({ modelId, bridgeId }) => {
+        const api = window.cultivation;
+        const before = {
+          availability: await api.availability.list(),
+          receipts: await api.routing.receipts(),
+        };
+        const errors = [];
+        for (const [kind, id, constraints] of [
+          ['teammate', modelId, ['AUTO', 'PARTY', 'HUMAN_BRIDGE']],
+          ['teammate', bridgeId, ['AUTO', 'SOLO', 'PARTY']],
+          ['party', 'conflicting-party', ['AUTO', 'SOLO', 'HUMAN_BRIDGE']],
+        ]) {
+          for (const executionConstraint of constraints) {
+            try {
+              await api.routing.createMission({
+                title: 'Must reject conflicting constraint',
+                context: {
+                  objective: 'Reject before Jev, probe, receipt or Mission creation.',
+                  executionConstraint,
+                  ...(kind === 'party' ? { explicitPartyId: id } : { explicitTeammateId: id }),
+                },
+              });
+              errors.push(null);
+            } catch (error) {
+              errors.push(String(error));
+            }
+          }
+        }
+        return {
+          before,
+          errors,
+          after: {
+            availability: await api.availability.list(),
+            receipts: await api.routing.receipts(),
+          },
+        };
+      },
+      { modelId: seeded.a.id, bridgeId: seeded.bridgeId },
+    );
+    assert.equal(conflicts.errors.length, 9);
+    assert.ok(conflicts.errors.every((error) => error?.includes('执行约束与显式指定对象冲突')));
+    assert.deepEqual(
+      conflicts.after,
+      conflicts.before,
+      'Conflicting constraints must not probe or append receipts',
+    );
+
+    for (const executionConstraint of ['SOLO', 'PARTY']) {
+      const blocked = await page.evaluate(
+        (executionConstraint) =>
+          window.cultivation.routing.createMission({
+            title: `R4 hard constraint ${executionConstraint}`,
+            context: {
+              objective:
+                'No model supports VIDEO; an enabled Human Bridge must not weaken the hard constraint.',
+              requiredCapabilities: ['VIDEO_GENERATION'],
+              executionConstraint,
+            },
+          }),
+        executionConstraint,
+      );
+      assert.equal(blocked.status, 'USER_ACTION_REQUIRED');
+      assert.equal(
+        blocked.reason,
+        executionConstraint === 'SOLO'
+          ? 'SOLO_REQUIRES_MODEL_EXECUTOR'
+          : 'PARTY_REQUIRES_TWO_EXECUTORS',
+      );
+      assert.equal(blocked.receipt.assignment, null);
+      assert.ok(blocked.receipt.candidates.every((candidate) => !candidate.probed));
+    }
     const uiEvidence = await verifyR4RoutingUi(page, { a: seeded.a, b: seeded.b });
+    const uiHumanMission = uiEvidence.humanBridgeCreation.mission;
+    assert.equal(uiHumanMission.coordinatorTeammateId, seeded.bridgeId);
+    await page.evaluate((id) => window.cultivation.missions.ready(id), uiHumanMission.id);
+    const uiHumanWaiting = await page.evaluate(
+      (id) => window.cultivation.missions.start({ missionId: id, approvalFixture: false }),
+      uiHumanMission.id,
+    );
+    assert.equal(uiHumanWaiting.mission.state, 'WAITING_EXTERNAL_WORK');
+    assert.equal(uiHumanWaiting.usage.length, 0);
+    const uiHumanRequest = await page.evaluate(
+      async (missionId) =>
+        (await window.cultivation.r2.listRequests()).find(
+          (request) => request.missionId === missionId,
+        ),
+      uiHumanMission.id,
+    );
+    assert.equal(uiHumanRequest?.capability, 'GENERAL_REASONING');
+    assert.equal(uiHumanRequest?.runId, uiHumanWaiting.runs[0].id);
 
     const autoSolo = await page.evaluate(async (nonce) => {
       return window.cultivation.routing.createMission({
@@ -369,6 +482,9 @@ async function main() {
     assert.equal(shadowEnd.enabled, false);
     facts = {
       uiEvidence,
+      uiHumanMissionId: uiHumanMission.id,
+      uiHumanRunId: uiHumanWaiting.runs[0].id,
+      uiHumanRequestId: uiHumanRequest.id,
       a: seeded.a,
       b: seeded.b,
       bridgeId: seeded.bridgeId,
@@ -563,6 +679,45 @@ async function main() {
     assert.equal(retained.shadow.mode, 'SHADOW');
     assert.equal(retained.shadow.enabled, false);
 
+    const uiHumanRetained = await page.evaluate(
+      (id) => window.cultivation.missions.detail(id),
+      facts.uiHumanMissionId,
+    );
+    assert.equal(uiHumanRetained.mission.state, 'WAITING_EXTERNAL_WORK');
+    assert.equal(uiHumanRetained.runs[0].id, facts.uiHumanRunId);
+    await page.evaluate((id) => window.cultivation.r2.markInProgress(id), facts.uiHumanRequestId);
+    await page.evaluate(
+      (requestId) =>
+        window.cultivation.r2.submitArtifacts({
+          requestId,
+          artifacts: [{ targetArtifactId: 'result', relativePath: 'deliverables/result.txt' }],
+        }),
+      facts.uiHumanRequestId,
+    );
+    await page.evaluate(
+      (requestId) =>
+        window.cultivation.r2.accept({
+          requestId,
+          publicResult: 'Accepted explicitly chosen Human Bridge result.',
+        }),
+      facts.uiHumanRequestId,
+    );
+    const uiHumanCompleted = await page.evaluate(
+      (id) => window.cultivation.missions.detail(id),
+      facts.uiHumanMissionId,
+    );
+    assert.equal(uiHumanCompleted.mission.state, 'COMPLETED');
+    assert.equal(uiHumanCompleted.runs.length, 1);
+    assert.equal(uiHumanCompleted.runs[0].id, facts.uiHumanRunId);
+    assert.equal(uiHumanCompleted.runs[0].status, 'COMPLETED');
+    assert.equal(uiHumanCompleted.usage.length, 0);
+    assert.equal(
+      uiHumanCompleted.events.filter(
+        (event) => event.eventType.startsWith('model.') || event.eventType.startsWith('tool.'),
+      ).length,
+      0,
+    );
+
     const explicitUnavailable = await page.evaluate(
       async ({ a, nonce }) => {
         return window.cultivation.routing.createMission({
@@ -650,6 +805,40 @@ async function main() {
 
   const verify = new Database(databasePath, { readonly: true });
   try {
+    assert.equal(
+      verify.prepare('SELECT state FROM missions WHERE id=?').get(facts.uiHumanMissionId).state,
+      'COMPLETED',
+    );
+    assert.equal(
+      verify
+        .prepare('SELECT COUNT(*) AS count FROM mission_runs WHERE mission_id=?')
+        .get(facts.uiHumanMissionId).count,
+      1,
+    );
+    assert.equal(
+      verify
+        .prepare('SELECT mission_id, status FROM mission_runs WHERE id=?')
+        .get(facts.uiHumanRunId).mission_id,
+      facts.uiHumanMissionId,
+    );
+    assert.equal(
+      verify.prepare('SELECT status FROM mission_runs WHERE id=?').get(facts.uiHumanRunId).status,
+      'COMPLETED',
+    );
+    assert.equal(
+      verify
+        .prepare(
+          'SELECT state FROM r2_external_work_continuations WHERE external_work_request_id=?',
+        )
+        .get(facts.uiHumanRequestId).state,
+      'CONSUMED',
+    );
+    assert.equal(
+      verify
+        .prepare('SELECT COUNT(*) AS count FROM usage_records WHERE mission_id=?')
+        .get(facts.uiHumanMissionId).count,
+      0,
+    );
     assert.equal(
       verify.prepare('SELECT state FROM missions WHERE id=?').get(facts.humanMissionId).state,
       'COMPLETED',
@@ -743,6 +932,11 @@ async function main() {
         decisionMode: 'ACTIVE',
         shadowEnabled: false,
         checks: [
+          'explicit Human Bridge without Workspace returns WORKSPACE_REQUIRED and creates no Mission',
+          'incompatible explicit constraints reject before probe and receipt',
+          'SOLO/PARTY cannot degrade to Human Bridge',
+          'explicit Human Bridge UI with supported available models performs zero model probes',
+          'explicit Human Bridge WAITING_EXTERNAL_WORK restart and ACCEPT stay in the same Run',
           'automatic SOLO Benchmark 90 > 60',
           'automatic AD_HOC Party uses existing approval and actor Runtime attribution',
           'denied collaborator has zero model calls and usage',
@@ -759,6 +953,8 @@ async function main() {
           approvedParty: facts.approvedPartyMissionId,
           humanBridge: facts.humanMissionId,
           humanBridgeRun: facts.runId,
+          explicitHumanBridge: facts.uiHumanMissionId,
+          explicitHumanBridgeRun: facts.uiHumanRunId,
         },
       },
       null,
@@ -768,7 +964,7 @@ async function main() {
   );
   console.log(`R4_PACKAGED_EVIDENCE ${evidencePath}`);
   console.log(
-    'R4_PACKAGED_SMOKE_OK routing_optin=independent auto_solo=90 auto_party=AD_HOC human_bridge_fallback=durable_same_run explicit_unavailable=no_substitution unmet_capability=blocked shadow=unchanged',
+    'R4_PACKAGED_SMOKE_OK constraints=hard_conflicts_zero_side_effects explicit_human_bridge=ui_zero_probe_same_run routing_optin=independent auto_solo=90 auto_party=AD_HOC human_bridge_fallback=durable_same_run explicit_unavailable=no_substitution unmet_capability=blocked shadow=unchanged',
   );
 }
 

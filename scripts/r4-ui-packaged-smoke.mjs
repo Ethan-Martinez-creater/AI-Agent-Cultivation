@@ -238,6 +238,122 @@ export async function verifyR4RoutingUi(page, { a, b }) {
   assert.equal(shadowAfter.enabled, shadowBefore.enabled, 'R4 settings must not toggle R3 Shadow.');
   assert.equal((await page.evaluate(() => window.cultivation.routing.config())).cloudEnabled, true);
 
+  const bridgeBefore = await page.evaluate(
+    async (teammateIds) => {
+      const api = window.cultivation;
+      const profile = await api.r2.bridgeProfile();
+      const availability = (await api.availability.list()).filter((item) =>
+        teammateIds.includes(item.teammateId),
+      );
+      return { profile, availability };
+    },
+    [a.id, b.id],
+  );
+  assert.equal(bridgeBefore.profile.teammate.executorKind, 'USER_BRIDGE');
+  assert.equal(bridgeBefore.profile.teammate.systemKind, 'HUMAN_BRIDGE');
+  assert.equal(bridgeBefore.profile.teammate.currentRuntimeProfileId, null);
+  assert.ok(
+    bridgeBefore.profile.dimensions.some(
+      (item) => item.dimension === 'GENERAL_REASONING' && item.enabled,
+    ),
+    'The packaged fixture must explicitly enable the selected Human Bridge capability.',
+  );
+  assert.equal(bridgeBefore.availability.length, 2);
+  const humanBridgeTitle = `R4 本尊执行 UI ${runId.slice(0, 8)}`;
+  const humanBridgeObjective = '请为一段通用推理任务给出简明分析与结论。';
+  const beforeMissingCapability = await page.evaluate(async () => ({
+    missions: await window.cultivation.missions.list(),
+    receipts: await window.cultivation.routing.receipts(),
+  }));
+
+  await navigateUi(page, '历练 Missions');
+  await page.getByRole('button', { name: '+ 发起历练', exact: true }).click();
+  await page.getByRole('heading', { name: '发起历练', exact: true }).waitFor();
+  await page.getByLabel('分配方式').selectOption('HUMAN_BRIDGE');
+  assert.equal(await page.getByLabel('分配方式').inputValue(), 'HUMAN_BRIDGE');
+  assert.equal(await page.getByLabel('选择道友', { exact: true }).count(), 0);
+  assert.equal(await page.getByLabel('参与队伍', { exact: true }).count(), 0);
+  assert.match(await page.locator('[aria-label="本尊执行者"]').innerText(), /本尊 \/ Human Bridge/);
+  await page.getByLabel('标题', { exact: true }).fill(humanBridgeTitle);
+  await page.getByLabel('任务目标', { exact: true }).fill(humanBridgeObjective);
+  assert.equal(await page.locator('.routing-capability-grid input:checked').count(), 0);
+  assert.match(
+    await page.getByRole('status').filter({ hasText: '尚未选择必需能力' }).innerText(),
+    /不能创建/,
+  );
+  assert.equal(
+    await page.getByRole('button', { name: '分配并创建草稿', exact: true }).isDisabled(),
+    true,
+  );
+  const afterMissingCapability = await page.evaluate(async (title) => {
+    const missions = await window.cultivation.missions.list();
+    const receipts = await window.cultivation.routing.receipts();
+    return {
+      missions,
+      receipts,
+      missionTitleExists: missions.some((item) => item.title === title),
+    };
+  }, humanBridgeTitle);
+  assert.equal(afterMissingCapability.missionTitleExists, false);
+  assert.equal(afterMissingCapability.missions.length, beforeMissingCapability.missions.length);
+  assert.deepEqual(afterMissingCapability.receipts, beforeMissingCapability.receipts);
+
+  await page.locator('.routing-capability-grid').getByLabel('通用推理', { exact: true }).check();
+  assert.equal(await page.locator('.routing-capability-grid input:checked').count(), 1);
+  screenshots.push(
+    await setViewportAndCapture(page, 1180, 'mission-human-bridge-1180.png', screenshotDirectory),
+  );
+  await page.getByRole('button', { name: '分配并创建草稿', exact: true }).click();
+  await page
+    .getByRole('status')
+    .filter({ hasText: '已完成执行者分配，历练草稿已创建。' })
+    .waitFor({ state: 'visible', timeout: 30000 });
+  const humanBridgeResult = await page.evaluate(async (title) => {
+    const api = window.cultivation;
+    const missionRow = (await api.missions.list()).find((item) => item.title === title);
+    if (!missionRow) return null;
+    const [detail, receipts] = await Promise.all([
+      api.missions.detail(missionRow.id),
+      api.routing.receipts(missionRow.id),
+    ]);
+    return { mission: detail.mission, receipts };
+  }, humanBridgeTitle);
+  assert.ok(humanBridgeResult, 'The explicit Human Bridge choice should create a Mission draft.');
+  assert.equal(humanBridgeResult.mission.state, 'DRAFT');
+  assert.equal(humanBridgeResult.mission.coordinatorTeammateId, bridgeBefore.profile.teammate.id);
+  const humanBridgeReceipt = humanBridgeResult.receipts.find(
+    (receipt) => receipt.outcome === 'ASSIGNED',
+  );
+  assert.ok(humanBridgeReceipt, 'The Human Bridge Mission should have an assigned receipt.');
+  assert.equal(humanBridgeReceipt.reason, 'HUMAN_BRIDGE_SELECTED');
+  assert.equal(humanBridgeReceipt.assignment?.kind, 'HUMAN_BRIDGE');
+  assert.equal(
+    humanBridgeReceipt.assignment?.coordinatorTeammateId,
+    bridgeBefore.profile.teammate.id,
+  );
+  assert.deepEqual(
+    humanBridgeReceipt.demand.map((item) => item.dimension),
+    ['GENERAL_REASONING'],
+    'The explicit Human Bridge request must preserve the capability chosen by the user.',
+  );
+  assert.equal(humanBridgeReceipt.candidates.length, 0);
+  assert.equal(humanBridgeReceipt.decisionSignals.length, 0);
+  const bridgeAfter = await page.evaluate(
+    async (teammateIds) => ({
+      profile: await window.cultivation.r2.bridgeProfile(),
+      availability: (await window.cultivation.availability.list()).filter((item) =>
+        teammateIds.includes(item.teammateId),
+      ),
+    }),
+    [a.id, b.id],
+  );
+  assert.deepEqual(
+    bridgeAfter.availability,
+    bridgeBefore.availability,
+    'An explicit Human Bridge assignment must not probe or update ordinary model availability.',
+  );
+  assert.equal(bridgeAfter.profile.teammate.currentRuntimeProfileId, null);
+
   const finalMission = await page.evaluate(
     (missionId) => window.cultivation.missions.detail(missionId),
     routeResult.mission.id,
@@ -253,6 +369,7 @@ export async function verifyR4RoutingUi(page, { a, b }) {
     routingCloudEnabled: routingConfig.cloudEnabled,
     shadowEnabledBefore: shadowBefore.enabled,
     shadowEnabledAfter: shadowAfter.enabled,
+    humanBridgeCreation: { mission: humanBridgeResult.mission, receipt: humanBridgeReceipt },
     screenshots,
   };
 }

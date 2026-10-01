@@ -1,0 +1,163 @@
+{
+  "verifiedAt": "2026-10-01T04:25:08.749Z",
+  "migration": 16,
+  "decisionMode": "ACTIVE",
+  "shadowEnabled": false,
+  "checks": [
+    "explicit Human Bridge without Workspace returns WORKSPACE_REQUIRED and creates no Mission",
+    "incompatible explicit constraints reject before probe and receipt",
+    "SOLO/PARTY cannot degrade to Human Bridge",
+    "explicit Human Bridge UI with supported available models performs zero model probes",
+    "explicit Human Bridge WAITING_EXTERNAL_WORK restart and ACCEPT stay in the same Run",
+    "automatic SOLO Benchmark 90 > 60",
+    "automatic AD_HOC Party uses existing approval and actor Runtime attribution",
+    "denied collaborator has zero model calls and usage",
+    "Human Bridge fallback survives restart and ACCEPT completes the same Run",
+    "Human Bridge has zero model/tool calls and usage",
+    "explicit UNAVAILABLE identity is retained without substitution",
+    "unsupported capability creates no Mission",
+    "routing receipt and assignment Event/Audit are durable"
+  ],
+  "ui": {
+    "missionId": "9027ec71-b0c7-49bd-8dd0-e497e568c833",
+    "missionTitle": "R4 自动分配 UI 472e99ed",
+    "assignedTeammate": {
+      "id": "03af44a6-544d-4ce3-8a82-93a748b94734",
+      "name": "R4 A90 ca2b1532-fdfa-4547-a7e9-12fb5f6cdc49"
+    },
+    "unavailableTeammate": {
+      "id": "9b733fd9-3ac9-44e0-8ce2-7055f4147eb4",
+      "name": "R4 B60 ca2b1532-fdfa-4547-a7e9-12fb5f6cdc49 副本",
+      "status": "ARCHIVED"
+    },
+    "unavailableReason": "EXPLICIT_TEAMMATE_UNAVAILABLE",
+    "capabilityDefaultsChecked": 0,
+    "routingCloudEnabled": true,
+    "shadowEnabledBefore": false,
+    "shadowEnabledAfter": false,
+    "humanBridgeCreation": {
+      "mission": {
+        "id": "b98bfe8a-9fcd-4a3c-ba7c-0e44a14148d3",
+        "title": "R4 本尊执行 UI 472e99ed",
+        "objective": "请为一段通用推理任务给出简明分析与结论。",
+        "initiatorType": "USER",
+        "initiatorId": "local-user",
+        "coordinatorTeammateId": "system-human-bridge",
+        "partyId": null,
+        "mode": "SOLO",
+        "state": "DRAFT",
+        "createdAt": "2026-10-01T04:25:06.072Z",
+        "updatedAt": "2026-10-01T04:25:06.072Z",
+        "completedAt": null
+      },
+      "receipt": {
+        "id": "93d1cf09-ebf1-46c4-b039-218eecd93b6e",
+        "assignment": {
+          "kind": "HUMAN_BRIDGE",
+          "coordinatorTeammateId": "system-human-bridge",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "93d1cf09-ebf1-46c4-b039-218eecd93b6e",
+          "demand": [
+            {
+              "dimension": "GENERAL_REASONING",
+              "weight": 1,
+              "required": true
+            }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        },
+        "taskSummary": "请为一段通用推理任务给出简明分析与结论。",
+        "contextHash": "86f72b245f077080f9ddb655aa9821838645e3f567e4bbd09f601475d4355dbe",
+        "demand": [
+          {
+            "dimension": "GENERAL_REASONING",
+            "weight": 1,
+            "required": true
+          }
+        ],
+        "candidates": [],
+        "decisionSignals": [],
+        "outcome": "ASSIGNED",
+        "reason": "HUMAN_BRIDGE_SELECTED",
+        "policyVersion": "r4-controlled-routing-v1",
+        "createdAt": "2026-10-01T04:25:06.071Z"
+      }
+    },
+    "screenshots": [
+      {
+        "path": "missions-auto-create-1180.png",
+        "viewportWidth": 1180,
+        "documentWidth": 1180,
+        "bodyWidth": 1180
+      },
+      {
+        "path": "mission-receipt-1180.png",
+        "viewportWidth": 1180,
+        "documentWidth": 1180,
+        "bodyWidth": 1180
+      },
+      {
+        "path": "mission-unavailable-choice-1180.png",
+        "viewportWidth": 1180,
+        "documentWidth": 1180,
+        "bodyWidth": 1180
+      },
+      {
+        "path": "settings-routing-900.png",
+        "viewportWidth": 900,
+        "documentWidth": 900,
+        "bodyWidth": 900
+      },
+      {
+        "path": "mission-human-bridge-1180.png",
+        "viewportWidth": 1180,
+        "documentWidth": 1180,
+        "bodyWidth": 1180
+      }
+    ]
+  },
+  "missions": {
+    "solo": "b16604b3-6e6c-4c30-84a7-3c2c906bc1c0",
+    "deniedParty": "55cdcbdd-7ccb-41a9-881f-5cae2aed2e44",
+    "approvedParty": "e597e831-b47a-479a-854a-6203025b97df",
+    "humanBridge": "60ca0e2b-9609-44cf-a67c-cef85893cb61",
+    "humanBridgeRun": "268b2a6f-f0be-41bd-b64f-cabec7b14a90",
+    "explicitHumanBridge": "b98bfe8a-9fcd-4a3c-ba7c-0e44a14148d3",
+    "explicitHumanBridgeRun": "baed817b-f721-46e9-8a6a-3071b326d179"
+  },
+  "baseline": "5ddc4429cef02948239b335395ddcdc46780bfb6",
+  "deterministicTests": {
+    "files": 50,
+    "tests": 401,
+    "added": 26
+  },
+  "validation": [
+    {
+      "command": "npm run test",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run format:check",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run package",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run smoke:package",
+      "exitCode": 0
+    }
+  ],
+  "legacyUiEvidence": ".test-data/r3-3-ui-8e8df156-1398-4c89-a69d-414aaafe2df3/evidence-manifest.json"
+}

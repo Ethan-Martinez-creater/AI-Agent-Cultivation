@@ -18,14 +18,14 @@
 
 集中策略 `r4-controlled-routing-v1`：Top-K=4，semantic bonus≤8，UNSTABLE penalty=10，choice confidence≥0.7；task relevance≥0.5，低概率硬需求最小权重0.25。版本化 Jev question/policy 独立于排序策略。
 
-1. 用户明确 capabilities 时使用其硬需求；否则 Jev 对 14 维给出有界估计。缺失、错误、超时、低置信度或没有可信硬需求时要求用户确认，绝不补造默认维度/基准分。Cloud 关闭仍可通过用户明确能力需求进行本地确定性选择，显式道友/队伍不依赖 Jev。
+1. 用户明确 capabilities 时使用其硬需求；未明确能力的自动模型分配由 Jev 对 14 维给出有界估计。缺失、错误、超时、低置信度或没有可信硬需求时要求用户确认，绝不补造默认维度/基准分。Cloud 关闭仍可通过用户明确能力需求进行本地确定性选择，显式道友/队伍不依赖 Jev。本尊执行必须由用户明确至少一个能力，不让 Jev 代填。
 2. 共享 Eligibility 检查 ACTIVE、sealed binding、Provider/Endpoint/Credential 结构、required capability、routing policy 和 last-known Availability。本尊先排除；MANUAL_ONLY/FALLBACK_ONLY 模型不进入自动候选。
 3. 分数只来自当前固定 Runtime 的有效 Benchmark prior，沿用 USER_OVERRIDE→CATALOG→USER_ESTIMATE 的 resolver。supported 0 分和 unsupported/null 不同；没有有效 prior 不生成默认分。历史 Evidence/currentScore 不参与。
 4. 按 task demand 权重求 Benchmark 加权平均，再对确定性 Top-K 请求 Jev semantic fit。只有候选内、高置信度推荐得到最多8分；NONE/低置信度记录 IGNORED。Skill/Experience 只作 bounded 语义摘要，不能改变 Benchmark。
 5. 自动候选排序后逐个 `prepare(freshProbe=true)`。包括缓存 AVAILABLE 也只复探当前准备使用者；失败继续下一位，新发现 UNSTABLE 后重新比较排名。无全队 Promise.all probe、后台 ping 或长期 health history。
 6. 显式道友或 Party 不可用返回 USER_ACTION_REQUIRED，保留选择、不替换。用户重新检测只检查明确对象；自动失败界面先重检一个最高排名失败候选，再重新规划。
 7. 高置信度 COLLABORATION_NEED 与确定性人数/eligibility 决定 SOLO 或两人 AD_HOC Party。首版自动 Party 每位成员均需满足全部硬能力要求，未实现互补能力集合覆盖优化。具体子任务仍由现有 Coordinator 提案，经原 INVITE_TEAMMATE Permission/Approval。
-8. 无满足硬能力要求的可用 MODEL_RUNTIME，且本尊全部相关 capability enabled 时，才自动 Human Bridge fallback。没有可信需求/本尊能力未启用则 USER_ACTION_REQUIRED。显式对象失效不会触发 fallback。
+8. 仅 AUTO 中，无满足硬能力要求的可用 MODEL_RUNTIME，且本尊全部相关 capability enabled 时，才自动 Human Bridge fallback。SOLO/PARTY 不允许降级为本尊。没有可信需求/本尊能力未启用则 USER_ACTION_REQUIRED。显式对象失效不会触发 fallback。
 
 首版有界 receipt 最多128道友候选，超过上限返回明确错误。Workspace 未配置时可记录已选中的本尊 assignment，但不创建 Mission，要求用户选 Workspace 后重新规划；选择事实不等于已执行。
 
@@ -39,7 +39,7 @@ SOLO 本尊使用同一 MissionRun：RUNNING→WAITING_EXTERNAL_WORK，创建原
 
 ## UI 与安全兼容
 
-历练增加真正可工作的自动分配、指定道友、指定队伍及可选硬能力确认、交付约定；详情提供可展开的 receipt 比较。Settings Advanced 增加独立“智能分配”开关与 Cloud 发送范围说明。没有 Workflow 死入口，也没有 UI 全面重构。
+历练增加真正可工作的自动分配、指定道友、指定队伍、本尊执行及硬能力确认、交付约定；详情提供可展开的 receipt 比较。Settings Advanced 增加独立“智能分配”开关与 Cloud 发送范围说明。没有 Workflow 死入口，也没有 UI 全面重构。
 
 fixed model、sealed Settings readonly、Credential rotation、Avatar/Chat、Memory SQL scope、每成员独立 Skill/Runtime、权限优先级/exact grant、untrusted tool transcript、MCP env whitelist、协作 depth/调用上限、Experience provenance、Human Bridge 系统身份和 Benchmark-only 保持。Renderer→typed Preload IPC→Main 边界不变。没有新增依赖。
 
@@ -80,3 +80,47 @@ Windows packaged R4 专项真实验证：
 - Jev 仅有界 advisory；错误不会给它执行 authority。Cloud 关闭/不可用且需求不明确时需要用户确认。
 - 自动 Party 当前为两个均符合硬能力要求的成员；没有互补能力组合求解、成本优化或自建隐藏 Agent。
 - Windows packaged 联调用 FakeModelGateway/Fake Decision fixture 验证真实 IPC/SQLite/状态机；不宣称外网 Jev/Provider 在线结果，不要求仓库包含 API Key。
+
+## R4 corrective repair（基线 main@5ddc442）
+
+本轮只修复执行约束与显式本尊入口。没有新增依赖或 migration；0001–0016 均未修改，旧 receipt/assignment/执行事实不重写。
+
+### Hard constraint
+
+planner 在开始需求分析、Eligibility、probe 或写 receipt 前检查执行约束与 explicit ID。冲突组合统一抛出 `DomainError(INVALID_INPUT)`，不调用 Jev、模型探测或持久化选择事实。
+
+| Explicit 选择      | 合法 executionConstraint                          |
+| ------------------ | ------------------------------------------------- |
+| 无 ID              | AUTO / SOLO / PARTY / HUMAN_BRIDGE；省略等同 AUTO |
+| MODEL_RUNTIME 道友 | SOLO 或省略                                       |
+| Human Bridge       | HUMAN_BRIDGE 或省略                               |
+| Party              | PARTY 或省略                                      |
+
+AUTO 仍允许模型 SOLO、Party 与最后的本尊 fallback。SOLO 只能选择一个 MODEL_RUNTIME，失败返回 `SOLO_REQUIRES_MODEL_EXECUTOR`。PARTY 必须取得两位符合条件的执行模型，零候选、全部探测失败或只剩一位均返回 `PARTY_REQUIRES_TWO_EXECUTORS`，不会退化为 SOLO/本尊。HUMAN_BRIDGE 直接检查本尊身份与 enabled capability，即使普通模型可用也不做其 Eligibility、Benchmark/semantic ranking 或 probe。显式对象不可用继续保留选择并要求用户处理。
+
+### 本尊产品入口
+
+历练创建提供 `自动分配 / 指定道友 / 指定队伍 / 本尊执行`。本尊不进入普通模型名单，界面显示独立执行者；至少明确一项 required capability 才允许提交，不让 Jev 猜测。发送 `executionConstraint=HUMAN_BRIDGE`，不夹带其他模式的 explicit ID。Main 仍校验本尊能力与 Workspace，未配置工作区返回原 `WORKSPACE_REQUIRED`，不创建 Mission。
+
+本尊模式不展示模型 Availability/UNKNOWN/重新检测，也不会从 UI 行动区调用普通模型 recheck。明确选择与自动 fallback 的 receipt reason 分别为 `HUMAN_BRIDGE_SELECTED` / `HUMAN_BRIDGE_FALLBACK`。实际执行仍复用既有 ExternalWork、Workspace artifact validation 与 durable continuation。
+
+### Corrective 验证
+
+验收日期：2026-10-01；新增 26 项确定性测试。9 个 explicit 冲突组合逐项断言 INVALID_INPUT、零 Jev/Eligibility/probe/receipt；6 个合法 explicit 组合验证匹配执行类型。其余覆盖 AUTO 零模型 fallback、SOLO/PARTY 零或失败/不足模型时禁止降级、本尊只看 enabled capability、缺少明确能力时不猜测，以及所有 Party probe 失败的分支。
+
+| 命令                    | 最终结果                                               |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run test`          | 50 文件、401 项全部通过（原 375 项 + 新增 26 项）      |
+| `npm run typecheck`     | 通过                                                   |
+| `npm run lint`          | 通过                                                   |
+| `npm run format:check`  | 通过                                                   |
+| `npm run package`       | Windows x64 / Electron 44.4.3；native dependencies 1/1 |
+| `npm run smoke:package` | Gate 0–6、R0–R4 全量真实 packaged 回归通过             |
+
+Packaged smoke 经真实 UI 点击“本尊执行”：未选能力时显示必选提示、提交禁用，Mission/receipt 不增加；选择 GENERAL_REASONING 后创建本尊 Mission。A/B 同时 AVAILABLE 且该能力 Benchmark 90/60，但其 Availability 投影完全不变，本尊 receipt 无模型候选/probe/Jev signals。该 UI Mission 与原 AUTO VIDEO fallback 都实际启动到 WAITING_EXTERNAL_WORK，关闭/重启保持原 Run，再提交 Workspace artifact、ACCEPT、同 Run COMPLETED/continuation CONSUMED，零模型/工具/Usage。只读 SQLite 直接验证 Run 和 continuation 事实。
+
+另外经 typed IPC 逐项验证 9 个冲突组合不改变 Availability/receipt，SOLO/PARTY 缺少视频能力模型时不创建本尊或任何 Mission，未配置 Workspace 的显式本尊请求保持 WORKSPACE_REQUIRED。旧 explicit unavailable 不改派、SOLO/Party 执行、协作拒绝零调用、安全链及 35 张三尺寸旧 UI 回归继续通过。
+
+[本轮证据](../evidence/r4-corrective/README.md) 提交 5 张原始截图和运行 manifest；成功 profile 为 `.test-data/r4-packaged-ca2b1532-fdfa-4547-a7e9-12fb5f6cdc49`，完整旧 UI 原件为 `.test-data/r3-3-ui-8e8df156-1398-4c89-a69d-414aaafe2df3`。验证采用 FakeModelGateway/Fake Decision fixture 与原 SDK 本地 HTTP fixture，不宣称外网收费 API 联调。所有临时目录和证据留在项目内。
+
+fixed identity、Benchmark-only、Availability policy、Jev bounded advisory、Permission/Party authority、Human Bridge FALLBACK_ONLY 和 typed IPC/secret boundary 均保持。没有进入 Workflow/W1/R5；完成后等待 R4 最终审批。

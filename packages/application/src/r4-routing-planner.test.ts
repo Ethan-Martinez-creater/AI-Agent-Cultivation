@@ -230,6 +230,182 @@ function actionRequired(
 }
 
 describe('RoutingPlanner', () => {
+  it.each([
+    ['model', 'AUTO'],
+    ['model', 'PARTY'],
+    ['model', 'HUMAN_BRIDGE'],
+    ['bridge', 'AUTO'],
+    ['bridge', 'SOLO'],
+    ['bridge', 'PARTY'],
+    ['party', 'AUTO'],
+    ['party', 'SOLO'],
+    ['party', 'HUMAN_BRIDGE'],
+  ] as const)(
+    'rejects incompatible explicit %s / %s before any routing side effect',
+    async (choice, executionConstraint) => {
+      const harness = makeHarness({
+        teammates: [teammate('model'), humanBridge()],
+        scores: { model: { CODING: 90 } },
+        humanBridgeSupports: true,
+      });
+      await expect(
+        harness.planner.plan(
+          taskContext({
+            executionConstraint,
+            ...(choice === 'party' ? { explicitPartyId: 'party' } : { explicitTeammateId: choice }),
+          }),
+        ),
+      ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+      expect(harness.probeOrder).toEqual([]);
+      expect(harness.receipts).toEqual([]);
+      expect(harness.decisionGateway.requests).toEqual([]);
+      expect(harness.eligibilityCalls).toEqual([]);
+      expect(harness.semanticMetadataCalls).toEqual([]);
+      expect(harness.bridgeSupportCalls).toBe(0);
+    },
+  );
+
+  it.each(['AUTO', undefined] as const)(
+    'permits only automatic routing (%s) to fall back with zero model candidates',
+    async (executionConstraint) => {
+      const harness = makeHarness({ teammates: [humanBridge()], humanBridgeSupports: true });
+      const result = await harness.planner.plan(
+        taskContext({ executionConstraint, requiredCapabilities: ['CODING'] }),
+      );
+      expect(assigned(result).assignment.kind).toBe('HUMAN_BRIDGE');
+      expect(result.receipt.reason).toBe('HUMAN_BRIDGE_FALLBACK');
+      expect(harness.probeOrder).toEqual([]);
+    },
+  );
+
+  it.each(['zero', 'failed'] as const)(
+    'never degrades SOLO into Human Bridge with %s callable models',
+    async (scenario) => {
+      const harness = makeHarness({
+        teammates: scenario === 'zero' ? [humanBridge()] : [teammate('model'), humanBridge()],
+        scores: { model: { CODING: 90 } },
+        humanBridgeSupports: true,
+        probes: { model: { ok: false, status: 'UNAVAILABLE' } },
+      });
+      const result = await harness.planner.plan(
+        taskContext({ executionConstraint: 'SOLO', requiredCapabilities: ['CODING'] }),
+      );
+      expect(actionRequired(result).reason).toBe('SOLO_REQUIRES_MODEL_EXECUTOR');
+      expect(result.receipt.assignment).toBeNull();
+      expect(harness.bridgeSupportCalls).toBe(0);
+      expect(harness.probeOrder).toEqual(scenario === 'zero' ? [] : ['model']);
+    },
+  );
+
+  it.each([0, 1, 2])(
+    'never degrades PARTY into SOLO/Human Bridge with %i initial models and fewer than two viable',
+    async (count) => {
+      const harness = makeHarness({
+        teammates: [humanBridge(), ...['a', 'b'].slice(0, count).map((id) => teammate(id))],
+        scores: { a: { CODING: 90 }, b: { CODING: 80 } },
+        humanBridgeSupports: true,
+        probes: { b: { ok: false, status: 'UNAVAILABLE' } },
+      });
+      const result = await harness.planner.plan(
+        taskContext({ executionConstraint: 'PARTY', requiredCapabilities: ['CODING'] }),
+      );
+      expect(actionRequired(result).reason).toBe('PARTY_REQUIRES_TWO_EXECUTORS');
+      expect(result.receipt.assignment).toBeNull();
+      expect(harness.bridgeSupportCalls).toBe(0);
+      expect(harness.probeOrder).toEqual(['a', 'b'].slice(0, count));
+      expect(harness.maxConcurrentProbes).toBeLessThanOrEqual(1);
+    },
+  );
+
+  it.each([true, false])(
+    'HUMAN_BRIDGE never probes or chooses an available model (capability enabled=%s)',
+    async (enabled) => {
+      const harness = makeHarness({
+        teammates: [teammate('model'), humanBridge()],
+        scores: { model: { CODING: 100 } },
+        humanBridgeSupports: enabled,
+      });
+      const result = await harness.planner.plan(
+        taskContext({ executionConstraint: 'HUMAN_BRIDGE', requiredCapabilities: ['CODING'] }),
+      );
+      if (enabled) {
+        expect(assigned(result).assignment).toMatchObject({
+          kind: 'HUMAN_BRIDGE',
+          coordinatorTeammateId: 'bridge',
+        });
+        expect(result.receipt.reason).toBe('HUMAN_BRIDGE_SELECTED');
+      } else expect(actionRequired(result).reason).toBe('NO_CAPABLE_EXECUTOR');
+      expect(result.receipt.candidates).toEqual([]);
+      expect(harness.probeOrder).toEqual([]);
+      expect(harness.decisionGateway.requests).toEqual([]);
+      expect(harness.eligibilityCalls).toEqual([]);
+    },
+  );
+
+  it('requires declared capability for Human Bridge without asking Jev to invent it', async () => {
+    const harness = makeHarness({
+      teammates: [teammate('model'), humanBridge()],
+      humanBridgeSupports: true,
+    });
+    const result = await harness.planner.plan(taskContext({ executionConstraint: 'HUMAN_BRIDGE' }));
+    expect(actionRequired(result).reason).toBe('HUMAN_BRIDGE_CAPABILITY_REQUIRED');
+    expect(result.receipt.assignment).toBeNull();
+    expect(harness.decisionGateway.requests).toEqual([]);
+    expect(harness.probeOrder).toEqual([]);
+  });
+
+  it('does not fall back when every PARTY model fails its sequential probe', async () => {
+    const harness = makeHarness({
+      teammates: [teammate('a'), teammate('b'), humanBridge()],
+      scores: { a: { CODING: 90 }, b: { CODING: 80 } },
+      humanBridgeSupports: true,
+      probes: { a: { ok: false, status: 'UNAVAILABLE' }, b: { ok: false, status: 'UNAVAILABLE' } },
+    });
+    const result = await harness.planner.plan(
+      taskContext({ executionConstraint: 'PARTY', requiredCapabilities: ['CODING'] }),
+    );
+    expect(actionRequired(result).reason).toBe('PARTY_REQUIRES_TWO_EXECUTORS');
+    expect(result.receipt.assignment).toBeNull();
+    expect(harness.probeOrder).toEqual(['a', 'b']);
+    expect(harness.bridgeSupportCalls).toBe(0);
+  });
+
+  it.each([
+    ['model', undefined, 'SOLO'],
+    ['model', 'SOLO', 'SOLO'],
+    ['bridge', undefined, 'HUMAN_BRIDGE'],
+    ['bridge', 'HUMAN_BRIDGE', 'HUMAN_BRIDGE'],
+    ['party', undefined, 'PARTY'],
+    ['party', 'PARTY', 'PARTY'],
+  ] as const)(
+    'accepts the compatible explicit %s / %s combination',
+    async (choice, executionConstraint, kind) => {
+      const harness = makeHarness({
+        teammates: [teammate('model'), teammate('other'), humanBridge()],
+        scores: { model: { CODING: 90 }, other: { CODING: 80 } },
+        humanBridgeSupports: true,
+        party: {
+          id: 'party',
+          status: 'ACTIVE',
+          coordinatorTeammateId: 'model',
+          memberTeammateIds: ['model', 'other'],
+        },
+      });
+      const result = await harness.planner.plan(
+        taskContext({
+          executionConstraint,
+          requiredCapabilities: ['CODING'],
+          ...(choice === 'party' ? { explicitPartyId: 'party' } : { explicitTeammateId: choice }),
+        }),
+      );
+      expect(assigned(result).assignment.kind).toBe(kind);
+      expect(harness.decisionGateway.requests).toEqual([]);
+      expect(harness.probeOrder).toEqual(
+        choice === 'bridge' ? [] : choice === 'party' ? ['model', 'other'] : ['model'],
+      );
+    },
+  );
+
   it('returns a typed action for a removed explicit identity without asking Benchmark for nonexistent history', async () => {
     const harness = makeHarness({
       teammates: [],
