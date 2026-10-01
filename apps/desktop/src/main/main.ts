@@ -19,6 +19,7 @@ import {
   R32AvailabilityRepository,
   R4RoutingRepository,
   W1WorkflowRepository,
+  W2WorkflowRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -82,6 +83,7 @@ import { routingFixtureGateway } from './r4-fixture-decision.js';
 import { WorkflowMissionAdapter } from './w1-mission-adapter.js';
 import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.js';
 import { registerWorkflowIpc } from './w1-ipc.js';
+import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -360,9 +362,11 @@ if (!squirrelStartup)
       });
       const rawGateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
         process.argv.includes('--gate1-fake-model')
-          ? process.argv.includes('--w1-fake-workflow')
-            ? new WorkflowFixtureGateway()
-            : new FakeModelGateway()
+          ? process.argv.includes('--w2-fake-workflow')
+            ? new ContractFixtureGateway()
+            : process.argv.includes('--w1-fake-workflow')
+              ? new WorkflowFixtureGateway()
+              : new FakeModelGateway()
           : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
       const availability = new AvailabilityService(
         new R32AvailabilityRepository(db),
@@ -640,12 +644,33 @@ if (!squirrelStartup)
           return snapshot;
         };
       }
-      const workflows = new WorkflowService(workflowStore, workflowMissions);
+      const workflowFoundation = new W2WorkflowRepository(db);
+      if (
+        process.argv.includes('--gate1-fake-model') &&
+        process.argv.includes('--w2-stop-applied')
+      ) {
+        const verify = workflowMissions.verifyOperation.bind(workflowMissions);
+        workflowMissions.verifyOperation = async (...args) => {
+          if (args[0].state === 'APPLIED') await new Promise<void>(() => {});
+          return verify(...args);
+        };
+      }
+      const workflows = new WorkflowService(
+        workflowStore,
+        workflowMissions,
+        undefined,
+        workflowFoundation,
+      );
       if (
         process.argv.includes('--w1-fake-workflow') &&
         process.argv.includes('--gate1-fake-model')
       )
         registerWorkflowFixtures(workflows);
+      if (
+        process.argv.includes('--w2-fake-workflow') &&
+        process.argv.includes('--gate1-fake-model')
+      )
+        registerContractFixtures(workflowStore, workflowFoundation);
       await workflows.recover();
       let activeWindow = createWindow(
         service,

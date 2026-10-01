@@ -1934,6 +1934,7 @@ export class Gate5CollaborationService {
           dispatch.trace.capability,
           null,
           task.externalWorkContext?.requestId ?? null,
+          dispatch.trace.resource,
         );
         appendToolResult(messages, call, dispatch.result);
       }
@@ -2175,6 +2176,7 @@ export class Gate5CollaborationService {
       this.recordState(mission, running, 'mission.approval_resumed', 'USER', LOCAL_USER, run.id);
     });
     let result: ToolResult;
+    let executedResource: string | null = null;
     if (input.decision === 'DENIED' || !sameTool) {
       result = {
         toolCallId: saved.call.id,
@@ -2196,6 +2198,7 @@ export class Gate5CollaborationService {
         },
         true,
       );
+      executedResource = dispatched.trace.resource;
       result =
         dispatched.kind === 'RESULT'
           ? dispatched.result
@@ -2216,6 +2219,7 @@ export class Gate5CollaborationService {
       approval.capability,
       approval.id,
       saved.task.externalWorkContext?.requestId ?? null,
+      executedResource,
     );
     appendToolResult(saved.messages, saved.call, result);
     await this.runParticipant(running, run, saved.task, {
@@ -2235,12 +2239,14 @@ export class Gate5CollaborationService {
     capability: string | null,
     approvalId: string | null,
     externalWorkRequestId: string | null = null,
+    resource: string | null = null,
   ): void {
     this.record(mission, run.id, 'tool.result', 'TEAMMATE', teammateId, {
       teammateId,
       toolId: result.toolId,
       source,
       capability,
+      resource: resource && resource.length <= 512 ? resource : null,
       approvalId,
       success: result.ok,
       code: result.code,

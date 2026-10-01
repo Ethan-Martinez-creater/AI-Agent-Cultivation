@@ -11,6 +11,8 @@ import type {
   RoutingMissionService,
 } from '@cultivation/application';
 import { FileWorkspace } from './file-workspace.js';
+import { WorkflowWorkspaceValidation } from './w2-workspace-validation.js';
+import type { StepOperationReceipt, WorkflowStepDefinition } from '@cultivation/domain';
 
 /** Shares R4/Mission authority; it has no ModelGateway, ToolRuntime or permission shortcuts. */
 export class WorkflowMissionAdapter implements WorkflowMissionPort {
@@ -63,9 +65,29 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
   workspaceIdentity(): string | null {
     return this.workspaceRoot();
   }
+  captureOperation(definition: WorkflowStepDefinition, root: string | null) {
+    return new WorkflowWorkspaceValidation(this.store, this.workspaceRoot).capture(
+      definition,
+      root,
+    );
+  }
+  verifyOperation(
+    receipt: StepOperationReceipt,
+    definition: WorkflowStepDefinition,
+    snapshot: WorkflowMissionSnapshot,
+    root: string | null,
+  ) {
+    return new WorkflowWorkspaceValidation(this.store, this.workspaceRoot).verify(
+      receipt,
+      definition,
+      snapshot,
+      root,
+    );
+  }
   async collectOutputs(
     id: string,
     boundWorkspaceRoot: string | null,
+    definition?: WorkflowStepDefinition,
   ): Promise<WorkflowMissionSnapshot> {
     const snapshot = this.snapshot(id);
     if (!snapshot.run || snapshot.run.status !== 'COMPLETED') return snapshot;
@@ -109,7 +131,13 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
         });
       }
     }
-    return snapshot;
+    return definition
+      ? new WorkflowWorkspaceValidation(this.store, this.workspaceRoot).collect(
+          snapshot,
+          definition,
+          boundWorkspaceRoot,
+        )
+      : snapshot;
   }
   async start(id: string): Promise<void> {
     const mission = this.snapshot(id).mission;

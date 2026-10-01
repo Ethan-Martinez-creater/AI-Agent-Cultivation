@@ -13,6 +13,8 @@ import type {
   Mission,
   MissionRun,
   WorkflowFinalValidation,
+  WorkflowStepDefinition,
+  StepOperationReceipt,
 } from '@cultivation/domain';
 
 export interface WorkflowRepository {
@@ -61,7 +63,23 @@ export interface WorkflowMissionPort {
   collectOutputs?(
     missionId: string,
     workspaceRoot: string | null,
+    definition?: WorkflowStepDefinition,
   ): Promise<WorkflowMissionSnapshot>;
+  /** Canonical bounded metadata inspection; this port never executes an operation. */
+  captureOperation?(
+    definition: WorkflowStepDefinition,
+    workspaceRoot: string | null,
+  ): Promise<StepOperationReceipt['manifest']>;
+  verifyOperation?(
+    receipt: StepOperationReceipt,
+    definition: WorkflowStepDefinition,
+    snapshot: WorkflowMissionSnapshot,
+    workspaceRoot: string | null,
+  ): Promise<{
+    verified: boolean;
+    manifest: StepOperationReceipt['manifest'];
+    externalReference?: string;
+  }>;
   workspaceIdentity?(): string | null;
   start(missionId: string): Promise<void>;
   retry(missionId: string): Promise<void>;

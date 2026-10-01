@@ -346,3 +346,5 @@ export type {
 export * from './r4-routing-planner.js';
 export * from './r4-decision-service.js';
 export * from './r4-routing-mission-service.js';
+export * from './w2-contracts.js';
+export type { WorkflowFoundationPort } from './w2-workflow-ports.js';

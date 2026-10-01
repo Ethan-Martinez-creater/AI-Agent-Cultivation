@@ -1,4 +1,10 @@
-# Windows Alpha / W1 架构总览
+# Windows Alpha / W2.0 架构总览
+
+## W2.0 Contract Foundation
+
+W2.0 在原 W1 引擎上增加冻结 Artifact Contract manifest、受控 Revision Group/Edge、Operation Receipt 与结构化 BUILTIN release manifest。Contract Registry 按 `contractId + contractVersion` 保持不可变；Run 使用 Version 内冻结的 validator/contract，不重新解释旧 W1 inline contract。Revision 只允许已声明 REVIEW/DECISION 回边，edge 和 group 预算随 Decision/checkpoint 事务提交，重启不重复计数。
+
+副作用先保存 PREPARED；原 Mission/Tool/Human Bridge 执行后，从同 Run 的真实成功事实和 canonical Workspace 文件确认 APPLIED，再事务性提交 deterministic validation、VERIFIED、binding/checkpoint 和 Step 完成。APPLIED 恢复只检验已有结果；无法确认的外部动作进入 UNKNOWN/等待用户，不自动重放。没有第二套 Routing、Permission 或 Agent Runtime。生产 BuiltinWorkflowRegistry 本轮为空，测试 package 显式 test-only；三个正式模板留到 W2.1–W2.3。详情见 [W2.0 状态](../status/w2-0-builtin-workflow-contract.md)。
 
 ## W1 Workflow Foundation
 

@@ -642,7 +642,7 @@ export function WorkflowsPage() {
                         requestConfirmation(
                           'retryStep',
                           '以新尝试重试失败步骤',
-                          '这会创建新的 Step Attempt 并保留原尝试。请先检查同一步骤上次执行产生的副作用。',
+                          '这会创建新的 Step Attempt 并保留原尝试。请先核实已有文件及外部动作；UNKNOWN 表示动作可能已经发生，新尝试可能重复副作用。仅在你明确决定重新执行后确认。',
                         )
                       }
                     >
@@ -792,6 +792,26 @@ export function WorkflowsPage() {
                     ) : (
                       <p>暂无检查点。</p>
                     )}
+                  </section>
+                  <section>
+                    <h3>副作用回执与修订预算</h3>
+                    {(detail.operations ?? []).map((receipt) => (
+                      <p key={receipt.id}>
+                        {receipt.effectType} · {receipt.state} · attempt {receipt.attempt}
+                        <br />
+                        <code>{receipt.operationKey}</code>
+                      </p>
+                    ))}
+                    {(detail.operations ?? []).some((o) => o.state === 'UNKNOWN') && (
+                      <p>副作用结果尚不确定。请先核实，应用不会自动重放。</p>
+                    )}
+                    {(detail.version.revisionGroups ?? []).map((group) => (
+                      <p key={group.id}>
+                        {group.id} ·{' '}
+                        {(detail.traversals ?? []).filter((t) => t.groupId === group.id).length} /{' '}
+                        {group.maxTotalTraversals}
+                      </p>
+                    ))}
                   </section>
                   <section>
                     <h3>工作流事件 · {detail.events.length}</h3>

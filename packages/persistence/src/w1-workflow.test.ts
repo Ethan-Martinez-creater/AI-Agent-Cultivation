@@ -386,14 +386,14 @@ function sqliteMissionPort(
 }
 
 describe('W1 SQLite persistence', () => {
-  it('upgrades a version 1 database through migration 18 with foreign keys enabled', () => {
+  it('upgrades a version 1 database through migration 19 with foreign keys enabled', () => {
     const db = new Database(':memory:');
     db.pragma('foreign_keys = ON');
     runMigrations(db, [migrations[0]!]);
     runMigrations(db, migrations.slice(1));
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 18,
+      version: 19,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     expect(

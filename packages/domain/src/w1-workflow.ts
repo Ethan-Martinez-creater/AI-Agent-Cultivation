@@ -10,6 +10,15 @@ import type {
   WorkflowInputs,
   WorkflowFinalValidation,
 } from './w1-workflow-contract.js';
+import {
+  validateW2WorkflowVersion,
+  W2_CONTRACT_POLICY,
+  type ArtifactContract,
+  type BoundedRevisionGroup,
+  type RevisionTraversal,
+  type StepOperationReceipt,
+  type WorkflowReleaseMetadata,
+} from './w2-workflow.js';
 
 export type WorkflowRunState =
   | 'DRAFT'
@@ -49,7 +58,8 @@ export interface WorkflowArtifactSpec {
   validator:
     | { type: 'TEXT'; minLength: number; requiredSections: string[] }
     | { type: 'JSON'; requiredKeys: string[] }
-    | { type: 'METADATA'; allowedExtensions: string[] };
+    | { type: 'METADATA'; allowedExtensions: string[] }
+    | { type: 'REGISTRY'; contractId: string; contractVersion: string };
 }
 export interface WorkflowInputBinding {
   key: string;
@@ -71,6 +81,8 @@ export interface WorkflowStepDefinition {
   exitCondition: 'VALID_OUTPUTS' | 'REVIEW_PASS';
   /** Declaration only: uncertain interrupted execution always needs explicit user action. */
   effectType: 'NONE' | 'FILE_OUTPUT' | 'WORKSPACE_MUTATION' | 'EXTERNAL_ACTION';
+  /** Explicit relative paths the Main adapter may inspect for declared side effects. */
+  effectPaths?: string[];
 }
 export interface WorkflowEdge {
   id: string;
@@ -86,8 +98,10 @@ export interface WorkflowEdge {
         field: string;
         equals: string | number | boolean;
       };
-  /** Reserved contract metadata; W1 rejects any actual revision traversal. */
+  /** Optional static selector for one of several bounded REVIEW REVISE edges. */
   revisionCode?: string;
+  /** Static, bounded W2 traversal declaration. */
+  revision?: { groupId: string; maxTraversals: number };
 }
 export interface WorkflowDefinition {
   id: string;
@@ -102,6 +116,10 @@ export interface WorkflowVersion {
   /** Absent only on legacy no-input versions, equivalent to an empty closed object schema. */
   inputSchema?: WorkflowObjectSchema;
   outputSchema?: WorkflowOutputSchema;
+  /** Exact immutable Contract definitions referenced by REGISTRY-backed outputs. */
+  contractManifest?: ArtifactContract[];
+  revisionGroups?: BoundedRevisionGroup[];
+  releaseMetadata?: WorkflowReleaseMetadata;
   entryStepId: string;
   steps: WorkflowStepDefinition[];
   edges: WorkflowEdge[];
@@ -225,6 +243,8 @@ export interface WorkflowDetail {
   checkpoints: WorkflowCheckpoint[];
   events: WorkflowEvent[];
   finalValidations?: WorkflowFinalValidation[];
+  operations?: StepOperationReceipt[];
+  traversals?: RevisionTraversal[];
 }
 
 const runTransitions: Record<WorkflowRunState, WorkflowRunState[]> = {
@@ -390,7 +410,8 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
         !o.contractId ||
         !o.contractVersion ||
         o.maxSizeBytes < 1 ||
-        o.maxSizeBytes > 1_000_000
+        o.maxSizeBytes >
+          (o.validator.type === 'REGISTRY' ? W2_CONTRACT_POLICY.maxSizeBytes : 1_000_000)
       )
         invalid('Invalid Artifact specification');
       if (
@@ -400,11 +421,19 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
       )
         invalid('Invalid Artifact kind or bounds');
       if (
-        (o.kind === 'TEXT' && o.validator.type !== 'TEXT') ||
-        (o.kind === 'JSON' && o.validator.type !== 'JSON') ||
-        (!['TEXT', 'JSON'].includes(o.kind) && o.validator.type !== 'METADATA')
+        (o.kind === 'TEXT' && !['TEXT', 'REGISTRY'].includes(o.validator.type)) ||
+        (o.kind === 'JSON' && !['JSON', 'REGISTRY'].includes(o.validator.type)) ||
+        (!['TEXT', 'JSON'].includes(o.kind) && !['METADATA', 'REGISTRY'].includes(o.validator.type))
       )
         invalid('Artifact validator/kind mismatch');
+      if (
+        o.validator.type === 'REGISTRY' &&
+        (!o.validator.contractId ||
+          !o.validator.contractVersion ||
+          o.validator.contractId.length > 128 ||
+          o.validator.contractVersion.length > 64)
+      )
+        invalid('Invalid frozen Artifact Contract reference');
       if (
         o.validator.type === 'TEXT' &&
         (!Number.isSafeInteger(o.validator.minLength) ||
@@ -453,9 +482,9 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
       !ids.has(edge.fromStepId) ||
       (edge.toStepId !== null && !ids.has(edge.toStepId)) ||
       !edge.branch ||
-      edge.revisionCode
+      (edge.revisionCode && !edge.revision)
     )
-      invalid('Invalid edge or W2 revision code');
+      invalid('Invalid edge or undeclared W2 revision code');
     if (!['ALWAYS', 'REVIEW_VERDICT', 'JSON_FIELD_EQUALS'].includes(edge.condition.type))
       invalid('Unknown branch condition');
     if (
@@ -477,15 +506,24 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
   }
   const visiting = new Set<string>();
   const visited = new Set<string>();
-  const walk = (id: string): void => {
-    if (visiting.has(id)) invalid('W1 does not allow loops');
+  const checkAcyclic = (id: string): void => {
+    if (visiting.has(id)) invalid('Unmarked Workflow cycle');
     if (visited.has(id)) return;
     visiting.add(id);
-    for (const e of value.edges.filter((e) => e.fromStepId === id))
-      if (e.toStepId) walk(e.toStepId);
+    for (const edge of value.edges.filter((edge) => edge.fromStepId === id && !edge.revision))
+      if (edge.toStepId) checkAcyclic(edge.toStepId);
     visiting.delete(id);
     visited.add(id);
   };
-  walk(value.entryStepId);
-  if (visited.size !== ids.size) invalid('Unreachable Workflow Step');
+  for (const id of ids) checkAcyclic(id);
+  const reachable = new Set<string>();
+  const walkAllEdges = (id: string): void => {
+    if (reachable.has(id)) return;
+    reachable.add(id);
+    for (const edge of value.edges.filter((edge) => edge.fromStepId === id))
+      if (edge.toStepId) walkAllEdges(edge.toStepId);
+  };
+  walkAllEdges(value.entryStepId);
+  if (reachable.size !== ids.size) invalid('Unreachable Workflow Step');
+  validateW2WorkflowVersion(value);
 }

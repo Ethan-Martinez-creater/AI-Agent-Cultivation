@@ -923,7 +923,13 @@ export class Gate3MissionService {
                 code: 'PERMISSION_DENIED',
                 content: 'Tool approval could not be applied.',
               };
-        this.recordToolResult(running, run, pending, result, approval.id);
+        this.recordToolResult(
+          running,
+          run,
+          { ...pending, resource: dispatch.trace.resource },
+          result,
+          approval.id,
+        );
       } finally {
         this.busy.delete(mission.id);
       }
@@ -1841,6 +1847,7 @@ export class Gate3MissionService {
             toolId: dispatch.trace.toolId,
             source: dispatch.trace.source === 'MCP' ? 'MCP' : 'BUILTIN',
             capability: dispatch.trace.capability ?? 'FILE_READ',
+            resource: dispatch.trace.resource,
             inputJson: JSON.stringify({ callId: call.id, input: call.input }).slice(0, 64 * 1024),
           },
           dispatch.result,
@@ -1957,6 +1964,7 @@ export class Gate3MissionService {
       source: 'BUILTIN' | 'MCP' | 'UNKNOWN';
       capability: PermissionCapability | null;
       inputJson: string;
+      resource?: string | null;
     },
     result: ToolResult,
     approvalId: string | null = null,
@@ -1965,6 +1973,7 @@ export class Gate3MissionService {
       toolId: metadata.toolId,
       source: metadata.source,
       capability: metadata.capability,
+      resource: metadata.resource ?? null,
       approvalId,
       success: result.ok,
       code: result.code,

@@ -9,6 +9,7 @@ import {
   validateWorkflowInputs,
   workflowInputsForStep,
   workflowOutputProjectionMatches,
+  validateArtifactContract,
 } from '@cultivation/domain';
 import type {
   WorkflowRun,
@@ -23,7 +24,9 @@ import type {
   WorkflowArtifactBinding,
   WorkflowInputs,
   WorkflowFinalValidation,
+  StepOperationReceipt,
 } from '@cultivation/domain';
+import type { WorkflowFoundationPort } from './w2-workflow-ports.js';
 import type {
   WorkflowRepository,
   WorkflowMissionPort,
@@ -53,6 +56,7 @@ const reviewSchema = z
     evidence: z.array(z.string().max(1000)).max(20),
     summary: z.string().max(2000),
     reviewedArtifactIds: z.array(z.string().max(128)).max(12),
+    revisionCode: z.string().min(1).max(128).optional(),
   })
   .strict();
 function parseJson(content: string): unknown {
@@ -90,9 +94,10 @@ export function validateWorkflowArtifact(
       errors.push('INVALID_JSON');
     }
   } else if (
-    !artifact.metadata.path ||
-    !artifact.metadata.contentHash ||
-    !spec.validator.allowedExtensions.includes(String(artifact.metadata.extension))
+    spec.validator.type === 'METADATA' &&
+    (!artifact.metadata.path ||
+      !artifact.metadata.contentHash ||
+      !spec.validator.allowedExtensions.includes(String(artifact.metadata.extension)))
   )
     errors.push('INVALID_FILE_METADATA');
   return errors;
@@ -105,10 +110,19 @@ export class WorkflowService {
     private readonly store: WorkflowRepository,
     private readonly missions: WorkflowMissionPort,
     private readonly clock = { now: () => new Date().toISOString(), id: () => randomUUID() },
+    private readonly foundation?: WorkflowFoundationPort,
   ) {}
   publish(value: WorkflowVersion): void {
+    if (value.definition.source === 'BUILTIN')
+      throw new DomainError('INVALID_INPUT', 'BUILTIN 身份仅允许官方 Registry 发布');
     validateWorkflowVersion(value);
-    this.store.publishVersion(value);
+    this.store.transaction(() => {
+      if (value.contractManifest !== undefined && !this.foundation)
+        throw new DomainError('WORKFLOW_FOUNDATION_REQUIRED', 'W2 Contract Foundation 不可用');
+      for (const contract of value.contractManifest ?? [])
+        this.foundation!.registerContract(contract);
+      this.store.publishVersion(value);
+    });
   }
   listVersions(): WorkflowVersion[] {
     return this.store.listVersions();
@@ -119,7 +133,15 @@ export class WorkflowService {
   detail(id: string): WorkflowDetail {
     const detail = this.store.detail(id);
     if (!detail) throw new DomainError('NOT_FOUND', 'Workflow Run 不存在');
-    return detail;
+    return {
+      ...detail,
+      ...(this.foundation
+        ? {
+            operations: this.foundation.listOperations(id),
+            traversals: this.foundation.listTraversals(id),
+          }
+        : {}),
+    };
   }
   createRun(input: {
     definitionId: string;
@@ -129,6 +151,13 @@ export class WorkflowService {
     const version = this.store.getVersion(input.definitionId, input.version);
     if (!version) throw new DomainError('NOT_FOUND', 'Workflow 版本不存在');
     validateWorkflowVersion(version);
+    if (version.contractManifest !== undefined && !this.foundation)
+      throw new DomainError('WORKFLOW_FOUNDATION_REQUIRED', 'W2 Contract Foundation 不可用');
+    for (const contract of version.contractManifest ?? []) {
+      const fact = this.foundation!.getContract(contract.contractId, contract.contractVersion);
+      if (!fact || workflowHash(fact) !== workflowHash(contract))
+        throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '冻结 Contract Registry 与版本不一致');
+    }
     const snapshot = validateWorkflowInputs(
       version.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA,
       input.inputs ?? {},
@@ -201,7 +230,8 @@ export class WorkflowService {
           if (inputs === null) break;
           this.setStep(step, 'RUNNING');
           if (definition.type !== 'DECISION') {
-            const objective = this.objective(definition, inputs);
+            const operationRoot = await this.prepareOperation(this.detail(id), step, definition);
+            const objective = this.objective(definition, inputs, detail.version);
             const created = await this.missions.create(
               {
                 title: definition.title,
@@ -223,12 +253,20 @@ export class WorkflowService {
                 },
               },
               (mission) => {
+                if (
+                  operationRoot !== undefined &&
+                  operationRoot !== (this.missions.workspaceIdentity?.() ?? null)
+                )
+                  throw new DomainError(
+                    'WORKFLOW_WORKSPACE_CHANGED',
+                    '准备执行期间 Workspace 已改变',
+                  );
                 const fresh = this.detail(id).steps.find((s) => s.id === step.id)!;
                 this.saveStep(
                   {
                     ...fresh,
                     missionId: mission.id,
-                    workspaceRoot: this.missions.workspaceIdentity?.() ?? null,
+                    workspaceRoot: operationRoot ?? this.missions.workspaceIdentity?.() ?? null,
                   },
                   fresh.state,
                 );
@@ -319,6 +357,12 @@ export class WorkflowService {
     this.assertIdle(id);
     const detail = this.detail(id);
     const step = this.active(detail, true);
+    const operation = step && this.operation(detail, step);
+    if (operation?.state === 'UNKNOWN')
+      throw new DomainError(
+        'WORKFLOW_OPERATION_UNKNOWN',
+        '请先核实副作用；如明确决定重新执行，请创建新的 Step attempt',
+      );
     if (!step?.missionId || !['FAILED', 'WAITING'].includes(step.state))
       throw new DomainError('WORKFLOW_RETRY_INVALID', '没有可重试的 Mission');
     const snapshot = this.missions.snapshot(step.missionId);
@@ -496,7 +540,11 @@ export class WorkflowService {
     });
     return result;
   }
-  private objective(step: WorkflowStepDefinition, inputs: WorkflowArtifact[]): string {
+  private objective(
+    step: WorkflowStepDefinition,
+    inputs: WorkflowArtifact[],
+    version: WorkflowVersion,
+  ): string {
     // Routing receives metadata only. Actual bounded inputs are loaded at the Mission execution boundary.
     const data = inputs.map((a) => ({
       id: a.id,
@@ -510,13 +558,23 @@ export class WorkflowService {
       kind: o.kind,
       contractId: o.contractId,
       version: o.contractVersion,
-      validator: o.validator,
+      validator:
+        o.validator.type === 'REGISTRY'
+          ? version.contractManifest?.find(
+              (c) => c.contractId === o.contractId && c.contractVersion === o.contractVersion,
+            )?.validator
+          : o.validator,
     }));
     if (output.length)
       value += `\nRequired output contracts: ${JSON.stringify(output).slice(0, 2000)}. ${output.length > 1 ? 'Return JSON {"outputs":{"<key>":<value>}} for textual/JSON outputs.' : 'Return the output itself.'}`;
     if (step.type === 'REVIEW')
       value +=
         '\nReturn JSON only: {"verdict":"PASS|REVISE|FAIL","findings":["..."],"evidence":["..."],"summary":"...","reviewedArtifactIds":["actual input artifact IDs"]}. No graph edits or hidden reasoning.';
+    const codes = version.edges
+      .filter((e) => e.fromStepId === step.id && e.revisionCode)
+      .map((e) => e.revisionCode);
+    if (codes.length)
+      value += `\nFor REVISE select revisionCode only from ${JSON.stringify(codes)}. Do not provide Step IDs or free-text targets.`;
     if (value.length > 8000)
       throw new DomainError('WORKFLOW_CONTEXT_LIMIT', 'Workflow 执行上下文超出限制');
     return value;
@@ -536,18 +594,28 @@ export class WorkflowService {
           snapshot = await this.missions.collectOutputs(
             snapshot.mission.id,
             step.workspaceRoot ?? null,
+            this.definition(detail, step),
           );
         } catch {
           this.wait(step, 'USER_CONFIRMATION', 'ARTIFACT_INSPECTION_FAILED');
           return false;
         }
       }
+      if (!(await this.verifyOperation(this.detail(detail.run.id), step, snapshot))) return false;
       return this.completeExecution(this.detail(detail.run.id), step, snapshot);
     }
     if (['FAILED', 'CANCELLED', 'INTERRUPTED'].includes(snapshot.mission.state)) {
-      if (snapshot.mission.state === 'INTERRUPTED' || snapshot.uncertainSideEffects)
+      if (snapshot.mission.state === 'INTERRUPTED' || snapshot.uncertainSideEffects) {
+        const operation = this.operation(detail, step);
+        if (
+          operation &&
+          operation.effectType !== 'NONE' &&
+          operation.state !== 'VERIFIED' &&
+          operation.state !== 'UNKNOWN'
+        )
+          this.updateOperation(operation, 'UNKNOWN');
         this.wait(step, 'USER_CONFIRMATION', 'EXECUTION_INTERRUPTED_RETRY_REQUIRED');
-      else
+      } else
         this.store.transaction(() => {
           this.setStep(step, 'FAILED');
           this.setRun(this.detail(detail.run.id).run, 'FAILED');
@@ -580,6 +648,7 @@ export class WorkflowService {
     const bindings: WorkflowArtifactBinding[] = [];
     let errors: string[] = [];
     let reviewVerdict: string | null = null;
+    let revisionCode: string | undefined;
     let envelope: Record<string, unknown> | null = null;
     if (definition.outputs.length > 1 && snapshot.run?.resultText) {
       try {
@@ -602,12 +671,17 @@ export class WorkflowService {
         if (spec.required) errors.push(`MISSING_OUTPUT:${spec.key}`);
         continue;
       }
-      const content =
+      let content =
         envelope && Object.hasOwn(envelope, spec.key)
           ? spec.kind === 'JSON'
             ? JSON.stringify(envelope[spec.key])
             : String(envelope[spec.key])
           : source.content;
+      const registryContract = detail.version.contractManifest?.find(
+        (c) => c.contractId === spec.contractId && c.contractVersion === spec.contractVersion,
+      );
+      if (registryContract?.kind === 'WORKSPACE' && spec.kind === 'DIRECTORY')
+        content = JSON.stringify({ entries: this.operation(detail, step)?.manifest ?? [] });
       const metadata = envelope ? { ...source.metadata, outputKey: spec.key } : source.metadata;
       const artifact: WorkflowArtifact = {
         id: this.clock.id(),
@@ -625,7 +699,7 @@ export class WorkflowService {
         inputArtifactIds: inputs,
         createdAt: this.clock.now(),
       };
-      const validationErrors = validateWorkflowArtifact(spec, artifact);
+      const validationErrors = this.validateArtifact(detail.version, spec, artifact);
       if (definition.type === 'REVIEW' && spec.kind === 'JSON') {
         try {
           const review = reviewSchema.parse(parseJson(content));
@@ -635,6 +709,20 @@ export class WorkflowService {
           )
             validationErrors.push('REVIEW_LINEAGE_MISMATCH');
           reviewVerdict = review.verdict;
+          revisionCode = review.revisionCode;
+          const declared = detail.version.edges.filter(
+            (e) =>
+              e.fromStepId === step.stepId &&
+              e.condition.type === 'REVIEW_VERDICT' &&
+              e.condition.verdict === 'REVISE',
+          );
+          if (
+            revisionCode &&
+            (review.verdict !== 'REVISE' || !declared.some((e) => e.revisionCode === revisionCode))
+          )
+            validationErrors.push('UNDECLARED_REVISION_CODE');
+          if (review.verdict === 'REVISE' && declared.length > 1 && !revisionCode)
+            validationErrors.push('REVISION_CODE_REQUIRED');
         } catch {
           validationErrors.push('INVALID_REVIEW');
         }
@@ -664,7 +752,7 @@ export class WorkflowService {
           artifactId: artifact.id,
           contractId: spec.contractId,
           contractVersion: spec.contractVersion,
-          validatorVersion: W1_VALIDATOR_VERSION,
+          validatorVersion: this.validatorVersion(detail.version, spec),
           contentHash: artifact.contentHash,
           valid: validationErrors.length === 0,
           errors: validationErrors,
@@ -693,6 +781,7 @@ export class WorkflowService {
       errors.push('REVIEW_PASS_REQUIRED');
     // W2 adds operation receipts/manifests. W1 cannot certify a model's workspace/external claim.
     if (
+      detail.version.contractManifest === undefined &&
       definition.effectType !== 'NONE' &&
       !artifacts
         .concat(
@@ -703,8 +792,9 @@ export class WorkflowService {
         .some((a) => a.source === 'HUMAN_BRIDGE' && a.kind === 'FILE')
     )
       errors.push('SIDE_EFFECT_VERIFICATION_REQUIRED');
-    const edge = this.chooseEdge(detail, step, reviewVerdict);
+    const edge = this.chooseEdge(detail, step, reviewVerdict, revisionCode);
     if (edge === undefined) errors.push('NO_UNAMBIGUOUS_DECLARED_BRANCH');
+    let completed = false;
     this.store.transaction(() => {
       if (step.state === 'WAITING') {
         this.setStep(step, 'RUNNING');
@@ -717,21 +807,36 @@ export class WorkflowService {
         this.event(detail.run.id, step.id, 'step.validation_failed', { code: errors[0]! });
         return;
       }
+      const operation = this.operation(this.detail(detail.run.id), step);
+      if (operation?.state === 'APPLIED')
+        this.updateOperation(operation, 'VERIFIED', {
+          outputArtifactIds: [
+            ...new Set([
+              ...artifacts.map((a) => a.id),
+              ...detail.artifacts.filter((a) => a.producerStepRunId === step.id).map((a) => a.id),
+            ]),
+          ],
+        });
       for (const binding of bindings) this.store.appendBinding(binding);
-      this.commitCompletion(this.detail(detail.run.id), step, edge ?? null);
+      completed = this.commitCompletion(this.detail(detail.run.id), step, edge ?? null);
     });
-    return errors.length === 0;
+    return completed;
   }
   private chooseEdge(
     detail: WorkflowDetail,
     step: WorkflowStepRun,
     verdict: string | null = null,
+    revisionCode?: string,
   ): WorkflowEdge | null | undefined {
     const edges = detail.version.edges.filter((e) => e.fromStepId === step.stepId);
     if (!edges.length) return this.definition(detail, step).type === 'DECISION' ? undefined : null;
     const matches = edges.filter((edge) => {
       if (edge.condition.type === 'ALWAYS') return true;
-      if (edge.condition.type === 'REVIEW_VERDICT') return verdict === edge.condition.verdict;
+      if (edge.condition.type === 'REVIEW_VERDICT')
+        return (
+          verdict === edge.condition.verdict &&
+          (!edge.revisionCode || edge.revisionCode === revisionCode)
+        );
       const condition = edge.condition;
       const binding = detail.bindings.find(
         (b) => b.stepRunId === step.id && b.role === 'INPUT' && b.key === condition.inputKey,
@@ -757,14 +862,30 @@ export class WorkflowService {
       this.wait(step, 'DECISION', 'NO_UNAMBIGUOUS_DECLARED_BRANCH');
       return false;
     }
-    this.store.transaction(() => this.commitCompletion(detail, step, edge));
-    return true;
+    return this.store.transaction(() => this.commitCompletion(detail, step, edge));
   }
   private commitCompletion(
     detail: WorkflowDetail,
     step: WorkflowStepRun,
     edge: WorkflowEdge | null,
-  ): void {
+  ): boolean {
+    if (edge?.revision) {
+      const group = detail.version.revisionGroups!.find((g) => g.id === edge.revision!.groupId)!;
+      const traversals = detail.traversals ?? [];
+      const edgeCount = traversals.filter((t) => t.edgeId === edge.id).length;
+      const groupCount = traversals.filter((t) => t.groupId === group.id).length;
+      if (edgeCount >= edge.revision.maxTraversals || groupCount >= group.maxTotalTraversals) {
+        if (group.onExhausted === 'FAILED') {
+          this.setStep(step, 'FAILED');
+          this.setRun(this.detail(detail.run.id).run, 'FAILED');
+        } else this.wait(step, 'USER_CONFIRMATION', 'REVISION_BUDGET_EXHAUSTED');
+        this.event(detail.run.id, step.id, 'revision.exhausted', {
+          edgeId: edge.id,
+          groupId: group.id,
+        });
+        return false;
+      }
+    }
     if (step.state === 'WAITING') {
       this.setStep(step, 'RUNNING');
       step = this.detail(detail.run.id).steps.find((s) => s.id === step.id)!;
@@ -779,6 +900,24 @@ export class WorkflowService {
         inputHash: workflowHash(detail.bindings.filter((b) => b.stepRunId === step.id)),
         createdAt: this.clock.now(),
       });
+    if (edge?.revision) {
+      const traversals = detail.traversals ?? [];
+      this.foundation!.appendRevisionTraversal({
+        id: this.clock.id(),
+        workflowRunId: detail.run.id,
+        stepRunId: step.id,
+        edgeId: edge.id,
+        groupId: edge.revision.groupId,
+        traversalIndex: traversals.filter((t) => t.groupId === edge.revision!.groupId).length + 1,
+        reason: edge.revisionCode ?? edge.branch,
+        createdAt: this.clock.now(),
+      });
+      this.rearmRevision(detail, step, edge);
+      this.event(detail.run.id, step.id, 'revision.committed', {
+        edgeId: edge.id,
+        groupId: edge.revision.groupId,
+      });
+    }
     const fresh = this.detail(detail.run.id);
     const next = edge?.toStepId
       ? fresh.steps
@@ -823,6 +962,173 @@ export class WorkflowService {
       edgeId: edge?.id ?? null,
     });
     if (!next) this.finishRun(this.detail(detail.run.id));
+    return true;
+  }
+  private rearmRevision(
+    detail: WorkflowDetail,
+    current: WorkflowStepRun,
+    edge: WorkflowEdge,
+  ): void {
+    if (!edge.toStepId) throw new DomainError('WORKFLOW_GRAPH_CONFLICT', 'Revision 必须有声明目标');
+    const affected = new Set<string>();
+    const visit = (id: string): void => {
+      if (affected.has(id)) return;
+      affected.add(id);
+      for (const next of detail.version.edges.filter(
+        (e) => e.fromStepId === id && !e.revision && e.toStepId,
+      ))
+        visit(next.toStepId!);
+    };
+    visit(edge.toStepId);
+    for (const id of affected) {
+      const prior = detail.steps
+        .filter((s) => s.stepId === id)
+        .sort((a, b) => b.attempt - a.attempt)[0]!;
+      if (prior.state === 'PENDING') continue;
+      if (!['COMPLETED', 'SKIPPED'].includes(prior.state) && prior.id !== current.id)
+        throw new DomainError('WORKFLOW_GRAPH_CONFLICT', 'Revision 不可跳过活动步骤');
+      if (prior.attempt >= this.definition(detail, prior).maxAttempts)
+        throw new DomainError('WORKFLOW_ATTEMPT_LIMIT', 'Revision 达到冻结 Step attempt 上限');
+      const at = this.clock.now();
+      this.store.insertStep({
+        ...prior,
+        id: this.clock.id(),
+        attempt: prior.attempt + 1,
+        state: 'PENDING',
+        missionId: null,
+        missionRunId: null,
+        workspaceRoot: null,
+        waitReason: null,
+        errorCode: null,
+        createdAt: at,
+        updatedAt: at,
+      });
+    }
+  }
+  private validatorVersion(version: WorkflowVersion, spec: WorkflowArtifactSpec): string {
+    if (spec.validator.type !== 'REGISTRY') return W1_VALIDATOR_VERSION;
+    const contract = version.contractManifest?.find(
+      (c) => c.contractId === spec.contractId && c.contractVersion === spec.contractVersion,
+    );
+    if (!contract) throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '冻结 Artifact Contract 缺失');
+    return contract.validatorVersion;
+  }
+  private validateArtifact(
+    version: WorkflowVersion,
+    spec: WorkflowArtifactSpec,
+    artifact: WorkflowArtifact,
+  ): string[] {
+    if (spec.validator.type !== 'REGISTRY') return validateWorkflowArtifact(spec, artifact);
+    const contract = version.contractManifest?.find(
+      (c) => c.contractId === spec.contractId && c.contractVersion === spec.contractVersion,
+    );
+    if (!contract) return ['FROZEN_CONTRACT_MISSING'];
+    return validateArtifactContract(contract, artifact);
+  }
+  private operation(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+  ): StepOperationReceipt | undefined {
+    return detail.operations?.find((o) => o.stepRunId === step.id);
+  }
+  private async prepareOperation(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+    definition: WorkflowStepDefinition,
+  ): Promise<string | null | undefined> {
+    if (detail.version.contractManifest === undefined) return undefined;
+    if (this.operation(detail, step))
+      throw new DomainError('WORKFLOW_OPERATION_INVALID', '执行准备已存在，不可重新绑定');
+    const root = this.missions.workspaceIdentity?.() ?? null;
+    const manifest = (await this.missions.captureOperation?.(definition, root)) ?? [];
+    if (root !== (this.missions.workspaceIdentity?.() ?? null))
+      throw new DomainError('WORKFLOW_WORKSPACE_CHANGED', '准备执行期间 Workspace 已改变');
+    if (['FILE_OUTPUT', 'WORKSPACE_MUTATION'].includes(definition.effectType) && !manifest.length)
+      throw new DomainError('WORKFLOW_OPERATION_INVALID', '副作用路径无法确认');
+    const at = this.clock.now();
+    this.foundation!.prepareOperation({
+      id: this.clock.id(),
+      workflowRunId: detail.run.id,
+      stepRunId: step.id,
+      attempt: step.attempt,
+      operationKey: `workflow:${detail.run.id}:${step.id}`,
+      effectType: definition.effectType,
+      state: 'PREPARED',
+      inputHash: workflowHash({
+        inputs: detail.bindings.filter((b) => b.stepRunId === step.id),
+        snapshot: detail.run.inputSnapshot ?? {},
+        definition,
+        workspaceRoot: root,
+      }),
+      manifest,
+      outputArtifactIds: [],
+      createdAt: at,
+      updatedAt: at,
+    });
+    this.event(detail.run.id, step.id, 'operation.prepared', { effectType: definition.effectType });
+    return root;
+  }
+  private updateOperation(
+    receipt: StepOperationReceipt,
+    state: StepOperationReceipt['state'],
+    additions: Partial<StepOperationReceipt> = {},
+  ): StepOperationReceipt {
+    const next = { ...receipt, ...additions, state, updatedAt: this.clock.now() };
+    if (!this.foundation!.transitionOperation(next, receipt.state))
+      throw new DomainError('CONFLICT', 'Operation Receipt 已变化');
+    this.event(receipt.workflowRunId, receipt.stepRunId, `operation.${state.toLowerCase()}`, {
+      effectType: receipt.effectType,
+    });
+    return next;
+  }
+  private async verifyOperation(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+    snapshot: WorkflowMissionSnapshot,
+  ): Promise<boolean> {
+    if (detail.version.contractManifest === undefined) return true;
+    let receipt = this.operation(detail, step);
+    if (!receipt) throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '副作用回执缺失');
+    if (receipt.state === 'UNKNOWN') {
+      this.wait(step, 'USER_CONFIRMATION', 'OPERATION_UNKNOWN');
+      return false;
+    }
+    if (receipt.state === 'VERIFIED') return true;
+    const result =
+      receipt.effectType === 'NONE'
+        ? { verified: true, manifest: receipt.manifest ?? [] }
+        : await this.missions.verifyOperation?.(
+            receipt,
+            this.definition(detail, step),
+            snapshot,
+            step.workspaceRoot ?? null,
+          );
+    if (!result?.verified) {
+      this.updateOperation(receipt, 'UNKNOWN');
+      this.wait(step, 'USER_CONFIRMATION', 'OPERATION_UNKNOWN');
+      return false;
+    }
+    if (receipt.state === 'PREPARED')
+      receipt = this.updateOperation(receipt, 'APPLIED', {
+        manifest: result.manifest,
+        ...('externalReference' in result && result.externalReference
+          ? { externalReference: result.externalReference }
+          : {}),
+      });
+    if (receipt.effectType !== 'NONE') {
+      const checked = await this.missions.verifyOperation?.(
+        receipt,
+        this.definition(detail, step),
+        snapshot,
+        step.workspaceRoot ?? null,
+      );
+      if (!checked?.verified) {
+        this.updateOperation(receipt, 'UNKNOWN');
+        this.wait(step, 'USER_CONFIRMATION', 'OPERATION_UNKNOWN');
+        return false;
+      }
+    }
+    return true;
   }
   private finishRun(detail: WorkflowDetail): void {
     if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(detail.run.state)) return;
@@ -871,11 +1177,20 @@ export class WorkflowService {
         snapshot?.run?.missionId !== producer?.missionId ||
         snapshot?.run?.status !== 'COMPLETED' ||
         (artifact.source === 'MISSION' &&
+          ['TEXT', 'JSON'].includes(artifact.kind) &&
           !snapshot?.outputs.some(
             (o) =>
               o.sourceId === artifact.sourceId &&
               o.actorId === artifact.actorId &&
               o.source === artifact.source,
+          )) ||
+        (artifact.source === 'MISSION' &&
+          ['FILE', 'DIRECTORY'].includes(artifact.kind) &&
+          !detail.operations?.some(
+            (o) =>
+              o.stepRunId === producer?.id &&
+              o.state === 'VERIFIED' &&
+              o.outputArtifactIds?.includes(artifact.id),
           )) ||
         artifact.contentHash !==
           workflowHash({ content: artifact.content, metadata: artifact.metadata })
@@ -889,12 +1204,16 @@ export class WorkflowService {
             v.contentHash === artifact.contentHash &&
             v.contractId === contract.contractId &&
             v.contractVersion === contract.contractVersion &&
-            v.validatorVersion === W1_VALIDATOR_VERSION &&
+            v.validatorVersion === this.validatorVersion(detail.version, contract) &&
             v.valid,
         )
       )
         errors.push(`UNVALIDATED_FINAL_OUTPUT:${spec.key}`);
-      errors.push(...validateWorkflowArtifact(spec, artifact).map((code) => `${code}:${spec.key}`));
+      errors.push(
+        ...this.validateArtifact(detail.version, spec, artifact).map(
+          (code) => `${code}:${spec.key}`,
+        ),
+      );
       outputBindings.push({
         key: spec.key,
         artifactId: artifact.id,

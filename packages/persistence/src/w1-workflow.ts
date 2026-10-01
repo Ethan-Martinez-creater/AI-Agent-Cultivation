@@ -239,7 +239,8 @@ export class W1WorkflowRepository implements WorkflowRepository {
           version: value.version,
           ...edge,
           condition: canonicalJson(edge.condition),
-          revisionCode: edge.revisionCode ?? null,
+          // W2 revision metadata lives in the immutable version JSON; legacy SQL column stays NULL.
+          revisionCode: null,
         });
       }
     });
@@ -899,9 +900,22 @@ function validateArtifact(value: WorkflowArtifact): void {
   }
   for (const inputId of value.inputArtifactIds) validateId(inputId, 'Workflow input Artifact');
   validateMetadata(value.metadata, MAX_METADATA_BYTES);
-  if (value.source === 'MISSION' && value.kind !== 'TEXT' && value.kind !== 'JSON') {
+  if (value.source === 'MISSION' && !['TEXT', 'JSON', 'FILE', 'DIRECTORY'].includes(value.kind)) {
     throw new Error('MISSION artifacts must be coordinator result text or JSON');
   }
+  if (value.source === 'MISSION' && value.kind === 'FILE') {
+    requireMetadataString(value.metadata, 'path');
+    requireMetadataString(value.metadata, 'evidenceEventId');
+    requireMetadataNumber(value.metadata, 'sizeBytes');
+    if (!SHA256.test(requireMetadataString(value.metadata, 'contentHash')) || value.content !== '')
+      throw new Error('Workflow FILE needs inspected hash and durable execution provenance');
+  }
+  if (
+    value.source === 'MISSION' &&
+    value.kind === 'DIRECTORY' &&
+    value.metadata.inspectedManifest !== 1
+  )
+    throw new Error('Workflow manifest needs canonical inspection provenance');
   if (value.source === 'HUMAN_BRIDGE' && value.kind === 'FILE') {
     requireMetadataString(value.metadata, 'path');
     requireMetadataString(value.metadata, 'fileName');
