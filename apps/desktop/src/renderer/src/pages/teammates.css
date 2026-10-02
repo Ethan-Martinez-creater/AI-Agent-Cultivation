@@ -1,786 +1,795 @@
-.teammates-page .teammate-workspace {
-  display: grid;
-  grid-template-columns: minmax(245px, 300px) minmax(0, 1fr);
-  align-items: start;
-  gap: 30px;
-}
-
-.teammate-roster {
-  position: sticky;
-  top: 12px;
-  min-width: 0;
-  padding-right: 16px;
-  border-right: 1px solid var(--border);
-}
-
-.teammate-roster-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 0 12px;
-}
-
-.teammate-roster-heading > div {
-  display: grid;
-  gap: 3px;
-}
-
-.teammate-roster-heading h2,
-.teammate-roster-heading span {
-  margin: 0;
-}
-
-.teammate-roster-heading h2 {
-  color: var(--text);
-  font-size: 16px;
-}
-
-.teammate-roster-heading span {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.teammate-roster-heading .button {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.teammate-roster-list {
-  display: grid;
-  gap: 4px;
-  max-height: calc(100vh - 190px);
-  overflow: auto;
-  overscroll-behavior: contain;
-}
-
-.teammate-roster-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  padding: 6px 8px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: transparent;
-}
-
-.teammate-roster-row.selected {
-  border-color: var(--border);
-  background: var(--primary-soft);
-}
-
-.teammate-roster-select {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  padding: 2px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.teammate-roster-select:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-.teammate-roster-select .object-avatar {
-  width: 42px;
-  height: 42px;
-}
-
-.teammate-roster-copy {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-}
-
-.teammate-roster-copy strong,
-.teammate-roster-copy small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.teammate-roster-copy strong {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.teammate-roster-copy small {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.teammate-roster-row .availability-control {
-  display: inline-flex;
-  justify-content: center;
-  width: 20px;
-}
-
-.teammate-roster-row .availability-control .availability-dot {
-  width: 9px;
-  height: 9px;
-}
-
-.teammate-roster-human,
-.teammate-roster-archived {
-  display: inline-flex;
-  min-width: 20px;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-}
-
-.teammate-roster-archived {
-  max-width: 65px;
-  color: var(--text-secondary);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.teammate-list-state {
-  display: grid;
-  justify-items: start;
-  gap: 10px;
-  padding: 16px 4px;
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.teammate-list-state p {
-  margin: 0;
-}
-
-.teammate-list-state .button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.teammate-detail {
-  min-width: 0;
-}
-
-.teammate-profile {
-  display: grid;
-  min-width: 0;
-  gap: 20px;
-  padding: 4px 0;
-}
-
-.teammate-profile-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px 18px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-}
-
-.teammate-profile-identity {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  min-width: 0;
-}
-
-.teammate-profile-identity .object-avatar {
-  width: 68px;
-  height: 68px;
-  flex: 0 0 auto;
-}
-
-.teammate-profile-copy {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-}
-
-.teammate-profile-copy h2,
-.teammate-profile-copy p {
-  margin: 0;
-}
-
-.teammate-profile-copy h2 {
-  overflow: hidden;
-  color: var(--text);
-  font-size: 22px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.teammate-profile-copy p {
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.teammate-profile-copy .teammate-profile-title {
-  color: var(--text-muted);
-}
-
-.teammate-profile-state {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.teammate-profile-state .availability-control {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.teammate-human-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--success);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.teammate-archived-status,
-.teammate-profile-state .product-status {
-  display: inline-flex;
-  align-items: center;
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.teammate-profile-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.teammate-profile-actions .button {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.teammate-more-menu {
-  position: relative;
-  margin-left: auto;
-}
-
-.teammate-more-menu > summary {
-  display: inline-flex;
-  min-height: 36px;
-  align-items: center;
-  gap: 6px;
-  list-style: none;
-  cursor: pointer;
-}
-
-.teammate-more-menu > summary::-webkit-details-marker,
-.teammate-secondary-view > summary::-webkit-details-marker,
-.teammate-advanced-details > summary::-webkit-details-marker,
-.teammate-benchmark-advanced > summary::-webkit-details-marker,
-.teammate-skill-management > summary::-webkit-details-marker {
-  display: none;
-}
-
-.teammate-more-content {
-  position: absolute;
-  z-index: 5;
-  top: calc(100% + 6px);
-  right: 0;
-  display: grid;
-  gap: 14px;
-  width: min(390px, calc(100vw - 36px));
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  box-shadow: 0 12px 28px rgb(23 33 46 / 12%);
-}
-
-.teammate-more-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.teammate-advanced-details,
-.teammate-benchmark-advanced {
-  padding-top: 11px;
-  border-top: 1px solid var(--border);
-}
-
-.teammate-advanced-details > summary,
-.teammate-benchmark-advanced > summary,
-.teammate-secondary-view > summary,
-.teammate-skill-management > summary {
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.teammate-advanced-details dl,
-.teammate-benchmark-advanced dl {
-  display: grid;
-  gap: 10px;
-  margin: 12px 0 0;
-}
-
-.teammate-advanced-details dl > div,
-.teammate-benchmark-advanced dl > div {
-  display: grid;
-  grid-template-columns: 98px minmax(0, 1fr);
-  gap: 5px 10px;
-  min-width: 0;
-}
-
-.teammate-advanced-details dt,
-.teammate-benchmark-advanced dt {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.teammate-advanced-details dd,
-.teammate-benchmark-advanced dd {
-  min-width: 0;
-  margin: 0;
-  overflow-wrap: anywhere;
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-.teammate-profile-description {
-  max-width: 760px;
-  margin: -5px 0 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.teammate-archived-note {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.teammates-page .teammate-benchmark-panel {
-  margin: 0;
-  padding: 16px 0 0;
-  border: 0;
-  border-top: 1px solid var(--border);
-  border-radius: 0;
-  background: transparent;
-}
-
-.teammates-page .teammate-benchmark-panel .section-heading {
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.teammates-page .teammate-benchmark-panel .section-heading h3,
-.teammates-page .teammate-benchmark-panel .section-heading p {
-  margin: 0;
-}
-
-.teammates-page .teammate-benchmark-panel .section-heading p {
-  margin-top: 4px;
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.teammate-benchmark-rows {
-  display: grid;
-  gap: 10px;
-}
-
-.teammate-benchmark-row {
-  display: grid;
-  grid-template-columns: minmax(118px, 160px) minmax(70px, 1fr) 45px;
-  align-items: center;
-  gap: 10px;
-  min-height: 25px;
-}
-
-.teammate-benchmark-row > strong {
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.teammate-benchmark-row progress {
-  width: 100%;
-  height: 8px;
-  overflow: hidden;
-  border: 0;
-  border-radius: 999px;
-  appearance: none;
-  background: var(--surface-subtle);
-}
-
-.teammate-benchmark-row progress::-webkit-progress-bar {
-  border-radius: 999px;
-  background: var(--surface-subtle);
-}
-
-.teammate-benchmark-row progress::-webkit-progress-value {
-  border-radius: 999px;
-  background: var(--primary);
-}
-
-.teammate-benchmark-row progress::-moz-progress-bar {
-  border-radius: 999px;
-  background: var(--primary);
-}
-
-.teammate-benchmark-score {
-  color: var(--text);
-  text-align: right;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-.teammate-benchmark-score small {
-  color: var(--text-muted);
-  font-size: 11px;
-}
-
-.teammate-benchmark-advanced {
-  margin-top: 14px;
-}
-
-.teammate-benchmark-all {
-  margin-top: 14px;
-  padding-bottom: 14px;
-}
-
-.teammate-benchmark-source {
-  grid-column: 1 / -1;
-  color: var(--text-muted);
-  font-size: 11px;
-}
-
-.teammate-skill-summary,
-.teammate-recent-activity,
-.teammate-secondary-view {
-  min-width: 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.teammate-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.teammate-section-heading h3,
-.teammate-section-heading p {
-  margin: 0;
-}
-
-.teammate-section-heading h3 {
-  color: var(--text);
-  font-size: 15px;
-}
-
-.teammate-section-heading p {
-  margin-top: 4px;
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.teammate-section-heading > a {
-  color: var(--primary);
-  font-size: 12px;
-  text-decoration: none;
-}
-
-.teammate-section-count {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.teammate-skill-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.teammate-skill-chip {
-  max-width: 100%;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-subtle);
-  color: var(--text-secondary);
-  font-size: 12px;
-  overflow-wrap: anywhere;
-}
-
-.teammate-muted {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.teammate-inline-error {
-  margin: 0 0 10px;
-  color: var(--danger);
-  font-size: 12px;
-}
-
-.teammate-skill-management {
-  margin-top: 14px;
-}
-
-.teammate-skill-management[open] > summary {
-  margin-bottom: 12px;
-}
-
-.teammate-skill-management .profile-section {
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-.teammate-recent-activity {
-  display: grid;
-  gap: 12px;
-}
-
-.teammate-recent-activity .teammate-section-heading {
-  margin-bottom: 0;
-}
-
-.teammate-activity-list {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.teammate-activity-list li {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  align-items: start;
-  gap: 10px;
-  padding: 11px 0;
-  border-top: 1px solid var(--border);
-}
-
-.teammate-activity-mark {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  border-radius: 8px;
-  background: var(--surface-subtle);
-  color: var(--text-secondary);
-}
-
-.teammate-activity-mark.mission {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-
-.teammate-activity-mark.chat {
-  color: var(--success);
-}
-
-.teammate-activity-copy {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.teammate-activity-copy:hover strong {
-  color: var(--primary);
-}
-
-.teammate-activity-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  min-width: 0;
-}
-
-.teammate-activity-top strong {
-  overflow: hidden;
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 550;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.teammate-activity-top time,
-.teammate-activity-copy small {
-  flex: 0 0 auto;
-  color: var(--text-muted);
-  font-size: 11px;
-}
-
-.teammate-activity-copy small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.teammate-secondary-view {
-  display: grid;
-  gap: 12px;
-}
-
-.teammate-secondary-view[open] > summary {
-  margin-bottom: 4px;
-}
-
-.teammate-secondary-view > .profile-section {
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-.teammate-detail-state {
-  display: grid;
-  justify-items: start;
-  gap: 12px;
-  padding: 26px;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  background: var(--surface-subtle);
-  color: var(--text-secondary);
-}
-
-.teammate-detail-state h2,
-.teammate-detail-state p {
-  margin: 0;
-}
-
-.teammate-detail-state h2 {
-  color: var(--text);
-  font-size: 18px;
-}
-
-.teammate-edit-drawer {
-  width: min(620px, calc(100vw - 32px));
-  max-width: 620px;
-  max-height: min(820px, calc(100vh - 32px));
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  color: var(--text);
-  background: var(--surface);
-  box-shadow: 0 24px 64px rgb(20 34 54 / 20%);
-}
-
-.teammate-edit-drawer .drawer-content {
-  padding: 20px 24px 24px;
-  overflow: auto;
-}
-
-.teammate-edit-form {
-  display: grid;
-  gap: 16px;
-}
-
-.edit-avatar-row {
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface-subtle);
-}
-
-.teammate-edit-fixed-model {
-  margin: 0;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--surface-subtle);
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-@media (max-width: 900px) {
+@layer pages {
   .teammates-page .teammate-workspace {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
+    display: grid;
+    align-items: start;
+    grid-template-columns: var(--list-pane-width) minmax(0, 1fr);
+    gap: var(--space-5);
   }
 
   .teammate-roster {
+    min-width: 0;
+    padding-right: var(--space-4);
+    border-right: 1px solid var(--border);
     position: static;
-    padding: 0 0 14px;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
+    top: auto;
+  }
+
+  .teammate-roster-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 0 0 var(--space-3);
+  }
+
+  .teammate-roster-heading > div {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .teammate-roster-heading h2,
+  .teammate-roster-heading span {
+    margin: 0;
+  }
+
+  .teammate-roster-heading h2 {
+    color: var(--text);
+    font-size: var(--font-body);
+  }
+
+  .teammate-roster-heading span {
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-roster-heading .button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   .teammate-roster-list {
-    max-height: 250px;
-  }
-
-  .teammate-profile {
-    padding: 0;
-  }
-}
-
-@media (max-width: 600px) {
-  .teammates-page .teammate-workspace {
-    gap: 14px;
+    display: grid;
+    gap: var(--space-1);
+    overscroll-behavior: contain;
+    max-height: none;
+    overflow: visible;
   }
 
   .teammate-roster-row {
-    padding: 5px 4px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-medium);
+    background: transparent;
+  }
+
+  .teammate-roster-row.selected {
+    border-color: var(--border);
+    background: var(--primary-soft);
+  }
+
+  .teammate-roster-select {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-1);
+    border: 0;
+    border-radius: var(--radius-small);
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .teammate-roster-select:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .teammate-roster-select .object-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .teammate-roster-copy {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-1);
+  }
+
+  .teammate-roster-copy strong,
+  .teammate-roster-copy small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .teammate-roster-copy strong {
+    color: var(--text);
+    font-size: var(--font-body);
+    font-weight: var(--weight-strong);
+  }
+
+  .teammate-roster-copy small {
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-roster-row .availability-control {
+    display: inline-flex;
+    justify-content: center;
+    width: 20px;
+  }
+
+  .teammate-roster-row .availability-control .availability-dot {
+    width: 9px;
+    height: 9px;
+  }
+
+  .teammate-roster-human,
+  .teammate-roster-archived {
+    display: inline-flex;
+    min-width: 20px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  .teammate-roster-archived {
+    max-width: 65px;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    white-space: nowrap;
+  }
+
+  .teammate-list-state {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-1);
+    color: var(--text-secondary);
+    font-size: var(--font-control);
+  }
+
+  .teammate-list-state p {
+    margin: 0;
+  }
+
+  .teammate-list-state .button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .teammate-detail {
+    min-width: 0;
+  }
+
+  .teammate-profile {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-4);
+    padding: var(--space-1) 0;
   }
 
   .teammate-profile-header {
-    grid-template-columns: minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .teammate-profile-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .teammate-profile-identity .object-avatar {
+    width: 68px;
+    height: 68px;
+    flex: 0 0 auto;
+  }
+
+  .teammate-profile-copy {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-1);
+  }
+
+  .teammate-profile-copy h2,
+  .teammate-profile-copy p {
+    margin: 0;
+  }
+
+  .teammate-profile-copy h2 {
+    overflow: hidden;
+    color: var(--text);
+    font-size: var(--font-section);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .teammate-profile-copy p {
+    color: var(--text-secondary);
+    font-size: var(--font-control);
+  }
+
+  .teammate-profile-copy .teammate-profile-title {
+    color: var(--text-muted);
   }
 
   .teammate-profile-state {
-    justify-content: flex-start;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .teammate-profile-state .availability-control {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .teammate-human-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--success);
+    font-size: var(--font-control);
+    font-weight: var(--weight-strong);
+  }
+
+  .teammate-archived-status,
+  .teammate-profile-state .product-status {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: var(--font-control);
   }
 
   .teammate-profile-actions {
-    grid-column: auto;
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .teammate-profile-actions .button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 
   .teammate-more-menu {
-    margin-left: 0;
+    position: relative;
+    margin-left: auto;
+  }
+
+  .teammate-more-menu > summary {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    gap: var(--space-1);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .teammate-more-menu > summary::-webkit-details-marker,
+  .teammate-secondary-view > summary::-webkit-details-marker,
+  .teammate-advanced-details > summary::-webkit-details-marker,
+  .teammate-benchmark-advanced > summary::-webkit-details-marker,
+  .teammate-skill-management > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .teammate-more-content {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 6px);
+    right: 0;
+    display: grid;
+    gap: var(--space-3);
+    width: min(390px, calc(100vw - 36px));
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .teammate-more-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .teammate-advanced-details,
+  .teammate-benchmark-advanced {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+  }
+
+  .teammate-advanced-details > summary,
+  .teammate-benchmark-advanced > summary,
+  .teammate-secondary-view > summary,
+  .teammate-skill-management > summary {
+    color: var(--text-secondary);
+    font-size: var(--font-control);
+    font-weight: var(--weight-strong);
+    cursor: pointer;
+  }
+
+  .teammate-advanced-details dl,
+  .teammate-benchmark-advanced dl {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+  }
+
+  .teammate-advanced-details dl > div,
+  .teammate-benchmark-advanced dl > div {
+    display: grid;
+    grid-template-columns: 98px minmax(0, 1fr);
+    gap: var(--space-1) var(--space-2);
+    min-width: 0;
+  }
+
+  .teammate-advanced-details dt,
+  .teammate-benchmark-advanced dt {
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-advanced-details dd,
+  .teammate-benchmark-advanced dd {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-profile-description {
+    max-width: 760px;
+    margin: calc(-1 * var(--space-1)) 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-body);
+    line-height: var(--line-body);
+  }
+
+  .teammates-page .teammate-benchmark-panel {
+    margin: 0;
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .teammates-page .teammate-benchmark-panel .section-heading {
+    align-items: flex-start;
+    margin-bottom: var(--space-3);
+  }
+
+  .teammates-page .teammate-benchmark-panel .section-heading h3,
+  .teammates-page .teammate-benchmark-panel .section-heading p {
+    margin: 0;
+  }
+
+  .teammates-page .teammate-benchmark-panel .section-heading p {
+    margin-top: var(--space-1);
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-benchmark-rows {
+    display: grid;
+    gap: var(--space-2);
   }
 
   .teammate-benchmark-row {
-    grid-template-columns: minmax(95px, 1fr) minmax(55px, 1.3fr) 38px;
-    gap: 7px;
+    display: grid;
+    grid-template-columns: minmax(118px, 160px) minmax(70px, 1fr) 45px;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 25px;
+  }
+
+  .teammate-benchmark-row > strong {
+    color: var(--text);
+    font-size: var(--font-control);
+    font-weight: var(--weight-medium);
+  }
+
+  .teammate-benchmark-row progress {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--radius-pill);
+    appearance: none;
+    background: var(--surface-subtle);
+  }
+
+  .teammate-benchmark-row progress::-webkit-progress-bar {
+    border-radius: var(--radius-pill);
+    background: var(--surface-subtle);
+  }
+
+  .teammate-benchmark-row progress::-webkit-progress-value {
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+  }
+
+  .teammate-benchmark-row progress::-moz-progress-bar {
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+  }
+
+  .teammate-benchmark-score {
+    color: var(--text);
+    text-align: right;
+    font-size: var(--font-control);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .teammate-benchmark-score small {
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-benchmark-advanced {
+    margin-top: var(--space-3);
+  }
+
+  .teammate-benchmark-all {
+    margin-top: var(--space-3);
+    padding-bottom: var(--space-3);
   }
 
   .teammate-benchmark-source {
-    font-size: 10px;
+    grid-column: 1 / -1;
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-skill-summary,
+  .teammate-recent-activity,
+  .teammate-secondary-view {
+    min-width: 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .teammate-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .teammate-section-heading h3,
+  .teammate-section-heading p {
+    margin: 0;
+  }
+
+  .teammate-section-heading h3 {
+    color: var(--text);
+    font-size: var(--font-body);
+  }
+
+  .teammate-section-heading p {
+    margin-top: var(--space-1);
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-section-heading > a {
+    color: var(--primary);
+    font-size: var(--font-caption);
+    text-decoration: none;
+  }
+
+  .teammate-section-count {
+    color: var(--text-muted);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .teammate-skill-chip {
+    max-width: 100%;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface-subtle);
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    overflow-wrap: anywhere;
+  }
+
+  .teammate-muted {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: var(--font-control);
+  }
+
+  .teammate-inline-error {
+    margin: 0 0 var(--space-2);
+    color: var(--danger);
+    font-size: var(--font-caption);
+  }
+
+  .teammate-skill-management {
+    margin-top: var(--space-3);
+  }
+
+  .teammate-skill-management[open] > summary {
+    margin-bottom: var(--space-3);
+  }
+
+  .teammate-skill-management .profile-section {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .teammate-recent-activity {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .teammate-recent-activity .teammate-section-heading {
+    margin-bottom: 0;
+  }
+
+  .teammate-activity-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .teammate-activity-list li {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-2);
+    padding: var(--space-3) 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .teammate-activity-mark {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: var(--radius-small);
+    background: var(--surface-subtle);
+    color: var(--text-secondary);
+  }
+
+  .teammate-activity-mark.mission {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+
+  .teammate-activity-mark.chat {
+    color: var(--success);
+  }
+
+  .teammate-activity-copy {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-1);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .teammate-activity-copy:hover strong {
+    color: var(--primary);
   }
 
   .teammate-activity-top {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 3px;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .teammate-activity-top strong {
+    overflow: hidden;
+    color: var(--text);
+    font-size: var(--font-control);
+    font-weight: var(--weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .teammate-activity-top time,
+  .teammate-activity-copy small {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: var(--font-caption);
   }
 
   .teammate-activity-copy small {
-    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .teammate-secondary-view {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .teammate-secondary-view[open] > summary {
+    margin-bottom: var(--space-1);
+  }
+
+  .teammate-secondary-view > .profile-section {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .teammate-detail-state {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface-subtle);
+    color: var(--text-secondary);
+  }
+
+  .teammate-detail-state h2,
+  .teammate-detail-state p {
+    margin: 0;
+  }
+
+  .teammate-detail-state h2 {
+    color: var(--text);
+    font-size: var(--font-section);
+  }
+
+  .teammate-edit-drawer {
+    width: min(620px, calc(100vw - 32px));
+    max-width: 620px;
+    max-height: min(820px, calc(100vh - 32px));
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-large);
+    color: var(--text);
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
   }
 
   .teammate-edit-drawer .drawer-content {
-    padding: 16px;
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    overflow: auto;
+  }
+
+  .teammate-edit-form {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .edit-avatar-row {
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface-subtle);
+  }
+
+  .teammate-edit-fixed-model {
+    margin: 0;
+    padding: var(--space-3);
+    border-radius: var(--radius-small);
+    background: var(--surface-subtle);
+    color: var(--text-secondary);
+    font-size: var(--font-control);
+  }
+
+  @media (max-width: 900px) {
+    .teammates-page .teammate-workspace {
+      grid-template-columns: var(--list-pane-width) minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+
+    .teammate-roster {
+      padding: 0 0 var(--space-3);
+      border-right: 0;
+      border-bottom: 1px solid var(--border);
+      position: static;
+      top: auto;
+    }
+
+    .teammate-roster-list {
+      max-height: none;
+      overflow: visible;
+    }
+
+    .teammate-profile {
+      padding: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .teammates-page .teammate-workspace {
+      grid-template-columns: var(--list-pane-width) minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+
+    .teammate-roster-row {
+      padding: var(--space-1) var(--space-1);
+    }
+
+    .teammate-profile-header {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .teammate-profile-state {
+      justify-content: flex-start;
+    }
+
+    .teammate-profile-actions {
+      grid-column: auto;
+    }
+
+    .teammate-more-menu {
+      margin-left: 0;
+    }
+
+    .teammate-benchmark-row {
+      grid-template-columns: minmax(95px, 1fr) minmax(55px, 1.3fr) 38px;
+      gap: var(--space-2);
+    }
+
+    .teammate-benchmark-source {
+      font-size: var(--font-caption);
+    }
+
+    .teammate-activity-top {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .teammate-activity-copy small {
+      white-space: normal;
+    }
+
+    .teammate-edit-drawer .drawer-content {
+      padding: var(--space-4);
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .teammates-page .teammate-workspace {
+      grid-template-columns: 1fr;
+    }
+    .teammate-workspace:not(.detail-open) .teammate-detail,
+    .teammate-workspace.detail-open .teammate-roster {
+      display: none;
+    }
   }
 }

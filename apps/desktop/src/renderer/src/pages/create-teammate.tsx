@@ -342,8 +342,7 @@ export function CreateTeammatePanel({
         {step === 'identity' && (
           <section className="create-step-content" aria-labelledby="create-identity-title">
             <div className="create-step-intro">
-              <h3 id="create-identity-title">先认识这位道友</h3>
-              <p>选择头像并填写身份资料，之后可以在档案中继续编辑。</p>
+              <h3 id="create-identity-title">身份资料</h3>
             </div>
             <div className="create-avatar-row">
               <AvatarPicker
@@ -429,7 +428,6 @@ export function CreateTeammatePanel({
           <section className="create-step-content" aria-labelledby="create-model-title">
             <div className="create-step-intro">
               <h3 id="create-model-title">为 {identity.name.trim() || '这位道友'} 选择模型</h3>
-              <p>先测试连接，再确认固定模型。创建后可轮换密钥。</p>
             </div>
             <div className="create-model-mode" role="group" aria-label="模型配置方式">
               <button

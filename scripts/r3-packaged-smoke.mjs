@@ -106,7 +106,7 @@ try {
   await page.getByRole('heading', { name: '设置', level: 1, exact: true }).waitFor();
   await page.getByRole('tab', { name: 'Jev 观察', exact: true }).click();
   await page.locator('.shadow-diagnostics > summary').click();
-  await page.getByText('Jev Shadow Decision Plane').waitFor();
+  await page.getByRole('heading', { name: '运行信息', exact: true }).waitFor();
   await page.locator('.shadow-privacy > summary').click();
   const privacy = page.getByRole('note', { name: 'Cloud Shadow 隐私说明' });
   assert.match(await privacy.innerText(), /Benchmark 能力档位/);

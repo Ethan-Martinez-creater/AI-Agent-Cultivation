@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Avatar } from './components/Avatar.js';
+import { Drawer } from './components/Drawer.js';
 import { Icon } from './components/Icon.js';
+import { Section } from './components/Section.js';
+import { StatusBadge } from './components/StatusBadge.js';
 import './pages/product-pages.css';
 import type {
   CapabilityDimension,
@@ -291,6 +294,13 @@ function stringArray(value: unknown): string[] {
   return [];
 }
 
+function displayTaskText(value: string): string {
+  return value.replace(
+    /\b[A-Z][A-Z_]+\b/g,
+    (word) => dimensionNames[word as CapabilityDimension] ?? word,
+  );
+}
+
 interface ArtifactTarget {
   id: string;
   name: string;
@@ -338,7 +348,30 @@ function stateLabel(state: string): string {
     REJECTED: '退回修改',
     CANCELLED: '已取消',
   };
-  return labels[state] ?? state;
+  return labels[state] ?? '状态待同步';
+}
+
+function stateTone(state: string): 'neutral' | 'success' | 'warning' | 'danger' {
+  if (state === 'ACCEPTED') return 'success';
+  if (state === 'REJECTED' || state === 'SUBMITTED') return 'warning';
+  if (state === 'CANCELLED') return 'neutral';
+  return 'neutral';
+}
+
+function nextActionLabel(state: string): string {
+  const labels: Record<string, string> = {
+    PENDING: '标记开始',
+    IN_PROGRESS: '提交交付',
+    SUBMITTED: '验收或退回修改',
+    ACCEPTED: '已验收，原历练可继续',
+    REJECTED: '修订后重新开始',
+    CANCELLED: '工作已取消',
+  };
+  return labels[state] ?? '查看工作要求';
+}
+
+function megabyteLabel(bytes: number): string {
+  return `${new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 1 }).format(bytes / 1048576)} MB`;
 }
 
 export function HumanBridgePage({ api }: { api: R2UiApi }) {
@@ -369,6 +402,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
   const [appName, setAppName] = useState('');
   const [appVendor, setAppVendor] = useState('');
   const [appDimension, setAppDimension] = useState<CapabilityDimension | ''>('');
+  const [appEditorOpen, setAppEditorOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -461,9 +495,9 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
   const pendingCount = requests.filter((item) => activeStates.has(item.state)).length;
 
   return (
-    <section className="page wide-page human-bridge-page">
-      <div className="page-heading">
-        <div className="human-bridge-page-identity">
+    <section className="page wide-page human-bridge-page object-page">
+      <div className="page-heading object-page-header">
+        <div className="human-bridge-page-identity object-header">
           <Avatar
             avatar={profile?.teammate.avatar}
             name={profile?.teammate.name ?? '本尊'}
@@ -471,14 +505,18 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
             size={52}
           />
           <div>
-            <p className="eyebrow">本尊</p>
             <h1>本尊待办</h1>
-            <p>接收明确委托，提交交付内容并处理验收。</p>
           </div>
-          <span className="product-status bridge">
+          <StatusBadge
+            tone={profile ? (enabledCapabilities > 0 ? 'success' : 'warning') : 'neutral'}
+          >
             <Icon name="HumanBridge" size={15} />
-            可接收委托
-          </span>
+            {!profile
+              ? '正在读取状态'
+              : enabledCapabilities > 0
+                ? '可接收委托'
+                : '尚未启用接手能力'}
+          </StatusBadge>
         </div>
       </div>
       <nav className="advanced-page-navigation" aria-label="高级页面导航">
@@ -497,11 +535,15 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
 
       <section className="human-bridge-priority" aria-label="外部工作待办">
         <div className="r2-work-layout human-bridge-work-layout">
-          <aside className="list-card human-bridge-queue">
-            <div className="list-heading">
-              <h2>工作队列</h2>
-              <span className="count-badge">{pendingCount}</span>
-            </div>
+          <Section
+            title="待办队列"
+            className="list-card human-bridge-queue object-list-pane"
+            action={
+              <StatusBadge tone={pendingCount > 0 ? 'warning' : 'neutral'}>
+                {pendingCount} 项待处理
+              </StatusBadge>
+            }
+          >
             {requests.length === 0 ? (
               <p className="list-empty">目前没有外部工作。可在历练中明确委托本尊。</p>
             ) : (
@@ -524,20 +566,29 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                 ))}
               </div>
             )}
-          </aside>
-          <div className="form-card human-bridge-detail">
+          </Section>
+          <div className="form-card human-bridge-detail object-detail-pane">
             {request ? (
               <>
-                <p className="eyebrow">{stateLabel(request.state)}</p>
-                <h2>{request.title}</h2>
-                <p>
-                  委托道友：{teammateNames[request.requesterTeammateId] ?? '道友不可读取'} · 能力：
-                  {dimensionNames[request.capability]}
-                </p>
-                <details className="human-bridge-record-meta">
-                  <summary>查看历练关联</summary>
+                <header className="human-bridge-request-header object-header">
+                  <div className="object-header-copy">
+                    <h2>{request.title}</h2>
+                    <p className="object-header-meta">
+                      委托道友：{teammateNames[request.requesterTeammateId] ?? '道友不可读取'} ·{' '}
+                      {dimensionNames[request.capability]}
+                    </p>
+                    <p className="human-bridge-next-action">
+                      下一步：{nextActionLabel(request.state)}
+                    </p>
+                  </div>
+                  <StatusBadge tone={stateTone(request.state)}>
+                    {stateLabel(request.state)}
+                  </StatusBadge>
+                </header>
+                <details className="human-bridge-record-meta advanced-disclosure">
+                  <summary>高级 · 历练关联</summary>
                   <span>
-                    历练 {request.missionId.slice(0, 8)} · 执行记录 {request.runId.slice(0, 8)}
+                    历练 ID <code>{request.missionId}</code> · Run ID <code>{request.runId}</code>
                   </span>
                 </details>
                 {recommendation && (
@@ -550,14 +601,14 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                 {stringArray(request.requirementsJson).length > 0 ? (
                   <ul>
                     {stringArray(request.requirementsJson).map((line, index) => (
-                      <li key={index}>{line}</li>
+                      <li key={index}>{displayTaskText(line)}</li>
                     ))}
                   </ul>
                 ) : (
                   <p className="muted-copy">无附加要求。</p>
                 )}
                 <h3>任务说明</h3>
-                <pre className="r2-prompt">{request.prompt}</pre>
+                <pre className="r2-prompt">{displayTaskText(request.prompt)}</pre>
                 <div className="button-row">
                   <button
                     className="button secondary"
@@ -588,7 +639,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                 {stringArray(request.acceptanceCriteriaJson).length > 0 ? (
                   <ul>
                     {stringArray(request.acceptanceCriteriaJson).map((line, index) => (
-                      <li key={index}>{line}</li>
+                      <li key={index}>{displayTaskText(line)}</li>
                     ))}
                   </ul>
                 ) : (
@@ -623,7 +674,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                         <span>
                           {target.name}
                           {target.required ? ' · 必填' : ''} · {target.allowedExtensions.join(', ')}{' '}
-                          · ≤ {target.maxSizeBytes} bytes · Workspace Root 相对路径
+                          · 不超过 {megabyteLabel(target.maxSizeBytes)} · 工作区相对路径
                         </span>
                         <input
                           value={paths[target.id] ?? ''}
@@ -668,11 +719,19 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                     <h3>已提交文件</h3>
                     <ul>
                       {detail.artifacts.map((artifact) => (
-                        <li key={artifact.id}>
-                          {artifact.fileName} · {artifact.sizeBytes} bytes
-                        </li>
+                        <li key={artifact.id}>{artifact.fileName}</li>
                       ))}
                     </ul>
+                    <details className="advanced-disclosure">
+                      <summary>高级 · 文件信息</summary>
+                      <ul>
+                        {detail.artifacts.map((artifact) => (
+                          <li key={artifact.id}>
+                            {artifact.fileName} · {artifact.sizeBytes} bytes
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
                   </div>
                 )}
                 {request.state === 'SUBMITTED' && (
@@ -809,7 +868,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                     }
                   />
                   <span>{dimensionNames[entry.dimension]}</span>
-                  <small>{entry.enabled ? '已启用 · 固定能力值 1' : '未启用'}</small>
+                  <small>{entry.enabled ? '已启用' : '未启用'}</small>
                 </label>
               ))}
             </div>
@@ -819,63 +878,13 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
         <details className="form-card human-bridge-settings-panel">
           <summary>外部应用建议（{apps.length}）</summary>
           <div className="human-bridge-settings-content">
-            <p>记录应用名称与适用能力，不连接 Provider，也不保存 API Key。</p>
-            <div className="r2-inline-form human-bridge-app-form">
-              <label className="field">
-                <span>应用名称</span>
-                <input
-                  maxLength={256}
-                  value={appName}
-                  onChange={(event) => setAppName(event.target.value)}
-                />
-              </label>
-              <label className="field">
-                <span>厂商（可选）</span>
-                <input
-                  maxLength={256}
-                  value={appVendor}
-                  onChange={(event) => setAppVendor(event.target.value)}
-                />
-              </label>
-              <label className="field">
-                <span>适用能力</span>
-                <select
-                  required
-                  value={appDimension}
-                  onChange={(event) =>
-                    setAppDimension(event.target.value as CapabilityDimension | '')
-                  }
-                >
-                  <option value="">选择能力</option>
-                  {Object.entries(dimensionNames).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                className="button secondary"
-                type="button"
-                disabled={busy || !appName.trim() || !appDimension}
-                onClick={() =>
-                  void run(async () => {
-                    await api.saveApp({
-                      name: appName.trim(),
-                      vendor: appVendor.trim() || null,
-                      capabilities: [appDimension as CapabilityDimension],
-                      notes: null,
-                      enabled: true,
-                    });
-                    setAppName('');
-                    setAppVendor('');
-                    setAppDimension('');
-                  }, '应用建议已保存。')
-                }
-              >
-                添加应用
-              </button>
-            </div>
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => setAppEditorOpen(true)}
+            >
+              添加应用建议
+            </button>
             {apps.length > 0 && (
               <ul className="human-bridge-app-list">
                 {apps.map((item) => (
@@ -890,6 +899,71 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
             )}
           </div>
         </details>
+        <Drawer
+          title="添加外部应用建议"
+          open={appEditorOpen}
+          onClose={() => setAppEditorOpen(false)}
+          className="human-bridge-app-drawer"
+        >
+          <p className="product-drawer-intro">记录应用名称及适用能力，不保存 API 密钥。</p>
+          <div className="r2-inline-form human-bridge-app-form">
+            <label className="field">
+              <span>应用名称</span>
+              <input
+                maxLength={256}
+                value={appName}
+                onChange={(event) => setAppName(event.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>厂商（可选）</span>
+              <input
+                maxLength={256}
+                value={appVendor}
+                onChange={(event) => setAppVendor(event.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>适用能力</span>
+              <select
+                required
+                value={appDimension}
+                onChange={(event) =>
+                  setAppDimension(event.target.value as CapabilityDimension | '')
+                }
+              >
+                <option value="">选择能力</option>
+                {Object.entries(dimensionNames).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              className="button primary"
+              type="button"
+              disabled={busy || !appName.trim() || !appDimension}
+              onClick={() =>
+                void run(async () => {
+                  await api.saveApp({
+                    name: appName.trim(),
+                    vendor: appVendor.trim() || null,
+                    capabilities: [appDimension as CapabilityDimension],
+                    notes: null,
+                    enabled: true,
+                  });
+                  setAppName('');
+                  setAppVendor('');
+                  setAppDimension('');
+                  setAppEditorOpen(false);
+                }, '应用建议已保存。')
+              }
+            >
+              添加应用
+            </button>
+          </div>
+        </Drawer>
       </section>
     </section>
   );

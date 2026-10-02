@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar } from '../components/Avatar.js';
 import { Icon } from '../components/Icon.js';
+import { Tooltip } from '../components/Tooltip.js';
 import type { ExternalWorkRequest } from '@cultivation/domain';
 import type { MissionView, TeammateView } from '../ui-shared.js';
 import { errorText, formatDate, missionStateLabel, stateClass } from '../ui-shared.js';
@@ -80,15 +81,16 @@ export function HomePage() {
       <header className="page-toolbar home-toolbar">
         <h1>首页</h1>
         <div className="button-row">
-          <button
-            type="button"
-            className="button ghost small"
-            aria-label="刷新首页"
-            title="刷新"
-            onClick={() => setRefresh((value) => value + 1)}
-          >
-            <Icon name="Refresh" size={16} />
-          </button>
+          <Tooltip text="刷新">
+            <button
+              type="button"
+              className="button ghost small"
+              aria-label="刷新首页"
+              onClick={() => setRefresh((value) => value + 1)}
+            >
+              <Icon name="Refresh" size={16} />
+            </button>
+          </Tooltip>
           {!emptyStart && (
             <Link className="button primary" to="/missions?create=1">
               <Icon name="Mission" size={16} /> 发起历练
@@ -115,9 +117,8 @@ export function HomePage() {
                 <span className="home-first-teammate-icon">
                   <Icon name="Users" size={22} />
                 </span>
-                <p className="eyebrow">从一位道友开始</p>
                 <h2 id="first-teammate-title">创建你的第一位道友</h2>
-                <p>填写身份并完成模型连接，创建过程会一并测试并固定模型。</p>
+                <p>选择身份，连接模型，开始协作。</p>
                 <Link className="button primary" to="/teammates?create=1">
                   <Icon name="Add" size={17} /> 创建第一位道友
                 </Link>
@@ -136,8 +137,7 @@ export function HomePage() {
               <section className="home-section" aria-labelledby="home-active-title">
                 <div className="home-section-heading">
                   <div>
-                    <p className="eyebrow">继续推进</p>
-                    <h2 id="home-active-title">进行中 / 等待用户动作</h2>
+                    <h2 id="home-active-title">进行中与待处理</h2>
                   </div>
                   <Link to="/missions">全部历练</Link>
                 </div>
@@ -163,7 +163,6 @@ export function HomePage() {
               <section className="home-section" aria-labelledby="home-recent-title">
                 <div className="home-section-heading">
                   <div>
-                    <p className="eyebrow">最近更新</p>
                     <h2 id="home-recent-title">最近历练</h2>
                   </div>
                   <Link to="/missions">查看历练</Link>
@@ -196,8 +195,7 @@ export function HomePage() {
                   <div className="home-self-heading">
                     <Avatar kind="HUMAN_BRIDGE" name="本尊" size={38} />
                     <div>
-                      <p className="eyebrow">Human Bridge</p>
-                      <h2 id="home-self-title">本尊</h2>
+                      <h2 id="home-self-title">本尊待办</h2>
                     </div>
                   </div>
                   <Link to="/external-work">查看待办</Link>

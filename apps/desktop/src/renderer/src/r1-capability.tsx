@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Button } from './components/Button.js';
+import { Drawer } from './components/Drawer.js';
+import { Section } from './components/Section.js';
+import { StatusBadge } from './components/StatusBadge.js';
 import type { CapabilityDimension, ModelCapabilityBenchmark } from '@cultivation/domain';
 import type { BenchmarkInput } from '../../preload/preload.js';
 
@@ -21,6 +25,15 @@ const dimensionLabels: Array<[CapabilityDimension, string]> = [
 
 const labelDimension = (dimension: CapabilityDimension): string =>
   dimensionLabels.find(([value]) => value === dimension)?.[1] ?? dimension;
+
+const labelProvenance = (value: BenchmarkInput['provenanceType']): string => {
+  const labels: Record<BenchmarkInput['provenanceType'], string> = {
+    USER_ESTIMATE: '用户估计',
+    CATALOG: '公开榜单参照',
+    USER_OVERRIDE: '用户明确覆盖',
+  };
+  return labels[value];
+};
 
 const errorText = (cause: unknown, fallback: string): string =>
   cause instanceof Error && cause.message ? cause.message : fallback;
@@ -54,6 +67,7 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
   const [snapshotDate, setSnapshotDate] = useState(dateOnly());
   const [sourceUrl, setSourceUrl] = useState('');
   const [provenance, setProvenance] = useState<BenchmarkInput['provenanceType']>('USER_ESTIMATE');
+  const [formOpen, setFormOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -148,7 +162,15 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
         provenanceType: provenance,
       });
       await refresh(runtime.id);
-      setNotice('Benchmark 事实已保存；当前使用此 Runtime 的道友能力投影已重建。');
+      setNotice('能力基准已保存，相关道友的能力画像已更新。');
+      setScore('');
+      setRawScore('');
+      setSource('');
+      setBenchmark('');
+      setVersion('1');
+      setSnapshotDate(dateOnly());
+      setSourceUrl('');
+      setFormOpen(false);
     } catch (cause) {
       setError(errorText(cause, '保存 Benchmark 失败。'));
     } finally {
@@ -160,25 +182,159 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
     priors.find((item) => item.dimension === entry)?.prior ?? null;
 
   return (
-    <div className="r1-benchmark-layout">
-      <div className="form-card">
-        <h2>能力画像 / Benchmark</h2>
-        <p className="muted-copy">
-          每个维度独立记录在 Runtime 和 Model ID 上。道友创建后使用独立 Runtime，请按道友档案中的
-          Runtime ID 选择；参考入口不自动填分。
-        </p>
-        <label className="field">
-          <span>Runtime / Model</span>
-          <select value={runtimeId} onChange={(event) => setRuntimeId(event.target.value)}>
-            {runtimes.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name} · {item.modelId} · {item.id.slice(0, 8)}
-              </option>
+    <div className="r1-benchmark-layout management-page">
+      <Section
+        title="能力评测"
+        icon="Benchmark"
+        action={
+          <Button variant="primary" disabled={!runtime} onClick={() => setFormOpen(true)}>
+            录入基准事实
+          </Button>
+        }
+      >
+        <div className="setting-row">
+          <label className="field">
+            <span>运行配置</span>
+            <select value={runtimeId} onChange={(event) => setRuntimeId(event.target.value)}>
+              {runtimes.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} · {item.modelId}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>查看维度</span>
+            <select
+              value={dimension}
+              onChange={(event) => setDimension(event.target.value as CapabilityDimension)}
+            >
+              {dimensionLabels.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        {!runtime && <p className="muted-copy">先创建运行配置，再录入能力基准。</p>}
+        {notice && (
+          <div className="inline-message success" role="status">
+            {notice}
+          </div>
+        )}
+        {error && !formOpen && (
+          <div className="inline-message error" role="alert">
+            {error}
+          </div>
+        )}
+      </Section>
+      {runtime && (
+        <Section title="14 项能力状态" className="r1-capability-status">
+          <div className="management-list r1-dimension-list">
+            {dimensionLabels.map(([value, label]) => {
+              const latest = effectiveFor(value);
+              const status = latest
+                ? latest.supported
+                  ? `${latest.normalizedScore ?? '—'} / 100`
+                  : '不支持'
+                : '未配置';
+              return (
+                <div className="object-row" key={value}>
+                  <div className="object-row-copy">
+                    <strong>{label}</strong>
+                  </div>
+                  <StatusBadge
+                    tone={latest?.supported ? 'success' : latest ? 'warning' : 'neutral'}
+                  >
+                    {status}
+                  </StatusBadge>
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+      )}
+      {runtime && (
+        <Section title={`${labelDimension(dimension)} · 已录入事实`}>
+          {rows.filter((row) => row.dimension === dimension).length ? (
+            <div className="management-list">
+              {rows
+                .filter((row) => row.dimension === dimension)
+                .map((row) => (
+                  <article className="object-row" key={row.id}>
+                    <div className="object-row-heading">
+                      <div className="object-row-copy">
+                        <strong>{row.benchmark}</strong>
+                        <small>
+                          {row.source} · v{row.benchmarkVersion} · {row.snapshotDate.slice(0, 10)}
+                        </small>
+                      </div>
+                      <StatusBadge tone={row.supported ? 'success' : 'warning'}>
+                        {row.supported ? `${row.normalizedScore} / 100` : '不支持'}
+                      </StatusBadge>
+                    </div>
+                    <details className="advanced-records">
+                      <summary>事实来源</summary>
+                      <p>{labelProvenance(row.provenanceType)}</p>
+                      {row.rawScore !== null && <p>原始分数：{row.rawScore}</p>}
+                      {row.sourceUrl && <code>{row.sourceUrl}</code>}
+                    </details>
+                  </article>
+                ))}
+            </div>
+          ) : (
+            <p className="muted-copy">此维度尚无基准事实。</p>
+          )}
+        </Section>
+      )}
+      <details className="advanced-records r1-benchmark-advanced">
+        <summary>高级记录与 Benchmark 参考入口（{rows.length}）</summary>
+        <div className="advanced-records-content">
+          <p>参考入口仅供查阅；录入时请保留来源、版本和快照日期。</p>
+          {rows.length > 0 && (
+            <div className="management-list">
+              {rows.map((row) => (
+                <article className="object-row" key={row.id}>
+                  <div className="object-row-heading">
+                    <div className="object-row-copy">
+                      <strong>
+                        {labelDimension(row.dimension)} · {row.benchmark}
+                      </strong>
+                      <small>
+                        {labelProvenance(row.provenanceType)} · {row.source} · v
+                        {row.benchmarkVersion} · {row.snapshotDate.slice(0, 10)}
+                      </small>
+                    </div>
+                  </div>
+                  {row.sourceUrl && (
+                    <div className="object-row-meta">
+                      <code>{row.sourceUrl}</code>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+          <ul className="r1-catalog-list">
+            {catalog.map((item) => (
+              <li key={item.id}>
+                <strong>{item.name}</strong>
+                <small>{item.description}</small>
+                <code>{item.url}</code>
+              </li>
             ))}
-          </select>
-        </label>
-        {runtime ? (
-          <form onSubmit={(event) => void save(event)} className="r1-benchmark-form">
+          </ul>
+        </div>
+      </details>
+      <Drawer
+        title="录入能力基准"
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        className="management-drawer"
+      >
+        {runtime && (
+          <form onSubmit={(event) => void save(event)} className="r1-benchmark-form drawer-form">
             <label className="field">
               <span>能力维度</span>
               <select
@@ -292,74 +448,17 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
                 {error}
               </div>
             )}
-            {notice && (
-              <div className="inline-message success" role="status">
-                {notice}
-              </div>
-            )}
-            <button className="button primary" disabled={busy}>
-              {busy ? '保存中…' : '保存该维度事实'}
-            </button>
+            <div className="button-row">
+              <Button variant="secondary" disabled={busy} onClick={() => setFormOpen(false)}>
+                取消
+              </Button>
+              <Button variant="primary" type="submit" disabled={busy}>
+                {busy ? '保存中…' : '保存该维度事实'}
+              </Button>
+            </div>
           </form>
-        ) : (
-          <p>先创建 Runtime Profile，再录入能力基准。</p>
         )}
-      </div>
-      <div className="list-card">
-        <h2>14 维配置状态</h2>
-        <p className="muted-copy">「不支持」与「支持且 0 分」分别保存。保存新事实不会改写历史。</p>
-        <div className="r1-dimension-list">
-          {dimensionLabels.map(([value, label]) => {
-            const latest = effectiveFor(value);
-            return (
-              <div className="data-row" key={value}>
-                <span className="data-row-copy">
-                  <strong>{label}</strong>
-                  <small>{value}</small>
-                </span>
-                <span className="safe-tag">
-                  {latest
-                    ? latest.supported
-                      ? `${latest.normalizedScore} / 100`
-                      : '不支持'
-                    : '未配置'}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-        <h3>已录入事实 · {rows.length}</h3>
-        <div className="r1-dimension-list">
-          {rows
-            .filter((row) => row.dimension === dimension)
-            .map((row) => (
-              <div className="data-row" key={row.id}>
-                <span className="data-row-copy">
-                  <strong>
-                    {row.provenanceType} · {row.benchmark}
-                  </strong>
-                  <small>
-                    {row.source} · v{row.benchmarkVersion} · {row.snapshotDate.slice(0, 10)}
-                  </small>
-                </span>
-                <span className="safe-tag">
-                  {row.supported ? `${row.normalizedScore} / 100` : '不支持'}
-                </span>
-              </div>
-            ))}
-        </div>
-        <h3>Benchmark 参考入口</h3>
-        <p className="muted-copy">链接仅供自行查阅。录入时请保留来源、版本和快照日期。</p>
-        <ul className="r1-catalog-list">
-          {catalog.map((item) => (
-            <li key={item.id}>
-              <strong>{item.name}</strong>
-              <small>{item.description}</small>
-              <code>{item.url}</code>
-            </li>
-          ))}
-        </ul>
-      </div>
+      </Drawer>
     </div>
   );
 }
@@ -438,7 +537,6 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
       <div className="section-heading">
         <div>
           <h3>Benchmark 能力</h3>
-          <p>只展示已配置的基准能力。</p>
         </div>
       </div>
       {error && (
@@ -454,9 +552,7 @@ export function DynamicCapabilityPanel({ teammateId }: { teammateId: string }) {
               {featured.map((item) => renderCapability(item, true))}
             </div>
           ) : (
-            <p className="teammate-muted">
-              尚未配置 Benchmark 能力。录入基准后，主要能力会显示在这里。
-            </p>
+            <p className="teammate-muted">尚未配置 Benchmark。</p>
           )}
           <details className="teammate-benchmark-advanced">
             <summary>高级信息 · 全部 14 项能力与来源</summary>

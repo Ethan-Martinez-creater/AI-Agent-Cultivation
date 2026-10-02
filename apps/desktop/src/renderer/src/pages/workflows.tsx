@@ -14,6 +14,10 @@ import type {
 import { EMPTY_WORKFLOW_INPUT_SCHEMA } from '@cultivation/domain';
 import type { CultivationBridge as PreloadBridge } from '../../../preload/preload.js';
 import { EmptyState } from '../components/EmptyState.js';
+import { Dialog } from '../components/Dialog.js';
+import { Drawer } from '../components/Drawer.js';
+import { Section } from '../components/Section.js';
+import { StatusBadge } from '../components/StatusBadge.js';
 import { WorkflowInputForm } from '../components/WorkflowInputForm.js';
 import { PageHeading } from '../ui-shared.js';
 import './mission-party.css';
@@ -97,6 +101,17 @@ function latestAttempt(attempts: WorkflowStepRun[]): WorkflowStepRun | undefined
   return [...attempts].sort((left, right) => right.attempt - left.attempt)[0];
 }
 
+function workflowName(definition: WorkflowVersion['definition']): string {
+  return definition.name.replace(/\bTEST_ONLY\b/gi, '测试').trim() || '测试工作流';
+}
+
+function workflowStateTone(state: WorkflowRunState | WorkflowStepState) {
+  if (state === 'COMPLETED') return 'success';
+  if (state === 'FAILED' || state === 'CANCELLED') return 'danger';
+  if (state === 'WAITING') return 'warning';
+  return 'neutral';
+}
+
 function workflowApi() {
   return (window.cultivation as unknown as PreloadBridge).workflows;
 }
@@ -127,22 +142,29 @@ function ArtifactDisclosure({ artifact, label }: { artifact: WorkflowArtifact; l
       </summary>
       <dl>
         <div>
-          <dt>执行者</dt>
-          <dd>{artifact.actorId}</dd>
-        </div>
-        <div>
-          <dt>来源</dt>
-          <dd>
-            {artifact.source === 'HUMAN_BRIDGE' ? '本尊交付' : '关联历练'} · {artifact.sourceId}
-          </dd>
-        </div>
-        <div>
           <dt>内容摘要</dt>
           <dd>
             <pre>{artifact.content}</pre>
           </dd>
         </div>
       </dl>
+      <details className="workflow-technical-details">
+        <summary>高级 · 来源记录</summary>
+        <dl>
+          <div>
+            <dt>执行者编号</dt>
+            <dd>
+              <code>{artifact.actorId}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>来源记录编号</dt>
+            <dd>
+              <code>{artifact.sourceId}</code>
+            </dd>
+          </div>
+        </dl>
+      </details>
     </details>
   );
 }
@@ -168,6 +190,7 @@ export function WorkflowsPage() {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
@@ -189,6 +212,25 @@ export function WorkflowsPage() {
   const lastStep = detail
     ? [...detail.steps].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0]
     : undefined;
+  const stepStates = detail
+    ? detail.version.steps.map((step) => {
+        const attempt = latestAttempt(detail.steps.filter((item) => item.stepId === step.id));
+        return { step, attempt, state: attempt?.state ?? ('PENDING' as const) };
+      })
+    : [];
+  const progressCount = stepStates.filter(
+    ({ state }) => state === 'COMPLETED' || state === 'SKIPPED',
+  ).length;
+  const currentStep =
+    stepStates.find(({ state }) => !['COMPLETED', 'SKIPPED', 'CANCELLED'].includes(state)) ??
+    (lastStep ? stepStates.find(({ step }) => step.id === lastStep.stepId) : stepStates[0]);
+  const workflowResults = detail
+    ? detail.artifacts.filter((artifact) =>
+        detail.bindings.some(
+          (binding) => binding.artifactId === artifact.id && binding.role === 'OUTPUT',
+        ),
+      )
+    : [];
   const retryableStep =
     detail?.run.state === 'FAILED'
       ? detail.version.steps
@@ -268,7 +310,8 @@ export function WorkflowsPage() {
       });
       setDetail(nextDetail);
       setSelectedRunId(nextDetail.run.id);
-      setNotice('工作流运行已创建。开始执行前可先检查步骤与交付约定。');
+      setCreateOpen(false);
+      setNotice('工作流已创建，可检查步骤后开始执行。');
       try {
         await refreshRuns(nextDetail.run.id);
       } catch {
@@ -296,8 +339,8 @@ export function WorkflowsPage() {
       setDetail(nextDetail);
       const labels: Record<WorkflowAction, string> = {
         advance: '工作流状态已同步。',
-        retryMission: '已为原 Mission 新建一次 Mission Run attempt。',
-        retryStep: '已创建新的步骤尝试，历史尝试已保留。',
+        retryMission: '已为关联历练重新发起一次执行。',
+        retryStep: '已重新尝试此步骤，之前的记录已保留。',
         pause: '工作流已暂停。',
         resume: '工作流已恢复。',
         cancel: '工作流已取消。',
@@ -359,24 +402,27 @@ export function WorkflowsPage() {
       <div className="workflow-attempt" key={attempt.id}>
         <div className="workflow-attempt-heading">
           <strong>尝试 {attempt.attempt}</strong>
-          <span className={`workflow-state state-${attempt.state.toLowerCase()}`}>
+          <StatusBadge tone={workflowStateTone(attempt.state)}>
             {stepLabels[attempt.state]}
-          </span>
-          {attempt.errorCode && <code>{attempt.errorCode}</code>}
+          </StatusBadge>
         </div>
         {waitReason && (
           <p className="workflow-wait-note">
             {waitLabels[waitReason]}：{waitDescriptions[waitReason]}
           </p>
         )}
-        {stepDefinition?.inputs.length ? (
-          <p className="workflow-declared-inputs">
-            预期输入：
-            {stepDefinition.inputs
-              .map((input) => `${input.key} ← ${input.fromStepId}.${input.outputKey}`)
-              .join('、')}
-          </p>
-        ) : null}
+        <details className="workflow-technical-details">
+          <summary>高级 · 尝试记录</summary>
+          {attempt.errorCode && <p>错误代码：{attempt.errorCode}</p>}
+          {stepDefinition?.inputs.length ? (
+            <p className="workflow-declared-inputs">
+              输入绑定：
+              {stepDefinition.inputs
+                .map((input) => `${input.key} ← ${input.fromStepId}.${input.outputKey}`)
+                .join('、')}
+            </p>
+          ) : null}
+        </details>
         {(inputArtifacts.length > 0 || outputArtifacts.length > 0) && (
           <div className="workflow-artifact-groups">
             {inputArtifacts.length > 0 && (
@@ -410,7 +456,7 @@ export function WorkflowsPage() {
   };
 
   return (
-    <section className="page wide-page workflow-page">
+    <section className="page wide-page workflow-page object-page">
       <PageHeading
         eyebrow="任务中心"
         title="工作流历练"
@@ -433,129 +479,145 @@ export function WorkflowsPage() {
         </div>
       )}
 
-      <div className="workflow-workspace">
-        <aside className="workflow-history">
-          <div className="workflow-panel-heading">
-            <div>
-              <h2>运行历史</h2>
-              <p>{orderedRuns.length} 次运行</p>
-            </div>
-          </div>
-          {loading ? (
-            <div className="loading-card">正在读取工作流…</div>
-          ) : orderedRuns.length ? (
-            <div className="workflow-run-list">
-              {orderedRuns.map((run) => {
-                const definition = versions.find(
-                  (version) =>
-                    version.definition.id === run.definitionId &&
-                    version.version === run.definitionVersion,
-                )?.definition;
-                return (
-                  <button
-                    key={run.id}
-                    type="button"
-                    className={`workflow-run-item ${run.id === selectedRunId ? 'selected' : ''}`}
-                    onClick={() => {
-                      setError('');
-                      setNotice('');
-                      setSelectedRunId(run.id);
-                    }}
-                  >
-                    <span className="workflow-run-item-title">
-                      <strong>{definition?.name ?? '工作流运行'}</strong>
-                      <span className={`workflow-state state-${run.state.toLowerCase()}`}>
-                        {runLabels[run.state]}
+      <div className="workflow-workspace object-list-detail-layout">
+        <aside className="workflow-history object-list-pane">
+          <Section
+            title="运行历史"
+            className="workflow-history-section"
+            action={
+              <button
+                className="button primary small"
+                type="button"
+                disabled={busy || orderedVersions.length === 0}
+                onClick={() => setCreateOpen(true)}
+              >
+                新建运行
+              </button>
+            }
+          >
+            <p className="object-list-summary">{orderedRuns.length} 次运行</p>
+            {loading ? (
+              <div className="loading-card">正在读取工作流…</div>
+            ) : orderedRuns.length ? (
+              <div className="workflow-run-list">
+                {orderedRuns.map((run) => {
+                  const definition = versions.find(
+                    (version) =>
+                      version.definition.id === run.definitionId &&
+                      version.version === run.definitionVersion,
+                  )?.definition;
+                  return (
+                    <button
+                      key={run.id}
+                      type="button"
+                      className={`workflow-run-item ${run.id === selectedRunId ? 'selected' : ''}`}
+                      onClick={() => {
+                        setError('');
+                        setNotice('');
+                        setSelectedRunId(run.id);
+                      }}
+                    >
+                      <span className="workflow-run-item-title">
+                        <strong>{definition ? workflowName(definition) : '工作流运行'}</strong>
+                        <StatusBadge tone={workflowStateTone(run.state)}>
+                          {runLabels[run.state]}
+                        </StatusBadge>
                       </span>
-                    </span>
-                    <small>
-                      v{run.definitionVersion} · {when(run.updatedAt)}
-                    </small>
-                    <code>{run.id}</code>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="workflow-empty-copy">
-              暂无工作流运行历史。选择一个已注册版本后即可启动。
-            </p>
-          )}
-        </aside>
-
-        <div className="workflow-main-column">
-          <section className="workflow-launch-card">
-            <div>
-              <h2>启动一次运行</h2>
-              <p>运行会固定到所选版本。填写该版本声明的输入后创建，再检查步骤并手动开始执行。</p>
-            </div>
-            {orderedVersions.length ? (
-              <div className="workflow-launch-controls">
-                <label htmlFor="workflow-version-select">工作流版本</label>
-                <div className="workflow-launch-row">
-                  <select
-                    id="workflow-version-select"
-                    value={selectedVersionKey}
-                    onChange={(event) => setSelectedVersionKey(event.target.value)}
-                    disabled={busy}
-                  >
-                    {orderedVersions.map((version) => (
-                      <option key={versionKey(version)} value={versionKey(version)}>
-                        {version.definition.name} · v{version.version}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {selectedVersion && (
-                  <p className="workflow-version-description">
-                    {selectedVersion.definition.description || '此 Definition 暂无描述。'}
-                    <span>
-                      {selectedVersion.definition.category || '未分类'} ·{' '}
-                      {selectedVersion.definition.source} · {selectedVersion.steps.length} 个步骤
-                    </span>
-                  </p>
-                )}
-                {selectedVersion && (
-                  <WorkflowInputForm
-                    key={versionKey(selectedVersion)}
-                    schema={selectedVersion.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA}
-                    busy={busy}
-                    onSubmit={startRun}
-                  />
-                )}
+                      <small>{when(run.updatedAt)}</small>
+                    </button>
+                  );
+                })}
               </div>
             ) : (
-              <div className="workflow-no-definitions" role="status">
-                <strong>{loading ? '正在读取工作流…' : '暂无可运行工作流'}</strong>
-                <p>目前没有可启动的工作流。创建与编辑功能尚未开放；已有运行历史仍可查看。</p>
-              </div>
+              <p className="workflow-empty-copy">
+                暂无工作流运行历史。选择一个已注册版本后即可启动。
+              </p>
             )}
-          </section>
+          </Section>
+        </aside>
+
+        <div className="workflow-main-column object-detail-pane">
+          <Drawer
+            title="新建工作流运行"
+            open={createOpen}
+            onClose={() => setCreateOpen(false)}
+            className="workflow-launch-drawer"
+          >
+            <section className="workflow-launch-card">
+              <p className="product-drawer-intro">
+                选择版本并填写必需输入，创建后可检查步骤再开始执行。
+              </p>
+              {orderedVersions.length ? (
+                <div className="workflow-launch-controls">
+                  <label htmlFor="workflow-version-select">工作流版本</label>
+                  <div className="workflow-launch-row">
+                    <select
+                      id="workflow-version-select"
+                      value={selectedVersionKey}
+                      onChange={(event) => setSelectedVersionKey(event.target.value)}
+                      disabled={busy}
+                    >
+                      {orderedVersions.map((version) => (
+                        <option key={versionKey(version)} value={versionKey(version)}>
+                          {workflowName(version.definition)} · v{version.version}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {selectedVersion && (
+                    <p className="workflow-version-description">
+                      {(selectedVersion.definition.description ?? '').replace(
+                        /\bTEST_ONLY\b/gi,
+                        '测试专用',
+                      ) || '暂无说明。'}
+                    </p>
+                  )}
+                  {selectedVersion && (
+                    <WorkflowInputForm
+                      key={versionKey(selectedVersion)}
+                      schema={selectedVersion.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA}
+                      busy={busy}
+                      onSubmit={startRun}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="workflow-no-definitions" role="status">
+                  <strong>{loading ? '正在读取工作流…' : '暂无可运行工作流'}</strong>
+                  <p>目前没有可启动的工作流。</p>
+                </div>
+              )}
+            </section>
+          </Drawer>
 
           {detailLoading ? (
             <div className="workflow-detail-placeholder loading-card">正在读取运行详情…</div>
           ) : detail ? (
             <>
-              <section className="workflow-overview">
+              <section className="workflow-overview object-header">
                 <div className="workflow-overview-heading">
-                  <div>
-                    <p className="workflow-eyebrow">
-                      {detail.version.definition.category || '工作流'}
-                    </p>
-                    <h2>{detail.version.definition.name}</h2>
-                    <p>
-                      v{detail.version.version} · {detail.version.steps.length} 个步骤 · 运行 ID{' '}
-                      <code>{detail.run.id}</code>
-                    </p>
+                  <div className="object-header-copy">
+                    <h2>{workflowName(detail.version.definition)}</h2>
+                    <div className="object-header-meta">
+                      <span>
+                        当前步骤：{currentStep?.step.title ?? '全部步骤已结束'}
+                        {currentStep && currentStep.state !== 'PENDING' && (
+                          <> · {stepLabels[currentStep.state]}</>
+                        )}
+                      </span>
+                      <span>
+                        进度：{progressCount} / {detail.version.steps.length} 步已完成
+                      </span>
+                    </div>
                   </div>
-                  <span className={`workflow-state state-${detail.run.state.toLowerCase()}`}>
+                  <StatusBadge tone={workflowStateTone(detail.run.state)}>
                     {runLabels[detail.run.state]}
-                  </span>
+                  </StatusBadge>
                 </div>
                 {detail.events.some((event) => event.type === 'workflow.integrity_failed') && (
                   <div className="workflow-wait-panel" role="alert">
-                    <strong>持久化完整性异常 · WORKFLOW_INTEGRITY_ERROR</strong>
-                    <p>运行已停止。请保留诊断记录；已完成步骤不会自动重放。</p>
+                    <strong>运行无法安全继续</strong>
+                    <p>请保留高级记录供排查；已完成步骤不会自动重放。</p>
                   </div>
                 )}
                 {detail.run.state === 'WAITING' && detail.run.waitReason && (
@@ -569,16 +631,6 @@ export function WorkflowsPage() {
                     )}
                     {lastStep && missionLink(lastStep.missionId)}
                   </div>
-                )}
-                {detail.run.inputSnapshot !== undefined && (
-                  <details className="workflow-input-snapshot">
-                    <summary>本次冻结输入（只读）</summary>
-                    {Object.keys(detail.run.inputSnapshot).length ? (
-                      <pre>{JSON.stringify(detail.run.inputSnapshot, null, 2)}</pre>
-                    ) : (
-                      <p>本次运行没有输入字段。</p>
-                    )}
-                  </details>
                 )}
                 <div className="workflow-actions">
                   {(detail.run.state === 'READY' ||
@@ -625,12 +677,12 @@ export function WorkflowsPage() {
                       onClick={() =>
                         requestConfirmation(
                           'retryMission',
-                          '为原 Mission 新建一次 Mission Run attempt',
-                          '原 Mission 与已有 Mission Run 记录会保留，并新建一次 Mission Run attempt。请先确认上一次执行结果及其副作用已经厘清。',
+                          '重新发起关联历练',
+                          '原历练和已有执行记录会保留，并开始一次新的执行。请先确认上一次执行结果及其副作用已经厘清。',
                         )
                       }
                     >
-                      为原 Mission 新建执行尝试
+                      重新发起关联历练
                     </button>
                   )}
                   {retryableStep && (
@@ -641,12 +693,12 @@ export function WorkflowsPage() {
                       onClick={() =>
                         requestConfirmation(
                           'retryStep',
-                          '以新尝试重试失败步骤',
-                          '这会创建新的 Step Attempt 并保留原尝试。请先核实已有文件及外部动作；UNKNOWN 表示动作可能已经发生，新尝试可能重复副作用。仅在你明确决定重新执行后确认。',
+                          '重新执行失败步骤',
+                          '之前的执行记录会保留。请先核实已有文件及外部动作；如果上一次操作结果仍不确定，重试可能重复产生影响。仅在你明确决定重新执行后确认。',
                         )
                       }
                     >
-                      以新尝试重试此步骤
+                      重试失败步骤
                     </button>
                   )}
                   {!isTerminal(detail.run.state) && (
@@ -666,90 +718,182 @@ export function WorkflowsPage() {
                     </button>
                   )}
                 </div>
-                {pendingConfirmation && (
-                  <div className="workflow-confirmation" role="alertdialog" aria-live="polite">
+                <Dialog
+                  title={pendingConfirmation?.title ?? '确认操作'}
+                  open={pendingConfirmation !== null}
+                  onClose={() => setPendingConfirmation(null)}
+                >
+                  {pendingConfirmation && (
                     <div>
-                      <strong>{pendingConfirmation.title}</strong>
-                      <p>{pendingConfirmation.explanation}</p>
+                      <div>
+                        <p>{pendingConfirmation.explanation}</p>
+                      </div>
+                      <div className="button-row drawer-actions">
+                        <button
+                          className="button secondary small"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setPendingConfirmation(null)}
+                        >
+                          返回检查
+                        </button>
+                        <button
+                          className={
+                            pendingConfirmation.action === 'cancel'
+                              ? 'button danger small'
+                              : 'button primary small'
+                          }
+                          type="button"
+                          disabled={busy}
+                          onClick={confirmAction}
+                        >
+                          {pendingConfirmation.action === 'cancel' ? '确认取消' : '确认并重试'}
+                        </button>
+                      </div>
                     </div>
-                    <div className="workflow-confirmation-actions">
-                      <button
-                        className="button secondary small"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => setPendingConfirmation(null)}
-                      >
-                        返回检查
-                      </button>
-                      <button
-                        className={
-                          pendingConfirmation.action === 'cancel'
-                            ? 'button danger small'
-                            : 'button primary small'
-                        }
-                        type="button"
-                        disabled={busy}
-                        onClick={confirmAction}
-                      >
-                        {pendingConfirmation.action === 'cancel' ? '确认取消' : '确认并重试'}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </Dialog>
               </section>
 
-              <section className="workflow-steps-card">
-                <div className="workflow-section-heading">
-                  <div>
-                    <h2>步骤进度</h2>
-                    <p>按冻结版本中的顺序展示。每次重试都会保留旧尝试。</p>
-                  </div>
-                  <span className="count-badge">{detail.version.steps.length}</span>
-                </div>
+              {workflowResults.length > 0 && (
+                <Section
+                  title="交付结果"
+                  className="workflow-results object-section"
+                  action={<span className="count-badge">{workflowResults.length}</span>}
+                >
+                  {workflowResults.map((artifact) => (
+                    <ArtifactDisclosure
+                      key={artifact.id}
+                      artifact={artifact}
+                      label={
+                        detail.bindings.find(
+                          (binding) =>
+                            binding.artifactId === artifact.id && binding.role === 'OUTPUT',
+                        )?.key ?? kindLabel(artifact.kind)
+                      }
+                    />
+                  ))}
+                </Section>
+              )}
+
+              <Section
+                title="执行进度"
+                className="workflow-steps-card object-section"
+                action={
+                  <span className="count-badge">
+                    {progressCount} / {detail.version.steps.length}
+                  </span>
+                }
+              >
+                <progress
+                  className="workflow-progress"
+                  max={Math.max(detail.version.steps.length, 1)}
+                  value={progressCount}
+                  aria-label="工作流完成步骤数"
+                />
                 <ol className="workflow-step-list">
-                  {detail.version.steps.map((step, index) => {
+                  {stepStates.map(({ step, state }, index) => {
                     const attempts = detail.steps
                       .filter((attempt) => attempt.stepId === step.id)
                       .sort((left, right) => left.attempt - right.attempt);
-                    const current = latestAttempt(attempts);
-                    const state = current?.state ?? 'PENDING';
                     return (
                       <li key={step.id} className={`workflow-step state-${state.toLowerCase()}`}>
                         <div className="workflow-step-heading">
                           <span className="workflow-step-number">{index + 1}</span>
                           <div className="workflow-step-title">
                             <strong>{step.title}</strong>
-                            <small>
-                              {step.type} · {step.id}
-                            </small>
                           </div>
-                          <span className={`workflow-state state-${state.toLowerCase()}`}>
+                          <StatusBadge tone={workflowStateTone(state)}>
                             {stepLabels[state]}
-                          </span>
+                          </StatusBadge>
                         </div>
-                        <p className="workflow-step-objective">{step.objective}</p>
-                        <div className="workflow-step-contract">
-                          <span>输入 {step.inputs.length}</span>
-                          <span>输出 {step.outputs.length}</span>
-                          <span>最多尝试 {step.maxAttempts} 次</span>
-                          <span>执行影响：{step.effectType}</span>
-                        </div>
-                        {attempts.length > 0 ? (
-                          <div className="workflow-attempt-list">
-                            {attempts.map((attempt) => renderAttempt(attempt, detail.version))}
+                        <details className="workflow-step-details">
+                          <summary>
+                            {attempts.length
+                              ? `查看步骤详情 · ${attempts.length} 次尝试`
+                              : '查看步骤详情'}
+                          </summary>
+                          <p className="workflow-step-objective">{step.objective}</p>
+                          <div className="workflow-step-contract">
+                            <span>输入 {step.inputs.length}</span>
+                            <span>输出 {step.outputs.length}</span>
+                            <span>最多尝试 {step.maxAttempts} 次</span>
                           </div>
-                        ) : (
-                          <p className="workflow-no-attempt">此步骤尚未开始。</p>
-                        )}
+                          {attempts.length > 0 ? (
+                            <div className="workflow-attempt-list">
+                              {attempts.map((attempt) => renderAttempt(attempt, detail.version))}
+                            </div>
+                          ) : (
+                            <p className="workflow-no-attempt">此步骤尚未开始。</p>
+                          )}
+                          <details className="workflow-technical-details">
+                            <summary>高级 · 步骤约定</summary>
+                            <dl>
+                              <div>
+                                <dt>步骤编号</dt>
+                                <dd>
+                                  <code>{step.id}</code>
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>步骤类型</dt>
+                                <dd>
+                                  <code>{step.type}</code>
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>副作用类型</dt>
+                                <dd>
+                                  <code>{step.effectType}</code>
+                                </dd>
+                              </div>
+                            </dl>
+                          </details>
+                        </details>
                       </li>
                     );
                   })}
                 </ol>
-              </section>
+              </Section>
 
-              <details className="workflow-advanced-card">
-                <summary>交付验证、检查点与事件（高级记录）</summary>
+              <details className="workflow-advanced-card advanced-disclosure">
+                <summary>高级记录</summary>
                 <div className="workflow-advanced-content">
+                  <section>
+                    <h3>运行信息</h3>
+                    <dl>
+                      <div>
+                        <dt>Run ID</dt>
+                        <dd>
+                          <code>{detail.run.id}</code>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Definition ID</dt>
+                        <dd>
+                          <code>{detail.version.definition.id}</code>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>版本 / 分类 / 来源</dt>
+                        <dd>
+                          v{detail.version.version} ·{' '}
+                          {detail.version.definition.category || '未分类'} ·{' '}
+                          {detail.version.definition.source}
+                        </dd>
+                      </div>
+                    </dl>
+                    {detail.run.inputSnapshot !== undefined && (
+                      <details className="workflow-input-snapshot">
+                        <summary>本次固定输入</summary>
+                        {Object.keys(detail.run.inputSnapshot).length ? (
+                          <pre>{JSON.stringify(detail.run.inputSnapshot, null, 2)}</pre>
+                        ) : (
+                          <p>本次运行没有输入字段。</p>
+                        )}
+                      </details>
+                    )}
+                  </section>
                   <section>
                     <h3>验证回执 · {detail.validations.length}</h3>
                     {detail.validations.length ? (

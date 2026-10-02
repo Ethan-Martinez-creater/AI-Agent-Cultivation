@@ -1,3 +1,5 @@
+import './style.css';
+import './product.css';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
@@ -24,8 +26,6 @@ import { UsagePage } from './pages/usage.js';
 import { AppTitleBar } from './layout/AppTitleBar.js';
 import { Sidebar } from './layout/Sidebar.js';
 import { Icon } from './components/Icon.js';
-import './style.css';
-import './product.css';
 
 function App() {
   const navigate = useNavigate();

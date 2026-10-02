@@ -436,7 +436,7 @@ try {
 
   const createPanel = page.locator('.teammate-create-drawer');
   await page.getByRole('button', { name: '创建道友' }).click();
-  await createPanel.getByRole('heading', { name: '先认识这位道友' }).waitFor();
+  await createPanel.getByRole('heading', { name: '身份资料' }).waitFor();
   await pageMetrics(page);
   await capture(page, '05-create-teammate-identity-1440.png', 1440, 900, {
     route: '/teammates',
@@ -512,7 +512,7 @@ try {
   recordAssertion('native-avatar-import-and-safe-reference', importedAvatarResult);
 
   await page.getByRole('button', { name: '创建道友' }).click();
-  await createPanel.getByRole('heading', { name: '先认识这位道友' }).waitFor();
+  await createPanel.getByRole('heading', { name: '身份资料' }).waitFor();
   await createPanel.getByLabel('名称', { exact: true }).fill('紫檀 New Model Smoke');
   await createPanel.getByRole('button', { name: '继续选择模型' }).click();
   await createPanel.getByRole('heading', { name: '为 紫檀 New Model Smoke 选择模型' }).waitFor();
@@ -582,7 +582,7 @@ try {
 
   // Exercise the real creation UI without importing a key or invoking the clipboard path.
   await page.getByRole('button', { name: '创建道友' }).click();
-  await createPanel.getByRole('heading', { name: '先认识这位道友' }).waitFor();
+  await createPanel.getByRole('heading', { name: '身份资料' }).waitFor();
   await createPanel.getByLabel('名称', { exact: true }).fill('无钥 Keyless Smoke');
   await createPanel.getByRole('button', { name: '继续选择模型' }).click();
   await createPanel.getByRole('heading', { name: '为 无钥 Keyless Smoke 选择模型' }).waitFor();
@@ -724,17 +724,17 @@ try {
   recordAssertion('visible-mission-approval-and-completion');
 
   await navigateUi(page, '记忆 Memory');
-  const memoryOwner = page.getByLabel('记忆所属道友');
+  const memoryOwner = page.getByRole('combobox', { name: '道友', exact: true });
   await memoryOwner.selectOption(fixtures.a.id);
   await page.getByRole('button', { name: '新增记忆', exact: true }).first().click();
   await page.getByLabel('摘要', { exact: true }).fill('青岚的私有记忆');
   await page.getByLabel('内容', { exact: true }).fill('R33_A_PRIVATE_MEMORY');
   await page.getByRole('button', { name: '保存记忆', exact: true }).click();
-  await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
+  await page.locator('.memory-object-row').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
   await memoryOwner.selectOption(fixtures.b.id);
   await page.getByText('还没有符合筛选的记忆', { exact: true }).waitFor();
   assert.equal(
-    await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).count(),
+    await page.locator('.memory-object-row').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).count(),
     0,
     'A teammate private memory must not appear in B scope.',
   );
@@ -742,14 +742,14 @@ try {
   await page.getByLabel('摘要', { exact: true }).fill('明衡的私有记忆');
   await page.getByLabel('内容', { exact: true }).fill('R33_B_PRIVATE_MEMORY');
   await page.getByRole('button', { name: '保存记忆', exact: true }).click();
-  await page.locator('.memory-card').filter({ hasText: 'R33_B_PRIVATE_MEMORY' }).waitFor();
+  await page.locator('.memory-object-row').filter({ hasText: 'R33_B_PRIVATE_MEMORY' }).waitFor();
   await memoryOwner.selectOption(fixtures.a.id);
-  await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
+  await page.locator('.memory-object-row').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
   assert.equal(
-    await page.locator('.memory-card').filter({ hasText: 'R33_B_PRIVATE_MEMORY' }).count(),
+    await page.locator('.memory-object-row').filter({ hasText: 'R33_B_PRIVATE_MEMORY' }).count(),
     0,
   );
-  await page.locator('.memory-card').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
+  await page.locator('.memory-object-row').filter({ hasText: 'R33_A_PRIVATE_MEMORY' }).waitFor();
   await pageMetrics(page);
   await capture(page, '09-memory-1440.png', 1440, 900, {
     route: '/memory',
@@ -761,7 +761,7 @@ try {
   await page.getByRole('tab', { name: '模型配置', exact: true }).click();
   const sealedRuntime = page.locator('.runtime-item-sealed').filter({ hasText: fixtures.a.name });
   await sealedRuntime.waitFor();
-  await sealedRuntime.getByText(/已固定给/).waitFor();
+  await sealedRuntime.getByText(/固定给/).waitFor();
   await sealedRuntime.getByText(fixtures.runtime.modelId, { exact: true }).waitFor();
   const boundRuntimeId = fixtures.a.currentRuntimeProfileId;
   assert.ok(boundRuntimeId, 'A model-backed teammate should have its sealed runtime profile.');
@@ -777,7 +777,7 @@ try {
     .locator('.runtime-item-sealed')
     .filter({ hasText: createdNewModelBinding.modelId });
   await newModelSealedRuntime.waitFor();
-  await newModelSealedRuntime.getByText(/已固定给/).waitFor();
+  await newModelSealedRuntime.getByText(/固定给/).waitFor();
   assert.equal(await newModelSealedRuntime.getByRole('button', { name: '编辑模板' }).count(), 0);
   assert.equal(await newModelSealedRuntime.getByRole('button', { name: '测试连接' }).count(), 0);
   await pageMetrics(page);
@@ -803,14 +803,14 @@ try {
     };
   }, createdNewModelRuntimeId);
   await page.getByRole('tab', { name: '密钥凭据', exact: true }).click();
-  await page.getByLabel('关联服务商').selectOption(rotationIdentity.providerId);
   await app.evaluate(({ clipboard }) => clipboard.writeText('r33-rotated-fake-key-main-only'));
   await page
-    .locator('.data-row')
+    .locator('.object-row')
     .filter({ hasText: 'r33-new-model-smoke API Key' })
-    .getByRole('button', { name: '轮换 Key', exact: true })
+    .getByRole('button', { name: '轮换密钥', exact: true })
     .click();
-  await page.getByRole('status').filter({ hasText: 'API Key 已轮换' }).waitFor();
+  await page.getByRole('button', { name: '从剪贴板安全轮换', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: '密钥已安全轮换' }).waitFor();
   assert.equal(await app.evaluate(({ clipboard }) => clipboard.readText()), '');
   assert.ok(!(await page.locator('body').innerText()).includes('r33-rotated-fake-key-main-only'));
   const afterRotation = await page.evaluate(async (id) => {
@@ -832,6 +832,7 @@ try {
     route: '/settings',
     tab: '密钥凭据',
   });
+  await page.keyboard.press('Escape');
 
   await navigateUi(page, '本尊待办 Human Bridge');
   await page.getByRole('heading', { name: '本尊待办', exact: true }).waitFor();
@@ -884,12 +885,13 @@ try {
     route: '/settings',
     tab: '模型配置',
   });
-  await page.getByRole('button', { name: '创建模型配置', exact: true }).scrollIntoViewIfNeeded();
+  await page.getByRole('button', { name: '新建运行配置', exact: true }).click();
   await capture(page, 'settings-model-content-900.png', 900, 600, {
     route: '/settings',
     tab: '模型配置',
     scrolledToModelForm: true,
   });
+  await page.keyboard.press('Escape');
 
   await setWindowSize(app, page, 1440, 900);
   await navigateUi(page, '道友 Teammates');
@@ -1180,15 +1182,15 @@ try {
   await restartedPage.locator('[data-testid="chat-page"]').waitFor();
   await setWindowSize(app, restartedPage, 900, 600);
   await restartedPage.getByRole('button', { name: '展开对话列表' }).click();
-  await restartedPage.locator('[data-testid="conversation-list"].is-open').waitFor();
+  await restartedPage.locator('dialog[open] [data-testid="conversation-list"]').waitFor();
   await restartedPage.getByLabel('写消息', { exact: true }).waitFor();
   await pageMetrics(restartedPage);
   await capture(restartedPage, 'chat-conversation-drawer-900.png', 900, 600, {
     route: `/chat/${fixtures.a.id}`,
     conversationDrawerOpen: true,
   });
-  await restartedPage.getByRole('button', { name: '收起对话列表' }).click();
-  await restartedPage.locator('[data-testid="conversation-list"]:not(.is-open)').waitFor();
+  await restartedPage.keyboard.press('Escape');
+  await restartedPage.locator('dialog[open]').waitFor({ state: 'hidden' });
   assert.equal(await restartedPage.getByLabel('写消息', { exact: true }).isVisible(), true);
   recordAssertion('chat-900-drawer-toggles-with-composer-available');
   await sendChatText(restartedPage, 'PING');

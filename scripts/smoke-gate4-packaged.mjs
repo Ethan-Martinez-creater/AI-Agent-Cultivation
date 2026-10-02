@@ -164,7 +164,7 @@ try {
   ]);
 
   await navigateUi(first.page, '法宝 Tools');
-  await first.page.getByRole('heading', { name: '法宝 Tools' }).waitFor();
+  await first.page.getByRole('heading', { name: '工具', exact: true }).waitFor();
   await first.page.getByRole('heading', { name: '文件工作区' }).waitFor();
   await first.page.getByRole('button', { name: '选择工作区' }).waitFor();
 
@@ -393,12 +393,15 @@ try {
   await navigateUi(first.page, '洞府 Home');
   await first.page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   await navigateUi(first.page, '法宝 Tools');
-  await first.page.getByRole('heading', { name: '法宝 Tools' }).waitFor();
-  await first.page.locator('.mcp-disclosure > summary').click();
+  await first.page.getByRole('heading', { name: '工具', exact: true }).waitFor();
   await first.page.getByText(server.name).waitFor();
   await first.page.getByRole('button', { name: '连接并发现工具' }).click();
   await first.page.getByText(/已连接 · \d+ 个工具/).waitFor();
-  await first.page.getByText(`${serverId}:echo`, { exact: true }).waitFor();
+  const echoTool = first.page
+    .locator('.tool-descriptor-row')
+    .filter({ hasText: `${serverId}:echo` });
+  await echoTool.locator('summary').click();
+  await echoTool.getByText(`${serverId}:echo`, { exact: true }).waitFor();
 
   const mcpTranscriptId = await createMission(
     first.page,

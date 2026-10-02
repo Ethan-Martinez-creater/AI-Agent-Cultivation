@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
 import { Avatar } from '../components/Avatar.js';
+import { Drawer } from '../components/Drawer.js';
 import { EmptyState } from '../components/EmptyState.js';
+import { Section } from '../components/Section.js';
+import { StatusBadge } from '../components/StatusBadge.js';
 import './mission-party.css';
 import './product-pages.css';
 import { HumanBridgeApproval } from '.././r2-human-bridge.js';
@@ -22,9 +25,7 @@ import {
   PageHeading,
   missionStateLabel,
   artifactKindLabel,
-  timelineActorName,
   stateClass,
-  teammateName,
   runAttemptLabel,
   safeLabel,
   renderToolTimelineMetadata,
@@ -38,6 +39,7 @@ import type {
   MissionView,
   ApprovalRequestView,
   MissionDetailView,
+  MissionEventView,
 } from '../ui-shared.js';
 import type { CreateMissionRoutingResult } from '../r4-routing.js';
 
@@ -64,6 +66,9 @@ function recentEventLabel(eventType: string): string {
     'tool.result': '收到法宝执行结果',
     'approval.requested': '等待权限审批',
     'approval.resolved': '权限审批已处理',
+    'approval.decided': '权限审批已处理',
+    'tool.approval_requested': '等待工具操作审批',
+    'tool.approval_decided': '工具操作审批已处理',
     'usage.recorded': '用量已记录',
     'run.completed': '本次历练完成',
     'run.failed': '本次历练失败',
@@ -71,15 +76,114 @@ function recentEventLabel(eventType: string): string {
     'run.interrupted': '本次执行已中断',
     'external_work.accepted': '本尊交付已验收',
     'external_work.submitted': '本尊已提交交付',
+    'external_work.continuation_received': '本尊交付已验收',
+    'external_work.rejected': '交付已退回修改',
+    'external_work.cancelled': '本尊待办已取消',
+    'external_work.failed': '本尊交付处理失败',
+    'mission.created': '历练已创建',
+    'mission.updated': '历练已更新',
+    'mission.ready': '历练已就绪',
+    'mission.retry_ready': '历练已准备重新执行',
+    'mission.paused': '历练已暂停',
+    'mission.resumed': '历练已恢复',
+    'mission.cancelled': '历练已取消',
+    'mission.run_started': '历练已开始',
+    'mission.started': '历练已开始',
+    'mission.retry_started': '历练已重新开始',
+    'mission.waiting_approval': '等待权限审批',
+    'mission.waiting_collaboration': '等待协作处理',
+    'mission.waiting_external_work': '等待本尊交付',
+    'mission.approval_resumed': '审批已完成，历练继续执行',
+    'mission.external_work_resumed': '本尊交付已返回',
+    'mission.completed': '历练已完成',
+    'mission.failed': '历练执行失败',
+    'mission.interrupted': '历练执行已中断',
+    'mission.external_work_interrupted': '本尊待办中断',
   };
   if (labels[eventType]) return labels[eventType];
-  if (eventType.startsWith('mission.state.'))
-    return missionStateLabel(eventType.slice('mission.state.'.length).toUpperCase());
-  if (eventType.startsWith('mission.')) {
-    const state = eventType.slice('mission.'.length).toUpperCase();
-    return state === 'CREATED' ? '历练已创建' : missionStateLabel(state);
+  if (eventType.startsWith('mission.state.')) {
+    const state = eventType.slice('mission.state.'.length).toUpperCase();
+    const stateLabels: Record<string, string> = {
+      DRAFT: '历练已创建',
+      READY: '历练已就绪',
+      RUNNING: '历练正在运行',
+      WAITING_APPROVAL: '等待权限审批',
+      WAITING_COLLABORATION: '等待协作处理',
+      WAITING_EXTERNAL_WORK: '等待本尊交付',
+      PAUSED: '历练已暂停',
+      INTERRUPTED: '历练执行已中断',
+      COMPLETED: '历练已完成',
+      FAILED: '历练执行失败',
+      CANCELLED: '历练已取消',
+    };
+    return stateLabels[state] ?? '历练状态已更新';
   }
   return '执行记录已更新';
+}
+
+function missionStateTone(state: string): 'neutral' | 'success' | 'warning' | 'danger' {
+  if (state === 'COMPLETED') return 'success';
+  if (state === 'FAILED' || state === 'CANCELLED') return 'danger';
+  if (state.startsWith('WAITING_') || state === 'INTERRUPTED') return 'warning';
+  return 'neutral';
+}
+
+function permissionLabel(value: string): string {
+  const labels: Record<string, string> = {
+    MEMORY_READ: '读取记忆',
+    MEMORY_WRITE: '修改记忆',
+    FILE_READ: '读取文件',
+    FILE_WRITE: '写入文件',
+    MCP_TOOL_EXECUTE: '运行外部工具',
+    INVITE_TEAMMATE: '邀请道友协作',
+    CREATE_MISSION: '创建历练',
+    SPEND_BUDGET: '使用预算',
+    WEB_ACCESS: '访问网页',
+    BROWSER_CONTROL: '控制浏览器',
+    EXECUTE_COMMAND: '执行命令',
+    EXTERNAL_MESSAGE: '发送外部消息',
+    INSTALL_TOOL: '安装工具',
+  };
+  return labels[value] ?? '相关操作';
+}
+
+function approvalDecisionLabel(value: unknown): string | null {
+  if (value === 'APPROVED') return '已批准';
+  if (value === 'DENIED') return '已拒绝';
+  if (value === 'ALLOW_MISSION') return '已允许本次历练';
+  return null;
+}
+
+function riskLabel(value: string): string {
+  const labels: Record<string, string> = {
+    LOW: '低风险',
+    MEDIUM: '中风险',
+    HIGH: '高风险',
+  };
+  return labels[value] ?? '需确认';
+}
+
+function missionEventSummary(event: MissionEventView): string[] {
+  const payload = event.payloadJson;
+  const summaries: string[] = [];
+  const from = typeof payload.from === 'string' ? payload.from : null;
+  const to = typeof payload.to === 'string' ? payload.to : null;
+  if (from && to) summaries.push(`状态：${missionStateLabel(from)} → ${missionStateLabel(to)}`);
+
+  const decision = approvalDecisionLabel(payload.decision);
+  if (decision) summaries.push(`审批：${decision}`);
+
+  if (event.eventType.startsWith('tool.')) summaries.push('操作：工具调用');
+  if (event.eventType.startsWith('tool.') && typeof payload.capability === 'string') {
+    summaries.push(`权限：${permissionLabel(payload.capability)}`);
+  }
+  if (event.eventType === 'tool.result' && typeof payload.success === 'boolean') {
+    summaries.push(`执行结果：${payload.success ? '成功' : '未成功'}`);
+  }
+  if (event.eventType === 'external_work.continuation_received' && payload.outcome === 'ACCEPTED') {
+    summaries.push('交付：已验收');
+  }
+  return summaries;
 }
 
 export function MissionPage() {
@@ -155,6 +259,8 @@ export function MissionPage() {
     return labels[mode];
   };
   const teammateFor = (teammateId: string) => teammates.find((item) => item.id === teammateId);
+  const displayTeammateName = (teammateId: string) =>
+    teammateFor(teammateId)?.name ?? '道友资料不可用';
   const renderExecutorStatus = (teammateId: string) => {
     const teammate = teammateFor(teammateId);
     if (!teammate) return <span className="product-status muted">道友资料不可用</span>;
@@ -185,7 +291,14 @@ export function MissionPage() {
         </span>
       );
     }
-    const name = timelineActorName(teammates, actorType, actorId);
+    const name =
+      actorType === 'USER'
+        ? '用户'
+        : actorType === 'SYSTEM'
+          ? '系统'
+          : actorType === 'TEAMMATE'
+            ? '道友'
+            : '其他参与者';
     return (
       <span className="mission-actor">
         {actorType === 'USER' && <Avatar name={name} kind="USER" size={22} />}
@@ -279,7 +392,7 @@ export function MissionPage() {
         if (missionRows.length > 0) setSelectedId(missionRows[0]!.id);
       })
       .catch((cause: unknown) => {
-        if (!cancelled) setError(errorText(cause, '读取 Mission 失败。'));
+        if (!cancelled) setError(errorText(cause, '读取历练失败。'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -313,7 +426,7 @@ export function MissionPage() {
         }
       })
       .catch((cause: unknown) => {
-        if (!cancelled) setError(errorText(cause, '读取 Mission 详情失败。'));
+        if (!cancelled) setError(errorText(cause, '读取历练详情失败。'));
       })
       .finally(() => {
         if (!cancelled) setDetailLoading(false);
@@ -624,10 +737,10 @@ export function MissionPage() {
         await refreshMissions(updated.id);
         setDetail(await window.cultivation.missions.detail(updated.id));
         setEditing(false);
-        setNotice('Mission 已保存。');
+        setNotice('历练已保存。');
       }
     } catch (cause) {
-      setError(errorText(cause, '保存 Mission 失败。'));
+      setError(errorText(cause, '保存历练失败。'));
     } finally {
       setBusy(false);
     }
@@ -659,7 +772,7 @@ export function MissionPage() {
       .find((run) => Boolean(run.resultText?.trim())) ?? null;
 
   return (
-    <section className="page wide-page mission-page">
+    <section className="page wide-page mission-page object-page">
       <PageHeading
         eyebrow="任务中心"
         title="历练"
@@ -681,17 +794,22 @@ export function MissionPage() {
           {notice}
         </div>
       )}
-      <div className="mission-workspace">
-        <aside className="mission-list-card">
-          <div className="list-heading">
-            <div>
-              <h2>历练</h2>
-              <p>{visibleMissions.length} 项</p>
-            </div>
-            <button className="button primary small" disabled={busy} onClick={beginCreateMission}>
-              + 发起历练
+      <div className="mission-workspace object-list-detail-layout">
+        <Section
+          title="历练"
+          className="mission-list-card object-list-pane"
+          action={
+            <button
+              className="button primary small"
+              type="button"
+              disabled={busy}
+              onClick={beginCreateMission}
+            >
+              发起历练
             </button>
-          </div>
+          }
+        >
+          <p className="object-list-summary">{visibleMissions.length} 项</p>
           <div className="mission-filter-tabs" role="tablist" aria-label="筛选历练">
             {(
               [
@@ -734,7 +852,7 @@ export function MissionPage() {
             })}
           </div>
           {loading ? (
-            <div className="loading-card">正在读取 Mission…</div>
+            <div className="loading-card">正在读取历练…</div>
           ) : visibleMissions.length ? (
             <div className="mission-list">
               {visibleMissions.map((item) => (
@@ -753,12 +871,12 @@ export function MissionPage() {
                 >
                   <span className="mission-list-item-top">
                     <strong>{item.title}</strong>
-                    <span className={`mission-state state-${stateClass(item.state)}`}>
+                    <StatusBadge tone={missionStateTone(item.state)}>
                       {missionStateLabel(item.state)}
-                    </span>
+                    </StatusBadge>
                   </span>
                   <small>
-                    {teammateName(teammates, item.coordinatorTeammateId)} ·{' '}
+                    {displayTeammateName(item.coordinatorTeammateId)} ·{' '}
                     {modeLabel(item.mode ?? 'SOLO')}
                     {item.partyId &&
                       ` · ${parties.find((party) => party.id === item.partyId)?.name ?? '队伍'}`}
@@ -771,349 +889,353 @@ export function MissionPage() {
               {missions.length ? '此筛选下没有历练。' : '还没有历练。'}
             </div>
           )}
-        </aside>
+        </Section>
 
-        <div className="mission-main-column">
-          {(creating || (mission && editing && canEdit)) && (
-            <form
-              className="form-card mission-editor"
-              onSubmit={(event) => void saveMission(event)}
-            >
-              <div className="form-title-row">
-                <div>
-                  <p className="eyebrow">{creating ? '新建任务' : '任务设置'}</p>
-                  <h2>{creating ? '发起历练' : '编辑历练'}</h2>
-                </div>
-                {!creating && (
-                  <button type="button" className="text-button" onClick={resetEditor}>
-                    取消
-                  </button>
-                )}
-              </div>
-              <label className="field">
-                <span>标题</span>
-                <input
-                  required
-                  maxLength={120}
-                  value={title}
-                  onChange={(event) => {
-                    setTitle(event.target.value);
-                    setRoutingPrompt(null);
-                  }}
-                />
-              </label>
-              <label className="field">
-                <span>任务目标</span>
-                <textarea
-                  required
-                  rows={5}
-                  maxLength={12000}
-                  value={objective}
-                  readOnly={creating ? false : routingAssignmentLocked}
-                  onChange={(event) => {
-                    setObjective(event.target.value);
-                    setRoutingPrompt(null);
-                  }}
-                />
-                {!creating && routingAssignmentLocked && (
-                  <small className="form-hint">
-                    智能分配后任务目标已锁定，以保持原执行分配一致；你仍可修改标题。
-                  </small>
-                )}
-              </label>
-              {creating && (
-                <>
-                  <label className="field">
-                    <span>分配方式</span>
-                    <select
-                      ref={assignmentSelectRef}
-                      value={assignmentMode}
-                      onChange={(event) => {
-                        const next = event.target.value as AssignmentMode;
-                        setAssignmentMode(next);
-                        setCapabilitySelectionRequired(next === 'HUMAN_BRIDGE');
-                        if (next === 'HUMAN_BRIDGE') setCapabilityPickerOpen(true);
-                        if (next === 'PARTY' && missionMode === 'SOLO') {
-                          setMissionMode('CONSULTATION');
-                        }
-                        setRoutingPrompt(null);
-                      }}
-                    >
-                      <option value="AUTO">自动分配</option>
-                      <option value="SOLO">指定道友</option>
-                      <option value="PARTY">指定队伍</option>
-                      <option value="HUMAN_BRIDGE">本尊执行</option>
-                    </select>
-                  </label>
-                  {assignmentMode === 'SOLO' ? (
-                    <>
-                      <label className="field">
-                        <span>选择道友</span>
-                        <select
-                          value={coordinatorId}
-                          onChange={(event) => {
-                            setCoordinatorId(event.target.value);
-                            setRoutingPrompt(null);
-                          }}
-                        >
-                          <option value="">选择道友</option>
-                          {coordinatorId &&
-                            !activeTeammates.some((teammate) => teammate.id === coordinatorId) && (
-                              <option value={coordinatorId} disabled>
-                                {teammateFor(coordinatorId)?.name ?? '指定道友'} · 当前不可用
-                              </option>
-                            )}
-                          {activeTeammates.map((teammate) => (
-                            <option key={teammate.id} value={teammate.id}>
-                              {teammate.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      {coordinatorId && renderExecutorStatus(coordinatorId)}
-                    </>
-                  ) : assignmentMode === 'PARTY' ? (
-                    <>
-                      <label className="field">
-                        <span>协作方式</span>
-                        <select
-                          value={missionMode}
-                          onChange={(event) => {
-                            setMissionMode(event.target.value as MissionMode);
-                            setRoutingPrompt(null);
-                          }}
-                        >
-                          <option value="CONSULTATION">咨询</option>
-                          <option value="REVIEW">审查</option>
-                          <option value="DELEGATION">委托</option>
-                        </select>
-                      </label>
-                      <label className="field">
-                        <span>参与队伍</span>
-                        <select
-                          value={partyId}
-                          onChange={(event) => {
-                            setPartyId(event.target.value);
-                            setRoutingPrompt(null);
-                          }}
-                        >
-                          <option value="">选择可用队伍</option>
-                          {partyId && !activeParties.some((party) => party.id === partyId) && (
-                            <option value={partyId} disabled>
-                              {parties.find((party) => party.id === partyId)?.name ?? '指定队伍'} ·
-                              当前不可用
-                            </option>
-                          )}
-                          {activeParties.map((party) => (
-                            <option key={party.id} value={party.id}>
-                              {party.name} · {party.members.length} 位 ·{' '}
-                              {teammateName(teammates, party.coordinatorTeammateId)} 协调
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      {activeParties.length === 0 && (
-                        <p className="form-hint">
-                          请先在 Parties 页面创建包含 2–4 位可用道友的队伍。
-                        </p>
-                      )}
-                      <div className="mission-party-preview">
-                        <strong>参与成员</strong>
-                        {(activeParties.find((party) => party.id === partyId)?.members ?? [])
-                          .slice()
-                          .sort((left, right) => left.order - right.order)
-                          .map((member) => (
-                            <span key={member.teammateId}>
-                              {member.role === 'COORDINATOR' ? '协调者 · ' : ''}
-                              {teammateName(teammates, member.teammateId)}
-                            </span>
-                          ))}
-                      </div>
-                    </>
-                  ) : assignmentMode === 'HUMAN_BRIDGE' ? (
-                    <div className="mission-party-preview" aria-label="本尊执行者">
-                      <strong>执行者</strong>
-                      {humanBridge ? (
-                        <span>{humanBridge.name} · 不探测普通模型</span>
-                      ) : (
-                        <span>本尊尚不可用；系统不会改派给普通模型。</span>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="form-hint">
-                      系统会根据任务需要分配道友或队伍；如无法可靠判断能力需求，会请你明确选择，不会填入默认能力。
-                    </p>
+        <div className="mission-main-column object-detail-pane">
+          <Drawer
+            title={creating ? '发起历练' : '编辑历练'}
+            open={creating || Boolean(mission && editing && canEdit)}
+            onClose={resetEditor}
+            className="mission-editor-drawer"
+          >
+            {(creating || (mission && editing && canEdit)) && (
+              <form
+                className="form-card mission-editor"
+                onSubmit={(event) => void saveMission(event)}
+              >
+                <p className="product-drawer-intro">设置历练标题、目标和执行方式。</p>
+                <label className="field">
+                  <span>标题</span>
+                  <input
+                    required
+                    maxLength={120}
+                    value={title}
+                    onChange={(event) => {
+                      setTitle(event.target.value);
+                      setRoutingPrompt(null);
+                    }}
+                  />
+                </label>
+                <label className="field">
+                  <span>任务目标</span>
+                  <textarea
+                    required
+                    rows={5}
+                    maxLength={12000}
+                    value={objective}
+                    readOnly={creating ? false : routingAssignmentLocked}
+                    onChange={(event) => {
+                      setObjective(event.target.value);
+                      setRoutingPrompt(null);
+                    }}
+                  />
+                  {!creating && routingAssignmentLocked && (
+                    <small className="form-hint">
+                      智能分配后任务目标已锁定，以保持原执行分配一致；你仍可修改标题。
+                    </small>
                   )}
-                  <div className="routing-capability-field">
-                    <button
-                      className="text-button"
-                      type="button"
-                      aria-expanded={capabilityPickerOpen}
-                      onClick={() => setCapabilityPickerOpen((open) => !open)}
-                    >
-                      {capabilityPickerOpen
-                        ? '收起能力需求'
-                        : assignmentMode === 'HUMAN_BRIDGE'
-                          ? '选择必需能力'
-                          : '可选：指定必需能力'}
-                      {requiredCapabilities.length > 0 ? `（${requiredCapabilities.length}）` : ''}
-                    </button>
-                    <p className="form-hint">
-                      {assignmentMode === 'HUMAN_BRIDGE'
-                        ? '本尊执行需要至少一项已启用的能力；请只选择本次历练实际涉及的必需能力。'
-                        : capabilitySelectionRequired &&
-                            assignmentMode === 'AUTO' &&
-                            requiredCapabilities.length === 0
-                          ? '当前无法可靠判断任务能力。请至少选择一项必需能力后再分配。'
-                          : '留空时由系统分析；只有你明确选择的能力才会作为必需项，不会伪造“通用推理”默认值。'}
-                    </p>
-                    {assignmentMode === 'HUMAN_BRIDGE' && requiredCapabilities.length === 0 && (
-                      <p className="form-hint" role="status">
-                        尚未选择必需能力，当前不能创建本尊历练。
-                      </p>
-                    )}
-                    {capabilityPickerOpen && (
-                      <CapabilityPicker
-                        selected={requiredCapabilities}
-                        onChange={(next) => {
-                          setRequiredCapabilities(next);
-                          setRoutingPrompt(null);
-                        }}
-                      />
-                    )}
-                  </div>
-                  <details className="mission-routing-advanced">
-                    <summary>高级：Human Bridge 文件交付</summary>
-                    <p className="form-hint">
-                      仅当你需要本尊后备交付文件时设置。默认扩展名为 .txt；工作区仍由应用验证。
-                    </p>
-                    <label className="routing-capability-option">
-                      <input
-                        type="checkbox"
-                        checked={expectedOutputEnabled}
+                </label>
+                {creating && (
+                  <>
+                    <label className="field">
+                      <span>分配方式</span>
+                      <select
+                        ref={assignmentSelectRef}
+                        value={assignmentMode}
                         onChange={(event) => {
-                          setExpectedOutputEnabled(event.target.checked);
+                          const next = event.target.value as AssignmentMode;
+                          setAssignmentMode(next);
+                          setCapabilitySelectionRequired(next === 'HUMAN_BRIDGE');
+                          if (next === 'HUMAN_BRIDGE') setCapabilityPickerOpen(true);
+                          if (next === 'PARTY' && missionMode === 'SOLO') {
+                            setMissionMode('CONSULTATION');
+                          }
                           setRoutingPrompt(null);
                         }}
-                      />
-                      <span>附加期望交付文件约定</span>
+                      >
+                        <option value="AUTO">自动分配</option>
+                        <option value="SOLO">指定道友</option>
+                        <option value="PARTY">指定队伍</option>
+                        <option value="HUMAN_BRIDGE">本尊执行</option>
+                      </select>
                     </label>
-                    {expectedOutputEnabled && (
-                      <div className="routing-output-contract">
+                    {assignmentMode === 'SOLO' ? (
+                      <>
                         <label className="field">
-                          <span>交付文件名称</span>
-                          <input
-                            required
-                            maxLength={120}
-                            value={expectedOutputName}
-                            onChange={(event) => setExpectedOutputName(event.target.value)}
-                          />
-                        </label>
-                        <label className="field">
-                          <span>允许的文件类型</span>
+                          <span>选择道友</span>
                           <select
-                            value={expectedOutputExtension}
-                            onChange={(event) => setExpectedOutputExtension(event.target.value)}
+                            value={coordinatorId}
+                            onChange={(event) => {
+                              setCoordinatorId(event.target.value);
+                              setRoutingPrompt(null);
+                            }}
                           >
-                            <option value=".txt">.txt</option>
-                            <option value=".md">.md</option>
-                            <option value=".pdf">.pdf</option>
-                            <option value=".png">.png</option>
-                            <option value=".csv">.csv</option>
+                            <option value="">选择道友</option>
+                            {coordinatorId &&
+                              !activeTeammates.some(
+                                (teammate) => teammate.id === coordinatorId,
+                              ) && (
+                                <option value={coordinatorId} disabled>
+                                  {teammateFor(coordinatorId)?.name ?? '指定道友'} · 当前不可用
+                                </option>
+                              )}
+                            {activeTeammates.map((teammate) => (
+                              <option key={teammate.id} value={teammate.id}>
+                                {teammate.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        {coordinatorId && renderExecutorStatus(coordinatorId)}
+                      </>
+                    ) : assignmentMode === 'PARTY' ? (
+                      <>
+                        <label className="field">
+                          <span>协作方式</span>
+                          <select
+                            value={missionMode}
+                            onChange={(event) => {
+                              setMissionMode(event.target.value as MissionMode);
+                              setRoutingPrompt(null);
+                            }}
+                          >
+                            <option value="CONSULTATION">咨询</option>
+                            <option value="REVIEW">审查</option>
+                            <option value="DELEGATION">委托</option>
                           </select>
                         </label>
                         <label className="field">
-                          <span>最大文件大小（MB）</span>
-                          <input
-                            required
-                            type="number"
-                            min="1"
-                            max="1024"
-                            step="1"
-                            value={expectedOutputSizeMb}
-                            onChange={(event) => setExpectedOutputSizeMb(event.target.value)}
-                          />
+                          <span>参与队伍</span>
+                          <select
+                            value={partyId}
+                            onChange={(event) => {
+                              setPartyId(event.target.value);
+                              setRoutingPrompt(null);
+                            }}
+                          >
+                            <option value="">选择可用队伍</option>
+                            {partyId && !activeParties.some((party) => party.id === partyId) && (
+                              <option value={partyId} disabled>
+                                {parties.find((party) => party.id === partyId)?.name ?? '指定队伍'}{' '}
+                                · 当前不可用
+                              </option>
+                            )}
+                            {activeParties.map((party) => (
+                              <option key={party.id} value={party.id}>
+                                {party.name} · {party.members.length} 位 ·{' '}
+                                {displayTeammateName(party.coordinatorTeammateId)} 协调
+                              </option>
+                            ))}
+                          </select>
                         </label>
+                        {activeParties.length === 0 && (
+                          <p className="form-hint">
+                            请先在 Parties 页面创建包含 2–4 位可用道友的队伍。
+                          </p>
+                        )}
+                        <div className="mission-party-preview">
+                          <strong>参与成员</strong>
+                          {(activeParties.find((party) => party.id === partyId)?.members ?? [])
+                            .slice()
+                            .sort((left, right) => left.order - right.order)
+                            .map((member) => (
+                              <span key={member.teammateId}>
+                                {member.role === 'COORDINATOR' ? '协调者 · ' : ''}
+                                {displayTeammateName(member.teammateId)}
+                              </span>
+                            ))}
+                        </div>
+                      </>
+                    ) : assignmentMode === 'HUMAN_BRIDGE' ? (
+                      <div className="mission-party-preview" aria-label="本尊执行者">
+                        <strong>执行者</strong>
+                        {humanBridge ? (
+                          <span>{humanBridge.name} · 不探测普通模型</span>
+                        ) : (
+                          <span>本尊尚不可用；系统不会改派给普通模型。</span>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="form-hint">
+                        系统会根据任务需要分配道友或队伍；如无法可靠判断能力需求，会请你明确选择，不会填入默认能力。
+                      </p>
+                    )}
+                    <div className="routing-capability-field">
+                      <button
+                        className="text-button"
+                        type="button"
+                        aria-expanded={capabilityPickerOpen}
+                        onClick={() => setCapabilityPickerOpen((open) => !open)}
+                      >
+                        {capabilityPickerOpen
+                          ? '收起能力需求'
+                          : assignmentMode === 'HUMAN_BRIDGE'
+                            ? '选择必需能力'
+                            : '可选：指定必需能力'}
+                        {requiredCapabilities.length > 0
+                          ? `（${requiredCapabilities.length}）`
+                          : ''}
+                      </button>
+                      <p className="form-hint">
+                        {assignmentMode === 'HUMAN_BRIDGE'
+                          ? '本尊执行需要至少一项已启用的能力；请只选择本次历练实际涉及的必需能力。'
+                          : capabilitySelectionRequired &&
+                              assignmentMode === 'AUTO' &&
+                              requiredCapabilities.length === 0
+                            ? '当前无法可靠判断任务能力。请至少选择一项必需能力后再分配。'
+                            : '留空时由系统分析；只有你明确选择的能力才会作为必需项，不会伪造“通用推理”默认值。'}
+                      </p>
+                      {assignmentMode === 'HUMAN_BRIDGE' && requiredCapabilities.length === 0 && (
+                        <p className="form-hint" role="status">
+                          尚未选择必需能力，当前不能创建本尊历练。
+                        </p>
+                      )}
+                      {capabilityPickerOpen && (
+                        <CapabilityPicker
+                          selected={requiredCapabilities}
+                          onChange={(next) => {
+                            setRequiredCapabilities(next);
+                            setRoutingPrompt(null);
+                          }}
+                        />
+                      )}
+                    </div>
+                    <details className="mission-routing-advanced">
+                      <summary>高级：Human Bridge 文件交付</summary>
+                      <p className="form-hint">
+                        仅当你需要本尊后备交付文件时设置。默认扩展名为 .txt；工作区仍由应用验证。
+                      </p>
+                      <label className="routing-capability-option">
+                        <input
+                          type="checkbox"
+                          checked={expectedOutputEnabled}
+                          onChange={(event) => {
+                            setExpectedOutputEnabled(event.target.checked);
+                            setRoutingPrompt(null);
+                          }}
+                        />
+                        <span>附加期望交付文件约定</span>
+                      </label>
+                      {expectedOutputEnabled && (
+                        <div className="routing-output-contract">
+                          <label className="field">
+                            <span>交付文件名称</span>
+                            <input
+                              required
+                              maxLength={120}
+                              value={expectedOutputName}
+                              onChange={(event) => setExpectedOutputName(event.target.value)}
+                            />
+                          </label>
+                          <label className="field">
+                            <span>允许的文件类型</span>
+                            <select
+                              value={expectedOutputExtension}
+                              onChange={(event) => setExpectedOutputExtension(event.target.value)}
+                            >
+                              <option value=".txt">.txt</option>
+                              <option value=".md">.md</option>
+                              <option value=".pdf">.pdf</option>
+                              <option value=".png">.png</option>
+                              <option value=".csv">.csv</option>
+                            </select>
+                          </label>
+                          <label className="field">
+                            <span>最大文件大小（MB）</span>
+                            <input
+                              required
+                              type="number"
+                              min="1"
+                              max="1024"
+                              step="1"
+                              value={expectedOutputSizeMb}
+                              onChange={(event) => setExpectedOutputSizeMb(event.target.value)}
+                            />
+                          </label>
+                        </div>
+                      )}
+                    </details>
+                    {routingPrompt && (
+                      <div className="routing-action-required" role="status">
+                        <strong>{routingReasonLabel(routingPrompt.reason)}</strong>
+                        {routingPrompt.reason === 'WORKSPACE_REQUIRED' && (
+                          <button
+                            className="button secondary small"
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void chooseWorkspaceAndRetry()}
+                          >
+                            选择工作区并重新评估
+                          </button>
+                        )}
+                        <RoutingActions
+                          actions={
+                            assignmentMode === 'HUMAN_BRIDGE'
+                              ? [
+                                  ...new Set([
+                                    ...routingPrompt.actions.filter(
+                                      (action) => action !== 'RECHECK',
+                                    ),
+                                    'CONFIGURE_CAPABILITY' as const,
+                                  ]),
+                                ]
+                              : routingPrompt.actions
+                          }
+                          disabled={busy}
+                          onRecheck={() => void recheckAndRetryRouting()}
+                          onSelectOther={() => assignmentSelectRef.current?.focus()}
+                          onCancel={() => {
+                            setRoutingPrompt(null);
+                            setCreating(false);
+                          }}
+                          onConfigureCapability={() => setCapabilityPickerOpen(true)}
+                        />
+                        <RoutingReceiptPanel
+                          receipt={routingPrompt.receipt}
+                          teammates={teammates}
+                          parties={parties}
+                          priorityTeammateIds={
+                            assignmentMode === 'SOLO'
+                              ? [coordinatorId]
+                              : assignmentMode === 'PARTY'
+                                ? (parties
+                                    .find((party) => party.id === partyId)
+                                    ?.members.map((member) => member.teammateId) ?? [])
+                                : []
+                          }
+                        />
                       </div>
                     )}
-                  </details>
-                  {routingPrompt && (
-                    <div className="routing-action-required" role="status">
-                      <strong>{routingReasonLabel(routingPrompt.reason)}</strong>
-                      {routingPrompt.reason === 'WORKSPACE_REQUIRED' && (
-                        <button
-                          className="button secondary small"
-                          type="button"
-                          disabled={busy}
-                          onClick={() => void chooseWorkspaceAndRetry()}
-                        >
-                          选择工作区并重新评估
-                        </button>
-                      )}
-                      <RoutingActions
-                        actions={
-                          assignmentMode === 'HUMAN_BRIDGE'
-                            ? [
-                                ...new Set([
-                                  ...routingPrompt.actions.filter((action) => action !== 'RECHECK'),
-                                  'CONFIGURE_CAPABILITY' as const,
-                                ]),
-                              ]
-                            : routingPrompt.actions
-                        }
-                        disabled={busy}
-                        onRecheck={() => void recheckAndRetryRouting()}
-                        onSelectOther={() => assignmentSelectRef.current?.focus()}
-                        onCancel={() => {
-                          setRoutingPrompt(null);
-                          setCreating(false);
-                        }}
-                        onConfigureCapability={() => setCapabilityPickerOpen(true)}
-                      />
-                      <RoutingReceiptPanel
-                        receipt={routingPrompt.receipt}
-                        teammates={teammates}
-                        parties={parties}
-                        priorityTeammateIds={
-                          assignmentMode === 'SOLO'
-                            ? [coordinatorId]
-                            : assignmentMode === 'PARTY'
-                              ? (parties
-                                  .find((party) => party.id === partyId)
-                                  ?.members.map((member) => member.teammateId) ?? [])
-                              : []
-                        }
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-              <div className="button-row">
-                <button
-                  className="button primary"
-                  disabled={
-                    busy ||
-                    !title.trim() ||
-                    !objective.trim() ||
-                    (creating &&
-                      ((assignmentMode === 'SOLO' && !coordinatorId) ||
-                        (assignmentMode === 'PARTY' && !partyId) ||
-                        (assignmentMode === 'HUMAN_BRIDGE' && requiredCapabilities.length === 0) ||
-                        (capabilitySelectionRequired &&
-                          assignmentMode === 'AUTO' &&
-                          requiredCapabilities.length === 0)))
-                  }
-                >
-                  {busy ? '正在分配…' : creating ? '分配并创建草稿' : '保存更改'}
-                </button>
-                {creating && (
-                  <button type="button" className="button ghost" onClick={resetEditor}>
-                    取消
-                  </button>
+                  </>
                 )}
-              </div>
-            </form>
-          )}
+                <div className="button-row">
+                  <button
+                    className="button primary"
+                    disabled={
+                      busy ||
+                      !title.trim() ||
+                      !objective.trim() ||
+                      (creating &&
+                        ((assignmentMode === 'SOLO' && !coordinatorId) ||
+                          (assignmentMode === 'PARTY' && !partyId) ||
+                          (assignmentMode === 'HUMAN_BRIDGE' &&
+                            requiredCapabilities.length === 0) ||
+                          (capabilitySelectionRequired &&
+                            assignmentMode === 'AUTO' &&
+                            requiredCapabilities.length === 0)))
+                    }
+                  >
+                    {busy ? '正在分配…' : creating ? '分配并创建草稿' : '保存更改'}
+                  </button>
+                  {creating && (
+                    <button type="button" className="button ghost" onClick={resetEditor}>
+                      取消
+                    </button>
+                  )}
+                </div>
+              </form>
+            )}
+          </Drawer>
 
           {!creating && mission && detail && (
             <>
@@ -1132,7 +1254,7 @@ export function MissionPage() {
               )}
               {pendingApprovals.length > 0 && (
                 <section
-                  className="mission-section approval-section"
+                  className="mission-section approval-section object-section"
                   id="mission-pending-approvals"
                 >
                   <div className="section-heading">
@@ -1145,14 +1267,12 @@ export function MissionPage() {
                     {pendingApprovals.map((approval) => (
                       <article className="approval-card" key={approval.id}>
                         <div className="approval-card-copy">
-                          <strong>{approval.capability}</strong>
+                          <strong>{permissionLabel(approval.capability)}</strong>
                           <span>
-                            {approval.actionType} · 风险 {approval.riskLevel}
+                            {approval.actionType === 'TOOL_CALL' ? '工具操作' : '权限请求'} ·{' '}
+                            {riskLabel(approval.riskLevel)}
                           </span>
-                          <small>
-                            Run {runAttemptLabel(detail.runs, approval.runId)} · 请求于{' '}
-                            {formatDate(approval.createdAt)}
-                          </small>
+                          <small>请求于 {formatDate(approval.createdAt)}</small>
                         </div>
                         <div className="button-row compact">
                           {approval.actionType === 'TOOL_CALL' && (
@@ -1160,7 +1280,7 @@ export function MissionPage() {
                               className="button secondary small"
                               disabled={busy}
                               onClick={() =>
-                                void runAction('Mission 授权已记录，Runtime 将继续执行。', () =>
+                                void runAction('本次历练已获授权，将继续执行。', () =>
                                   window.cultivation.missions.resolveApproval({
                                     approvalId: approval.id,
                                     decision: 'ALLOW_MISSION',
@@ -1168,14 +1288,14 @@ export function MissionPage() {
                                 )
                               }
                             >
-                              Allow This Mission
+                              允许本次历练
                             </button>
                           )}
                           <button
                             className="button primary small"
                             disabled={busy}
                             onClick={() =>
-                              void runAction('审批已批准，Runtime 将继续执行。', () =>
+                              void runAction('审批已批准，历练将继续执行。', () =>
                                 window.cultivation.missions.resolveApproval({
                                   approvalId: approval.id,
                                   decision: 'APPROVED',
@@ -1189,7 +1309,7 @@ export function MissionPage() {
                             className="button danger-ghost small"
                             disabled={busy}
                             onClick={() =>
-                              void runAction('审批已拒绝，拒绝结果已交还 Runtime。', () =>
+                              void runAction('审批已拒绝，处理结果已返回执行者。', () =>
                                 window.cultivation.missions.resolveApproval({
                                   approvalId: approval.id,
                                   decision: 'DENIED',
@@ -1205,22 +1325,30 @@ export function MissionPage() {
                   </div>
                 </section>
               )}
-              <article className="mission-overview">
+              <article className="mission-overview object-section">
                 <div className="mission-overview-top">
-                  <div>
+                  <div className="object-header-copy">
                     <h2>{mission.title}</h2>
-                    <p className="mission-overview-meta">
-                      {modeLabel(mission.mode ?? 'SOLO')} · 创建于 {formatDate(mission.createdAt)}
-                    </p>
+                    <div className="mission-overview-meta object-header-meta">
+                      <span>{modeLabel(mission.mode ?? 'SOLO')}</span>
+                      {mission.partyId && (
+                        <span>
+                          队伍 ·{' '}
+                          {parties.find((party) => party.id === mission.partyId)?.name ??
+                            '已关联队伍'}
+                        </span>
+                      )}
+                      <span>创建于 {formatDate(mission.createdAt)}</span>
+                    </div>
                   </div>
-                  <span className={`mission-state large state-${stateClass(mission.state)}`}>
+                  <StatusBadge tone={missionStateTone(mission.state)}>
                     {missionStateLabel(mission.state)}
-                  </span>
+                  </StatusBadge>
                 </div>
-                <div className="mission-executor-summary">
+                <div className="mission-executor-summary object-header-identity">
                   <Avatar
                     avatar={teammateFor(mission.coordinatorTeammateId)?.avatar}
-                    name={teammateName(teammates, mission.coordinatorTeammateId)}
+                    name={displayTeammateName(mission.coordinatorTeammateId)}
                     kind={
                       teammateFor(mission.coordinatorTeammateId)?.executorKind === 'USER_BRIDGE'
                         ? 'HUMAN_BRIDGE'
@@ -1230,32 +1358,11 @@ export function MissionPage() {
                   />
                   <div>
                     <small>执行者</small>
-                    <strong>{teammateName(teammates, mission.coordinatorTeammateId)}</strong>
+                    <strong>{displayTeammateName(mission.coordinatorTeammateId)}</strong>
                     {renderExecutorStatus(mission.coordinatorTeammateId)}
                   </div>
                 </div>
                 <p className="mission-objective">{mission.objective}</p>
-                {routingReceipts.length > 0 && (
-                  <div className="routing-receipt-list">
-                    {routingReceipts
-                      .slice()
-                      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-                      .slice(0, 3)
-                      .map((receipt) => (
-                        <RoutingReceiptPanel
-                          key={receipt.id}
-                          receipt={receipt}
-                          teammates={teammates}
-                          parties={parties}
-                        />
-                      ))}
-                  </div>
-                )}
-                {receiptError && (
-                  <p className="form-hint" role="status">
-                    {receiptError}
-                  </p>
-                )}
                 {mission.state === 'WAITING_EXTERNAL_WORK' && (
                   <div className="notice">
                     <button
@@ -1281,7 +1388,7 @@ export function MissionPage() {
                       className="button primary small"
                       disabled={busy}
                       onClick={() =>
-                        void runAction('Mission 已就绪。', () =>
+                        void runAction('历练已就绪。', () =>
                           window.cultivation.missions.ready(mission.id),
                         )
                       }
@@ -1306,7 +1413,7 @@ export function MissionPage() {
                         className="button primary small"
                         disabled={busy}
                         onClick={() =>
-                          void runAction('Mission Run 已启动。', () =>
+                          void runAction('历练已开始。', () =>
                             window.cultivation.missions.start({
                               missionId: mission.id,
                               approvalFixture,
@@ -1323,7 +1430,7 @@ export function MissionPage() {
                       className="button secondary small"
                       disabled={busy}
                       onClick={() =>
-                        void runAction('Mission 已暂停。', () =>
+                        void runAction('历练已暂停。', () =>
                           window.cultivation.missions.pause(mission.id),
                         )
                       }
@@ -1336,7 +1443,7 @@ export function MissionPage() {
                       className="button primary small"
                       disabled={busy}
                       onClick={() =>
-                        void runAction('Mission 已恢复。', () =>
+                        void runAction('历练已恢复。', () =>
                           window.cultivation.missions.resume(mission.id),
                         )
                       }
@@ -1349,7 +1456,7 @@ export function MissionPage() {
                       className="button primary small"
                       disabled={busy}
                       onClick={() =>
-                        void runAction('已创建新的 Mission Run。', () =>
+                        void runAction('已创建一次新的执行尝试。', () =>
                           window.cultivation.missions.retry({
                             missionId: mission.id,
                             approvalFixture,
@@ -1357,7 +1464,7 @@ export function MissionPage() {
                         )
                       }
                     >
-                      重试（新 Run）
+                      重试历练
                     </button>
                   )}
                   {['RUNNING', 'WAITING_APPROVAL', 'PAUSED', 'INTERRUPTED', 'FAILED'].includes(
@@ -1367,7 +1474,7 @@ export function MissionPage() {
                       className="button danger-ghost small"
                       disabled={busy}
                       onClick={() =>
-                        void runAction('Mission 已取消。', () =>
+                        void runAction('历练已取消。', () =>
                           window.cultivation.missions.cancel(mission.id),
                         )
                       }
@@ -1379,17 +1486,12 @@ export function MissionPage() {
               </article>
 
               {latestResultRun?.resultText && (
-                <section className="mission-section mission-result-section">
-                  <div className="section-heading">
-                    <div>
-                      <h2>结果</h2>
-                    </div>
-                    <span className="count-badge">
-                      Run {runAttemptLabel(detail.runs, latestResultRun.id)}
-                    </span>
-                  </div>
+                <Section
+                  title="结果"
+                  className="mission-section mission-result-section object-section"
+                >
                   <div className="mission-result-content">{latestResultRun.resultText}</div>
-                </section>
+                </Section>
               )}
 
               {detail.participants.length > 0 && (
@@ -1413,7 +1515,7 @@ export function MissionPage() {
                           >
                             <Avatar
                               avatar={teammate?.avatar}
-                              name={teammateName(teammates, participant.teammateId)}
+                              name={displayTeammateName(participant.teammateId)}
                               kind={
                                 teammate?.executorKind === 'USER_BRIDGE'
                                   ? 'HUMAN_BRIDGE'
@@ -1422,7 +1524,7 @@ export function MissionPage() {
                               size={32}
                             />
                             <div>
-                              <strong>{teammateName(teammates, participant.teammateId)}</strong>
+                              <strong>{displayTeammateName(participant.teammateId)}</strong>
                               <small>
                                 {participant.role === 'COORDINATOR'
                                   ? '队长'
@@ -1453,11 +1555,11 @@ export function MissionPage() {
                       <article className="collaboration-request-card" key={request.id}>
                         <div className="collaboration-request-heading">
                           <span className="collaboration-flow">
-                            <strong>{teammateName(teammates, request.requesterTeammateId)}</strong>
+                            <strong>{displayTeammateName(request.requesterTeammateId)}</strong>
                             <span>请求协作 →</span>
-                            <strong>{teammateName(teammates, request.targetTeammateId)}</strong>
+                            <strong>{displayTeammateName(request.targetTeammateId)}</strong>
                           </span>
-                          <span className="mission-state state-waiting-approval">等待批准</span>
+                          <StatusBadge tone="warning">等待批准</StatusBadge>
                         </div>
                         <dl className="collaboration-request-details">
                           <div>
@@ -1473,11 +1575,7 @@ export function MissionPage() {
                             <dd>{request.expectedBenefit}</dd>
                           </div>
                         </dl>
-                        <small>
-                          委托深度 {request.depth} · Run{' '}
-                          {runAttemptLabel(detail.runs, request.runId)} · 请求于{' '}
-                          {formatDate(request.createdAt)}
-                        </small>
+                        <small>请求于 {formatDate(request.createdAt)}</small>
                         <div className="button-row compact">
                           {teammates.find((item) => item.id === request.targetTeammateId)
                             ?.executorKind === 'USER_BRIDGE' ? (
@@ -1485,7 +1583,7 @@ export function MissionPage() {
                               api={window.cultivation.r2}
                               busy={busy}
                               onApprove={(externalWork) =>
-                                runAction('已创建本尊外部工作；原 Run 正在等待提交。', () =>
+                                runAction('已创建本尊待办，原历练正在等待交付。', () =>
                                   window.cultivation.missions.resolveCollaboration({
                                     requestId: request.id,
                                     decision: 'APPROVED',
@@ -1500,7 +1598,7 @@ export function MissionPage() {
                               type="button"
                               disabled={busy}
                               onClick={() =>
-                                void runAction('协作已批准，原 Mission Run 将继续。', () =>
+                                void runAction('协作已批准，原历练将继续。', () =>
                                   window.cultivation.missions.resolveCollaboration({
                                     requestId: request.id,
                                     decision: 'APPROVED',
@@ -1516,7 +1614,7 @@ export function MissionPage() {
                             type="button"
                             disabled={busy}
                             onClick={() =>
-                              void runAction('协作已拒绝，Coordinator 将收到结构化结果。', () =>
+                              void runAction('协作已拒绝，协调道友将收到处理结果。', () =>
                                 window.cultivation.missions.resolveCollaboration({
                                   requestId: request.id,
                                   decision: 'DENIED',
@@ -1554,7 +1652,7 @@ export function MissionPage() {
                             <span className="artifact-kind-pill">
                               {artifactKindLabel(artifact.kind)}
                             </span>
-                            <strong>{teammateName(teammates, artifact.teammateId)}</strong>
+                            <strong>{displayTeammateName(artifact.teammateId)}</strong>
                             <time>{formatDate(artifact.createdAt)}</time>
                           </div>
                           <div className="mission-artifact-content">{artifact.content}</div>
@@ -1562,6 +1660,27 @@ export function MissionPage() {
                       ))}
                   </div>
                 </section>
+              )}
+
+              {(routingReceipts.length > 0 || receiptError) && (
+                <details className="mission-advanced advanced-disclosure">
+                  <summary>高级 · 执行分配记录</summary>
+                  {receiptError && <p role="status">{receiptError}</p>}
+                  <div className="routing-receipt-list">
+                    {routingReceipts
+                      .slice()
+                      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+                      .slice(0, 3)
+                      .map((receipt) => (
+                        <RoutingReceiptPanel
+                          key={receipt.id}
+                          receipt={receipt}
+                          teammates={teammates}
+                          parties={parties}
+                        />
+                      ))}
+                  </div>
+                </details>
               )}
 
               <details className="mission-advanced">
@@ -1628,6 +1747,10 @@ export function MissionPage() {
                                 操作者：{renderActor(item.audit.actorType, item.audit.actorId)}
                               </span>
                               {renderToolTimelineMetadata(item.audit.payloadJson)}
+                              <details className="timeline-event-details">
+                                <summary>高级 · 完整审计内容</summary>
+                                <pre>{JSON.stringify(item.audit.payloadJson, null, 2)}</pre>
+                              </details>
                             </div>
                           </div>
                         </li>
@@ -1637,13 +1760,11 @@ export function MissionPage() {
                 </details>
               )}
 
-              <section className="mission-section mission-recent-timeline">
-                <div className="section-heading">
-                  <div>
-                    <h2>最近动态</h2>
-                  </div>
-                  <span className="count-badge">{missionTimeline.length}</span>
-                </div>
+              <Section
+                title="最近动态"
+                className="mission-section mission-recent-timeline object-timeline"
+                action={<span className="count-badge">{missionTimeline.length}</span>}
+              >
                 {missionTimeline.length ? (
                   <ol className="mission-timeline">
                     {missionTimeline.slice(0, 4).map((item) => (
@@ -1658,6 +1779,9 @@ export function MissionPage() {
                             <span>
                               操作者：{renderActor(item.event.actorType, item.event.actorId)}
                             </span>
+                            {missionEventSummary(item.event).map((summary) => (
+                              <span key={summary}>{summary}</span>
+                            ))}
                           </div>
                         </div>
                       </li>
@@ -1668,7 +1792,7 @@ export function MissionPage() {
                     历练开始后，状态变化和处理记录会显示在这里。
                   </div>
                 )}
-              </section>
+              </Section>
 
               <details className="mission-advanced">
                 <summary>高级 · 完整执行记录</summary>
@@ -1697,8 +1821,9 @@ export function MissionPage() {
                                 <span>运行 #{runAttemptLabel(detail.runs, item.event.runId)}</span>
                               )}
                               <details className="timeline-event-details">
-                                <summary>事件详情</summary>
+                                <summary>高级 · 完整事件内容</summary>
                                 {renderToolTimelineMetadata(item.event.payloadJson)}
+                                <pre>{JSON.stringify(item.event.payloadJson, null, 2)}</pre>
                               </details>
                             </div>
                           </div>
@@ -1741,7 +1866,7 @@ export function MissionPage() {
                                     Run {runAttemptLabel(detail.runs, item.runId ?? '')}
                                   </small>
                                 </td>
-                                <td>{teammateName(teammates, item.teammateId)}</td>
+                                <td>{displayTeammateName(item.teammateId)}</td>
                                 <td>
                                   <strong>{item.provider}</strong>
                                   <small className="cell-id">{item.model}</small>

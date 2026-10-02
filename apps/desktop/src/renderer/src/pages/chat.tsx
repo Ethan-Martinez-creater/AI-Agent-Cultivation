@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar.js';
 import { Icon } from '../components/Icon.js';
+import { Drawer } from '../components/Drawer.js';
 import { MessageContent } from '../components/MessageContent.js';
 import { AvailabilityBadge } from '../r3-2-availability.js';
 import { errorText, formatTime, makeId } from '../ui-shared.js';
@@ -41,6 +42,16 @@ export function ChatPage() {
   const [extractingMessageId, setExtractingMessageId] = useState('');
   const [candidateReady, setCandidateReady] = useState(false);
   const [conversationDrawerOpen, setConversationDrawerOpen] = useState(false);
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 980px)').matches);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 980px)');
+    const update = () => {
+      setNarrow(media.matches);
+      if (!media.matches) setConversationDrawerOpen(false);
+    };
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
   const messageStreamRef = useRef<HTMLDivElement>(null);
   const activeRequest = useRef<ActiveRequest>({
     requestId: null,
@@ -326,6 +337,64 @@ export function ChatPage() {
     );
   }
 
+  const conversationList = (
+    <aside
+      className={`r33-conversation-list ${conversationDrawerOpen ? 'is-open' : ''}`}
+      aria-label="对话列表"
+      data-testid="conversation-list"
+    >
+      <div className="r33-list-heading">
+        <div>
+          <div className="r33-list-title">
+            <Icon name="Chat" size={17} />
+            <h2>对话</h2>
+          </div>
+          <p>{conversations.length} 段交流</p>
+        </div>
+        {conversations.length > 0 && (
+          <button
+            className="r33-icon-button"
+            type="button"
+            aria-label="开始新对话"
+            title="开始新对话"
+            disabled={!teammate || teammate.status !== 'ACTIVE' || streaming}
+            onClick={() => void createConversation()}
+          >
+            <Icon name="Add" size={18} />
+          </button>
+        )}
+      </div>
+      {conversations.length > 0 ? (
+        <div className="r33-conversation-items">
+          {conversations.map((conversation, index) => {
+            const selected = conversation.id === conversationId;
+            const summary =
+              selected && activeSummary ? activeSummary : `对话 ${conversations.length - index}`;
+            return (
+              <button
+                key={conversation.id}
+                type="button"
+                className={`r33-conversation-item ${selected ? 'is-selected' : ''}`}
+                aria-current={selected ? 'true' : undefined}
+                onClick={() => void selectConversation(conversation.id)}
+              >
+                <span className="r33-conversation-copy">
+                  <strong>{summary}</strong>
+                  <time dateTime={conversation.updatedAt}>
+                    {conversationTime(conversation.updatedAt)}
+                  </time>
+                </span>
+                {selected && <span className="r33-selected-mark" aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="r33-sidebar-empty">还没有对话</p>
+      )}
+    </aside>
+  );
+
   return (
     <section className="r33-chat-page" data-testid="chat-page">
       <header className="r33-chat-header" data-testid="chat-header">
@@ -401,9 +470,8 @@ export function ChatPage() {
             <Avatar avatar={teammate.avatar} name={teammate.name} kind="HUMAN_BRIDGE" size={84} />
           )}
           <div className="r33-human-bridge-copy">
-            <span className="r33-kicker">本尊待办</span>
-            <h1>需要你处理的外部工作会在这里等你</h1>
-            <p>本尊不使用模型对话。收到委托后，可在待办中查看内容并提交处理结果。</p>
+            <h1>本尊待办</h1>
+            <p>查看委托并提交处理结果。</p>
             <button className="button primary" onClick={() => navigate('/external-work')}>
               查看本尊待办 <Icon name="ArrowUp" size={16} />
             </button>
@@ -411,71 +479,17 @@ export function ChatPage() {
         </div>
       ) : (
         <div className="r33-chat-workspace">
-          {conversationDrawerOpen && (
-            <button
-              className="r33-drawer-backdrop"
-              type="button"
-              aria-label="关闭对话列表"
-              onClick={() => setConversationDrawerOpen(false)}
-            />
+          {!narrow && conversationList}
+          {narrow && (
+            <Drawer
+              title="对话列表"
+              open={conversationDrawerOpen}
+              onClose={() => setConversationDrawerOpen(false)}
+              className="chat-list-drawer"
+            >
+              {conversationDrawerOpen && conversationList}
+            </Drawer>
           )}
-          <aside
-            className={`r33-conversation-list ${conversationDrawerOpen ? 'is-open' : ''}`}
-            aria-label="对话列表"
-            data-testid="conversation-list"
-          >
-            <div className="r33-list-heading">
-              <div>
-                <div className="r33-list-title">
-                  <Icon name="Chat" size={17} />
-                  <h2>对话</h2>
-                </div>
-                <p>{conversations.length} 段交流</p>
-              </div>
-              {conversations.length > 0 && (
-                <button
-                  className="r33-icon-button"
-                  type="button"
-                  aria-label="开始新对话"
-                  title="开始新对话"
-                  disabled={!teammate || teammate.status !== 'ACTIVE' || streaming}
-                  onClick={() => void createConversation()}
-                >
-                  <Icon name="Add" size={18} />
-                </button>
-              )}
-            </div>
-            {conversations.length > 0 ? (
-              <div className="r33-conversation-items">
-                {conversations.map((conversation, index) => {
-                  const selected = conversation.id === conversationId;
-                  const summary =
-                    selected && activeSummary
-                      ? activeSummary
-                      : `对话 ${conversations.length - index}`;
-                  return (
-                    <button
-                      key={conversation.id}
-                      type="button"
-                      className={`r33-conversation-item ${selected ? 'is-selected' : ''}`}
-                      aria-current={selected ? 'true' : undefined}
-                      onClick={() => void selectConversation(conversation.id)}
-                    >
-                      <span className="r33-conversation-copy">
-                        <strong>{summary}</strong>
-                        <time dateTime={conversation.updatedAt}>
-                          {conversationTime(conversation.updatedAt)}
-                        </time>
-                      </span>
-                      {selected && <span className="r33-selected-mark" aria-hidden="true" />}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="r33-sidebar-empty">还没有对话</p>
-            )}
-          </aside>
 
           <div className="r33-chat-main">
             <div
@@ -500,7 +514,6 @@ export function ChatPage() {
                     />
                   )}
                   <h1>和{teammate?.name ?? '这位道友'}开始交流</h1>
-                  <p>每段对话都会保存在这位道友名下。</p>
                   {teammate?.status === 'ACTIVE' && (
                     <button className="button primary" onClick={() => void createConversation()}>
                       开始新对话 <Icon name="ArrowUp" size={16} />

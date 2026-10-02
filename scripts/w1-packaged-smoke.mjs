@@ -205,6 +205,7 @@ try {
   });
   await navigateUi(page, '历练 Missions');
   await page.getByRole('link', { name: '工作流历练', exact: true }).click();
+  await page.getByRole('button', { name: '新建运行', exact: true }).click();
   await page.getByLabel('工作流版本').selectOption('w1-fixture-sequence::1');
   await page.getByRole('button', { name: '创建运行', exact: true }).click();
   await page.getByRole('button', { name: '开始执行', exact: true }).waitFor();
@@ -270,6 +271,7 @@ try {
     (await page.evaluate(() => window.cultivation.workflows.list())).length,
     countBeforeInvalid,
   );
+  await page.getByRole('button', { name: '新建运行', exact: true }).click();
   await page.getByLabel('工作流版本').selectOption('w1-fixture-io::1');
   await page
     .locator('#workflow-input-topic')
@@ -325,7 +327,8 @@ try {
   } finally {
     mutationDb.close();
   }
-  await page.getByText('本次冻结输入（只读）', { exact: true }).click();
+  await page.locator('.workflow-advanced-card > summary').click();
+  await page.getByText('本次固定输入', { exact: true }).click();
   await shot(page, '06-workflow-frozen-input', 1440, 900, app);
   assert.equal(
     ioVersions.some((v) => v.definition.id === 'w1-fixture-final-invalid'),

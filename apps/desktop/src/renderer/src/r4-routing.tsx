@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Button } from './components/Button.js';
+import { Section } from './components/Section.js';
+import { StatusBadge } from './components/StatusBadge.js';
 import type { CapabilityDimension, RoutingDecisionReceipt } from '@cultivation/domain';
 import type { PartyView, TeammateView } from './ui-shared.js';
 
@@ -308,31 +311,42 @@ export function RoutingConfigPanel({
   };
 
   return (
-    <div className="form-card routing-config-card">
-      <h2>智能分配</h2>
-      <p className="muted-copy">
-        默认关闭。启用后，Jev 云端只接收有界的任务摘要、候选道友身份、Benchmark
-        能力档位、已启用功法元数据和可核验经历摘要。
-      </p>
-      <p className="muted-copy">
-        不发送 API Key 或其他凭据、私有记忆原文、完整文件、完整聊天记录、工具输出或 Tool secret。
-        Jev 不会获得审批权限，也不会覆盖用户明确指定的道友或队伍。
-      </p>
-      <p className="form-hint">
-        策略版本：{config.policyVersion} · Cloud 当前{config.cloudEnabled ? '已启用' : '已关闭'}
-      </p>
-      <label className="field routing-cloud-toggle">
-        <input
-          type="checkbox"
-          checked={config.cloudEnabled}
-          disabled={busy}
-          onChange={(event) => void change(event.target.checked)}
-        />
-        <span>启用 Cloud 智能分配</span>
-      </label>
-      <button className="button ghost small" type="button" onClick={onOpenJevSettings}>
-        配置 Jev 凭据
-      </button>
+    <Section
+      title="智能分配"
+      icon="Jev"
+      action={
+        <StatusBadge tone={config.cloudEnabled ? 'success' : 'neutral'}>
+          Cloud {config.cloudEnabled ? '已启用' : '已关闭'}
+        </StatusBadge>
+      }
+      className="routing-config-card"
+    >
+      <div className="setting-row routing-cloud-toggle">
+        <label className="field">
+          <span>Cloud 智能分配</span>
+          <input
+            type="checkbox"
+            checked={config.cloudEnabled}
+            disabled={busy}
+            onChange={(event) => void change(event.target.checked)}
+          />
+        </label>
+        <Button variant="secondary" onClick={onOpenJevSettings}>
+          配置 Jev 凭据
+        </Button>
+      </div>
+      <details className="advanced-records">
+        <summary>数据范围与策略</summary>
+        <p>
+          启用后，Jev 云端只接收有界的任务摘要、候选道友身份、Benchmark
+          能力档位、已启用功法元数据和可核验经历摘要。
+        </p>
+        <p>
+          不发送 API Key 或其他凭据、私有记忆原文、完整文件、完整聊天记录、工具输出或 Tool
+          secret。Jev 不会获得审批权限，也不会覆盖用户明确指定的道友或队伍。
+        </p>
+        <p className="form-hint">策略版本：{config.policyVersion}</p>
+      </details>
       {error && (
         <div className="notice error" role="alert">
           {error}
@@ -343,7 +357,7 @@ export function RoutingConfigPanel({
           {notice}
         </div>
       )}
-    </div>
+    </Section>
   );
 }
 

@@ -1,22 +1,41 @@
-import { useEffect, useState } from 'react';
-import { errorText, PageHeading, EmptyList, formatToken, formatDate } from '../ui-shared.js';
-import type { TeammateView, UsageView } from '../ui-shared.js';
+import { useEffect, useMemo, useState } from 'react';
+import { Section } from '../components/Section.js';
+import { StatusBadge } from '../components/StatusBadge.js';
+import { errorText, EmptyList, formatDate } from '../ui-shared.js';
+import type { ProviderView, TeammateView, UsageView } from '../ui-shared.js';
 
-import { SummaryMetric } from './settings.js';
+const numberFormat = new Intl.NumberFormat('zh-CN');
+
+function formatUsageValue(value: number | null): string {
+  return value === null ? '未知' : numberFormat.format(value);
+}
 
 export function UsagePage() {
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [providers, setProviders] = useState<ProviderView[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
   const [usage, setUsage] = useState<UsageView[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
   useEffect(() => {
-    void window.cultivation.teammates
-      .list()
-      .then((items) => setTeammates(items))
-      .catch(() => setTeammates([]));
+    let cancelled = false;
+    void Promise.all([window.cultivation.teammates.list(), window.cultivation.providers.list()])
+      .then(([items, connections]) => {
+        if (!cancelled) {
+          setTeammates(items);
+          setProviders(connections);
+        }
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) setError(errorText(cause, '读取道友列表失败。'));
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -36,107 +55,183 @@ export function UsagePage() {
       cancelled = true;
     };
   }, [selectedId, refreshKey]);
+
+  const teammatesById = useMemo(
+    () => new Map(teammates.map((teammate) => [teammate.id, teammate])),
+    [teammates],
+  );
+  const providerNames = new Map(providers.map((provider) => [provider.id, provider.name]));
   const knownInput = usage.reduce((sum, item) => sum + (item.inputTokens ?? 0), 0);
   const knownOutput = usage.reduce((sum, item) => sum + (item.outputTokens ?? 0), 0);
   const unknownCount = usage.filter(
     (item) => item.inputTokens === null || item.outputTokens === null,
   ).length;
+  const orderedUsage = [...usage].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
   return (
-    <section className="page wide-page">
-      <PageHeading
-        eyebrow="UsageRecord · token metadata"
-        title="灵石 Usage"
-        description="每条记录关联具体道友、Runtime Profile、Provider 与模型。Provider 未返回的 token 字段保持未知。"
-      />
-      <div className="usage-toolbar">
-        <label className="field">
-          <span>按道友筛选</span>
-          <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
-            <option value="">全部道友</option>
-            {teammates.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name} · {item.status === 'ACTIVE' ? '活跃' : '归档'}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          className="button secondary"
-          onClick={() => setRefreshKey((current) => current + 1)}
-        >
-          刷新
-        </button>
-      </div>
+    <section className="page wide-page management-page usage-page">
+      <header className="page-heading management-heading">
+        <h1>用量</h1>
+        <div className="management-toolbar">
+          <label className="field">
+            <span>道友</span>
+            <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+              <option value="">全部道友</option>
+              {teammates.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} · {item.status === 'ACTIVE' ? '启用' : '已归档'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="button secondary"
+            type="button"
+            disabled={loading}
+            onClick={() => setRefreshKey((current) => current + 1)}
+          >
+            刷新
+          </button>
+        </div>
+      </header>
+
       {error && (
         <div className="notice error" role="alert">
           {error}
         </div>
       )}
-      <div className="usage-summary">
-        <SummaryMetric label="模型调用" value={usage.length} />
-        <SummaryMetric label="已知输入 Token" value={knownInput} />
-        <SummaryMetric label="已知输出 Token" value={knownOutput} />
-      </div>
-      {unknownCount > 0 && (
-        <p className="form-hint">
-          {unknownCount} 条调用至少有一个 token 字段未由 Provider 返回；表格按“未知”显示。
-        </p>
-      )}
-      <div className="table-card">
-        <div className="list-heading">
-          <div>
-            <h2>调用记录</h2>
-            <p>按时间倒序</p>
-          </div>
+
+      <dl className="usage-summary setting-group">
+        <div className="usage-summary-item">
+          <dt>模型调用</dt>
+          <dd>{numberFormat.format(usage.length)}</dd>
         </div>
+        <div className="usage-summary-item">
+          <dt>已知输入 Token</dt>
+          <dd>{numberFormat.format(knownInput)}</dd>
+        </div>
+        <div className="usage-summary-item">
+          <dt>已知输出 Token</dt>
+          <dd>{numberFormat.format(knownOutput)}</dd>
+        </div>
+        <div className="usage-summary-item">
+          <dt>未返回 Token 数据</dt>
+          <dd>{numberFormat.format(unknownCount)}</dd>
+        </div>
+      </dl>
+
+      <Section
+        title="调用记录"
+        icon="Usage"
+        action={<span className="count-badge">{usage.length}</span>}
+        className="setting-group"
+      >
         {loading ? (
           <div className="loading-card">正在读取用量…</div>
-        ) : usage.length ? (
-          <div className="table-scroll">
-            <table>
+        ) : orderedUsage.length ? (
+          <div className="management-table-wrap">
+            <table className="management-table">
               <thead>
                 <tr>
                   <th>时间</th>
                   <th>道友</th>
                   <th>Provider / Model</th>
-                  <th>Runtime Profile</th>
-                  <th>输入</th>
-                  <th>输出</th>
+                  <th>输入 Token</th>
+                  <th>输出 Token</th>
+                  <th>状态</th>
+                  <th>高级记录</th>
                 </tr>
               </thead>
               <tbody>
-                {[...usage]
-                  .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-                  .map((item, index) => (
-                    <tr
-                      key={`${item.teammateId}-${item.runtimeProfileId}-${item.createdAt}-${index}`}
-                    >
+                {orderedUsage.map((item, index) => {
+                  const owner = teammatesById.get(item.teammateId);
+                  const partial = item.inputTokens === null || item.outputTokens === null;
+                  const rowKey =
+                    item.id ??
+                    `${item.teammateId}-${item.runtimeProfileId}-${item.createdAt}-${index}`;
+                  return (
+                    <tr key={rowKey}>
                       <td>{formatDate(item.createdAt)}</td>
                       <td>
-                        <strong>
-                          {teammates.find((teammate) => teammate.id === item.teammateId)?.name ??
-                            item.teammateId.slice(0, 8)}
-                        </strong>
-                        <small className="cell-id">{item.teammateId.slice(0, 12)}</small>
+                        <strong>{owner?.name ?? '道友资料不可用'}</strong>
+                        <div className="usage-owner-status">
+                          {owner ? (
+                            <StatusBadge tone={owner.status === 'ACTIVE' ? 'success' : 'neutral'}>
+                              {owner.status === 'ACTIVE' ? '启用' : '已归档'}
+                            </StatusBadge>
+                          ) : (
+                            <StatusBadge tone="warning">未找到</StatusBadge>
+                          )}
+                        </div>
                       </td>
                       <td>
-                        <strong>{item.provider}</strong>
-                        <small className="cell-id">{item.model}</small>
+                        <strong>{providerNames.get(item.provider) ?? '模型服务'}</strong>
+                        <div>{item.model}</div>
+                      </td>
+                      <td>{formatUsageValue(item.inputTokens)}</td>
+                      <td>{formatUsageValue(item.outputTokens)}</td>
+                      <td>
+                        <StatusBadge tone={partial ? 'warning' : 'success'}>
+                          {partial ? '部分未知' : '已记录'}
+                        </StatusBadge>
                       </td>
                       <td>
-                        <code>{item.runtimeProfileId.slice(0, 12)}</code>
+                        <details className="advanced-records">
+                          <summary>查看</summary>
+                          <dl>
+                            <div>
+                              <dt>Provider</dt>
+                              <dd>
+                                <code>{item.provider}</code>
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>用量记录</dt>
+                              <dd>
+                                <code>{item.id ?? '未提供'}</code>
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>道友 ID</dt>
+                              <dd>
+                                <code>{item.teammateId}</code>
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Runtime Profile ID</dt>
+                              <dd>
+                                <code>{item.runtimeProfileId}</code>
+                              </dd>
+                            </div>
+                            {item.missionId && (
+                              <div>
+                                <dt>Mission ID</dt>
+                                <dd>
+                                  <code>{item.missionId}</code>
+                                </dd>
+                              </div>
+                            )}
+                            {item.runId && (
+                              <div>
+                                <dt>Run ID</dt>
+                                <dd>
+                                  <code>{item.runId}</code>
+                                </dd>
+                              </div>
+                            )}
+                          </dl>
+                        </details>
                       </td>
-                      <td>{formatToken(item.inputTokens)}</td>
-                      <td>{formatToken(item.outputTokens)}</td>
                     </tr>
-                  ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
         ) : (
-          <EmptyList text="完成模型调用后，UsageRecord 会显示在这里。" />
+          <EmptyList text="完成模型调用后，用量记录会显示在这里。" />
         )}
-      </div>
+      </Section>
     </section>
   );
 }

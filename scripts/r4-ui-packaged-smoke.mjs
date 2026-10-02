@@ -45,7 +45,10 @@ export async function verifyR4RoutingUi(page, { a, b }) {
   const missionObjective = `请用三点概括一个简单问题的核心意思并给出简短理由。检查 ${runId.slice(0, 8)}。`;
 
   await navigateUi(page, '历练 Missions');
-  await page.getByRole('button', { name: '+ 发起历练', exact: true }).click();
+  await page
+    .locator('.mission-list-card header')
+    .getByRole('button', { name: '发起历练', exact: true })
+    .click();
   await page.getByRole('heading', { name: '发起历练', exact: true }).waitFor();
   assert.equal(await page.getByLabel('分配方式').inputValue(), 'AUTO');
 
@@ -61,10 +64,9 @@ export async function verifyR4RoutingUi(page, { a, b }) {
     await setViewportAndCapture(page, 1180, 'missions-auto-create-1180.png', screenshotDirectory),
   );
   await page.getByRole('button', { name: '分配并创建草稿', exact: true }).click();
-  await Promise.race([
-    page.locator('.routing-receipt').waitFor({ state: 'visible', timeout: 30000 }),
-    page.locator('.routing-action-required').waitFor({ state: 'visible', timeout: 30000 }),
-  ]);
+  await page.getByRole('status').filter({ hasText: '历练草稿已创建' }).waitFor();
+  await page.locator('.mission-advanced > summary').filter({ hasText: '执行分配记录' }).click();
+  await page.locator('.routing-receipt').waitFor({ state: 'visible' });
 
   const routeResult = await page.evaluate(async (title) => {
     const rows = await window.cultivation.missions.list();
@@ -194,10 +196,12 @@ export async function verifyR4RoutingUi(page, { a, b }) {
 
   const shadowBefore = await page.evaluate(() => window.cultivation.r3.getConfig());
   assert.equal(shadowBefore.enabled, false, 'R3 Shadow must remain disabled before the R4 check.');
+  await page.keyboard.press('Escape');
+  await page.locator('dialog[open]').waitFor({ state: 'hidden' });
   await navigateUi(page, '设置 Settings');
   await page.getByRole('tab', { name: '智能分配', exact: true }).click();
   const routingCheckbox = page.getByRole('checkbox', {
-    name: '启用 Cloud 智能分配',
+    name: 'Cloud 智能分配',
     exact: true,
   });
   assert.equal(
@@ -207,7 +211,8 @@ export async function verifyR4RoutingUi(page, { a, b }) {
   );
   const routingConfig = await page.evaluate(() => window.cultivation.routing.config());
   assert.equal(routingConfig.cloudEnabled, true);
-  const privacyCopy = await page.locator('.routing-config-card .muted-copy').allTextContents();
+  await page.locator('.routing-config-card details > summary').click();
+  const privacyCopy = await page.locator('.routing-config-card details p').allTextContents();
   const privacyText = privacyCopy.join('\n');
   for (const expectedField of [
     '有界的任务摘要',
@@ -267,7 +272,10 @@ export async function verifyR4RoutingUi(page, { a, b }) {
   }));
 
   await navigateUi(page, '历练 Missions');
-  await page.getByRole('button', { name: '+ 发起历练', exact: true }).click();
+  await page
+    .locator('.mission-list-card header')
+    .getByRole('button', { name: '发起历练', exact: true })
+    .click();
   await page.getByRole('heading', { name: '发起历练', exact: true }).waitFor();
   await page.getByLabel('分配方式').selectOption('HUMAN_BRIDGE');
   assert.equal(await page.getByLabel('分配方式').inputValue(), 'HUMAN_BRIDGE');

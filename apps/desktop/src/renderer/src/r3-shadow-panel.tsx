@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Button } from './components/Button.js';
+import { Section } from './components/Section.js';
+import { StatusBadge } from './components/StatusBadge.js';
 import type { R3DecisionConfigView, R3ShadowObservationView } from '../../preload/preload.js';
 
 function displayConfidence(value: number | null): string {
@@ -16,6 +19,9 @@ export function R3ShadowPanel() {
   const [observations, setObservations] = useState<R3ShadowObservationView[]>([]);
   const [busy, setBusy] = useState(false);
   const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'untested' | 'connected' | 'failed'>(
+    'untested',
+  );
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
@@ -47,68 +53,103 @@ export function R3ShadowPanel() {
     }
   };
 
+  const testConnection = async () => {
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await window.cultivation.r3.testConnection();
+      setConnectionStatus(result.ok ? 'connected' : 'failed');
+      setNotice(result.ok ? `连接正常 · ${result.model ?? 'Jev'}` : result.message);
+    } catch {
+      setConnectionStatus('failed');
+      setError('连接失败。请检查密钥和网络后重试。');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <div className="shadow-panel">
-      <div className="card">
-        <h3>Jev Shadow Decision Plane</h3>
-        <p>
-          固定模型 <code>jev-1.13.0</code>。此处只记录建议，不改变历练、道友、队伍、本尊或权限。
-        </p>
-        <p>
-          密钥状态：
-          {config?.configured
-            ? config.keySource === 'ENVIRONMENT'
-              ? '来自 Main Process 环境变量'
-              : '已由系统加密保存'
-            : '未配置'}
-          {' · '}
-          模式：{config?.mode ?? 'SHADOW'}
-        </p>
-        <div className="shadow-actions">
-          <button
-            className="button secondary"
-            disabled={busy}
-            onClick={() =>
-              void execute(async () => {
-                await window.cultivation.r3.saveKeyFromClipboard();
-                return '已从剪贴板读取并加密保存 Key；剪贴板已清空。';
-              })
-            }
-          >
-            从剪贴板安全保存 TypeSafe Key
-          </button>
-          <button
-            className="button secondary"
-            disabled={busy || !config?.configured}
-            onClick={() =>
-              void execute(async () => {
-                const result = await window.cultivation.r3.testConnection();
-                return result.ok ? `连接成功 · ${result.model ?? 'jev-1.13.0'}` : result.message;
-              })
-            }
-          >
-            Test Connection
-          </button>
-          <button
-            className="button"
-            disabled={busy || !config?.configured || (!config.enabled && !privacyConsent)}
-            onClick={() =>
-              void execute(async () => {
-                await window.cultivation.r3.setEnabled(!config?.enabled);
-                if (config?.enabled) setPrivacyConsent(false);
-                return config?.enabled ? 'Cloud Shadow 已暂停。' : 'Cloud Shadow 已启用。';
-              })
-            }
-          >
-            {config?.enabled ? '停用 Cloud Shadow' : '启用 Cloud Shadow'}
-          </button>
+    <div className="shadow-panel setting-groups">
+      <Section
+        title="Jev 观察"
+        icon="Jev"
+        action={
+          <StatusBadge tone={!config ? 'neutral' : config.enabled ? 'success' : 'neutral'}>
+            {!config ? '读取中' : config.enabled ? 'Cloud 已启用' : 'Cloud 已关闭'}
+          </StatusBadge>
+        }
+      >
+        <div className="setting-group">
+          <div className="setting-row">
+            <span>凭据</span>
+            <div className="setting-row-actions">
+              <StatusBadge tone={config?.configured ? 'success' : 'warning'}>
+                {!config ? '读取中' : config.configured ? '已配置' : '未配置'}
+              </StatusBadge>
+              <Button
+                variant="secondary"
+                disabled={busy}
+                onClick={() =>
+                  void execute(async () => {
+                    await window.cultivation.r3.saveKeyFromClipboard();
+                    setConnectionStatus('untested');
+                    return '密钥已安全保存，剪贴板已清空。';
+                  })
+                }
+              >
+                从剪贴板安全保存密钥
+              </Button>
+            </div>
+          </div>
+          <div className="setting-row">
+            <span>连接</span>
+            <div className="setting-row-actions">
+              <StatusBadge
+                tone={
+                  connectionStatus === 'connected'
+                    ? 'success'
+                    : connectionStatus === 'failed'
+                      ? 'danger'
+                      : 'neutral'
+                }
+              >
+                {connectionStatus === 'connected'
+                  ? '正常'
+                  : connectionStatus === 'failed'
+                    ? '失败'
+                    : '尚未检测'}
+              </StatusBadge>
+              <Button
+                variant="secondary"
+                disabled={busy || !config?.configured}
+                onClick={() => void testConnection()}
+              >
+                测试连接
+              </Button>
+            </div>
+          </div>
+          <div className="setting-row">
+            <span>Cloud Shadow</span>
+            <div className="setting-row-actions">
+              <Button
+                variant={config?.enabled ? 'secondary' : 'primary'}
+                disabled={busy || !config?.configured || (!config.enabled && !privacyConsent)}
+                onClick={() =>
+                  void execute(async () => {
+                    await window.cultivation.r3.setEnabled(!config?.enabled);
+                    if (config?.enabled) setPrivacyConsent(false);
+                    return config?.enabled ? 'Cloud Shadow 已停用。' : 'Cloud Shadow 已启用。';
+                  })
+                }
+              >
+                {config?.enabled ? '停用 Cloud Shadow' : '启用 Cloud Shadow'}
+              </Button>
+            </div>
+          </div>
         </div>
-        <p className="muted">
-          先复制 TypeSafe API Key，再点击保存。Key 只由 Main Process 从剪贴板读取；Renderer
-          不接收明文或密文。 未启用时，现有流程照常运行。
-        </p>
-        <details className="shadow-privacy">
-          <summary>启用前查看 Cloud Shadow 数据发送范围</summary>
+        <details className="advanced-records shadow-privacy">
+          <summary>隐私与数据发送范围</summary>
           <div className="shadow-privacy-copy" role="note" aria-label="Cloud Shadow 隐私说明">
             <p>
               启用后会向 TypeSafe 发送有界任务摘要、候选道友的 ID 与角色、模型可用状态、Benchmark
@@ -129,7 +170,7 @@ export function R3ShadowPanel() {
             </label>
           </div>
         </details>
-      </div>
+      </Section>
       {error && (
         <div className="notice error" role="alert">
           {error}
@@ -140,17 +181,24 @@ export function R3ShadowPanel() {
           {notice}
         </div>
       )}
-      <details className="card shadow-diagnostics">
-        <summary>高级：Shadow 观察记录（{observations.length}）</summary>
+      <details className="advanced-records shadow-diagnostics">
+        <summary>高级记录与观察（{observations.length}）</summary>
         <div className="shadow-diagnostics-content">
           <div className="shadow-heading">
             <div>
-              <h3>Shadow Observability</h3>
-              <p>显示有界建议、真实选择和安全错误码。</p>
+              <h3>运行信息</h3>
+              <p>
+                {config?.keySource === 'ENVIRONMENT'
+                  ? '密钥来自 Main Process 环境变量'
+                  : config?.configured
+                    ? '密钥已由系统加密保存'
+                    : '尚未配置密钥'}
+                {' · '}模式 {config?.mode ?? 'SHADOW'} · 模型 jev-1.13.0
+              </p>
             </div>
-            <button className="button secondary" disabled={busy} onClick={() => void refresh()}>
+            <Button variant="secondary" disabled={busy} onClick={() => void refresh()}>
               刷新
-            </button>
+            </Button>
           </div>
           {observations.length === 0 ? (
             <p className="muted">尚无观察记录。</p>

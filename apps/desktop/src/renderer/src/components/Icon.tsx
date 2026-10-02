@@ -108,6 +108,11 @@ export function Icon({
 }) {
   const Glyph = icons[name as keyof typeof icons] ?? CircleHelp;
   return (
-    <Glyph size={size} strokeWidth={1.8} className={`ui-icon ${className}`} aria-hidden="true" />
+    <Glyph
+      size={size <= 16 ? 16 : size <= 20 ? 20 : 24}
+      strokeWidth={1.8}
+      className={`ui-icon ${className}`}
+      aria-hidden="true"
+    />
   );
 }

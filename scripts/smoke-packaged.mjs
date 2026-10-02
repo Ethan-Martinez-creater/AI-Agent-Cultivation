@@ -31,10 +31,10 @@ try {
     ['道友 Teammates', '道友'],
     ['队伍 Parties', '队伍'],
     ['历练 Missions', '历练'],
-    ['功法 Skills', '功法 Skills'],
-    ['法宝 Tools', '法宝 Tools'],
+    ['功法 Skills', '功法'],
+    ['法宝 Tools', '工具'],
     ['记忆 Memory', '记忆'],
-    ['灵石 Usage', '灵石 Usage'],
+    ['灵石 Usage', '用量'],
     ['设置 Settings', '设置'],
   ]) {
     await navigateUi(page, link);
@@ -740,3 +740,4 @@ await import('./r3-3-ui-packaged-smoke.mjs');
 await import('./r4-packaged-smoke.mjs');
 await import('./w1-packaged-smoke.mjs');
 await import('./w2-packaged-smoke.mjs');
+await import('./ui-product-system-packaged-smoke.mjs');

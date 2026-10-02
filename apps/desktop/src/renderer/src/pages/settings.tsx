@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon.js';
+import { Button } from '../components/Button.js';
+import { Drawer } from '../components/Drawer.js';
+import { Section } from '../components/Section.js';
+import { StatusBadge } from '../components/StatusBadge.js';
 import { BenchmarkPanel } from '.././r1-capability.js';
 import { R3ShadowPanel } from '.././r3-shadow-panel.js';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
@@ -40,6 +44,14 @@ export function SettingsPage() {
   }>({ available: false, runtimeProfileId: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [rotationTarget, setRotationTarget] = useState<{
+    credential: CredentialView;
+    context: string;
+  } | null>(null);
+  const [rotationBusy, setRotationBusy] = useState(false);
+  const [rotationDone, setRotationDone] = useState(false);
+  const [rotationError, setRotationError] = useState('');
+  const [rotationNotice, setRotationNotice] = useState('');
 
   const refresh = async () => {
     setError('');
@@ -69,13 +81,48 @@ export function SettingsPage() {
     void refresh();
   }, []);
 
+  const beginRotation = (credential: CredentialView, context = '') => {
+    setRotationTarget({ credential, context });
+    setRotationBusy(false);
+    setRotationDone(false);
+    setRotationError('');
+    setRotationNotice('');
+  };
+
+  const closeRotation = () => {
+    setRotationTarget(null);
+    setRotationError('');
+    setRotationNotice('');
+  };
+
+  const rotateCredential = async () => {
+    if (!rotationTarget) return;
+    setRotationBusy(true);
+    setRotationError('');
+    setRotationNotice('');
+    try {
+      await window.cultivation.credentials.rotate(rotationTarget.credential.id);
+      setRotationDone(true);
+      setRotationNotice(`「${rotationTarget.credential.label}」的密钥已安全轮换。`);
+      await refresh();
+    } catch {
+      setRotationError('轮换失败。请先复制新 API Key，再检查系统加密服务。');
+    } finally {
+      setRotationBusy(false);
+    }
+  };
+
   return (
-    <section className="page wide-page settings-page">
+    <section className="page wide-page settings-page management-page">
       <div className="settings-layout">
-        <aside className="settings-sidebar" aria-label="设置分组">
+        <aside className="settings-sidebar" aria-label="设置分类">
           <div className="settings-nav-group">
             <h2>模型与连接</h2>
-            <div className="settings-section-nav" role="tablist" aria-label="模型与连接">
+            <div
+              className="settings-section-nav settings-categories"
+              role="tablist"
+              aria-label="模型与连接"
+            >
               {(
                 [
                   ['providers', '服务商'],
@@ -111,7 +158,11 @@ export function SettingsPage() {
           </div>
           <div className="settings-nav-group">
             <h2>AI 能力</h2>
-            <div className="settings-section-nav" role="tablist" aria-label="AI 能力">
+            <div
+              className="settings-section-nav settings-categories"
+              role="tablist"
+              aria-label="AI 能力"
+            >
               {(
                 [
                   ['benchmark', '能力评测'],
@@ -158,14 +209,13 @@ export function SettingsPage() {
                 本尊待办
               </Link>
             </nav>
-            <p className="settings-nav-note">历练审计与运行诊断可在对应历练记录中查看。</p>
           </div>
         </aside>
-        <main className="settings-main">
+        <div className="settings-main">
           <PageHeading
-            eyebrow="应用管理"
+            eyebrow="应用设置"
             title="设置"
-            description="管理连接、能力与隐私相关功能。"
+            description="模型连接、AI 能力与隐私控制。"
           />
           {error && (
             <div className="notice error" role="alert">
@@ -182,6 +232,7 @@ export function SettingsPage() {
                   providers={providers}
                   credentials={credentials}
                   onCreated={refresh}
+                  onRotate={(credential) => beginRotation(credential, '密钥凭据')}
                 />
               )}
               {tab === 'runtimes' && (
@@ -191,6 +242,7 @@ export function SettingsPage() {
                   runtimes={runtimes}
                   teammates={teammates}
                   onChanged={refresh}
+                  onRotateCredential={beginRotation}
                 />
               )}
               {tab === 'benchmark' && <BenchmarkPanel runtimes={runtimes} />}
@@ -222,8 +274,44 @@ export function SettingsPage() {
               )}
             </div>
           )}
-        </main>
+        </div>
       </div>
+      <Drawer
+        title="安全轮换密钥"
+        open={rotationTarget !== null}
+        onClose={closeRotation}
+        className="management-drawer"
+      >
+        {rotationTarget && (
+          <div className="drawer-form">
+            <div className="setting-row">
+              <span>凭据</span>
+              <strong>{rotationTarget.credential.label}</strong>
+            </div>
+            {rotationTarget.context && (
+              <p className="form-hint">关联对象：{rotationTarget.context}</p>
+            )}
+            <p className="muted-copy">
+              先在系统剪贴板复制新 API
+              Key，再点击轮换。主进程会读取并加密保存，成功后清空剪贴板；密钥不会显示在页面中。
+            </p>
+            {rotationError && <InlineMessage tone="error">{rotationError}</InlineMessage>}
+            {rotationNotice && <InlineMessage tone="success">{rotationNotice}</InlineMessage>}
+            <div className="button-row">
+              <Button variant="secondary" disabled={rotationBusy} onClick={closeRotation}>
+                关闭
+              </Button>
+              <Button
+                variant="primary"
+                disabled={rotationBusy || rotationDone}
+                onClick={() => void rotateCredential()}
+              >
+                {rotationBusy ? '安全轮换中…' : rotationDone ? '已完成' : '从剪贴板安全轮换'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Drawer>
     </section>
   );
 }
@@ -282,7 +370,7 @@ export function EmbeddingPanel({
     setNotice('');
     try {
       const result = await window.cultivation.embedding.reindex(teammateId);
-      setNotice(`已索引 ${result.indexed}/${result.total} 条 ACTIVE 记忆。`);
+      setNotice(`已为 ${result.indexed}/${result.total} 条已确认且有效的记忆重建索引。`);
     } catch (cause) {
       setError(errorText(cause, '重建索引失败。'));
     } finally {
@@ -290,67 +378,74 @@ export function EmbeddingPanel({
     }
   };
   return (
-    <div className="panel-grid">
-      <div className="form-card">
-        <h2>可选 embedding Runtime</h2>
-        <p className="muted-copy">
-          未配置时完整使用 FTS5。这里的 Runtime 必须填 embedding 模型 ID；向量索引仅存于本机
-          SQLite。
-        </p>
-        <p className="form-hint">
-          sqlite-vec：{config.available ? '可用' : '未装载，当前使用 FTS5'}
-        </p>
-        <label className="field">
-          <span>运行配置</span>
-          <select
-            value={selected}
-            onChange={(event) => setSelected(event.target.value)}
-            disabled={!config.available}
+    <div className="setting-groups">
+      <Section
+        title="向量检索"
+        icon="Embedding"
+        action={
+          <StatusBadge tone={config.available ? 'success' : 'warning'}>
+            {config.available ? '本机组件可用' : '使用全文检索'}
+          </StatusBadge>
+        }
+      >
+        <div className="setting-row">
+          <label className="field">
+            <span>运行配置</span>
+            <select
+              value={selected}
+              onChange={(event) => setSelected(event.target.value)}
+              disabled={!config.available}
+            >
+              <option value="">关闭向量检索</option>
+              {eligible.map((runtime) => (
+                <option key={runtime.id} value={runtime.id}>
+                  {runtime.name} · {runtime.modelId}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button
+            variant="primary"
+            disabled={busy || !config.available}
+            onClick={() => void save()}
           >
-            <option value="">关闭向量检索</option>
-            {eligible.map((runtime) => (
-              <option key={runtime.id} value={runtime.id}>
-                {runtime.name} · {runtime.modelId}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          className="button primary"
-          type="button"
-          disabled={busy || !config.available}
-          onClick={() => void save()}
-        >
-          保存配置
-        </button>
+            保存配置
+          </Button>
+        </div>
+        <details className="advanced-records">
+          <summary>存储与检索说明</summary>
+          <p>向量索引只保存在本机 SQLite。运行组件不可用时，系统继续使用全文检索。</p>
+        </details>
         {notice && <InlineMessage tone="success">{notice}</InlineMessage>}
         {error && <InlineMessage tone="error">{error}</InlineMessage>}
-      </div>
-      <div className="form-card">
-        <h2>重建道友记忆索引</h2>
+      </Section>
+      <Section title="重建道友记忆索引" icon="Memory">
         <p className="muted-copy">
-          只读取所选道友已确认的 ACTIVE 记忆；会调用所选 embedding Provider 并记录 Usage。
+          只处理已确认且有效的记忆；会调用当前 Embedding 服务并计入用量。
         </p>
-        <label className="field">
-          <span>道友</span>
-          <select value={teammateId} onChange={(event) => setTeammateId(event.target.value)}>
-            <option value="">选择道友</option>
-            {teammates.map((teammate) => (
-              <option key={teammate.id} value={teammate.id}>
-                {teammate.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          className="button secondary"
-          type="button"
-          disabled={busy || !config.available || !config.runtimeProfileId || !teammateId}
-          onClick={() => void reindex()}
-        >
-          重建索引
-        </button>
-      </div>
+        <div className="setting-row">
+          <label className="field">
+            <span>道友</span>
+            <select value={teammateId} onChange={(event) => setTeammateId(event.target.value)}>
+              <option value="">选择道友</option>
+              {teammates.map((teammate) => (
+                <option key={teammate.id} value={teammate.id}>
+                  {teammate.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button
+            variant="secondary"
+            disabled={busy || !config.available || !config.runtimeProfileId || !teammateId}
+            onClick={() => void reindex()}
+          >
+            重建索引
+          </Button>
+        </div>
+        {notice && <InlineMessage tone="success">{notice}</InlineMessage>}
+        {error && <InlineMessage tone="error">{error}</InlineMessage>}
+      </Section>
     </div>
   );
 }
@@ -374,14 +469,15 @@ export function ProvidersPanel({
   const [name, setName] = useState('');
   const [kind, setKind] = useState<ProviderKind>('OPENAI');
   const [baseUrl, setBaseUrl] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [notice, setNotice] = useState('');
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setBusy(true);
     setError('');
-    setSuccess('');
+    setNotice('');
     try {
       await window.cultivation.providers.create({
         name: name.trim(),
@@ -390,7 +486,8 @@ export function ProvidersPanel({
       });
       setName('');
       setBaseUrl('');
-      setSuccess('服务商已添加。');
+      setNotice('服务商已添加。');
+      setCreateOpen(false);
       await onCreated();
     } catch (cause) {
       setError(errorText(cause, '添加服务商失败。'));
@@ -399,71 +496,107 @@ export function ProvidersPanel({
     }
   };
   return (
-    <div className="panel-grid">
-      <form className="form-card" onSubmit={(event) => void submit(event)}>
-        <h2>添加服务商</h2>
-        <p className="muted-copy">
-          服务商定义 Provider 类型；实际模型 ID 在 Runtime Profile 中填写。
-        </p>
-        <label className="field">
-          <span>显示名称</span>
-          <input
-            required
-            maxLength={80}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </label>
-        <label className="field">
-          <span>Provider</span>
-          <select value={kind} onChange={(event) => setKind(event.target.value as ProviderKind)}>
-            {providerKinds.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>
-            Base URL <small>{kind === 'OPENAI_COMPATIBLE' ? '兼容服务必填' : '选填'}</small>
-          </span>
-          <input
-            type="url"
-            required={kind === 'OPENAI_COMPATIBLE'}
-            value={baseUrl}
-            onChange={(event) => setBaseUrl(event.target.value)}
-          />
-        </label>
+    <div className="management-page">
+      <Section
+        title="服务商"
+        icon="Provider"
+        action={
+          <Button
+            variant="primary"
+            icon="Add"
+            onClick={() => {
+              setError('');
+              setCreateOpen(true);
+            }}
+          >
+            添加服务商
+          </Button>
+        }
+      >
+        {notice && <InlineMessage tone="success">{notice}</InlineMessage>}
         {error && <InlineMessage tone="error">{error}</InlineMessage>}
-        {success && <InlineMessage tone="success">{success}</InlineMessage>}
-        <button className="button primary" disabled={busy}>
-          {busy ? '保存中…' : '添加服务商'}
-        </button>
-      </form>
-      <div className="list-card">
-        <div className="list-heading">
-          <h2>已配置服务商</h2>
-          <span className="count-badge">{providers.length}</span>
-        </div>
         {providers.length ? (
-          providers.map((provider) => (
-            <div className="data-row" key={provider.id}>
-              <span className="provider-mark">{provider.kind.slice(0, 2)}</span>
-              <span className="data-row-copy">
-                <strong>{provider.name}</strong>
-                <small>
-                  {providerKinds.find((item) => item.value === provider.kind)?.label ??
-                    provider.kind}
-                  {provider.baseUrl ? ` · ${provider.baseUrl}` : ''}
-                </small>
-              </span>
-            </div>
-          ))
+          <div className="management-list">
+            {providers.map((provider) => (
+              <article className="object-row" key={provider.id}>
+                <div className="object-row-heading">
+                  <span className="provider-mark">{provider.name.slice(0, 1)}</span>
+                  <div className="object-row-copy">
+                    <strong>{provider.name}</strong>
+                    <small>
+                      {providerKinds.find((item) => item.value === provider.kind)?.label ??
+                        '自定义服务商'}
+                    </small>
+                  </div>
+                </div>
+                <details className="advanced-records">
+                  <summary>连接详情</summary>
+                  <dl>
+                    <div>
+                      <dt>服务地址</dt>
+                      <dd>{provider.baseUrl || '使用服务商默认地址'}</dd>
+                    </div>
+                    <div>
+                      <dt>协议类型</dt>
+                      <dd>
+                        <code>{provider.kind}</code>
+                      </dd>
+                    </div>
+                  </dl>
+                </details>
+              </article>
+            ))}
+          </div>
         ) : (
-          <EmptyList text="添加首个 Provider 后，可继续保存凭据。" />
+          <EmptyList text="添加服务商后，可继续保存凭据和运行配置。" />
         )}
-      </div>
+      </Section>
+      <Drawer
+        title="添加服务商"
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        className="management-drawer"
+      >
+        <form className="drawer-form" onSubmit={(event) => void submit(event)}>
+          <label className="field">
+            <span>显示名称</span>
+            <input
+              required
+              maxLength={80}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </label>
+          <label className="field">
+            <span>服务商类型</span>
+            <select value={kind} onChange={(event) => setKind(event.target.value as ProviderKind)}>
+              {providerKinds.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>服务地址 {kind === 'OPENAI_COMPATIBLE' ? '（必填）' : '（选填）'}</span>
+            <input
+              type="url"
+              required={kind === 'OPENAI_COMPATIBLE'}
+              value={baseUrl}
+              onChange={(event) => setBaseUrl(event.target.value)}
+            />
+          </label>
+          {error && <InlineMessage tone="error">{error}</InlineMessage>}
+          <div className="button-row">
+            <Button variant="secondary" disabled={busy} onClick={() => setCreateOpen(false)}>
+              取消
+            </Button>
+            <Button variant="primary" type="submit" disabled={busy}>
+              {busy ? '保存中…' : '添加服务商'}
+            </Button>
+          </div>
+        </form>
+      </Drawer>
     </div>
   );
 }
@@ -472,32 +605,35 @@ export function CredentialsPanel({
   providers,
   credentials,
   onCreated,
+  onRotate,
 }: {
   providers: ProviderView[];
   credentials: CredentialView[];
   onCreated: () => Promise<void>;
+  onRotate: (credential: CredentialView) => void;
 }) {
   const [providerId, setProviderId] = useState('');
   const [label, setLabel] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [notice, setNotice] = useState('');
   useEffect(() => {
-    if (!providerId && providers[0]) setProviderId(providers[0].id);
+    if (!providers.some((provider) => provider.id === providerId)) {
+      setProviderId(providers[0]?.id ?? '');
+    }
   }, [providerId, providers]);
-  const visibleCredentials = credentials.filter(
-    (item) => !providerId || item.providerId === providerId,
-  );
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!providerId) return;
     setBusy(true);
     setError('');
-    setSuccess('');
+    setNotice('');
     try {
       await window.cultivation.credentials.create({ providerId, label: label.trim() });
       setLabel('');
-      setSuccess('凭据已加密保存，剪贴板已清空。');
+      setNotice('凭据已安全保存。');
+      setCreateOpen(false);
       await onCreated();
     } catch {
       setError('保存凭据失败。请先复制 API Key，再检查服务商与系统加密服务。');
@@ -505,93 +641,100 @@ export function CredentialsPanel({
       setBusy(false);
     }
   };
-  const rotate = async (credential: CredentialView) => {
-    setBusy(true);
-    setError('');
-    setSuccess('');
-    try {
-      await window.cultivation.credentials.rotate(credential.id);
-      setSuccess(`「${credential.label}」的 API Key 已轮换；已绑定道友的模型身份保持不变。`);
-      await onCreated();
-    } catch {
-      setError('轮换失败。请先复制新 API Key，再检查系统加密服务。');
-    } finally {
-      setBusy(false);
-    }
-  };
   return (
-    <div className="panel-grid">
-      <form className="form-card" onSubmit={(event) => void submit(event)}>
-        <h2>添加凭据</h2>
-        <p className="muted-copy">
-          先在其他应用复制 API Key，再点击保存。Main Process
-          读取系统剪贴板并加密，随后清空剪贴板；密钥不会进入此页面。
-        </p>
-        <label className="field">
-          <span>关联服务商</span>
-          <select
-            required
-            value={providerId}
-            onChange={(event) => setProviderId(event.target.value)}
+    <div className="management-page">
+      <Section
+        title="密钥凭据"
+        icon="Credential"
+        action={
+          <Button
+            variant="primary"
+            icon="Add"
+            disabled={!providers.length}
+            onClick={() => {
+              setError('');
+              setNotice('');
+              setCreateOpen(true);
+            }}
           >
-            <option value="">选择 Provider</option>
-            {providers.map((provider) => (
-              <option key={provider.id} value={provider.id}>
-                {provider.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>凭据标签</span>
-          <input
-            required
-            maxLength={80}
-            value={label}
-            onChange={(event) => setLabel(event.target.value)}
-          />
-        </label>
+            添加凭据
+          </Button>
+        }
+      >
+        {notice && <InlineMessage tone="success">{notice}</InlineMessage>}
         {error && <InlineMessage tone="error">{error}</InlineMessage>}
-        {success && <InlineMessage tone="success">{success}</InlineMessage>}
-        <button className="button primary" disabled={busy || !providers.length}>
-          {busy ? '加密保存中…' : '从剪贴板安全导入'}
-        </button>
-        {!providers.length && <p className="form-hint">请先添加服务商。</p>}
-      </form>
-      <div className="list-card">
-        <div className="list-heading">
-          <h2>已保存凭据</h2>
-          <span className="count-badge">{visibleCredentials.length}</span>
-        </div>
-        <p className="muted-copy">
-          此列表不包含密钥内容、密文或密钥预览。轮换前请先复制新 API Key；Main Process
-          读取并清空剪贴板。
-        </p>
-        {visibleCredentials.length ? (
-          visibleCredentials.map((credential) => (
-            <div className="data-row" key={credential.id}>
-              <span className="secure-mark">✓</span>
-              <span className="data-row-copy">
-                <strong>{credential.label}</strong>
-                <small>
-                  {providers.find((item) => item.id === credential.providerId)?.name ?? 'Provider'}
-                </small>
-              </span>
-              <span className="safe-tag">安全保存</span>
-              <button
-                className="button secondary"
-                type="button"
-                disabled={busy}
-                onClick={() => void rotate(credential)}
-              >
-                轮换 Key
-              </button>
-            </div>
-          ))
+        {credentials.length ? (
+          <div className="management-list">
+            {credentials.map((credential) => (
+              <article className="object-row" key={credential.id}>
+                <div className="object-row-heading">
+                  <span className="secure-mark">✓</span>
+                  <div className="object-row-copy">
+                    <strong>{credential.label}</strong>
+                    <small>
+                      {providers.find((item) => item.id === credential.providerId)?.name ??
+                        '服务商不可用'}
+                    </small>
+                  </div>
+                  <StatusBadge tone="success">安全保存</StatusBadge>
+                </div>
+                <div className="button-row compact object-row-actions">
+                  <Button variant="secondary" disabled={busy} onClick={() => onRotate(credential)}>
+                    轮换密钥
+                  </Button>
+                </div>
+              </article>
+            ))}
+          </div>
         ) : (
-          <EmptyList text="当前服务商尚未保存凭据。" />
+          <EmptyList text="添加首个凭据后，可将其关联到运行配置。" />
         )}
-      </div>
+      </Section>
+      <Drawer
+        title="添加密钥凭据"
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        className="management-drawer"
+      >
+        <form className="drawer-form" onSubmit={(event) => void submit(event)}>
+          <p className="muted-copy">
+            先在系统剪贴板复制 API Key。主进程会读取并加密保存，成功后清空剪贴板；页面不会接触密钥。
+          </p>
+          <label className="field">
+            <span>关联服务商</span>
+            <select
+              required
+              value={providerId}
+              onChange={(event) => setProviderId(event.target.value)}
+            >
+              <option value="">选择服务商</option>
+              {providers.map((provider) => (
+                <option key={provider.id} value={provider.id}>
+                  {provider.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>凭据名称</span>
+            <input
+              required
+              maxLength={80}
+              value={label}
+              onChange={(event) => setLabel(event.target.value)}
+            />
+          </label>
+          {error && <InlineMessage tone="error">{error}</InlineMessage>}
+          <div className="button-row">
+            <Button variant="secondary" disabled={busy} onClick={() => setCreateOpen(false)}>
+              取消
+            </Button>
+            <Button variant="primary" type="submit" disabled={busy || !providers.length}>
+              {busy ? '安全保存中…' : '从剪贴板安全导入'}
+            </Button>
+          </div>
+        </form>
+      </Drawer>
     </div>
   );
 }
@@ -618,14 +761,17 @@ export function RuntimesPanel({
   runtimes,
   teammates,
   onChanged,
+  onRotateCredential,
 }: {
   providers: ProviderView[];
   credentials: CredentialView[];
   runtimes: RuntimeProfileView[];
   teammates: TeammateView[];
   onChanged: () => Promise<void>;
+  onRotateCredential: (credential: CredentialView, context?: string) => void;
 }) {
   const [form, setForm] = useState<RuntimeForm>(blankRuntime);
+  const [formOpen, setFormOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [testingId, setTestingId] = useState('');
   const [error, setError] = useState('');
@@ -635,11 +781,18 @@ export function RuntimesPanel({
     teammates.filter((teammate) => teammate.currentRuntimeProfileId === runtimeProfileId);
   const isSealed = (runtimeProfileId: string) => sealedTeammates(runtimeProfileId).length > 0;
   const update = (patch: Partial<RuntimeForm>) => setForm((current) => ({ ...current, ...patch }));
+  const beginCreate = () => {
+    setForm(blankRuntime);
+    setError('');
+    setNotice('');
+    setFormOpen(true);
+  };
   const beginEdit = (runtime: RuntimeProfileView) => {
     if (isSealed(runtime.id)) return;
     setForm({ ...runtime, credentialId: runtime.credentialId ?? '' });
     setError('');
     setNotice('');
+    setFormOpen(true);
   };
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -661,6 +814,7 @@ export function RuntimesPanel({
       else await window.cultivation.runtimes.create(payload);
       setForm(blankRuntime);
       setNotice(form.id ? 'Runtime Profile 已更新。' : 'Runtime Profile 已创建。');
+      setFormOpen(false);
       await onChanged();
     } catch (cause) {
       setError(errorText(cause, '保存 Runtime Profile 失败。'));
@@ -683,173 +837,191 @@ export function RuntimesPanel({
     }
   };
   return (
-    <div className="panel-grid">
-      <form className="form-card" onSubmit={(event) => void submit(event)}>
-        <div className="form-title-row">
-          <div>
-            <h2>{form.id ? '编辑模型配置' : '新建模型配置'}</h2>
-            <p className="muted-copy">为未绑定的模型模板设置服务商、凭据与模型编号。</p>
-          </div>
-          {form.id && (
-            <button type="button" className="text-button" onClick={() => setForm(blankRuntime)}>
-              取消编辑
-            </button>
-          )}
-        </div>
-        <label className="field">
-          <span>名称</span>
-          <input
-            required
-            maxLength={80}
-            value={form.name}
-            onChange={(event) => update({ name: event.target.value })}
-          />
-        </label>
-        <label className="field">
-          <span>服务商</span>
-          <select
-            required
-            value={form.providerId}
-            onChange={(event) => update({ providerId: event.target.value, credentialId: '' })}
-          >
-            <option value="">选择 Provider</option>
-            {providers.map((provider) => (
-              <option key={provider.id} value={provider.id}>
-                {provider.name} · {provider.kind}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>
-            凭据 <small>可选</small>
-          </span>
-          <select
-            value={form.credentialId}
-            onChange={(event) => update({ credentialId: event.target.value })}
-          >
-            <option value="">无需凭据</option>
-            {selectedCredentials.map((credential) => (
-              <option key={credential.id} value={credential.id}>
-                {credential.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>模型编号</span>
-          <input
-            required
-            maxLength={160}
-            value={form.modelId}
-            onChange={(event) => update({ modelId: event.target.value })}
-          />
-        </label>
-        {error && <InlineMessage tone="error">{error}</InlineMessage>}
+    <div className="management-page">
+      <Section
+        title="运行配置"
+        icon="Model"
+        action={
+          <Button variant="primary" disabled={!providers.length} onClick={beginCreate}>
+            新建运行配置
+          </Button>
+        }
+      >
         {notice && <InlineMessage tone="success">{notice}</InlineMessage>}
-        <button className="button primary" disabled={busy || providers.length === 0}>
-          {busy ? '保存中…' : form.id ? '保存更改' : '创建模型配置'}
-        </button>
-        {providers.length === 0 && <p className="form-hint">请先配置 Provider 和凭据。</p>}
-      </form>
-      <div className="list-card">
-        <div className="list-heading">
-          <h2>运行配置</h2>
-          <span className="count-badge">{runtimes.length}</span>
-        </div>
+        {error && <InlineMessage tone="error">{error}</InlineMessage>}
         {runtimes.length ? (
-          runtimes.map((runtime) => {
-            const provider = providers.find((item) => item.id === runtime.providerId);
-            const credential = credentials.find((item) => item.id === runtime.credentialId);
-            const bindings = sealedTeammates(runtime.id);
-            const archivedBindings = bindings.filter((teammate) => teammate.status !== 'ACTIVE');
-            const activeBinding = bindings.find((teammate) => teammate.status === 'ACTIVE');
-            return (
-              <div
-                className={`runtime-item ${bindings.length ? 'runtime-item-sealed' : ''}`}
-                key={runtime.id}
-              >
-                <div className="runtime-item-heading">
-                  <span className="runtime-mark">
-                    <Icon name="Model" size={17} />
-                  </span>
-                  <div className="data-row-copy">
-                    <strong>{runtime.name}</strong>
-                    <small>
-                      {provider?.name ?? '服务商'} · {runtime.modelId}
-                    </small>
-                  </div>
-                </div>
-                {bindings.length > 0 ? (
-                  <>
-                    <div className="runtime-sealed-label">
-                      <Icon name="Credential" size={15} />
-                      {archivedBindings.length === bindings.length
-                        ? `已归档 · ${archivedBindings.map((teammate) => teammate.name).join('、')}`
-                        : `已固定给 ${bindings.map((teammate) => teammate.name).join('、')}`}
+          <div className="management-list">
+            {runtimes.map((runtime) => {
+              const provider = providers.find((item) => item.id === runtime.providerId);
+              const credential = credentials.find((item) => item.id === runtime.credentialId);
+              const bindings = sealedTeammates(runtime.id);
+              const archivedBindings = bindings.filter((teammate) => teammate.status !== 'ACTIVE');
+              const activeBinding = bindings.find((teammate) => teammate.status === 'ACTIVE');
+              const isRuntimeSealed = bindings.length > 0;
+              return (
+                <article
+                  className={`object-row runtime-item ${isRuntimeSealed ? 'runtime-item-sealed' : ''}`}
+                  key={runtime.id}
+                >
+                  <header className="object-row-heading">
+                    <div className="object-row-copy">
+                      <strong>{runtime.name}</strong>
+                      <small>
+                        {provider?.name ?? '服务商不可用'} · {runtime.modelId}
+                      </small>
                     </div>
-                    <dl className="runtime-identity-details">
-                      <div>
-                        <dt>服务商</dt>
-                        <dd>{provider?.name ?? '不可用'}</dd>
-                      </div>
-                      <div>
-                        <dt>连接地址</dt>
-                        <dd>{provider?.baseUrl || '服务商默认地址'}</dd>
-                      </div>
-                      <div>
-                        <dt>模型编号</dt>
-                        <dd>
-                          <code>{runtime.modelId}</code>
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>凭据身份</dt>
-                        <dd>{credential?.label ?? '未绑定凭据'}</dd>
-                      </div>
-                    </dl>
-                    <p className="runtime-sealed-note">
-                      道友创建后固定使用此模型身份。需要更新密钥时，请前往“密钥凭据”轮换。
-                    </p>
-                    {activeBinding ? (
-                      <AvailabilityBadge
-                        teammateId={activeBinding.id}
-                        teammateStatus={activeBinding.status}
-                        executorKind={activeBinding.executorKind}
-                      />
-                    ) : (
-                      <span className="product-status muted">道友已归档</span>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="runtime-meta">凭据：{credential?.label ?? '未绑定凭据'}</div>
-                    <div className="button-row compact">
-                      <button
-                        className="button small secondary"
-                        type="button"
-                        onClick={() => beginEdit(runtime)}
-                      >
-                        编辑模板
-                      </button>
-                      <button
-                        className="button small ghost"
-                        type="button"
-                        disabled={testingId === runtime.id}
-                        onClick={() => void testConnection(runtime.id)}
-                      >
-                        {testingId === runtime.id ? '测试中…' : '测试连接'}
-                      </button>
+                    <div className="object-row-statuses">
+                      <StatusBadge tone={isRuntimeSealed ? 'neutral' : 'warning'}>
+                        {isRuntimeSealed ? '已封存' : '可编辑模板'}
+                      </StatusBadge>
+                      {isRuntimeSealed && activeBinding && (
+                        <AvailabilityBadge
+                          teammateId={activeBinding.id}
+                          teammateStatus={activeBinding.status}
+                          executorKind={activeBinding.executorKind}
+                        />
+                      )}
+                      {isRuntimeSealed && !activeBinding && <StatusBadge>道友已归档</StatusBadge>}
                     </div>
-                  </>
-                )}
-              </div>
-            );
-          })
+                  </header>
+                  {isRuntimeSealed ? (
+                    <>
+                      <p className="runtime-sealed-label object-row-meta">
+                        {archivedBindings.length === bindings.length
+                          ? `关联道友已归档 · ${archivedBindings.map((teammate) => teammate.name).join('、')}`
+                          : `固定给 ${bindings.map((teammate) => teammate.name).join('、')}`}
+                      </p>
+                      <div className="object-row-meta">
+                        <dl className="runtime-identity-details setting-group">
+                          <div>
+                            <dt>服务商</dt>
+                            <dd>{provider?.name ?? '不可用'}</dd>
+                          </div>
+                          <div>
+                            <dt>模型</dt>
+                            <dd>{runtime.modelId}</dd>
+                          </div>
+                          <div>
+                            <dt>凭据</dt>
+                            <dd>{credential?.label ?? '未绑定凭据'}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                      <details className="advanced-records">
+                        <summary>连接详情</summary>
+                        <dl>
+                          <div>
+                            <dt>服务地址</dt>
+                            <dd>{provider?.baseUrl || '使用服务商默认地址'}</dd>
+                          </div>
+                        </dl>
+                      </details>
+                      {credential && (
+                        <div className="button-row compact object-row-actions">
+                          <Button
+                            variant="secondary"
+                            onClick={() =>
+                              onRotateCredential(credential, `运行配置「${runtime.name}」`)
+                            }
+                          >
+                            安全轮换密钥
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="runtime-meta object-row-meta">
+                        凭据：{credential?.label ?? '未绑定凭据'}
+                      </div>
+                      <div className="button-row compact object-row-actions">
+                        <Button variant="secondary" onClick={() => beginEdit(runtime)}>
+                          编辑配置
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          disabled={testingId === runtime.id}
+                          onClick={() => void testConnection(runtime.id)}
+                        >
+                          {testingId === runtime.id ? '测试中…' : '测试连接'}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </article>
+              );
+            })}
+          </div>
         ) : (
-          <EmptyList text="创建 Provider、凭据后，添加首个 Runtime Profile。" />
+          <EmptyList text="添加服务商后，可创建运行配置。" />
         )}
-      </div>
+      </Section>
+      <Drawer
+        title={form.id ? '编辑运行配置' : '新建运行配置'}
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        className="management-drawer"
+      >
+        <form className="drawer-form" onSubmit={(event) => void submit(event)}>
+          <label className="field">
+            <span>名称</span>
+            <input
+              required
+              maxLength={80}
+              value={form.name}
+              onChange={(event) => update({ name: event.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>服务商</span>
+            <select
+              required
+              value={form.providerId}
+              onChange={(event) => update({ providerId: event.target.value, credentialId: '' })}
+            >
+              <option value="">选择服务商</option>
+              {providers.map((provider) => (
+                <option key={provider.id} value={provider.id}>
+                  {provider.name} ·{' '}
+                  {providerKinds.find((item) => item.value === provider.kind)?.label ?? '自定义'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>凭据（可选）</span>
+            <select
+              value={form.credentialId}
+              onChange={(event) => update({ credentialId: event.target.value })}
+            >
+              <option value="">无需凭据</option>
+              {selectedCredentials.map((credential) => (
+                <option key={credential.id} value={credential.id}>
+                  {credential.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>模型编号</span>
+            <input
+              required
+              maxLength={160}
+              value={form.modelId}
+              onChange={(event) => update({ modelId: event.target.value })}
+            />
+          </label>
+          {error && <InlineMessage tone="error">{error}</InlineMessage>}
+          <div className="button-row">
+            <Button variant="secondary" disabled={busy} onClick={() => setFormOpen(false)}>
+              取消
+            </Button>
+            <Button variant="primary" type="submit" disabled={busy || !providers.length}>
+              {busy ? '保存中…' : form.id ? '保存更改' : '创建运行配置'}
+            </Button>
+          </div>
+        </form>
+      </Drawer>
     </div>
   );
 }

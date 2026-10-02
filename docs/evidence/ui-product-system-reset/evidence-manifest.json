@@ -1,0 +1,1366 @@
+{
+  "runId": "201daf5f-a60a-4fd4-815c-954fd76d7371",
+  "sizes": [1440, 1180, 900],
+  "screenshots": [
+    {
+      "name": "home-empty",
+      "width": 1440,
+      "path": "screenshots/home-empty-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "24px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "path": "screenshots/home-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "24px", "13px", "12px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "teammate-list",
+      "width": 1440,
+      "path": "screenshots/teammate-list-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "teammate-detail",
+      "width": 1440,
+      "path": "screenshots/teammate-detail-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "create-teammate",
+      "width": 1440,
+      "path": "screenshots/create-teammate-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "create-teammate-actions",
+      "width": 1440,
+      "path": "screenshots/create-teammate-actions-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat",
+      "width": 1440,
+      "path": "screenshots/chat-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "18px", "12px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "party",
+      "width": 1440,
+      "path": "screenshots/party-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "24px", "18px", "13px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "mission",
+      "width": 1440,
+      "path": "screenshots/mission-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "workflow",
+      "width": 1440,
+      "path": "screenshots/workflow-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "memory",
+      "width": 1440,
+      "path": "screenshots/memory-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "24px", "13px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "settings",
+      "width": 1440,
+      "path": "screenshots/settings-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "providers",
+      "width": 1440,
+      "path": "screenshots/providers-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "provider-create",
+      "width": 1440,
+      "path": "screenshots/provider-create-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "credentials",
+      "width": 1440,
+      "path": "screenshots/credentials-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "runtime",
+      "width": 1440,
+      "path": "screenshots/runtime-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "embedding",
+      "width": 1440,
+      "path": "screenshots/embedding-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "benchmark",
+      "width": 1440,
+      "path": "screenshots/benchmark-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "routing",
+      "width": 1440,
+      "path": "screenshots/routing-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "jev",
+      "width": 1440,
+      "path": "screenshots/jev-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "skills",
+      "width": 1440,
+      "path": "screenshots/skills-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "skill-create",
+      "width": 1440,
+      "path": "screenshots/skill-create-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "tools-mcp",
+      "width": 1440,
+      "path": "screenshots/tools-mcp-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-servers",
+      "width": 1440,
+      "path": "screenshots/mcp-servers-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-create",
+      "width": 1440,
+      "path": "screenshots/mcp-create-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-create-actions",
+      "width": 1440,
+      "path": "screenshots/mcp-create-actions-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "usage",
+      "width": 1440,
+      "path": "screenshots/usage-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1256,
+        "mainClientWidth": 1256,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "human-bridge",
+      "width": 1440,
+      "path": "screenshots/human-bridge-1440.png",
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1440,
+        "mainWidth": 1246,
+        "mainClientWidth": 1246,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "home",
+      "width": 1180,
+      "path": "screenshots/home-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "24px", "13px", "12px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "teammate-list",
+      "width": 1180,
+      "path": "screenshots/teammate-list-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "teammate-detail",
+      "width": 1180,
+      "path": "screenshots/teammate-detail-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "create-teammate",
+      "width": 1180,
+      "path": "screenshots/create-teammate-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          },
+          {
+            "tag": "DIV",
+            "classes": "drawer-content",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "create-teammate-actions",
+      "width": 1180,
+      "path": "screenshots/create-teammate-actions-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          },
+          {
+            "tag": "DIV",
+            "classes": "drawer-content",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat",
+      "width": 1180,
+      "path": "screenshots/chat-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "18px", "12px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "party",
+      "width": 1180,
+      "path": "screenshots/party-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "24px", "18px", "13px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "mission",
+      "width": 1180,
+      "path": "screenshots/mission-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "workflow",
+      "width": 1180,
+      "path": "screenshots/workflow-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "memory",
+      "width": 1180,
+      "path": "screenshots/memory-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "24px", "13px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "settings",
+      "width": 1180,
+      "path": "screenshots/settings-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "providers",
+      "width": 1180,
+      "path": "screenshots/providers-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "provider-create",
+      "width": 1180,
+      "path": "screenshots/provider-create-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "credentials",
+      "width": 1180,
+      "path": "screenshots/credentials-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "runtime",
+      "width": 1180,
+      "path": "screenshots/runtime-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "embedding",
+      "width": 1180,
+      "path": "screenshots/embedding-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "benchmark",
+      "width": 1180,
+      "path": "screenshots/benchmark-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "routing",
+      "width": 1180,
+      "path": "screenshots/routing-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "jev",
+      "width": 1180,
+      "path": "screenshots/jev-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["14px", "12px", "13px", "24px", "18px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "skills",
+      "width": 1180,
+      "path": "screenshots/skills-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "skill-create",
+      "width": 1180,
+      "path": "screenshots/skill-create-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "tools-mcp",
+      "width": 1180,
+      "path": "screenshots/tools-mcp-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-servers",
+      "width": 1180,
+      "path": "screenshots/mcp-servers-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-create",
+      "width": 1180,
+      "path": "screenshots/mcp-create-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-create-actions",
+      "width": 1180,
+      "path": "screenshots/mcp-create-actions-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "usage",
+      "width": 1180,
+      "path": "screenshots/usage-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1020,
+        "mainClientWidth": 1020,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "human-bridge",
+      "width": 1180,
+      "path": "screenshots/human-bridge-1180.png",
+      "metrics": {
+        "width": 1180,
+        "documentWidth": 1180,
+        "mainWidth": 1010,
+        "mainClientWidth": 1010,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "home",
+      "width": 900,
+      "path": "screenshots/home-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "24px", "13px", "12px", "18px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "teammate-list",
+      "width": 900,
+      "path": "screenshots/teammate-list-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "24px", "12px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "teammate-detail",
+      "width": 900,
+      "path": "screenshots/teammate-detail-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "24px", "13px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "create-teammate",
+      "width": 900,
+      "path": "screenshots/create-teammate-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "DIV",
+            "classes": "drawer-content",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "create-teammate-actions",
+      "width": 900,
+      "path": "screenshots/create-teammate-actions-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "24px", "12px", "13px", "18px"],
+        "scrolls": [
+          {
+            "tag": "DIV",
+            "classes": "drawer-content",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat",
+      "width": 900,
+      "path": "screenshots/chat-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "18px", "12px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "chat-conversations",
+      "width": 900,
+      "path": "screenshots/chat-conversations-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "18px", "12px", "13px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "party",
+      "width": 900,
+      "path": "screenshots/party-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "24px", "18px", "13px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mission",
+      "width": 900,
+      "path": "screenshots/mission-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "workflow",
+      "width": 900,
+      "path": "screenshots/workflow-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "memory",
+      "width": 900,
+      "path": "screenshots/memory-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "24px", "13px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "settings",
+      "width": 900,
+      "path": "screenshots/settings-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "providers",
+      "width": 900,
+      "path": "screenshots/providers-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "provider-create",
+      "width": 900,
+      "path": "screenshots/provider-create-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "credentials",
+      "width": 900,
+      "path": "screenshots/credentials-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "runtime",
+      "width": 900,
+      "path": "screenshots/runtime-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "embedding",
+      "width": 900,
+      "path": "screenshots/embedding-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "benchmark",
+      "width": 900,
+      "path": "screenshots/benchmark-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "routing",
+      "width": 900,
+      "path": "screenshots/routing-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "jev",
+      "width": 900,
+      "path": "screenshots/jev-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["14px", "13px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "skills",
+      "width": 900,
+      "path": "screenshots/skills-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": []
+      }
+    },
+    {
+      "name": "skill-create",
+      "width": 900,
+      "path": "screenshots/skill-create-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 742,
+        "mainClientWidth": 742,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "DIV",
+            "classes": "drawer-content",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tools-mcp",
+      "width": 900,
+      "path": "screenshots/tools-mcp-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-servers",
+      "width": 900,
+      "path": "screenshots/mcp-servers-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-create",
+      "width": 900,
+      "path": "screenshots/mcp-create-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          },
+          {
+            "tag": "DIV",
+            "classes": "drawer-content",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mcp-create-actions",
+      "width": 900,
+      "path": "screenshots/mcp-create-actions-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          },
+          {
+            "tag": "DIV",
+            "classes": "drawer-content",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "usage",
+      "width": 900,
+      "path": "screenshots/usage-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["13px", "14px", "24px", "18px", "12px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "human-bridge",
+      "width": 900,
+      "path": "screenshots/human-bridge-900.png",
+      "metrics": {
+        "width": 902,
+        "documentWidth": 902,
+        "mainWidth": 732,
+        "mainClientWidth": 732,
+        "fontSizes": ["14px", "24px", "12px", "18px", "13px"],
+        "scrolls": [
+          {
+            "tag": "MAIN",
+            "classes": "",
+            "scrollbar": "thin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat-streaming",
+      "width": 1440,
+      "path": "screenshots/chat-streaming-1440.png",
+      "source": "R3.3 functional smoke"
+    },
+    {
+      "name": "chat-long-content",
+      "width": 1440,
+      "path": "screenshots/chat-long-content-1440.png",
+      "source": "R3.3 functional smoke"
+    },
+    {
+      "name": "chat-unavailable",
+      "width": 1440,
+      "path": "screenshots/chat-unavailable-1440.png",
+      "source": "R3.3 functional smoke"
+    },
+    {
+      "name": "chat-empty",
+      "width": 1440,
+      "path": "screenshots/chat-empty-1440.png",
+      "source": "R3.3 functional smoke"
+    }
+  ],
+  "checks": [
+    "production bootstrap: zero official/test-only templates; provider form hidden",
+    "all pages: no horizontal overflow/tiny typography/internal primary enum; thin scrollbars only in allowed containers",
+    "900 Settings compact navigation",
+    "Provider/Skill form hidden until action; native Drawer focus/Escape/return focus",
+    "Human Bridge no model availability",
+    "existing IPC Mission/Chat/Workflow/ExternalWork facts exercised",
+    "MCP Drawer bottom actions visible after body scroll at 1440/1180/900"
+  ]
+}

@@ -202,7 +202,7 @@ export async function verifyGate6Packaged(evidence) {
       .filter({ hasText: `Gate 5 Member ${fixture.nonce}` })
       .click();
     await page.locator('.teammate-secondary-view > summary').filter({ hasText: '经历' }).click();
-    await page.getByRole('heading', { name: '经历 / 能力' }).waitFor();
+    await page.getByRole('heading', { name: '经历', exact: true }).waitFor();
     await page.getByText('炼气 · 正式能力考核尚未开启').waitFor();
     await page.locator('.experience-event').first().waitFor();
   } finally {

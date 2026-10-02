@@ -44,6 +44,7 @@ export function TeammatesPage() {
   const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
   const [providers, setProviders] = useState<ProviderView[]>([]);
   const [selectedId, setSelectedId] = useState('');
+  const [mobileDetail, setMobileDetail] = useState(false);
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState('');
   const [form, setForm] = useState<TeammateForm>(blankTeammate);
@@ -225,7 +226,7 @@ export function TeammatesPage() {
         </div>
       )}
 
-      <div className="teammate-workspace">
+      <div className={`teammate-workspace ${mobileDetail ? 'detail-open' : ''}`}>
         <aside className="teammate-roster" aria-label="道友名单">
           <div className="teammate-roster-heading">
             <div>
@@ -263,6 +264,7 @@ export function TeammatesPage() {
                       aria-pressed={selectedId === teammate.id}
                       onClick={() => {
                         setSelectedId(teammate.id);
+                        setMobileDetail(true);
                         setCreating(false);
                         setEditingId('');
                         closeCreate();
@@ -309,6 +311,13 @@ export function TeammatesPage() {
         </aside>
 
         <div className="teammate-detail">
+          <button
+            type="button"
+            className="button ghost mobile-detail-back"
+            onClick={() => setMobileDetail(false)}
+          >
+            <Icon name="ChevronLeft" /> 道友名单
+          </button>
           {selected ? (
             <article className="teammate-profile">
               <header className="teammate-profile-header">
@@ -625,7 +634,6 @@ function TeammateSkillSummary({ teammate }: { teammate: TeammateView }) {
       <div className="teammate-section-heading">
         <div>
           <h3 id="teammate-skills-title">已启用功法</h3>
-          <p>只显示此道友当前启用的 Skill。</p>
         </div>
         <span className="teammate-section-count">{loading ? '…' : enabled.length}</span>
       </div>
@@ -744,7 +752,10 @@ function TeammateRecentActivity({ teammate }: { teammate: TeammateView }) {
           id: 'mission:' + mission.id,
           kind: 'MISSION',
           title: mission.title,
-          detail: missionStateLabel(mission.state) + ' · ' + mission.objective.slice(0, 72),
+          detail:
+            missionStateLabel(mission.state) +
+            ' · ' +
+            mission.objective.split('\n')[0]!.slice(0, 72),
           at: mission.updatedAt,
           href: '/missions?missionId=' + encodeURIComponent(mission.id),
         });
@@ -766,7 +777,6 @@ function TeammateRecentActivity({ teammate }: { teammate: TeammateView }) {
       <div className="teammate-section-heading">
         <div>
           <h3 id="teammate-recent-title">最近活动</h3>
-          <p>历练、对话和可核验经历按发生时间排列。</p>
         </div>
         <Link to="/missions">查看历练</Link>
       </div>
@@ -942,7 +952,6 @@ export function TeammateSkillsPanel({ teammate }: { teammate: TeammateView }) {
       <div className="section-heading">
         <div>
           <h3>此道友的 Skills</h3>
-          <p>分配和启用状态仅属于 {teammate.name}。</p>
         </div>
         <span className="count-badge">{assignments.length}</span>
       </div>
@@ -1002,7 +1011,6 @@ export function TeammateSkillsPanel({ teammate }: { teammate: TeammateView }) {
       ) : (
         <p className="form-hint">还没有可分配的 Skill。先在 Skills 页面创建。</p>
       )}
-      <p className="form-hint">只有此处已启用的 Skill 会进入这位道友的 Prompt。</p>
     </div>
   );
 }
@@ -1060,8 +1068,7 @@ export function TeammateExperiencePanel({ teammate }: { teammate: TeammateView }
     <section className="profile-section experience-panel" aria-labelledby="experience-title">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">可核验记录 · Activity profile</p>
-          <h3 id="experience-title">经历 / 能力</h3>
+          <h3 id="experience-title">经历</h3>
           <p>炼气 · 正式能力考核尚未开启</p>
         </div>
         <button
@@ -1073,9 +1080,6 @@ export function TeammateExperiencePanel({ teammate }: { teammate: TeammateView }
           刷新记录
         </button>
       </div>
-      <p className="experience-note">
-        这里只汇总 Mission 结果、协作、工具和 Skill 的实际记录，不评等级或分数，也不会自动改变境界。
-      </p>
       {error && (
         <div className="notice error notice-with-action" role="alert">
           {error}
@@ -1126,6 +1130,9 @@ export function TeammateExperiencePanel({ teammate }: { teammate: TeammateView }
                     <div className="experience-provenance">
                       <span>模式：{experienceModeLabel(event.mode)}</span>
                       <span>角色：{safeLabel(event.role)}</span>
+                    </div>
+                    <details className="advanced-records">
+                      <summary>来源记录</summary>
                       <span>
                         来源：{safeLabel(event.source)} · <code>{event.sourceId || '—'}</code>
                       </span>
@@ -1133,7 +1140,7 @@ export function TeammateExperiencePanel({ teammate }: { teammate: TeammateView }
                         Mission <code>{event.missionId || '—'}</code> · Run{' '}
                         <code>{event.runId || '—'}</code>
                       </span>
-                    </div>
+                    </details>
                   </li>
                 ))}
             </ol>
@@ -1171,7 +1178,7 @@ export function experienceOutcomeLabel(outcome: ExperienceOutcome): string {
 
 export function experienceModeLabel(mode: MissionMode): string {
   const labels: Record<MissionMode, string> = {
-    SOLO: '单人 SOLO',
+    SOLO: '单人',
     CONSULTATION: '咨询',
     REVIEW: '审查',
     DELEGATION: '委托',
