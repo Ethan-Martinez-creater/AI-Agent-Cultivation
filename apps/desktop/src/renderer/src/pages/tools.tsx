@@ -1,3 +1,4 @@
+import { Switch } from '../components/Switch.js';
 import React, { useEffect, useState } from 'react';
 import { Drawer } from '../components/Drawer.js';
 import { Icon } from '../components/Icon.js';
@@ -446,14 +447,11 @@ export function ToolsPage() {
               onChange={(event) => updateForm({ cwd: event.target.value })}
             />
           </label>
-          <label className="tool-enabled-toggle">
-            <input
-              type="checkbox"
-              checked={form.enabled}
-              onChange={(event) => updateForm({ enabled: event.target.checked })}
-            />
-            <span>启用此 MCP 服务</span>
-          </label>
+          <Switch
+            label="启用此 MCP 服务"
+            checked={form.enabled}
+            onChange={(enabled) => updateForm({ enabled })}
+          />
           <div className="button-row drawer-actions">
             <button className="button primary" disabled={busy}>
               {busy ? '保存中…' : editingId ? '保存配置' : '添加服务'}

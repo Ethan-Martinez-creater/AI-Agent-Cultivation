@@ -1,3 +1,4 @@
+import { Switch } from './components/Switch.js';
 import React, { useEffect, useState } from 'react';
 import { Button } from './components/Button.js';
 import { Drawer } from './components/Drawer.js';
@@ -348,14 +349,7 @@ export function BenchmarkPanel({ runtimes }: { runtimes: Runtime[] }) {
                 ))}
               </select>
             </label>
-            <label className="field r1-checkbox-field">
-              <input
-                type="checkbox"
-                checked={supported}
-                onChange={(event) => setSupported(event.target.checked)}
-              />
-              <span>此模型支持该维度</span>
-            </label>
+            <Switch label="此模型支持该维度" checked={supported} onChange={setSupported} />
             <div className="field-grid">
               <label className="field">
                 <span>归一化分数 0–100</span>

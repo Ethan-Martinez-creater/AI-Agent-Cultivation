@@ -1,3 +1,4 @@
+import { WorkflowArtifactResult as ArtifactDisclosure } from '../components/WorkflowArtifactResult.js';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type {
@@ -128,44 +129,6 @@ function isWorkflowInputError(error: unknown): boolean {
     (typeof candidate.message === 'string' &&
       (candidate.message.includes('工作流输入无效') ||
         candidate.message.includes('工作流输入字段 ')))
-  );
-}
-
-function ArtifactDisclosure({ artifact, label }: { artifact: WorkflowArtifact; label: string }) {
-  return (
-    <details className="workflow-data-row">
-      <summary>
-        <span>{label}</span>
-        <small>
-          {kindLabel(artifact.kind)} · {artifact.source === 'HUMAN_BRIDGE' ? '本尊交付' : 'Mission'}
-        </small>
-      </summary>
-      <dl>
-        <div>
-          <dt>内容摘要</dt>
-          <dd>
-            <pre>{artifact.content}</pre>
-          </dd>
-        </div>
-      </dl>
-      <details className="workflow-technical-details">
-        <summary>高级 · 来源记录</summary>
-        <dl>
-          <div>
-            <dt>执行者编号</dt>
-            <dd>
-              <code>{artifact.actorId}</code>
-            </dd>
-          </div>
-          <div>
-            <dt>来源记录编号</dt>
-            <dd>
-              <code>{artifact.sourceId}</code>
-            </dd>
-          </div>
-        </dl>
-      </details>
-    </details>
   );
 }
 
@@ -765,6 +728,10 @@ export function WorkflowsPage() {
                     <ArtifactDisclosure
                       key={artifact.id}
                       artifact={artifact}
+                      binding={detail.bindings.find(
+                        (binding) =>
+                          binding.artifactId === artifact.id && binding.role === 'OUTPUT',
+                      )}
                       label={
                         detail.bindings.find(
                           (binding) =>

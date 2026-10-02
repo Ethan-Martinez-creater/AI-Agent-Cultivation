@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from './components/Button.js';
 import { Section } from './components/Section.js';
 import { StatusBadge } from './components/StatusBadge.js';
+import { Switch } from './components/Switch.js';
 import type { CapabilityDimension, RoutingDecisionReceipt } from '@cultivation/domain';
 import type { PartyView, TeammateView } from './ui-shared.js';
 
@@ -322,15 +323,12 @@ export function RoutingConfigPanel({
       className="routing-config-card"
     >
       <div className="setting-row routing-cloud-toggle">
-        <label className="field">
-          <span>Cloud 智能分配</span>
-          <input
-            type="checkbox"
-            checked={config.cloudEnabled}
-            disabled={busy}
-            onChange={(event) => void change(event.target.checked)}
-          />
-        </label>
+        <Switch
+          label="Cloud 智能分配"
+          checked={config.cloudEnabled}
+          disabled={busy}
+          onChange={(enabled) => void change(enabled)}
+        />
         <Button variant="secondary" onClick={onOpenJevSettings}>
           配置 Jev 凭据
         </Button>

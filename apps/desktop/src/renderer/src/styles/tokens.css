@@ -71,6 +71,9 @@
     --motion-fast: 120ms;
     --motion-normal: 180ms;
     --scrollbar-width: 6px;
+    --switch-width: 36px;
+    --switch-height: 20px;
+    --switch-thumb: 14px;
     --scrollbar-thumb: #c7d0dd;
     --scrollbar-hover: #98a7bb;
     /* Compatibility names resolve to the same semantic values, never a second palette. */

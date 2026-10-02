@@ -1,5 +1,7 @@
 # Windows packaged UI 人工验收
 
+最新小范围修复与指定截图见 [Corrective Evidence](corrective-2026-10-02/README.md)。本页保留主体实施阶段的历史记录。
+
 日期：2026-10-02。基线：`bcf1acd`。全部截图来自本轮最终 Windows x64 package（Electron 44.4.3），不是浏览器 mockup。
 
 ## 证据范围

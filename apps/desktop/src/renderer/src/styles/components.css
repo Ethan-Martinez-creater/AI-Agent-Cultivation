@@ -1,4 +1,42 @@
 @layer components {
+  .product-switch-field {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    color: var(--text);
+    font-size: var(--font-control);
+    line-height: var(--line-control);
+  }
+  .product-switch {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    width: var(--switch-width);
+    height: var(--switch-height);
+    min-height: 0;
+    padding: 2px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--border-strong);
+    cursor: pointer;
+    transition: background var(--motion-fast);
+  }
+  .product-switch[aria-checked='true'] {
+    justify-content: flex-end;
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  .product-switch-thumb {
+    width: var(--switch-thumb);
+    height: var(--switch-thumb);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+  }
+  .product-switch:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
   .button {
     display: inline-flex;
     align-items: center;

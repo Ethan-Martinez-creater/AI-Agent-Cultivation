@@ -1,3 +1,4 @@
+import { Switch } from '../components/Switch.js';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar.js';
@@ -978,15 +979,13 @@ export function TeammateSkillsPanel({ teammate }: { teammate: TeammateView }) {
                   </div>
                   {assignment ? (
                     <div className="teammate-skill-controls">
-                      <label className="skill-toggle">
-                        <input
-                          type="checkbox"
-                          checked={assignment.enabled}
-                          disabled={busySkillId === skill.id}
-                          onChange={(event) => void setEnabled(skill.id, event.target.checked)}
-                        />
-                        <span>{assignment.enabled ? '已启用' : '已停用'}</span>
-                      </label>
+                      <Switch
+                        label={'启用功法：' + skill.name}
+                        showLabel={false}
+                        checked={assignment.enabled}
+                        disabled={busySkillId === skill.id}
+                        onChange={(enabled) => void setEnabled(skill.id, enabled)}
+                      />
                       <button
                         className="text-button"
                         disabled={busySkillId === skill.id}

@@ -1,3 +1,4 @@
+import { Switch } from './components/Switch.js';
 import { useEffect, useState } from 'react';
 import { Button } from './components/Button.js';
 import { Section } from './components/Section.js';
@@ -132,19 +133,19 @@ export function R3ShadowPanel() {
           <div className="setting-row">
             <span>Cloud Shadow</span>
             <div className="setting-row-actions">
-              <Button
-                variant={config?.enabled ? 'secondary' : 'primary'}
+              <Switch
+                label="启用 Cloud Shadow"
+                showLabel={false}
+                checked={config?.enabled ?? false}
                 disabled={busy || !config?.configured || (!config.enabled && !privacyConsent)}
-                onClick={() =>
+                onChange={(enabled) =>
                   void execute(async () => {
-                    await window.cultivation.r3.setEnabled(!config?.enabled);
-                    if (config?.enabled) setPrivacyConsent(false);
-                    return config?.enabled ? 'Cloud Shadow 已停用。' : 'Cloud Shadow 已启用。';
+                    await window.cultivation.r3.setEnabled(enabled);
+                    if (!enabled) setPrivacyConsent(false);
+                    return enabled ? 'Cloud Shadow 已启用。' : 'Cloud Shadow 已停用。';
                   })
                 }
-              >
-                {config?.enabled ? '停用 Cloud Shadow' : '启用 Cloud Shadow'}
-              </Button>
+              />
             </div>
           </div>
         </div>

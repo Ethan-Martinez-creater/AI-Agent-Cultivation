@@ -1,3 +1,4 @@
+import { Switch } from './components/Switch.js';
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Avatar } from './components/Avatar.js';
@@ -851,25 +852,19 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
             <h3>可接手能力</h3>
             <div className="r2-capability-grid">
               {profile?.dimensions.map((entry) => (
-                <label key={entry.dimension} className="r2-capability-row">
-                  <input
-                    type="checkbox"
-                    disabled={busy}
-                    checked={entry.enabled}
-                    onChange={(event) =>
-                      void run(
-                        () =>
-                          api.setCapability({
-                            dimension: entry.dimension,
-                            enabled: event.target.checked,
-                          }),
-                        '能力配置已保存。',
-                      )
-                    }
-                  />
-                  <span>{dimensionNames[entry.dimension]}</span>
-                  <small>{entry.enabled ? '已启用' : '未启用'}</small>
-                </label>
+                <Switch
+                  key={entry.dimension}
+                  className="r2-capability-row"
+                  label={dimensionNames[entry.dimension]}
+                  disabled={busy}
+                  checked={entry.enabled}
+                  onChange={(enabled) =>
+                    void run(
+                      () => api.setCapability({ dimension: entry.dimension, enabled }),
+                      '能力配置已保存。',
+                    )
+                  }
+                />
               ))}
             </div>
           </div>

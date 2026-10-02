@@ -200,7 +200,7 @@ export async function verifyR4RoutingUi(page, { a, b }) {
   await page.locator('dialog[open]').waitFor({ state: 'hidden' });
   await navigateUi(page, '设置 Settings');
   await page.getByRole('tab', { name: '智能分配', exact: true }).click();
-  const routingCheckbox = page.getByRole('checkbox', {
+  const routingCheckbox = page.getByRole('switch', {
     name: 'Cloud 智能分配',
     exact: true,
   });

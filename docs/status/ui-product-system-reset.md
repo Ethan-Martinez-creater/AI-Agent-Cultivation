@@ -74,3 +74,28 @@ packaged 功能回归继续验证：SQLite/safeStorage、Streaming/代码复制�
 宽用量表格、Chat 消息流、代码和长 Drawer 保留必要滚动；较矮窗口的长表单需要滚动到操作区。截图受本机 Windows 125% DPI 与约 2px 窄窗取整影响，不作为 pixel-perfect 测试。未验证真实云模型/Jev 网络质量；现有本地 HTTP SDK fixture 与 FakeModelGateway 提供确定性回归。
 
 旧 functional smoke 只调整标题/按钮/列表 selector、打开 Advanced 或 Drawer/Escape 的交互路径；没有移除 Permission、provenance、restart、secret、fixed identity 或 routing assertions。生产 bootstrap 仍为零官方/测试模板，截图里的普通 USER Workflow 仅在隔离 smoke profile 中生成。
+
+## 最终 UI corrective repair（2026-10-02）
+
+修复基线：`b493acc0fd1e69d42ae649a83a2f4e57821664cf`。本节为最新验收记录；上方为主体实施的历史证据。
+
+- 新增共用 `Switch`：原生 button、`role=switch`、`aria-checked`、受控值、disabled、键盘 Space/Enter 和统一 token 样式。Cloud 智能分配、Cloud Shadow、MCP 服务启用、功法启用、本尊能力启用和 Benchmark supported 使用同一组件。多选能力、队伍成员及隐私同意继续使用 checkbox。
+- Routing/Jev/MCP 等仍调用原 typed IPC；Cloud Shadow 的配置/隐私同意门槛与忙碌禁用不变。没有修改 R4 config authority。
+- Workflow Primary Result 使用“文本结果 / 结构化结果 / 文件结果 / 目录结果 / 外部交付结果”。logical key、kind、producer Step、Mission/Run、source、Hash 与 Contract 在 Advanced 保留；Artifact、binding、lineage、validation 均不变。
+- 视觉验收响应改为正常中文产品内容，通过已有 OpenAI-compatible 本地 HTTP/SDK fixture 路径生成。FakeModelGateway、领域测试和 Gate 功能 fixtures 未修改；没有生产内容过滤器，也没有修改/掩盖持久 Artifact 内容或 Hash。只改变视觉数据响应文案，不宣称真实云 API 联调。
+- 新增三项组件回归；packaged 捕获所有普通层文字并拒绝 `FAKE:` / `TEST_ONLY` / `fixture`，验证 Routing Switch、MCP 键盘切换和 Workflow Advanced 来源事实。
+
+最终六项全部通过：
+
+| 命令                    | 结果 | 证据                                                     |
+| ----------------------- | ---- | -------------------------------------------------------- |
+| `npm run test`          | PASS | 64 files / 550 tests（新增三项组件回归）。               |
+| `npm run typecheck`     | PASS | 全仓 TypeScript。                                        |
+| `npm run lint`          | PASS | 全仓 ESLint。                                            |
+| `npm run format:check`  | PASS | 全仓 Prettier。                                          |
+| `npm run package`       | PASS | Windows x64 / Electron 44.4.3，native dependencies 1/1。 |
+| `npm run smoke:package` | PASS | Gate 0–6、R0–R4、W1/W2 与新 83 张视觉矩阵。              |
+
+最新 [Corrective packaged evidence](../evidence/ui-product-system-reset/corrective-2026-10-02/README.md)归档 83 张新截图；人工复核 Routing 1440/900、道友详情 1440、Mission 1440、Workflow 1440/900，以及 Jev/MCP 共用 Switch。截图来自真实 package，普通层均通过无测试前缀断言；主结果与 Advanced 来源分层也经过真实交互验证。上方旧 87 张属于主体实施的历史记录，本轮视觉以 corrective 目录为准。
+
+没有新增依赖、migration、W2.1 或后端业务功能。Main / Preload / domain / persistence / FakeModelGateway 未改；临时 R: 在 package 结束后解除，测试缓存和 profile 留在当前项目。

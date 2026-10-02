@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
+import { createServer } from 'node:http';
+import { Buffer } from 'node:buffer';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import Database from 'better-sqlite3';
@@ -16,10 +18,78 @@ for (const directory of [screenshots, workspace, join(profile, 'temp'), join(pro
 const dbPath = join(profile, 'data', 'cultivation.sqlite');
 const evidence = { runId, sizes: [1440, 1180, 900], screenshots: [], checks: [] };
 let app;
+// Use ordinary product copy through the existing OpenAI-compatible HTTP fixture path.
+// FakeModelGateway and every core regression fixture remain unchanged.
+const visualResponse =
+  '已整理本周产品需求：\n\n1. 明确用户目标与主要使用场景。\n2. 按优先级拆分交付内容。\n3. 为每项需求补充可验证的验收要点。';
+let modelCalls = 0;
+const modelServer = createServer(async (request, response) => {
+  if (request.method === 'GET' && request.url === '/v1/models') {
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.end(JSON.stringify({ object: 'list', data: [{ id: 'qwen3-32b', object: 'model' }] }));
+    return;
+  }
+  if (request.method !== 'POST' || request.url !== '/v1/chat/completions') {
+    response.writeHead(404);
+    response.end();
+    return;
+  }
+  const chunks = [];
+  for await (const chunk of request) chunks.push(chunk);
+  const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  const content = input.response_format ? JSON.stringify({ candidates: [] }) : visualResponse;
+  modelCalls += 1;
+  const base = { id: `response-${modelCalls}`, created: 1, model: 'qwen3-32b' };
+  const usage = { prompt_tokens: 30, completion_tokens: 40, total_tokens: 70 };
+  if (input.stream) {
+    response.writeHead(200, { 'content-type': 'text/event-stream' });
+    response.end(
+      [
+        {
+          ...base,
+          object: 'chat.completion.chunk',
+          choices: [
+            {
+              index: 0,
+              delta: { role: 'assistant', content },
+              finish_reason: null,
+            },
+          ],
+        },
+        {
+          ...base,
+          object: 'chat.completion.chunk',
+          choices: [{ index: 0, delta: {}, finish_reason: 'stop' }],
+          usage,
+        },
+      ]
+        .map((value) => `data: ${JSON.stringify(value)}\n\n`)
+        .join('') + 'data: [DONE]\n\n',
+    );
+  } else {
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.end(
+      JSON.stringify({
+        ...base,
+        object: 'chat.completion',
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content },
+            finish_reason: 'stop',
+          },
+        ],
+        usage,
+      }),
+    );
+  }
+});
+await new Promise((resolve) => modelServer.listen(0, '127.0.0.1', resolve));
+const modelBaseUrl = `http://127.0.0.1:${modelServer.address().port}/v1`;
 async function launch() {
   app = await electron.launch({
     executablePath: join(root, 'out', 'AI Agent Cultivation-win32-x64', 'AI-Agent-Cultivation.exe'),
-    args: ['--gate1-fake-model', `--user-data-dir=${join(profile, 'chromium')}`],
+    args: [`--user-data-dir=${join(profile, 'chromium')}`],
     env: {
       ...process.env,
       CULTIVATION_USER_DATA_DIR: profile,
@@ -170,7 +240,7 @@ async function capture(page, name, width) {
   });
   assert.ok(metrics.documentWidth <= metrics.width + 1, `${name}: window.document overflow`);
   assert.ok(metrics.mainWidth <= metrics.mainClientWidth + 1, `${name}: main overflow`);
-  assert.ok(!metrics.text.includes('TEST_ONLY'), `${name}: test identity visible`);
+  assert.ok(!/FAKE:|TEST_ONLY|\bfixture\b/i.test(metrics.text), `${name}: test identity visible`);
   assert.ok(
     !/\b(?:FILE_OUTPUT|WORKSPACE_MUTATION|EXTERNAL_ACTION|VALID_OUTPUTS|WAITING_USER|MODEL_RUNTIME|IMAGE_GENERATION)\b/.test(
       metrics.text,
@@ -229,13 +299,13 @@ try {
   await app.evaluate(({ dialog }, path) => {
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [path] });
   }, workspace);
-  const facts = await page.evaluate(async () => {
+  const facts = await page.evaluate(async (baseUrl) => {
     const api = window.cultivation;
     await api.tools.chooseWorkspace();
     const provider = await api.providers.create({
       name: '本地模型服务',
       kind: 'OPENAI_COMPATIBLE',
-      baseUrl: 'http://127.0.0.1:9999/v1',
+      baseUrl,
     });
     const runtime = await api.runtimes.create({
       name: '日常分析模型',
@@ -263,7 +333,7 @@ try {
         supported: true,
         normalizedScore: 82,
         rawScore: null,
-        source: '用户手动估计（验收数据）',
+        source: '用户手动估计',
         benchmark: '能力参考',
         benchmarkVersion: '1',
         snapshotDate: '2026-10-01T00:00:00.000Z',
@@ -330,7 +400,7 @@ try {
       version: 1,
     });
     return { a, b, party, mission, external, workflow: workflow.run };
-  });
+  }, modelBaseUrl);
   await app.evaluate(({ clipboard }) =>
     clipboard.writeText('ui-acceptance-fixture-key-not-a-real-secret'),
   );
@@ -434,6 +504,21 @@ try {
     await capture(page, 'mission', width);
     await page.getByRole('link', { name: '工作流历练', exact: true }).click();
     await capture(page, 'workflow', width);
+    const resultSummary = page.locator('.workflow-results .workflow-data-row > summary');
+    assert.equal(await resultSummary.first().innerText(), '文本结果');
+    assert.ok(
+      !/summary|Mission|TEXT|visual\.summary/.test(
+        await resultSummary.allInnerTexts().then((text) => text.join(' ')),
+      ),
+    );
+    await resultSummary.first().click();
+    const primaryResult = page.locator('.workflow-results .workflow-data-row').first();
+    assert.ok(!/\bsummary\b|\bMISSION\b|visual\.summary/.test(await primaryResult.innerText()));
+    await primaryResult.locator('.workflow-technical-details > summary').click();
+    assert.equal(await primaryResult.getByText('summary', { exact: true }).isVisible(), true);
+    assert.equal(await primaryResult.getByText('MISSION', { exact: true }).isVisible(), true);
+    assert.ok((await primaryResult.innerText()).includes('visual.summary'));
+    await resultSummary.first().click();
     await route(page, '记忆 Memory');
     await page.getByRole('combobox', { name: '道友', exact: true }).selectOption(facts.a.id);
     await capture(page, 'memory', width);
@@ -475,6 +560,12 @@ try {
           0,
         );
       }
+      if (name === 'routing') {
+        const toggle = page.getByRole('switch', { name: 'Cloud 智能分配', exact: true });
+        assert.equal(await toggle.isVisible(), true);
+        assert.equal(await toggle.getAttribute('aria-checked'), 'false');
+        assert.equal(await page.locator('.routing-config-card input[type="checkbox"]').count(), 0);
+      }
       await capture(page, name, width);
       if (name === 'providers') {
         assert.equal(await page.getByLabel('显示名称', { exact: true }).isVisible(), false);
@@ -500,6 +591,13 @@ try {
     await page.getByText('资料服务', { exact: true }).scrollIntoViewIfNeeded();
     await capture(page, 'mcp-servers', width);
     await page.getByRole('button', { name: '添加 MCP 服务', exact: true }).click();
+    const mcpEnabled = page.getByRole('switch', { name: '启用此 MCP 服务', exact: true });
+    assert.equal(await mcpEnabled.isChecked(), true);
+    await mcpEnabled.focus();
+    await page.keyboard.press('Space');
+    assert.equal(await mcpEnabled.isChecked(), false);
+    await page.keyboard.press('Enter');
+    assert.equal(await mcpEnabled.isChecked(), true);
     await capture(page, 'mcp-create', width);
     const mcpDrawer = page.locator('dialog[open][aria-label="添加 MCP 服务"]');
     await mcpDrawer.locator('.drawer-content').evaluate((element) => {
@@ -541,12 +639,14 @@ try {
     );
   }
   evidence.checks.push(
+    'product Switch for routing; primary surfaces contain no FAKE:/TEST_ONLY/fixture; Workflow result has a friendly name',
     'all pages: no horizontal overflow/tiny typography/internal primary enum; thin scrollbars only in allowed containers',
     '900 Settings compact navigation',
     'Provider/Skill form hidden until action; native Drawer focus/Escape/return focus',
     'Human Bridge no model availability',
     'existing IPC Mission/Chat/Workflow/ExternalWork facts exercised',
   );
+  assert.ok(modelCalls >= 3, 'Visual copy must come through actual model IPC/SDK execution');
   writeFileSync(join(profile, 'evidence-manifest.json'), JSON.stringify(evidence, null, 2), 'utf8');
   console.log(
     `UI_PRODUCT_SYSTEM_PACKAGED_OK screenshots=${evidence.screenshots.length} sizes=1440,1180,900 profile=${profile}`,
@@ -560,4 +660,5 @@ try {
   throw error;
 } finally {
   if (app) await app.close();
+  await new Promise((resolve) => modelServer.close(resolve));
 }
