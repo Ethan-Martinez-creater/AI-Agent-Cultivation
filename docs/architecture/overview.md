@@ -6,6 +6,10 @@ W2.0 在原 W1 引擎上增加冻结 Artifact Contract manifest、受控 Revisio
 
 副作用先保存 PREPARED；原 Mission/Tool/Human Bridge 执行后，从同 Run 的真实成功事实和 canonical Workspace 文件确认 APPLIED，再事务性提交 deterministic validation、VERIFIED、binding/checkpoint 和 Step 完成。APPLIED 恢复只检验已有结果；无法确认的外部动作进入 UNKNOWN/等待用户，不自动重放。没有第二套 Routing、Permission 或 Agent Runtime。生产 BuiltinWorkflowRegistry 本轮为空，测试 package 显式 test-only；三个正式模板留到 W2.1–W2.3。详情见 [W2.0 状态](../status/w2-0-builtin-workflow-contract.md)。
 
+BUILTIN 安装仅接受应用代码静态提供、经过 Registry 完整 release 校验和 canonical manifestHash 验证的 `OFFICIAL` package。单一 `BuiltinWorkflowInstaller` 在同一 SQLite transaction 内依次写 Artifact Contracts、Release Fact、Workflow Version；相同版本重复安装幂等，任一步失败全部回滚。`TEST_ONLY` package 在 Registry 和 Installer 两处都要求显式 test mode，Renderer/IPC 无注册入口。当前生产 catalog 为空，不包含三个正式模板。
+
+生成型模型执行规范 v0.2 保留为未来架构约束：`MODEL_RUNTIME` 不代表永久仅支持 LANGUAGE，未来执行协议按该文档扩展；本轮和 W2.1–W2.4 不实现 G1/G2/G3，不在 Workflow installer 中增加语言模型专属限制。
+
 ## W1 Workflow Foundation
 
 Workflow 只管理冻结 Definition version、顺序 Step、Artifact 交接、声明分支和恢复。TASK/REVIEW 经通用 R4 context 创建原 Mission；Step→Mission 与创建事务原子绑定。DECISION 读取已验证的结构化事实，不调用模型或修改 graph。完成必须验证原 Mission terminal、required output、exit 与 checkpoint；未知执行结果等待用户，不能自动重放。详情见 [W1 状态](../status/w1-workflow-foundation.md)。

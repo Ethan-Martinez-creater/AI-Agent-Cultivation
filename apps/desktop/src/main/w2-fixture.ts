@@ -8,6 +8,7 @@ import type {
   WorkflowVersion,
 } from '@cultivation/domain';
 import type { W1WorkflowRepository, W2WorkflowRepository } from '@cultivation/persistence';
+import { createBuiltinWorkflowInstaller } from './w2-builtin-installation.js';
 
 /** Shared package smoke fixture; never installed by production bootstrap. */
 export class ContractFixtureGateway extends WorkflowFixtureGateway {
@@ -342,17 +343,35 @@ export function registerContractFixtures(
     designRationale:
       'Test-only release validator and immutable registration; no official template.',
   };
-  const released = new BuiltinWorkflowRegistry({ testOnly: true }).register({
-    testOnly: true,
+  const registry = new BuiltinWorkflowRegistry({ testOnly: true });
+  registry.register({
+    kind: 'TEST_ONLY',
     version: builtin,
   });
-  store.transaction(() => {
-    foundation.registerRelease({
-      definitionId: released.definition.id,
-      version: released.version,
-      manifestHash: released.releaseMetadata!.manifestHash!,
-      releasedAt: released.createdAt,
-    });
-    store.publishVersion(released);
+  createBuiltinWorkflowInstaller(registry, store, foundation, { testOnly: true }).installAll();
+
+  // Synthetic OFFICIAL package exercises production registration/install, only inside this
+  // explicitly enabled smoke fixture. It is never part of the static production catalog.
+  const official = structuredClone(builtin);
+  official.definition.id = 'test-official-builtin-contract';
+  const officialContract = { ...structuredClone(jsonContract), contractId: 'test.w2.official' };
+  official.contractManifest = [officialContract];
+  for (const output of [...official.steps[0]!.outputs, ...(official.outputSchema?.outputs ?? [])]) {
+    output.contractId = officialContract.contractId;
+    output.validator = {
+      type: 'REGISTRY',
+      contractId: officialContract.contractId,
+      contractVersion: officialContract.contractVersion,
+    };
+  }
+  official.releaseMetadata!.contractManifest = [
+    {
+      contractId: officialContract.contractId,
+      contractVersion: officialContract.contractVersion,
+    },
+  ];
+  const productionRegistry = new BuiltinWorkflowRegistry({
+    packages: [{ kind: 'OFFICIAL', version: official }],
   });
+  createBuiltinWorkflowInstaller(productionRegistry, store, foundation).installAll();
 }

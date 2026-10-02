@@ -84,6 +84,7 @@ import { WorkflowMissionAdapter } from './w1-mission-adapter.js';
 import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.js';
 import { registerWorkflowIpc } from './w1-ipc.js';
 import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.js';
+import { installOfficialBuiltinWorkflows } from './w2-builtin-installation.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -661,6 +662,7 @@ if (!squirrelStartup)
         undefined,
         workflowFoundation,
       );
+      installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
       if (
         process.argv.includes('--w1-fake-workflow') &&
         process.argv.includes('--gate1-fake-model')

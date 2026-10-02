@@ -621,12 +621,12 @@ describe('W2 bounded revision and release contracts', () => {
     expect(() => validateWorkflowVersion(unsafe)).toThrow();
   });
 
-  it('registers only explicit test-only builtins and verifies exact frozen manifests', () => {
+  it('isolates explicit test-only builtins and verifies exact frozen manifests', () => {
     expect(new BuiltinWorkflowRegistry().list()).toEqual([]);
     const version = builtinVersion();
-    expect(() => new BuiltinWorkflowRegistry().register({ testOnly: true, version })).toThrow();
+    expect(() => new BuiltinWorkflowRegistry().register({ kind: 'TEST_ONLY', version })).toThrow();
     const registry = new BuiltinWorkflowRegistry({ testOnly: true });
-    const released = registry.register({ testOnly: true, version });
+    const released = registry.register({ kind: 'TEST_ONLY', version });
     expect(released.releaseMetadata?.manifestHash).toBe(builtinWorkflowManifestHash(released));
     expect(validateBuiltinWorkflowRelease(released)).toBe(released.releaseMetadata?.manifestHash);
     expect(Object.isFrozen(released.contractManifest)).toBe(true);
@@ -642,5 +642,51 @@ describe('W2 bounded revision and release contracts', () => {
       ? 'b'.repeat(64)
       : 'a'.repeat(64);
     expect(() => validateBuiltinWorkflowRelease(tampered)).toThrow();
+  });
+
+  it('registers static OFFICIAL packages in production and deeply freezes the verified copy', () => {
+    const input = builtinVersion();
+    const registry = new BuiltinWorkflowRegistry({
+      packages: [{ kind: 'OFFICIAL', version: input }],
+    });
+    const released = registry.get(input.definition.id, 1)!;
+    expect(validateBuiltinWorkflowRelease(released)).toBe(builtinWorkflowManifestHash(released));
+    expect(registry.getPackage(input.definition.id, 1)?.kind).toBe('OFFICIAL');
+    expect(Object.isFrozen(registry.getPackage(input.definition.id, 1))).toBe(true);
+    expect(Object.isFrozen(released.releaseMetadata?.referenceBasis[0]?.adoptedPrinciples)).toBe(
+      true,
+    );
+    input.steps[0]!.objective = 'Changed after registration';
+    expect(released.steps[0]!.objective).not.toBe(input.steps[0]!.objective);
+    expect(() => registry.register({ kind: 'OFFICIAL', version: builtinVersion() })).toThrow();
+  });
+
+  it.each(['USER', 'IMPORTED'] as const)(
+    'rejects %s packages before official registration',
+    (source) => {
+      const version = builtinVersion();
+      version.definition.source = source;
+      expect(
+        () => new BuiltinWorkflowRegistry({ packages: [{ kind: 'OFFICIAL', version }] }),
+      ).toThrow();
+    },
+  );
+
+  it('rejects tampered or incomplete OFFICIAL manifests in production', () => {
+    const version = builtinVersion();
+    version.releaseMetadata!.manifestHash = 'a'.repeat(64);
+    expect(
+      () => new BuiltinWorkflowRegistry({ packages: [{ kind: 'OFFICIAL', version }] }),
+    ).toThrow();
+    delete version.releaseMetadata;
+    expect(
+      () => new BuiltinWorkflowRegistry({ packages: [{ kind: 'OFFICIAL', version }] }),
+    ).toThrow();
+    expect(
+      () =>
+        new BuiltinWorkflowRegistry({
+          packages: [{ kind: 'TEST_ONLY', version: builtinVersion() }],
+        }),
+    ).toThrow();
   });
 });

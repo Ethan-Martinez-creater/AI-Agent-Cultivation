@@ -142,6 +142,36 @@ try {
   );
   assert.equal(released.run.state, 'COMPLETED');
   assert.equal(released.version.definition.category, 'TEST_ONLY');
+  const official = await advance(
+    live.page,
+    (await create(live.page, 'test-official-builtin-contract')).run.id,
+  );
+  assert.equal(official.run.state, 'COMPLETED');
+  assert.equal(official.version.definition.source, 'BUILTIN');
+  assert.equal(official.validations[0].contractId, 'test.w2.official');
+  facts.officialInstall = official;
+  const installSnapshot = () =>
+    read((db) => ({
+      contracts: db
+        .prepare(
+          'SELECT contract_id,contract_version,content_hash FROM workflow_artifact_contract_registry ORDER BY contract_id,contract_version',
+        )
+        .all(),
+      releases: db
+        .prepare('SELECT * FROM workflow_builtin_releases ORDER BY definition_id,version')
+        .all(),
+      versions: db
+        .prepare(
+          'SELECT definition_id,version,content_hash FROM workflow_versions ORDER BY definition_id,version',
+        )
+        .all(),
+    }));
+  const installed = installSnapshot();
+  assert.equal(
+    installed.releases.length,
+    2,
+    'Fixture and synthetic OFFICIAL are distinct registry packages',
+  );
   const revision = await create(live.page, 'w2-fixture-revision');
   await advance(live.page, revision.run.id);
   const two = await advance(live.page, revision.run.id);
@@ -320,7 +350,12 @@ try {
     traversals: db.prepare('SELECT * FROM workflow_revision_traversals').all(),
   }));
   assert.equal(facts.persistence.migration, 19);
-  writeFileSync(join(evidence, 'w2-facts.json'), JSON.stringify(facts, null, 2), 'utf8');
+  assert.deepEqual(
+    installSnapshot(),
+    installed,
+    'Repeated process restarts must install identical packages without duplicating or changing facts',
+  );
+  facts.registryInstall = { snapshot: installed, identicalAfterRestarts: true };
   await live.app.close();
   const production = await electron.launch({
     executablePath,
@@ -335,8 +370,26 @@ try {
     [],
     'Normal production bootstrap must not register test/official templates',
   );
+  const normalDatabase = new Database(join(profile, 'production', 'data', 'cultivation.sqlite'), {
+    readonly: true,
+  });
+  try {
+    facts.productionBootstrap = {};
+    for (const table of [
+      'workflow_artifact_contract_registry',
+      'workflow_builtin_releases',
+      'workflow_versions',
+    ]) {
+      const count = normalDatabase.prepare(`SELECT count(*) n FROM ${table}`).get().n;
+      assert.equal(count, 0);
+      facts.productionBootstrap[table] = count;
+    }
+  } finally {
+    normalDatabase.close();
+  }
+  writeFileSync(join(evidence, 'w2-facts.json'), JSON.stringify(facts, null, 2), 'utf8');
   console.log(
-    `W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=test-only revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=${evidence}`,
+    `W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=empty revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=${evidence}`,
   );
 } finally {
   await live.app.close();

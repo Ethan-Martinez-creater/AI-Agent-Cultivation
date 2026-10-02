@@ -75,11 +75,18 @@ export class ArtifactContractRegistry {
   }
 }
 
-export interface BuiltinWorkflowPackage {
-  /** Test fixtures must opt in both at package and registry construction time. */
-  testOnly: true;
+export interface OfficialBuiltinWorkflowPackage {
+  /** Trusted application code only; never accepted from Renderer/IPC. */
+  kind: 'OFFICIAL';
   version: WorkflowVersion;
 }
+
+export interface TestBuiltinWorkflowPackage {
+  kind: 'TEST_ONLY';
+  version: WorkflowVersion;
+}
+
+export type BuiltinWorkflowPackage = OfficialBuiltinWorkflowPackage | TestBuiltinWorkflowPackage;
 
 export interface BuiltinWorkflowRegistryOptions {
   /** Production defaults to false and an empty registry. */
@@ -227,28 +234,27 @@ function deepFreeze<T>(value: T): T {
 }
 
 /**
- * Current production registry intentionally starts empty. Fixture releases can only be loaded
- * when both the registry and each fixture explicitly set the testOnly flag.
+ * Production accepts only static OFFICIAL packages. TEST_ONLY packages additionally require
+ * explicit test mode. No packages are implicitly loaded by the registry.
  */
 export class BuiltinWorkflowRegistry {
   private readonly versions = new Map<string, WorkflowVersion>();
+  private readonly packages = new Map<string, BuiltinWorkflowPackage>();
   private readonly testOnly: boolean;
 
   constructor(options: BuiltinWorkflowRegistryOptions = {}) {
     this.testOnly = options.testOnly === true;
-    if ((options.packages?.length ?? 0) > 0 && !this.testOnly)
-      throw new DomainError(
-        'INVALID_INPUT',
-        'Test-only packages require an explicit testOnly registry',
-      );
     for (const workflowPackage of options.packages ?? []) this.register(workflowPackage);
   }
 
   register(workflowPackage: BuiltinWorkflowPackage): WorkflowVersion {
-    if (!this.testOnly || workflowPackage.testOnly !== true)
+    if (
+      !['OFFICIAL', 'TEST_ONLY'].includes(workflowPackage.kind) ||
+      (workflowPackage.kind === 'TEST_ONLY' && !this.testOnly)
+    )
       throw new DomainError(
         'INVALID_INPUT',
-        'Builtin fixture registration requires explicit testOnly flags',
+        'TEST_ONLY Builtin packages require explicit test mode',
       );
     const original = workflowPackage.version;
     const manifestHash = validateBuiltinWorkflowRelease(original, { requireManifestHash: false });
@@ -265,11 +271,16 @@ export class BuiltinWorkflowRegistry {
       throw new DomainError('CONFLICT', 'BUILTIN version already registered');
     const frozen = deepFreeze(version);
     this.versions.set(key, frozen);
+    this.packages.set(key, deepFreeze({ kind: workflowPackage.kind, version: frozen }));
     return frozen;
   }
 
   get(definitionId: string, version: number): WorkflowVersion | null {
     return this.versions.get(`${definitionId}\u0000${version}`) ?? null;
+  }
+
+  getPackage(definitionId: string, version: number): BuiltinWorkflowPackage | null {
+    return this.packages.get(`${definitionId}\u0000${version}`) ?? null;
   }
 
   list(): WorkflowVersion[] {

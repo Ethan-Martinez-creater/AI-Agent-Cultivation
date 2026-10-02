@@ -2,7 +2,7 @@
 
 ## W2.0 Workflow Contract 与副作用
 
-- Renderer 没有 Registry/Definition 发布、SQL、任意 graph/state setter。BUILTIN 仅由 Main 的可信 Registry 发布；普通应用 publish 拒绝 BUILTIN。测试 Registry 与 package 同时显式 test-only，正常启动不装载测试模板。
+- Renderer 没有 Registry/Definition 发布、SQL、任意 graph/state setter。BUILTIN 仅由 Main 的静态 OFFICIAL package 经可信 Registry 校验并通过单一事务 installer 安装；普通应用 publish 拒绝 BUILTIN。TEST_ONLY package 在 Registry 和 installer 两处均要求显式 test mode，正常启动不装载测试模板。Contract、Release Fact、Version 同事务安装，失败不遗留半安装版本。
 - Artifact 通过冻结的 deterministic validator、contract/version/validator-version 与 content hash 回执。Review 只能给声明的 revisionCode；模型/Jev 无权创建节点或跳转目标。edge/group traversal 与正式 Step transition 同事务提交。
 - filesystem receipt 不赋予文件权限。真正写入仍走现有 PermissionEngine/Approval/ToolRuntime；恢复检查 canonical Workspace 路径、同 MissionRun 成功 Tool resource、真实 actor 与实际字节 hash。Manifest 不读取私有 Memory；未知外部副作用保持 UNKNOWN，必须用户明确处理。
 - Operation identity/输入 hash 保持不可变，APPLIED evidence 冻结，VERIFIED/UNKNOWN 不可重放或删除；每个生命周期快照单独 append-only audit。历史 W1 Run/inline Contract 不追溯重写。

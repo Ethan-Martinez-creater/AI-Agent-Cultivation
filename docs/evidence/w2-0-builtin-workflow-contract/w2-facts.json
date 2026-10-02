@@ -1,6 +1,6 @@
 {
   "teammate": {
-    "id": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
+    "id": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
     "name": "W2 fixture executor",
     "avatar": null,
     "title": null,
@@ -12,20 +12,20 @@
     "systemKind": null,
     "status": "ACTIVE",
     "realm": "QI_REFINING",
-    "currentRuntimeProfileId": "99c23cef-a196-4651-8a32-a8b8363be679",
-    "createdAt": "2026-10-01T16:51:22.681Z",
-    "updatedAt": "2026-10-01T16:51:22.681Z"
+    "currentRuntimeProfileId": "bffd9827-7ad5-4234-9e29-4e8ad44d6f0a",
+    "createdAt": "2026-10-02T01:34:08.708Z",
+    "updatedAt": "2026-10-02T01:34:08.708Z"
   },
   "contract": {
     "run": {
-      "id": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
+      "id": "7e24b531-2dfd-4f80-9332-6064a50aac41",
       "definitionId": "w2-fixture-contract",
       "definitionVersion": 1,
       "inputSnapshot": {},
       "state": "COMPLETED",
       "waitReason": null,
-      "createdAt": "2026-10-01T16:51:22.697Z",
-      "updatedAt": "2026-10-01T16:51:22.824Z"
+      "createdAt": "2026-10-02T01:34:08.717Z",
+      "updatedAt": "2026-10-02T01:34:08.808Z"
     },
     "version": {
       "contractManifest": [
@@ -116,201 +116,519 @@
     },
     "steps": [
       {
-        "id": "b77a666d-af94-4d30-80ea-6d90625cb624",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
+        "id": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
         "stepId": "task",
         "attempt": 1,
         "state": "COMPLETED",
-        "missionId": "9a6d4b1d-0a89-45a2-882e-bd5ef37d88b1",
-        "missionRunId": "2ede694d-afab-4630-82ff-b5e4c00f888f",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "41bdfe64-0795-485d-b9d1-c31531123427",
+        "missionRunId": "a2c4ec41-d63e-4a68-a595-ea80cc7051ec",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:22.697Z",
-        "updatedAt": "2026-10-01T16:51:22.814Z"
+        "createdAt": "2026-10-02T01:34:08.717Z",
+        "updatedAt": "2026-10-02T01:34:08.802Z"
       }
     ],
     "artifacts": [
       {
-        "id": "edfd5c53-ab27-4758-a27a-311539590dd4",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "producerStepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
-        "missionId": "9a6d4b1d-0a89-45a2-882e-bd5ef37d88b1",
-        "missionRunId": "2ede694d-afab-4630-82ff-b5e4c00f888f",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "2ede694d-afab-4630-82ff-b5e4c00f888f",
+        "id": "061f9868-d4e7-4dd9-bdc1-bd3d67e3ec4f",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "producerStepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
+        "missionId": "41bdfe64-0795-485d-b9d1-c31531123427",
+        "missionRunId": "a2c4ec41-d63e-4a68-a595-ea80cc7051ec",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "a2c4ec41-d63e-4a68-a595-ea80cc7051ec",
         "source": "MISSION",
         "kind": "JSON",
         "content": "{\"ok\":true}",
         "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
         "metadata": {},
         "inputArtifactIds": [],
-        "createdAt": "2026-10-01T16:51:22.803Z"
+        "createdAt": "2026-10-02T01:34:08.795Z"
       }
     ],
     "bindings": [
       {
-        "id": "38d64097-8385-45bc-bf95-64055b14ad99",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "066ba852-6282-45b7-9947-c40f01bf5953",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "key": "result",
-        "artifactId": "edfd5c53-ab27-4758-a27a-311539590dd4",
+        "artifactId": "061f9868-d4e7-4dd9-bdc1-bd3d67e3ec4f",
         "role": "OUTPUT",
         "contractId": "test.w2.json",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:22.804Z"
+        "createdAt": "2026-10-02T01:34:08.795Z"
       }
     ],
     "validations": [
       {
-        "id": "006682da-5803-4de0-aa5d-493bb3b61fec",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
-        "artifactId": "edfd5c53-ab27-4758-a27a-311539590dd4",
+        "id": "d31a464c-1a81-4640-8947-3cc9cb94d02e",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
+        "artifactId": "061f9868-d4e7-4dd9-bdc1-bd3d67e3ec4f",
         "contractId": "test.w2.json",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
         "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:22.804Z"
+        "createdAt": "2026-10-02T01:34:08.795Z"
       }
     ],
     "finalValidations": [
       {
-        "id": "ba6e1382-1d94-4512-a506-2d621c0b0208",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
+        "id": "095246cf-d503-4330-82bc-2c17867cb2c5",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
         "definitionVersion": 1,
         "inputHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-        "stateHash": "4043790db2d0439bae97e59f54ba5eebb3868a5b51baafd6c283aed9320b7b64",
+        "stateHash": "0406f4f888b308232f1b436f398b5263a099e1ae3073fd0d589c5dd958cdcc96",
         "outputBindings": [
           {
-            "artifactId": "edfd5c53-ab27-4758-a27a-311539590dd4",
+            "artifactId": "061f9868-d4e7-4dd9-bdc1-bd3d67e3ec4f",
             "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
             "key": "result"
           }
         ],
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:22.820Z"
+        "createdAt": "2026-10-02T01:34:08.806Z"
       }
     ],
     "decisions": [],
     "checkpoints": [
       {
-        "id": "77fef970-68b2-41cd-8e6d-82c9ead95d4e",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
+        "id": "b16d3efc-b4c4-4e55-a256-c913aac10224",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
         "sequence": 1,
         "definitionVersion": 1,
-        "completedStepRunIds": ["b77a666d-af94-4d30-80ea-6d90625cb624"],
+        "completedStepRunIds": ["1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e"],
         "activeStepRunIds": [],
         "artifactBindingHashes": [
-          "918397063c6126ecc0398bcbbf3f8c494c6fecce7abcebe792706372b579c74c"
+          "ad85cd3e61c0efa6fd92e9fdcd4c998bb36d1c79630630667351108706e6033a"
         ],
         "decisionHashes": [],
-        "stateHash": "b46af2ead5d5e26b1baea5691b02c56ca72a0f9e7046b5e4726b114a0c8a2384",
-        "createdAt": "2026-10-01T16:51:22.814Z"
+        "stateHash": "9374c9e7a49749a520a0402aaa339df458b300f750ffc008b516b7c7515939f6",
+        "createdAt": "2026-10-02T01:34:08.802Z"
       }
     ],
     "events": [
       {
-        "id": "363c3140-b858-445f-b5da-cd4fa24cde22",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "94fe2faf-dd39-4cb0-944f-70fec27549df",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "type": "workflow.created",
         "payload": {
           "version": 1
         },
-        "createdAt": "2026-10-01T16:51:22.704Z"
+        "createdAt": "2026-10-02T01:34:08.721Z"
       },
       {
-        "id": "c395bddf-c106-48dd-bb75-b7f7716d8a62",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "cd0da6ab-c232-47b8-b52f-82111372b639",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "type": "operation.prepared",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:22.720Z"
+        "createdAt": "2026-10-02T01:34:08.734Z"
       },
       {
-        "id": "135e8f1a-d75b-4492-baaf-1e40d4ef82e8",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "9d899bb0-a678-4251-a5f3-d012adb2626b",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "9a6d4b1d-0a89-45a2-882e-bd5ef37d88b1"
+          "missionId": "41bdfe64-0795-485d-b9d1-c31531123427"
         },
-        "createdAt": "2026-10-01T16:51:22.750Z"
+        "createdAt": "2026-10-02T01:34:08.760Z"
       },
       {
-        "id": "3d4723d6-e9cb-4703-9743-8adb5ceac4ac",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "943ac695-44e3-48d8-b9e1-46778f346f7f",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "type": "operation.applied",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:22.800Z"
+        "createdAt": "2026-10-02T01:34:08.793Z"
       },
       {
-        "id": "0dc8cf41-f030-43d8-b91d-a733215192f5",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "30f34255-fc30-4b0f-8331-f7050c502148",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "type": "operation.verified",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:22.810Z"
+        "createdAt": "2026-10-02T01:34:08.799Z"
       },
       {
-        "id": "de7540ad-77a9-4d25-8fda-0a012ba09986",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "5e6f8160-dd38-4df2-b2d9-1e7e6db55718",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "type": "step.completed",
         "payload": {
           "edgeId": null,
-          "missionId": "9a6d4b1d-0a89-45a2-882e-bd5ef37d88b1",
-          "missionRunId": "2ede694d-afab-4630-82ff-b5e4c00f888f"
+          "missionId": "41bdfe64-0795-485d-b9d1-c31531123427",
+          "missionRunId": "a2c4ec41-d63e-4a68-a595-ea80cc7051ec"
         },
-        "createdAt": "2026-10-01T16:51:22.816Z"
+        "createdAt": "2026-10-02T01:34:08.804Z"
       },
       {
-        "id": "4c0d5de4-b637-4365-8af4-16ea0469d889",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
+        "id": "5a0c5a67-efa3-476e-8429-c5a547a26495",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
         "stepRunId": null,
         "type": "workflow.completed",
         "payload": {},
-        "createdAt": "2026-10-01T16:51:22.824Z"
+        "createdAt": "2026-10-02T01:34:08.809Z"
       }
     ],
     "operations": [
       {
-        "id": "c066dc9e-e1f9-4fa7-bffa-9acd555764d8",
-        "workflowRunId": "10ac348a-41f4-4122-a3b0-4e9080758fdb",
-        "stepRunId": "b77a666d-af94-4d30-80ea-6d90625cb624",
+        "id": "c7175596-b286-4a8e-8878-fb9eb7e4b92f",
+        "workflowRunId": "7e24b531-2dfd-4f80-9332-6064a50aac41",
+        "stepRunId": "1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "attempt": 1,
-        "operationKey": "workflow:10ac348a-41f4-4122-a3b0-4e9080758fdb:b77a666d-af94-4d30-80ea-6d90625cb624",
+        "operationKey": "workflow:7e24b531-2dfd-4f80-9332-6064a50aac41:1f2ae668-87b3-4db5-a9fb-2a15a9aa0e0e",
         "effectType": "NONE",
         "state": "VERIFIED",
-        "inputHash": "d6aeb5fc8231e56366d0e7f0bd05bcc32a10c7e08b918cc3bc1bae10fe8c5ccc",
+        "inputHash": "281e349a791c7d54a01cbf6e71454ca44b2d409d56b487644d6072ece282cee6",
         "manifest": [],
-        "outputArtifactIds": ["edfd5c53-ab27-4758-a27a-311539590dd4"],
-        "createdAt": "2026-10-01T16:51:22.717Z",
-        "updatedAt": "2026-10-01T16:51:22.808Z"
+        "outputArtifactIds": ["061f9868-d4e7-4dd9-bdc1-bd3d67e3ec4f"],
+        "createdAt": "2026-10-02T01:34:08.732Z",
+        "updatedAt": "2026-10-02T01:34:08.798Z"
+      }
+    ],
+    "traversals": []
+  },
+  "officialInstall": {
+    "run": {
+      "id": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+      "definitionId": "test-official-builtin-contract",
+      "definitionVersion": 1,
+      "inputSnapshot": {},
+      "state": "COMPLETED",
+      "waitReason": null,
+      "createdAt": "2026-10-02T01:34:08.879Z",
+      "updatedAt": "2026-10-02T01:34:08.933Z"
+    },
+    "version": {
+      "contractManifest": [
+        {
+          "contractId": "test.w2.official",
+          "contractVersion": "1",
+          "kind": "JSON",
+          "maxSizeBytes": 16384,
+          "validator": {
+            "schema": {
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                }
+              },
+              "required": ["ok"],
+              "type": "object"
+            },
+            "type": "JSON_SCHEMA"
+          },
+          "validatorVersion": "w2-deterministic-v1"
+        }
+      ],
+      "createdAt": "2026-10-01T00:00:00.000Z",
+      "definition": {
+        "category": "TEST_ONLY",
+        "description": "W2.0 test-only foundation package; not an official template",
+        "id": "test-official-builtin-contract",
+        "name": "test-only-builtin-contract",
+        "source": "BUILTIN"
+      },
+      "edges": [],
+      "entryStepId": "task",
+      "outputSchema": {
+        "outputs": [
+          {
+            "contractId": "test.w2.official",
+            "contractVersion": "1",
+            "description": "Test-only JSON contract",
+            "fromStepId": "task",
+            "key": "result",
+            "kind": "JSON",
+            "maxSizeBytes": 16384,
+            "outputKey": "result",
+            "required": true,
+            "validator": {
+              "contractId": "test.w2.official",
+              "contractVersion": "1",
+              "type": "REGISTRY"
+            }
+          }
+        ]
+      },
+      "referenceBasis": [],
+      "releaseMetadata": {
+        "contractManifest": [
+          {
+            "contractId": "test.w2.official",
+            "contractVersion": "1"
+          }
+        ],
+        "designRationale": "Test-only release validator and immutable registration; no official template.",
+        "effectManifest": [
+          {
+            "effectType": "NONE",
+            "paths": [],
+            "stepId": "task"
+          }
+        ],
+        "manifestHash": "c0f7b7d2cbc251314887cb9369494a3cda3247f0f3d5577e29f8fb21e15330cc",
+        "referenceBasis": [
+          {
+            "adoptedPrinciples": ["Immutable contracts; bounded declared transitions"],
+            "intentionallyExcludedMechanisms": ["Vendor agent graph and automatic replay"],
+            "organizationOrCommunity": "Project",
+            "rationale": "Exercise project-native W1/R4 authority using a test-only package",
+            "referenceType": "STANDARD_OR_GUIDE",
+            "retrievedAt": "2026-10-01T00:00:00.000Z",
+            "title": "AP-007 deterministic foundation fixture",
+            "uri": "docs/AI-Agent-Cultivation_AP-007_Official_Builtin_Workflows_Plan_v1.1.md"
+          }
+        ],
+        "revisionManifest": {
+          "edges": [],
+          "groups": []
+        }
+      },
+      "steps": [
+        {
+          "effectType": "NONE",
+          "exitCondition": "VALID_OUTPUTS",
+          "id": "task",
+          "inputs": [],
+          "maxAttempts": 5,
+          "objective": "__W2_JSON__",
+          "outputs": [
+            {
+              "contractId": "test.w2.official",
+              "contractVersion": "1",
+              "description": "Test-only JSON contract",
+              "key": "result",
+              "kind": "JSON",
+              "maxSizeBytes": 16384,
+              "required": true,
+              "validator": {
+                "contractId": "test.w2.official",
+                "contractVersion": "1",
+                "type": "REGISTRY"
+              }
+            }
+          ],
+          "routing": {
+            "executionConstraint": "SOLO",
+            "requiredCapabilities": ["GENERAL_REASONING"]
+          },
+          "title": "task",
+          "type": "TASK"
+        }
+      ],
+      "version": 1
+    },
+    "steps": [
+      {
+        "id": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepId": "task",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "missionId": "2cb41dc1-67a3-4e5c-9503-fd0dadcd7d7c",
+        "missionRunId": "f843e9b6-4d6a-4104-8717-776e1510332b",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
+        "waitReason": null,
+        "errorCode": null,
+        "createdAt": "2026-10-02T01:34:08.879Z",
+        "updatedAt": "2026-10-02T01:34:08.928Z"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "7ec58b87-fa8a-43ad-95ba-1b5171d2c79a",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "producerStepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "missionId": "2cb41dc1-67a3-4e5c-9503-fd0dadcd7d7c",
+        "missionRunId": "f843e9b6-4d6a-4104-8717-776e1510332b",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "f843e9b6-4d6a-4104-8717-776e1510332b",
+        "source": "MISSION",
+        "kind": "JSON",
+        "content": "{\"ok\":true}",
+        "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
+        "metadata": {},
+        "inputArtifactIds": [],
+        "createdAt": "2026-10-02T01:34:08.922Z"
+      }
+    ],
+    "bindings": [
+      {
+        "id": "c12c8405-72c0-486a-a62d-1a6a625d4465",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "key": "result",
+        "artifactId": "7ec58b87-fa8a-43ad-95ba-1b5171d2c79a",
+        "role": "OUTPUT",
+        "contractId": "test.w2.official",
+        "contractVersion": "1",
+        "createdAt": "2026-10-02T01:34:08.922Z"
+      }
+    ],
+    "validations": [
+      {
+        "id": "f64644a3-24c8-4097-8af6-ab546b624417",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "artifactId": "7ec58b87-fa8a-43ad-95ba-1b5171d2c79a",
+        "contractId": "test.w2.official",
+        "contractVersion": "1",
+        "validatorVersion": "w2-deterministic-v1",
+        "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
+        "valid": true,
+        "errors": [],
+        "createdAt": "2026-10-02T01:34:08.922Z"
+      }
+    ],
+    "finalValidations": [
+      {
+        "id": "3c9e2567-c1bf-4c93-92b8-82da217521ea",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "definitionVersion": 1,
+        "inputHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "stateHash": "18754f14eaa4e72f62ffe0549f5ec55ccf92fc165a84a261714c9fe2e36d2e13",
+        "outputBindings": [
+          {
+            "artifactId": "7ec58b87-fa8a-43ad-95ba-1b5171d2c79a",
+            "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
+            "key": "result"
+          }
+        ],
+        "valid": true,
+        "errors": [],
+        "createdAt": "2026-10-02T01:34:08.931Z"
+      }
+    ],
+    "decisions": [],
+    "checkpoints": [
+      {
+        "id": "46b4e3ee-f653-4e1f-826f-ab8d35d48b6e",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "sequence": 1,
+        "definitionVersion": 1,
+        "completedStepRunIds": ["c521f800-2208-44c5-afd5-0d79c4fddaaf"],
+        "activeStepRunIds": [],
+        "artifactBindingHashes": [
+          "2c6a3733d3a9dbfaffd5fed93de7498b3d217fc5414ae17f47b7d810655a00b7"
+        ],
+        "decisionHashes": [],
+        "stateHash": "7eb36cd70e4fc73e7e0010733a14e004f98121f6c2efa9e2cecd216287635178",
+        "createdAt": "2026-10-02T01:34:08.928Z"
+      }
+    ],
+    "events": [
+      {
+        "id": "d2f0359b-6bc7-4940-b819-f66411025356",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "type": "workflow.created",
+        "payload": {
+          "version": 1
+        },
+        "createdAt": "2026-10-02T01:34:08.881Z"
+      },
+      {
+        "id": "2ede1a32-fc2f-40e2-a0f6-37e8d569c68b",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "type": "operation.prepared",
+        "payload": {
+          "effectType": "NONE"
+        },
+        "createdAt": "2026-10-02T01:34:08.890Z"
+      },
+      {
+        "id": "c1b23c0f-8c67-43c4-a711-2ecb3231b3d5",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "type": "step.mission_bound",
+        "payload": {
+          "missionId": "2cb41dc1-67a3-4e5c-9503-fd0dadcd7d7c"
+        },
+        "createdAt": "2026-10-02T01:34:08.901Z"
+      },
+      {
+        "id": "b7a720fe-9d1b-4fb7-8fe5-ed21cb6f155d",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "type": "operation.applied",
+        "payload": {
+          "effectType": "NONE"
+        },
+        "createdAt": "2026-10-02T01:34:08.921Z"
+      },
+      {
+        "id": "1dad366f-7e9d-439d-a322-df02f3050fc6",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "type": "operation.verified",
+        "payload": {
+          "effectType": "NONE"
+        },
+        "createdAt": "2026-10-02T01:34:08.925Z"
+      },
+      {
+        "id": "07adfd8a-980a-48e0-af01-d0e23d3c13a0",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "type": "step.completed",
+        "payload": {
+          "edgeId": null,
+          "missionId": "2cb41dc1-67a3-4e5c-9503-fd0dadcd7d7c",
+          "missionRunId": "f843e9b6-4d6a-4104-8717-776e1510332b"
+        },
+        "createdAt": "2026-10-02T01:34:08.930Z"
+      },
+      {
+        "id": "dcf2a769-995f-4565-8d14-3696f2c38ae8",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": null,
+        "type": "workflow.completed",
+        "payload": {},
+        "createdAt": "2026-10-02T01:34:08.934Z"
+      }
+    ],
+    "operations": [
+      {
+        "id": "dc1d0d54-7afa-42f9-bb62-79d33a79d7db",
+        "workflowRunId": "8d96ee2b-97fa-45ff-91b1-b8289d9297d5",
+        "stepRunId": "c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "attempt": 1,
+        "operationKey": "workflow:8d96ee2b-97fa-45ff-91b1-b8289d9297d5:c521f800-2208-44c5-afd5-0d79c4fddaaf",
+        "effectType": "NONE",
+        "state": "VERIFIED",
+        "inputHash": "37ba8af57ebb0d3474f37a5028bd28bf923ffcb022424ef0d81ef1a1c15051b1",
+        "manifest": [],
+        "outputArtifactIds": ["7ec58b87-fa8a-43ad-95ba-1b5171d2c79a"],
+        "createdAt": "2026-10-02T01:34:08.889Z",
+        "updatedAt": "2026-10-02T01:34:08.924Z"
       }
     ],
     "traversals": []
   },
   "revision": {
     "run": {
-      "id": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+      "id": "b6205f84-710f-48da-b65a-c3adee4c52e3",
       "definitionId": "w2-fixture-revision",
       "definitionVersion": 1,
       "inputSnapshot": {},
       "state": "WAITING",
       "waitReason": "USER_CONFIRMATION",
-      "createdAt": "2026-10-01T16:51:22.906Z",
-      "updatedAt": "2026-10-01T16:51:23.497Z"
+      "createdAt": "2026-10-02T01:34:09.138Z",
+      "updatedAt": "2026-10-02T01:34:09.447Z"
     },
     "version": {
       "contractManifest": [
@@ -554,999 +872,999 @@
     },
     "steps": [
       {
-        "id": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "stepId": "draft",
         "attempt": 1,
         "state": "COMPLETED",
-        "missionId": "a1b47a02-236f-478d-ac6b-f8d8dfc35a37",
-        "missionRunId": "099b78f0-9eb0-475c-902b-f5456172bdd4",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "b467e590-8a4c-4ce0-99cd-a660de09cd6d",
+        "missionRunId": "27e8814b-370c-4907-8869-cb53708c1fcc",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:22.906Z",
-        "updatedAt": "2026-10-01T16:51:22.966Z"
+        "createdAt": "2026-10-02T01:34:09.138Z",
+        "updatedAt": "2026-10-02T01:34:09.212Z"
       },
       {
-        "id": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "ea5ffdfa-c53d-4476-b937-2072393687da",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "stepId": "draft",
         "attempt": 2,
         "state": "COMPLETED",
-        "missionId": "954382c9-c035-4a43-be0f-5ef0861d499e",
-        "missionRunId": "62a401f1-e92d-4730-950c-b1509bea7e84",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "02f850bd-3a12-4cdf-8fa5-ac73737aa8b1",
+        "missionRunId": "ff909da1-4631-4237-b2d8-091d35a2ddf8",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:23.287Z",
-        "updatedAt": "2026-10-01T16:51:23.355Z"
+        "createdAt": "2026-10-02T01:34:09.253Z",
+        "updatedAt": "2026-10-02T01:34:09.318Z"
       },
       {
-        "id": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "stepId": "draft",
         "attempt": 3,
         "state": "COMPLETED",
-        "missionId": "d2de91a6-f49f-4349-a056-18ad4e864338",
-        "missionRunId": "12a9589d-5287-44c8-a607-1dad48bd530c",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "feedd812-79b4-4ee7-960f-2132c3bd62fd",
+        "missionRunId": "1e7bc4de-2076-4be0-b842-3e72bc28c53a",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:23.398Z",
-        "updatedAt": "2026-10-01T16:51:23.452Z"
+        "createdAt": "2026-10-02T01:34:09.353Z",
+        "updatedAt": "2026-10-02T01:34:09.407Z"
       },
       {
-        "id": "14760734-7258-48db-baeb-c4a17417f817",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "stepId": "review",
         "attempt": 1,
         "state": "COMPLETED",
-        "missionId": "ea0ed248-2648-4485-8e5d-4807c50d5ee0",
-        "missionRunId": "1c868d8a-0768-4dab-b826-a2a7e436a631",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "75b098f8-313b-46a4-b3b5-31591b41bfe1",
+        "missionRunId": "d512da66-e0e6-45b7-9b2b-5f0bca890d65",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:22.906Z",
-        "updatedAt": "2026-10-01T16:51:23.289Z"
+        "createdAt": "2026-10-02T01:34:09.138Z",
+        "updatedAt": "2026-10-02T01:34:09.255Z"
       },
       {
-        "id": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "3cad245c-998c-446f-83b4-93adaf016df5",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "stepId": "review",
         "attempt": 2,
         "state": "COMPLETED",
-        "missionId": "06bf324d-90bf-42d1-8eb9-00b5e35e0bb7",
-        "missionRunId": "6f26197f-f87c-44ae-9112-9f93b176f446",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "1b61e34b-471b-43c8-9e50-19fb624323d5",
+        "missionRunId": "b6d46a89-a725-4f97-8d5a-9512dcdbaca2",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:23.287Z",
-        "updatedAt": "2026-10-01T16:51:23.400Z"
+        "createdAt": "2026-10-02T01:34:09.253Z",
+        "updatedAt": "2026-10-02T01:34:09.355Z"
       },
       {
-        "id": "67df4024-db1c-4bce-beeb-12daa759680a",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "stepId": "review",
         "attempt": 3,
         "state": "WAITING",
-        "missionId": "52a77920-6b7f-4459-8d83-439666a74227",
-        "missionRunId": "581f856d-3c56-489b-ac03-9364720fb0e0",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "36c0dc6a-fa66-4074-9c0d-55f5e07ad195",
+        "missionRunId": "f8e7ca65-f609-4458-822b-f98151ec7e87",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": "USER_CONFIRMATION",
         "errorCode": "REVISION_BUDGET_EXHAUSTED",
-        "createdAt": "2026-10-01T16:51:23.398Z",
-        "updatedAt": "2026-10-01T16:51:23.496Z"
+        "createdAt": "2026-10-02T01:34:09.353Z",
+        "updatedAt": "2026-10-02T01:34:09.445Z"
       }
     ],
     "artifacts": [
       {
-        "id": "81597f2a-09ac-4a32-a816-cbb1994fbb66",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "producerStepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
-        "missionId": "a1b47a02-236f-478d-ac6b-f8d8dfc35a37",
-        "missionRunId": "099b78f0-9eb0-475c-902b-f5456172bdd4",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "099b78f0-9eb0-475c-902b-f5456172bdd4",
+        "id": "dedd2166-1b6e-4880-8145-771073d35528",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "producerStepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
+        "missionId": "b467e590-8a4c-4ce0-99cd-a660de09cd6d",
+        "missionRunId": "27e8814b-370c-4907-8869-cb53708c1fcc",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "27e8814b-370c-4907-8869-cb53708c1fcc",
         "source": "MISSION",
         "kind": "JSON",
         "content": "{\"ok\":true}",
         "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
         "metadata": {},
         "inputArtifactIds": [],
-        "createdAt": "2026-10-01T16:51:22.960Z"
+        "createdAt": "2026-10-02T01:34:09.206Z"
       },
       {
-        "id": "875e91bc-d136-4a6a-a9dd-5174708b08e5",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "producerStepRunId": "14760734-7258-48db-baeb-c4a17417f817",
-        "missionId": "ea0ed248-2648-4485-8e5d-4807c50d5ee0",
-        "missionRunId": "1c868d8a-0768-4dab-b826-a2a7e436a631",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "1c868d8a-0768-4dab-b826-a2a7e436a631",
+        "id": "c09efbd6-9aee-42dc-af94-109c70b015ee",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "producerStepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
+        "missionId": "75b098f8-313b-46a4-b3b5-31591b41bfe1",
+        "missionRunId": "d512da66-e0e6-45b7-9b2b-5f0bca890d65",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "d512da66-e0e6-45b7-9b2b-5f0bca890d65",
         "source": "MISSION",
         "kind": "JSON",
-        "content": "{\"verdict\":\"REVISE\",\"findings\":[],\"evidence\":[],\"summary\":\"Declared test-only review\",\"reviewedArtifactIds\":[\"81597f2a-09ac-4a32-a816-cbb1994fbb66\"],\"revisionCode\":\"fix.first\"}",
-        "contentHash": "c8222049d39f96b1e5feefbb27d771f9ceeb67634b275bd54051fc2463937f1c",
+        "content": "{\"verdict\":\"REVISE\",\"findings\":[],\"evidence\":[],\"summary\":\"Declared test-only review\",\"reviewedArtifactIds\":[\"dedd2166-1b6e-4880-8145-771073d35528\"],\"revisionCode\":\"fix.first\"}",
+        "contentHash": "ce2e5f66d22ed866ceb8ba2a8861cbb1207906a4710d343033d04ad7ca0f4665",
         "metadata": {},
-        "inputArtifactIds": ["81597f2a-09ac-4a32-a816-cbb1994fbb66"],
-        "createdAt": "2026-10-01T16:51:23.281Z"
+        "inputArtifactIds": ["dedd2166-1b6e-4880-8145-771073d35528"],
+        "createdAt": "2026-10-02T01:34:09.247Z"
       },
       {
-        "id": "471e172d-8576-4ddf-b0dd-83928a9b0835",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "producerStepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
-        "missionId": "954382c9-c035-4a43-be0f-5ef0861d499e",
-        "missionRunId": "62a401f1-e92d-4730-950c-b1509bea7e84",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "62a401f1-e92d-4730-950c-b1509bea7e84",
-        "source": "MISSION",
-        "kind": "JSON",
-        "content": "{\"ok\":true}",
-        "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
-        "metadata": {},
-        "inputArtifactIds": [],
-        "createdAt": "2026-10-01T16:51:23.348Z"
-      },
-      {
-        "id": "0ec7e27e-81a5-4064-8f2c-81aecd078e22",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "producerStepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
-        "missionId": "06bf324d-90bf-42d1-8eb9-00b5e35e0bb7",
-        "missionRunId": "6f26197f-f87c-44ae-9112-9f93b176f446",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "6f26197f-f87c-44ae-9112-9f93b176f446",
-        "source": "MISSION",
-        "kind": "JSON",
-        "content": "{\"verdict\":\"REVISE\",\"findings\":[],\"evidence\":[],\"summary\":\"Declared test-only review\",\"reviewedArtifactIds\":[\"471e172d-8576-4ddf-b0dd-83928a9b0835\"],\"revisionCode\":\"fix.second\"}",
-        "contentHash": "ed7d54fd4e46a8b40933b1dd4a5692430280446a69cd20a40b2c7a3b178702e8",
-        "metadata": {},
-        "inputArtifactIds": ["471e172d-8576-4ddf-b0dd-83928a9b0835"],
-        "createdAt": "2026-10-01T16:51:23.393Z"
-      },
-      {
-        "id": "7a6d1139-1f73-4d12-88a4-7628f8bb500a",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "producerStepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
-        "missionId": "d2de91a6-f49f-4349-a056-18ad4e864338",
-        "missionRunId": "12a9589d-5287-44c8-a607-1dad48bd530c",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "12a9589d-5287-44c8-a607-1dad48bd530c",
+        "id": "d979e8fa-bef1-4e10-accc-38c056ce5631",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "producerStepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
+        "missionId": "02f850bd-3a12-4cdf-8fa5-ac73737aa8b1",
+        "missionRunId": "ff909da1-4631-4237-b2d8-091d35a2ddf8",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "ff909da1-4631-4237-b2d8-091d35a2ddf8",
         "source": "MISSION",
         "kind": "JSON",
         "content": "{\"ok\":true}",
         "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
         "metadata": {},
         "inputArtifactIds": [],
-        "createdAt": "2026-10-01T16:51:23.446Z"
+        "createdAt": "2026-10-02T01:34:09.312Z"
       },
       {
-        "id": "9bee82d4-ce98-4de2-a46a-1bdec015c561",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "producerStepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
-        "missionId": "52a77920-6b7f-4459-8d83-439666a74227",
-        "missionRunId": "581f856d-3c56-489b-ac03-9364720fb0e0",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "581f856d-3c56-489b-ac03-9364720fb0e0",
+        "id": "ada9d756-e047-4080-b602-1ae5d4731517",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "producerStepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
+        "missionId": "1b61e34b-471b-43c8-9e50-19fb624323d5",
+        "missionRunId": "b6d46a89-a725-4f97-8d5a-9512dcdbaca2",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "b6d46a89-a725-4f97-8d5a-9512dcdbaca2",
         "source": "MISSION",
         "kind": "JSON",
-        "content": "{\"verdict\":\"REVISE\",\"findings\":[],\"evidence\":[],\"summary\":\"Declared test-only review\",\"reviewedArtifactIds\":[\"7a6d1139-1f73-4d12-88a4-7628f8bb500a\"],\"revisionCode\":\"fix.first\"}",
-        "contentHash": "6c86f0b8b77629bd677c11803a160c87276aad7da148352f0bba375590ac833e",
+        "content": "{\"verdict\":\"REVISE\",\"findings\":[],\"evidence\":[],\"summary\":\"Declared test-only review\",\"reviewedArtifactIds\":[\"d979e8fa-bef1-4e10-accc-38c056ce5631\"],\"revisionCode\":\"fix.second\"}",
+        "contentHash": "0c33db737a8e371625afb76184afcd43fe8b674cc34b9089a0bbd8d800d692e9",
         "metadata": {},
-        "inputArtifactIds": ["7a6d1139-1f73-4d12-88a4-7628f8bb500a"],
-        "createdAt": "2026-10-01T16:51:23.490Z"
+        "inputArtifactIds": ["d979e8fa-bef1-4e10-accc-38c056ce5631"],
+        "createdAt": "2026-10-02T01:34:09.349Z"
+      },
+      {
+        "id": "963fcf39-5d06-4c5f-9a21-c75785bc4d92",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "producerStepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
+        "missionId": "feedd812-79b4-4ee7-960f-2132c3bd62fd",
+        "missionRunId": "1e7bc4de-2076-4be0-b842-3e72bc28c53a",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "1e7bc4de-2076-4be0-b842-3e72bc28c53a",
+        "source": "MISSION",
+        "kind": "JSON",
+        "content": "{\"ok\":true}",
+        "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
+        "metadata": {},
+        "inputArtifactIds": [],
+        "createdAt": "2026-10-02T01:34:09.402Z"
+      },
+      {
+        "id": "8a7dfee0-10e5-4cb5-9d63-8d0396ee791a",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "producerStepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
+        "missionId": "36c0dc6a-fa66-4074-9c0d-55f5e07ad195",
+        "missionRunId": "f8e7ca65-f609-4458-822b-f98151ec7e87",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "f8e7ca65-f609-4458-822b-f98151ec7e87",
+        "source": "MISSION",
+        "kind": "JSON",
+        "content": "{\"verdict\":\"REVISE\",\"findings\":[],\"evidence\":[],\"summary\":\"Declared test-only review\",\"reviewedArtifactIds\":[\"963fcf39-5d06-4c5f-9a21-c75785bc4d92\"],\"revisionCode\":\"fix.first\"}",
+        "contentHash": "8e5b0c3f4da79029ff795454d98d623fd12a2c64bd19e7a61d6669dba1c1d77f",
+        "metadata": {},
+        "inputArtifactIds": ["963fcf39-5d06-4c5f-9a21-c75785bc4d92"],
+        "createdAt": "2026-10-02T01:34:09.441Z"
       }
     ],
     "bindings": [
       {
-        "id": "cbd24e3c-4b2d-4d44-8bdc-8d55e7cc9063",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "77967498-bb80-4038-afe5-025997335686",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "key": "result",
-        "artifactId": "81597f2a-09ac-4a32-a816-cbb1994fbb66",
+        "artifactId": "dedd2166-1b6e-4880-8145-771073d35528",
         "role": "OUTPUT",
         "contractId": "test.w2.json",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:22.960Z"
+        "createdAt": "2026-10-02T01:34:09.206Z"
       },
       {
-        "id": "afbd87a2-e934-4af3-a964-ba6d56091be0",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "183f256c-6a04-4650-9d86-8848c55a497f",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "key": "draft",
-        "artifactId": "81597f2a-09ac-4a32-a816-cbb1994fbb66",
+        "artifactId": "dedd2166-1b6e-4880-8145-771073d35528",
         "role": "INPUT",
         "contractId": "test.w2.json",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.196Z"
+        "createdAt": "2026-10-02T01:34:09.214Z"
       },
       {
-        "id": "439c8b5c-d431-40bf-a13c-42f7ab72d9b6",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "1c2a44f0-953c-4707-9d51-979af6531b7c",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "key": "result",
-        "artifactId": "875e91bc-d136-4a6a-a9dd-5174708b08e5",
+        "artifactId": "c09efbd6-9aee-42dc-af94-109c70b015ee",
         "role": "OUTPUT",
         "contractId": "test.w2.review",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.281Z"
+        "createdAt": "2026-10-02T01:34:09.248Z"
       },
       {
-        "id": "44bffb1e-a55f-4ab7-8a91-d1a1e8016fed",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "c8fbf529-3cbe-4441-82ae-6bb2caeeb75e",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "key": "result",
-        "artifactId": "471e172d-8576-4ddf-b0dd-83928a9b0835",
+        "artifactId": "d979e8fa-bef1-4e10-accc-38c056ce5631",
         "role": "OUTPUT",
         "contractId": "test.w2.json",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.348Z"
+        "createdAt": "2026-10-02T01:34:09.312Z"
       },
       {
-        "id": "d6d0232c-a967-49df-8b2b-cbd2141d9a0e",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "46b85f91-234e-48f8-b262-98d60f028535",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "key": "draft",
-        "artifactId": "471e172d-8576-4ddf-b0dd-83928a9b0835",
+        "artifactId": "d979e8fa-bef1-4e10-accc-38c056ce5631",
         "role": "INPUT",
         "contractId": "test.w2.json",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.358Z"
+        "createdAt": "2026-10-02T01:34:09.321Z"
       },
       {
-        "id": "8f7947f4-419e-4df8-8406-05a47b7dad85",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "0d29a9a5-0f33-47c1-a3cc-904ad5dc3332",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "key": "result",
-        "artifactId": "0ec7e27e-81a5-4064-8f2c-81aecd078e22",
+        "artifactId": "ada9d756-e047-4080-b602-1ae5d4731517",
         "role": "OUTPUT",
         "contractId": "test.w2.review",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.393Z"
+        "createdAt": "2026-10-02T01:34:09.349Z"
       },
       {
-        "id": "c27065d8-8a65-4694-8391-f031955adc35",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "922d6ad4-4ad9-40bf-862e-e2544c526b31",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "key": "result",
-        "artifactId": "7a6d1139-1f73-4d12-88a4-7628f8bb500a",
+        "artifactId": "963fcf39-5d06-4c5f-9a21-c75785bc4d92",
         "role": "OUTPUT",
         "contractId": "test.w2.json",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.446Z"
+        "createdAt": "2026-10-02T01:34:09.402Z"
       },
       {
-        "id": "00d2c91d-cd96-402d-aa49-75659c5b835a",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "01f2154c-4c52-481c-bb93-d65b98d4d785",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "key": "draft",
-        "artifactId": "7a6d1139-1f73-4d12-88a4-7628f8bb500a",
+        "artifactId": "963fcf39-5d06-4c5f-9a21-c75785bc4d92",
         "role": "INPUT",
         "contractId": "test.w2.json",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.455Z"
+        "createdAt": "2026-10-02T01:34:09.410Z"
       },
       {
-        "id": "9be12b7a-9e88-4025-9b1b-8bdc9af3ef21",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "bf1c841d-793d-402b-abcd-70812393c2c0",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "key": "result",
-        "artifactId": "9bee82d4-ce98-4de2-a46a-1bdec015c561",
+        "artifactId": "8a7dfee0-10e5-4cb5-9d63-8d0396ee791a",
         "role": "OUTPUT",
         "contractId": "test.w2.review",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:23.490Z"
+        "createdAt": "2026-10-02T01:34:09.441Z"
       }
     ],
     "validations": [
       {
-        "id": "d22e1dc6-30a6-4bbe-8304-df36abf7e7f1",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
-        "artifactId": "81597f2a-09ac-4a32-a816-cbb1994fbb66",
+        "id": "9962f3fb-196c-4673-aeeb-5cda434523a9",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
+        "artifactId": "dedd2166-1b6e-4880-8145-771073d35528",
         "contractId": "test.w2.json",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
         "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:22.960Z"
+        "createdAt": "2026-10-02T01:34:09.206Z"
       },
       {
-        "id": "c49c90f8-29e8-47f8-80a4-a1c0f96c4a9e",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
-        "artifactId": "875e91bc-d136-4a6a-a9dd-5174708b08e5",
+        "id": "3b2efd66-ebf6-44ba-a334-9f0280dfbc45",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
+        "artifactId": "c09efbd6-9aee-42dc-af94-109c70b015ee",
         "contractId": "test.w2.review",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
-        "contentHash": "c8222049d39f96b1e5feefbb27d771f9ceeb67634b275bd54051fc2463937f1c",
+        "contentHash": "ce2e5f66d22ed866ceb8ba2a8861cbb1207906a4710d343033d04ad7ca0f4665",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:23.281Z"
+        "createdAt": "2026-10-02T01:34:09.247Z"
       },
       {
-        "id": "abb828b9-eca9-4b9e-baf6-f36ed2e8839b",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
-        "artifactId": "471e172d-8576-4ddf-b0dd-83928a9b0835",
+        "id": "65bbab1b-4ab2-4e52-87c8-649c90cf1abe",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
+        "artifactId": "d979e8fa-bef1-4e10-accc-38c056ce5631",
         "contractId": "test.w2.json",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
         "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:23.348Z"
+        "createdAt": "2026-10-02T01:34:09.312Z"
       },
       {
-        "id": "b2c2da2c-d19f-4f82-b9b7-c2b4673c02ad",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
-        "artifactId": "0ec7e27e-81a5-4064-8f2c-81aecd078e22",
+        "id": "b77fc38a-aa98-4081-a62f-d28f4f038996",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
+        "artifactId": "ada9d756-e047-4080-b602-1ae5d4731517",
         "contractId": "test.w2.review",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
-        "contentHash": "ed7d54fd4e46a8b40933b1dd4a5692430280446a69cd20a40b2c7a3b178702e8",
+        "contentHash": "0c33db737a8e371625afb76184afcd43fe8b674cc34b9089a0bbd8d800d692e9",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:23.393Z"
+        "createdAt": "2026-10-02T01:34:09.349Z"
       },
       {
-        "id": "5b993dc1-84ab-4f3f-b259-d4f3fae82e8f",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
-        "artifactId": "7a6d1139-1f73-4d12-88a4-7628f8bb500a",
+        "id": "a402552a-1b9e-4916-bf4a-c0b1fd273610",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
+        "artifactId": "963fcf39-5d06-4c5f-9a21-c75785bc4d92",
         "contractId": "test.w2.json",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
         "contentHash": "2f15bc208ed16e7d9f75a0c8b20c4272715f6e2583da46228179db3b486204a0",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:23.446Z"
+        "createdAt": "2026-10-02T01:34:09.402Z"
       },
       {
-        "id": "c4ecb946-15af-4de5-a837-a7f9cea343d2",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
-        "artifactId": "9bee82d4-ce98-4de2-a46a-1bdec015c561",
+        "id": "9498160d-d288-4747-a860-273dba7b3a57",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
+        "artifactId": "8a7dfee0-10e5-4cb5-9d63-8d0396ee791a",
         "contractId": "test.w2.review",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
-        "contentHash": "6c86f0b8b77629bd677c11803a160c87276aad7da148352f0bba375590ac833e",
+        "contentHash": "8e5b0c3f4da79029ff795454d98d623fd12a2c64bd19e7a61d6669dba1c1d77f",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:23.490Z"
+        "createdAt": "2026-10-02T01:34:09.441Z"
       }
     ],
     "finalValidations": [],
     "decisions": [
       {
-        "id": "56d4ec58-b501-4ce0-98ca-7bf127bce596",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "af3a44b8-5e88-4215-8c97-def33ef4896d",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "edgeId": "draft-review",
         "branch": "NEXT",
-        "inputHash": "215bb654a441e01fc710aeb8a8383c0c5aebea410401fd4365ae8aedd78bea69",
-        "createdAt": "2026-10-01T16:51:22.964Z"
+        "inputHash": "292ac75ad0d6b52549372aa77a60ab8c95f7f196e4635c7a8eda923e395dff2b",
+        "createdAt": "2026-10-02T01:34:09.210Z"
       },
       {
-        "id": "78c6eca7-fe4e-4efa-9f73-fd15fae7dee6",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "ed9b52f7-3dd2-43dc-87b0-0e21d2048e9b",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "edgeId": "fix-first",
         "branch": "FIX_FIRST",
-        "inputHash": "090ad813a49d0e7bbaafe00ae9cbf6ab041779f258a2403718abdb67af46a926",
-        "createdAt": "2026-10-01T16:51:23.286Z"
+        "inputHash": "c8bc53605cb308d147a711a2fdd25f2fce3e9ad1c873c5525c54396d23d897a7",
+        "createdAt": "2026-10-02T01:34:09.252Z"
       },
       {
-        "id": "a70b1513-fc82-4ef8-a004-138b17bdcaed",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "76ec4ef3-929b-4555-8f5f-c105535987bb",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "edgeId": "draft-review",
         "branch": "NEXT",
-        "inputHash": "230d5859b5e34dd2bc6bb3a0fe165eca4e606b99fc9f1484edfa274ed9a44fdd",
-        "createdAt": "2026-10-01T16:51:23.353Z"
+        "inputHash": "2d3d9877a85fb21d20d795679e9411a6ac39dc1130cec7e5f88d5dd84525b698",
+        "createdAt": "2026-10-02T01:34:09.316Z"
       },
       {
-        "id": "d1af4aaa-9910-47e6-a675-638f179b2ffe",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "9bffda6a-d9a6-4bc8-98f6-077f18eef49c",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "edgeId": "fix-second",
         "branch": "FIX_SECOND",
-        "inputHash": "fa308f48b955bba430d6378c884919f821a123345f97acf5a9ff9f1dc6a7085c",
-        "createdAt": "2026-10-01T16:51:23.397Z"
+        "inputHash": "c10967aba1b1219b4155ba5ca6e446cba16cd0e66269179eea1c326f2646d801",
+        "createdAt": "2026-10-02T01:34:09.353Z"
       },
       {
-        "id": "6b1b558e-d1fa-4504-8c65-bc455ea0969e",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "c3cedcae-a198-422c-b8b3-f86d86f3f05a",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "edgeId": "draft-review",
         "branch": "NEXT",
-        "inputHash": "20d9a9f7ebd0a7007fde3fb2d0ff20449f8873bc1bd0e4552a3eec2eed359d4c",
-        "createdAt": "2026-10-01T16:51:23.450Z"
+        "inputHash": "1122918ccb136084d634484171867fceb49dcd1641950820c520812f1e1422ee",
+        "createdAt": "2026-10-02T01:34:09.405Z"
       }
     ],
     "checkpoints": [
       {
-        "id": "280f4d63-9b2f-426b-96e0-c72aebdff138",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "a1822238-67a3-4e3b-bd20-bfd6157a76b0",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "sequence": 1,
         "definitionVersion": 1,
-        "completedStepRunIds": ["aae52eba-26b3-4862-8e4d-ce294dd83c66"],
-        "activeStepRunIds": ["14760734-7258-48db-baeb-c4a17417f817"],
+        "completedStepRunIds": ["f6606d2f-8be3-4e9f-bc46-ad21776644b4"],
+        "activeStepRunIds": ["ed384c0e-4aee-4b35-bea9-0da3afbee9af"],
         "artifactBindingHashes": [
-          "b7bcfbe5fa2f0607db8132fb284db9e2c921fc1960111fe128e12e6aa0f7d2a2"
+          "810bfa04cb50cb9144869ec2c4dca30a908a1a0fe91be704dfebf29e4a9629de"
         ],
-        "decisionHashes": ["f1466ed0b60ed7eb410088618097bb4b3dffa286c4d1d6c54b2b45e4923888b1"],
-        "stateHash": "517e405e4432ca206a5142fe456a2ae201589c8f1781e3a41a881d3e76f04cd4",
-        "createdAt": "2026-10-01T16:51:22.966Z"
+        "decisionHashes": ["e2480a95a41b11be54f0298e34a5eb08833677b3a4ae3261d2e386fd8448f8e7"],
+        "stateHash": "4af87cf3d030c5100ff53be4aa54421004db0eb1772b89ec292847e091c7e209",
+        "createdAt": "2026-10-02T01:34:09.211Z"
       },
       {
-        "id": "6c2830d2-0534-413b-9873-69cdfb3df046",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "64cf12dc-ceb3-44ca-aa3f-183b3a3b5c55",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "sequence": 2,
         "definitionVersion": 1,
         "completedStepRunIds": [
-          "aae52eba-26b3-4862-8e4d-ce294dd83c66",
-          "14760734-7258-48db-baeb-c4a17417f817"
+          "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
+          "ed384c0e-4aee-4b35-bea9-0da3afbee9af"
         ],
-        "activeStepRunIds": ["21e2de6c-6ca9-461d-b855-d45ea3a65199"],
+        "activeStepRunIds": ["ea5ffdfa-c53d-4476-b937-2072393687da"],
         "artifactBindingHashes": [
-          "b7bcfbe5fa2f0607db8132fb284db9e2c921fc1960111fe128e12e6aa0f7d2a2",
-          "0c2ac1119b29a0d119989f728ac95665a6b02f8dcfbd225e2f25933962f19637",
-          "18d94c6e9c5f7c4f71fbc907304f30254f5b9fe624a5e8ec2729b2d050aae794"
+          "810bfa04cb50cb9144869ec2c4dca30a908a1a0fe91be704dfebf29e4a9629de",
+          "f41fa357f45b1b9c7f44bfa61371c499b647c4e59f02b504a6efd08414eea97d",
+          "09557aa376f6e415363ea28cbe7d994516c5b5534bfaf4e04acebf2b64ee62da"
         ],
         "decisionHashes": [
-          "f1466ed0b60ed7eb410088618097bb4b3dffa286c4d1d6c54b2b45e4923888b1",
-          "02a8fd1acbe6a4c456f34fc1c1d7544b6167a107b017bf8b7f2b926372f0de9f"
+          "e2480a95a41b11be54f0298e34a5eb08833677b3a4ae3261d2e386fd8448f8e7",
+          "8313fd762c18f6c3b56211d4d7caded38d3208b55f694a5917b4925bc3b845a1"
         ],
-        "stateHash": "b162976223558813577eefb3234f0633a2771dc0b1951a72c672c809074a7c84",
-        "createdAt": "2026-10-01T16:51:23.289Z"
+        "stateHash": "29d907e0832623f28ff8cbf099390c332509c2590f8ca5227d00d8253505448f",
+        "createdAt": "2026-10-02T01:34:09.255Z"
       },
       {
-        "id": "d957399c-fc61-424c-b4ce-f79ae919b3ab",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "b7a9a0f2-7920-47ac-8d27-151d38932c05",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "sequence": 3,
         "definitionVersion": 1,
         "completedStepRunIds": [
-          "aae52eba-26b3-4862-8e4d-ce294dd83c66",
-          "21e2de6c-6ca9-461d-b855-d45ea3a65199",
-          "14760734-7258-48db-baeb-c4a17417f817"
+          "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
+          "ea5ffdfa-c53d-4476-b937-2072393687da",
+          "ed384c0e-4aee-4b35-bea9-0da3afbee9af"
         ],
-        "activeStepRunIds": ["8bd5ddd1-727a-4fac-930c-1cf8a4455846"],
+        "activeStepRunIds": ["3cad245c-998c-446f-83b4-93adaf016df5"],
         "artifactBindingHashes": [
-          "b7bcfbe5fa2f0607db8132fb284db9e2c921fc1960111fe128e12e6aa0f7d2a2",
-          "0c2ac1119b29a0d119989f728ac95665a6b02f8dcfbd225e2f25933962f19637",
-          "18d94c6e9c5f7c4f71fbc907304f30254f5b9fe624a5e8ec2729b2d050aae794",
-          "3b0219cb301ad4bbf23f85336506f94523e36491dbb67be78db29fad67d2ecd4"
+          "810bfa04cb50cb9144869ec2c4dca30a908a1a0fe91be704dfebf29e4a9629de",
+          "f41fa357f45b1b9c7f44bfa61371c499b647c4e59f02b504a6efd08414eea97d",
+          "09557aa376f6e415363ea28cbe7d994516c5b5534bfaf4e04acebf2b64ee62da",
+          "fd4c46079236e8e61f94471e805e4245e413c31b1f7e6a7c02e43c918715b574"
         ],
         "decisionHashes": [
-          "f1466ed0b60ed7eb410088618097bb4b3dffa286c4d1d6c54b2b45e4923888b1",
-          "02a8fd1acbe6a4c456f34fc1c1d7544b6167a107b017bf8b7f2b926372f0de9f",
-          "f53937263f8bd7c0154397259759d503f1ec655595b5581f8b581f3360cca47a"
+          "e2480a95a41b11be54f0298e34a5eb08833677b3a4ae3261d2e386fd8448f8e7",
+          "8313fd762c18f6c3b56211d4d7caded38d3208b55f694a5917b4925bc3b845a1",
+          "8a3024660863618cdfe7bbbccb9c155c83b62722dc149c6894e979ddd9abf7cb"
         ],
-        "stateHash": "8ed001fe5a478d2efa13f912cd586e875079d984e36636d8179fa993df172351",
-        "createdAt": "2026-10-01T16:51:23.355Z"
+        "stateHash": "67e23895284f98f9a28b1885a4f0900d15ad514589809de37eb897d4256ce22c",
+        "createdAt": "2026-10-02T01:34:09.318Z"
       },
       {
-        "id": "fbcb30f2-9385-494d-98fe-68fbb609aaf9",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "8a1c439a-d670-4e0b-bd20-0a2a7b5a0d22",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "sequence": 4,
         "definitionVersion": 1,
         "completedStepRunIds": [
-          "aae52eba-26b3-4862-8e4d-ce294dd83c66",
-          "21e2de6c-6ca9-461d-b855-d45ea3a65199",
-          "14760734-7258-48db-baeb-c4a17417f817",
-          "8bd5ddd1-727a-4fac-930c-1cf8a4455846"
+          "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
+          "ea5ffdfa-c53d-4476-b937-2072393687da",
+          "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
+          "3cad245c-998c-446f-83b4-93adaf016df5"
         ],
-        "activeStepRunIds": ["70c62fc9-aebe-4c32-9a29-1fe18fda80e3"],
+        "activeStepRunIds": ["ceccdf46-e617-4fde-a27b-ecb15245ec05"],
         "artifactBindingHashes": [
-          "b7bcfbe5fa2f0607db8132fb284db9e2c921fc1960111fe128e12e6aa0f7d2a2",
-          "0c2ac1119b29a0d119989f728ac95665a6b02f8dcfbd225e2f25933962f19637",
-          "18d94c6e9c5f7c4f71fbc907304f30254f5b9fe624a5e8ec2729b2d050aae794",
-          "3b0219cb301ad4bbf23f85336506f94523e36491dbb67be78db29fad67d2ecd4",
-          "b20014c421ff84736e2990cb4025b4a897bb37481ae3b2de891f1d7e0ade92ab",
-          "218f423576673038e7a961d749db993c6c6a6b82c9d6ed0f473e8552caf3425c"
+          "810bfa04cb50cb9144869ec2c4dca30a908a1a0fe91be704dfebf29e4a9629de",
+          "f41fa357f45b1b9c7f44bfa61371c499b647c4e59f02b504a6efd08414eea97d",
+          "09557aa376f6e415363ea28cbe7d994516c5b5534bfaf4e04acebf2b64ee62da",
+          "fd4c46079236e8e61f94471e805e4245e413c31b1f7e6a7c02e43c918715b574",
+          "86621f90285a41435e7c5f736a62dd83df8d494d11d93cef688e0f1c6fd60a93",
+          "72fefa3eed693107e46d4377e9cb28beacaa6535365e3de16fef3aadc74532db"
         ],
         "decisionHashes": [
-          "f1466ed0b60ed7eb410088618097bb4b3dffa286c4d1d6c54b2b45e4923888b1",
-          "02a8fd1acbe6a4c456f34fc1c1d7544b6167a107b017bf8b7f2b926372f0de9f",
-          "f53937263f8bd7c0154397259759d503f1ec655595b5581f8b581f3360cca47a",
-          "f569dc1fd0365c4a9ebf282aa04f34fba70ed0aff7485ed08cff9dbe28b33423"
+          "e2480a95a41b11be54f0298e34a5eb08833677b3a4ae3261d2e386fd8448f8e7",
+          "8313fd762c18f6c3b56211d4d7caded38d3208b55f694a5917b4925bc3b845a1",
+          "8a3024660863618cdfe7bbbccb9c155c83b62722dc149c6894e979ddd9abf7cb",
+          "3a0510cffb930fbfd07a95538ffde3676c1b733fde10c957e19183dab6dbc00a"
         ],
-        "stateHash": "7fe349ddd2b3a90c0e13260d08edacd761424d34b0a7bd7c0a6c6a6679fca26e",
-        "createdAt": "2026-10-01T16:51:23.400Z"
+        "stateHash": "153b46f44791a6da248f4ba29f5f4a619d1145afc2c9df9e1df0df5e69f4eb9c",
+        "createdAt": "2026-10-02T01:34:09.355Z"
       },
       {
-        "id": "f7bb3342-384e-4e17-aa75-8dfbdbf67000",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
+        "id": "b5f94125-9558-4fe9-8b31-8ea10bfb7dcf",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
         "sequence": 5,
         "definitionVersion": 1,
         "completedStepRunIds": [
-          "aae52eba-26b3-4862-8e4d-ce294dd83c66",
-          "21e2de6c-6ca9-461d-b855-d45ea3a65199",
-          "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
-          "14760734-7258-48db-baeb-c4a17417f817",
-          "8bd5ddd1-727a-4fac-930c-1cf8a4455846"
+          "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
+          "ea5ffdfa-c53d-4476-b937-2072393687da",
+          "ceccdf46-e617-4fde-a27b-ecb15245ec05",
+          "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
+          "3cad245c-998c-446f-83b4-93adaf016df5"
         ],
-        "activeStepRunIds": ["67df4024-db1c-4bce-beeb-12daa759680a"],
+        "activeStepRunIds": ["01d236b3-ec25-4ff2-9d86-5d8a189945dc"],
         "artifactBindingHashes": [
-          "b7bcfbe5fa2f0607db8132fb284db9e2c921fc1960111fe128e12e6aa0f7d2a2",
-          "0c2ac1119b29a0d119989f728ac95665a6b02f8dcfbd225e2f25933962f19637",
-          "18d94c6e9c5f7c4f71fbc907304f30254f5b9fe624a5e8ec2729b2d050aae794",
-          "3b0219cb301ad4bbf23f85336506f94523e36491dbb67be78db29fad67d2ecd4",
-          "b20014c421ff84736e2990cb4025b4a897bb37481ae3b2de891f1d7e0ade92ab",
-          "218f423576673038e7a961d749db993c6c6a6b82c9d6ed0f473e8552caf3425c",
-          "b788e5da6146046902db5040e376b5b75a7a7d48959ca7172ec1e9f8172d1ce0"
+          "810bfa04cb50cb9144869ec2c4dca30a908a1a0fe91be704dfebf29e4a9629de",
+          "f41fa357f45b1b9c7f44bfa61371c499b647c4e59f02b504a6efd08414eea97d",
+          "09557aa376f6e415363ea28cbe7d994516c5b5534bfaf4e04acebf2b64ee62da",
+          "fd4c46079236e8e61f94471e805e4245e413c31b1f7e6a7c02e43c918715b574",
+          "86621f90285a41435e7c5f736a62dd83df8d494d11d93cef688e0f1c6fd60a93",
+          "72fefa3eed693107e46d4377e9cb28beacaa6535365e3de16fef3aadc74532db",
+          "b1d650f4ba04e1720d4782abb71ed6ab84cf97c381642e079d8942912a952d13"
         ],
         "decisionHashes": [
-          "f1466ed0b60ed7eb410088618097bb4b3dffa286c4d1d6c54b2b45e4923888b1",
-          "02a8fd1acbe6a4c456f34fc1c1d7544b6167a107b017bf8b7f2b926372f0de9f",
-          "f53937263f8bd7c0154397259759d503f1ec655595b5581f8b581f3360cca47a",
-          "f569dc1fd0365c4a9ebf282aa04f34fba70ed0aff7485ed08cff9dbe28b33423",
-          "db169ff2ba2e0e159ccb8b9280decb87fa2b8bf4463c82e47e36a02ad5fb1044"
+          "e2480a95a41b11be54f0298e34a5eb08833677b3a4ae3261d2e386fd8448f8e7",
+          "8313fd762c18f6c3b56211d4d7caded38d3208b55f694a5917b4925bc3b845a1",
+          "8a3024660863618cdfe7bbbccb9c155c83b62722dc149c6894e979ddd9abf7cb",
+          "3a0510cffb930fbfd07a95538ffde3676c1b733fde10c957e19183dab6dbc00a",
+          "d1febe8916785585e6ddf0bfa066bd569260718d6df3e875f7f261ecbd1a52c4"
         ],
-        "stateHash": "f1f1b5abed0271441816a4603585be38db09ee48a461d9897224ce1da4d6eb9e",
-        "createdAt": "2026-10-01T16:51:23.452Z"
+        "stateHash": "498596c04c15812ad1f9d6ee8c20cf31d7279aef826a95aadabbe3b159f32d2c",
+        "createdAt": "2026-10-02T01:34:09.407Z"
       }
     ],
     "events": [
       {
-        "id": "76f07149-768d-4228-851e-5e086db484d5",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "1b73ac0c-f352-45be-88ba-82a3f0ab1d6c",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "type": "workflow.created",
         "payload": {
           "version": 1
         },
-        "createdAt": "2026-10-01T16:51:22.908Z"
+        "createdAt": "2026-10-02T01:34:09.141Z"
       },
       {
-        "id": "2f7d7c68-839d-4170-908f-04a2d46bdfa0",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "57dfcf89-ddc2-4214-b548-ab76c607dc28",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "type": "operation.prepared",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:22.922Z"
+        "createdAt": "2026-10-02T01:34:09.181Z"
       },
       {
-        "id": "9bc7881e-0837-4477-853e-9c8ce4ea2485",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "a3145c31-066b-4996-97cf-a51f59dbff04",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "a1b47a02-236f-478d-ac6b-f8d8dfc35a37"
+          "missionId": "b467e590-8a4c-4ce0-99cd-a660de09cd6d"
         },
-        "createdAt": "2026-10-01T16:51:22.936Z"
+        "createdAt": "2026-10-02T01:34:09.191Z"
       },
       {
-        "id": "796e9250-595e-4ac7-b24f-8353cf68eb50",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "d7a72973-f1c4-4873-b2bd-4e72e667e63b",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "type": "operation.applied",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:22.959Z"
+        "createdAt": "2026-10-02T01:34:09.205Z"
       },
       {
-        "id": "343a0a3b-0ed1-4344-b2c3-86623007c3f6",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "e91e680e-bc75-4202-aadc-b5c8b3dcb88f",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "type": "operation.verified",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:22.963Z"
+        "createdAt": "2026-10-02T01:34:09.209Z"
       },
       {
-        "id": "205b1d17-6a9a-45f6-bd5f-ef47dd13a071",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "eed7858c-f67f-4a66-ba3e-7813eba2391d",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "type": "step.completed",
         "payload": {
           "edgeId": "draft-review",
-          "missionId": "a1b47a02-236f-478d-ac6b-f8d8dfc35a37",
-          "missionRunId": "099b78f0-9eb0-475c-902b-f5456172bdd4"
+          "missionId": "b467e590-8a4c-4ce0-99cd-a660de09cd6d",
+          "missionRunId": "27e8814b-370c-4907-8869-cb53708c1fcc"
         },
-        "createdAt": "2026-10-01T16:51:22.968Z"
+        "createdAt": "2026-10-02T01:34:09.213Z"
       },
       {
-        "id": "84832754-7fcf-4eff-aeaf-81327e42296f",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "0b6068d5-acdd-40f6-80c3-cce786299034",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "type": "operation.prepared",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.248Z"
+        "createdAt": "2026-10-02T01:34:09.217Z"
       },
       {
-        "id": "6c5700c3-47fe-4c30-9190-311dd8897dc6",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "6bac1d32-7459-44af-b5d8-d528c4eca48b",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "ea0ed248-2648-4485-8e5d-4807c50d5ee0"
+          "missionId": "75b098f8-313b-46a4-b3b5-31591b41bfe1"
         },
-        "createdAt": "2026-10-01T16:51:23.263Z"
+        "createdAt": "2026-10-02T01:34:09.228Z"
       },
       {
-        "id": "ad8230f2-9b16-4d2c-ac10-55b0939d5db3",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "6b7ab25a-07fc-4aac-bef1-101070fe120a",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "type": "operation.applied",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.280Z"
+        "createdAt": "2026-10-02T01:34:09.246Z"
       },
       {
-        "id": "7c88fbde-f957-42ce-802e-e4168605d731",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "db1e4002-5064-4ce9-8963-e0191f8330c0",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "type": "operation.verified",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.285Z"
+        "createdAt": "2026-10-02T01:34:09.251Z"
       },
       {
-        "id": "d3a76e21-990a-4f3e-8878-7740342a296f",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "bdd1195f-1f3e-492e-b413-38a849466168",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "type": "revision.committed",
         "payload": {
           "edgeId": "fix-first",
           "groupId": "test.shared"
         },
-        "createdAt": "2026-10-01T16:51:23.287Z"
+        "createdAt": "2026-10-02T01:34:09.253Z"
       },
       {
-        "id": "0166e5d8-45e4-408b-a297-6613ceb7b7a6",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "4eee47a2-dcb2-4ae4-b0bc-967e173f132b",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "type": "step.completed",
         "payload": {
           "edgeId": "fix-first",
-          "missionId": "ea0ed248-2648-4485-8e5d-4807c50d5ee0",
-          "missionRunId": "1c868d8a-0768-4dab-b826-a2a7e436a631"
+          "missionId": "75b098f8-313b-46a4-b3b5-31591b41bfe1",
+          "missionRunId": "d512da66-e0e6-45b7-9b2b-5f0bca890d65"
         },
-        "createdAt": "2026-10-01T16:51:23.291Z"
+        "createdAt": "2026-10-02T01:34:09.256Z"
       },
       {
-        "id": "7a7d3ea6-c294-453e-b6ec-74effb047d62",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "d2779c93-abc5-4312-b6d0-a2b912ecbdb3",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "type": "operation.prepared",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.317Z"
+        "createdAt": "2026-10-02T01:34:09.285Z"
       },
       {
-        "id": "db41a1e0-67c6-4009-8bae-ceb37acd13e8",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "c355a496-2d06-438e-89da-539332e5a533",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "954382c9-c035-4a43-be0f-5ef0861d499e"
+          "missionId": "02f850bd-3a12-4cdf-8fa5-ac73737aa8b1"
         },
-        "createdAt": "2026-10-01T16:51:23.328Z"
+        "createdAt": "2026-10-02T01:34:09.296Z"
       },
       {
-        "id": "a7206ecd-9cd7-4d1d-97d3-9036dd26bb5f",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "1b7dc139-cd97-4417-9de6-1a37a7e10978",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "type": "operation.applied",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.347Z"
+        "createdAt": "2026-10-02T01:34:09.311Z"
       },
       {
-        "id": "22dca493-24ab-4ff3-ad98-a0af95797a5a",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "141b7e21-c675-4185-ba79-56f91215b08e",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "type": "operation.verified",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.351Z"
+        "createdAt": "2026-10-02T01:34:09.315Z"
       },
       {
-        "id": "b180b639-e03e-4327-81f9-4bb3919c22e1",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "dbeb7be1-16fa-4d67-b174-d1705815d6ca",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "type": "step.completed",
         "payload": {
           "edgeId": "draft-review",
-          "missionId": "954382c9-c035-4a43-be0f-5ef0861d499e",
-          "missionRunId": "62a401f1-e92d-4730-950c-b1509bea7e84"
+          "missionId": "02f850bd-3a12-4cdf-8fa5-ac73737aa8b1",
+          "missionRunId": "ff909da1-4631-4237-b2d8-091d35a2ddf8"
         },
-        "createdAt": "2026-10-01T16:51:23.357Z"
+        "createdAt": "2026-10-02T01:34:09.319Z"
       },
       {
-        "id": "d832c39c-da57-4165-a438-a3640f737393",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "f2d6798a-d5cd-4522-bfeb-797ae1e347b3",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "type": "operation.prepared",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.361Z"
+        "createdAt": "2026-10-02T01:34:09.323Z"
       },
       {
-        "id": "e2b296dc-b9f4-4947-8e1d-22b1b2d317a1",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "5c718fcb-bc74-46b6-b7c6-cfaa2af1de43",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "06bf324d-90bf-42d1-8eb9-00b5e35e0bb7"
+          "missionId": "1b61e34b-471b-43c8-9e50-19fb624323d5"
         },
-        "createdAt": "2026-10-01T16:51:23.376Z"
+        "createdAt": "2026-10-02T01:34:09.333Z"
       },
       {
-        "id": "321ffb6d-c086-4440-a896-930126b3887b",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "6ffe3ee2-a46e-4ee4-9743-9a7fed361be5",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "type": "operation.applied",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.391Z"
+        "createdAt": "2026-10-02T01:34:09.348Z"
       },
       {
-        "id": "848be750-6b97-4a3e-87e4-c91b3cb1101b",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "96efaa49-5c82-4f61-887d-af23484c583f",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "type": "operation.verified",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.396Z"
+        "createdAt": "2026-10-02T01:34:09.352Z"
       },
       {
-        "id": "5b7f2043-f7a3-4abb-a0b8-0ed59f926e0a",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "e1c0849b-4710-4fd5-85d5-9bb1a8dd9bcf",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "type": "revision.committed",
         "payload": {
           "edgeId": "fix-second",
           "groupId": "test.shared"
         },
-        "createdAt": "2026-10-01T16:51:23.398Z"
+        "createdAt": "2026-10-02T01:34:09.354Z"
       },
       {
-        "id": "ddd9dc9c-13f5-43cf-9f4e-f965d5469799",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "e58e7ca7-5b8e-497c-a004-2cc4b84cfb4f",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "type": "step.completed",
         "payload": {
           "edgeId": "fix-second",
-          "missionId": "06bf324d-90bf-42d1-8eb9-00b5e35e0bb7",
-          "missionRunId": "6f26197f-f87c-44ae-9112-9f93b176f446"
+          "missionId": "1b61e34b-471b-43c8-9e50-19fb624323d5",
+          "missionRunId": "b6d46a89-a725-4f97-8d5a-9512dcdbaca2"
         },
-        "createdAt": "2026-10-01T16:51:23.402Z"
+        "createdAt": "2026-10-02T01:34:09.357Z"
       },
       {
-        "id": "9befb69b-de67-4dd8-9e76-c1dfd3a734b2",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "072b2522-1627-4bbc-b6fa-8bb3f2a1b6be",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "type": "operation.prepared",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.420Z"
+        "createdAt": "2026-10-02T01:34:09.374Z"
       },
       {
-        "id": "f2f9f889-d11d-4dc2-9c17-1bf097e6eda9",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "98171112-1757-438e-9d74-11bcaba0941e",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "d2de91a6-f49f-4349-a056-18ad4e864338"
+          "missionId": "feedd812-79b4-4ee7-960f-2132c3bd62fd"
         },
-        "createdAt": "2026-10-01T16:51:23.430Z"
+        "createdAt": "2026-10-02T01:34:09.385Z"
       },
       {
-        "id": "b5ee3d69-4ccf-48d9-9220-5c59347f7667",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "d609f846-0e8e-4c50-87c5-e2d04c290bcb",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "type": "operation.applied",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.445Z"
+        "createdAt": "2026-10-02T01:34:09.401Z"
       },
       {
-        "id": "a182d623-2f0d-45d1-ab64-79740b0c7b19",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "8ef61fb6-1406-4ab0-ae78-5ebbb27b0ac8",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "type": "operation.verified",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.449Z"
+        "createdAt": "2026-10-02T01:34:09.404Z"
       },
       {
-        "id": "035d9fac-35f7-432f-b7a2-c79597ff19c9",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "6314774c-5fb0-4dc2-b641-d41303df27d7",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "type": "step.completed",
         "payload": {
           "edgeId": "draft-review",
-          "missionId": "d2de91a6-f49f-4349-a056-18ad4e864338",
-          "missionRunId": "12a9589d-5287-44c8-a607-1dad48bd530c"
+          "missionId": "feedd812-79b4-4ee7-960f-2132c3bd62fd",
+          "missionRunId": "1e7bc4de-2076-4be0-b842-3e72bc28c53a"
         },
-        "createdAt": "2026-10-01T16:51:23.454Z"
+        "createdAt": "2026-10-02T01:34:09.409Z"
       },
       {
-        "id": "fc487e59-f7dd-43f7-809b-80cdd6f571f0",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "52d89964-6d1f-418d-85fe-b84a9b542018",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "type": "operation.prepared",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.458Z"
+        "createdAt": "2026-10-02T01:34:09.413Z"
       },
       {
-        "id": "265b6020-f5ef-48e9-b728-930945265a90",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "a2135870-0262-4dcd-b1e8-89ba9495d087",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "52a77920-6b7f-4459-8d83-439666a74227"
+          "missionId": "36c0dc6a-fa66-4074-9c0d-55f5e07ad195"
         },
-        "createdAt": "2026-10-01T16:51:23.468Z"
+        "createdAt": "2026-10-02T01:34:09.424Z"
       },
       {
-        "id": "a849cb7a-9b1c-43d2-9194-594b0f0a2e04",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "e573aa14-6e36-4879-9dd6-d3c7b6be9bfb",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "type": "operation.applied",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.488Z"
+        "createdAt": "2026-10-02T01:34:09.440Z"
       },
       {
-        "id": "041ed68f-f36f-4192-b520-fb4c46325c95",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "b8ded89f-1360-4fd7-8309-e09628ee2952",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "type": "operation.verified",
         "payload": {
           "effectType": "NONE"
         },
-        "createdAt": "2026-10-01T16:51:23.494Z"
+        "createdAt": "2026-10-02T01:34:09.444Z"
       },
       {
-        "id": "780a154d-1385-4b68-b320-3c9f26089af0",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "58ef25a7-3eed-4b68-992f-aee9d458979d",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "type": "revision.exhausted",
         "payload": {
           "edgeId": "fix-first",
           "groupId": "test.shared"
         },
-        "createdAt": "2026-10-01T16:51:23.497Z"
+        "createdAt": "2026-10-02T01:34:09.447Z"
       }
     ],
     "operations": [
       {
-        "id": "c7367dac-f7cb-4961-a3e2-e4f41230e3bf",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "id": "fb55a4e5-48e3-4417-894e-a063c8fc4428",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "attempt": 1,
-        "operationKey": "workflow:f9cbaea0-1cf2-43c6-96e4-b759ec257da0:aae52eba-26b3-4862-8e4d-ce294dd83c66",
+        "operationKey": "workflow:b6205f84-710f-48da-b65a-c3adee4c52e3:f6606d2f-8be3-4e9f-bc46-ad21776644b4",
         "effectType": "NONE",
         "state": "VERIFIED",
-        "inputHash": "009b0f5d3c2cef1b84621b1c6e20b25d37afaaaf7e5f2ace83a8a6a0d20197bb",
+        "inputHash": "1a8d0024f6c52c40ee3a0e5f0e25027d3da1168c0846375292b711a722797fb1",
         "manifest": [],
-        "outputArtifactIds": ["81597f2a-09ac-4a32-a816-cbb1994fbb66"],
-        "createdAt": "2026-10-01T16:51:22.921Z",
-        "updatedAt": "2026-10-01T16:51:22.962Z"
+        "outputArtifactIds": ["dedd2166-1b6e-4880-8145-771073d35528"],
+        "createdAt": "2026-10-02T01:34:09.180Z",
+        "updatedAt": "2026-10-02T01:34:09.208Z"
       },
       {
-        "id": "94718ee2-3805-4f41-b78a-4c219dbe6736",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "dee594b6-4a87-4fcb-9d2b-3bd2108fd604",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "attempt": 1,
-        "operationKey": "workflow:f9cbaea0-1cf2-43c6-96e4-b759ec257da0:14760734-7258-48db-baeb-c4a17417f817",
+        "operationKey": "workflow:b6205f84-710f-48da-b65a-c3adee4c52e3:ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "effectType": "NONE",
         "state": "VERIFIED",
-        "inputHash": "a7985f5082684fc194deab7b20c3ef1039976f345347ebf9719e62fd2afdcdf6",
+        "inputHash": "73bb7ee1f3b08a360adcd2c33f185a98c6820b5adaa944bdf3e513c95b8773ed",
         "manifest": [],
-        "outputArtifactIds": ["875e91bc-d136-4a6a-a9dd-5174708b08e5"],
-        "createdAt": "2026-10-01T16:51:23.247Z",
-        "updatedAt": "2026-10-01T16:51:23.283Z"
+        "outputArtifactIds": ["c09efbd6-9aee-42dc-af94-109c70b015ee"],
+        "createdAt": "2026-10-02T01:34:09.216Z",
+        "updatedAt": "2026-10-02T01:34:09.250Z"
       },
       {
-        "id": "b98a9de6-5c6c-4bea-b9b3-21bb0b18744e",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "id": "5a28e026-8306-4570-9d84-2cd1ae9d1ab8",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ea5ffdfa-c53d-4476-b937-2072393687da",
         "attempt": 2,
-        "operationKey": "workflow:f9cbaea0-1cf2-43c6-96e4-b759ec257da0:21e2de6c-6ca9-461d-b855-d45ea3a65199",
+        "operationKey": "workflow:b6205f84-710f-48da-b65a-c3adee4c52e3:ea5ffdfa-c53d-4476-b937-2072393687da",
         "effectType": "NONE",
         "state": "VERIFIED",
-        "inputHash": "009b0f5d3c2cef1b84621b1c6e20b25d37afaaaf7e5f2ace83a8a6a0d20197bb",
+        "inputHash": "1a8d0024f6c52c40ee3a0e5f0e25027d3da1168c0846375292b711a722797fb1",
         "manifest": [],
-        "outputArtifactIds": ["471e172d-8576-4ddf-b0dd-83928a9b0835"],
-        "createdAt": "2026-10-01T16:51:23.316Z",
-        "updatedAt": "2026-10-01T16:51:23.350Z"
+        "outputArtifactIds": ["d979e8fa-bef1-4e10-accc-38c056ce5631"],
+        "createdAt": "2026-10-02T01:34:09.285Z",
+        "updatedAt": "2026-10-02T01:34:09.314Z"
       },
       {
-        "id": "77f07e69-420f-435a-8684-6825983e129e",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "25790839-f6b3-4b4a-8a8a-8e97c71693b2",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "attempt": 2,
-        "operationKey": "workflow:f9cbaea0-1cf2-43c6-96e4-b759ec257da0:8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "operationKey": "workflow:b6205f84-710f-48da-b65a-c3adee4c52e3:3cad245c-998c-446f-83b4-93adaf016df5",
         "effectType": "NONE",
         "state": "VERIFIED",
-        "inputHash": "7f333b7987b1035c633c8b21261c04a0061059b5ff1d3de44d51041e4c24398f",
+        "inputHash": "719f03eab6832e78db6ffdfbfac371a27f9fb37b6b153de8f31ab250c1038499",
         "manifest": [],
-        "outputArtifactIds": ["0ec7e27e-81a5-4064-8f2c-81aecd078e22"],
-        "createdAt": "2026-10-01T16:51:23.360Z",
-        "updatedAt": "2026-10-01T16:51:23.395Z"
+        "outputArtifactIds": ["ada9d756-e047-4080-b602-1ae5d4731517"],
+        "createdAt": "2026-10-02T01:34:09.323Z",
+        "updatedAt": "2026-10-02T01:34:09.351Z"
       },
       {
-        "id": "c61b485e-99fd-493d-91a4-ce8139b6f273",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "id": "be602002-b17d-4f72-9486-868376cc95e2",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "attempt": 3,
-        "operationKey": "workflow:f9cbaea0-1cf2-43c6-96e4-b759ec257da0:70c62fc9-aebe-4c32-9a29-1fe18fda80e3",
+        "operationKey": "workflow:b6205f84-710f-48da-b65a-c3adee4c52e3:ceccdf46-e617-4fde-a27b-ecb15245ec05",
         "effectType": "NONE",
         "state": "VERIFIED",
-        "inputHash": "009b0f5d3c2cef1b84621b1c6e20b25d37afaaaf7e5f2ace83a8a6a0d20197bb",
+        "inputHash": "1a8d0024f6c52c40ee3a0e5f0e25027d3da1168c0846375292b711a722797fb1",
         "manifest": [],
-        "outputArtifactIds": ["7a6d1139-1f73-4d12-88a4-7628f8bb500a"],
-        "createdAt": "2026-10-01T16:51:23.419Z",
-        "updatedAt": "2026-10-01T16:51:23.448Z"
+        "outputArtifactIds": ["963fcf39-5d06-4c5f-9a21-c75785bc4d92"],
+        "createdAt": "2026-10-02T01:34:09.373Z",
+        "updatedAt": "2026-10-02T01:34:09.403Z"
       },
       {
-        "id": "9451e71d-066d-48ce-b8cf-f2a106033552",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "67df4024-db1c-4bce-beeb-12daa759680a",
+        "id": "4f9c8640-85f6-485b-887d-636a67a5a4be",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "attempt": 3,
-        "operationKey": "workflow:f9cbaea0-1cf2-43c6-96e4-b759ec257da0:67df4024-db1c-4bce-beeb-12daa759680a",
+        "operationKey": "workflow:b6205f84-710f-48da-b65a-c3adee4c52e3:01d236b3-ec25-4ff2-9d86-5d8a189945dc",
         "effectType": "NONE",
         "state": "VERIFIED",
-        "inputHash": "1002f7a697274ae91ad77bdaf1ec7db7e7f1f23d082654c3f316a37670cce4e8",
+        "inputHash": "c156cf8e84e1c3274d47cf02ab52a5be9930e53b0b31e4749c2c99aa48a12f7b",
         "manifest": [],
-        "outputArtifactIds": ["9bee82d4-ce98-4de2-a46a-1bdec015c561"],
-        "createdAt": "2026-10-01T16:51:23.457Z",
-        "updatedAt": "2026-10-01T16:51:23.493Z"
+        "outputArtifactIds": ["8a7dfee0-10e5-4cb5-9d63-8d0396ee791a"],
+        "createdAt": "2026-10-02T01:34:09.412Z",
+        "updatedAt": "2026-10-02T01:34:09.443Z"
       }
     ],
     "traversals": [
       {
-        "id": "dee8ba94-67ed-4c5d-9330-f53c89736f17",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "fc9a63f9-4284-48fe-8eba-971eb8d51688",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "edgeId": "fix-first",
         "groupId": "test.shared",
         "traversalIndex": 1,
         "reason": "fix.first",
-        "createdAt": "2026-10-01T16:51:23.286Z"
+        "createdAt": "2026-10-02T01:34:09.252Z"
       },
       {
-        "id": "035a46dd-fc7d-4b95-9281-d45b9944c106",
-        "workflowRunId": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "stepRunId": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "36ca688c-f3a1-4fef-93f1-37c6b4162a4b",
+        "workflowRunId": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "stepRunId": "3cad245c-998c-446f-83b4-93adaf016df5",
         "edgeId": "fix-second",
         "groupId": "test.shared",
         "traversalIndex": 2,
         "reason": "fix.second",
-        "createdAt": "2026-10-01T16:51:23.397Z"
+        "createdAt": "2026-10-02T01:34:09.353Z"
       }
     ]
   },
   "external": {
     "run": {
-      "id": "20d27141-d6ea-4e4f-b560-448a0cb4705d",
+      "id": "db44d14f-e9bf-4eb2-8c86-8fda9fb93530",
       "definitionId": "w2-fixture-external",
       "definitionVersion": 1,
       "inputSnapshot": {},
       "state": "WAITING",
       "waitReason": "USER_CONFIRMATION",
-      "createdAt": "2026-10-01T16:51:23.516Z",
-      "updatedAt": "2026-10-01T16:51:23.578Z"
+      "createdAt": "2026-10-02T01:34:09.463Z",
+      "updatedAt": "2026-10-02T01:34:10.091Z"
     },
     "version": {
       "contractManifest": [
@@ -1637,18 +1955,18 @@
     },
     "steps": [
       {
-        "id": "7d531762-9a55-448c-a011-f07b8ee0a782",
-        "workflowRunId": "20d27141-d6ea-4e4f-b560-448a0cb4705d",
+        "id": "5523efb7-d62f-4ca0-bb35-18be662fa8a8",
+        "workflowRunId": "db44d14f-e9bf-4eb2-8c86-8fda9fb93530",
         "stepId": "external",
         "attempt": 1,
         "state": "WAITING",
-        "missionId": "4a2e75b9-503f-4111-bffa-d618b615d717",
-        "missionRunId": "3399827c-e2c2-49b7-8502-c4698f2249d9",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "69d23bc5-5c98-44ca-b766-f1dd656b8f5b",
+        "missionRunId": "30aaac59-0f66-4a3c-8075-4b08d9ce0e15",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": "USER_CONFIRMATION",
         "errorCode": "OPERATION_UNKNOWN",
-        "createdAt": "2026-10-01T16:51:23.516Z",
-        "updatedAt": "2026-10-01T16:51:23.577Z"
+        "createdAt": "2026-10-02T01:34:09.463Z",
+        "updatedAt": "2026-10-02T01:34:10.089Z"
       }
     ],
     "artifacts": [],
@@ -1659,59 +1977,59 @@
     "checkpoints": [],
     "events": [
       {
-        "id": "a34c60bc-3970-4709-bc92-62a4ba1a706a",
-        "workflowRunId": "20d27141-d6ea-4e4f-b560-448a0cb4705d",
-        "stepRunId": "7d531762-9a55-448c-a011-f07b8ee0a782",
+        "id": "3d843378-f3e8-4b87-b6e0-f6f8a50087a8",
+        "workflowRunId": "db44d14f-e9bf-4eb2-8c86-8fda9fb93530",
+        "stepRunId": "5523efb7-d62f-4ca0-bb35-18be662fa8a8",
         "type": "workflow.created",
         "payload": {
           "version": 1
         },
-        "createdAt": "2026-10-01T16:51:23.520Z"
+        "createdAt": "2026-10-02T01:34:09.464Z"
       },
       {
-        "id": "27619b72-dffa-4a67-94ad-aed61c1428e2",
-        "workflowRunId": "20d27141-d6ea-4e4f-b560-448a0cb4705d",
-        "stepRunId": "7d531762-9a55-448c-a011-f07b8ee0a782",
+        "id": "7ef7a900-4306-444b-9225-740a869a72e0",
+        "workflowRunId": "db44d14f-e9bf-4eb2-8c86-8fda9fb93530",
+        "stepRunId": "5523efb7-d62f-4ca0-bb35-18be662fa8a8",
         "type": "operation.prepared",
         "payload": {
           "effectType": "EXTERNAL_ACTION"
         },
-        "createdAt": "2026-10-01T16:51:23.529Z"
+        "createdAt": "2026-10-02T01:34:09.473Z"
       },
       {
-        "id": "8cc31148-3b68-4793-aaef-4e6f330bbf86",
-        "workflowRunId": "20d27141-d6ea-4e4f-b560-448a0cb4705d",
-        "stepRunId": "7d531762-9a55-448c-a011-f07b8ee0a782",
+        "id": "7afbd2a6-d8a1-4dc1-a660-b0c42c884182",
+        "workflowRunId": "db44d14f-e9bf-4eb2-8c86-8fda9fb93530",
+        "stepRunId": "5523efb7-d62f-4ca0-bb35-18be662fa8a8",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "4a2e75b9-503f-4111-bffa-d618b615d717"
+          "missionId": "69d23bc5-5c98-44ca-b766-f1dd656b8f5b"
         },
-        "createdAt": "2026-10-01T16:51:23.546Z"
+        "createdAt": "2026-10-02T01:34:09.916Z"
       },
       {
-        "id": "c84e8bdb-c170-457b-b654-9f76efe492e4",
-        "workflowRunId": "20d27141-d6ea-4e4f-b560-448a0cb4705d",
-        "stepRunId": "7d531762-9a55-448c-a011-f07b8ee0a782",
+        "id": "1e3d785a-4498-45cd-ab13-1ae906b51c0b",
+        "workflowRunId": "db44d14f-e9bf-4eb2-8c86-8fda9fb93530",
+        "stepRunId": "5523efb7-d62f-4ca0-bb35-18be662fa8a8",
         "type": "operation.unknown",
         "payload": {
           "effectType": "EXTERNAL_ACTION"
         },
-        "createdAt": "2026-10-01T16:51:23.576Z"
+        "createdAt": "2026-10-02T01:34:10.089Z"
       }
     ],
     "operations": [
       {
-        "id": "79e1c4dd-9059-4f34-8f74-5447732b737e",
-        "workflowRunId": "20d27141-d6ea-4e4f-b560-448a0cb4705d",
-        "stepRunId": "7d531762-9a55-448c-a011-f07b8ee0a782",
+        "id": "28d05fb0-7d8e-4310-b193-a04d7d2dcb80",
+        "workflowRunId": "db44d14f-e9bf-4eb2-8c86-8fda9fb93530",
+        "stepRunId": "5523efb7-d62f-4ca0-bb35-18be662fa8a8",
         "attempt": 1,
-        "operationKey": "workflow:20d27141-d6ea-4e4f-b560-448a0cb4705d:7d531762-9a55-448c-a011-f07b8ee0a782",
+        "operationKey": "workflow:db44d14f-e9bf-4eb2-8c86-8fda9fb93530:5523efb7-d62f-4ca0-bb35-18be662fa8a8",
         "effectType": "EXTERNAL_ACTION",
         "state": "UNKNOWN",
-        "inputHash": "b3a0c1091ba97c047eddb71f75d5d12a88cfd3d98637b9583627c9330db87f3d",
+        "inputHash": "2669303309aa0ca0b4fdac3c07d1c5815a4c27405fc34b561f153b611db73aac",
         "manifest": [],
-        "createdAt": "2026-10-01T16:51:23.528Z",
-        "updatedAt": "2026-10-01T16:51:23.575Z"
+        "createdAt": "2026-10-02T01:34:09.472Z",
+        "updatedAt": "2026-10-02T01:34:10.088Z"
       }
     ],
     "traversals": []
@@ -1719,14 +2037,14 @@
   "externalCalls": 1,
   "fileRecovery": {
     "run": {
-      "id": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
+      "id": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
       "definitionId": "w2-fixture-file",
       "definitionVersion": 1,
       "inputSnapshot": {},
       "state": "COMPLETED",
       "waitReason": null,
-      "createdAt": "2026-10-01T16:51:25.372Z",
-      "updatedAt": "2026-10-01T16:51:28.371Z"
+      "createdAt": "2026-10-02T01:34:11.574Z",
+      "updatedAt": "2026-10-02T01:34:13.491Z"
     },
     "version": {
       "contractManifest": [
@@ -1812,215 +2130,215 @@
     },
     "steps": [
       {
-        "id": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
+        "id": "40994ff5-77c3-4d80-bd13-fc5669485830",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
         "stepId": "file",
         "attempt": 1,
         "state": "COMPLETED",
-        "missionId": "cd535a33-5756-4fc3-a350-9c150c7efbdb",
-        "missionRunId": "9d900355-7786-479f-acda-1cfb919d1861",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "506cd2bb-8224-4ddc-b8ab-ca9d97081f3c",
+        "missionRunId": "93f0a250-4082-4898-bd23-b0b594eee488",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:25.372Z",
-        "updatedAt": "2026-10-01T16:51:28.363Z"
+        "createdAt": "2026-10-02T01:34:11.574Z",
+        "updatedAt": "2026-10-02T01:34:13.484Z"
       }
     ],
     "artifacts": [
       {
-        "id": "ab21bcb1-0b16-4ac6-8c5c-dfd6598e2167",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "producerStepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
-        "missionId": "cd535a33-5756-4fc3-a350-9c150c7efbdb",
-        "missionRunId": "9d900355-7786-479f-acda-1cfb919d1861",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "3300e0c6-d46f-409b-9d18-4755629cd88b",
+        "id": "c52363bb-6a1a-4d4b-997f-39a1799c74fa",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "producerStepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
+        "missionId": "506cd2bb-8224-4ddc-b8ab-ca9d97081f3c",
+        "missionRunId": "93f0a250-4082-4898-bd23-b0b594eee488",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "29188506-bbcf-4d93-b6d2-4a335faa7c48",
         "source": "MISSION",
         "kind": "FILE",
         "content": "",
-        "contentHash": "e1f2cd598755abce6eedbadb16644f3171d752f77ba5faad640db03e171fe404",
+        "contentHash": "fd974107ff30ced5ba19f73318704464d14b7d5976d404324faae86bb7c8cec1",
         "metadata": {
           "contentHash": "94988ef1c6bbe43027ad05c62a20e26126a28220b9230a12742982f0310a2987",
-          "evidenceEventId": "3300e0c6-d46f-409b-9d18-4755629cd88b",
+          "evidenceEventId": "29188506-bbcf-4d93-b6d2-4a335faa7c48",
           "extension": ".txt",
           "fileName": "w2-output.txt",
           "path": "w2-output.txt",
-          "permissionResource": "file:accedbf3e43ec386:w2-output.txt",
+          "permissionResource": "file:a0c5cae4cef36aca:w2-output.txt",
           "sizeBytes": 38,
-          "workspaceTag": "accedbf3e43ec386"
+          "workspaceTag": "a0c5cae4cef36aca"
         },
         "inputArtifactIds": [],
-        "createdAt": "2026-10-01T16:51:28.354Z"
+        "createdAt": "2026-10-02T01:34:13.474Z"
       }
     ],
     "bindings": [
       {
-        "id": "03e20604-8710-4e1d-b260-d74d5f0d111b",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "6cabdda9-14fc-4c3d-a500-083fde10b2e2",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "key": "w2-output.txt",
-        "artifactId": "ab21bcb1-0b16-4ac6-8c5c-dfd6598e2167",
+        "artifactId": "c52363bb-6a1a-4d4b-997f-39a1799c74fa",
         "role": "OUTPUT",
         "contractId": "test.w2.file",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:28.354Z"
+        "createdAt": "2026-10-02T01:34:13.474Z"
       }
     ],
     "validations": [
       {
-        "id": "de2207d5-9b7f-4dfe-8222-f287e8bc6d91",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
-        "artifactId": "ab21bcb1-0b16-4ac6-8c5c-dfd6598e2167",
+        "id": "08bda06d-fc41-4937-b708-8dbd06652d1b",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
+        "artifactId": "c52363bb-6a1a-4d4b-997f-39a1799c74fa",
         "contractId": "test.w2.file",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
-        "contentHash": "e1f2cd598755abce6eedbadb16644f3171d752f77ba5faad640db03e171fe404",
+        "contentHash": "fd974107ff30ced5ba19f73318704464d14b7d5976d404324faae86bb7c8cec1",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:28.354Z"
+        "createdAt": "2026-10-02T01:34:13.474Z"
       }
     ],
     "finalValidations": [
       {
-        "id": "e6dfc03d-4937-4030-b761-f052047fd3f6",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
+        "id": "82d12ae2-7a9d-4d01-9307-a2a2e18e6ff8",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
         "definitionVersion": 1,
         "inputHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-        "stateHash": "942ba290c8d519982978aa6a20b39732f4c8e314221a1344ab0e781c025d4ffd",
+        "stateHash": "763b112409a1fbb2d5b81aca34ee9c67cff9d0b38fbd05b59edd69e168dda5c2",
         "outputBindings": [
           {
-            "artifactId": "ab21bcb1-0b16-4ac6-8c5c-dfd6598e2167",
-            "contentHash": "e1f2cd598755abce6eedbadb16644f3171d752f77ba5faad640db03e171fe404",
+            "artifactId": "c52363bb-6a1a-4d4b-997f-39a1799c74fa",
+            "contentHash": "fd974107ff30ced5ba19f73318704464d14b7d5976d404324faae86bb7c8cec1",
             "key": "w2-output.txt"
           }
         ],
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:28.366Z"
+        "createdAt": "2026-10-02T01:34:13.488Z"
       }
     ],
     "decisions": [],
     "checkpoints": [
       {
-        "id": "87d49ea7-6e1a-47f5-b3a3-5ab78eba0da2",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
+        "id": "2bdadac1-e64c-4347-b761-61f4e4634fe7",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
         "sequence": 1,
         "definitionVersion": 1,
-        "completedStepRunIds": ["92aee3a5-b044-48f3-a0db-1da6d7f26925"],
+        "completedStepRunIds": ["40994ff5-77c3-4d80-bd13-fc5669485830"],
         "activeStepRunIds": [],
         "artifactBindingHashes": [
-          "4d0d5c2d72ed67171c47697c9b5ea46bef2a19493611a4e4f19831c02636b343"
+          "12ce568b462a0fdd879266767c955104d6b2bb108ad23d9328bc00a48dee5481"
         ],
         "decisionHashes": [],
-        "stateHash": "359e5cb0459fa37e44776f8c879bc012af46ce1d8dfd431a491cab44845d218b",
-        "createdAt": "2026-10-01T16:51:28.362Z"
+        "stateHash": "400caa0f7bfb729c4150a02fcf75ffe7a0ab7185c162c672763e9ea2de50b48f",
+        "createdAt": "2026-10-02T01:34:13.483Z"
       }
     ],
     "events": [
       {
-        "id": "7afc7244-18bb-4b99-ad6e-ec38f0d2e86e",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "62f6caa6-d2a8-471b-adc7-3d6f3f85fa6c",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "type": "workflow.created",
         "payload": {
           "version": 1
         },
-        "createdAt": "2026-10-01T16:51:25.377Z"
+        "createdAt": "2026-10-02T01:34:11.578Z"
       },
       {
-        "id": "f9df5c24-c3cd-44a4-9655-57e372c2c56b",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "2ea9e9a6-dff8-4e49-8c3c-46015d5d7694",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "type": "operation.prepared",
         "payload": {
           "effectType": "FILE_OUTPUT"
         },
-        "createdAt": "2026-10-01T16:51:25.396Z"
+        "createdAt": "2026-10-02T01:34:11.596Z"
       },
       {
-        "id": "db05b41d-21a3-4eba-81b8-dabe0906b6f9",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "aa1a66e1-4423-430f-828f-587fbf9fe283",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "cd535a33-5756-4fc3-a350-9c150c7efbdb"
+          "missionId": "506cd2bb-8224-4ddc-b8ab-ca9d97081f3c"
         },
-        "createdAt": "2026-10-01T16:51:25.429Z"
+        "createdAt": "2026-10-02T01:34:11.638Z"
       },
       {
-        "id": "35682d71-52a9-47b5-a824-6682e4074c7a",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "5ea2a0d4-5678-4a5a-bdeb-0e3b2455e8a6",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "type": "operation.applied",
         "payload": {
           "effectType": "FILE_OUTPUT"
         },
-        "createdAt": "2026-10-01T16:51:25.541Z"
+        "createdAt": "2026-10-02T01:34:11.764Z"
       },
       {
-        "id": "6412d0da-99c3-4b04-b89e-3de2d0324faf",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "a9d0cb42-8f22-438c-a166-327a5224d9d5",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "type": "operation.verified",
         "payload": {
           "effectType": "FILE_OUTPUT"
         },
-        "createdAt": "2026-10-01T16:51:28.360Z"
+        "createdAt": "2026-10-02T01:34:13.480Z"
       },
       {
-        "id": "fc8b2e09-d8a5-4352-8bc7-e219632c3727",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "d4ba75ad-6de1-459e-8086-b267295dd639",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "type": "step.completed",
         "payload": {
           "edgeId": null,
-          "missionId": "cd535a33-5756-4fc3-a350-9c150c7efbdb",
-          "missionRunId": "9d900355-7786-479f-acda-1cfb919d1861"
+          "missionId": "506cd2bb-8224-4ddc-b8ab-ca9d97081f3c",
+          "missionRunId": "93f0a250-4082-4898-bd23-b0b594eee488"
         },
-        "createdAt": "2026-10-01T16:51:28.364Z"
+        "createdAt": "2026-10-02T01:34:13.486Z"
       },
       {
-        "id": "4c1d0b70-1681-4b42-87cb-0d820d00bd85",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
+        "id": "88951c04-4a5f-418a-9dbb-7957c34ce2aa",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
         "stepRunId": null,
         "type": "workflow.completed",
         "payload": {},
-        "createdAt": "2026-10-01T16:51:28.371Z"
+        "createdAt": "2026-10-02T01:34:13.491Z"
       }
     ],
     "operations": [
       {
-        "id": "f5d4cc4d-a0bd-41e2-9df0-6c5d246da221",
-        "workflowRunId": "2c1170b0-b7d1-4929-a12d-d9dd49747edb",
-        "stepRunId": "92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "id": "c310fd77-c9af-4002-bed9-c1f35a2b019d",
+        "workflowRunId": "faa53bfd-003d-42b3-b4b8-cc6d97e19f58",
+        "stepRunId": "40994ff5-77c3-4d80-bd13-fc5669485830",
         "attempt": 1,
-        "operationKey": "workflow:2c1170b0-b7d1-4929-a12d-d9dd49747edb:92aee3a5-b044-48f3-a0db-1da6d7f26925",
+        "operationKey": "workflow:faa53bfd-003d-42b3-b4b8-cc6d97e19f58:40994ff5-77c3-4d80-bd13-fc5669485830",
         "effectType": "FILE_OUTPUT",
         "state": "VERIFIED",
-        "inputHash": "5c0e0ab969fce340be22a72d9191de9fadb10d6dae8b7052bf8b56b6a7fc2ba4",
+        "inputHash": "6ac7de45bcc693075cacced59896224583cc07b9b8b900c065eb7aebf07d6df9",
         "manifest": [
           {
             "afterHash": "94988ef1c6bbe43027ad05c62a20e26126a28220b9230a12742982f0310a2987",
             "relativePath": "w2-output.txt"
           }
         ],
-        "outputArtifactIds": ["ab21bcb1-0b16-4ac6-8c5c-dfd6598e2167"],
-        "createdAt": "2026-10-01T16:51:25.394Z",
-        "updatedAt": "2026-10-01T16:51:28.358Z"
+        "outputArtifactIds": ["c52363bb-6a1a-4d4b-997f-39a1799c74fa"],
+        "createdAt": "2026-10-02T01:34:11.594Z",
+        "updatedAt": "2026-10-02T01:34:13.478Z"
       }
     ],
     "traversals": []
   },
   "workspaceRecovery": {
     "run": {
-      "id": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
+      "id": "ed3d4432-8a9f-4119-a61e-f74179212542",
       "definitionId": "w2-fixture-workspace",
       "definitionVersion": 1,
       "inputSnapshot": {},
       "state": "COMPLETED",
       "waitReason": null,
-      "createdAt": "2026-10-01T16:51:30.092Z",
-      "updatedAt": "2026-10-01T16:51:33.052Z"
+      "createdAt": "2026-10-02T01:34:15.003Z",
+      "updatedAt": "2026-10-02T01:34:16.521Z"
     },
     "version": {
       "contractManifest": [
@@ -2106,190 +2424,190 @@
     },
     "steps": [
       {
-        "id": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
+        "id": "bae6c1ea-ad09-435a-9a13-86a54759e892",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
         "stepId": "mutation",
         "attempt": 1,
         "state": "COMPLETED",
-        "missionId": "50565256-c656-4083-be1a-05bf79f7ea0f",
-        "missionRunId": "fcd29b13-bd05-4264-bffe-77c02bff9d90",
-        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-4f5fc77b-1741-4481-8ad0-bce467c32bd5\\workspace",
+        "missionId": "dfa42300-5274-4af9-bc8b-0ec4956c607f",
+        "missionRunId": "d4178e37-5941-4d72-bb80-3ebba012a1c4",
+        "workspaceRoot": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-ba356508-0394-4e32-b901-7033f0b28fd9\\workspace",
         "waitReason": null,
         "errorCode": null,
-        "createdAt": "2026-10-01T16:51:30.092Z",
-        "updatedAt": "2026-10-01T16:51:33.043Z"
+        "createdAt": "2026-10-02T01:34:15.003Z",
+        "updatedAt": "2026-10-02T01:34:16.515Z"
       }
     ],
     "artifacts": [
       {
-        "id": "53887507-0392-49c6-9821-e64f83600286",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "producerStepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
-        "missionId": "50565256-c656-4083-be1a-05bf79f7ea0f",
-        "missionRunId": "fcd29b13-bd05-4264-bffe-77c02bff9d90",
-        "actorId": "0b952c66-0959-4e54-be4a-7082a9b13ec8",
-        "sourceId": "fcd29b13-bd05-4264-bffe-77c02bff9d90",
+        "id": "92f2ee48-75a2-48c0-b1fa-5595c6777a35",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "producerStepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
+        "missionId": "dfa42300-5274-4af9-bc8b-0ec4956c607f",
+        "missionRunId": "d4178e37-5941-4d72-bb80-3ebba012a1c4",
+        "actorId": "e3883bf7-bafb-471b-8774-0a21ffbc7d6d",
+        "sourceId": "d4178e37-5941-4d72-bb80-3ebba012a1c4",
         "source": "MISSION",
         "kind": "DIRECTORY",
         "content": "{\"entries\":[{\"afterHash\":\"94988ef1c6bbe43027ad05c62a20e26126a28220b9230a12742982f0310a2987\",\"beforeHash\":\"94988ef1c6bbe43027ad05c62a20e26126a28220b9230a12742982f0310a2987\",\"relativePath\":\"w2-output.txt\"}]}",
-        "contentHash": "5a8a61f8604e49811ffa57c0247ce5169551ac9b25c0a9bfdc0be0f72f8088fb",
+        "contentHash": "70f166a084f15eac4ff7ce5df09a839de72aae133484fb8169db00cca4fb7fe1",
         "metadata": {
-          "executionEvidence": "[{\"relativePath\":\"w2-output.txt\",\"source\":\"MISSION\",\"sourceId\":\"af4e0ed3-76a7-427f-8ff6-30903650be39\",\"actorId\":\"0b952c66-0959-4e54-be4a-7082a9b13ec8\"}]",
+          "executionEvidence": "[{\"relativePath\":\"w2-output.txt\",\"source\":\"MISSION\",\"sourceId\":\"28092216-68e5-42c0-a41d-7dc7bd0b9473\",\"actorId\":\"e3883bf7-bafb-471b-8774-0a21ffbc7d6d\"}]",
           "fileName": "workspace",
           "inspectedManifest": 1,
           "path": ".",
           "sizeBytes": 142,
-          "workspaceTag": "accedbf3e43ec386"
+          "workspaceTag": "a0c5cae4cef36aca"
         },
         "inputArtifactIds": [],
-        "createdAt": "2026-10-01T16:51:33.029Z"
+        "createdAt": "2026-10-02T01:34:16.506Z"
       }
     ],
     "bindings": [
       {
-        "id": "3cc942b7-8840-4904-b2ed-476b0afd8a41",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "45d88068-c275-4e78-b6bd-4014d8028fed",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "key": "workspace",
-        "artifactId": "53887507-0392-49c6-9821-e64f83600286",
+        "artifactId": "92f2ee48-75a2-48c0-b1fa-5595c6777a35",
         "role": "OUTPUT",
         "contractId": "test.w2.workspace",
         "contractVersion": "1",
-        "createdAt": "2026-10-01T16:51:33.029Z"
+        "createdAt": "2026-10-02T01:34:16.506Z"
       }
     ],
     "validations": [
       {
-        "id": "8b448fa0-8067-4f36-bf4a-e7e7d24c0d21",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
-        "artifactId": "53887507-0392-49c6-9821-e64f83600286",
+        "id": "3f3102b2-b01d-44fc-b605-0ff383186ee6",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
+        "artifactId": "92f2ee48-75a2-48c0-b1fa-5595c6777a35",
         "contractId": "test.w2.workspace",
         "contractVersion": "1",
         "validatorVersion": "w2-deterministic-v1",
-        "contentHash": "5a8a61f8604e49811ffa57c0247ce5169551ac9b25c0a9bfdc0be0f72f8088fb",
+        "contentHash": "70f166a084f15eac4ff7ce5df09a839de72aae133484fb8169db00cca4fb7fe1",
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:33.029Z"
+        "createdAt": "2026-10-02T01:34:16.506Z"
       }
     ],
     "finalValidations": [
       {
-        "id": "262c3c50-a420-4e24-a4e4-b02b42b681c8",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
+        "id": "ef71b21b-d8fb-4cec-af16-3bb7cdaf6bce",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
         "definitionVersion": 1,
         "inputHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-        "stateHash": "a8d72e821568ac9a5a6cbc6aa1efec716e23c401dc53c49c1d339bb525155583",
+        "stateHash": "d4e639106ac8b668c59673aadccc3748e6cf27dfa10a6d2bc84e6ac8ce1a8154",
         "outputBindings": [
           {
-            "artifactId": "53887507-0392-49c6-9821-e64f83600286",
-            "contentHash": "5a8a61f8604e49811ffa57c0247ce5169551ac9b25c0a9bfdc0be0f72f8088fb",
+            "artifactId": "92f2ee48-75a2-48c0-b1fa-5595c6777a35",
+            "contentHash": "70f166a084f15eac4ff7ce5df09a839de72aae133484fb8169db00cca4fb7fe1",
             "key": "workspace"
           }
         ],
         "valid": true,
         "errors": [],
-        "createdAt": "2026-10-01T16:51:33.047Z"
+        "createdAt": "2026-10-02T01:34:16.518Z"
       }
     ],
     "decisions": [],
     "checkpoints": [
       {
-        "id": "93f86c15-bc4f-4cc8-8721-c96193db912c",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
+        "id": "5fe0e964-0155-4adf-b5b1-453d13c3a0be",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
         "sequence": 1,
         "definitionVersion": 1,
-        "completedStepRunIds": ["bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8"],
+        "completedStepRunIds": ["bae6c1ea-ad09-435a-9a13-86a54759e892"],
         "activeStepRunIds": [],
         "artifactBindingHashes": [
-          "5913780b5083a514c3d04c10ea34dce3f4ebc2b1cbc2d310ef529dd26944b4dd"
+          "d34cc48062cfe980544af90ec6f68ee925824622ca5b43ec6592f6d35a24702a"
         ],
         "decisionHashes": [],
-        "stateHash": "eb1717917499a9e0c1a50023b3aa9cecc2627eaeaf923db700a350601628ee81",
-        "createdAt": "2026-10-01T16:51:33.042Z"
+        "stateHash": "b7e38bafd699293008df60718167c7ca36d2bc40c25762b6314d57b3aaf7699c",
+        "createdAt": "2026-10-02T01:34:16.514Z"
       }
     ],
     "events": [
       {
-        "id": "b0bb4217-47e0-4561-b55c-951c6a094a71",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "c4ccef09-36ae-4ec9-ac8d-c70ef68de199",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "type": "workflow.created",
         "payload": {
           "version": 1
         },
-        "createdAt": "2026-10-01T16:51:30.095Z"
+        "createdAt": "2026-10-02T01:34:15.006Z"
       },
       {
-        "id": "a43ea697-debe-4ef7-aec5-90e4902d6e11",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "bf4374f2-f772-426c-b576-8a61e2cd27e4",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "type": "operation.prepared",
         "payload": {
           "effectType": "WORKSPACE_MUTATION"
         },
-        "createdAt": "2026-10-01T16:51:30.187Z"
+        "createdAt": "2026-10-02T01:34:15.140Z"
       },
       {
-        "id": "bc7c34c4-acdf-41eb-8a08-0ca097e6da46",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "c1e49988-7258-4f11-9fe1-06093c715453",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "type": "step.mission_bound",
         "payload": {
-          "missionId": "50565256-c656-4083-be1a-05bf79f7ea0f"
+          "missionId": "dfa42300-5274-4af9-bc8b-0ec4956c607f"
         },
-        "createdAt": "2026-10-01T16:51:30.209Z"
+        "createdAt": "2026-10-02T01:34:15.161Z"
       },
       {
-        "id": "dd34c9bc-89bc-44e1-99b4-0a8ad3f7b992",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "0d0fc77e-3a9f-4e08-ba76-8f7836204178",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "type": "operation.applied",
         "payload": {
           "effectType": "WORKSPACE_MUTATION"
         },
-        "createdAt": "2026-10-01T16:51:30.310Z"
+        "createdAt": "2026-10-02T01:34:15.257Z"
       },
       {
-        "id": "3c1b3b36-2f1c-4d68-8e45-bcfd397bdf30",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "2e2155a9-c41e-406d-a1a7-b1cfbb765460",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "type": "operation.verified",
         "payload": {
           "effectType": "WORKSPACE_MUTATION"
         },
-        "createdAt": "2026-10-01T16:51:33.039Z"
+        "createdAt": "2026-10-02T01:34:16.512Z"
       },
       {
-        "id": "547d8a79-0b04-4d1e-b3a1-b1dba697a776",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "841b4e2d-1eb3-4103-be00-a88cf73e5286",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "type": "step.completed",
         "payload": {
           "edgeId": null,
-          "missionId": "50565256-c656-4083-be1a-05bf79f7ea0f",
-          "missionRunId": "fcd29b13-bd05-4264-bffe-77c02bff9d90"
+          "missionId": "dfa42300-5274-4af9-bc8b-0ec4956c607f",
+          "missionRunId": "d4178e37-5941-4d72-bb80-3ebba012a1c4"
         },
-        "createdAt": "2026-10-01T16:51:33.045Z"
+        "createdAt": "2026-10-02T01:34:16.517Z"
       },
       {
-        "id": "3d147148-d1ad-4c6c-848d-95d9b93a4dfb",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
+        "id": "0efe598e-bc88-4e13-a13b-a854a09ba11c",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
         "stepRunId": null,
         "type": "workflow.completed",
         "payload": {},
-        "createdAt": "2026-10-01T16:51:33.052Z"
+        "createdAt": "2026-10-02T01:34:16.521Z"
       }
     ],
     "operations": [
       {
-        "id": "4e8eb496-14cd-4a47-8deb-7381f742139f",
-        "workflowRunId": "cd67f9e9-0cb0-44b4-88db-2522af54983c",
-        "stepRunId": "bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "id": "9185925e-181d-4a61-b96c-939415121c8f",
+        "workflowRunId": "ed3d4432-8a9f-4119-a61e-f74179212542",
+        "stepRunId": "bae6c1ea-ad09-435a-9a13-86a54759e892",
         "attempt": 1,
-        "operationKey": "workflow:cd67f9e9-0cb0-44b4-88db-2522af54983c:bcf0bdc3-8c82-4d0c-8020-09766a9ac5d8",
+        "operationKey": "workflow:ed3d4432-8a9f-4119-a61e-f74179212542:bae6c1ea-ad09-435a-9a13-86a54759e892",
         "effectType": "WORKSPACE_MUTATION",
         "state": "VERIFIED",
-        "inputHash": "a00b76df189bcaae5aa3e44280fb41c448004c654d24ca216454217f7cf16179",
+        "inputHash": "d2682bd5c453932549754fb4d61d62f0166bf4d2b28403c0d746263dc90bd69f",
         "manifest": [
           {
             "afterHash": "94988ef1c6bbe43027ad05c62a20e26126a28220b9230a12742982f0310a2987",
@@ -2297,9 +2615,9 @@
             "relativePath": "w2-output.txt"
           }
         ],
-        "outputArtifactIds": ["53887507-0392-49c6-9821-e64f83600286"],
-        "createdAt": "2026-10-01T16:51:30.184Z",
-        "updatedAt": "2026-10-01T16:51:33.037Z"
+        "outputArtifactIds": ["92f2ee48-75a2-48c0-b1fa-5595c6777a35"],
+        "createdAt": "2026-10-02T01:34:15.139Z",
+        "updatedAt": "2026-10-02T01:34:16.510Z"
       }
     ],
     "traversals": []
@@ -2326,6 +2644,11 @@
         "contract_id": "test.w2.review",
         "contract_version": "1",
         "content_hash": "afc84e81648f6182bbacebf103638177d461a51166eb0163111a3a7ae59a7a1f"
+      },
+      {
+        "contract_id": "test.w2.official",
+        "contract_version": "1",
+        "content_hash": "c86be1da65ffd0c8b8a08e320e620a118259471834fddf85fc9d0b08440822b8"
       }
     ],
     "release": [
@@ -2334,159 +2657,265 @@
         "version": 1,
         "manifest_hash": "f7d80e472a96edb5c02aab27a265bde5e00b5eb114ef59565f1229eb839c6a7f",
         "released_at": "2026-10-01T00:00:00.000Z"
+      },
+      {
+        "definition_id": "test-official-builtin-contract",
+        "version": 1,
+        "manifest_hash": "c0f7b7d2cbc251314887cb9369494a3cda3247f0f3d5577e29f8fb21e15330cc",
+        "released_at": "2026-10-01T00:00:00.000Z"
       }
     ],
     "operationAudit": [
       {
-        "operation_id": "c066dc9e-e1f9-4fa7-bffa-9acd555764d8",
+        "operation_id": "c7175596-b286-4a8e-8878-fb9eb7e4b92f",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "c066dc9e-e1f9-4fa7-bffa-9acd555764d8",
+        "operation_id": "c7175596-b286-4a8e-8878-fb9eb7e4b92f",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "c066dc9e-e1f9-4fa7-bffa-9acd555764d8",
+        "operation_id": "c7175596-b286-4a8e-8878-fb9eb7e4b92f",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "f6e98d1c-aaf8-4261-8a0a-8bcd605c106c",
+        "operation_id": "ba317bcb-8039-4559-b9b5-8b874b956f92",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "f6e98d1c-aaf8-4261-8a0a-8bcd605c106c",
+        "operation_id": "ba317bcb-8039-4559-b9b5-8b874b956f92",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "f6e98d1c-aaf8-4261-8a0a-8bcd605c106c",
+        "operation_id": "ba317bcb-8039-4559-b9b5-8b874b956f92",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "c7367dac-f7cb-4961-a3e2-e4f41230e3bf",
+        "operation_id": "dc1d0d54-7afa-42f9-bb62-79d33a79d7db",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "c7367dac-f7cb-4961-a3e2-e4f41230e3bf",
+        "operation_id": "dc1d0d54-7afa-42f9-bb62-79d33a79d7db",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "c7367dac-f7cb-4961-a3e2-e4f41230e3bf",
+        "operation_id": "dc1d0d54-7afa-42f9-bb62-79d33a79d7db",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "94718ee2-3805-4f41-b78a-4c219dbe6736",
+        "operation_id": "fb55a4e5-48e3-4417-894e-a063c8fc4428",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "94718ee2-3805-4f41-b78a-4c219dbe6736",
+        "operation_id": "fb55a4e5-48e3-4417-894e-a063c8fc4428",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "94718ee2-3805-4f41-b78a-4c219dbe6736",
+        "operation_id": "fb55a4e5-48e3-4417-894e-a063c8fc4428",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "b98a9de6-5c6c-4bea-b9b3-21bb0b18744e",
+        "operation_id": "dee594b6-4a87-4fcb-9d2b-3bd2108fd604",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "b98a9de6-5c6c-4bea-b9b3-21bb0b18744e",
+        "operation_id": "dee594b6-4a87-4fcb-9d2b-3bd2108fd604",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "b98a9de6-5c6c-4bea-b9b3-21bb0b18744e",
+        "operation_id": "dee594b6-4a87-4fcb-9d2b-3bd2108fd604",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "77f07e69-420f-435a-8684-6825983e129e",
+        "operation_id": "5a28e026-8306-4570-9d84-2cd1ae9d1ab8",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "77f07e69-420f-435a-8684-6825983e129e",
+        "operation_id": "5a28e026-8306-4570-9d84-2cd1ae9d1ab8",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "77f07e69-420f-435a-8684-6825983e129e",
+        "operation_id": "5a28e026-8306-4570-9d84-2cd1ae9d1ab8",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "c61b485e-99fd-493d-91a4-ce8139b6f273",
+        "operation_id": "25790839-f6b3-4b4a-8a8a-8e97c71693b2",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "c61b485e-99fd-493d-91a4-ce8139b6f273",
+        "operation_id": "25790839-f6b3-4b4a-8a8a-8e97c71693b2",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "c61b485e-99fd-493d-91a4-ce8139b6f273",
+        "operation_id": "25790839-f6b3-4b4a-8a8a-8e97c71693b2",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "9451e71d-066d-48ce-b8cf-f2a106033552",
+        "operation_id": "be602002-b17d-4f72-9486-868376cc95e2",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "9451e71d-066d-48ce-b8cf-f2a106033552",
+        "operation_id": "be602002-b17d-4f72-9486-868376cc95e2",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "9451e71d-066d-48ce-b8cf-f2a106033552",
+        "operation_id": "be602002-b17d-4f72-9486-868376cc95e2",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "79e1c4dd-9059-4f34-8f74-5447732b737e",
+        "operation_id": "4f9c8640-85f6-485b-887d-636a67a5a4be",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "79e1c4dd-9059-4f34-8f74-5447732b737e",
+        "operation_id": "4f9c8640-85f6-485b-887d-636a67a5a4be",
+        "event_type": "APPLIED"
+      },
+      {
+        "operation_id": "4f9c8640-85f6-485b-887d-636a67a5a4be",
+        "event_type": "VERIFIED"
+      },
+      {
+        "operation_id": "28d05fb0-7d8e-4310-b193-a04d7d2dcb80",
+        "event_type": "PREPARED"
+      },
+      {
+        "operation_id": "28d05fb0-7d8e-4310-b193-a04d7d2dcb80",
         "event_type": "UNKNOWN"
       },
       {
-        "operation_id": "f5d4cc4d-a0bd-41e2-9df0-6c5d246da221",
+        "operation_id": "c310fd77-c9af-4002-bed9-c1f35a2b019d",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "f5d4cc4d-a0bd-41e2-9df0-6c5d246da221",
+        "operation_id": "c310fd77-c9af-4002-bed9-c1f35a2b019d",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "f5d4cc4d-a0bd-41e2-9df0-6c5d246da221",
+        "operation_id": "c310fd77-c9af-4002-bed9-c1f35a2b019d",
         "event_type": "VERIFIED"
       },
       {
-        "operation_id": "4e8eb496-14cd-4a47-8deb-7381f742139f",
+        "operation_id": "9185925e-181d-4a61-b96c-939415121c8f",
         "event_type": "PREPARED"
       },
       {
-        "operation_id": "4e8eb496-14cd-4a47-8deb-7381f742139f",
+        "operation_id": "9185925e-181d-4a61-b96c-939415121c8f",
         "event_type": "APPLIED"
       },
       {
-        "operation_id": "4e8eb496-14cd-4a47-8deb-7381f742139f",
+        "operation_id": "9185925e-181d-4a61-b96c-939415121c8f",
         "event_type": "VERIFIED"
       }
     ],
     "traversals": [
       {
-        "id": "dee8ba94-67ed-4c5d-9330-f53c89736f17",
-        "workflow_run_id": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "step_run_id": "14760734-7258-48db-baeb-c4a17417f817",
+        "id": "fc9a63f9-4284-48fe-8eba-971eb8d51688",
+        "workflow_run_id": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "step_run_id": "ed384c0e-4aee-4b35-bea9-0da3afbee9af",
         "edge_id": "fix-first",
         "group_id": "test.shared",
         "traversal_index": 1,
         "reason": "fix.first",
-        "created_at": "2026-10-01T16:51:23.286Z"
+        "created_at": "2026-10-02T01:34:09.252Z"
       },
       {
-        "id": "035a46dd-fc7d-4b95-9281-d45b9944c106",
-        "workflow_run_id": "f9cbaea0-1cf2-43c6-96e4-b759ec257da0",
-        "step_run_id": "8bd5ddd1-727a-4fac-930c-1cf8a4455846",
+        "id": "36ca688c-f3a1-4fef-93f1-37c6b4162a4b",
+        "workflow_run_id": "b6205f84-710f-48da-b65a-c3adee4c52e3",
+        "step_run_id": "3cad245c-998c-446f-83b4-93adaf016df5",
         "edge_id": "fix-second",
         "group_id": "test.shared",
         "traversal_index": 2,
         "reason": "fix.second",
-        "created_at": "2026-10-01T16:51:23.397Z"
+        "created_at": "2026-10-02T01:34:09.353Z"
       }
     ]
+  },
+  "registryInstall": {
+    "snapshot": {
+      "contracts": [
+        {
+          "contract_id": "test.w2.file",
+          "contract_version": "1",
+          "content_hash": "cd593306cf0cb780bc1cadc0e8efc1d2c8153e5a7e4075bc072b015072ec18b3"
+        },
+        {
+          "contract_id": "test.w2.json",
+          "contract_version": "1",
+          "content_hash": "fac71b02f7b41df4ca56b4edde723377488537cfe505e7ef28e26e0a0e5162c8"
+        },
+        {
+          "contract_id": "test.w2.official",
+          "contract_version": "1",
+          "content_hash": "c86be1da65ffd0c8b8a08e320e620a118259471834fddf85fc9d0b08440822b8"
+        },
+        {
+          "contract_id": "test.w2.review",
+          "contract_version": "1",
+          "content_hash": "afc84e81648f6182bbacebf103638177d461a51166eb0163111a3a7ae59a7a1f"
+        },
+        {
+          "contract_id": "test.w2.workspace",
+          "contract_version": "1",
+          "content_hash": "8db4508bf403de27de4b95e47ffc5801f6e88309e67bc24ab768d4c63cedcdfb"
+        }
+      ],
+      "releases": [
+        {
+          "definition_id": "test-official-builtin-contract",
+          "version": 1,
+          "manifest_hash": "c0f7b7d2cbc251314887cb9369494a3cda3247f0f3d5577e29f8fb21e15330cc",
+          "released_at": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "definition_id": "test-only-builtin-contract",
+          "version": 1,
+          "manifest_hash": "f7d80e472a96edb5c02aab27a265bde5e00b5eb114ef59565f1229eb839c6a7f",
+          "released_at": "2026-10-01T00:00:00.000Z"
+        }
+      ],
+      "versions": [
+        {
+          "definition_id": "test-official-builtin-contract",
+          "version": 1,
+          "content_hash": "63d017cdd7a01fd9931089bf218233891172feeff8795cd03cc58951877ca91e"
+        },
+        {
+          "definition_id": "test-only-builtin-contract",
+          "version": 1,
+          "content_hash": "b14657380510306f34c54ba0886b2035fabd8e6a4f07ec9cd5c4260cf8bf538b"
+        },
+        {
+          "definition_id": "w2-fixture-contract",
+          "version": 1,
+          "content_hash": "3024a4a5ef60c975bba1cf592d10ceba84f39ea424e64a4282a727105ce5fb2f"
+        },
+        {
+          "definition_id": "w2-fixture-external",
+          "version": 1,
+          "content_hash": "a18fe704ba027ee7c93756b313a52020459a5731d36f8c01f3c5eef380762df4"
+        },
+        {
+          "definition_id": "w2-fixture-file",
+          "version": 1,
+          "content_hash": "ddad5410bf3cc1646bccb8e8c6b2d0abb1b44f8be9699a9f146bc4697d80b9df"
+        },
+        {
+          "definition_id": "w2-fixture-revision",
+          "version": 1,
+          "content_hash": "c0f04db06ed54bee2c50df01b962bf91fe61430604f4d94b50f5b8e5b861b46c"
+        },
+        {
+          "definition_id": "w2-fixture-workspace",
+          "version": 1,
+          "content_hash": "f691de274e1736d9cae4152be2b701ca6ec30ef8dd2fd2c72d6d8ab4a7855cf4"
+        }
+      ]
+    },
+    "identicalAfterRestarts": true
+  },
+  "productionBootstrap": {
+    "workflow_artifact_contract_registry": 0,
+    "workflow_builtin_releases": 0,
+    "workflow_versions": 0
   }
 }
