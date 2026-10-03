@@ -12,15 +12,21 @@ export function WorkflowArtifactResult({
   artifact,
   label,
   binding,
+  displayName,
 }: {
   artifact: WorkflowArtifact;
   label: string;
   binding?: WorkflowArtifactBinding;
+  displayName?: string;
 }) {
   return (
     <details className="workflow-data-row">
-      <summary>{resultNames[artifact.kind]}</summary>
-      <pre>{artifact.content}</pre>
+      <summary>{displayName ?? resultNames[artifact.kind]}</summary>
+      {artifact.kind === 'FILE' && typeof artifact.metadata.path === 'string' ? (
+        <p>Workspace 文件：{artifact.metadata.path}</p>
+      ) : (
+        <pre>{artifact.content}</pre>
+      )}
       <details className="workflow-technical-details">
         <summary>高级 · 来源记录</summary>
         <dl>

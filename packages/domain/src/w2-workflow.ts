@@ -148,7 +148,7 @@ export const W2_ARTIFACT_VALIDATOR_VERSION = 'w2-deterministic-v1';
 const contractIdPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const contractVersionPattern = /^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$/;
 const hashPattern = /^[a-f0-9]{64}$/;
-const revisionCodePattern = /^[a-z][a-z0-9_.-]{0,63}$/;
+const revisionCodePattern = /^[A-Za-z][A-Za-z0-9_.-]{0,63}$/;
 
 function plain(value: unknown): value is Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;

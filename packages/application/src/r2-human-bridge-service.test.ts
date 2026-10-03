@@ -566,6 +566,38 @@ describe('R2 Human Bridge application services', () => {
     expect(JSON.stringify(createdEvents)).not.toContain(request.prompt);
   });
 
+  it('freezes the inspected submission hash and rejects malformed Main inspection facts', async () => {
+    const { bridge, externalWork, workspace, store } = setup();
+    bridge.bootstrap();
+    bridge.setCapability({ dimension: 'IMAGE_GENERATION', enabled: true });
+    const request = externalWork.createExplicit(createInput());
+    externalWork.markInProgress(request.id);
+    const path = 'mission-output/cover.png';
+    workspace.facts.set(path, {
+      relativePath: path,
+      fileName: 'cover.png',
+      extension: '.png',
+      sizeBytes: 512,
+      contentHash: 'bad',
+    });
+    await expect(
+      externalWork.submitArtifacts({
+        requestId: request.id,
+        artifacts: [{ targetArtifactId: 'cover', relativePath: path }],
+      }),
+    ).rejects.toThrow(/hash/);
+    expect(store.artifacts).toHaveLength(0);
+    workspace.facts.get(path)!.contentHash = 'a'.repeat(64);
+    await externalWork.submitArtifacts({
+      requestId: request.id,
+      artifacts: [{ targetArtifactId: 'cover', relativePath: path }],
+    });
+    expect(store.artifacts[0]!.metadataJson).toEqual({
+      targetArtifactId: 'cover',
+      contentHash: 'a'.repeat(64),
+    });
+  });
+
   it('validates submitted files through the workspace port and rejects traversal, symlink, extension, and size failures', async () => {
     const { bridge, externalWork, workspace, store } = setup();
     bridge.bootstrap();

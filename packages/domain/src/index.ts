@@ -154,6 +154,8 @@ export interface ToolDescriptor {
   riskLevel: RiskLevel;
   sideEffect: SideEffect;
   capability: PermissionCapability;
+  /** Discovery metadata only; never grants permission or execution authority. */
+  workflowPurposes?: Array<'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY'>;
 }
 
 /** User-configured stdio MCP server settings. Only environment variable names are stored. */

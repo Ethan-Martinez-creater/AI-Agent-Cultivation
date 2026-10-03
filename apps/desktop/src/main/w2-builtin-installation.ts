@@ -5,9 +5,11 @@ import {
 } from '@cultivation/application';
 import type { W1WorkflowRepository, W2WorkflowRepository } from '@cultivation/persistence';
 
-/** Static application-owned packages only. No official templates ship in W2.0. */
+import { AI_NEWS_VIDEO_PACKAGE } from '../../../../packages/application/src/builtin/ai-news-video/v1.js';
+
+/** Static application-owned official packages; no Renderer registration path. */
 export const OFFICIAL_BUILTIN_WORKFLOW_PACKAGES: readonly OfficialBuiltinWorkflowPackage[] =
-  Object.freeze([]);
+  Object.freeze([AI_NEWS_VIDEO_PACKAGE]);
 
 export function createBuiltinWorkflowInstaller(
   registry: BuiltinWorkflowRegistry,

@@ -593,6 +593,27 @@ describe('W2 bounded revision and release contracts', () => {
     ).toThrow();
   });
 
+  it('accepts uppercase revision codes while preserving exact frozen code matching', () => {
+    const version = reviewVersion(true);
+    version.edges[0]!.revisionCode = 'FIX_SPEC';
+    version.edges[1]!.revisionCode = 'FIX_EVIDENCE';
+    expect(() => validateWorkflowVersion(version)).not.toThrow();
+    const result = {
+      verdict: 'REVISE',
+      findings: ['Add an evidence source'],
+      evidence: ['source-1'],
+      summary: 'The current draft needs another pass.',
+      reviewedArtifactIds: ['artifact-1'],
+      revisionCode: 'FIX_EVIDENCE',
+    };
+    expect(validateWorkflowReviewResult(result, version, 'review').revisionCode).toBe(
+      'FIX_EVIDENCE',
+    );
+    expect(() =>
+      validateWorkflowReviewResult({ ...result, revisionCode: 'fix_evidence' }, version, 'review'),
+    ).toThrow();
+  });
+
   it('requires safe declared effect paths only on W2 versions', () => {
     const version: WorkflowVersion = {
       definition: {

@@ -22,7 +22,8 @@ import type {
   WorkflowMissionSnapshot,
   WorkflowRepository,
 } from './w1-workflow-ports.js';
-import { WorkflowService } from './w1-workflow-service.js';
+import { WorkflowService, workflowHash } from './w1-workflow-service.js';
+import type { WorkflowValidationPolicyPort } from './w1-workflow-service.js';
 
 const at = '2026-10-01T00:00:00.000Z';
 
@@ -295,7 +296,11 @@ class FakeWorkflowMissionPort implements WorkflowMissionPort {
   readonly startCalls: string[] = [];
   readonly retryCalls: string[] = [];
   readonly cancelCalls: string[] = [];
-  readonly collectOutputCalls: Array<{ missionId: string; workspaceRoot: string | null }> = [];
+  readonly collectOutputCalls: Array<{
+    missionId: string;
+    workspaceRoot: string | null;
+    context?: { workflowRunId: string; stepRunId: string };
+  }> = [];
   createStatus: 'CREATED' | 'USER_ACTION_REQUIRED' = 'CREATED';
   createReason = 'NEEDS_USER_SELECTION';
   throwOnStart: Error | null = null;
@@ -352,8 +357,10 @@ class FakeWorkflowMissionPort implements WorkflowMissionPort {
   async collectOutputs(
     missionId: string,
     workspaceRoot: string | null,
+    _definition?: WorkflowStepDefinition,
+    context?: { workflowRunId: string; stepRunId: string },
   ): Promise<WorkflowMissionSnapshot> {
-    this.collectOutputCalls.push({ missionId, workspaceRoot });
+    this.collectOutputCalls.push({ missionId, workspaceRoot, context });
     if (this.collectOutputsError) throw this.collectOutputsError;
     return this.snapshot(missionId);
   }
@@ -509,20 +516,27 @@ class FakeWorkflowMissionPort implements WorkflowMissionPort {
   }
 }
 
-function makeHarness(version: WorkflowVersion) {
+function makeHarness(version: WorkflowVersion, validationPolicy?: WorkflowValidationPolicyPort) {
   const store = new MemoryWorkflowRepository();
   const missions = new FakeWorkflowMissionPort();
   let idSequence = 0;
   let timeSequence = 0;
-  const service = new WorkflowService(store, missions, {
-    now: () => new Date(Date.parse(at) + timeSequence++).toISOString(),
-    id: () =>
-      ('00000000-0000-4000-8000-' +
-        (++idSequence)
-          .toString(16)
-          .padStart(12, '0')) as `${string}-${string}-${string}-${string}-${string}`,
-  });
-  service.publish(version);
+  const service = new WorkflowService(
+    store,
+    missions,
+    {
+      now: () => new Date(Date.parse(at) + timeSequence++).toISOString(),
+      id: () =>
+        ('00000000-0000-4000-8000-' +
+          (++idSequence)
+            .toString(16)
+            .padStart(12, '0')) as `${string}-${string}-${string}-${string}-${string}`,
+    },
+    undefined,
+    validationPolicy,
+  );
+  if (version.definition.source === 'BUILTIN') store.publishVersion(version);
+  else service.publish(version);
   const detail = service.createRun({
     definitionId: version.definition.id,
     version: version.version,
@@ -922,6 +936,265 @@ describe('WorkflowService W1 deterministic execution', () => {
     ).toEqual(['TASK', 'REVIEW', 'TASK']);
   });
 
+  it('parses only the selected REVIEW JSON from a strict multi-output envelope', async () => {
+    const version = reviewFlow();
+    const reviewDefinition = version.steps.find((step) => step.id === 'review')!;
+    reviewDefinition.reviewOutputKey = 'review';
+    reviewDefinition.outputs.push(jsonSpec('sources', ['items']));
+    const harness = makeHarness(version);
+
+    let detail = await harness.service.advance(harness.runId);
+    const taskRun = detail.steps.find((step) => step.stepId === 'task')!;
+    harness.missions.completeMission(taskRun.missionId!, '{"goal":"ship"}');
+    detail = await harness.service.advance(harness.runId);
+    const reviewRun = detail.steps.find((step) => step.stepId === 'review')!;
+    const reviewObjective = harness.missions.createCalls[1]!.executionObjective!;
+    expect(reviewObjective).toContain('"outputs":{"review":<value>,"sources":<value>}');
+    expect(reviewObjective).toContain('outputs["review"]');
+
+    const report = JSON.parse(
+      reviewJson('PASS', [
+        detail.artifacts.find((artifact) => artifact.producerStepRunId === taskRun.id)!.id,
+      ]),
+    );
+    harness.missions.completeMission(
+      reviewRun.missionId!,
+      JSON.stringify({ outputs: { review: report, sources: { items: ['source-1'] } } }),
+    );
+    detail = await harness.service.advance(harness.runId);
+
+    const artifacts = detail.artifacts.filter(
+      (artifact) => artifact.producerStepRunId === reviewRun.id,
+    );
+    const byKey = new Map(artifacts.map((artifact) => [artifact.metadata.outputKey, artifact]));
+    expect(JSON.parse(byKey.get('review')!.content)).toMatchObject({ verdict: 'PASS' });
+    expect(JSON.parse(byKey.get('sources')!.content)).toEqual({ items: ['source-1'] });
+    expect(detail.validations.filter((receipt) => receipt.stepRunId === reviewRun.id)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ valid: true, errors: [] }),
+        expect.objectContaining({ valid: true, errors: [] }),
+      ]),
+    );
+    expect(detail.events.some((event) => event.type === 'step.validation_failed')).toBe(false);
+  });
+
+  it('routes REVIEW FAIL terminal outcomes to USER_CONFIRMATION instead of completing', async () => {
+    const review = taskStep(
+      'review',
+      [jsonSpec('review', ['verdict', 'findings', 'evidence', 'summary', 'reviewedArtifactIds'])],
+      { type: 'REVIEW', exitCondition: 'REVIEW_PASS' },
+    );
+    const pass = taskStep('pass');
+    const harness = makeHarness(
+      makeVersion(
+        [review, pass],
+        [
+          {
+            id: 'review-pass',
+            fromStepId: 'review',
+            toStepId: 'pass',
+            branch: 'pass',
+            condition: { type: 'REVIEW_VERDICT', verdict: 'PASS' },
+          },
+          {
+            id: 'review-fail-terminal',
+            fromStepId: 'review',
+            toStepId: null,
+            branch: 'fail',
+            condition: { type: 'REVIEW_VERDICT', verdict: 'FAIL' },
+          },
+        ],
+      ),
+    );
+    let detail = await harness.service.advance(harness.runId);
+    const reviewRun = detail.steps[0]!;
+    harness.missions.completeMission(reviewRun.missionId!, reviewJson('FAIL', []));
+    detail = await harness.service.advance(harness.runId);
+    expect(detail.run).toMatchObject({ state: 'WAITING', waitReason: 'USER_CONFIRMATION' });
+    expect(detail.steps[0]).toMatchObject({
+      state: 'WAITING',
+      errorCode: 'REVIEW_FAIL_REQUIRES_USER_ACTION',
+    });
+    expect(detail.checkpoints).toHaveLength(0);
+    expect(detail.events.some((event) => event.type === 'step.review_failed_waiting_user')).toBe(
+      true,
+    );
+  });
+
+  it('accepts a named Human Bridge JSON output only when its persisted provenance matches', async () => {
+    const reportSpec = jsonSpec('report', ['headline']);
+    const harness = makeHarness(
+      makeVersion([taskStep('task', [reportSpec])], [], {
+        outputSchema: {
+          outputs: [
+            {
+              ...reportSpec,
+              key: 'finalReport',
+              fromStepId: 'task',
+              outputKey: 'report',
+            },
+          ],
+        },
+      }),
+    );
+    let detail = await harness.service.advance(harness.runId);
+    const missionId = detail.steps[0]!.missionId!;
+    const content = JSON.stringify({ headline: 'Accepted source-backed report' });
+    harness.missions.completeMission(missionId, null, {
+      source: 'HUMAN_BRIDGE',
+      sourceId: 'accepted-report',
+      actorId: 'user-1',
+      kind: 'JSON',
+      content,
+      metadata: {
+        outputKey: 'report',
+        targetArtifactId: 'report',
+        path: 'workspace/reports/report.json',
+        extension: '.json',
+        sizeBytes: Buffer.byteLength(content, 'utf8'),
+        contentHash: workflowHash(content),
+      },
+    });
+
+    detail = await harness.service.advance(harness.runId);
+    expect(detail.run.state).toBe('COMPLETED');
+    expect(detail.artifacts[0]).toMatchObject({
+      source: 'HUMAN_BRIDGE',
+      sourceId: 'accepted-report',
+      kind: 'JSON',
+      content,
+    });
+    expect(detail.finalValidations?.[0]).toMatchObject({ valid: true, errors: [] });
+  });
+
+  it('requires explicit recoverable confirmation at a final DECISION without starting a Mission', async () => {
+    const task = taskStep('task', [jsonSpec('approval', ['ok'])]);
+    const confirmation = taskStep('confirm', [], {
+      type: 'DECISION',
+      objective: 'Wait for the user to confirm the final deliverables',
+      inputs: [{ key: 'approvalInput', fromStepId: 'task', outputKey: 'approval', required: true }],
+      confirmationRequired: true,
+    });
+    const harness = makeHarness(
+      makeVersion(
+        [task, confirmation],
+        [
+          {
+            id: 'task-confirm',
+            fromStepId: 'task',
+            toStepId: 'confirm',
+            branch: 'continue',
+            condition: { type: 'ALWAYS' },
+          },
+          {
+            id: 'confirm-terminal',
+            fromStepId: 'confirm',
+            toStepId: null,
+            branch: 'confirmed',
+            condition: { type: 'ALWAYS' },
+          },
+        ],
+      ),
+    );
+    let detail = await harness.service.advance(harness.runId);
+    const taskRun = detail.steps.find((step) => step.stepId === 'task')!;
+    harness.missions.completeMission(taskRun.missionId!, '{"ok":true}');
+    detail = await harness.service.advance(harness.runId);
+    const confirmationRun = detail.steps.find((step) => step.stepId === 'confirm')!;
+    expect(detail.run).toMatchObject({ state: 'WAITING', waitReason: 'USER_CONFIRMATION' });
+    expect(confirmationRun).toMatchObject({
+      state: 'WAITING',
+      waitReason: 'USER_CONFIRMATION',
+      errorCode: 'FINAL_USER_CONFIRMATION_REQUIRED',
+      missionId: null,
+    });
+    expect(harness.missions.createCalls).toHaveLength(1);
+
+    await harness.service.recover();
+    await harness.service.resume(harness.runId);
+    detail = harness.service.detail(harness.runId);
+    expect(detail.events.some((event) => event.type === 'workflow.user_confirmed')).toBe(false);
+    expect(detail.decisions.some((decision) => decision.stepRunId === confirmationRun.id)).toBe(
+      false,
+    );
+    expect(harness.missions.createCalls).toHaveLength(1);
+
+    const before = { checkpoints: detail.checkpoints.length, events: detail.events.length };
+    detail = harness.service.confirm(harness.runId);
+    const confirmedEvent = detail.events.find((event) => event.type === 'workflow.user_confirmed')!;
+    expect(confirmedEvent).toMatchObject({
+      stepRunId: confirmationRun.id,
+      payload: {
+        stepRunId: confirmationRun.id,
+        inputHash: workflowHash(
+          detail.bindings.filter(
+            (binding) => binding.stepRunId === confirmationRun.id && binding.role === 'INPUT',
+          ),
+        ),
+      },
+    });
+    expect(
+      detail.decisions.find((decision) => decision.stepRunId === confirmationRun.id)?.inputHash,
+    ).toBe(confirmedEvent.payload.inputHash);
+    expect(detail.checkpoints).toHaveLength(before.checkpoints + 1);
+    expect(detail.run.state).toBe('COMPLETED');
+
+    const afterFirstConfirmation = {
+      checkpoints: detail.checkpoints.length,
+      events: detail.events.length,
+    };
+    detail = harness.service.confirm(harness.runId);
+    expect({ checkpoints: detail.checkpoints.length, events: detail.events.length }).toEqual(
+      afterFirstConfirmation,
+    );
+    expect(harness.missions.createCalls).toHaveLength(1);
+  });
+
+  it('fails closed when a declared policy is unavailable or rejects cross-artifact facts', async () => {
+    const version = makeVersion([taskStep('task', [jsonSpec('result', ['ok'])])], [], {
+      validationPolicy: 'news-integrity-v1',
+      outputSchema: undefined,
+    });
+    version.definition.source = 'BUILTIN';
+    const missingPolicyStore = new MemoryWorkflowRepository();
+    missingPolicyStore.publishVersion(version);
+    const missingPolicyService = new WorkflowService(
+      missingPolicyStore,
+      new FakeWorkflowMissionPort(),
+    );
+    expect(() =>
+      missingPolicyService.createRun({
+        definitionId: version.definition.id,
+        version: version.version,
+      }),
+    ).toThrow('validation policy 不可用');
+    expect(missingPolicyStore.runs.size).toBe(0);
+
+    let inputChecks = 0;
+    let stepChecks = 0;
+    const harness = makeHarness(version, {
+      validateInputs: () => {
+        inputChecks += 1;
+      },
+      validateStep: (_detail, _step, produced) => {
+        stepChecks += 1;
+        expect(produced).toHaveLength(1);
+        return ['CROSS_ARTIFACT_FACT_MISMATCH'];
+      },
+    });
+    let detail = await harness.service.advance(harness.runId);
+    const missionId = detail.steps[0]!.missionId!;
+    harness.missions.completeMission(missionId, '{"ok":true}');
+    detail = await harness.service.advance(harness.runId);
+    expect(inputChecks).toBe(1);
+    expect(stepChecks).toBe(1);
+    expect(detail.run.state).toBe('WAITING');
+    expect(detail.validations).toMatchObject([
+      { valid: false, errors: ['CROSS_ARTIFACT_FACT_MISMATCH'] },
+    ]);
+    expect(detail.bindings.some((binding) => binding.role === 'OUTPUT')).toBe(false);
+  });
+
   it('fails closed when structured review lineage names an artifact that was not bound as input', async () => {
     const task = taskStep('task', [textSpec('source')]);
     const review = taskStep('review', [jsonSpec('review', ['verdict'])], {
@@ -1140,7 +1413,14 @@ describe('WorkflowService W1 deterministic execution', () => {
       metadata: { extension: '.txt' },
     });
     expect(externalHarness.missions.collectOutputCalls).toEqual([
-      { missionId: externalMissionId, workspaceRoot: 'C:\\w1-tests\\workspace' },
+      {
+        missionId: externalMissionId,
+        workspaceRoot: 'C:\\w1-tests\\workspace',
+        context: {
+          workflowRunId: externalHarness.runId,
+          stepRunId: detail.steps[0]!.id,
+        },
+      },
     ]);
     expect(externalHarness.missions.startCalls).toEqual([externalMissionId]);
   });
@@ -1285,6 +1565,39 @@ describe('WorkflowService W1 deterministic execution', () => {
     await cancelled.service.advance(cancelled.runId);
     expect(cancelled.missions.createCalls).toHaveLength(1);
     expect(cancelled.missions.startCalls).toEqual([missionId]);
+  });
+
+  it('prepares routing before Mission creation and waits when preparation requires user action', async () => {
+    const routed = makeHarness(makeVersion([taskStep('task')]));
+    const preparedCalls: Array<{ workflowRunId: string; stepRunId: string }> = [];
+    Object.assign(routed.missions, {
+      prepareExecution: async (
+        _definition: WorkflowStepDefinition,
+        detail: WorkflowDetail,
+        step: WorkflowStepRun,
+      ) => {
+        preparedCalls.push({ workflowRunId: detail.run.id, stepRunId: step.id });
+        return { routing: { executionConstraint: 'PARTY' as const } };
+      },
+    });
+    const routedDetail = await routed.service.advance(routed.runId);
+    expect(preparedCalls).toEqual([
+      { workflowRunId: routed.runId, stepRunId: routedDetail.steps[0]!.id },
+    ]);
+    expect(routed.missions.createCalls[0]!.context.executionConstraint).toBe('PARTY');
+
+    const blocked = makeHarness(makeVersion([taskStep('task')]));
+    Object.assign(blocked.missions, {
+      prepareExecution: async () => ({ reason: 'TOOL_SELECTION_REQUIRED' }),
+    });
+    const blockedDetail = await blocked.service.advance(blocked.runId);
+    expect(blockedDetail.run).toMatchObject({ state: 'WAITING', waitReason: 'USER_CONFIRMATION' });
+    expect(blockedDetail.steps[0]).toMatchObject({
+      state: 'WAITING',
+      errorCode: 'TOOL_SELECTION_REQUIRED',
+      missionId: null,
+    });
+    expect(blocked.missions.createCalls).toHaveLength(0);
   });
 
   it('passes generic R4 context and bounded execution objectives without embedding raw input artifact text', async () => {

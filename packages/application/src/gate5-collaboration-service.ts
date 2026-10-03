@@ -1,3 +1,4 @@
+import { workflowToolEvidence } from './workflow-tool-evidence.js';
 import type {
   ApprovalRequest,
   AuditEvent,
@@ -2251,6 +2252,7 @@ export class Gate5CollaborationService {
       success: result.ok,
       code: result.code,
       outputSummary: { bytes: Buffer.byteLength(result.content) },
+      ...workflowToolEvidence(result, source),
       ...(externalWorkRequestId ? { externalWorkRequestId } : {}),
     });
   }

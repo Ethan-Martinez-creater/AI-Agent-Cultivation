@@ -319,7 +319,7 @@ describe('Gate 6 experience ledger', () => {
         count: 0,
       });
       expect(db.prepare('SELECT COUNT(*) AS count FROM schema_migrations').get()).toEqual({
-        count: 19,
+        count: 20,
       });
     } finally {
       db.close();
@@ -411,7 +411,7 @@ describe('Gate 6 experience ledger', () => {
     runMigrations(db, migrations);
 
     expect(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toHaveLength(
-      19,
+      20,
     );
     expect(db.prepare('SELECT COUNT(*) AS count FROM mission_events').get()).toEqual(
       missionEventCount,

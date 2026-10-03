@@ -257,4 +257,91 @@ describe('W1 workflow domain', () => {
       ),
     ).toThrow(DomainError);
   });
+
+  it('selects one required JSON output as the REVIEW decision among multiple outputs', () => {
+    const decisionOutput = { ...producer, key: 'review' };
+    const auxiliaryOutput = {
+      ...producer,
+      key: 'citations',
+      contractId: 'citations-contract',
+      validator: { type: 'JSON' as const, requiredKeys: ['items'] },
+    };
+    const review = step('task', {
+      type: 'REVIEW',
+      exitCondition: 'REVIEW_PASS',
+      outputs: [decisionOutput, auxiliaryOutput],
+    });
+    expect(() => validateWorkflowVersion(version({ steps: [review], edges: [] }))).toThrow(
+      DomainError,
+    );
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          steps: [step('task', { ...review, reviewOutputKey: 'review' })],
+          edges: [],
+        }),
+      ),
+    ).not.toThrow();
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          steps: [step('task', { ...review, reviewOutputKey: 'unknown-output' })],
+          edges: [],
+        }),
+      ),
+    ).toThrow(DomainError);
+  });
+
+  it('allows explicit confirmation only for a terminal DECISION and a trusted validation policy', () => {
+    const confirmation = step('task', {
+      type: 'DECISION',
+      confirmationRequired: true,
+    });
+    const terminal = {
+      id: 'task-confirmed',
+      fromStepId: 'task',
+      toStepId: null,
+      branch: 'confirmed',
+      condition: { type: 'ALWAYS' as const },
+    };
+    expect(() =>
+      validateWorkflowVersion(version({ steps: [confirmation], edges: [terminal] })),
+    ).not.toThrow();
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          steps: [step('task', { ...confirmation, type: 'TASK' })],
+          edges: [terminal],
+        }),
+      ),
+    ).toThrow(DomainError);
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          steps: [confirmation, step('next')],
+          edges: [{ ...terminal, toStepId: 'next' }],
+        }),
+      ),
+    ).toThrow(DomainError);
+    expect(() =>
+      validateWorkflowVersion(version({ validationPolicy: 'news-integrity-v1' })),
+    ).toThrow(DomainError);
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          definition: { ...version().definition, source: 'BUILTIN' },
+          validationPolicy: 'news-integrity-v1',
+          steps: [step('task', { artifactPathScope: 'RUN_ATTEMPT' })],
+          edges: [],
+        }),
+      ),
+    ).not.toThrow();
+    expect(() =>
+      validateWorkflowVersion(
+        version({
+          validationPolicy: 'unrecognized-policy' as never,
+        }),
+      ),
+    ).toThrow(DomainError);
+  });
 });

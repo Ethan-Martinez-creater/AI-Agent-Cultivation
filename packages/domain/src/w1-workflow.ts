@@ -69,6 +69,8 @@ export interface WorkflowInputBinding {
 }
 export interface WorkflowStepDefinition {
   id: string;
+  /** Optional frozen phase label, for example N01 or N02. */
+  phase?: string;
   type: WorkflowStepType;
   title: string;
   objective: string;
@@ -77,6 +79,16 @@ export interface WorkflowStepDefinition {
   /** Selected frozen Workflow Input fields; absent means none. */
   workflowInputKeys?: string[];
   outputs: WorkflowArtifactSpec[];
+  /** Selects the one required JSON output that carries a REVIEW decision. */
+  reviewOutputKey?: string;
+  /** DECISION-only durable final user confirmation gate. */
+  confirmationRequired?: boolean;
+  /** Purpose-specific execution routing requirement resolved by the Main adapter. */
+  executionRequirements?: {
+    toolPurpose: 'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY';
+  };
+  /** Main adapter scopes declared paths to this Workflow Step attempt. */
+  artifactPathScope?: 'RUN_ATTEMPT';
   maxAttempts: number;
   exitCondition: 'VALID_OUTPUTS' | 'REVIEW_PASS';
   /** Declaration only: uncertain interrupted execution always needs explicit user action. */
@@ -120,6 +132,8 @@ export interface WorkflowVersion {
   contractManifest?: ArtifactContract[];
   revisionGroups?: BoundedRevisionGroup[];
   releaseMetadata?: WorkflowReleaseMetadata;
+  /** Trusted, versioned application policy. Only official builtins may declare one. */
+  validationPolicy?: 'news-integrity-v1';
   entryStepId: string;
   steps: WorkflowStepDefinition[];
   edges: WorkflowEdge[];
@@ -329,6 +343,11 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
   const invalid = (message: string): never => {
     throw new DomainError('INVALID_INPUT', message);
   };
+  if (
+    value.validationPolicy !== undefined &&
+    (value.validationPolicy !== 'news-integrity-v1' || value.definition.source !== 'BUILTIN')
+  )
+    invalid('Unknown or untrusted Workflow validation policy');
   validateWorkflowInputSchema(value.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA);
   if (
     !value.definition.id ||
@@ -376,6 +395,8 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
       invalid('Step references undeclared Workflow Input');
     if (
       !s.id ||
+      (s.phase !== undefined &&
+        (typeof s.phase !== 'string' || !s.phase.trim() || s.phase.length > 128)) ||
       !s.title.trim() ||
       !s.objective.trim() ||
       s.objective.length > 6_000 ||
@@ -392,6 +413,42 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
       !['NONE', 'FILE_OUTPUT', 'WORKSPACE_MUTATION', 'EXTERNAL_ACTION'].includes(s.effectType)
     )
       invalid('Invalid Step policy');
+    if (
+      s.reviewOutputKey !== undefined &&
+      (typeof s.reviewOutputKey !== 'string' || !s.reviewOutputKey.trim() || s.type !== 'REVIEW')
+    )
+      invalid('reviewOutputKey is supported only by REVIEW Steps');
+    if (s.type === 'REVIEW') {
+      const requiredJsonOutputs = s.outputs.filter((o) => o.kind === 'JSON' && o.required);
+      if (
+        requiredJsonOutputs.length === 0 ||
+        (s.reviewOutputKey === undefined && requiredJsonOutputs.length !== 1) ||
+        (s.reviewOutputKey !== undefined &&
+          !requiredJsonOutputs.some((o) => o.key === s.reviewOutputKey))
+      )
+        invalid('REVIEW requires exactly one declared required JSON decision output');
+    }
+    if (
+      s.confirmationRequired !== undefined &&
+      (typeof s.confirmationRequired !== 'boolean' || s.type !== 'DECISION')
+    )
+      invalid('confirmationRequired is supported only by DECISION Steps');
+    if (
+      s.executionRequirements !== undefined &&
+      (!s.executionRequirements ||
+        typeof s.executionRequirements !== 'object' ||
+        Object.getPrototypeOf(s.executionRequirements) !== Object.prototype ||
+        Object.keys(s.executionRequirements).some((key) => key !== 'toolPurpose') ||
+        !['RESEARCH', 'ASSET_COLLECTION', 'VOICEOVER', 'VIDEO_ASSEMBLY'].includes(
+          s.executionRequirements.toolPurpose,
+        ))
+    )
+      invalid('Invalid Step execution requirement');
+    if (
+      s.artifactPathScope !== undefined &&
+      (s.artifactPathScope !== 'RUN_ATTEMPT' || value.validationPolicy !== 'news-integrity-v1')
+    )
+      invalid('artifactPathScope requires the news-integrity-v1 policy');
     if (s.type === 'DECISION' && (s.outputs.length > 0 || s.effectType !== 'NONE'))
       invalid('DECISION cannot execute or produce model artifacts');
     if (s.type === 'REVIEW' && !s.outputs.some((o) => o.kind === 'JSON' && o.required))
@@ -463,6 +520,13 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
         invalid('Input must reference a declared output');
     }
     const outgoing = value.edges.filter((e) => e.fromStepId === s.id);
+    if (
+      s.confirmationRequired === true &&
+      (outgoing.length !== 1 ||
+        outgoing[0]?.toStepId !== null ||
+        outgoing[0]?.condition.type !== 'ALWAYS')
+    )
+      invalid('Confirmation DECISION must have one terminal ALWAYS edge');
     if (
       s.type !== 'DECISION' &&
       s.type !== 'REVIEW' &&

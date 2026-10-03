@@ -169,7 +169,7 @@ try {
   const installed = installSnapshot();
   assert.equal(
     installed.releases.length,
-    2,
+    3,
     'Fixture and synthetic OFFICIAL are distinct registry packages',
   );
   const revision = await create(live.page, 'w2-fixture-revision');
@@ -349,7 +349,7 @@ try {
       .all(),
     traversals: db.prepare('SELECT * FROM workflow_revision_traversals').all(),
   }));
-  assert.equal(facts.persistence.migration, 19);
+  assert.equal(facts.persistence.migration, 20);
   assert.deepEqual(
     installSnapshot(),
     installed,
@@ -366,9 +366,11 @@ try {
   live = { app: production, page: await production.firstWindow() };
   await live.page.getByRole('heading', { name: '首页', exact: true }).waitFor();
   assert.deepEqual(
-    await live.page.evaluate(() => window.cultivation.workflows.versions()),
-    [],
-    'Normal production bootstrap must not register test/official templates',
+    await live.page.evaluate(async () =>
+      (await window.cultivation.workflows.versions()).map((v) => v.definition.id),
+    ),
+    ['official.ai-news-video'],
+    'Normal production bootstrap loads only the official news package, never test fixtures',
   );
   const normalDatabase = new Database(join(profile, 'production', 'data', 'cultivation.sqlite'), {
     readonly: true,
@@ -381,7 +383,7 @@ try {
       'workflow_versions',
     ]) {
       const count = normalDatabase.prepare(`SELECT count(*) n FROM ${table}`).get().n;
-      assert.equal(count, 0);
+      assert.ok(count > 0);
       facts.productionBootstrap[table] = count;
     }
   } finally {
@@ -389,7 +391,7 @@ try {
   }
   writeFileSync(join(evidence, 'w2-facts.json'), JSON.stringify(facts, null, 2), 'utf8');
   console.log(
-    `W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=empty revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=${evidence}`,
+    `W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=${evidence}`,
   );
 } finally {
   await live.app.close();

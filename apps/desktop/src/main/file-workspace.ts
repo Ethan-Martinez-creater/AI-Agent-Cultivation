@@ -14,6 +14,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 
 const MAX_TEXT_BYTES = 64 * 1024;
+const MAX_ARTIFACT_READ_BYTES = 10 * 1024 * 1024;
 
 export type FileWorkspaceEntry = {
   name: string;
@@ -148,6 +149,63 @@ export class FileWorkspace {
         sizeBytes: info.size,
         ...(contentHash ? { contentHash } : {}),
       };
+    } finally {
+      await this.withIo(() => handle.close());
+    }
+  }
+
+  /** Read bounded artifact bytes after enforcing the same canonical Workspace boundary. */
+  async readArtifactBytes(relativePath: string, maxBytes: number): Promise<Buffer> {
+    if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > MAX_ARTIFACT_READ_BYTES) {
+      throw new FileWorkspaceError('FILE_WORKSPACE_TOO_LARGE', 'Invalid artifact read limit');
+    }
+    const target = this.resolveRelative(relativePath);
+    await this.verifyPath(target, false);
+    const flags = fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0);
+    const handle = await this.withIo(() => open(target, flags));
+    try {
+      await this.verifyPath(target, false);
+      const before = await this.withIo(() => handle.stat());
+      const pathBefore = await this.withIo(() => lstat(target));
+      if (!before.isFile() || !pathBefore.isFile()) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_NOT_FILE', 'Artifact is not a file');
+      }
+      if (pathBefore.isSymbolicLink() || !this.sameFile(before, pathBefore)) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_SYMLINK', 'Symbolic links are not allowed');
+      }
+      if (before.size > maxBytes) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_TOO_LARGE', 'Artifact exceeds its size limit');
+      }
+      const canonical = await this.withIo(() => realpath(target));
+      const relative = path.relative(this.rootPath, canonical);
+      if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_PATH_ESCAPE', 'Path escapes the workspace');
+      }
+
+      const bytes = Buffer.alloc(before.size);
+      let offset = 0;
+      while (offset < bytes.byteLength) {
+        const { bytesRead } = await this.withIo(() =>
+          handle.read(bytes, offset, bytes.byteLength - offset, offset),
+        );
+        if (bytesRead === 0) {
+          throw new FileWorkspaceError('FILE_WORKSPACE_IO', 'Artifact changed during validation');
+        }
+        offset += bytesRead;
+      }
+
+      const after = await this.withIo(() => handle.stat());
+      const pathAfter = await this.withIo(() => lstat(target));
+      await this.verifyPath(target, false);
+      if (
+        offset !== before.size ||
+        after.size !== before.size ||
+        after.mtimeMs !== before.mtimeMs ||
+        !this.sameFile(after, pathAfter)
+      ) {
+        throw new FileWorkspaceError('FILE_WORKSPACE_IO', 'Artifact changed during validation');
+      }
+      return bytes;
     } finally {
       await this.withIo(() => handle.close());
     }

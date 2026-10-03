@@ -128,6 +128,7 @@ describe('Gate 3 SQLite persistence', () => {
       { version: 17 },
       { version: 18 },
       { version: 19 },
+      { version: 20 },
     ]);
     expect(db.prepare('SELECT id, result_text FROM mission_runs').all()).toEqual([
       { id: 'run-legacy', result_text: null },

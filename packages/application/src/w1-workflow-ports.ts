@@ -51,6 +51,11 @@ export interface WorkflowMissionSnapshot {
   uncertainSideEffects: boolean;
 }
 export interface WorkflowMissionPort {
+  prepareExecution?(
+    definition: WorkflowStepDefinition,
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+  ): Promise<{ reason: string } | { routing?: Partial<RoutingTaskContext> }>;
   /** R4 persists the Mission and binding inside the same synchronous SQLite transaction. */
   create(
     input: { title: string; context: RoutingTaskContext; executionObjective?: string },
@@ -59,22 +64,27 @@ export interface WorkflowMissionPort {
     { status: 'CREATED'; mission: Mission } | { status: 'USER_ACTION_REQUIRED'; reason: string }
   >;
   snapshot(missionId: string): WorkflowMissionSnapshot;
+  /** Re-check accepted delivery facts independently of the derived Workflow ledger. */
+  hasAcceptedArtifactProvenance?(artifact: WorkflowArtifact): boolean;
   /** Canonical filesystem inspection is an application adapter responsibility, never Renderer input. */
   collectOutputs?(
     missionId: string,
     workspaceRoot: string | null,
     definition?: WorkflowStepDefinition,
+    context?: WorkflowStepExecutionContext,
   ): Promise<WorkflowMissionSnapshot>;
   /** Canonical bounded metadata inspection; this port never executes an operation. */
   captureOperation?(
     definition: WorkflowStepDefinition,
     workspaceRoot: string | null,
+    context?: WorkflowStepExecutionContext,
   ): Promise<StepOperationReceipt['manifest']>;
   verifyOperation?(
     receipt: StepOperationReceipt,
     definition: WorkflowStepDefinition,
     snapshot: WorkflowMissionSnapshot,
     workspaceRoot: string | null,
+    context?: WorkflowStepExecutionContext,
   ): Promise<{
     verified: boolean;
     manifest: StepOperationReceipt['manifest'];
@@ -84,4 +94,9 @@ export interface WorkflowMissionPort {
   start(missionId: string): Promise<void>;
   retry(missionId: string): Promise<void>;
   cancel(missionId: string): void;
+}
+
+export interface WorkflowStepExecutionContext {
+  workflowRunId: string;
+  stepRunId: string;
 }

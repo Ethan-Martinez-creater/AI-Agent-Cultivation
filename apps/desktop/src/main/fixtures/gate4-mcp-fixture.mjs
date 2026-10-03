@@ -82,6 +82,7 @@ function handleMessage(message) {
           {
             name: 'echo',
             description: 'Returns a bounded test echo.',
+            _meta: { 'cultivation.workflowPurposes': ['RESEARCH', 'NOT_AUTHORITY'] },
             inputSchema,
             ...(outputSchema ? { outputSchema } : {}),
           },

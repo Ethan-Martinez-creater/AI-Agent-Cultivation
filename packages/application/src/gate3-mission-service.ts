@@ -1,3 +1,4 @@
+import { workflowToolEvidence } from './workflow-tool-evidence.js';
 import type {
   ApprovalRequest,
   ApprovalState,
@@ -1979,6 +1980,7 @@ export class Gate3MissionService {
       code: result.code,
       inputSummary: { bytes: Buffer.byteLength(metadata.inputJson) },
       outputSummary: { bytes: Buffer.byteLength(result.content) },
+      ...workflowToolEvidence(result, metadata.source),
     };
     this.store.transaction(() => {
       this.appendEvent(

@@ -14,8 +14,14 @@ import type {
   WorkflowStepRun,
   WorkflowValidationReceipt,
   WorkflowVersion,
+  StepOperationReceipt,
 } from '@cultivation/domain';
-import { migrations, runMigrations, W1WorkflowRepository } from './index.js';
+import { migrations, runMigrations, W1WorkflowRepository, W2WorkflowRepository } from './index.js';
+import { installOfficialBuiltinWorkflows } from '../../../apps/desktop/src/main/w2-builtin-installation.js';
+import {
+  AI_NEWS_VIDEO_VERSION_1,
+  AI_NEWS_VIDEO_ACCEPTANCE_INPUTS,
+} from '../../application/src/builtin/ai-news-video/v1.js';
 import { WorkflowService } from '@cultivation/application';
 import type {
   WorkflowMissionPort,
@@ -386,14 +392,14 @@ function sqliteMissionPort(
 }
 
 describe('W1 SQLite persistence', () => {
-  it('upgrades a version 1 database through migration 19 with foreign keys enabled', () => {
+  it('upgrades a version 1 database through migration 20 with foreign keys enabled', () => {
     const db = new Database(':memory:');
     db.pragma('foreign_keys = ON');
     runMigrations(db, [migrations[0]!]);
     runMigrations(db, migrations.slice(1));
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 19,
+      version: 20,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     expect(
@@ -1032,5 +1038,110 @@ describe('W1 SQLite persistence', () => {
     repository.appendCheckpoint(checkpoint(run, [bound.id]));
     expect(repository.saveStep({ ...bound, state: 'COMPLETED' }, 'RUNNING')).toBe(true);
     db.close();
+  });
+  it('allows a news REVISE only after its declared decision and bounded traversal are durable', () => {
+    const db = database();
+    try {
+      const repository = new W1WorkflowRepository(db);
+      const foundation = new W2WorkflowRepository(db);
+      installOfficialBuiltinWorkflows(repository, foundation);
+      const { run } = createRun(
+        repository,
+        AI_NEWS_VIDEO_VERSION_1,
+        'news-review-run',
+        AI_NEWS_VIDEO_ACCEPTANCE_INPUTS.short,
+      );
+      const pending = repository.detail(run.id)!.steps.find((item) => item.stepId === 'N13')!;
+      repository.saveStep({ ...pending, state: 'READY' }, 'PENDING');
+      repository.saveStep({ ...pending, state: 'RUNNING' }, 'READY');
+      const review = {
+        verdict: 'REVISE',
+        findings: [],
+        evidence: [],
+        summary: '重做制作',
+        reviewedArtifactIds: [],
+        revisionCode: 'ASSEMBLY',
+      };
+      const outputs = {
+        'news.qa_review': review,
+        'news.qa_report': { report: 'persisted review fixture' },
+      };
+      const mission = addMission(db, 'news-review-mission', {
+        resultText: JSON.stringify({ outputs }),
+      });
+      const bound = bindMission(repository, { ...pending, state: 'RUNNING' }, mission);
+      const ids: string[] = [];
+      for (const spec of AI_NEWS_VIDEO_VERSION_1.steps.find((item) => item.id === 'N13')!.outputs) {
+        const value = missionArtifact(
+          bound,
+          mission,
+          JSON.stringify(outputs[spec.key as keyof typeof outputs]),
+          { id: spec.key, kind: 'JSON', metadata: { outputKey: spec.key } },
+        );
+        persistOutput(repository, bound, value, spec);
+        ids.push(value.id);
+      }
+      const operation: StepOperationReceipt = {
+        id: 'review-operation',
+        workflowRunId: run.id,
+        stepRunId: bound.id,
+        attempt: 1,
+        operationKey: 'news-review-operation',
+        effectType: 'NONE',
+        state: 'PREPARED',
+        inputHash: HASH,
+        manifest: [],
+        outputArtifactIds: [],
+        createdAt: NOW,
+        updatedAt: NOW,
+      };
+      foundation.prepareOperation(operation);
+      foundation.transitionOperation({ ...operation, state: 'APPLIED' }, 'PREPARED');
+      foundation.transitionOperation(
+        { ...operation, state: 'VERIFIED', outputArtifactIds: ids },
+        'APPLIED',
+      );
+      repository.appendCheckpoint(checkpoint(run, [bound.id]));
+      expect(() => repository.saveStep({ ...bound, state: 'COMPLETED' }, 'RUNNING')).toThrow(
+        /validated outputs/,
+      );
+      repository.appendDecision({
+        id: 'review-decision',
+        workflowRunId: run.id,
+        stepRunId: bound.id,
+        edgeId: 'n13_assembly',
+        branch: 'REVISE_ASSEMBLY',
+        inputHash: HASH,
+        createdAt: NOW,
+      });
+      expect(() => repository.saveStep({ ...bound, state: 'COMPLETED' }, 'RUNNING')).toThrow(
+        /validated outputs/,
+      );
+      foundation.appendRevisionTraversal({
+        id: 'review-traversal',
+        workflowRunId: run.id,
+        stepRunId: bound.id,
+        edgeId: 'n13_assembly',
+        groupId: 'news.final_qa_revision',
+        traversalIndex: 1,
+        reason: 'ASSEMBLY',
+        createdAt: NOW,
+      });
+      expect(repository.saveStep({ ...bound, state: 'COMPLETED' }, 'RUNNING')).toBe(true);
+      expect(() =>
+        foundation.appendRevisionTraversal({
+          id: 'duplicate-traversal',
+          workflowRunId: run.id,
+          stepRunId: bound.id,
+          edgeId: 'n13_assembly',
+          groupId: 'news.final_qa_revision',
+          traversalIndex: 2,
+          reason: 'ASSEMBLY',
+          createdAt: NOW,
+        }),
+      ).toThrow();
+    } finally {
+      db.close();
+    }
   });
 });

@@ -85,6 +85,8 @@ import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.j
 import { registerWorkflowIpc } from './w1-ipc.js';
 import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.js';
 import { installOfficialBuiltinWorkflows } from './w2-builtin-installation.js';
+import { newsWorkflowValidationPolicy } from './w21-validation-policy.js';
+import { NewsWorkflowFixtureGateway } from './w21-fixture.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -361,13 +363,34 @@ if (!squirrelStartup)
         const result = await gateway.testConnection();
         return { ok: result.ok, model: result.model };
       });
+      const workflowStore = new W1WorkflowRepository(db);
       const rawGateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
         process.argv.includes('--gate1-fake-model')
-          ? process.argv.includes('--w2-fake-workflow')
-            ? new ContractFixtureGateway()
-            : process.argv.includes('--w1-fake-workflow')
-              ? new WorkflowFixtureGateway()
-              : new FakeModelGateway()
+          ? process.argv.includes('--w21-fake-news')
+            ? new NewsWorkflowFixtureGateway(
+                () => {
+                  for (const run of workflowStore
+                    .listRuns()
+                    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
+                    const detail = workflowStore.detail(run.id)!;
+                    const step = detail.steps.find(
+                      (item) =>
+                        ['RUNNING', 'WAITING'].includes(item.state) &&
+                        item.missionId !== null &&
+                        gate3Store.getMission(item.missionId)?.state === 'RUNNING',
+                    );
+                    if (step && detail.version.validationPolicy === 'news-integrity-v1')
+                      return { detail, step };
+                  }
+                  return null;
+                },
+                join(process.cwd(), 'scripts', 'fixtures', 'news-media'),
+              )
+            : process.argv.includes('--w2-fake-workflow')
+              ? new ContractFixtureGateway()
+              : process.argv.includes('--w1-fake-workflow')
+                ? new WorkflowFixtureGateway()
+                : new FakeModelGateway()
           : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
       const availability = new AvailabilityService(
         new R32AvailabilityRepository(db),
@@ -443,7 +466,7 @@ if (!squirrelStartup)
             if (!root) throw new Error('请先选择 Workspace Root');
             const inspected = await (
               await FileWorkspace.open(root)
-            ).inspectArtifact(relativePath, constraints.maxSizeBytes);
+            ).inspectArtifact(relativePath, constraints.maxSizeBytes, true);
             if (!constraints.allowedExtensions.includes(inspected.extension)) {
               throw new Error('Artifact extension 不符合要求');
             }
@@ -452,6 +475,7 @@ if (!squirrelStartup)
               fileName: inspected.fileName,
               extension: inspected.extension,
               sizeBytes: inspected.sizeBytes,
+              contentHash: inspected.contentHash!,
             };
           },
         },
@@ -607,7 +631,6 @@ if (!squirrelStartup)
         parties,
         () => Boolean(tools.getWorkspace().rootPath),
       );
-      const workflowStore = new W1WorkflowRepository(db);
       missions.attachArtifactContext((id) => workflowArtifactContext(workflowStore, id));
       partyMissions.attachArtifactContext((id) => workflowArtifactContext(workflowStore, id));
       const pendingExternalWork = externalWork.listPendingContinuations();
@@ -633,6 +656,8 @@ if (!squirrelStartup)
         partyMissions,
         externalWork,
         () => tools.getWorkspace().rootPath,
+        workflowStore,
+        () => registry.list(),
       );
       if (
         process.argv.includes('--w1-fake-workflow') &&
@@ -661,6 +686,7 @@ if (!squirrelStartup)
         workflowMissions,
         undefined,
         workflowFoundation,
+        newsWorkflowValidationPolicy,
       );
       installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
       if (

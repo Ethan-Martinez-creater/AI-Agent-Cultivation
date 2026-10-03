@@ -391,6 +391,7 @@ export interface CultivationBridge {
       inputs?: WorkflowInputs;
     }): Promise<WorkflowDetail>;
     advance(id: string): Promise<WorkflowDetail>;
+    confirm(id: string): Promise<WorkflowDetail>;
     retryMission(id: string): Promise<WorkflowDetail>;
     retryStep(id: string): Promise<WorkflowDetail>;
     pause(id: string): Promise<WorkflowDetail>;
@@ -597,6 +598,7 @@ const bridge: CultivationBridge = {
     detail: (id) => ipcRenderer.invoke('workflows:detail', id),
     create: (input) => ipcRenderer.invoke('workflows:create', input),
     advance: (id) => ipcRenderer.invoke('workflows:advance', id),
+    confirm: (id) => ipcRenderer.invoke('workflows:confirm', id),
     retryMission: (id) => ipcRenderer.invoke('workflows:retryMission', id),
     retryStep: (id) => ipcRenderer.invoke('workflows:retryStep', id),
     pause: (id) => ipcRenderer.invoke('workflows:pause', id),

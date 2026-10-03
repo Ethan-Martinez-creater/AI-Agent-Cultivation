@@ -25,7 +25,14 @@ import './mission-party.css';
 import './product-pages.css';
 import './workflows.css';
 
-type WorkflowAction = 'advance' | 'retryMission' | 'retryStep' | 'pause' | 'resume' | 'cancel';
+type WorkflowAction =
+  | 'advance'
+  | 'confirm'
+  | 'retryMission'
+  | 'retryStep'
+  | 'pause'
+  | 'resume'
+  | 'cancel';
 type ConfirmableAction = Extract<WorkflowAction, 'retryMission' | 'retryStep' | 'cancel'>;
 type PendingConfirmation = { action: ConfirmableAction; title: string; explanation: string };
 
@@ -101,6 +108,28 @@ function sortRuns(runs: WorkflowRun[]): WorkflowRun[] {
 function latestAttempt(attempts: WorkflowStepRun[]): WorkflowStepRun | undefined {
   return [...attempts].sort((left, right) => right.attempt - left.attempt)[0];
 }
+
+const newsPhaseNames: Record<string, string> = {
+  collection: '搜集',
+  verification: '核验',
+  planning: '策划',
+  script: '脚本',
+  assets: '素材',
+  production: '制作',
+  review: '审核',
+};
+function phaseName(value: string): string {
+  return newsPhaseNames[value] ?? value;
+}
+const newsResultNames: Record<string, string> = {
+  'news.video.draft': '视频成片',
+  'news.source_packets': '来源与归属',
+  'news.script': '最终脚本',
+  'news.storyboard': '分镜',
+  'news.asset_registry': '素材清单',
+  'news.qa_report': '质量检查',
+  'news.production_summary': '制作摘要',
+};
 
 function workflowName(definition: WorkflowVersion['definition']): string {
   return definition.name.replace(/\bTEST_ONLY\b/gi, '测试').trim() || '测试工作流';
@@ -187,20 +216,54 @@ export function WorkflowsPage() {
   const currentStep =
     stepStates.find(({ state }) => !['COMPLETED', 'SKIPPED', 'CANCELLED'].includes(state)) ??
     (lastStep ? stepStates.find(({ step }) => step.id === lastStep.stepId) : stepStates[0]);
+  const finalConfirmation =
+    currentStep?.step.confirmationRequired === true &&
+    currentStep.state === 'WAITING' &&
+    detail?.run.waitReason === 'USER_CONFIRMATION';
+  const phases = [
+    ...new Set(
+      stepStates.map(({ step }) => step.phase).filter((phase): phase is string => Boolean(phase)),
+    ),
+  ];
+  const visibleTotal = phases.length || stepStates.length;
+  const visibleCompleted = phases.length
+    ? phases.filter((phase) =>
+        stepStates
+          .filter(({ step }) => step.phase === phase)
+          .every(({ state }) => state === 'COMPLETED' || state === 'SKIPPED'),
+      ).length
+    : progressCount;
   const workflowResults = detail
     ? detail.artifacts.filter((artifact) =>
         detail.bindings.some(
-          (binding) => binding.artifactId === artifact.id && binding.role === 'OUTPUT',
+          (binding) =>
+            binding.artifactId === artifact.id &&
+            binding.role === 'OUTPUT' &&
+            (!phases.length ||
+              (detail.version.outputSchema?.outputs ?? []).some(
+                (output) =>
+                  output.outputKey === binding.key &&
+                  latestAttempt(
+                    detail.steps.filter((attempt) => attempt.stepId === output.fromStepId),
+                  )?.id === binding.stepRunId,
+              )),
         ),
       )
     : [];
   const retryableStep =
-    detail?.run.state === 'FAILED'
+    detail &&
+    (detail.run.state === 'FAILED' ||
+      (detail.run.state === 'WAITING' &&
+        detail.run.waitReason === 'USER_CONFIRMATION' &&
+        !finalConfirmation))
       ? detail.version.steps
           .map((step) =>
             latestAttempt(detail.steps.filter((attempt) => attempt.stepId === step.id)),
           )
-          .filter((attempt): attempt is WorkflowStepRun => attempt?.state === 'FAILED')
+          .filter(
+            (attempt): attempt is WorkflowStepRun =>
+              attempt?.state === 'FAILED' || attempt?.state === 'WAITING',
+          )
           .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0]
       : undefined;
 
@@ -301,6 +364,7 @@ export function WorkflowsPage() {
       const nextDetail = await workflowApi()[action](detail.run.id);
       setDetail(nextDetail);
       const labels: Record<WorkflowAction, string> = {
+        confirm: '交付已确认。',
         advance: '工作流状态已同步。',
         retryMission: '已为关联历练重新发起一次执行。',
         retryStep: '已重新尝试此步骤，之前的记录已保留。',
@@ -563,13 +627,17 @@ export function WorkflowsPage() {
                     <h2>{workflowName(detail.version.definition)}</h2>
                     <div className="object-header-meta">
                       <span>
-                        当前步骤：{currentStep?.step.title ?? '全部步骤已结束'}
+                        当前步骤：
+                        {currentStep?.step.phase
+                          ? phaseName(currentStep.step.phase)
+                          : (currentStep?.step.title ?? '全部步骤已结束')}
                         {currentStep && currentStep.state !== 'PENDING' && (
                           <> · {stepLabels[currentStep.state]}</>
                         )}
                       </span>
                       <span>
-                        进度：{progressCount} / {detail.version.steps.length} 步已完成
+                        进度：{visibleCompleted} / {visibleTotal} {phases.length ? '阶段' : '步'}
+                        已完成
                       </span>
                     </div>
                   </div>
@@ -596,22 +664,33 @@ export function WorkflowsPage() {
                   </div>
                 )}
                 <div className="workflow-actions">
-                  {(detail.run.state === 'READY' ||
-                    detail.run.state === 'RUNNING' ||
-                    detail.run.state === 'WAITING') && (
+                  {finalConfirmation && (
                     <button
                       className="button primary small"
                       type="button"
                       disabled={busy}
-                      onClick={() => void executeAction('advance')}
+                      onClick={() => void executeAction('confirm')}
                     >
-                      {detail.run.state === 'READY'
-                        ? '开始执行'
-                        : detail.run.state === 'WAITING'
-                          ? '同步并检查等待状态'
-                          : '检查进度并继续'}
+                      确认交付，不发布
                     </button>
                   )}
+                  {!finalConfirmation &&
+                    (detail.run.state === 'READY' ||
+                      detail.run.state === 'RUNNING' ||
+                      detail.run.state === 'WAITING') && (
+                      <button
+                        className="button primary small"
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void executeAction('advance')}
+                      >
+                        {detail.run.state === 'READY'
+                          ? '开始执行'
+                          : detail.run.state === 'WAITING'
+                            ? '同步并检查等待状态'
+                            : '检查进度并继续'}
+                      </button>
+                    )}
                   {detail.run.state === 'RUNNING' && (
                     <button
                       className="button secondary small"
@@ -728,6 +807,16 @@ export function WorkflowsPage() {
                     <ArtifactDisclosure
                       key={artifact.id}
                       artifact={artifact}
+                      displayName={
+                        phases.length
+                          ? newsResultNames[
+                              detail.bindings.find(
+                                (binding) =>
+                                  binding.artifactId === artifact.id && binding.role === 'OUTPUT',
+                              )?.key ?? ''
+                            ]
+                          : undefined
+                      }
                       binding={detail.bindings.find(
                         (binding) =>
                           binding.artifactId === artifact.id && binding.role === 'OUTPUT',
@@ -748,18 +837,27 @@ export function WorkflowsPage() {
                 className="workflow-steps-card object-section"
                 action={
                   <span className="count-badge">
-                    {progressCount} / {detail.version.steps.length}
+                    {visibleCompleted} / {visibleTotal}
                   </span>
                 }
               >
                 <progress
                   className="workflow-progress"
-                  max={Math.max(detail.version.steps.length, 1)}
-                  value={progressCount}
+                  max={Math.max(visibleTotal, 1)}
+                  value={visibleCompleted}
                   aria-label="工作流完成步骤数"
                 />
                 <ol className="workflow-step-list">
-                  {stepStates.map(({ step, state }, index) => {
+                  {(phases.length
+                    ? phases.map((phase) => {
+                        const group = stepStates.filter(({ step }) => step.phase === phase);
+                        const active =
+                          group.find(({ state }) => !['COMPLETED', 'SKIPPED'].includes(state)) ??
+                          group.at(-1)!;
+                        return { ...active, step: { ...active.step, title: phaseName(phase) } };
+                      })
+                    : stepStates
+                  ).map(({ step, state }, index) => {
                     const attempts = detail.steps
                       .filter((attempt) => attempt.stepId === step.id)
                       .sort((left, right) => left.attempt - right.attempt);
@@ -821,6 +919,18 @@ export function WorkflowsPage() {
                     );
                   })}
                 </ol>
+                {phases.length > 0 && (
+                  <details className="advanced-disclosure">
+                    <summary>高级 · 内部步骤</summary>
+                    <ol>
+                      {stepStates.map(({ step, state }) => (
+                        <li key={step.id}>
+                          {step.id} · {step.title} · {stepLabels[state]}
+                        </li>
+                      ))}
+                    </ol>
+                  </details>
+                )}
               </Section>
 
               <details className="workflow-advanced-card advanced-disclosure">

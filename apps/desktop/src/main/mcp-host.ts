@@ -29,6 +29,7 @@ export interface McpToolDescriptor {
   inputSchema: Record<string, unknown>;
   riskLevel: McpRiskLevel;
   sideEffect: McpSideEffect;
+  workflowPurposes?: Array<'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY'>;
 }
 
 export interface McpExecutionResult {
@@ -360,6 +361,8 @@ interface DiscoveredTool {
   description?: string;
   inputSchema: unknown;
   outputSchema?: unknown;
+  annotations?: unknown;
+  _meta?: unknown;
 }
 
 function normalizeToolDescriptors(
@@ -411,11 +414,24 @@ function normalizeToolDescriptors(
         inputSchema,
         riskLevel: 'HIGH',
         sideEffect: 'PROCESS_EXECUTION',
+        ...(workflowPurposes(tool._meta ?? tool.annotations).length
+          ? { workflowPurposes: workflowPurposes(tool._meta ?? tool.annotations) }
+          : {}),
       },
       wireName: tool.name,
       ...(outputSchema ? { outputSchema } : {}),
     };
   });
+}
+
+function workflowPurposes(
+  annotations: unknown,
+): NonNullable<McpToolDescriptor['workflowPurposes']> {
+  if (!isPlainObject(annotations)) return [];
+  const values = annotations['cultivation.workflowPurposes'];
+  const allowed = ['RESEARCH', 'ASSET_COLLECTION', 'VOICEOVER', 'VIDEO_ASSEMBLY'] as const;
+  if (!Array.isArray(values) || values.length > allowed.length) return [];
+  return allowed.filter((value) => values.includes(value));
 }
 
 function isValidToolOutput(raw: unknown, schema: Record<string, unknown>): boolean {

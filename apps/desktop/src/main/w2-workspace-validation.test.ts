@@ -79,6 +79,48 @@ function setup() {
   return { root, events, adapter, step, snapshot, receipt };
 }
 describe('W2 canonical workspace verification', () => {
+  it('preserves frozen forward-slash paths for nested Windows file outputs', async () => {
+    const f = setup();
+    mkdirSync(join(f.root, 'output'));
+    writeFileSync(join(f.root, 'output', 'result.txt'), 'nested result', 'utf8');
+    const path = 'output/result.txt';
+    f.step.effectPaths = [path];
+    f.events[0]!.payloadJson = {
+      source: 'MCP',
+      capability: 'MCP_TOOL_EXECUTE',
+      success: true,
+      artifactFiles: [
+        { path, contentHash: createHash('sha256').update('nested result').digest('hex') },
+      ],
+    };
+    const result = await f.adapter.collect(f.snapshot, f.step, f.root);
+    expect(result.outputs[0]!.metadata.path).toBe(path);
+  });
+  it('requires successful same-Run MCP file evidence with the actual committed bytes hash', async () => {
+    const f = setup();
+    const hash = createHash('sha256').update('actual persisted result').digest('hex');
+    f.events[0]!.payloadJson = {
+      source: 'MCP',
+      capability: 'MCP_TOOL_EXECUTE',
+      success: true,
+      artifactFiles: [{ path: 'result.txt', contentHash: hash }],
+    };
+    const result = await f.adapter.collect(f.snapshot, f.step, f.root);
+    expect(result.outputs[0]).toMatchObject({ sourceId: 'event', actorId: 'actual-member' });
+    expect((await f.adapter.verify(f.receipt, f.step, f.snapshot, f.root)).verified).toBe(true);
+    f.events[0]!.payloadJson.artifactFiles = [{ path: 'result.txt', contentHash: 'b'.repeat(64) }];
+    expect(
+      (await f.adapter.verify(f.receipt, f.step, { ...f.snapshot, outputs: [] }, f.root)).verified,
+    ).toBe(false);
+    expect(
+      (await f.adapter.collect({ ...f.snapshot, outputs: [] }, f.step, f.root)).outputs,
+    ).toEqual([]);
+    f.events[0]!.payloadJson.artifactFiles = [{ path: 'result.txt', contentHash: hash }];
+    f.events[0]!.payloadJson.success = false;
+    expect(
+      (await f.adapter.verify(f.receipt, f.step, { ...f.snapshot, outputs: [] }, f.root)).verified,
+    ).toBe(false);
+  });
   it('captures actual before hash and verifies exact resource without executing a tool', async () => {
     const f = setup();
     const before = await f.adapter.capture(f.step, f.root);

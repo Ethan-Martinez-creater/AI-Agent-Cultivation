@@ -133,6 +133,7 @@ export interface WorkflowServicePort {
     inputs?: WorkflowInputs;
   }): WorkflowDetail;
   advance(runId: string): Promise<WorkflowDetail>;
+  confirm(runId: string): WorkflowDetail;
   retryMission(runId: string): Promise<WorkflowDetail>;
   retryStep(runId: string): WorkflowDetail;
   pause(runId: string): WorkflowDetail;
@@ -161,6 +162,11 @@ export function registerWorkflowIpc(
       try {
         return await handle(value);
       } catch (error) {
+        if (process.argv.includes('--w21-fake-news') && process.argv.includes('--gate1-fake-model'))
+          console.error(
+            'W21_OFFLINE_FIXTURE_FAILURE',
+            error instanceof Error ? error.message : 'unknown',
+          );
         if (error instanceof DomainError && error.code === 'WORKFLOW_INPUT_INVALID') {
           throw publicWorkflowInputError(error);
         }
@@ -200,6 +206,11 @@ export function registerWorkflowIpc(
     'workflows:retryMission',
     (args) => withId(args),
     (id) => service.retryMission(id as string),
+  );
+  register(
+    'workflows:confirm',
+    (args) => withId(args),
+    (id) => service.confirm(id as string),
   );
   register(
     'workflows:retryStep',

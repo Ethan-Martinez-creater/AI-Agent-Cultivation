@@ -47,6 +47,8 @@ export class RoutingMissionService {
       context: RoutingTaskContext;
       /** Main-only bounded execution context. Never sent to Jev or persisted in routing receipts. */
       executionObjective?: string;
+      /** Trusted Workflow adapter only; Renderer cannot provide a delivery contract. */
+      externalWorkDraft?: RoutingExternalWorkDraft | (() => RoutingExternalWorkDraft);
     },
     onCreated?: (mission: Mission) => void,
   ): Promise<RoutingMissionCreationResult> {
@@ -63,7 +65,10 @@ export class RoutingMissionService {
     const { assignment } = plan;
     const externalWorkDraft: RoutingExternalWorkDraft | null =
       assignment.kind === 'HUMAN_BRIDGE'
-        ? this.externalWorkDraft(input.context, input.title, assignment)
+        ? ((typeof input.externalWorkDraft === 'function'
+            ? input.externalWorkDraft()
+            : input.externalWorkDraft) ??
+          this.externalWorkDraft(input.context, input.title, assignment))
         : null;
     const mission = this.store.transaction(() => {
       let created: Mission;

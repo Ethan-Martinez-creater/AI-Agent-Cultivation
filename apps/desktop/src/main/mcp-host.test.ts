@@ -31,6 +31,7 @@ describe('McpHost', () => {
       capability: 'MCP_TOOL_EXECUTE',
       riskLevel: 'HIGH',
       sideEffect: 'PROCESS_EXECUTION',
+      workflowPurposes: ['RESEARCH'],
     });
 
     const result = await host.execute(config.id, 'echo', { message: 'hello MCP' });

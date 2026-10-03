@@ -193,9 +193,9 @@ function installVisualDefinition() {
         step.effectType,
       );
     })();
-    assert.equal(
-      db.prepare("SELECT COUNT(*) n FROM workflow_definitions WHERE source='BUILTIN'").get().n,
-      0,
+    assert.deepEqual(
+      db.prepare("SELECT id FROM workflow_definitions WHERE source='BUILTIN' ORDER BY id").all(),
+      [{ id: 'official.ai-news-video' }],
     );
   } finally {
     db.close();
@@ -291,7 +291,7 @@ try {
   assert.equal(await page.locator('dialog[open]').count(), 0);
   assert.equal(await page.getByLabel('显示名称', { exact: true }).isVisible(), false);
   evidence.checks.push(
-    'production bootstrap: zero official/test-only templates; provider form hidden',
+    'production bootstrap: official news v1 only, zero test-only templates; provider form hidden',
   );
   await app.close();
   installVisualDefinition();
@@ -653,9 +653,15 @@ try {
   );
 } catch (error) {
   if (app) {
-    const page = await app.firstWindow();
-    await page.screenshot({ path: join(screenshots, 'failure.png') });
-    writeFileSync(join(profile, 'failure-ui.txt'), await page.locator('main').innerText(), 'utf8');
+    const page = app.windows()[0];
+    if (page && !page.isClosed()) {
+      await page.screenshot({ path: join(screenshots, 'failure.png') });
+      writeFileSync(
+        join(profile, 'failure-ui.txt'),
+        await page.locator('main').innerText(),
+        'utf8',
+      );
+    }
   }
   throw error;
 } finally {

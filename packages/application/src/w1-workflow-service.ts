@@ -1,5 +1,4 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { z } from 'zod';
 import { DomainError } from '@cultivation/shared';
 import {
   transitionWorkflowRun,
@@ -11,6 +10,7 @@ import {
   workflowOutputProjectionMatches,
   validateArtifactContract,
 } from '@cultivation/domain';
+import { validateWorkflowReviewResult } from './w2-contracts.js';
 import type {
   WorkflowRun,
   WorkflowStepRun,
@@ -49,16 +49,6 @@ export function workflowHash(value: unknown): string {
     .update(JSON.stringify(stable(value)))
     .digest('hex');
 }
-const reviewSchema = z
-  .object({
-    verdict: z.enum(['PASS', 'REVISE', 'FAIL']),
-    findings: z.array(z.string().max(1000)).max(20),
-    evidence: z.array(z.string().max(1000)).max(20),
-    summary: z.string().max(2000),
-    reviewedArtifactIds: z.array(z.string().max(128)).max(12),
-    revisionCode: z.string().min(1).max(128).optional(),
-  })
-  .strict();
 function parseJson(content: string): unknown {
   const text = content.trim().replace(/^```(?:json)?\s*\n([\s\S]*?)\n```$/, '$1');
   try {
@@ -67,8 +57,31 @@ function parseJson(content: string): unknown {
     throw new DomainError('WORKFLOW_OUTPUT_INVALID', '产物不是有效 JSON');
   }
 }
+
+export interface WorkflowValidationPolicyPort {
+  validateInputs(version: WorkflowVersion, inputs: WorkflowInputs): void;
+  validateStep(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+    produced: Array<{ spec: WorkflowArtifactSpec; artifact: WorkflowArtifact }>,
+  ): string[];
+}
 function record(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+function parseOutputEnvelope(
+  content: string,
+  allowedKeys: readonly string[],
+): Record<string, unknown> {
+  const parsed = parseJson(content);
+  if (
+    !record(parsed) ||
+    Object.keys(parsed).some((key) => key !== 'outputs') ||
+    !record(parsed.outputs) ||
+    Object.keys(parsed.outputs).some((key) => !allowedKeys.includes(key))
+  )
+    throw new DomainError('WORKFLOW_OUTPUT_INVALID', '多输出结果必须使用已声明的 outputs 键');
+  return parsed.outputs;
 }
 export function validateWorkflowArtifact(
   spec: WorkflowArtifactSpec,
@@ -111,7 +124,17 @@ export class WorkflowService {
     private readonly missions: WorkflowMissionPort,
     private readonly clock = { now: () => new Date().toISOString(), id: () => randomUUID() },
     private readonly foundation?: WorkflowFoundationPort,
+    private readonly validationPolicy?: WorkflowValidationPolicyPort,
   ) {}
+  private policyForVersion(version: WorkflowVersion): WorkflowValidationPolicyPort | undefined {
+    if (version.validationPolicy === undefined) return undefined;
+    if (version.validationPolicy !== 'news-integrity-v1' || !this.validationPolicy)
+      throw new DomainError(
+        'WORKFLOW_VALIDATION_POLICY_REQUIRED',
+        '冻结 Workflow validation policy 不可用；必须 fail closed',
+      );
+    return this.validationPolicy;
+  }
   publish(value: WorkflowVersion): void {
     if (value.definition.source === 'BUILTIN')
       throw new DomainError('INVALID_INPUT', 'BUILTIN 身份仅允许官方 Registry 发布');
@@ -162,6 +185,7 @@ export class WorkflowService {
       version.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA,
       input.inputs ?? {},
     );
+    this.policyForVersion(version)?.validateInputs(version, snapshot);
     for (const step of version.steps) workflowInputsForStep(version, snapshot, step.id);
     const at = this.clock.now();
     const run: WorkflowRun = {
@@ -212,6 +236,7 @@ export class WorkflowService {
         );
       if (detail.run.state === 'FAILED')
         throw new DomainError('WORKFLOW_RETRY_REQUIRED', '请明确重试失败 Step');
+      this.policyForVersion(detail.version);
       this.store.transaction(() => this.setRun(detail.run, 'RUNNING'));
       for (let count = 0; count < detail.version.steps.length; count++) {
         detail = this.detail(id);
@@ -230,6 +255,19 @@ export class WorkflowService {
           if (inputs === null) break;
           this.setStep(step, 'RUNNING');
           if (definition.type !== 'DECISION') {
+            const preparedExecution = await this.missions.prepareExecution?.(
+              definition,
+              this.detail(id),
+              this.detail(id).steps.find((s) => s.id === step.id)!,
+            );
+            if (preparedExecution && 'reason' in preparedExecution) {
+              this.wait(
+                this.detail(id).steps.find((s) => s.id === step.id)!,
+                'USER_CONFIRMATION',
+                preparedExecution.reason,
+              );
+              break;
+            }
             const operationRoot = await this.prepareOperation(this.detail(id), step, definition);
             const objective = this.objective(definition, inputs, detail.version);
             const created = await this.missions.create(
@@ -238,6 +276,7 @@ export class WorkflowService {
                 executionObjective: objective,
                 context: {
                   ...definition.routing,
+                  ...(preparedExecution?.routing ?? {}),
                   objective: definition.objective,
                   inputArtifactMetadata: inputs.map((a) => ({
                     id: a.id,
@@ -332,6 +371,13 @@ export class WorkflowService {
       if (!['RUNNING', 'WAITING'].includes(run.state)) continue;
       try {
         const detail = this.detail(run.id);
+        try {
+          this.policyForVersion(detail.version);
+        } catch (error) {
+          if (error instanceof DomainError && error.code === 'WORKFLOW_VALIDATION_POLICY_REQUIRED')
+            continue;
+          throw error;
+        }
         const step = this.active(detail);
         if (!step) {
           this.finishRun(detail);
@@ -458,6 +504,71 @@ export class WorkflowService {
     if (detail.run.state === 'PAUSED') this.setRun(detail.run, 'RUNNING');
     return this.advance(id);
   }
+  /** Records explicit approval of a declared terminal DECISION without starting a Mission. */
+  confirm(id: string): WorkflowDetail {
+    this.assertIdle(id);
+    const detail = this.detail(id);
+    const prior = detail.events.find((event) => event.type === 'workflow.user_confirmed');
+    if (prior) {
+      const priorStep = detail.steps.find((candidate) => candidate.id === prior.stepRunId);
+      const priorInputHash = priorStep
+        ? workflowHash(
+            detail.bindings.filter(
+              (binding) => binding.stepRunId === priorStep.id && binding.role === 'INPUT',
+            ),
+          )
+        : null;
+      if (
+        priorStep?.state === 'COMPLETED' &&
+        prior.payload.stepRunId === priorStep.id &&
+        prior.payload.inputHash === priorInputHash &&
+        detail.decisions.some((decision) => decision.stepRunId === priorStep.id)
+      )
+        return detail;
+      throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '确认事件与 Step 状态不一致');
+    }
+    const step = this.active(detail, true);
+    if (!step) throw new DomainError('WORKFLOW_CONFIRMATION_INVALID', '没有待确认的 Step');
+    const definition = this.definition(detail, step);
+    if (
+      detail.run.state !== 'WAITING' ||
+      step.state !== 'WAITING' ||
+      step.waitReason !== 'USER_CONFIRMATION' ||
+      step.errorCode !== 'FINAL_USER_CONFIRMATION_REQUIRED' ||
+      definition.type !== 'DECISION' ||
+      definition.confirmationRequired !== true
+    )
+      throw new DomainError('WORKFLOW_CONFIRMATION_INVALID', '当前 Step 不是待确认的最终 DECISION');
+    const edge = this.chooseEdge(detail, step);
+    if (!edge || edge.toStepId !== null || edge.condition.type !== 'ALWAYS')
+      throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '最终确认 DECISION 缺少冻结 terminal edge');
+    const inputHash = workflowHash(
+      detail.bindings.filter(
+        (binding) => binding.stepRunId === step.id && binding.role === 'INPUT',
+      ),
+    );
+    this.store.transaction(() => {
+      const fresh = this.detail(id);
+      const current = fresh.steps.find((candidate) => candidate.id === step.id)!;
+      if (
+        fresh.run.state !== 'WAITING' ||
+        current.state !== 'WAITING' ||
+        workflowHash(
+          fresh.bindings.filter(
+            (binding) => binding.stepRunId === current.id && binding.role === 'INPUT',
+          ),
+        ) !== inputHash
+      )
+        throw new DomainError('CONFLICT', '待确认输出事实已变化');
+      this.event(id, step.id, 'workflow.user_confirmed', {
+        stepRunId: step.id,
+        inputHash,
+        actorKind: 'USER',
+      });
+      this.commitCompletion(fresh, current, edge);
+    });
+    return this.detail(id);
+  }
   cancel(id: string): WorkflowDetail {
     this.assertIdle(id);
     const detail = this.detail(id);
@@ -565,11 +676,26 @@ export class WorkflowService {
             )?.validator
           : o.validator,
     }));
-    if (output.length)
-      value += `\nRequired output contracts: ${JSON.stringify(output).slice(0, 2000)}. ${output.length > 1 ? 'Return JSON {"outputs":{"<key>":<value>}} for textual/JSON outputs.' : 'Return the output itself.'}`;
-    if (step.type === 'REVIEW')
-      value +=
-        '\nReturn JSON only: {"verdict":"PASS|REVISE|FAIL","findings":["..."],"evidence":["..."],"summary":"...","reviewedArtifactIds":["actual input artifact IDs"]}. No graph edits or hidden reasoning.';
+    const textualOutputs = step.outputs.filter((o) => o.kind === 'TEXT' || o.kind === 'JSON');
+    const envelopeRequired = step.outputs.length > 1 && textualOutputs.length > 0;
+    if (output.length) {
+      const serializedOutput = JSON.stringify(output);
+      value += `\nRequired output contracts: ${version.validationPolicy === 'news-integrity-v1' ? serializedOutput : serializedOutput.slice(0, 2000)}.`;
+      if (envelopeRequired)
+        value += ` Return one JSON object with only an "outputs" property. Put each declared TEXT/JSON output under its exact key: {"outputs":{${textualOutputs.map((o) => `"${o.key}":<value>`).join(',')}}}. Do not put FILE/DIRECTORY contents in this envelope; those come from the declared Workspace/Human Bridge outputs.`;
+      else if (output.length === 1 && ['TEXT', 'JSON'].includes(step.outputs[0]!.kind))
+        value += ' Return the single declared output itself, without an outputs envelope.';
+      else value += ' Produce FILE/DIRECTORY outputs only through their declared output paths.';
+    }
+    if (step.type === 'REVIEW') {
+      const reviewKey =
+        step.reviewOutputKey ?? step.outputs.find((o) => o.kind === 'JSON' && o.required)?.key;
+      const reviewShape =
+        '{"verdict":"PASS|REVISE|FAIL","findings":["..."],"evidence":["..."],"summary":"...","reviewedArtifactIds":["actual input artifact IDs"]}';
+      value += envelopeRequired
+        ? `\nSet outputs["${reviewKey}"] to the REVIEW object ${reviewShape}. Other declared TEXT/JSON outputs remain separate outputs entries. No graph edits or hidden reasoning.`
+        : `\nReturn the REVIEW object ${reviewShape} as the single declared decision output. No graph edits or hidden reasoning.`;
+    }
     const codes = version.edges
       .filter((e) => e.fromStepId === step.id && e.revisionCode)
       .map((e) => e.revisionCode);
@@ -595,6 +721,7 @@ export class WorkflowService {
             snapshot.mission.id,
             step.workspaceRoot ?? null,
             this.definition(detail, step),
+            { workflowRunId: detail.run.id, stepRunId: step.id },
           );
         } catch {
           this.wait(step, 'USER_CONFIRMATION', 'ARTIFACT_INSPECTION_FAILED');
@@ -644,45 +771,105 @@ export class WorkflowService {
       .filter((b) => b.stepRunId === step.id && b.role === 'INPUT')
       .map((b) => b.artifactId);
     const artifacts: WorkflowArtifact[] = [];
+    const produced: Array<{ spec: WorkflowArtifactSpec; artifact: WorkflowArtifact }> = [];
     const receipts: WorkflowDetail['validations'] = [];
     const bindings: WorkflowArtifactBinding[] = [];
     let errors: string[] = [];
     let reviewVerdict: string | null = null;
     let revisionCode: string | undefined;
     let envelope: Record<string, unknown> | null = null;
-    if (definition.outputs.length > 1 && snapshot.run?.resultText) {
+    const textualOutputs = definition.outputs.filter((o) => o.kind === 'TEXT' || o.kind === 'JSON');
+    const humanBridgeSource = (spec: WorkflowArtifactSpec) => {
+      const matchesName = (o: WorkflowMissionSnapshot['outputs'][number]) => {
+        const explicitNames = [o.metadata.outputKey, o.metadata.targetArtifactId].filter(
+          (name): name is string => typeof name === 'string' && name.length > 0,
+        );
+        return detail.version.validationPolicy === 'news-integrity-v1'
+          ? explicitNames.length > 0 && explicitNames.every((name) => name === spec.key)
+          : [o.metadata.outputKey, o.metadata.targetArtifactId, o.metadata.fileName].some(
+              (name) => name === spec.key,
+            );
+      };
+      const candidates = snapshot.outputs.filter(
+        (o) => o.source === 'HUMAN_BRIDGE' && o.kind === spec.kind && matchesName(o),
+      );
+      if (candidates.length === 1) return candidates[0];
+      if (candidates.length > 1) return undefined;
+      const sameKindSpecs = definition.outputs.filter((o) => o.kind === spec.kind);
+      const sameKindSources = snapshot.outputs.filter(
+        (o) => o.source === 'HUMAN_BRIDGE' && o.kind === spec.kind,
+      );
+      return detail.version.validationPolicy !== 'news-integrity-v1' &&
+        sameKindSpecs.length === 1 &&
+        sameKindSources.length === 1
+        ? sameKindSources[0]
+        : undefined;
+    };
+    const envelopeOutputs = textualOutputs.filter((spec) => !humanBridgeSource(spec));
+    const envelopeRequired = definition.outputs.length > 1 && envelopeOutputs.length > 0;
+    let envelopeError: string | null = null;
+    if (envelopeRequired) {
       try {
-        const parsed = parseJson(snapshot.run.resultText);
-        if (record(parsed) && record(parsed.outputs)) envelope = parsed.outputs;
+        if (snapshot.run?.resultText === null || snapshot.run?.resultText === undefined)
+          throw new DomainError('WORKFLOW_OUTPUT_INVALID', '多输出结果缺少 outputs envelope');
+        envelope = parseOutputEnvelope(
+          snapshot.run.resultText,
+          envelopeOutputs.map((o) => o.key),
+        );
       } catch {
-        /* Validation below fails closed. */
+        envelopeError = 'INVALID_OUTPUT_ENVELOPE';
       }
     }
     for (const spec of definition.outputs) {
-      const source = ['FILE', 'DIRECTORY', 'EXTERNAL_REFERENCE'].includes(spec.kind)
-        ? snapshot.outputs.find(
-            (o) =>
-              o.kind === spec.kind &&
-              (String(o.metadata.fileName) === spec.key ||
-                definition.outputs.filter((s) => s.kind === spec.kind).length === 1),
-          )
-        : snapshot.outputs.find((o) => o.source === 'MISSION' && o.kind === 'TEXT');
+      const fileLike = ['FILE', 'DIRECTORY', 'EXTERNAL_REFERENCE'].includes(spec.kind);
+      const source =
+        humanBridgeSource(spec) ??
+        (fileLike
+          ? snapshot.outputs.find(
+              (o) =>
+                o.kind === spec.kind &&
+                !(
+                  detail.version.validationPolicy === 'news-integrity-v1' &&
+                  o.source === 'HUMAN_BRIDGE'
+                ) &&
+                (o.metadata.outputKey === spec.key ||
+                  o.metadata.targetArtifactId === spec.key ||
+                  String(o.metadata.fileName) === spec.key ||
+                  (detail.version.validationPolicy !== 'news-integrity-v1' &&
+                    definition.outputs.filter((s) => s.kind === spec.kind).length === 1 &&
+                    snapshot.outputs.filter((candidate) => candidate.kind === spec.kind).length ===
+                      1)),
+            )
+          : snapshot.outputs.find((o) => o.source === 'MISSION' && o.kind === 'TEXT'));
       if (!source) {
         if (spec.required) errors.push(`MISSING_OUTPUT:${spec.key}`);
         continue;
       }
-      let content =
-        envelope && Object.hasOwn(envelope, spec.key)
-          ? spec.kind === 'JSON'
-            ? JSON.stringify(envelope[spec.key])
-            : String(envelope[spec.key])
-          : source.content;
+      const textual = spec.kind === 'TEXT' || spec.kind === 'JSON';
+      const usesEnvelope = envelopeRequired && textual && source.source !== 'HUMAN_BRIDGE';
+      if (usesEnvelope && !envelope && envelopeError) {
+        errors.push(`${envelopeError}:${spec.key}`);
+        continue;
+      }
+      if (usesEnvelope && envelope && !Object.hasOwn(envelope, spec.key)) {
+        if (spec.required) errors.push(`MISSING_OUTPUT:${spec.key}`);
+        continue;
+      }
+      let content = source.content;
+      const validationErrors: string[] = [];
+      if (usesEnvelope && envelope) {
+        const outputValue = envelope[spec.key];
+        if (spec.kind === 'TEXT') {
+          if (typeof outputValue === 'string') content = outputValue;
+          else validationErrors.push('INVALID_OUTPUT_TYPE');
+        } else content = JSON.stringify(outputValue) ?? '';
+      }
       const registryContract = detail.version.contractManifest?.find(
         (c) => c.contractId === spec.contractId && c.contractVersion === spec.contractVersion,
       );
       if (registryContract?.kind === 'WORKSPACE' && spec.kind === 'DIRECTORY')
         content = JSON.stringify({ entries: this.operation(detail, step)?.manifest ?? [] });
-      const metadata = envelope ? { ...source.metadata, outputKey: spec.key } : source.metadata;
+      const metadata = usesEnvelope ? { ...source.metadata, outputKey: spec.key } : source.metadata;
       const artifact: WorkflowArtifact = {
         id: this.clock.id(),
         workflowRunId: detail.run.id,
@@ -699,10 +886,17 @@ export class WorkflowService {
         inputArtifactIds: inputs,
         createdAt: this.clock.now(),
       };
-      const validationErrors = this.validateArtifact(detail.version, spec, artifact);
-      if (definition.type === 'REVIEW' && spec.kind === 'JSON') {
+      validationErrors.push(...this.validateArtifact(detail.version, spec, artifact));
+      const reviewOutputKey =
+        definition.reviewOutputKey ??
+        definition.outputs.find((o) => o.kind === 'JSON' && o.required)?.key;
+      if (definition.type === 'REVIEW' && spec.kind === 'JSON' && spec.key === reviewOutputKey) {
         try {
-          const review = reviewSchema.parse(parseJson(content));
+          const review = validateWorkflowReviewResult(
+            parseJson(content),
+            detail.version,
+            step.stepId,
+          );
           if (
             review.reviewedArtifactIds.length !== inputs.length ||
             inputs.some((id) => !review.reviewedArtifactIds.includes(id))
@@ -710,21 +904,12 @@ export class WorkflowService {
             validationErrors.push('REVIEW_LINEAGE_MISMATCH');
           reviewVerdict = review.verdict;
           revisionCode = review.revisionCode;
-          const declared = detail.version.edges.filter(
-            (e) =>
-              e.fromStepId === step.stepId &&
-              e.condition.type === 'REVIEW_VERDICT' &&
-              e.condition.verdict === 'REVISE',
+        } catch (error) {
+          validationErrors.push(
+            error instanceof DomainError && error.code === 'UNDECLARED_REVISION_CODE'
+              ? error.code
+              : 'INVALID_REVIEW',
           );
-          if (
-            revisionCode &&
-            (review.verdict !== 'REVISE' || !declared.some((e) => e.revisionCode === revisionCode))
-          )
-            validationErrors.push('UNDECLARED_REVISION_CODE');
-          if (review.verdict === 'REVISE' && declared.length > 1 && !revisionCode)
-            validationErrors.push('REVISION_CODE_REQUIRED');
-        } catch {
-          validationErrors.push('INVALID_REVIEW');
         }
       }
       const existing = detail.artifacts.find(
@@ -737,6 +922,7 @@ export class WorkflowService {
       );
       if (existing) artifact.id = existing.id;
       else artifacts.push(artifact);
+      produced.push({ spec, artifact });
       if (
         !detail.validations.some(
           (v) =>
@@ -777,8 +963,22 @@ export class WorkflowService {
           createdAt: this.clock.now(),
         });
     }
-    if (definition.exitCondition === 'REVIEW_PASS' && reviewVerdict !== 'PASS')
-      errors.push('REVIEW_PASS_REQUIRED');
+    const policy = this.policyForVersion(detail.version);
+    if (policy) {
+      const policyErrors = policy.validateStep(detail, step, produced);
+      if (
+        !Array.isArray(policyErrors) ||
+        policyErrors.some((code) => typeof code !== 'string' || !code.trim())
+      )
+        throw new DomainError('WORKFLOW_VALIDATION_POLICY_INVALID', 'validation policy 返回值无效');
+      if (policyErrors.length) {
+        for (const receipt of receipts) {
+          receipt.valid = false;
+          receipt.errors = [...new Set([...receipt.errors, ...policyErrors])];
+        }
+        errors.push(...policyErrors);
+      }
+    }
     // W2 adds operation receipts/manifests. W1 cannot certify a model's workspace/external claim.
     if (
       detail.version.contractManifest === undefined &&
@@ -794,6 +994,22 @@ export class WorkflowService {
       errors.push('SIDE_EFFECT_VERIFICATION_REQUIRED');
     const edge = this.chooseEdge(detail, step, reviewVerdict, revisionCode);
     if (edge === undefined) errors.push('NO_UNAMBIGUOUS_DECLARED_BRANCH');
+    const terminalReviewFailure =
+      definition.type === 'REVIEW' && reviewVerdict === 'FAIL' && edge?.toStepId === null;
+    const declaredRevision =
+      reviewVerdict === 'REVISE' &&
+      edge?.condition.type === 'REVIEW_VERDICT' &&
+      edge.condition.verdict === 'REVISE' &&
+      edge.revision !== undefined &&
+      edge.toStepId !== null;
+    if (
+      definition.exitCondition === 'REVIEW_PASS' &&
+      reviewVerdict !== 'PASS' &&
+      !terminalReviewFailure &&
+      !declaredRevision
+    )
+      errors.push('REVIEW_PASS_REQUIRED');
+    if (terminalReviewFailure) errors.push('REVIEW_FAIL_REQUIRES_USER_ACTION');
     let completed = false;
     this.store.transaction(() => {
       if (step.state === 'WAITING') {
@@ -804,7 +1020,12 @@ export class WorkflowService {
       for (const v of receipts) this.store.appendValidation(v);
       if (errors.length) {
         this.wait(step, 'USER_CONFIRMATION', errors[0]!);
-        this.event(detail.run.id, step.id, 'step.validation_failed', { code: errors[0]! });
+        this.event(
+          detail.run.id,
+          step.id,
+          terminalReviewFailure ? 'step.review_failed_waiting_user' : 'step.validation_failed',
+          { code: errors[0]! },
+        );
         return;
       }
       const operation = this.operation(this.detail(detail.run.id), step);
@@ -860,6 +1081,10 @@ export class WorkflowService {
     const edge = this.chooseEdge(detail, step);
     if (!edge) {
       this.wait(step, 'DECISION', 'NO_UNAMBIGUOUS_DECLARED_BRANCH');
+      return false;
+    }
+    if (this.definition(detail, step).confirmationRequired === true) {
+      this.wait(step, 'USER_CONFIRMATION', 'FINAL_USER_CONFIRMATION_REQUIRED');
       return false;
     }
     return this.store.transaction(() => this.commitCompletion(detail, step, edge));
@@ -1040,7 +1265,11 @@ export class WorkflowService {
     if (this.operation(detail, step))
       throw new DomainError('WORKFLOW_OPERATION_INVALID', '执行准备已存在，不可重新绑定');
     const root = this.missions.workspaceIdentity?.() ?? null;
-    const manifest = (await this.missions.captureOperation?.(definition, root)) ?? [];
+    const manifest =
+      (await this.missions.captureOperation?.(definition, root, {
+        workflowRunId: detail.run.id,
+        stepRunId: step.id,
+      })) ?? [];
     if (root !== (this.missions.workspaceIdentity?.() ?? null))
       throw new DomainError('WORKFLOW_WORKSPACE_CHANGED', '准备执行期间 Workspace 已改变');
     if (['FILE_OUTPUT', 'WORKSPACE_MUTATION'].includes(definition.effectType) && !manifest.length)
@@ -1102,6 +1331,7 @@ export class WorkflowService {
             this.definition(detail, step),
             snapshot,
             step.workspaceRoot ?? null,
+            { workflowRunId: detail.run.id, stepRunId: step.id },
           );
     if (!result?.verified) {
       this.updateOperation(receipt, 'UNKNOWN');
@@ -1121,6 +1351,7 @@ export class WorkflowService {
         this.definition(detail, step),
         snapshot,
         step.workspaceRoot ?? null,
+        { workflowRunId: detail.run.id, stepRunId: step.id },
       );
       if (!checked?.verified) {
         this.updateOperation(receipt, 'UNKNOWN');
@@ -1163,6 +1394,10 @@ export class WorkflowService {
       } catch {
         errors.push(`FINAL_MISSION_FACT_UNAVAILABLE:${spec.key}`);
       }
+      const humanBridgeNames = [
+        artifact.metadata.outputKey,
+        artifact.metadata.targetArtifactId,
+      ].filter((name): name is string => typeof name === 'string' && name.length > 0);
       if (
         binding?.workflowRunId !== detail.run.id ||
         binding.contractId !== contract.contractId ||
@@ -1171,6 +1406,10 @@ export class WorkflowService {
         artifact.producerStepRunId !== producer?.id ||
         artifact.missionId !== producer?.missionId ||
         artifact.missionRunId !== producer?.missionRunId ||
+        (artifact.source === 'HUMAN_BRIDGE' &&
+          detail.version.validationPolicy === 'news-integrity-v1' &&
+          (humanBridgeNames.length === 0 ||
+            humanBridgeNames.some((name) => name !== spec.outputKey))) ||
         snapshot?.mission.id !== producer?.missionId ||
         snapshot?.mission.state !== 'COMPLETED' ||
         snapshot?.run?.id !== producer?.missionRunId ||
@@ -1191,6 +1430,17 @@ export class WorkflowService {
               o.stepRunId === producer?.id &&
               o.state === 'VERIFIED' &&
               o.outputArtifactIds?.includes(artifact.id),
+          )) ||
+        (artifact.source === 'HUMAN_BRIDGE' &&
+          !this.missions.hasAcceptedArtifactProvenance?.(artifact) &&
+          !snapshot?.outputs.some(
+            (o) =>
+              o.source === 'HUMAN_BRIDGE' &&
+              o.sourceId === artifact.sourceId &&
+              o.actorId === artifact.actorId &&
+              o.kind === artifact.kind &&
+              o.content === artifact.content &&
+              workflowHash(o.metadata) === workflowHash(artifact.metadata),
           )) ||
         artifact.contentHash !==
           workflowHash({ content: artifact.content, metadata: artifact.metadata })

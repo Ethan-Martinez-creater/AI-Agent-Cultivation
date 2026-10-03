@@ -103,7 +103,7 @@ export interface WorkflowReviewResult {
   revisionCode?: string;
 }
 
-const revisionCodePattern = /^[a-z][a-z0-9_.-]{0,63}$/;
+const revisionCodePattern = /^[A-Za-z][A-Za-z0-9_.-]{0,63}$/;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -166,14 +166,20 @@ export function validateWorkflowReviewResult(
         !revisionCodePattern.test(value.revisionCode) ||
         !reviseEdges.some((edge) => edge.revisionCode === value.revisionCode)
       )
-        fail();
+        throw new DomainError(
+          'UNDECLARED_REVISION_CODE',
+          'REVIEW revisionCode must select a declared revision edge',
+        );
     } else if (
       value.revisionCode !== undefined &&
       (typeof value.revisionCode !== 'string' ||
         !revisionCodePattern.test(value.revisionCode) ||
         reviseEdges[0]?.revisionCode !== value.revisionCode)
     ) {
-      fail();
+      throw new DomainError(
+        'UNDECLARED_REVISION_CODE',
+        'REVIEW revisionCode must select a declared revision edge',
+      );
     }
   } else if (value.revisionCode !== undefined) {
     fail();

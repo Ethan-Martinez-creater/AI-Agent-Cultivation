@@ -74,11 +74,46 @@ export class WorkflowWorkspaceValidation {
           e.payloadJson.capability === 'FILE_WRITE' &&
           e.payloadJson.resource === resource,
       );
+      const mcp = events.some(
+        (event) =>
+          event.eventType === 'tool.result' &&
+          event.payloadJson.success === true &&
+          event.payloadJson.source === 'MCP' &&
+          event.payloadJson.capability === 'MCP_TOOL_EXECUTE' &&
+          Array.isArray(event.payloadJson.artifactFiles) &&
+          event.payloadJson.artifactFiles.some(
+            (file) =>
+              file &&
+              typeof file === 'object' &&
+              (file as Record<string, unknown>).path === entry.relativePath,
+          ),
+      );
       const external = snapshot.outputs.some(
         (o) => o.source === 'HUMAN_BRIDGE' && o.metadata.path === entry.relativePath,
       );
-      if (!tool && !external) return { verified: false, manifest: receipt.manifest };
+      if (!tool && !external && !mcp) return { verified: false, manifest: receipt.manifest };
       const inspected = await workspace.inspectArtifact(entry.relativePath, 10_000_000, true);
+      if (
+        mcp &&
+        !tool &&
+        !external &&
+        !events.some(
+          (event) =>
+            event.eventType === 'tool.result' &&
+            event.payloadJson.success === true &&
+            event.payloadJson.source === 'MCP' &&
+            event.payloadJson.capability === 'MCP_TOOL_EXECUTE' &&
+            Array.isArray(event.payloadJson.artifactFiles) &&
+            event.payloadJson.artifactFiles.some(
+              (file) =>
+                file &&
+                typeof file === 'object' &&
+                (file as Record<string, unknown>).path === entry.relativePath &&
+                (file as Record<string, unknown>).contentHash === inspected.contentHash,
+            ),
+        )
+      )
+        return { verified: false, manifest: receipt.manifest };
       if (
         receipt.state === 'APPLIED' &&
         (!entry.afterHash || entry.afterHash !== inspected.contentHash)
@@ -106,16 +141,33 @@ export class WorkflowWorkspaceValidation {
       .filter((e) => e.runId === snapshot.run!.id);
     for (const path of definition.effectPaths ?? []) {
       const resource = `file:${rootTag}:${path.replaceAll('\\', '/').toLowerCase()}`;
-      const evidence = events.find(
+      let evidence = events.find(
         (e) =>
           e.eventType === 'tool.result' &&
           e.payloadJson.success === true &&
           e.payloadJson.capability === 'FILE_WRITE' &&
           e.payloadJson.resource === resource,
       );
+      const inspected = await workspace.inspectArtifact(path, 10_000_000, true).catch(() => null);
+      if (!evidence && inspected)
+        evidence = events.find(
+          (event) =>
+            event.eventType === 'tool.result' &&
+            event.payloadJson.success === true &&
+            event.payloadJson.source === 'MCP' &&
+            event.payloadJson.capability === 'MCP_TOOL_EXECUTE' &&
+            Array.isArray(event.payloadJson.artifactFiles) &&
+            event.payloadJson.artifactFiles.some(
+              (file) =>
+                file &&
+                typeof file === 'object' &&
+                (file as Record<string, unknown>).path === path &&
+                (file as Record<string, unknown>).contentHash === inspected.contentHash,
+            ),
+        );
       if (!evidence || !evidence.actorId || snapshot.outputs.some((o) => o.metadata.path === path))
         continue;
-      const inspected = await workspace.inspectArtifact(path, 10_000_000, true);
+      if (!inspected) continue;
       snapshot.outputs.push({
         source: 'MISSION',
         sourceId: evidence.id,
@@ -124,6 +176,8 @@ export class WorkflowWorkspaceValidation {
         content: '',
         metadata: {
           ...inspected,
+          // Keep the frozen contract's separator convention on Windows too.
+          path,
           contentHash: inspected.contentHash!,
           evidenceEventId: evidence.id,
           permissionResource: resource,
@@ -151,6 +205,7 @@ export class WorkflowWorkspaceValidation {
         content,
         metadata: {
           fileName: spec.key,
+          ...(definition.artifactPathScope === 'RUN_ATTEMPT' ? { outputKey: spec.key } : {}),
           path: '.',
           sizeBytes: Buffer.byteLength(content),
           inspectedManifest: 1,

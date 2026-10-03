@@ -338,6 +338,8 @@ export interface ValidatedWorkspaceArtifact {
   fileName: string;
   extension: string;
   sizeBytes: number;
+  /** Optional for legacy adapters; Main freezes bytes inspected during submission. */
+  contentHash?: string;
 }
 
 /** Implemented by Main using FileWorkspace; returned facts must come from disk inspection. */
@@ -559,7 +561,10 @@ export class ExternalWorkService {
         extension,
         sizeBytes: inspected.sizeBytes,
         mimeType: null,
-        metadataJson: { targetArtifactId: target.id },
+        metadataJson: {
+          targetArtifactId: target.id,
+          ...(inspected.contentHash ? { contentHash: inspected.contentHash } : {}),
+        },
       });
     }
     let submitted!: ExternalWorkRequestRecord;
@@ -1206,6 +1211,8 @@ function validateInspectedArtifact(
   target: ExternalWorkArtifactTarget,
   normalizedPath: string,
 ): string {
+  if (value.contentHash !== undefined && !/^[a-f0-9]{64}$/.test(value.contentHash))
+    throw new DomainError('INVALID_INPUT', 'Workspace Artifact hash 无效');
   if (
     normalizedPath.length > MAX_RELATIVE_PATH_LENGTH ||
     normalizedPath !== normalizeRelativeWorkspacePath(value.relativePath) ||

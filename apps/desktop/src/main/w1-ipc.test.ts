@@ -25,6 +25,7 @@ describe('W1 typed Workflow IPC boundary', () => {
     detail: vi.fn(() => detail),
     createRun: vi.fn(() => detail),
     advance: vi.fn(async () => detail),
+    confirm: vi.fn(() => detail),
     retryMission: vi.fn(async () => detail),
     retryStep: vi.fn(() => detail),
     pause: vi.fn(() => detail),
@@ -37,6 +38,18 @@ describe('W1 typed Workflow IPC boundary', () => {
     mocks.handlers.clear();
     for (const method of Object.values(serviceMocks)) method.mockClear();
     registerWorkflowIpc((event) => event === sender, service);
+  });
+
+  it('accepts explicit delivery confirmation through the checked typed boundary only', async () => {
+    await expect(mocks.handlers.get('workflows:confirm')!({}, 'run')).rejects.toThrow(
+      /sender denied/,
+    );
+    await expect(
+      mocks.handlers.get('workflows:confirm')!(sender, { state: 'COMPLETED' }),
+    ).rejects.toThrow();
+    await mocks.handlers.get('workflows:confirm')!(sender, 'run');
+    expect(serviceMocks.confirm).toHaveBeenCalledWith('run');
+    expect(mocks.handlers.has('workflows:publishVersion')).toBe(false);
   });
 
   it('checks the sender and accepts only bounded, strict run inputs', async () => {
@@ -119,6 +132,7 @@ describe('W1 typed Workflow IPC boundary', () => {
     expect([...mocks.handlers.keys()].sort()).toEqual(
       [
         'workflows:advance',
+        'workflows:confirm',
         'workflows:cancel',
         'workflows:create',
         'workflows:detail',
