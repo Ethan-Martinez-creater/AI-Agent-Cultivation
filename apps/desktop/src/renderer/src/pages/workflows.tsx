@@ -20,7 +20,10 @@ import { Drawer } from '../components/Drawer.js';
 import { Section } from '../components/Section.js';
 import { StatusBadge } from '../components/StatusBadge.js';
 import { WorkflowInputForm } from '../components/WorkflowInputForm.js';
-import { workflowInputPresentationFor } from '../components/workflow-input-presentations.js';
+import {
+  workflowInputPresentationFor,
+  workflowPhaseLabelFor,
+} from '../components/workflow-input-presentations.js';
 import { SoftwareFeatureWorkflowInputForm } from '../components/SoftwareFeatureWorkflowInputForm.js';
 import { PageHeading } from '../ui-shared.js';
 import './mission-party.css';
@@ -125,6 +128,8 @@ const newsPhaseNames: Record<string, string> = {
   delivery: '交付',
 };
 function phaseName(value: string, definitionId?: string): string {
+  const researchLabel = workflowPhaseLabelFor(definitionId, value);
+  if (researchLabel) return researchLabel;
   if (definitionId === 'official.software-feature')
     return (
       (
@@ -160,6 +165,23 @@ const newsResultNames: Record<string, string> = {
   'software.plan_scope': '实施范围',
   'software.fix_summary': '修复摘要',
   'software.delivery': '交付摘要',
+  'research.brief': '研究概要',
+  'research.literature': '文献资料',
+  'research.evidence': '证据表',
+  'research.screening': '文献筛选记录',
+  'research.gaps': '研究空白',
+  'research.hypotheses': '研究假设',
+  'research.experiment_plan': '实验方案',
+  'research.experiment_record': '实验记录',
+  'research.analysis': '分析结果',
+  'research.manuscript': '论文稿件',
+  'research.claim_evidence_map': '论据追溯表',
+  'research.review': '科学审查',
+  'research.revision_response': '修改说明',
+  'research.final_package': '研究资料包',
+  'research.figures': '图表',
+  'research.raw_results': '实验原始结果',
+  'research.logs': '实验日志',
 };
 
 function workflowName(definition: WorkflowVersion['definition']): string {

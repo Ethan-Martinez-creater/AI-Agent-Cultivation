@@ -7,7 +7,11 @@ import {
   normalizeWorkflowInputDraft,
   WorkflowInputForm,
 } from './WorkflowInputForm.js';
-import { workflowInputPresentationFor } from './workflow-input-presentations.js';
+import {
+  RESEARCH_WORKFLOW_INPUT_PRESENTATION,
+  workflowInputPresentationFor,
+  workflowPhaseLabelFor,
+} from './workflow-input-presentations.js';
 
 const schema: WorkflowObjectSchema = {
   type: 'object',
@@ -81,6 +85,37 @@ const newsSchema: WorkflowObjectSchema = {
       },
     },
     narrationMode: { type: 'enum', values: ['AUTO', 'MODEL_OR_TOOL', 'HUMAN'] },
+  },
+};
+
+const researchSchema: WorkflowObjectSchema = {
+  type: 'object',
+  required: ['researchQuestion', 'field', 'experimentMode'],
+  properties: {
+    researchQuestion: { type: 'string', minLength: 10, maxLength: 3000 },
+    field: { type: 'string', minLength: 2, maxLength: 200 },
+    scope: { type: 'string', minLength: 0, maxLength: 2000 },
+    literatureTimeRange: { type: 'dateRange' },
+    existingSources: {
+      type: 'array',
+      minItems: 0,
+      maxItems: 12,
+      items: { type: 'artifactRef', allowedKinds: ['TEXT', 'JSON', 'FILE', 'EXTERNAL_REFERENCE'] },
+    },
+    existingData: {
+      type: 'array',
+      minItems: 0,
+      maxItems: 12,
+      items: { type: 'artifactRef', allowedKinds: ['FILE', 'JSON', 'DIRECTORY'] },
+    },
+    existingCode: {
+      type: 'array',
+      minItems: 0,
+      maxItems: 12,
+      items: { type: 'artifactRef', allowedKinds: ['TEXT', 'FILE', 'DIRECTORY'] },
+    },
+    experimentMode: { type: 'enum', values: ['COMPUTATIONAL', 'HUMAN_OR_EXTERNAL', 'MIXED'] },
+    maxExperimentCycles: { type: 'number', minimum: 1, maximum: 2, integer: true },
   },
 };
 
@@ -186,6 +221,73 @@ describe('WorkflowInputForm', () => {
     expect(inputs.targetPlatform).toBe('YOUTUBE_SHORTS');
     expect(inputs.narrationMode).toBe('MODEL_OR_TOOL');
     expect(() => validateWorkflowInputs(newsSchema, inputs)).not.toThrow();
+  });
+
+  it('presents official research inputs and modes in Chinese without changing the frozen values', () => {
+    expect(workflowInputPresentationFor('official.research')).toEqual(
+      RESEARCH_WORKFLOW_INPUT_PRESENTATION,
+    );
+    const markup = renderToStaticMarkup(
+      React.createElement(WorkflowInputForm, {
+        schema: researchSchema,
+        presentation: workflowInputPresentationFor('official.research'),
+        onSubmit: () => undefined,
+      }),
+    );
+
+    for (const label of [
+      '研究问题',
+      '研究领域',
+      '研究范围',
+      '文献时间范围',
+      '已有来源',
+      '已有数据',
+      '已有代码',
+      '实验方式',
+      '最大实验循环次数',
+      '可计算实验',
+      '人工或外部实验',
+      '混合实验',
+    ]) {
+      expect(markup).toContain(label);
+    }
+    expect(markup).toContain('value="COMPUTATIONAL">可计算实验</option>');
+    expect(markup).toContain('value="HUMAN_OR_EXTERNAL">人工或外部实验</option>');
+    expect(markup).toContain('value="MIXED">混合实验</option>');
+    expect(markup).not.toContain('>COMPUTATIONAL</option>');
+    expect(markup).not.toContain('>HUMAN_OR_EXTERNAL</option>');
+    expect(markup).not.toContain('>MIXED</option>');
+    expect(markup).not.toContain('type="file"');
+    expect(markup).not.toContain('placeholder=');
+
+    const inputs = normalizeWorkflowInputDraft(researchSchema, {
+      researchQuestion: '比较两种缓存策略对服务尾延迟的影响',
+      field: '计算机系统',
+      scope: '单机服务负载',
+      literatureTimeRange: { start: '2022-01-01', end: '2026-01-01' },
+      existingSources: [
+        { id: 'artifact-source-1', kind: 'EXTERNAL_REFERENCE', name: '用户提供来源' },
+      ],
+      existingData: [{ id: 'artifact-data-1', kind: 'FILE', name: '测量数据' }],
+      existingCode: [{ id: 'artifact-code-1', kind: 'DIRECTORY', name: '实验代码' }],
+      experimentMode: 'MIXED',
+      maxExperimentCycles: '2',
+    });
+    expect(inputs.experimentMode).toBe('MIXED');
+    expect(inputs.maxExperimentCycles).toBe(2);
+    expect(inputs.existingSources).toEqual([
+      { id: 'artifact-source-1', kind: 'EXTERNAL_REFERENCE', name: '用户提供来源' },
+    ]);
+    expect(() => validateWorkflowInputs(researchSchema, inputs)).not.toThrow();
+  });
+
+  it('uses the six declared Chinese research phases only for the official research workflow', () => {
+    expect(
+      ['exploration', 'hypothesis', 'experiment', 'analysis', 'writing', 'review'].map((phase) =>
+        workflowPhaseLabelFor('official.research', phase),
+      ),
+    ).toEqual(['探索', '假设', '实验', '分析', '写作', '审查']);
+    expect(workflowPhaseLabelFor('user.workflow', 'exploration')).toBeUndefined();
   });
 
   it('does not apply the official news presentation to other definitions', () => {

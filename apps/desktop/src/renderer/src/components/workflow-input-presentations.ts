@@ -34,6 +34,44 @@ export const AI_NEWS_VIDEO_INPUT_PRESENTATION: WorkflowInputPresentation = {
   },
 };
 
+/** Renderer-only labels for the frozen AP-007 Research Workflow inputs. */
+export const RESEARCH_WORKFLOW_INPUT_PRESENTATION: WorkflowInputPresentation = {
+  fieldLabels: {
+    researchQuestion: '研究问题',
+    field: '研究领域',
+    scope: '研究范围',
+    literatureTimeRange: '文献时间范围',
+    existingSources: '已有来源',
+    existingData: '已有数据',
+    existingCode: '已有代码',
+    experimentMode: '实验方式',
+    maxExperimentCycles: '最大实验循环次数',
+  },
+  enumOptionLabels: {
+    experimentMode: {
+      COMPUTATIONAL: '可计算实验',
+      HUMAN_OR_EXTERNAL: '人工或外部实验',
+      MIXED: '混合实验',
+    },
+  },
+};
+
+export const RESEARCH_WORKFLOW_PHASE_LABELS: Readonly<Record<string, string>> = {
+  exploration: '探索',
+  hypothesis: '假设',
+  experiment: '实验',
+  analysis: '分析',
+  writing: '写作',
+  review: '审查',
+};
+
+export function workflowPhaseLabelFor(
+  definitionId: string | undefined,
+  phase: string,
+): string | undefined {
+  return definitionId === 'official.research' ? RESEARCH_WORKFLOW_PHASE_LABELS[phase] : undefined;
+}
+
 export function workflowInputPresentationFor(
   definitionId: string,
 ): WorkflowInputPresentation | undefined {
@@ -49,5 +87,6 @@ export function workflowInputPresentationFor(
         contextArtifacts: '参考资料',
       },
     };
+  if (definitionId === 'official.research') return RESEARCH_WORKFLOW_INPUT_PRESENTATION;
   return definitionId === 'official.ai-news-video' ? AI_NEWS_VIDEO_INPUT_PRESENTATION : undefined;
 }
