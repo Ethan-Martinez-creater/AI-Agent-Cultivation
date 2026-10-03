@@ -1,15 +1,70 @@
 import { createHash } from 'node:crypto';
 import { DomainError } from '@cultivation/shared';
-import type { StepOperationReceipt, WorkflowStepDefinition } from '@cultivation/domain';
+import type {
+  ArtifactContract,
+  StepOperationReceipt,
+  WorkflowStepDefinition,
+} from '@cultivation/domain';
 import type { WorkflowMissionSnapshot } from '@cultivation/application';
 import type { Gate3MissionStore } from '@cultivation/application/gate3-mission-service';
 import { FileWorkspace, FileWorkspaceError } from './file-workspace.js';
+
+interface WorkspaceMutationFact {
+  id: string;
+  workflowRunId: string;
+  stepRunId: string;
+  operationReceiptId: string;
+  attempt: number;
+  missionId: string;
+  missionRunId: string;
+  teammateId: string;
+  toolCallId: string;
+  toolId: 'file.writeText';
+  permissionResource: string;
+  workspaceTag: string;
+  relativePath: string;
+  beforeHash: string | null;
+  expectedAfterHash: string;
+  observedAfterHash: string | null;
+  state: 'PREPARED' | 'APPLIED' | 'UNKNOWN';
+  resultCode: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface WorkspaceMutationJournal {
+  listMutations(input: {
+    workflowRunId: string;
+    stepRunId: string;
+    missionRunId?: string;
+  }): WorkspaceMutationFact[];
+  listRunMutations(workflowRunId: string): WorkspaceMutationFact[];
+}
+
+interface CheckedMutationPath {
+  relativePath: string;
+  beforeHash?: string;
+  afterHash: string;
+  sizeBytes: number;
+  workspaceTag: string;
+  evidence: Array<{
+    relativePath: string;
+    source: 'MISSION';
+    sourceId: string;
+    actorId: string;
+    missionRunId: string;
+    toolCallId: string;
+    permissionResource: string;
+    workspaceTag: string;
+  }>;
+}
 
 /** Inspection only. All mutations remain in permission-gated ToolRuntime/Human Bridge. */
 export class WorkflowWorkspaceValidation {
   constructor(
     private readonly missions: Pick<Gate3MissionStore, 'listMissionEvents'>,
     private readonly currentRoot: () => string | null,
+    private readonly journal?: WorkspaceMutationJournal,
   ) {}
   private async workspace(boundRoot: string | null): Promise<FileWorkspace> {
     if (!boundRoot || boundRoot !== this.currentRoot())
@@ -21,6 +76,10 @@ export class WorkflowWorkspaceValidation {
     boundRoot: string | null,
   ): Promise<StepOperationReceipt['manifest']> {
     if (!['FILE_OUTPUT', 'WORKSPACE_MUTATION'].includes(definition.effectType)) return [];
+    if (definition.effectPathMode === 'DYNAMIC') {
+      await this.workspace(boundRoot);
+      return [];
+    }
     const workspace = await this.workspace(boundRoot);
     const manifest: StepOperationReceipt['manifest'] = [];
     for (const path of definition.effectPaths ?? []) {
@@ -43,6 +102,7 @@ export class WorkflowWorkspaceValidation {
     definition: WorkflowStepDefinition,
     snapshot: WorkflowMissionSnapshot,
     boundRoot: string | null,
+    context?: { workflowRunId: string; stepRunId: string },
   ) {
     if (receipt.effectType === 'NONE') return { verified: true, manifest: [] };
     if (receipt.effectType === 'EXTERNAL_ACTION') {
@@ -55,6 +115,24 @@ export class WorkflowWorkspaceValidation {
       };
     }
     const workspace = await this.workspace(boundRoot);
+    if (definition.effectPathMode === 'DYNAMIC') {
+      if (!context || !this.journal) return { verified: false, manifest: receipt.manifest ?? [] };
+      const facts = this.journal.listMutations({
+        workflowRunId: context.workflowRunId,
+        stepRunId: context.stepRunId,
+        ...(snapshot.run?.id ? { missionRunId: snapshot.run.id } : {}),
+      });
+      const checked = await this.checkMutationFacts(facts, workspace, true);
+      if (!checked || !checked.length) return { verified: false, manifest: receipt.manifest ?? [] };
+      return {
+        verified: true,
+        manifest: checked.map((entry) => ({
+          relativePath: entry.relativePath,
+          ...(entry.beforeHash ? { beforeHash: entry.beforeHash } : {}),
+          afterHash: entry.afterHash,
+        })),
+      };
+    }
     const rootTag = createHash('sha256')
       .update(workspace.getRoot().toLowerCase())
       .digest('hex')
@@ -127,6 +205,8 @@ export class WorkflowWorkspaceValidation {
     snapshot: WorkflowMissionSnapshot,
     definition: WorkflowStepDefinition,
     boundRoot: string | null,
+    context?: { workflowRunId: string; stepRunId: string },
+    contractManifest?: readonly ArtifactContract[],
   ): Promise<WorkflowMissionSnapshot> {
     if (!snapshot.run || snapshot.run.status !== 'COMPLETED') return snapshot;
     if (!definition.outputs.some((s) => s.kind === 'FILE' || s.kind === 'DIRECTORY'))
@@ -221,6 +301,159 @@ export class WorkflowWorkspaceValidation {
         },
       });
     }
+    if (context && this.journal) {
+      const dynamicStep = definition.effectPathMode === 'DYNAMIC';
+      const dynamicDirectorySpecs = definition.outputs.filter((spec) => {
+        if (spec.kind !== 'DIRECTORY') return false;
+        const contract = contractManifest?.find(
+          (item) =>
+            item.contractId === spec.contractId && item.contractVersion === spec.contractVersion,
+        );
+        return (
+          contract?.validator.type === 'WORKSPACE_MANIFEST' &&
+          contract.validator.dynamicPaths === true
+        );
+      });
+      if (dynamicStep || dynamicDirectorySpecs.length) {
+        const facts = dynamicStep
+          ? this.journal.listMutations({
+              workflowRunId: context.workflowRunId,
+              stepRunId: context.stepRunId,
+              missionRunId: snapshot.run.id,
+            })
+          : this.journal.listRunMutations(context.workflowRunId);
+        const checked = await this.checkMutationFacts(facts, workspace, true);
+        if ((!checked || !checked.length) && dynamicDirectorySpecs.some((spec) => spec.required))
+          throw new DomainError(
+            'WORKFLOW_MUTATION_INCOMPLETE',
+            'No verified Workspace changes are available',
+          );
+        for (const spec of dynamicDirectorySpecs) {
+          if (
+            !checked?.length ||
+            snapshot.outputs.some((item) => item.metadata.outputKey === spec.key)
+          )
+            continue;
+          const entries = checked.map((entry) => ({
+            relativePath: entry.relativePath,
+            ...(entry.beforeHash ? { beforeHash: entry.beforeHash } : {}),
+            afterHash: entry.afterHash,
+          }));
+          const content = JSON.stringify({ entries });
+          const evidence = checked.flatMap((entry) => entry.evidence);
+          snapshot.outputs.push({
+            source: 'MISSION',
+            sourceId: snapshot.run.id,
+            actorId: snapshot.mission.coordinatorTeammateId,
+            kind: 'DIRECTORY',
+            content,
+            metadata: {
+              fileName: spec.key,
+              outputKey: spec.key,
+              path: '.',
+              sizeBytes: Buffer.byteLength(content),
+              inspectedManifest: 1,
+              workspaceTag: checked[0]!.workspaceTag,
+              executionEvidence: JSON.stringify(evidence),
+            },
+          });
+        }
+      }
+    }
     return snapshot;
   }
+
+  private async checkMutationFacts(
+    facts: readonly WorkspaceMutationFact[],
+    workspace: FileWorkspace,
+    requireResultEvents: boolean,
+  ): Promise<CheckedMutationPath[] | null> {
+    if (!facts.length || facts.some((fact) => fact.state !== 'APPLIED' || !fact.observedAfterHash))
+      return null;
+    const tag = createHash('sha256')
+      .update(workspace.getRoot().toLowerCase())
+      .digest('hex')
+      .slice(0, 16);
+    const byPath = new Map<string, WorkspaceMutationFact[]>();
+    for (const fact of facts) {
+      if (
+        fact.workspaceTag !== tag ||
+        fact.toolId !== 'file.writeText' ||
+        fact.permissionResource !== `file:${tag}:${fact.relativePath.toLowerCase()}` ||
+        !isSafeWorkflowPath(fact.relativePath)
+      )
+        return null;
+      const rows = byPath.get(fact.relativePath) ?? [];
+      rows.push(fact);
+      byPath.set(fact.relativePath, rows);
+    }
+    const eventCache = new Map<string, ReturnType<Gate3MissionStore['listMissionEvents']>>();
+    const checked: CheckedMutationPath[] = [];
+    for (const [relativePath, pathFacts] of [...byPath.entries()].sort(([a], [b]) =>
+      a.localeCompare(b),
+    )) {
+      pathFacts.sort(
+        (left, right) =>
+          left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id),
+      );
+      for (let index = 1; index < pathFacts.length; index += 1)
+        if (pathFacts[index]!.beforeHash !== pathFacts[index - 1]!.observedAfterHash) return null;
+      const latest = pathFacts.at(-1)!;
+      const inspected = await workspace
+        .inspectArtifact(relativePath, 10_000_000, true)
+        .catch(() => null);
+      if (!inspected?.contentHash || inspected.contentHash !== latest.observedAfterHash)
+        return null;
+      const evidence: CheckedMutationPath['evidence'] = [];
+      for (const fact of pathFacts) {
+        if (!requireResultEvents) continue;
+        const events =
+          eventCache.get(fact.missionId) ?? this.missions.listMissionEvents(fact.missionId);
+        eventCache.set(fact.missionId, events);
+        const event = events.find(
+          (candidate) =>
+            candidate.runId === fact.missionRunId &&
+            candidate.eventType === 'tool.result' &&
+            candidate.actorId === fact.teammateId &&
+            candidate.payloadJson.success === true &&
+            candidate.payloadJson.toolCallId === fact.toolCallId &&
+            candidate.payloadJson.toolId === fact.toolId &&
+            candidate.payloadJson.capability === 'FILE_WRITE' &&
+            candidate.payloadJson.resource === fact.permissionResource,
+        );
+        if (!event) return null;
+        evidence.push({
+          relativePath,
+          source: 'MISSION',
+          sourceId: event.id,
+          actorId: fact.teammateId,
+          missionRunId: fact.missionRunId,
+          toolCallId: fact.toolCallId,
+          permissionResource: fact.permissionResource,
+          workspaceTag: fact.workspaceTag,
+        });
+      }
+      const first = pathFacts[0]!;
+      checked.push({
+        relativePath,
+        ...(first.beforeHash ? { beforeHash: first.beforeHash } : {}),
+        afterHash: latest.observedAfterHash!,
+        sizeBytes: inspected.sizeBytes,
+        workspaceTag: tag,
+        evidence,
+      });
+    }
+    return checked;
+  }
+}
+
+function isSafeWorkflowPath(value: string): boolean {
+  const path = value.replaceAll('\\', '/');
+  return (
+    path === value &&
+    path.length > 0 &&
+    !path.startsWith('/') &&
+    !/^[A-Za-z]:/.test(path) &&
+    !path.split('/').some((part) => !part || part === '.' || part === '..' || part.includes(':'))
+  );
 }

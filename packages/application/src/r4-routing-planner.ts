@@ -172,12 +172,18 @@ export class RoutingPlanner {
           ? weighted.reduce((sum, item) => sum + scores[item.dimension]! * item.weight, 0) /
             weighted.reduce((sum, item) => sum + item.weight, 0)
           : null;
-      const eligible = evaluated.eligible && (explicitChoice || benchmarkScore !== null);
+      const excluded = context.excludedTeammateIds?.includes(teammateId) === true;
+      const eligible =
+        !excluded && evaluated.eligible && (explicitChoice || benchmarkScore !== null);
       const trace: RoutingCandidateTrace = {
         teammateId,
         runtimeProfileId: evaluated.runtimeProfileId,
         eligible,
-        reason: evaluated.eligible && !eligible ? 'BENCHMARK_UNCONFIGURED' : evaluated.reason,
+        reason: excluded
+          ? 'INDEPENDENT_REVIEW_REQUIRED'
+          : evaluated.eligible && !eligible
+            ? 'BENCHMARK_UNCONFIGURED'
+            : evaluated.reason,
         benchmarkScore,
         semanticBonus: 0,
         stabilityPenalty:
@@ -236,6 +242,7 @@ export class RoutingPlanner {
       const teammate = teammates.find(
         (item) =>
           (!explicitId || item.id === explicitId) &&
+          !context.excludedTeammateIds?.includes(item.id) &&
           item.status === 'ACTIVE' &&
           item.executorKind === 'USER_BRIDGE' &&
           item.systemKind === 'HUMAN_BRIDGE' &&
@@ -476,6 +483,7 @@ export class RoutingPlanner {
       'executionConstraint',
       'explicitTeammateId',
       'explicitPartyId',
+      'excludedTeammateIds',
       'partyMode',
       'inputArtifactMetadata',
       'expectedOutputContract',
@@ -490,6 +498,13 @@ export class RoutingPlanner {
     )
       throw new DomainError('INVALID_INPUT', '任务或执行选择无效');
     const dimensions = context.requiredCapabilities ?? [];
+    if (
+      context.excludedTeammateIds !== undefined &&
+      (!Array.isArray(context.excludedTeammateIds) ||
+        context.excludedTeammateIds.length > 128 ||
+        context.excludedTeammateIds.some((id) => typeof id !== 'string' || !id || id.length > 256))
+    )
+      throw new DomainError('INVALID_INPUT', '排除的执行者无效');
     const output = context.expectedOutputContract;
     if (
       output &&

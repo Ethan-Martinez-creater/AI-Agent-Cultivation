@@ -230,6 +230,23 @@ function actionRequired(
 }
 
 describe('RoutingPlanner', () => {
+  it('hard excludes implementers before semantic fit or availability probe', async () => {
+    const harness = makeHarness({
+      teammates: [teammate('author'), teammate('reviewer')],
+      scores: { author: { CODING: 100 }, reviewer: { CODING: 60 } },
+    });
+    const result = await harness.planner.plan(
+      taskContext({
+        requiredCapabilities: ['CODING'],
+        executionConstraint: 'SOLO',
+        excludedTeammateIds: ['author'],
+      }),
+    );
+    expect(result.status).toBe('ASSIGNED');
+    if (result.status === 'ASSIGNED')
+      expect(result.assignment.coordinatorTeammateId).toBe('reviewer');
+    expect(harness.probeOrder).toEqual(['reviewer']);
+  });
   it.each([
     ['model', 'AUTO'],
     ['model', 'PARTY'],

@@ -23,7 +23,7 @@ export function workflowArtifactContext(
       .map((b) => b.artifactId),
   );
   const artifacts = detail.artifacts.filter((a) => ids.has(a.id)).slice(0, 12);
-  const news = detail.version.validationPolicy === 'news-integrity-v1';
+  const news = detail.version.validationPolicy !== undefined;
   if (
     news &&
     Buffer.byteLength(

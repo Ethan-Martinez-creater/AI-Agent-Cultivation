@@ -1,4 +1,5 @@
 import { workflowToolEvidence } from './workflow-tool-evidence.js';
+import { createHash } from 'node:crypto';
 import type {
   ApprovalRequest,
   ApprovalState,
@@ -1971,6 +1972,8 @@ export class Gate3MissionService {
     approvalId: string | null = null,
   ): void {
     const payload = {
+      toolCallId: result.toolCallId,
+      outputHash: createHash('sha256').update(result.content).digest('hex'),
       toolId: metadata.toolId,
       source: metadata.source,
       capability: metadata.capability,

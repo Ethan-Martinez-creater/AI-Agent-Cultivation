@@ -49,6 +49,22 @@ export type ToolDispatch =
   | { kind: 'APPROVAL'; trace: ToolTrace; call: ToolCall }
   | { kind: 'RESULT'; trace: ToolTrace; result: ToolResult };
 
+/** Optional Main-owned journal/policy hook. It runs only after Tool schema and Permission checks. */
+export interface ToolExecutionGuard {
+  before(
+    call: ToolCall,
+    context: ToolContext,
+    descriptor: ToolDescriptor & { capability: PermissionCapability },
+    input: Record<string, unknown>,
+    resource: string,
+  ): Promise<unknown>;
+  after(
+    token: unknown,
+    context: ToolContext,
+    outcome: Pick<ToolResult, 'ok' | 'code' | 'content'>,
+  ): Promise<void>;
+}
+
 const MAX_INPUT_BYTES = 64 * 1024;
 const MAX_OUTPUT_CHARS = 64 * 1024;
 const MAX_SCHEMA_BYTES = 16 * 1024;
@@ -111,6 +127,7 @@ export class ToolRuntime {
   constructor(
     readonly registry: ToolRegistry,
     private readonly permissions: PermissionEngine,
+    private readonly executionGuard?: ToolExecutionGuard,
   ) {}
 
   async dispatch(
@@ -163,13 +180,47 @@ export class ToolRuntime {
     }).decision;
     if (decision === 'DENY') return finished(false, 'PERMISSION_DENIED', 'Permission denied.');
     if (decision === 'ASK' && !approvalGranted) return { kind: 'APPROVAL', trace, call };
+    let guardToken: unknown;
+    let guardPrepared = false;
     try {
+      if (this.executionGuard) {
+        guardToken = await this.executionGuard.before(
+          call,
+          context,
+          registered.descriptor,
+          input,
+          resource,
+        );
+        guardPrepared = true;
+      }
       const output = await registered.execute(input);
       if (typeof output.content !== 'string') throw new Error('Malformed tool result');
       const ok = output.ok ?? true;
-      return finished(ok, output.code ?? (ok ? 'OK' : 'TOOL_FAILED'), output.content);
+      const dispatch = finished(ok, output.code ?? (ok ? 'OK' : 'TOOL_FAILED'), output.content);
+      if (guardPrepared && dispatch.kind === 'RESULT') {
+        try {
+          await this.executionGuard!.after(guardToken, context, dispatch.result);
+        } catch {
+          // The effect may have happened. Keep the guard's PREPARED evidence for recovery and
+          // prevent the caller from interpreting the operation as verified.
+          return finished(
+            false,
+            'TOOL_EXECUTION_EVIDENCE_FAILED',
+            'Tool execution could not be verified.',
+          );
+        }
+      }
+      return dispatch;
     } catch {
-      return finished(false, 'TOOL_FAILED', 'Tool failed safely.');
+      const failed = finished(false, 'TOOL_FAILED', 'Tool failed safely.');
+      if (guardPrepared && failed.kind === 'RESULT') {
+        try {
+          await this.executionGuard!.after(guardToken, context, failed.result);
+        } catch {
+          // Leave the durable PREPARED intent for restart inspection.
+        }
+      }
+      return failed;
     }
   }
 }

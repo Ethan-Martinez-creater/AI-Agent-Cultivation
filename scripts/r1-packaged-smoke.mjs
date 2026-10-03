@@ -119,7 +119,7 @@ const db = new Database(join(userData, 'data', 'cultivation.sqlite'), { readonly
 try {
   assert.equal(
     db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get().version,
-    21,
+    22,
   );
   const benchmarks = db
     .prepare(

@@ -53,7 +53,9 @@ async function forceKill(app) {
     try {
       db = new Database(databasePath);
       db.exec('BEGIN IMMEDIATE; COMMIT;');
-      return;
+      const checkpoint = db.pragma('wal_checkpoint(TRUNCATE)')[0];
+      if (checkpoint.busy === 0) return;
+      if (Date.now() >= deadline) throw new Error('SQLite WAL remained busy after process exit');
     } catch (error) {
       if (error.code !== 'SQLITE_IOERR_TRUNCATE' || Date.now() >= deadline) throw error;
     } finally {
@@ -338,7 +340,7 @@ try {
     );
     assert.equal(
       db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get().version,
-      21,
+      22,
     );
   } finally {
     db.close();

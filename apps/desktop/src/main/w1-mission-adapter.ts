@@ -25,6 +25,9 @@ import type {
 } from '@cultivation/domain';
 import { scopedWorkflowStep, workflowExternalDraft } from './w21-execution-contract.js';
 import { inspectNewsMediaBytes, inspectNewsImageBytes } from './w21-media-validation.js';
+import { softwareExternalDraft } from './w22-execution-contract.js';
+import type { W22WorkspaceMutationRepository } from '@cultivation/persistence';
+import { latestSoftwareOutput } from './w22-validation-policy.js';
 
 /** Retain source/event provenance without exceeding the existing scalar metadata limits. */
 export function boundedResearchMetadata(
@@ -63,6 +66,10 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     private readonly workspaceRoot: () => string | null,
     private readonly workflows?: WorkflowRepository,
     private readonly availableTools: () => ToolDescriptor[] = () => [],
+    private readonly mutationJournal?: Pick<
+      W22WorkspaceMutationRepository,
+      'listMutations' | 'listRunMutations'
+    >,
   ) {}
   async prepareExecution(
     definition: WorkflowStepDefinition,
@@ -70,6 +77,58 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     step: WorkflowStepRun,
   ) {
     void step;
+    if (detail.version.validationPolicy === 'software-integrity-v1') {
+      const root = this.workspaceRoot();
+      if (!root || detail.run.inputSnapshot?.workspaceRoot !== root)
+        return { reason: 'WORKSPACE_REQUIRED' };
+      const acceptance = latestSoftwareOutput(detail, 'software.acceptance');
+      if (definition.id === 'S06' && acceptance) {
+        const criteria = (
+          JSON.parse(acceptance.content) as { criteria: { verificationMethod: string }[] }
+        ).criteria;
+        if (criteria.some((item) => item.verificationMethod !== 'COMMAND'))
+          return { routing: { executionConstraint: 'HUMAN_BRIDGE' as const } };
+      }
+      const scope = detail.run.inputSnapshot?.allowedToolScope;
+      if (
+        definition.effectPathMode === 'DYNAMIC' &&
+        (!Array.isArray(detail.run.inputSnapshot?.targetArea) ||
+          !detail.run.inputSnapshot.targetArea.length)
+      )
+        return { reason: 'WORKSPACE_MUTATION_SCOPE_REQUIRED' };
+      if (
+        definition.executionRequirements?.requiredToolScope &&
+        (!Array.isArray(scope) ||
+          !scope.length ||
+          scope.some(
+            (id) => typeof id !== 'string' || !this.availableTools().some((tool) => tool.id === id),
+          ))
+      )
+        return definition.effectType === 'WORKSPACE_MUTATION'
+          ? { reason: 'WORKFLOW_MUTATION_TOOL_REQUIRED' }
+          : { routing: { executionConstraint: 'HUMAN_BRIDGE' as const } };
+      const reviewSteps = definition.executionRequirements?.independentReviewOfStepIds;
+      if (reviewSteps) {
+        const actors = new Set<string>();
+        for (const prior of detail.steps.filter(
+          (item) => reviewSteps.includes(item.stepId) && item.missionId,
+        )) {
+          const mission = this.store.getMission(prior.missionId!);
+          if (mission) actors.add(mission.coordinatorTeammateId);
+          for (const event of this.store.listMissionEvents(prior.missionId!))
+            if (
+              event.actorType === 'TEAMMATE' &&
+              event.actorId &&
+              ['model.call_started', 'tool.result'].includes(event.eventType)
+            )
+              actors.add(event.actorId);
+        }
+        return {
+          routing: { executionConstraint: 'AUTO' as const, excludedTeammateIds: [...actors] },
+        };
+      }
+      return {};
+    }
     if (detail.version.validationPolicy !== 'news-integrity-v1') return {};
     if (!this.workspaceRoot()) return { reason: 'WORKSPACE_REQUIRED' };
     const purpose = definition.executionRequirements?.toolPurpose;
@@ -111,7 +170,9 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
         ...input,
         ...(detail?.version.validationPolicy === 'news-integrity-v1' && step
           ? { externalWorkDraft: () => workflowExternalDraft(detail, step) }
-          : {}),
+          : detail?.version.validationPolicy === 'software-integrity-v1' && step
+            ? { externalWorkDraft: () => softwareExternalDraft(detail, step) }
+            : {}),
       },
       bind,
     );
@@ -152,7 +213,13 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     if (artifact.source !== 'HUMAN_BRIDGE') return false;
     const step = this.workflows?.findStepByMissionId(artifact.missionId);
     const detail = step ? this.workflows?.detail(step.workflowRunId) : null;
-    if (detail?.version.validationPolicy !== 'news-integrity-v1') return false;
+    if (
+      !detail ||
+      !['news-integrity-v1', 'software-integrity-v1'].includes(
+        detail.version.validationPolicy ?? '',
+      )
+    )
+      return false;
     const spec = detail.version.steps
       .find((item) => item.id === step!.stepId)
       ?.outputs.find(
@@ -191,7 +258,11 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     root: string | null,
     context?: WorkflowStepExecutionContext,
   ) {
-    return new WorkflowWorkspaceValidation(this.store, this.workspaceRoot).capture(
+    return new WorkflowWorkspaceValidation(
+      this.store,
+      this.workspaceRoot,
+      this.mutationJournal,
+    ).capture(
       scopedWorkflowStep(
         definition,
         context,
@@ -207,7 +278,11 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     root: string | null,
     context?: WorkflowStepExecutionContext,
   ) {
-    return new WorkflowWorkspaceValidation(this.store, this.workspaceRoot).verify(
+    return new WorkflowWorkspaceValidation(
+      this.store,
+      this.workspaceRoot,
+      this.mutationJournal,
+    ).verify(
       receipt,
       scopedWorkflowStep(
         definition,
@@ -216,6 +291,7 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
       ),
       snapshot,
       root,
+      context,
     );
   }
   async collectOutputs(
@@ -336,7 +412,11 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
       }
     }
     const collected = definition
-      ? await new WorkflowWorkspaceValidation(this.store, this.workspaceRoot).collect(
+      ? await new WorkflowWorkspaceValidation(
+          this.store,
+          this.workspaceRoot,
+          this.mutationJournal,
+        ).collect(
           snapshot,
           scopedWorkflowStep(
             definition,
@@ -344,6 +424,10 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
             context ? (this.workflows?.detail(context.workflowRunId) ?? undefined) : undefined,
           ),
           boundWorkspaceRoot,
+          context,
+          context
+            ? this.workflows?.detail(context.workflowRunId)?.version.contractManifest
+            : undefined,
         )
       : snapshot;
     if (definition?.artifactPathScope === 'RUN_ATTEMPT') {

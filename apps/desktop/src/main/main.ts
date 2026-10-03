@@ -20,6 +20,7 @@ import {
   R4RoutingRepository,
   W1WorkflowRepository,
   W2WorkflowRepository,
+  W22WorkspaceMutationRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -87,6 +88,13 @@ import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.j
 import { installOfficialBuiltinWorkflows } from './w2-builtin-installation.js';
 import { officialWorkflowValidationPolicies } from './w21-validation-policy.js';
 import { NewsWorkflowFixtureGateway } from './w21-fixture.js';
+import { SoftwareWorkflowFixtureGateway } from './w22-fixture.js';
+import {
+  softwareWorkflowValidationPolicy,
+  softwareToolScope,
+  verifiedSoftwareFacts,
+} from './w22-validation-policy.js';
+import { WorkflowToolGuard } from './w22-workspace-mutations.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -364,33 +372,51 @@ if (!squirrelStartup)
         return { ok: result.ok, model: result.model };
       });
       const workflowStore = new W1WorkflowRepository(db);
+      const workspaceMutations = new W22WorkspaceMutationRepository(db);
       const rawGateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
         process.argv.includes('--gate1-fake-model')
-          ? process.argv.includes('--w21-fake-news')
-            ? new NewsWorkflowFixtureGateway(
-                () => {
-                  for (const run of workflowStore
-                    .listRuns()
-                    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
-                    const detail = workflowStore.detail(run.id)!;
-                    const step = detail.steps.find(
-                      (item) =>
-                        ['RUNNING', 'WAITING'].includes(item.state) &&
-                        item.missionId !== null &&
-                        gate3Store.getMission(item.missionId)?.state === 'RUNNING',
-                    );
-                    if (step && detail.version.validationPolicy === 'news-integrity-v1')
-                      return { detail, step };
-                  }
-                  return null;
-                },
-                join(process.cwd(), 'scripts', 'fixtures', 'news-media'),
-              )
-            : process.argv.includes('--w2-fake-workflow')
-              ? new ContractFixtureGateway()
-              : process.argv.includes('--w1-fake-workflow')
-                ? new WorkflowFixtureGateway()
-                : new FakeModelGateway()
+          ? process.argv.includes('--w22-fake-software')
+            ? new SoftwareWorkflowFixtureGateway(() => {
+                for (const run of workflowStore
+                  .listRuns()
+                  .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
+                  const detail = workflowStore.detail(run.id)!;
+                  const step = detail.steps.find(
+                    (item) =>
+                      ['RUNNING', 'WAITING'].includes(item.state) &&
+                      item.missionId !== null &&
+                      gate3Store.getMission(item.missionId)?.state === 'RUNNING',
+                  );
+                  if (step && detail.version.validationPolicy === 'software-integrity-v1')
+                    return { detail, step };
+                }
+                return null;
+              })
+            : process.argv.includes('--w21-fake-news')
+              ? new NewsWorkflowFixtureGateway(
+                  () => {
+                    for (const run of workflowStore
+                      .listRuns()
+                      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
+                      const detail = workflowStore.detail(run.id)!;
+                      const step = detail.steps.find(
+                        (item) =>
+                          ['RUNNING', 'WAITING'].includes(item.state) &&
+                          item.missionId !== null &&
+                          gate3Store.getMission(item.missionId)?.state === 'RUNNING',
+                      );
+                      if (step && detail.version.validationPolicy === 'news-integrity-v1')
+                        return { detail, step };
+                    }
+                    return null;
+                  },
+                  join(process.cwd(), 'scripts', 'fixtures', 'news-media'),
+                )
+              : process.argv.includes('--w2-fake-workflow')
+                ? new ContractFixtureGateway()
+                : process.argv.includes('--w1-fake-workflow')
+                  ? new WorkflowFixtureGateway()
+                  : new FakeModelGateway()
           : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
       const availability = new AvailabilityService(
         new R32AvailabilityRepository(db),
@@ -491,7 +517,34 @@ if (!squirrelStartup)
         gateway,
         promptContext,
       );
-      const toolRuntime = new ToolRuntime(registry, permissionEngine);
+      const toolRuntime = new ToolRuntime(
+        registry,
+        permissionEngine,
+        new WorkflowToolGuard(
+          {
+            findStepByMissionId: (id) => workflowStore.findStepByMissionId(id),
+            detail: (id) => workflowStore.detail(id),
+            bindMissionRun: (step, context) => {
+              const run = gate3Store.getRun(context.runId);
+              if (
+                !run ||
+                run.missionId !== context.missionId ||
+                run.status !== 'RUNNING' ||
+                gate3Store.listRuns(context.missionId).at(-1)?.id !== run.id
+              )
+                throw new Error('Workflow Tool must use the actual current MissionRun');
+              if (step.missionRunId === run.id) return step;
+              const bound = { ...step, missionRunId: run.id, updatedAt: new Date().toISOString() };
+              if (!workflowStore.saveStep(bound, step.state))
+                throw new Error('Workflow MissionRun binding changed');
+              return bound;
+            },
+          },
+          workspaceMutations,
+          () => tools.getWorkspace().rootPath,
+          (detail) => softwareToolScope(detail),
+        ),
+      );
       missions.attachTools(toolRuntime, gate4Store);
       const parties = new Gate5PartyService(gate5Store, store);
       const r3Observer = new R3ShadowMissionObserver(
@@ -658,6 +711,7 @@ if (!squirrelStartup)
         () => tools.getWorkspace().rootPath,
         workflowStore,
         () => registry.list(),
+        workspaceMutations,
       );
       if (
         process.argv.includes('--w1-fake-workflow') &&
@@ -681,12 +735,17 @@ if (!squirrelStartup)
           return verify(...args);
         };
       }
+      const workflowPolicies = officialWorkflowValidationPolicies();
+      workflowPolicies.register(
+        'software-integrity-v1',
+        softwareWorkflowValidationPolicy(verifiedSoftwareFacts(workspaceMutations, gate3Store)),
+      );
       const workflows = new WorkflowService(
         workflowStore,
         workflowMissions,
         undefined,
         workflowFoundation,
-        officialWorkflowValidationPolicies(),
+        workflowPolicies,
       );
       installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
       if (

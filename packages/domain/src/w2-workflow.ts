@@ -33,6 +33,7 @@ export type ArtifactContractValidator =
       readonly type: 'WORKSPACE_MANIFEST';
       readonly maxEntries: number;
       readonly allowedPaths: readonly string[];
+      readonly dynamicPaths?: boolean;
       readonly requireBeforeHash: boolean;
     };
 
@@ -120,6 +121,7 @@ export interface WorkflowEffectManifestEntry {
   stepId: string;
   effectType: WorkflowStepDefinition['effectType'];
   paths: string[];
+  pathMode?: 'DYNAMIC';
 }
 
 export interface WorkflowReleaseMetadata {
@@ -288,12 +290,19 @@ function validateArtifactContractValidator(
     case 'WORKSPACE_MANIFEST':
       if (
         kind !== 'WORKSPACE' ||
-        !exactKeys(validator, ['type', 'maxEntries', 'allowedPaths', 'requireBeforeHash']) ||
+        !exactKeys(validator, [
+          'type',
+          'maxEntries',
+          'allowedPaths',
+          'requireBeforeHash',
+          'dynamicPaths',
+        ]) ||
         !Number.isSafeInteger(validator.maxEntries) ||
         (validator.maxEntries as number) < 1 ||
         (validator.maxEntries as number) > W2_CONTRACT_POLICY.maxEntries ||
         !validatePaths(validator.allowedPaths) ||
-        validator.allowedPaths.length < 1 ||
+        (validator.allowedPaths.length < 1 && validator.dynamicPaths !== true) ||
+        (validator.dynamicPaths !== undefined && validator.dynamicPaths !== true) ||
         typeof validator.requireBeforeHash !== 'boolean'
       )
         invalid('Invalid bounded workspace manifest rules');
@@ -655,13 +664,15 @@ function validateReleaseMetadata(version: WorkflowVersion): void {
       stepId: step.id,
       effectType: step.effectType,
       paths: [...(step.effectPaths ?? [])].sort(),
+      ...(step.effectPathMode ? { pathMode: step.effectPathMode } : {}),
     }))
     .sort((left, right) => left.stepId.localeCompare(right.stepId));
   const listedEffects = metadata.effectManifest
     .map((entry) => {
       if (
         !plain(entry) ||
-        !exactKeys(entry, ['stepId', 'effectType', 'paths']) ||
+        !exactKeys(entry, ['stepId', 'effectType', 'paths', 'pathMode']) ||
+        (entry.pathMode !== undefined && entry.pathMode !== 'DYNAMIC') ||
         typeof entry.stepId !== 'string' ||
         !Array.isArray(entry.paths) ||
         entry.paths.some((path) => typeof path !== 'string')
@@ -671,6 +682,7 @@ function validateReleaseMetadata(version: WorkflowVersion): void {
         stepId: entry.stepId,
         effectType: entry.effectType,
         paths: [...entry.paths].sort(),
+        ...(entry.pathMode ? { pathMode: entry.pathMode } : {}),
       };
     })
     .sort((left, right) => left.stepId.localeCompare(right.stepId));
@@ -718,7 +730,8 @@ export function validateW2WorkflowVersion(version: WorkflowVersion): void {
     if (
       manifest !== undefined &&
       (((step.effectType === 'FILE_OUTPUT' || step.effectType === 'WORKSPACE_MUTATION') &&
-        pathCount === 0) ||
+        pathCount === 0 &&
+        step.effectPathMode !== 'DYNAMIC') ||
         ((step.effectType === 'NONE' || step.effectType === 'EXTERNAL_ACTION') && pathCount > 0))
     )
       invalid('Step effectPaths do not match its declared side effect');
@@ -900,7 +913,9 @@ export function validateArtifactContract(
         manifest.entries,
         contract.validator.maxEntries,
         contract.maxSizeBytes,
-        contract.validator.allowedPaths,
+        contract.validator.type === 'WORKSPACE_MANIFEST' && contract.validator.dynamicPaths === true
+          ? undefined
+          : contract.validator.allowedPaths,
         contract.validator.type === 'DIRECTORY_MANIFEST' ? 'DIRECTORY' : 'WORKSPACE',
         contract.validator.type === 'DIRECTORY_MANIFEST' ? contract.validator.requireHashes : false,
         contract.validator.type === 'WORKSPACE_MANIFEST'

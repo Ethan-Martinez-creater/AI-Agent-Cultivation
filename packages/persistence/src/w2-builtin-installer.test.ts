@@ -230,17 +230,17 @@ describe('W2 trusted Builtin installer', () => {
     expect(writes).toBe(0);
   });
 
-  it('installs only the static official news package in production, idempotently', () => {
+  it('installs only the static official packages in production, idempotently', () => {
     const db = database();
     try {
-      expect(OFFICIAL_BUILTIN_WORKFLOW_PACKAGES).toHaveLength(1);
+      expect(OFFICIAL_BUILTIN_WORKFLOW_PACKAGES).toHaveLength(2);
       expect(OFFICIAL_BUILTIN_WORKFLOW_PACKAGES[0]!.version.definition.id).toBe(
         'official.ai-news-video',
       );
       expect(Object.isFrozen(OFFICIAL_BUILTIN_WORKFLOW_PACKAGES)).toBe(true);
       installOfficialBuiltinWorkflows(new W1WorkflowRepository(db), new W2WorkflowRepository(db));
       expect(new W1WorkflowRepository(db).listVersions().map((item) => item.definition.id)).toEqual(
-        ['official.ai-news-video'],
+        ['official.ai-news-video', 'official.software-feature'],
       );
       const first = counts(db);
       installOfficialBuiltinWorkflows(new W1WorkflowRepository(db), new W2WorkflowRepository(db));

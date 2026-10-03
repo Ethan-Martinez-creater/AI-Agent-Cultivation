@@ -37,5 +37,17 @@ export const AI_NEWS_VIDEO_INPUT_PRESENTATION: WorkflowInputPresentation = {
 export function workflowInputPresentationFor(
   definitionId: string,
 ): WorkflowInputPresentation | undefined {
+  if (definitionId === 'official.software-feature')
+    return {
+      fieldLabels: {
+        objective: '开发目标',
+        workspaceRoot: '项目 Workspace',
+        constraints: '约束',
+        targetArea: '允许修改的相对路径 / 模块',
+        userAcceptanceNotes: '人工验收要求',
+        allowedToolScope: '确认允许使用的工具 ID',
+        contextArtifacts: '参考资料',
+      },
+    };
   return definitionId === 'official.ai-news-video' ? AI_NEWS_VIDEO_INPUT_PRESENTATION : undefined;
 }

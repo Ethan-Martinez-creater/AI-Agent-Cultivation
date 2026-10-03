@@ -118,8 +118,25 @@ const newsPhaseNames: Record<string, string> = {
   assets: '素材',
   production: '制作',
   review: '审核',
+  understanding: '理解',
+  implementation: '开发',
+  code_review: '审查',
+  delivery: '交付',
 };
-function phaseName(value: string): string {
+function phaseName(value: string, definitionId?: string): string {
+  if (definitionId === 'official.software-feature')
+    return (
+      (
+        {
+          understanding: '理解',
+          planning: '规划',
+          development: '开发',
+          verification: '验证',
+          review: '审查',
+          delivery: '交付',
+        } as Record<string, string>
+      )[value] ?? value
+    );
   return newsPhaseNames[value] ?? value;
 }
 const newsResultNames: Record<string, string> = {
@@ -130,6 +147,18 @@ const newsResultNames: Record<string, string> = {
   'news.asset_registry': '素材清单',
   'news.qa_report': '质量检查',
   'news.production_summary': '制作摘要',
+  'software.repo_context': '项目分析',
+  'software.spec': '功能规格',
+  'software.acceptance': '验收标准',
+  'software.plan': '实施计划',
+  'software.changes': 'Workspace 变更',
+  'software.tests': '验证报告',
+  'software.review': '代码审查',
+  'software.plan_review': '方案审查',
+  'software.code_review': '独立代码审查',
+  'software.plan_scope': '实施范围',
+  'software.fix_summary': '修复摘要',
+  'software.delivery': '交付摘要',
 };
 
 function workflowName(definition: WorkflowVersion['definition']): string {
@@ -629,12 +658,18 @@ export function WorkflowsPage() {
                     <h2>{workflowName(detail.version.definition)}</h2>
                     <div className="object-header-meta">
                       <span>
-                        当前步骤：
-                        {currentStep?.step.phase
-                          ? phaseName(currentStep.step.phase)
-                          : (currentStep?.step.title ?? '全部步骤已结束')}
-                        {currentStep && currentStep.state !== 'PENDING' && (
-                          <> · {stepLabels[currentStep.state]}</>
+                        {detail.run.state === 'COMPLETED' ? (
+                          '全部步骤已结束'
+                        ) : (
+                          <>
+                            当前步骤：
+                            {currentStep?.step.phase
+                              ? phaseName(currentStep.step.phase, detail?.version.definition.id)
+                              : (currentStep?.step.title ?? '全部步骤已结束')}
+                            {currentStep && currentStep.state !== 'PENDING' && (
+                              <> · {stepLabels[currentStep.state]}</>
+                            )}
+                          </>
                         )}
                       </span>
                       <span>
@@ -856,7 +891,13 @@ export function WorkflowsPage() {
                         const active =
                           group.find(({ state }) => !['COMPLETED', 'SKIPPED'].includes(state)) ??
                           group.at(-1)!;
-                        return { ...active, step: { ...active.step, title: phaseName(phase) } };
+                        return {
+                          ...active,
+                          step: {
+                            ...active.step,
+                            title: phaseName(phase, detail?.version.definition.id),
+                          },
+                        };
                       })
                     : stepStates
                   ).map(({ step, state }, index) => {

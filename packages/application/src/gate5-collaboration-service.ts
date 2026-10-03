@@ -1,4 +1,5 @@
 import { workflowToolEvidence } from './workflow-tool-evidence.js';
+import { createHash } from 'node:crypto';
 import type {
   ApprovalRequest,
   AuditEvent,
@@ -2244,6 +2245,8 @@ export class Gate5CollaborationService {
   ): void {
     this.record(mission, run.id, 'tool.result', 'TEAMMATE', teammateId, {
       teammateId,
+      toolCallId: result.toolCallId,
+      outputHash: createHash('sha256').update(result.content).digest('hex'),
       toolId: result.toolId,
       source,
       capability,

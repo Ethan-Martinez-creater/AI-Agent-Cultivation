@@ -60,6 +60,11 @@ function parseJson(content: string): unknown {
 }
 
 export interface WorkflowValidationPolicyPort {
+  /** Trusted deterministic branch computation; only declared branches may be selected. */
+  decisionBranch?(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+  ): string | { branch: string; waitForUser: boolean };
   validateInputs(version: WorkflowVersion, inputs: WorkflowInputs): void;
   validateStep(
     detail: WorkflowDetail,
@@ -865,7 +870,11 @@ export class WorkflowService {
       const registryContract = detail.version.contractManifest?.find(
         (c) => c.contractId === spec.contractId && c.contractVersion === spec.contractVersion,
       );
-      if (registryContract?.kind === 'WORKSPACE' && spec.kind === 'DIRECTORY')
+      if (
+        registryContract?.kind === 'WORKSPACE' &&
+        spec.kind === 'DIRECTORY' &&
+        definition.effectType === 'WORKSPACE_MUTATION'
+      )
         content = JSON.stringify({ entries: this.operation(detail, step)?.manifest ?? [] });
       const metadata = usesEnvelope ? { ...source.metadata, outputKey: spec.key } : source.metadata;
       const artifact: WorkflowArtifact = {
@@ -1076,9 +1085,24 @@ export class WorkflowService {
     return matches.length === 1 ? matches[0]! : undefined;
   }
   private completeDecision(detail: WorkflowDetail, step: WorkflowStepRun): boolean {
-    const edge = this.chooseEdge(detail, step);
+    const decision = this.policyForVersion(detail.version)?.decisionBranch?.(detail, step);
+    const branch = typeof decision === 'string' ? decision : decision?.branch;
+    const selected =
+      branch === undefined
+        ? undefined
+        : detail.version.edges.filter((e) => e.fromStepId === step.stepId && e.branch === branch);
+    const edge =
+      selected === undefined
+        ? this.chooseEdge(detail, step)
+        : selected.length === 1
+          ? selected[0]
+          : undefined;
     if (!edge) {
       this.wait(step, 'DECISION', 'NO_UNAMBIGUOUS_DECLARED_BRANCH');
+      return false;
+    }
+    if (typeof decision === 'object' && decision.waitForUser) {
+      this.wait(step, 'USER_CONFIRMATION', `DECISION_${decision.branch}`);
       return false;
     }
     if (this.definition(detail, step).confirmationRequired === true) {
@@ -1270,7 +1294,11 @@ export class WorkflowService {
       })) ?? [];
     if (root !== (this.missions.workspaceIdentity?.() ?? null))
       throw new DomainError('WORKFLOW_WORKSPACE_CHANGED', '准备执行期间 Workspace 已改变');
-    if (['FILE_OUTPUT', 'WORKSPACE_MUTATION'].includes(definition.effectType) && !manifest.length)
+    if (
+      ['FILE_OUTPUT', 'WORKSPACE_MUTATION'].includes(definition.effectType) &&
+      !manifest.length &&
+      definition.effectPathMode !== 'DYNAMIC'
+    )
       throw new DomainError('WORKFLOW_OPERATION_INVALID', '副作用路径无法确认');
     const at = this.clock.now();
     this.foundation!.prepareOperation({

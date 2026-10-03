@@ -8,6 +8,8 @@ export interface RoutingTaskContext {
   executionConstraint?: 'AUTO' | 'SOLO' | 'PARTY' | 'HUMAN_BRIDGE';
   explicitTeammateId?: string;
   explicitPartyId?: string;
+  /** Trusted execution preparation may exclude prior implementers from independent review. */
+  excludedTeammateIds?: string[];
   partyMode?: Exclude<MissionMode, 'SOLO'>;
   inputArtifactMetadata?: Array<{ id: string; name: string; kind: string; mimeType?: string }>;
   expectedOutputContract?: {

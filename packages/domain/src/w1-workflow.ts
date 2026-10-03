@@ -85,7 +85,9 @@ export interface WorkflowStepDefinition {
   confirmationRequired?: boolean;
   /** Purpose-specific execution routing requirement resolved by the Main adapter. */
   executionRequirements?: {
-    toolPurpose: 'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY';
+    toolPurpose?: 'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY';
+    independentReviewOfStepIds?: string[];
+    requiredToolScope?: boolean;
   };
   /** Main adapter scopes declared paths to this Workflow Step attempt. */
   artifactPathScope?: 'RUN_ATTEMPT';
@@ -95,6 +97,8 @@ export interface WorkflowStepDefinition {
   effectType: 'NONE' | 'FILE_OUTPUT' | 'WORKSPACE_MUTATION' | 'EXTERNAL_ACTION';
   /** Explicit relative paths the Main adapter may inspect for declared side effects. */
   effectPaths?: string[];
+  /** Trusted Main journals actual paths before each permission-gated mutation. */
+  effectPathMode?: 'DYNAMIC';
 }
 export interface WorkflowEdge {
   id: string;
@@ -439,12 +443,39 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
       (!s.executionRequirements ||
         typeof s.executionRequirements !== 'object' ||
         Object.getPrototypeOf(s.executionRequirements) !== Object.prototype ||
-        Object.keys(s.executionRequirements).some((key) => key !== 'toolPurpose') ||
-        !['RESEARCH', 'ASSET_COLLECTION', 'VOICEOVER', 'VIDEO_ASSEMBLY'].includes(
-          s.executionRequirements.toolPurpose,
-        ))
+        Object.keys(s.executionRequirements).some(
+          (key) =>
+            !['toolPurpose', 'independentReviewOfStepIds', 'requiredToolScope'].includes(key),
+        ) ||
+        (s.executionRequirements.toolPurpose !== undefined &&
+          !['RESEARCH', 'ASSET_COLLECTION', 'VOICEOVER', 'VIDEO_ASSEMBLY'].includes(
+            s.executionRequirements.toolPurpose,
+          )) ||
+        (s.executionRequirements.requiredToolScope !== undefined &&
+          typeof s.executionRequirements.requiredToolScope !== 'boolean') ||
+        (s.executionRequirements.independentReviewOfStepIds !== undefined &&
+          (s.type !== 'REVIEW' ||
+            !Array.isArray(s.executionRequirements.independentReviewOfStepIds) ||
+            !s.executionRequirements.independentReviewOfStepIds.length ||
+            s.executionRequirements.independentReviewOfStepIds.some(
+              (id) => id === s.id || !value.steps.some((step) => step.id === id),
+            ))))
     )
       invalid('Invalid Step execution requirement');
+    if (
+      (s.effectPathMode !== undefined ||
+        s.executionRequirements?.independentReviewOfStepIds ||
+        s.executionRequirements?.requiredToolScope) &&
+      (!value.validationPolicy || value.definition.source !== 'BUILTIN')
+    )
+      invalid('Trusted execution requirements require a builtin validation policy');
+    if (
+      s.effectPathMode !== undefined &&
+      (s.effectPathMode !== 'DYNAMIC' ||
+        s.effectType !== 'WORKSPACE_MUTATION' ||
+        (s.effectPaths?.length ?? 0) > 0)
+    )
+      invalid('Dynamic paths are only supported for journaled Workspace mutation');
     if (
       s.artifactPathScope !== undefined &&
       (s.artifactPathScope !== 'RUN_ATTEMPT' ||

@@ -23,6 +23,7 @@ import w1WorkflowIoSql from '../../../migrations/0018_w1_workflow_io.sql?raw';
 import w2BuiltinWorkflowContractSql from '../../../migrations/0019_w2_builtin_workflow_contract.sql?raw';
 import w21AiNewsVideoSql from '../../../migrations/0020_w21_ai_news_video.sql?raw';
 import w21ToolPurposeBindingsSql from '../../../migrations/0021_w21_tool_purpose_bindings.sql?raw';
+import w22SoftwareFeatureSql from '../../../migrations/0022_w22_software_feature.sql?raw';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
 
@@ -37,6 +38,11 @@ export { R4RoutingRepository } from './r4-routing.js';
 export type { RoutingMissionAssignmentRecord, RoutingHumanBridgeDraft } from './r4-routing.js';
 export { W1WorkflowRepository } from './w1-workflow.js';
 export { W2WorkflowRepository } from './w2-workflow.js';
+export { W22WorkspaceMutationRepository } from './w22-workspace-mutations.js';
+export type {
+  WorkspaceMutationIntent,
+  WorkspaceVerificationFact,
+} from './w22-workspace-mutations.js';
 export type { WorkflowBuiltinReleaseFact } from './w2-workflow.js';
 
 export { Gate2SqliteRepository, MEMORY_FTS_SEARCH_QUERY, MEMORY_SCOPE_QUERY } from './gate2.js';
@@ -109,6 +115,7 @@ export const migrations: readonly Migration[] = [
   { version: 19, name: 'w2_builtin_workflow_contract', sql: w2BuiltinWorkflowContractSql },
   { version: 20, name: 'w21_ai_news_video', sql: w21AiNewsVideoSql },
   { version: 21, name: 'w21_tool_purpose_bindings', sql: w21ToolPurposeBindingsSql },
+  { version: 22, name: 'w22_software_feature', sql: w22SoftwareFeatureSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
