@@ -285,6 +285,7 @@ export interface ApprovalRequestView {
 }
 
 export interface ToolDescriptorView {
+  workflowPurposes?: import('@cultivation/domain').ToolPurpose[];
   id: string;
   name: string;
   description: string;
@@ -533,6 +534,10 @@ export interface CultivationBridge {
     getWorkspace(): Promise<{ rootPath: string | null }>;
     chooseWorkspace(): Promise<{ rootPath: string | null }>;
     listBuiltins(): Promise<ToolDescriptorView[]>;
+    setToolPurposes(input: {
+      toolId: string;
+      purposes: import('@cultivation/domain').ToolPurpose[];
+    }): Promise<ToolDescriptorView>;
     listMcpServers(): Promise<McpServerConfigView[]>;
     saveMcpServer(input: {
       id?: string;

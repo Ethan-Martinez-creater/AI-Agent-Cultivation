@@ -143,6 +143,7 @@ export interface SkillAssignment {
 }
 
 export type ToolSource = 'BUILTIN' | 'MCP';
+export type ToolPurpose = 'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY';
 export type RiskLevel = 'READ_ONLY' | 'LOW' | 'MEDIUM' | 'HIGH';
 export type SideEffect = 'NONE' | 'LOCAL_WRITE' | 'EXTERNAL_WRITE' | 'PROCESS_EXECUTION';
 export interface ToolDescriptor {
@@ -154,8 +155,8 @@ export interface ToolDescriptor {
   riskLevel: RiskLevel;
   sideEffect: SideEffect;
   capability: PermissionCapability;
-  /** Discovery metadata only; never grants permission or execution authority. */
-  workflowPurposes?: Array<'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY'>;
+  /** Main-owned eligibility metadata; never grants permission or execution authority. */
+  workflowPurposes?: ToolPurpose[];
 }
 
 /** User-configured stdio MCP server settings. Only environment variable names are stored. */

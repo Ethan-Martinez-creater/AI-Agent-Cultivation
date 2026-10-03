@@ -22,6 +22,7 @@ import w1WorkflowFoundationSql from '../../../migrations/0017_w1_workflow_founda
 import w1WorkflowIoSql from '../../../migrations/0018_w1_workflow_io.sql?raw';
 import w2BuiltinWorkflowContractSql from '../../../migrations/0019_w2_builtin_workflow_contract.sql?raw';
 import w21AiNewsVideoSql from '../../../migrations/0020_w21_ai_news_video.sql?raw';
+import w21ToolPurposeBindingsSql from '../../../migrations/0021_w21_tool_purpose_bindings.sql?raw';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
 
@@ -107,6 +108,7 @@ export const migrations: readonly Migration[] = [
   { version: 18, name: 'w1_workflow_io', sql: w1WorkflowIoSql },
   { version: 19, name: 'w2_builtin_workflow_contract', sql: w2BuiltinWorkflowContractSql },
   { version: 20, name: 'w21_ai_news_video', sql: w21AiNewsVideoSql },
+  { version: 21, name: 'w21_tool_purpose_bindings', sql: w21ToolPurposeBindingsSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

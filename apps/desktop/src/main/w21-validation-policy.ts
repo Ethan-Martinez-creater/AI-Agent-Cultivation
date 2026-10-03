@@ -1,4 +1,5 @@
 import type { WorkflowValidationPolicyPort } from '@cultivation/application';
+import { WorkflowValidationPolicyRegistry } from '@cultivation/application';
 import { DomainError } from '@cultivation/shared';
 import {
   validateNewsInputs,
@@ -42,3 +43,9 @@ export const newsWorkflowValidationPolicy: WorkflowValidationPolicyPort = {
     }
   },
 };
+
+export function officialWorkflowValidationPolicies(): WorkflowValidationPolicyRegistry {
+  const registry = new WorkflowValidationPolicyRegistry();
+  registry.register('news-integrity-v1', newsWorkflowValidationPolicy);
+  return registry;
+}

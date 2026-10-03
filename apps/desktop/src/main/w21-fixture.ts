@@ -357,6 +357,20 @@ export class NewsWorkflowFixtureGateway extends FakeModelGateway {
 
     const evidence = extractSuccessfulToolEvidence(request);
     const purpose = toolPurpose(detail, step);
+    if (step.stepId === 'N11') {
+      const voice = acceptance.files.find((file) => file.outputKey === 'news.voiceover');
+      if (
+        !voice ||
+        !evidence.some((item) =>
+          item.artifactFiles?.some(
+            (file) =>
+              file.path === `workflows/${detail.run.id}/${step.id}/output/voice.wav` &&
+              file.contentHash === createHash('sha256').update(voice.bytes).digest('hex'),
+          ),
+        )
+      )
+        throw new Error('W2.1 voiceover requires a successful MCP file hash proof');
+    }
     if (purpose === 'RESEARCH') {
       const actualSources = successfulResearchSources(evidence);
       if (!actualSources.length || !sameResearchFacts(acceptance.researchSources, actualSources))
@@ -385,7 +399,7 @@ export class NewsWorkflowFixtureGateway extends FakeModelGateway {
       return super.generateWithTools(request);
     const { detail, step } = context;
     const purpose = toolPurpose(detail, step);
-    if (purpose !== 'RESEARCH' && purpose !== 'VIDEO_ASSEMBLY')
+    if (purpose !== 'RESEARCH' && purpose !== 'VIDEO_ASSEMBLY' && purpose !== 'VOICEOVER')
       return super.generateWithTools(request);
     if (request.messages.some((message) => message.role === 'tool'))
       return super.generateWithTools(request);
@@ -416,6 +430,17 @@ export class NewsWorkflowFixtureGateway extends FakeModelGateway {
       );
       input.sourceMediaName = media.sourceMediaName;
       input.outputPath = outputPath;
+    }
+    if (purpose === 'VOICEOVER') {
+      const acceptance = (await loadAcceptanceFactory()).createAiNewsAcceptanceOutput({
+        stepId: step.stepId,
+        workflowInputs,
+        priorArtifacts: getPriorArtifacts(detail),
+        inputArtifactIds: getInputArtifactIds(detail, step),
+      });
+      const voice = acceptance.files.find((file) => file.outputKey === 'news.voiceover');
+      if (!voice) throw new Error('Voice fixture output missing');
+      input.outputPath = `workflows/${detail.run.id}/${step.id}/output/voice.wav`;
     }
     const base = await super.generate(request);
     return {

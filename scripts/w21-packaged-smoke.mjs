@@ -201,6 +201,56 @@ async function refreshMcpServer(page, serverId) {
   return result;
 }
 
+async function workflowUi(page) {
+  await navigateUi(page, '历练 Missions');
+  await page.getByRole('link', { name: '工作流历练', exact: true }).click();
+  await page.locator('.workflow-workspace').waitFor();
+}
+
+async function createNewsRunThroughUi(page, inputs) {
+  await workflowUi(page);
+  await page.getByRole('button', { name: '新建运行', exact: true }).click();
+  await page.locator('#workflow-version-select').selectOption('official.ai-news-video::1');
+  for (const [key, value] of Object.entries(inputs)) {
+    if (value && typeof value === 'object') {
+      for (const [child, entry] of Object.entries(value))
+        await page.locator(`#workflow-input-${key}-${child}`).fill(String(entry));
+    } else if (['targetPlatform', 'narrationMode'].includes(key))
+      await page.locator(`#workflow-input-${key}`).selectOption(value);
+    else await page.locator(`#workflow-input-${key}`).fill(String(value));
+  }
+  const visible = await page.locator('.workflow-launch-drawer').innerText();
+  assert.ok(
+    !/YOUTUBE_SHORTS|YOUTUBE_LONG|MODEL_OR_TOOL|\bBILIBILI\b|\bGENERIC\b|\bHUMAN\b|\bAUTO\b/.test(
+      visible,
+    ),
+  );
+  await page.screenshot({ path: join(evidence, '03-w21-ui-create.png'), fullPage: true });
+  await page.locator('.workflow-launch-drawer .drawer-content').evaluate((element) => {
+    element.scrollTop = 0;
+  });
+  await page.screenshot({ path: join(evidence, '05-w21-ui-template-inputs.png'), fullPage: true });
+  await page.getByRole('button', { name: '创建运行', exact: true }).click();
+  await page.getByRole('button', { name: '开始执行', exact: true }).waitFor();
+  const run = read((db) =>
+    db.prepare('SELECT id FROM workflow_runs ORDER BY created_at DESC LIMIT 1').get(),
+  );
+  assert.ok(run?.id);
+  await page.getByRole('button', { name: '开始执行', exact: true }).click();
+  return detail(page, run.id);
+}
+
+async function advanceFromUi(page, runId) {
+  await workflowUi(page);
+  const action = page
+    .locator('.workflow-actions')
+    .getByRole('button', { name: /开始执行|同步并检查等待状态|检查进度并继续/ });
+  await action.waitFor();
+  await action.click();
+  await page.getByRole('status').filter({ hasText: '状态已同步' }).waitFor();
+  return detail(page, runId);
+}
+
 async function detail(page, runId) {
   return page.evaluate((id) => window.cultivation.workflows.detail(id), runId);
 }
@@ -616,10 +666,12 @@ async function driveRun(liveRef, serverId, runId, options = {}) {
     }
 
     approvalJustResolved = false;
-    const advanced = await liveRef.current.page.evaluate(
-      (id) => window.cultivation.workflows.advance(id),
-      runId,
-    );
+    const advanced = options.uiActions
+      ? await advanceFromUi(liveRef.current.page, runId)
+      : await liveRef.current.page.evaluate(
+          (id) => window.cultivation.workflows.advance(id),
+          runId,
+        );
     assert.ok(
       advanced.run.state !== 'FAILED',
       `Workflow failed during ${current?.stepId ?? 'advance'}`,
@@ -733,7 +785,9 @@ try {
       );
       if (!teammate) throw new Error('Fixture teammate is missing');
       const runtimeId = teammate.currentRuntimeProfileId;
-      for (const dimension of dimensions) {
+      for (const dimension of dimensions.filter(
+        (dimension) => !['SPEECH_GENERATION', 'VIDEO_EDITING'].includes(dimension),
+      )) {
         await api.capability.saveBenchmark({
           runtimeProfileId: runtimeId,
           modelAlias: 'w21-fixture-model',
@@ -785,26 +839,80 @@ try {
     cwd: server.cwd,
   };
   const discovered = await refreshMcpServer(live.current.page, server.id);
+  assert.ok(
+    discovered.tools.every((tool) => !tool.workflowPurposes?.length),
+    'ordinary MCP starts with no local purpose bindings',
+  );
+  await navigateUi(live.current.page, '工具与 MCP');
+  await live.current.page.getByRole('button', { name: '连接并发现工具', exact: true }).click();
+  const purposes = { research_news: '研究检索', assemble_video: '视频制作', voiceover: '配音' };
+  for (const [name, purpose] of Object.entries(purposes)) {
+    const descriptor = discovered.tools.find((tool) => tool.id === `${server.id}:${name}`);
+    assert.ok(descriptor);
+    const card = live.current.page.locator('.tool-descriptor-row').filter({
+      has: live.current.page.getByRole('heading', { name: descriptor.name, exact: true }),
+    });
+    await card.getByLabel(purpose, { exact: true }).click();
+    await poll(
+      (db) =>
+        db
+          .prepare('SELECT 1 FROM tool_purpose_bindings WHERE tool_id=? AND purpose=?')
+          .get(
+            `${server.id}:${name}`,
+            { research_news: 'RESEARCH', assemble_video: 'VIDEO_ASSEMBLY', voiceover: 'VOICEOVER' }[
+              name
+            ],
+          ),
+      `local ${name} binding`,
+    );
+  }
+  await live.current.page.screenshot({
+    path: join(evidence, '04-w21-local-tool-purpose.png'),
+    fullPage: true,
+  });
+  facts.localPurposeBinding = read((db) =>
+    db.prepare('SELECT tool_id,purpose FROM tool_purpose_bindings ORDER BY tool_id').all(),
+  );
   facts.mcpTools = discovered.tools.map((tool) => ({ id: tool.id, name: tool.name }));
 
   for (const testCase of cases) {
-    const created = await live.current.page.evaluate(
-      ({ definitionId, inputs }) =>
-        window.cultivation.workflows.create({ definitionId, version: 1, inputs }),
-      { definitionId: 'official.ai-news-video', inputs: testCase.inputs },
-    );
-    assert.equal(created.run.state, 'READY');
+    const created =
+      testCase.id === 'short'
+        ? await createNewsRunThroughUi(live.current.page, testCase.inputs)
+        : await live.current.page.evaluate(
+            ({ definitionId, inputs }) =>
+              window.cultivation.workflows.create({ definitionId, version: 1, inputs }),
+            { definitionId: 'official.ai-news-video', inputs: testCase.inputs },
+          );
+    assert.ok(['READY', 'RUNNING', 'WAITING'].includes(created.run.state));
     const runId = created.run.id;
     const driveOptions = {
       restartAtN10: testCase.id === 'short',
       crashAfterN12Applied: testCase.id === 'weekly',
+      uiActions: testCase.id === 'short',
     };
     let result = await driveRun(live, server.id, runId, driveOptions);
     while (result.external) {
       if (testCase.id === 'short' && result.external.step.stepId === 'N10') {
         await navigateUi(live.current.page, '本尊待办 Human Bridge');
+        const brief = live.current.page.locator('.human-bridge-request-brief');
+        await brief.waitFor();
+        const text = await brief.innerText();
+        for (const label of ['要做什么', '需要交付', '保存到哪里', '验收重点'])
+          assert.ok(text.includes(label));
+        assert.ok(!/claimSafety|contractId|news\.asset_registry/.test(text));
+        assert.equal(
+          await live.current.page.locator('.human-bridge-delivery-spec').getAttribute('open'),
+          null,
+        );
+        facts.humanBridgePresentation = { actionableBrief: true, fullContractCollapsed: true };
         await live.current.page.screenshot({
           path: join(evidence, '01-w21-human-bridge-waiting.png'),
+          fullPage: true,
+        });
+        await live.current.page.locator('.human-bridge-delivery-spec').scrollIntoViewIfNeeded();
+        await live.current.page.screenshot({
+          path: join(evidence, '06-w21-human-bridge-acceptance.png'),
           fullPage: true,
         });
       }
@@ -814,10 +922,21 @@ try {
     let workflow = result.workflow;
     assert.equal(workflow.run.waitReason, 'USER_CONFIRMATION');
     assert.equal(workflow.run.state, 'WAITING');
-    const confirmation = await live.current.page.evaluate(
-      (id) => window.cultivation.workflows.confirm(id),
-      runId,
-    );
+    if (testCase.id === 'short') {
+      await workflowUi(live.current.page);
+      await live.current.page
+        .getByRole('button', { name: '确认交付，不发布', exact: true })
+        .click();
+      await poll(
+        (db) =>
+          db.prepare("SELECT 1 FROM workflow_runs WHERE id=? AND state='COMPLETED'").get(runId),
+        'UI final confirmation',
+      );
+    }
+    const confirmation =
+      testCase.id === 'short'
+        ? await detail(live.current.page, runId)
+        : await live.current.page.evaluate((id) => window.cultivation.workflows.confirm(id), runId);
     assert.equal(confirmation.run.state, 'COMPLETED');
     workflow = confirmation;
     assert.deepEqual(
@@ -833,6 +952,28 @@ try {
     );
     assert.ok(workflow.artifacts.some((artifact) => artifact.kind === 'DIRECTORY'));
     assert.ok(workflow.validations.every((validation) => validation.valid));
+    const toolExecutions = read((db) =>
+      db
+        .prepare(
+          `SELECT step.step_id,event.event_type,event.payload_json,actor.executor_kind FROM mission_events AS event JOIN workflow_step_runs AS step ON step.mission_id=event.mission_id AND step.mission_run_id=event.run_id JOIN missions AS mission ON mission.id=step.mission_id JOIN teammates AS actor ON actor.id=mission.coordinator_teammate_id WHERE step.workflow_run_id=? AND step.step_id IN ('N11','N12') AND event.event_type='tool.result'`,
+        )
+        .all(runId),
+    );
+    assert.ok(toolExecutions.some((event) => event.step_id === 'N12'));
+    for (const event of toolExecutions) {
+      const payload = JSON.parse(event.payload_json);
+      assert.equal(payload.source, 'MCP');
+      assert.equal(payload.success, true);
+      assert.equal(
+        payload.toolId,
+        `${server.id}:${event.step_id === 'N11' ? 'voiceover' : 'assemble_video'}`,
+      );
+      assert.equal(event.executor_kind, 'MODEL_RUNTIME');
+    }
+    if (testCase.inputs.narrationMode !== 'HUMAN') {
+      assert.ok(toolExecutions.some((event) => event.step_id === 'N11'));
+      assert.ok(!result.fact.humanBridge.some((item) => item.stepId === 'N11'));
+    }
     const outputs = new Map(
       workflow.bindings
         .filter((binding) => binding.role === 'OUTPUT')
@@ -894,6 +1035,8 @@ try {
       restarts: result.fact.restarts,
       eventCounts: runEventSnapshot(runId),
       confirmedByTypedIpc: true,
+      createdAdvancedConfirmedThroughUi: testCase.id === 'short',
+      toolExecutions,
       integrity: {
         deduplicated: true,
         scriptClaimsTraceSources: true,

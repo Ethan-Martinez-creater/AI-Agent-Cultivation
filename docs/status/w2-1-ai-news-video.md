@@ -45,7 +45,7 @@ Reference Basis：[ai-news-video-v1.md](../reference-basis/ai-news-video-v1.md)�
 - 只在 R4 实际选择 Human Bridge 后构造其有界交付草稿，普通模型路径不受人工交付上下文上限干扰。
 - 普通 Chat、SOLO/Party、native tool-call/tool-result、exact grant、Memory isolation、Availability、sealed identity、Experience provenance 继续复用既有实现。
 
-## 验证
+## 初版验证
 
 2026-10-03，Windows x64 / Electron 44.4.3：
 
@@ -91,3 +91,49 @@ Reference Basis：[ai-news-video-v1.md](../reference-basis/ai-news-video-v1.md)�
 - 不内置 Research 服务或剪辑软件，不安装 MCP，不执行任意 Shell。外部能力由用户手动配置的 Tool/MCP 或 Human Bridge 提供。
 - 不实现 VIDEO_GENERATION、GenerationGateway/GenerationJob、自动发布和其他两个官方 Workflow。
 - 生成模型执行规范 v0.2 仅作为未来兼容约束；本轮未实现 G1/G2/G3、MiniMax H3、W2.2/W2.3/W2.4、编辑器或 Import Existing Work。
+
+## W2.1 corrective repair — 2026-10-03
+
+修复基线 `main@86beeac40954e27240ecabd89d96cfb0a37d940f`。仅修复 Foundation integration；`official.ai-news-video@1` 的 Definition、Contract、manifestHash 和 0001–0020 均未修改。无新增依赖。
+
+### Tool Purpose 与执行准备
+
+- 新增 `0021_w21_tool_purpose_bindings.sql`，以 Tool ID + purpose 保存本地多选用途；用途允许 RESEARCH / ASSET_COLLECTION / VOICEOVER / VIDEO_ASSEMBLY。
+- Tools & MCP 对已发现 Tool 提供多选用途，经过 typed IPC、Main discovery 检查和 SQLite 持久化；重新发现或启动恢复本地绑定。MCP 自定义 metadata 不能自行赋予 Workflow eligibility，普通无 metadata 的 server 同样可用。
+- 用途只影响 eligibility，不写 PermissionRule，不授予执行权限。所有调用仍经过 ToolRegistry → input validation → PermissionEngine → Approval/exact grant → ToolRuntime → Event/Audit。
+- RESEARCH 保持 GENERAL_REASONING + TOOL_USE。N11/N12 有对应工具时，在 trusted preparation 覆盖执行要求为 SOLO MODEL_RUNTIME + TOOL_USE；不要求 SPEECH_GENERATION / VIDEO_EDITING Benchmark，不假装 ModelGateway 生成媒体。无工具继续 Human Bridge，HUMAN 配音仍强制本尊。
+
+### UI 与可信校验策略
+
+- 官方新闻输入使用 Renderer-only 中文 presentation mapping：平台、配音方式、时间范围、目标条数等；冻结枚举值和 Run input snapshot 不变。
+- Short 验收真实点击“工作流历练 → 新建运行 → AI 资讯视频 → 填写输入 → 创建运行 → 开始/推进 → 确认交付，不发布”。创建和最终确认均不使用直接调用 create/confirm 的替代路径。
+- 本尊主层展示任务、交付物、保存位置、验收重点；完整 objective、claimSafety、deterministic Contract 和 Artifact ID 保留在默认折叠的“完整交付规范 / 高级信息”。复制完整说明、提交、验收与 continuation authority 保持。
+- 新增 `WorkflowValidationPolicyRegistry`，Main 静态注册 `news-integrity-v1`；领域只允许 BUILTIN 引用有界 policy ID。未知策略 fail closed，无 Renderer 注册接口，无 USER/IMPORTED 执行代码入口。
+- WorkflowService 按 Registry dispatch，不再写死新闻 policy ID；已注册 policy 的严格输出绑定/provenance 防线保持，旧无 policy 的 W1 inline Run 继续兼容。测试另用非新闻 policy ID 证明通用 dispatch，不注册新的生产模板。
+
+### 最终验证
+
+| 命令                    | 结果                                                          |
+| ----------------------- | ------------------------------------------------------------- |
+| `npm run test`          | PASS：74 个文件、615 项测试                                   |
+| `npm run typecheck`     | PASS                                                          |
+| `npm run lint`          | PASS                                                          |
+| `npm run format:check`  | PASS                                                          |
+| `npm run package`       | PASS：Windows x64 / Electron 44.4.3                           |
+| `npm run smoke:package` | PASS：Gate 0–6、R0–R4、W1、W2.0、Product UI System、W2.1 全量 |
+
+新增测试覆盖本地用途持久化、未发现 Tool 拒绝、远端用途不可自行生效、绑定不绕过 Approval、N11/N12 TOOL_USE 准备、显式 HUMAN、Registry 未知/重复拒绝与非新闻 policy dispatch，以及输入中文显示和本尊主层/完整约束分层。
+
+| Case           | 配音 / 制作路径                                             | 其他关键结果                                                  |
+| -------------- | ----------------------------------------------------------- | ------------------------------------------------------------- |
+| 60 秒 Short    | N11 voiceover MCP；N12 assemble_video MCP                   | UI 创建、推进、最终确认；N10 Human Bridge 重启保持；COMPLETED |
+| 5 分钟周报     | N11 voiceover MCP；N12 assemble_video MCP，两次独立 attempt | APPLIED 后终止/恢复零重放；一次 ASSEMBLY revision；COMPLETED  |
+| 产品 Explainer | 显式 HUMAN 的 N11 本尊；N12 assemble_video MCP              | 本尊 ACCEPT 后继续原执行；COMPLETED                           |
+
+上述 MODEL_RUNTIME 未配置 SPEECH_GENERATION / VIDEO_EDITING Benchmark；普通 MCP descriptors 无 cultivation metadata，用途通过可见 UI 绑定。工具验收精确匹配 Step 的 MissionRun、MCP source、Tool ID、success 与实际 MODEL_RUNTIME actor，不借用其他 Run 或其他 Tool 的事件。三例继续验证 dedup、claim/source trace、Artifact/file hash、正式 validation、revision budget 和零自动发布。
+
+### 新证据与限制
+
+证据：[corrective](../evidence/w2-1-ai-news-video/corrective/)，包含 6 张真实 Windows 截图、`w21-facts.json`、完整 packaged log、测试计数和 package log。原始 profile：`.test-data/w21-packaged-95f2fbcb-b40a-422c-b30e-d81b8a5b771a/`；交付媒体仍在其 Workspace Run/attempt 路径。另生成 35 张 R3.3 和 83 张 Product UI System 回归截图。
+
+工具用途由用户声明，不保证第三方工具能履行交付；实际操作仍需审批，产物仍须 Contract 和真实文件校验。不新增联网研究能力、语音/视频生成 Gateway、官方其他模板或 W2.2。旧版本事实与历史 Artifact 保留，不重写已发布版本。

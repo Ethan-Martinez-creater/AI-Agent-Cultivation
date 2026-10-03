@@ -24,6 +24,7 @@ import type {
 } from './w1-workflow-ports.js';
 import { WorkflowService, workflowHash } from './w1-workflow-service.js';
 import type { WorkflowValidationPolicyPort } from './w1-workflow-service.js';
+import { WorkflowValidationPolicyRegistry } from './workflow-validation-policy-registry.js';
 
 const at = '2026-10-01T00:00:00.000Z';
 
@@ -517,6 +518,9 @@ class FakeWorkflowMissionPort implements WorkflowMissionPort {
 }
 
 function makeHarness(version: WorkflowVersion, validationPolicy?: WorkflowValidationPolicyPort) {
+  const policies = new WorkflowValidationPolicyRegistry();
+  if (validationPolicy)
+    policies.register(version.validationPolicy ?? 'news-integrity-v1', validationPolicy);
   const store = new MemoryWorkflowRepository();
   const missions = new FakeWorkflowMissionPort();
   let idSequence = 0;
@@ -533,7 +537,7 @@ function makeHarness(version: WorkflowVersion, validationPolicy?: WorkflowValida
             .padStart(12, '0')) as `${string}-${string}-${string}-${string}-${string}`,
     },
     undefined,
-    validationPolicy,
+    policies,
   );
   if (version.definition.source === 'BUILTIN') store.publishVersion(version);
   else service.publish(version);
@@ -1150,50 +1154,53 @@ describe('WorkflowService W1 deterministic execution', () => {
     expect(harness.missions.createCalls).toHaveLength(1);
   });
 
-  it('fails closed when a declared policy is unavailable or rejects cross-artifact facts', async () => {
-    const version = makeVersion([taskStep('task', [jsonSpec('result', ['ok'])])], [], {
-      validationPolicy: 'news-integrity-v1',
-      outputSchema: undefined,
-    });
-    version.definition.source = 'BUILTIN';
-    const missingPolicyStore = new MemoryWorkflowRepository();
-    missingPolicyStore.publishVersion(version);
-    const missingPolicyService = new WorkflowService(
-      missingPolicyStore,
-      new FakeWorkflowMissionPort(),
-    );
-    expect(() =>
-      missingPolicyService.createRun({
-        definitionId: version.definition.id,
-        version: version.version,
-      }),
-    ).toThrow('validation policy 不可用');
-    expect(missingPolicyStore.runs.size).toBe(0);
+  it.each(['news-integrity-v1', 'future-official-v1'])(
+    'dispatches %s and fails closed when unavailable or rejecting cross-artifact facts',
+    async (policyId) => {
+      const version = makeVersion([taskStep('task', [jsonSpec('result', ['ok'])])], [], {
+        validationPolicy: policyId,
+        outputSchema: undefined,
+      });
+      version.definition.source = 'BUILTIN';
+      const missingPolicyStore = new MemoryWorkflowRepository();
+      missingPolicyStore.publishVersion(version);
+      const missingPolicyService = new WorkflowService(
+        missingPolicyStore,
+        new FakeWorkflowMissionPort(),
+      );
+      expect(() =>
+        missingPolicyService.createRun({
+          definitionId: version.definition.id,
+          version: version.version,
+        }),
+      ).toThrow('validation policy 不可用');
+      expect(missingPolicyStore.runs.size).toBe(0);
 
-    let inputChecks = 0;
-    let stepChecks = 0;
-    const harness = makeHarness(version, {
-      validateInputs: () => {
-        inputChecks += 1;
-      },
-      validateStep: (_detail, _step, produced) => {
-        stepChecks += 1;
-        expect(produced).toHaveLength(1);
-        return ['CROSS_ARTIFACT_FACT_MISMATCH'];
-      },
-    });
-    let detail = await harness.service.advance(harness.runId);
-    const missionId = detail.steps[0]!.missionId!;
-    harness.missions.completeMission(missionId, '{"ok":true}');
-    detail = await harness.service.advance(harness.runId);
-    expect(inputChecks).toBe(1);
-    expect(stepChecks).toBe(1);
-    expect(detail.run.state).toBe('WAITING');
-    expect(detail.validations).toMatchObject([
-      { valid: false, errors: ['CROSS_ARTIFACT_FACT_MISMATCH'] },
-    ]);
-    expect(detail.bindings.some((binding) => binding.role === 'OUTPUT')).toBe(false);
-  });
+      let inputChecks = 0;
+      let stepChecks = 0;
+      const harness = makeHarness(version, {
+        validateInputs: () => {
+          inputChecks += 1;
+        },
+        validateStep: (_detail, _step, produced) => {
+          stepChecks += 1;
+          expect(produced).toHaveLength(1);
+          return ['CROSS_ARTIFACT_FACT_MISMATCH'];
+        },
+      });
+      let detail = await harness.service.advance(harness.runId);
+      const missionId = detail.steps[0]!.missionId!;
+      harness.missions.completeMission(missionId, '{"ok":true}');
+      detail = await harness.service.advance(harness.runId);
+      expect(inputChecks).toBe(1);
+      expect(stepChecks).toBe(1);
+      expect(detail.run.state).toBe('WAITING');
+      expect(detail.validations).toMatchObject([
+        { valid: false, errors: ['CROSS_ARTIFACT_FACT_MISMATCH'] },
+      ]);
+      expect(detail.bindings.some((binding) => binding.role === 'OUTPUT')).toBe(false);
+    },
+  );
 
   it('fails closed when structured review lineage names an artifact that was not bound as input', async () => {
     const task = taskStep('task', [textSpec('source')]);

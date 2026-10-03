@@ -143,4 +143,28 @@ describe('news preparation keeps existing execution authority', () => {
       ),
     ).toEqual({});
   });
+  it.each([
+    ['N11', 'VOICEOVER'],
+    ['N12', 'VIDEO_ASSEMBLY'],
+  ] as const)(
+    'routes %s through TOOL_USE instead of media generation benchmarks',
+    async (id, purpose) => {
+      const definition = AI_NEWS_VIDEO_VERSION_1.steps.find((item) => item.id === id)!;
+      expect(
+        await adapter('E:/workspace', [
+          { source: 'MCP', workflowPurposes: [purpose] } as ToolDescriptor,
+        ]).prepareExecution(
+          definition,
+          { ...detail, run: { ...detail.run, inputSnapshot: { narrationMode: 'MODEL_OR_TOOL' } } },
+          attempt,
+        ),
+      ).toEqual({ routing: { executionConstraint: 'SOLO', requiredCapabilities: ['TOOL_USE'] } });
+      expect(await adapter('E:/workspace').prepareExecution(definition, detail, attempt)).toEqual({
+        routing: { executionConstraint: 'HUMAN_BRIDGE' },
+      });
+      expect(definition.routing.requiredCapabilities).toContain(
+        id === 'N11' ? 'SPEECH_GENERATION' : 'VIDEO_EDITING',
+      );
+    },
+  );
 });

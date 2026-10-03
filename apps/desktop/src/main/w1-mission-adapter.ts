@@ -87,6 +87,13 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
         return { reason: 'HUMAN_BRIDGE_TARGET_LIMIT' };
       return { routing: { executionConstraint: 'HUMAN_BRIDGE' as const } };
     }
+    if (purpose === 'VOICEOVER' || purpose === 'VIDEO_ASSEMBLY')
+      return {
+        routing: {
+          executionConstraint: 'SOLO' as const,
+          requiredCapabilities: ['TOOL_USE' as const],
+        },
+      };
     return {};
   }
   async create(

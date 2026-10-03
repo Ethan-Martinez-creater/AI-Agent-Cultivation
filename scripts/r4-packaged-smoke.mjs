@@ -553,7 +553,7 @@ async function main() {
     const schemaVersion = db
       .prepare('SELECT MAX(version) AS version FROM schema_migrations')
       .get().version;
-    assert.equal(schemaVersion, 20);
+    assert.equal(schemaVersion, 21);
     for (const receiptId of facts.decisionReceiptIds) {
       assert.equal(
         db.prepare('SELECT mode FROM routing_decision_receipts WHERE id=?').get(receiptId).mode,
@@ -928,7 +928,7 @@ async function main() {
     JSON.stringify(
       {
         verifiedAt: new Date().toISOString(),
-        migration: 20,
+        migration: 21,
         decisionMode: 'ACTIVE',
         shadowEnabled: false,
         checks: [

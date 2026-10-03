@@ -46,6 +46,34 @@ interface PendingToolCallRow {
 export class Gate4SqliteRepository {
   constructor(private readonly db: Database.Database) {}
 
+  getToolPurposes(toolId: string): import('@cultivation/domain').ToolPurpose[] {
+    return (
+      this.db
+        .prepare('SELECT purpose FROM tool_purpose_bindings WHERE tool_id = ? ORDER BY purpose')
+        .all(toolId) as { purpose: import('@cultivation/domain').ToolPurpose }[]
+    ).map((row) => row.purpose);
+  }
+
+  setToolPurposes(toolId: string, purposes: import('@cultivation/domain').ToolPurpose[]): void {
+    if (
+      !isNonEmptyString(toolId, 128) ||
+      !Array.isArray(purposes) ||
+      purposes.length > 4 ||
+      new Set(purposes).size !== purposes.length ||
+      purposes.some(
+        (p) => !['RESEARCH', 'ASSET_COLLECTION', 'VOICEOVER', 'VIDEO_ASSEMBLY'].includes(p),
+      )
+    )
+      throw new Error('Invalid tool purpose binding');
+    this.db.transaction(() => {
+      this.db.prepare('DELETE FROM tool_purpose_bindings WHERE tool_id = ?').run(toolId);
+      const insert = this.db.prepare(
+        'INSERT INTO tool_purpose_bindings(tool_id,purpose,created_at) VALUES(?,?,?)',
+      );
+      for (const purpose of purposes) insert.run(toolId, purpose, new Date().toISOString());
+    })();
+  }
+
   getWorkspaceRoot(): string | null {
     const row = this.db.prepare("SELECT value FROM app_meta WHERE key = 'workspace_root'").get() as
       | { value: string }

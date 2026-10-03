@@ -85,7 +85,7 @@ import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.j
 import { registerWorkflowIpc } from './w1-ipc.js';
 import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.js';
 import { installOfficialBuiltinWorkflows } from './w2-builtin-installation.js';
-import { newsWorkflowValidationPolicy } from './w21-validation-policy.js';
+import { officialWorkflowValidationPolicies } from './w21-validation-policy.js';
 import { NewsWorkflowFixtureGateway } from './w21-fixture.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
@@ -686,7 +686,7 @@ if (!squirrelStartup)
         workflowMissions,
         undefined,
         workflowFoundation,
-        newsWorkflowValidationPolicy,
+        officialWorkflowValidationPolicies(),
       );
       installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
       if (

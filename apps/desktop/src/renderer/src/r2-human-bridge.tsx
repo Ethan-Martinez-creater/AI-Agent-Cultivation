@@ -310,6 +310,19 @@ interface ArtifactTarget {
   maxSizeBytes: number;
 }
 
+function deliveryName(target: ArtifactTarget): string {
+  const names: Record<string, string> = {
+    'news.asset_registry': '素材来源与许可清单',
+    'news.voice_timing': '配音时间轴',
+    'news.voiceover': '配音音频',
+    'news.video.draft': '视频成片',
+  };
+  return (
+    names[target.id] ??
+    (target.id.startsWith('news.assets.') ? `视觉素材 · ${target.name}` : target.name)
+  );
+}
+
 function artifactTargets(request: ExternalWorkRequest): ArtifactTarget[] {
   const source = request.targetArtifactsJson;
   const items =
@@ -323,6 +336,91 @@ function artifactTargets(request: ExternalWorkRequest): ArtifactTarget[] {
       typeof item === 'object' &&
       typeof item.id === 'string' &&
       typeof item.name === 'string',
+  );
+}
+
+export function HumanBridgeRequestPresentation({
+  request,
+  children,
+}: {
+  request: ExternalWorkRequest;
+  children?: React.ReactNode;
+}) {
+  const targets = artifactTargets(request);
+  const requirements = stringArray(request.requirementsJson);
+  const paths = stringArray(request.targetWorkspacePathsJson);
+  const criteria = stringArray(request.acceptanceCriteriaJson);
+  return (
+    <>
+      <section className="human-bridge-request-brief" aria-label="交付摘要">
+        <section>
+          <h3>要做什么</h3>
+          <p>{request.title}</p>
+          {requirements.length > 0 && (
+            <ul>
+              {requirements.map((line, index) => (
+                <li key={index}>{displayTaskText(line)}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <section>
+          <h3>需要交付</h3>
+          {targets.length > 0 ? (
+            <ul>
+              {targets.map((target) => (
+                <li key={target.id}>
+                  {deliveryName(target)}
+                  {target.required ? ' · 必交' : ' · 可选'}
+                  {target.allowedExtensions.length
+                    ? ` · ${target.allowedExtensions.join('、')}`
+                    : ''}
+                  {' · 不超过 '}
+                  {megabyteLabel(target.maxSizeBytes)}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>按任务要求提交交付内容。</p>
+          )}
+        </section>
+        <section>
+          <h3>保存到哪里</h3>
+          <p>{paths.join('、') || '当前工作区'}</p>
+        </section>
+        <section>
+          <h3>验收重点</h3>
+          {criteria.length > 0 ? (
+            <ul>
+              {criteria.map((line, index) => (
+                <li key={index}>{displayTaskText(line)}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>请检查交付内容并确认符合任务要求。</p>
+          )}
+        </section>
+      </section>
+      <details className="advanced-disclosure human-bridge-delivery-spec">
+        <summary>完整交付规范 / 高级信息</summary>
+        <h3>完整任务说明、安全约束与合同</h3>
+        <pre className="r2-prompt">{displayTaskText(request.prompt)}</pre>
+        <h3>Artifact 标识与文件约束</h3>
+        {targets.length > 0 ? (
+          <ul>
+            {targets.map((target) => (
+              <li key={target.id}>
+                <code>{target.id}</code> · {target.name} · {target.required ? '必需' : '可选'} ·{' '}
+                {target.allowedExtensions.join('、')} · {megabyteLabel(target.maxSizeBytes)}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>没有声明 Artifact 文件。</p>
+        )}
+        {children}
+      </details>
+    </>
   );
 }
 
@@ -598,59 +696,34 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                     {recommendation.vendor ? ' · ' + recommendation.vendor : ''}
                   </p>
                 )}
-                <h3>要求</h3>
-                {stringArray(request.requirementsJson).length > 0 ? (
-                  <ul>
-                    {stringArray(request.requirementsJson).map((line, index) => (
-                      <li key={index}>{displayTaskText(line)}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="muted-copy">无附加要求。</p>
-                )}
-                <h3>任务说明</h3>
-                <pre className="r2-prompt">{displayTaskText(request.prompt)}</pre>
-                <div className="button-row">
-                  <button
-                    className="button secondary"
-                    type="button"
-                    disabled={busy}
-                    onClick={() =>
-                      void run(() => api.copyPrompt(request.id), '任务说明已复制。', request.id)
-                    }
-                  >
-                    复制任务说明
-                  </button>
-                  <button
-                    className="button secondary"
-                    type="button"
-                    disabled={busy}
-                    onClick={() =>
-                      void run(
-                        () => api.openTargetFolder(request.id),
-                        '已请求打开目标目录。',
-                        request.id,
-                      )
-                    }
-                  >
-                    打开目标目录
-                  </button>
-                </div>
-                <h3>验收标准</h3>
-                {stringArray(request.acceptanceCriteriaJson).length > 0 ? (
-                  <ul>
-                    {stringArray(request.acceptanceCriteriaJson).map((line, index) => (
-                      <li key={index}>{displayTaskText(line)}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="muted-copy">未提供验收标准。</p>
-                )}
-                <p>
-                  交付目录：
-                  {stringArray(request.targetWorkspacePathsJson).join('、') ||
-                    '当前 Workspace Root'}
-                </p>
+                <HumanBridgeRequestPresentation request={request}>
+                  <div className="button-row">
+                    <button
+                      className="button secondary"
+                      type="button"
+                      disabled={busy}
+                      onClick={() =>
+                        void run(() => api.copyPrompt(request.id), '任务说明已复制。', request.id)
+                      }
+                    >
+                      复制完整任务说明
+                    </button>
+                    <button
+                      className="button secondary"
+                      type="button"
+                      disabled={busy}
+                      onClick={() =>
+                        void run(
+                          () => api.openTargetFolder(request.id),
+                          '已请求打开目标目录。',
+                          request.id,
+                        )
+                      }
+                    >
+                      打开目标目录
+                    </button>
+                  </div>
+                </HumanBridgeRequestPresentation>
                 {(request.state === 'PENDING' || request.state === 'REJECTED') && (
                   <button
                     className="button primary"
@@ -673,7 +746,7 @@ export function HumanBridgePage({ api }: { api: R2UiApi }) {
                     {targets.map((target) => (
                       <label className="field" key={target.id}>
                         <span>
-                          {target.name}
+                          {deliveryName(target)}
                           {target.required ? ' · 必填' : ''} · {target.allowedExtensions.join(', ')}{' '}
                           · 不超过 {megabyteLabel(target.maxSizeBytes)} · 工作区相对路径
                         </span>

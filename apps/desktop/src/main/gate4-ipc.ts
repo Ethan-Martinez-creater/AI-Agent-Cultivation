@@ -61,6 +61,21 @@ export function registerGate4Ipc(
     noArgs(args);
     return tools.listBuiltins();
   });
+  register('tools:setToolPurposes', (args) => {
+    const input = one(
+      z
+        .object({
+          toolId: z.string().min(1).max(128),
+          purposes: z
+            .array(z.enum(['RESEARCH', 'ASSET_COLLECTION', 'VOICEOVER', 'VIDEO_ASSEMBLY']))
+            .max(4)
+            .refine((items) => new Set(items).size === items.length),
+        })
+        .strict(),
+      args,
+    );
+    return tools.setToolPurposes(input.toolId, input.purposes);
+  });
   register('tools:listMcpServers', (args) => {
     noArgs(args);
     return tools.listMcpServers();

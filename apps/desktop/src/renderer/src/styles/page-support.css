@@ -1266,6 +1266,32 @@
     gap: var(--space-1);
     padding-top: var(--space-1);
   }
+  .tool-purpose-bindings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    border: 0;
+  }
+  .tool-purpose-bindings legend {
+    font-size: var(--font-caption);
+    color: var(--muted);
+    margin-bottom: var(--space-2);
+  }
+  .tool-purpose-bindings label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .human-bridge-request-brief {
+    display: grid;
+    gap: var(--space-4);
+    margin: var(--space-4) 0;
+  }
+  .human-bridge-request-brief h3 {
+    margin: 0 0 var(--space-2);
+  }
   .timeline-tool-meta {
     display: contents;
   }

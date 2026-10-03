@@ -11,6 +11,7 @@ import {
   validateArtifactContract,
 } from '@cultivation/domain';
 import { validateWorkflowReviewResult } from './w2-contracts.js';
+import { WorkflowValidationPolicyRegistry } from './workflow-validation-policy-registry.js';
 import type {
   WorkflowRun,
   WorkflowStepRun,
@@ -124,16 +125,16 @@ export class WorkflowService {
     private readonly missions: WorkflowMissionPort,
     private readonly clock = { now: () => new Date().toISOString(), id: () => randomUUID() },
     private readonly foundation?: WorkflowFoundationPort,
-    private readonly validationPolicy?: WorkflowValidationPolicyPort,
+    private readonly validationPolicies?: WorkflowValidationPolicyRegistry,
   ) {}
   private policyForVersion(version: WorkflowVersion): WorkflowValidationPolicyPort | undefined {
     if (version.validationPolicy === undefined) return undefined;
-    if (version.validationPolicy !== 'news-integrity-v1' || !this.validationPolicy)
+    if (version.definition.source !== 'BUILTIN' || !this.validationPolicies)
       throw new DomainError(
         'WORKFLOW_VALIDATION_POLICY_REQUIRED',
         '冻结 Workflow validation policy 不可用；必须 fail closed',
       );
-    return this.validationPolicy;
+    return this.validationPolicies.require(version.validationPolicy);
   }
   publish(value: WorkflowVersion): void {
     if (value.definition.source === 'BUILTIN')
@@ -680,7 +681,7 @@ export class WorkflowService {
     const envelopeRequired = step.outputs.length > 1 && textualOutputs.length > 0;
     if (output.length) {
       const serializedOutput = JSON.stringify(output);
-      value += `\nRequired output contracts: ${version.validationPolicy === 'news-integrity-v1' ? serializedOutput : serializedOutput.slice(0, 2000)}.`;
+      value += `\nRequired output contracts: ${version.validationPolicy !== undefined ? serializedOutput : serializedOutput.slice(0, 2000)}.`;
       if (envelopeRequired)
         value += ` Return one JSON object with only an "outputs" property. Put each declared TEXT/JSON output under its exact key: {"outputs":{${textualOutputs.map((o) => `"${o.key}":<value>`).join(',')}}}. Do not put FILE/DIRECTORY contents in this envelope; those come from the declared Workspace/Human Bridge outputs.`;
       else if (output.length === 1 && ['TEXT', 'JSON'].includes(step.outputs[0]!.kind))
@@ -784,7 +785,7 @@ export class WorkflowService {
         const explicitNames = [o.metadata.outputKey, o.metadata.targetArtifactId].filter(
           (name): name is string => typeof name === 'string' && name.length > 0,
         );
-        return detail.version.validationPolicy === 'news-integrity-v1'
+        return detail.version.validationPolicy !== undefined
           ? explicitNames.length > 0 && explicitNames.every((name) => name === spec.key)
           : [o.metadata.outputKey, o.metadata.targetArtifactId, o.metadata.fileName].some(
               (name) => name === spec.key,
@@ -799,7 +800,7 @@ export class WorkflowService {
       const sameKindSources = snapshot.outputs.filter(
         (o) => o.source === 'HUMAN_BRIDGE' && o.kind === spec.kind,
       );
-      return detail.version.validationPolicy !== 'news-integrity-v1' &&
+      return detail.version.validationPolicy === undefined &&
         sameKindSpecs.length === 1 &&
         sameKindSources.length === 1
         ? sameKindSources[0]
@@ -828,14 +829,11 @@ export class WorkflowService {
           ? snapshot.outputs.find(
               (o) =>
                 o.kind === spec.kind &&
-                !(
-                  detail.version.validationPolicy === 'news-integrity-v1' &&
-                  o.source === 'HUMAN_BRIDGE'
-                ) &&
+                !(detail.version.validationPolicy !== undefined && o.source === 'HUMAN_BRIDGE') &&
                 (o.metadata.outputKey === spec.key ||
                   o.metadata.targetArtifactId === spec.key ||
                   String(o.metadata.fileName) === spec.key ||
-                  (detail.version.validationPolicy !== 'news-integrity-v1' &&
+                  (detail.version.validationPolicy === undefined &&
                     definition.outputs.filter((s) => s.kind === spec.kind).length === 1 &&
                     snapshot.outputs.filter((candidate) => candidate.kind === spec.kind).length ===
                       1)),
@@ -1407,7 +1405,7 @@ export class WorkflowService {
         artifact.missionId !== producer?.missionId ||
         artifact.missionRunId !== producer?.missionRunId ||
         (artifact.source === 'HUMAN_BRIDGE' &&
-          detail.version.validationPolicy === 'news-integrity-v1' &&
+          detail.version.validationPolicy !== undefined &&
           (humanBridgeNames.length === 0 ||
             humanBridgeNames.some((name) => name !== spec.outputKey))) ||
         snapshot?.mission.id !== producer?.missionId ||

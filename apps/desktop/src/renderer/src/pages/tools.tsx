@@ -473,6 +473,33 @@ export function ToolDescriptorCard({
   tool: ToolDescriptorView;
   compact?: boolean;
 }) {
+  const [purposes, setPurposes] = useState(tool.workflowPurposes ?? []);
+  const [savingPurpose, setSavingPurpose] = useState(false);
+  const [purposeError, setPurposeError] = useState('');
+  useEffect(() => setPurposes(tool.workflowPurposes ?? []), [tool]);
+  const purposeNames = {
+    RESEARCH: '研究检索',
+    ASSET_COLLECTION: '素材收集',
+    VOICEOVER: '配音',
+    VIDEO_ASSEMBLY: '视频制作',
+  } as const;
+  const togglePurpose = async (purpose: keyof typeof purposeNames) => {
+    setSavingPurpose(true);
+    setPurposeError('');
+    try {
+      const updated = await window.cultivation.tools.setToolPurposes({
+        toolId: tool.id,
+        purposes: purposes.includes(purpose)
+          ? purposes.filter((item) => item !== purpose)
+          : [...purposes, purpose],
+      });
+      setPurposes(updated.workflowPurposes ?? []);
+    } catch (cause) {
+      setPurposeError(errorText(cause, '保存工具用途失败。'));
+    } finally {
+      setSavingPurpose(false);
+    }
+  };
   const builtinNames: Record<string, string> = {
     'file.list': '浏览文件夹',
     'file.readText': '读取文本文件',
@@ -511,6 +538,21 @@ export function ToolDescriptorCard({
           </div>
         </dl>
       </details>
+      <fieldset className="tool-purpose-bindings">
+        <legend>工作流用途</legend>
+        {Object.entries(purposeNames).map(([purpose, label]) => (
+          <label key={purpose} className="checkbox-field">
+            <input
+              type="checkbox"
+              disabled={savingPurpose}
+              checked={purposes.includes(purpose as keyof typeof purposeNames)}
+              onChange={() => void togglePurpose(purpose as keyof typeof purposeNames)}
+            />
+            {label}
+          </label>
+        ))}
+      </fieldset>
+      {purposeError && <p role="alert">{purposeError}</p>}
     </article>
   );
 }

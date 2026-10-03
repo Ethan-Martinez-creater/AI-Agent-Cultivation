@@ -7,6 +7,7 @@ import {
   normalizeWorkflowInputDraft,
   WorkflowInputForm,
 } from './WorkflowInputForm.js';
+import { workflowInputPresentationFor } from './workflow-input-presentations.js';
 
 const schema: WorkflowObjectSchema = {
   type: 'object',
@@ -35,6 +36,51 @@ const schema: WorkflowObjectSchema = {
       properties: { includeSummary: { type: 'boolean', title: '包含摘要' } },
       required: [],
     },
+  },
+};
+
+const newsSchema: WorkflowObjectSchema = {
+  type: 'object',
+  required: [
+    'topicScope',
+    'timeRange',
+    'language',
+    'targetPlatform',
+    'targetDurationSeconds',
+    'targetStoryCount',
+    'narrationMode',
+  ],
+  properties: {
+    topicScope: { type: 'string', title: '主题范围', minLength: 1, maxLength: 300 },
+    timeRange: {
+      type: 'object',
+      title: '时间范围',
+      required: ['from', 'to'],
+      properties: {
+        from: { type: 'string', minLength: 1, maxLength: 40 },
+        to: { type: 'string', minLength: 1, maxLength: 40 },
+      },
+    },
+    language: { type: 'string', title: '语言', minLength: 1, maxLength: 64 },
+    targetPlatform: {
+      type: 'enum',
+      values: ['YOUTUBE_LONG', 'YOUTUBE_SHORTS', 'BILIBILI', 'GENERIC'],
+    },
+    targetDurationSeconds: {
+      type: 'number',
+      minimum: 15,
+      maximum: 3600,
+      integer: true,
+    },
+    targetStoryCount: {
+      type: 'object',
+      required: ['min', 'max'],
+      properties: {
+        min: { type: 'number', minimum: 1, maximum: 5, integer: true },
+        max: { type: 'number', minimum: 1, maximum: 5, integer: true },
+      },
+    },
+    narrationMode: { type: 'enum', values: ['AUTO', 'MODEL_OR_TOOL', 'HUMAN'] },
   },
 };
 
@@ -95,5 +141,54 @@ describe('WorkflowInputForm', () => {
     expect(() =>
       validateWorkflowInputs(schema, { topic: 'ok', enabled: false, targetCount: 21 }),
     ).toThrow('不符合冻结版本的约定');
+  });
+
+  it('presents official news inputs in Chinese while preserving frozen values', () => {
+    const presentation = workflowInputPresentationFor('official.ai-news-video');
+    expect(presentation).toBeDefined();
+    const markup = renderToStaticMarkup(
+      React.createElement(WorkflowInputForm, {
+        schema: newsSchema,
+        presentation,
+        onSubmit: () => undefined,
+      }),
+    );
+
+    for (const label of [
+      '新闻时间范围',
+      '开始时间',
+      '结束时间',
+      '发布平台',
+      '目标时长（秒）',
+      '新闻条数范围',
+      '最少条数',
+      '最多条数',
+      '配音方式',
+      'YouTube Shorts 短视频',
+      '由本尊完成',
+    ]) {
+      expect(markup).toContain(label);
+    }
+    expect(markup).toContain('value="YOUTUBE_SHORTS">YouTube Shorts 短视频</option>');
+    expect(markup).toContain('value="MODEL_OR_TOOL">使用可用配音工具</option>');
+    expect(markup).not.toContain('>YOUTUBE_SHORTS</option>');
+    expect(markup).not.toContain('>MODEL_OR_TOOL</option>');
+
+    const inputs = normalizeWorkflowInputDraft(newsSchema, {
+      topicScope: '芯片新闻',
+      timeRange: { from: '2026-09-25T00:00:00.000Z', to: '2026-10-02T00:00:00.000Z' },
+      language: 'zh-CN',
+      targetPlatform: 'YOUTUBE_SHORTS',
+      targetDurationSeconds: '60',
+      targetStoryCount: { min: '1', max: '1' },
+      narrationMode: 'MODEL_OR_TOOL',
+    });
+    expect(inputs.targetPlatform).toBe('YOUTUBE_SHORTS');
+    expect(inputs.narrationMode).toBe('MODEL_OR_TOOL');
+    expect(() => validateWorkflowInputs(newsSchema, inputs)).not.toThrow();
+  });
+
+  it('does not apply the official news presentation to other definitions', () => {
+    expect(workflowInputPresentationFor('user.workflow')).toBeUndefined();
   });
 });

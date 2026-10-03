@@ -133,7 +133,7 @@ export interface WorkflowVersion {
   revisionGroups?: BoundedRevisionGroup[];
   releaseMetadata?: WorkflowReleaseMetadata;
   /** Trusted, versioned application policy. Only official builtins may declare one. */
-  validationPolicy?: 'news-integrity-v1';
+  validationPolicy?: string;
   entryStepId: string;
   steps: WorkflowStepDefinition[];
   edges: WorkflowEdge[];
@@ -345,7 +345,8 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
   };
   if (
     value.validationPolicy !== undefined &&
-    (value.validationPolicy !== 'news-integrity-v1' || value.definition.source !== 'BUILTIN')
+    (!/^[a-z][a-z0-9.-]{0,79}$/.test(value.validationPolicy) ||
+      value.definition.source !== 'BUILTIN')
   )
     invalid('Unknown or untrusted Workflow validation policy');
   validateWorkflowInputSchema(value.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA);
@@ -446,9 +447,11 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
       invalid('Invalid Step execution requirement');
     if (
       s.artifactPathScope !== undefined &&
-      (s.artifactPathScope !== 'RUN_ATTEMPT' || value.validationPolicy !== 'news-integrity-v1')
+      (s.artifactPathScope !== 'RUN_ATTEMPT' ||
+        !value.validationPolicy ||
+        value.definition.source !== 'BUILTIN')
     )
-      invalid('artifactPathScope requires the news-integrity-v1 policy');
+      invalid('artifactPathScope requires a trusted validation policy');
     if (s.type === 'DECISION' && (s.outputs.length > 0 || s.effectType !== 'NONE'))
       invalid('DECISION cannot execute or produce model artifacts');
     if (s.type === 'REVIEW' && !s.outputs.some((o) => o.kind === 'JSON' && o.required))

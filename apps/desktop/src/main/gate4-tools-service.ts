@@ -38,6 +38,7 @@ export class Gate4ToolsService {
     if (root) {
       try {
         registerBuiltins(this.registry, await FileWorkspace.open(root));
+        this.restoreBuiltinPurposes();
       } catch {
         unregisterBuiltins(this.registry);
       }
@@ -63,11 +64,28 @@ export class Gate4ToolsService {
     const workspace = await FileWorkspace.open(chosen.filePaths[0]!);
     this.store.setWorkspaceRoot(workspace.getRoot());
     registerBuiltins(this.registry, workspace);
+    this.restoreBuiltinPurposes();
     return this.getWorkspace();
   }
 
   listBuiltins(): ToolDescriptor[] {
     return this.registry.list().filter((descriptor) => descriptor.source === 'BUILTIN');
+  }
+
+  private restoreBuiltinPurposes(): void {
+    for (const descriptor of this.registry.list().filter((tool) => tool.source === 'BUILTIN'))
+      descriptor.workflowPurposes = this.store.getToolPurposes(descriptor.id);
+  }
+
+  setToolPurposes(
+    toolId: string,
+    purposes: import('@cultivation/domain').ToolPurpose[],
+  ): ToolDescriptor {
+    const tool = this.registry.get(toolId);
+    if (!tool) throw new Error('Tool must be discovered before binding');
+    this.store.setToolPurposes(toolId, purposes);
+    tool.descriptor.workflowPurposes = this.store.getToolPurposes(toolId);
+    return tool.descriptor;
   }
 
   listMcpServers(): McpServerConfig[] {
@@ -112,6 +130,8 @@ export class Gate4ToolsService {
         .digest('hex')
         .slice(0, 16);
       for (const descriptor of descriptors) {
+        // Remote metadata cannot grant Workflow eligibility; the user owns this mapping.
+        descriptor.workflowPurposes = this.store.getToolPurposes(descriptor.id);
         this.registry.register({
           descriptor,
           resource: () => `mcp:${config.id}:${configTag}:${descriptor.toolName}`,

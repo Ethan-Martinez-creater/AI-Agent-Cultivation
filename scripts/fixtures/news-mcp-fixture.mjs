@@ -104,6 +104,45 @@ function commitAssembly(input) {
   };
 }
 
+function commitVoice(input) {
+  if (
+    !safeId(input.workflowRunId) ||
+    !safeId(input.stepRunId) ||
+    ![60, 180, 300].includes(input.targetDurationSeconds)
+  )
+    throw new Error('Invalid voice request');
+  const expected = `workflows/${input.workflowRunId}/${input.stepRunId}/output/voice.wav`;
+  if (input.outputPath !== expected) throw new Error('Invalid attempt voice path');
+  const dataSize = input.targetDurationSeconds * 16000;
+  const bytes = Buffer.alloc(44 + dataSize);
+  bytes.write('RIFF', 0);
+  bytes.writeUInt32LE(36 + dataSize, 4);
+  bytes.write('WAVE', 8);
+  bytes.write('fmt ', 12);
+  bytes.writeUInt32LE(16, 16);
+  bytes.writeUInt16LE(1, 20);
+  bytes.writeUInt16LE(1, 22);
+  bytes.writeUInt32LE(8000, 24);
+  bytes.writeUInt32LE(16000, 28);
+  bytes.writeUInt16LE(2, 32);
+  bytes.writeUInt16LE(16, 34);
+  bytes.write('data', 36);
+  bytes.writeUInt32LE(dataSize, 40);
+  const output = resolve(workspaceRoot, ...expected.split('/'));
+  mkdirSync(dirname(output), { recursive: true });
+  if (!within(workspaceRoot, realpathSync(dirname(output)))) throw new Error('Voice path escape');
+  const temporary = `${output}.tmp-${randomUUID()}`;
+  if (existsSync(output)) throw new Error('Voice already exists');
+  writeFileSync(temporary, bytes, { flag: 'wx' });
+  renameSync(temporary, output);
+  return {
+    content: [{ type: 'text', text: 'Audio delivery saved.' }],
+    structuredContent: {
+      workflowEvidence: { artifactFiles: [{ path: expected, contentHash: hash(bytes) }] },
+    },
+  };
+}
+
 const tools = [
   {
     name: 'research_news',
@@ -140,7 +179,6 @@ const tools = [
       ],
       additionalProperties: false,
     },
-    _meta: { 'cultivation.workflowPurposes': ['RESEARCH'] },
   },
   {
     name: 'assemble_video',
@@ -181,9 +219,28 @@ const tools = [
       ],
       additionalProperties: false,
     },
-    _meta: { 'cultivation.workflowPurposes': ['VIDEO_ASSEMBLY'] },
   },
 ];
+// An ordinary third-party descriptor: no cultivation metadata.
+tools.push({
+  name: 'voiceover',
+  description: 'Creates an offline WAV delivery.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      stepId: { const: 'N11' },
+      workflowRunId: { type: 'string' },
+      stepRunId: { type: 'string' },
+      topicScope: { type: 'string' },
+      targetDurationSeconds: { type: 'number', enum: [60, 180, 300] },
+      targetStoryCount: { type: 'object' },
+      timeRange: { type: 'object' },
+      outputPath: { type: 'string' },
+    },
+    required: ['stepId', 'workflowRunId', 'stepRunId', 'targetDurationSeconds', 'outputPath'],
+    additionalProperties: false,
+  },
+});
 
 let buffer = Buffer.alloc(0);
 let framing = 'line';
@@ -252,7 +309,9 @@ async function handleMessage(message) {
             }
           : message.params?.name === 'assemble_video'
             ? commitAssembly(input)
-            : null;
+            : message.params?.name === 'voiceover'
+              ? commitVoice(input)
+              : null;
       if (!result) throw new Error('Unknown fixture tool');
       send({ jsonrpc: '2.0', id: message.id, result });
     } catch (error) {

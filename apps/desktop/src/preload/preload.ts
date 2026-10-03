@@ -421,6 +421,10 @@ export interface CultivationBridge {
     getWorkspace(): Promise<{ rootPath: string | null }>;
     chooseWorkspace(): Promise<{ rootPath: string | null }>;
     listBuiltins(): Promise<ToolDescriptor[]>;
+    setToolPurposes(input: {
+      toolId: string;
+      purposes: NonNullable<ToolDescriptor['workflowPurposes']>;
+    }): Promise<ToolDescriptor>;
     listMcpServers(): Promise<McpServerConfig[]>;
     saveMcpServer(input: {
       id?: string;
@@ -615,6 +619,7 @@ const bridge: CultivationBridge = {
     getWorkspace: () => ipcRenderer.invoke('tools:getWorkspace'),
     chooseWorkspace: () => ipcRenderer.invoke('tools:chooseWorkspace'),
     listBuiltins: () => ipcRenderer.invoke('tools:listBuiltins'),
+    setToolPurposes: (input) => ipcRenderer.invoke('tools:setToolPurposes', input),
     listMcpServers: () => ipcRenderer.invoke('tools:listMcpServers'),
     saveMcpServer: (input) => ipcRenderer.invoke('tools:saveMcpServer', input),
     removeMcpServer: (id) => ipcRenderer.invoke('tools:removeMcpServer', id),

@@ -8,6 +8,13 @@ import {
 
 type DraftRecord = Record<string, unknown>;
 
+export interface WorkflowInputPresentation {
+  /** User-facing labels keyed by the frozen input object's dotted path. */
+  fieldLabels?: Readonly<Record<string, string>>;
+  /** User-facing option labels keyed by the frozen enum input path and value. */
+  enumOptionLabels?: Readonly<Record<string, Readonly<Record<string, string>>>>;
+}
+
 function isRecord(value: unknown): value is DraftRecord {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -143,6 +150,7 @@ function InputField({
   schema,
   name,
   path,
+  presentation,
   value,
   required,
   disabled,
@@ -151,13 +159,14 @@ function InputField({
   schema: WorkflowValueSchema;
   name: string;
   path: string;
+  presentation?: WorkflowInputPresentation;
   value: unknown;
   required: boolean;
   disabled: boolean;
   onChange: (value: unknown) => void;
 }) {
   const id = controlId(path);
-  const title = schema.title || name;
+  const title = presentation?.fieldLabels?.[path] ?? (schema.title || name);
   const descriptionId = schema.description ? `${id}-description` : undefined;
   const describedBy = descriptionId;
   const label = (
@@ -186,6 +195,7 @@ function InputField({
               schema={childSchema}
               name={key}
               path={`${path}.${key}`}
+              presentation={presentation}
               value={objectValue[key]}
               required={schema.required.includes(key)}
               disabled={disabled}
@@ -227,6 +237,7 @@ function InputField({
                 schema={schema.items}
                 name={`${title} · 第 ${index + 1} 项`}
                 path={`${path}[${index}]`}
+                presentation={presentation}
                 value={item}
                 required
                 disabled={disabled}
@@ -434,7 +445,7 @@ function InputField({
         <option value="">请选择</option>
         {schema.values.map((option) => (
           <option key={option} value={option}>
-            {option}
+            {presentation?.enumOptionLabels?.[path]?.[option] ?? option}
           </option>
         ))}
       </select>
@@ -491,11 +502,13 @@ function InputField({
 
 export function WorkflowInputForm({
   schema,
+  presentation,
   busy = false,
   submitLabel = '创建运行',
   onSubmit,
 }: {
   schema: WorkflowObjectSchema;
+  presentation?: WorkflowInputPresentation;
   busy?: boolean;
   submitLabel?: string;
   onSubmit: (inputs: WorkflowInputs) => void | Promise<void>;
@@ -526,6 +539,7 @@ export function WorkflowInputForm({
             schema={field}
             name={key}
             path={key}
+            presentation={presentation}
             value={draft[key]}
             required={schema.required.includes(key)}
             disabled={busy}
