@@ -41,6 +41,8 @@ export const RESEARCH_WORKFLOW_INPUT_PRESENTATION: WorkflowInputPresentation = {
     field: '研究领域',
     scope: '研究范围',
     literatureTimeRange: '文献时间范围',
+    'literatureTimeRange.from': '起始日期',
+    'literatureTimeRange.to': '结束日期',
     existingSources: '已有来源',
     existingData: '已有数据',
     existingCode: '已有代码',

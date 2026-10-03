@@ -95,7 +95,14 @@ const researchSchema: WorkflowObjectSchema = {
     researchQuestion: { type: 'string', minLength: 10, maxLength: 3000 },
     field: { type: 'string', minLength: 2, maxLength: 200 },
     scope: { type: 'string', minLength: 0, maxLength: 2000 },
-    literatureTimeRange: { type: 'dateRange' },
+    literatureTimeRange: {
+      type: 'object',
+      required: [],
+      properties: {
+        from: { type: 'date' },
+        to: { type: 'date' },
+      },
+    },
     existingSources: {
       type: 'array',
       minItems: 0,
@@ -240,6 +247,8 @@ describe('WorkflowInputForm', () => {
       '研究领域',
       '研究范围',
       '文献时间范围',
+      '起始日期',
+      '结束日期',
       '已有来源',
       '已有数据',
       '已有代码',
@@ -264,7 +273,7 @@ describe('WorkflowInputForm', () => {
       researchQuestion: '比较两种缓存策略对服务尾延迟的影响',
       field: '计算机系统',
       scope: '单机服务负载',
-      literatureTimeRange: { start: '2022-01-01', end: '2026-01-01' },
+      literatureTimeRange: { from: '2022-01-01', to: '2026-01-01' },
       existingSources: [
         { id: 'artifact-source-1', kind: 'EXTERNAL_REFERENCE', name: '用户提供来源' },
       ],
