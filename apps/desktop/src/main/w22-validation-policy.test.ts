@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { WorkflowArtifact, WorkflowDetail, WorkflowStepRun } from '@cultivation/domain';
 import {
@@ -6,13 +7,24 @@ import {
   verifiedSoftwareFacts,
 } from './w22-validation-policy.js';
 
-function setup(exitStatus = 0, actor: WorkflowArtifact['source'] = 'MISSION') {
+function setup(exitStatus = 0, reportSource: WorkflowArtifact['source'] = 'MISSION') {
+  const acceptedHash = 'b'.repeat(64);
   const artifact = (id: string, data: unknown) =>
     ({
       id,
+      workflowRunId: 'workflow-run',
       content: JSON.stringify(data),
       producerStepRunId: 'verify',
-      source: actor,
+      missionId: 'mission',
+      missionRunId: 'mission-run',
+      actorId: id === 'software.tests' && reportSource === 'HUMAN_BRIDGE' ? 'bridge' : 'actor',
+      sourceId: id === 'software.tests' && reportSource === 'HUMAN_BRIDGE' ? 'manual-artifact' : id,
+      source: id === 'software.tests' ? reportSource : 'MISSION',
+      contentHash: acceptedHash,
+      metadata:
+        id === 'software.tests' && reportSource === 'HUMAN_BRIDGE'
+          ? { contentHash: acceptedHash }
+          : {},
     }) as WorkflowArtifact;
   const rows = [
     ['software.repo_context', { commands: [{ id: 'test', command: 'node verify.mjs' }] }],
@@ -69,23 +81,59 @@ function setup(exitStatus = 0, actor: WorkflowArtifact['source'] = 'MISSION') {
   ] as const;
   const detail = {
     version: { definition: { source: 'BUILTIN' }, validationPolicy: 'software-integrity-v1' },
-    run: { inputSnapshot: { allowedToolScope: ['file.writeText'], targetArea: ['src'] } },
+    run: {
+      id: 'workflow-run',
+      inputSnapshot: { allowedToolScope: ['file.writeText'], targetArea: ['src'] },
+    },
+    steps: [
+      {
+        id: 'verify',
+        workflowRunId: 'workflow-run',
+        stepId: 'S06',
+        attempt: 1,
+        state: 'COMPLETED',
+        missionId: 'mission',
+        missionRunId: 'mission-run',
+      },
+    ],
     artifacts: rows.map(([id, value]) => artifact(id, value)),
     bindings: rows.map(([key]) => ({ key, role: 'OUTPUT', artifactId: key })),
   } as unknown as WorkflowDetail;
+  const command = 'node verify.mjs';
   const facts = [
     {
       id: 'fact',
+      workflowRunId: 'workflow-run',
+      stepRunId: 'verify',
+      attempt: 1,
+      missionId: 'mission',
+      missionRunId: 'mission-run',
+      actorId: 'actor',
+      toolCallId: 'tool-call',
+      commandId: 'test',
       toolId: 'mcp:verify',
-      command: 'node verify.mjs',
+      command,
+      commandHash: createHash('sha256').update(command, 'utf8').digest('hex'),
       exitStatus,
       criterionIds: ['AC1'],
       outputHash: 'a'.repeat(64),
     },
   ];
-  const policy = softwareWorkflowValidationPolicy({ listForStep: () => facts });
+  const manualFacts: {
+    requestId: string;
+    missionId: string;
+    missionRunId: string;
+    assigneeId: string;
+    criterionIds: string[];
+    acceptedArtifactId: string;
+    acceptedArtifactHash: string;
+  }[] = [];
+  const policy = softwareWorkflowValidationPolicy({
+    listForStep: () => facts,
+    listManualForStep: () => manualFacts,
+  });
   const step = { id: 'decision', stepId: 'S07' } as WorkflowStepRun;
-  return { detail, policy, step, facts };
+  return { detail, policy, step, facts, manualFacts, acceptedHash };
 }
 
 describe('software deterministic validation policy', () => {
@@ -100,6 +148,7 @@ describe('software deterministic validation policy', () => {
     };
     const events = [
       {
+        missionId: 'm',
         runId: 'run',
         actorType: 'TEAMMATE',
         actorId: 'actor',
@@ -123,6 +172,13 @@ describe('software deterministic validation policy', () => {
     events[0]!.runId = 'run';
     events[0]!.payloadJson.outputHash = 'b'.repeat(64);
     expect(verified.listForStep('step')).toEqual([]);
+    events[0]!.payloadJson.outputHash = 'a'.repeat(64);
+    events[0]!.actorId = 'other-actor';
+    expect(verified.listForStep('step')).toEqual([]);
+    events[0]!.actorId = 'actor';
+    events[0]!.payloadJson.toolCallId = 'other-call';
+    expect(verified.listForStep('step')).toEqual([]);
+    events[0]!.payloadJson.toolCallId = 'call';
     events.length = 0;
     expect(verified.listForStep('step')).toEqual([]);
   });
@@ -212,5 +268,148 @@ describe('software deterministic validation policy', () => {
       commands: [],
     });
     expect(softwareToolScope(detail).allowedCommands).toEqual([]);
+  });
+
+  it('A: rejects command claims in a Human Bridge report without the same actor-bound MCP fact', () => {
+    const { detail, policy, step } = setup(0, 'HUMAN_BRIDGE');
+    const report = detail.artifacts.find((item) => item.id === 'software.tests')!;
+    expect(
+      policy.validateStep!(
+        detail,
+        { id: 'verify', stepId: 'S06' } as WorkflowStepRun,
+        [{ spec: { key: 'software.tests' }, artifact: report }] as never,
+      ),
+    ).toEqual(['VERIFICATION_PROVENANCE_INVALID']);
+    expect(policy.decisionBranch!(detail, step)).toEqual({ branch: 'BLOCKED', waitForUser: true });
+  });
+
+  it('B: blocks a mixed report when manual criteria have no accepted continuation fact', () => {
+    const { detail, policy, step } = setup();
+    detail.artifacts.find((item) => item.id === 'software.acceptance')!.content = JSON.stringify({
+      criteria: [
+        { id: 'AC1', severity: 'BLOCKING', verificationMethod: 'COMMAND', commandId: 'test' },
+        { id: 'AC2', severity: 'BLOCKING', verificationMethod: 'MANUAL' },
+      ],
+    });
+    const report = detail.artifacts.find((item) => item.id === 'software.tests')!;
+    const data = JSON.parse(report.content) as Record<string, unknown>;
+    data.criteria = [
+      {
+        criterionId: 'AC1',
+        status: 'PASS',
+        executionIds: ['fact'],
+        evidenceArtifactIds: ['fact'],
+      },
+      {
+        criterionId: 'AC2',
+        status: 'PASS',
+        executionIds: [],
+        evidenceArtifactIds: ['accepted-artifact'],
+      },
+    ];
+    report.content = JSON.stringify(data);
+    report.metadata = {
+      manualRequestId: 'manual-request',
+      manualArtifactId: 'accepted-artifact',
+      manualContentHash: 'c'.repeat(64),
+    };
+    expect(policy.decisionBranch!(detail, step)).toEqual({ branch: 'BLOCKED', waitForUser: true });
+  });
+
+  it('C: passes a mixed MISSION report only when command facts and accepted manual evidence share the S06 MissionRun', () => {
+    const { detail, policy, step, manualFacts } = setup();
+    detail.artifacts.find((item) => item.id === 'software.acceptance')!.content = JSON.stringify({
+      criteria: [
+        { id: 'AC1', severity: 'BLOCKING', verificationMethod: 'COMMAND', commandId: 'test' },
+        { id: 'AC2', severity: 'BLOCKING', verificationMethod: 'INSPECTION' },
+      ],
+    });
+    const report = detail.artifacts.find((item) => item.id === 'software.tests')!;
+    const data = JSON.parse(report.content) as Record<string, unknown>;
+    data.criteria = [
+      {
+        criterionId: 'AC1',
+        status: 'PASS',
+        executionIds: ['fact'],
+        evidenceArtifactIds: ['fact'],
+      },
+      {
+        criterionId: 'AC2',
+        status: 'PASS',
+        executionIds: [],
+        evidenceArtifactIds: ['accepted-artifact'],
+      },
+    ];
+    report.content = JSON.stringify(data);
+    report.metadata = {
+      manualRequestId: 'manual-request',
+      manualArtifactId: 'accepted-artifact',
+      manualContentHash: 'c'.repeat(64),
+    };
+    manualFacts.push({
+      requestId: 'manual-request',
+      missionId: 'mission',
+      missionRunId: 'mission-run',
+      assigneeId: 'human-bridge',
+      criterionIds: ['AC2'],
+      acceptedArtifactId: 'accepted-artifact',
+      acceptedArtifactHash: 'c'.repeat(64),
+    });
+    expect(policy.decisionBranch!(detail, step)).toEqual({ branch: 'PASS', waitForUser: false });
+  });
+
+  it('D: blocks command facts bound to another workflow, step attempt, MissionRun, actor, or command hash', () => {
+    const mismatches: Array<[string, unknown]> = [
+      ['workflowRunId', 'other-workflow'],
+      ['stepRunId', 'other-step'],
+      ['attempt', 2],
+      ['missionId', 'other-mission'],
+      ['missionRunId', 'other-run'],
+      ['actorId', 'other-actor'],
+      ['toolCallId', ''],
+      ['commandHash', 'f'.repeat(64)],
+    ];
+    for (const [key, value] of mismatches) {
+      const { detail, policy, step, facts } = setup();
+      Object.assign(facts[0]!, { [key]: value });
+      expect(policy.decisionBranch!(detail, step)).toEqual({
+        branch: 'BLOCKED',
+        waitForUser: true,
+      });
+    }
+  });
+
+  it('E: accepts a pure Human Bridge manual report through its accepted artifact sourceId and hash', () => {
+    const { detail, policy, step, manualFacts, acceptedHash } = setup(0, 'HUMAN_BRIDGE');
+    detail.artifacts.find((item) => item.id === 'software.plan_scope')!.content = JSON.stringify({
+      files: [],
+      commands: [],
+    });
+    detail.artifacts.find((item) => item.id === 'software.acceptance')!.content = JSON.stringify({
+      criteria: [{ id: 'AC2', severity: 'BLOCKING', verificationMethod: 'MANUAL' }],
+    });
+    const report = detail.artifacts.find((item) => item.id === 'software.tests')!;
+    report.content = JSON.stringify({
+      executions: [],
+      criteria: [
+        {
+          criterionId: 'AC2',
+          status: 'PASS',
+          executionIds: [],
+          evidenceArtifactIds: ['manual-artifact'],
+        },
+      ],
+      failures: [],
+    });
+    manualFacts.push({
+      requestId: 'manual-request',
+      missionId: 'mission',
+      missionRunId: 'mission-run',
+      assigneeId: 'human-bridge',
+      criterionIds: ['AC2'],
+      acceptedArtifactId: 'manual-artifact',
+      acceptedArtifactHash: acceptedHash,
+    });
+    expect(policy.decisionBranch!(detail, step)).toEqual({ branch: 'PASS', waitForUser: false });
   });
 });

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { DomainError } from '@cultivation/shared';
 import { isSafeWorkflowRelativePath } from '@cultivation/domain';
 import type { WorkflowDetail, WorkflowStepRun, WorkflowArtifact } from '@cultivation/domain';
@@ -42,14 +43,34 @@ export function latestSoftwareOutput(
 }
 export interface SoftwareVerificationFact {
   id: string;
+  workflowRunId: string;
+  stepRunId: string;
+  attempt: number;
+  missionId: string;
+  missionRunId: string;
+  actorId: string;
+  toolCallId: string;
+  commandId: string;
   toolId: string;
   command: string;
+  commandHash: string;
   exitStatus: number;
   criterionIds: string[];
   outputHash: string;
 }
+export interface SoftwareManualVerificationFact {
+  requestId: string;
+  missionId: string;
+  missionRunId: string;
+  assigneeId: string;
+  criterionIds: string[];
+  acceptedArtifactId: string;
+  acceptedArtifactHash: string;
+}
 export interface SoftwareVerificationFacts {
   listForStep(stepRunId: string): SoftwareVerificationFact[];
+  /** Main resolves this only from an accepted durable ExternalWork request on the S06 Run. */
+  listManualForStep?(stepRunId: string): SoftwareManualVerificationFact[];
 }
 /** Prepared command rows become effective only with their durable actual Tool result. */
 export function verifiedSoftwareFacts(
@@ -65,6 +86,7 @@ export function verifiedSoftwareFacts(
             .listMissionEvents(fact.missionId)
             .some(
               (event) =>
+                event.missionId === fact.missionId &&
                 event.runId === fact.missionRunId &&
                 event.actorType === 'TEAMMATE' &&
                 event.actorId === fact.actorId &&
@@ -132,31 +154,65 @@ function verificationOutcome(
   facts: SoftwareVerificationFacts,
 ): 'PASS' | 'REVISE' | 'BLOCKED' {
   const data = parsed(report);
-  const acceptedHuman = report.source === 'HUMAN_BRIDGE';
   const executions = list(data.executions);
   const criteria = list(data.criteria);
   const plan = parsed(latestSoftwareOutput(detail, 'software.plan_scope'));
   const acceptance = parsed(latestSoftwareOutput(detail, 'software.acceptance'));
   const commands = list(plan.commands);
-  const actual = facts.listForStep(report.producerStepRunId);
   const declaredCriteria = list(acceptance.criteria);
+  const producer = detail.steps?.find((step) => step.id === report.producerStepRunId);
   if (
     !declaredCriteria.length ||
-    (!acceptedHuman && !commands.some((item) => item.required === true))
+    !producer ||
+    producer.stepId !== 'S06' ||
+    producer.workflowRunId !== detail.run.id ||
+    producer.missionId === null ||
+    producer.missionRunId === null ||
+    report.workflowRunId !== detail.run.id ||
+    report.missionId !== producer.missionId ||
+    report.missionRunId !== producer.missionRunId ||
+    !report.actorId.trim()
   )
     return 'BLOCKED';
-  const matches = (row: Json) =>
-    actual.find(
-      (fact) =>
-        fact.id === row.toolExecutionId &&
-        row.outputArtifactId === fact.id &&
-        fact.toolId === row.toolId &&
-        fact.command === row.command &&
-        fact.exitStatus === row.exitStatus &&
-        fact.outputHash === row.outputHash &&
-        strings(row.acceptanceCriteriaIds).every((id) => fact.criterionIds.includes(id)),
+
+  const actual = facts.listForStep(producer.id);
+  const actualForRow = (row: Json) => {
+    const candidates = actual.filter((fact) => fact.id === row.toolExecutionId);
+    if (candidates.length !== 1) return undefined;
+    const fact = candidates[0]!;
+    const planned = commands.find(
+      (command) => command.id === row.commandId && command.command === row.command,
     );
-  if (!acceptedHuman && executions.some((row) => !matches(row))) return 'BLOCKED';
+    const rowCriteria = strings(row.acceptanceCriteriaIds);
+    const planCriteria = planned ? strings(planned.acceptanceCriteriaIds) : [];
+    if (
+      !planned ||
+      fact.workflowRunId !== detail.run.id ||
+      fact.stepRunId !== producer.id ||
+      fact.attempt !== producer.attempt ||
+      fact.missionId !== producer.missionId ||
+      fact.missionRunId !== producer.missionRunId ||
+      fact.actorId !== report.actorId ||
+      !fact.toolCallId.trim() ||
+      fact.commandId !== row.commandId ||
+      fact.toolId !== row.toolId ||
+      fact.command !== row.command ||
+      fact.commandHash !== sha256(fact.command) ||
+      fact.exitStatus !== row.exitStatus ||
+      fact.outputHash !== row.outputHash ||
+      row.outputArtifactId !== fact.id ||
+      rowCriteria.length === 0 ||
+      rowCriteria.some((id) => !fact.criterionIds.includes(id) || !planCriteria.includes(id))
+    )
+      return undefined;
+    return fact;
+  };
+  const matched = new Map<Json, SoftwareVerificationFact>();
+  for (const row of executions) {
+    const fact = actualForRow(row);
+    if (!fact) return 'BLOCKED';
+    matched.set(row, fact);
+  }
   if (
     executions.some(
       (row) =>
@@ -166,6 +222,7 @@ function verificationOutcome(
     )
   )
     return 'BLOCKED';
+
   for (const command of commands.filter((item) => item.required === true)) {
     const row = executions.find(
       (item) => item.commandId === command.id && item.command === command.command,
@@ -173,42 +230,171 @@ function verificationOutcome(
     if (!row) return 'BLOCKED';
     if (row.exitStatus !== 0) return 'REVISE';
   }
+
+  if (!validCriterionRecords(declaredCriteria, criteria)) return 'BLOCKED';
+  const resultByCriterion = new Map(criteria.map((result) => [String(result.criterionId), result]));
+  const manualCriteria = declaredCriteria.filter((criterion) => {
+    if (criterion.verificationMethod === 'COMMAND') return false;
+    const result = resultByCriterion.get(String(criterion.id));
+    return (
+      criterion.severity === 'BLOCKING' || result?.status === 'PASS' || result?.status === 'FAIL'
+    );
+  });
+  let manualFact: SoftwareManualVerificationFact | undefined;
+  if (manualCriteria.length) {
+    const requestId = report.metadata.manualRequestId;
+    const artifactId =
+      report.source === 'HUMAN_BRIDGE' ? report.sourceId : report.metadata.manualArtifactId;
+    const artifactHash =
+      report.source === 'HUMAN_BRIDGE'
+        ? report.metadata.contentHash
+        : report.metadata.manualContentHash;
+    const manualFacts = facts.listManualForStep?.(producer.id) ?? [];
+    const matchedManualFacts = manualFacts.filter(
+      (fact) =>
+        fact.missionId === producer.missionId &&
+        fact.missionRunId === producer.missionRunId &&
+        fact.assigneeId.trim().length > 0 &&
+        fact.requestId.trim().length > 0 &&
+        fact.acceptedArtifactId === artifactId &&
+        fact.acceptedArtifactHash === artifactHash &&
+        /^[a-f0-9]{64}$/.test(fact.acceptedArtifactHash) &&
+        (report.source === 'HUMAN_BRIDGE' || fact.requestId === requestId) &&
+        fact.criterionIds.length > 0 &&
+        new Set(fact.criterionIds).size === fact.criterionIds.length &&
+        manualCriteria.every((criterion) => fact.criterionIds.includes(String(criterion.id))),
+    );
+    if (matchedManualFacts.length !== 1) return 'BLOCKED';
+    manualFact = matchedManualFacts[0]!;
+  }
+
   for (const criterion of declaredCriteria.filter((item) => item.severity === 'BLOCKING')) {
-    const result = criteria.find((item) => item.criterionId === criterion.id);
-    if (!result || result.status === 'NOT_RUN') return 'BLOCKED';
-    if (result.status === 'FAIL') return 'REVISE';
-    if (result.status !== 'PASS') return 'BLOCKED';
-    if (!acceptedHuman) {
-      if (criterion.verificationMethod !== 'COMMAND') return 'BLOCKED';
-      const ids = strings(result.executionIds);
-      if (
-        !ids.length ||
-        ids.some(
-          (id) =>
-            !executions.some(
-              (row) =>
-                row.toolExecutionId === id &&
-                row.commandId === criterion.commandId &&
-                row.exitStatus === 0 &&
-                strings(row.acceptanceCriteriaIds).includes(String(criterion.id)),
-            ),
-        )
-      )
+    const result = resultByCriterion.get(String(criterion.id));
+    if (!result) return 'BLOCKED';
+    if (result.status === 'NOT_RUN') return 'BLOCKED';
+  }
+
+  for (const criterion of declaredCriteria) {
+    const result = resultByCriterion.get(String(criterion.id))!;
+    if (result.status === 'NOT_RUN') {
+      if (criterion.verificationMethod === 'COMMAND' && strings(result.executionIds).length > 0)
         return 'BLOCKED';
+      continue;
+    }
+    if (criterion.verificationMethod === 'COMMAND') {
+      const commandId = String(criterion.commandId ?? '');
+      const ids = strings(result.executionIds);
       const evidenceIds = strings(result.evidenceArtifactIds);
       if (
+        !commandId ||
+        !ids.length ||
         !evidenceIds.length ||
+        new Set(ids).size !== ids.length ||
+        new Set(evidenceIds).size !== evidenceIds.length ||
+        ids.some((id) => {
+          const row = executions.find((item) => item.toolExecutionId === id);
+          return (
+            !row ||
+            row.commandId !== commandId ||
+            !strings(row.acceptanceCriteriaIds).includes(String(criterion.id)) ||
+            (result.status === 'PASS' && row.exitStatus !== 0) ||
+            !matched.has(row)
+          );
+        }) ||
         evidenceIds.some(
           (id) =>
             !executions.some(
-              (row) => row.outputArtifactId === id && ids.includes(String(row.toolExecutionId)),
+              (row) =>
+                row.outputArtifactId === id &&
+                ids.includes(String(row.toolExecutionId)) &&
+                matched.has(row),
             ),
         )
       )
         return 'BLOCKED';
+      if (criterion.severity === 'BLOCKING' && result.status === 'FAIL') return 'REVISE';
+    } else {
+      if (result.status !== 'PASS' && result.status !== 'FAIL') return 'BLOCKED';
+      const evidenceIds = strings(result.evidenceArtifactIds);
+      if (!manualFact || !evidenceIds.includes(manualFact.acceptedArtifactId)) return 'BLOCKED';
+      if (criterion.severity === 'BLOCKING' && result.status === 'FAIL') return 'REVISE';
     }
   }
   return 'PASS';
+}
+
+function validCriterionRecords(declared: Json[], records: Json[]): boolean {
+  if (declared.length === 0 || records.length !== declared.length) return false;
+  const declaredIds = declared.map((item) => item.id);
+  if (
+    declaredIds.some((id) => typeof id !== 'string' || id.trim().length === 0) ||
+    new Set(declaredIds).size !== declaredIds.length
+  )
+    return false;
+  const recordIds = records.map((item) => item.criterionId);
+  if (
+    recordIds.some((id) => typeof id !== 'string' || id.trim().length === 0) ||
+    new Set(recordIds).size !== recordIds.length ||
+    recordIds.some((id) => !declaredIds.includes(id))
+  )
+    return false;
+  return records.every((item) => ['PASS', 'FAIL', 'NOT_RUN'].includes(String(item.status)));
+}
+
+function sha256(value: string): string {
+  return createHash('sha256').update(value, 'utf8').digest('hex');
+}
+
+function hasInvalidCommandProvenance(
+  detail: WorkflowDetail,
+  report: WorkflowArtifact,
+  facts: SoftwareVerificationFacts,
+): boolean {
+  const producer = detail.steps?.find((step) => step.id === report.producerStepRunId);
+  const executions = list(parsed(report).executions);
+  if (
+    !producer ||
+    producer.stepId !== 'S06' ||
+    producer.workflowRunId !== detail.run.id ||
+    producer.missionId === null ||
+    producer.missionRunId === null ||
+    report.workflowRunId !== detail.run.id ||
+    report.missionId !== producer.missionId ||
+    report.missionRunId !== producer.missionRunId
+  )
+    return executions.length > 0;
+  const actual = facts.listForStep(producer.id);
+  const plan = parsed(latestSoftwareOutput(detail, 'software.plan_scope'));
+  const commands = list(plan.commands);
+  return executions.some((row) => {
+    const candidates = actual.filter((fact) => fact.id === row.toolExecutionId);
+    if (candidates.length !== 1) return true;
+    const fact = candidates[0]!;
+    const command = commands.find(
+      (item) => item.id === row.commandId && item.command === row.command,
+    );
+    const planCriteria = command ? strings(command.acceptanceCriteriaIds) : [];
+    const rowCriteria = strings(row.acceptanceCriteriaIds);
+    return (
+      !command ||
+      fact.workflowRunId !== detail.run.id ||
+      fact.stepRunId !== producer.id ||
+      fact.attempt !== producer.attempt ||
+      fact.missionId !== producer.missionId ||
+      fact.missionRunId !== producer.missionRunId ||
+      fact.actorId !== report.actorId ||
+      !fact.toolCallId.trim() ||
+      fact.commandId !== row.commandId ||
+      fact.toolId !== row.toolId ||
+      fact.command !== row.command ||
+      fact.commandHash !== sha256(fact.command) ||
+      fact.exitStatus !== row.exitStatus ||
+      fact.outputHash !== row.outputHash ||
+      row.outputArtifactId !== fact.id ||
+      rowCriteria.length === 0 ||
+      rowCriteria.some((id) => !fact.criterionIds.includes(id) || !planCriteria.includes(id))
+    );
+  });
 }
 
 /** Registered from trusted Main code. Model statements cannot choose verification branches. */
@@ -289,26 +475,10 @@ export function softwareWorkflowValidationPolicy(
         if (step.stepId === 'S06') {
           const report = output('software.tests');
           if (!report) return ['MISSING_TEST_REPORT'];
-          const result = verificationOutcome(detail, report, facts);
           // BLOCKED is a valid report outcome, but a forged execution claim is not a valid fact.
-          if (
-            report.source !== 'HUMAN_BRIDGE' &&
-            list(parsed(report).executions).some(
-              (row) =>
-                !facts
-                  .listForStep(step.id)
-                  .some(
-                    (fact) =>
-                      fact.id === row.toolExecutionId &&
-                      fact.command === row.command &&
-                      fact.toolId === row.toolId &&
-                      fact.exitStatus === row.exitStatus &&
-                      fact.outputHash === row.outputHash,
-                  ),
-            )
-          )
+          if (hasInvalidCommandProvenance(detail, report, facts))
             return ['VERIFICATION_PROVENANCE_INVALID'];
-          void result;
+          void verificationOutcome(detail, report, facts);
         }
         return [];
       } catch (error) {

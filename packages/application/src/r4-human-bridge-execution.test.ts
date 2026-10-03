@@ -355,7 +355,7 @@ const draft: HumanBridgeExternalWorkDraft = {
   acceptanceCriteria: ['The file contains the completed result.'],
 };
 
-function harness() {
+function harness(model = false) {
   const bridge: Teammate = {
     id: bridgeId,
     name: '本尊 / Human Bridge',
@@ -381,13 +381,36 @@ function harness() {
     getByMissionId: (id) => (id === missionId ? { externalWorkDraft: draft } : null),
   };
   const gate1 = {
-    getTeammate: (id: string) => (id === bridge.id ? bridge : null),
-    getRuntimeProfile: () => null,
+    getTeammate: (id: string) =>
+      id === bridge.id
+        ? bridge
+        : id === 'model'
+          ? {
+              ...bridge,
+              id: 'model',
+              executorKind: 'MODEL_RUNTIME',
+              routingPolicy: 'NORMAL',
+              systemKind: null,
+              currentRuntimeProfileId: 'runtime',
+            }
+          : null,
+    getRuntimeProfile: () => ({
+      id: 'runtime',
+      name: 'Model',
+      providerId: 'provider',
+      credentialId: null,
+      modelId: 'fixed-model',
+      parameters: {},
+      capabilityOverrides: {},
+      createdAt: at,
+      updatedAt: at,
+    }),
   } as unknown as Pick<Gate1Store, 'getTeammate' | 'getRuntimeProfile'>;
   let generated = 0;
   const gateway = {
     generate: async () => {
       generated += 1;
+      if (model) return { text: 'automatic verification report', usage: null };
       throw new Error('Human Bridge SOLO must not call a model');
     },
     stream: async function* () {
@@ -415,10 +438,12 @@ function harness() {
     clock,
   );
   service.attachHumanBridgeExecution(externalWork, continuations, assignments);
-  const mission = service.createHumanBridgeMission({
+  const mission = (
+    model ? service.create.bind(service) : service.createHumanBridgeMission.bind(service)
+  )({
     title: 'R4 Human Bridge SOLO',
     objective: 'Produce a source report.',
-    coordinatorTeammateId: bridgeId,
+    coordinatorTeammateId: model ? 'model' : bridgeId,
   });
   missionId = mission.id;
   return {
@@ -428,9 +453,108 @@ function harness() {
     continuations,
     mission,
     clock,
+    gate1,
     gatewayCalls: () => generated,
   };
 }
+
+describe('bounded mixed verification continuation', () => {
+  it('cancels its pending manual work with the original Mission without creating a success continuation', async () => {
+    const h = harness(true);
+    h.service.attachCompletionBoundary({
+      prepare: () => ({ draft, stepRunId: 'S06' }),
+      compose: async () => {
+        throw new Error('cancelled manual work cannot compose');
+      },
+    });
+    h.service.ready(h.mission.id);
+    await h.service.start({ missionId: h.mission.id, approvalFixture: false });
+    h.service.cancel(h.mission.id);
+    expect(h.externalWork.getExternalWorkRequest('external-request-1')?.request.state).toBe(
+      'CANCELLED',
+    );
+    expect(h.continuations.listRecoverable()).toEqual([]);
+    expect(h.service.detail(h.mission.id).runs[0]?.status).toBe('CANCELLED');
+    expect(h.gatewayCalls()).toBe(1);
+  });
+  it('resumes the original model Run after restart, composing accepted manual evidence once with zero model replay', async () => {
+    const h = harness(true);
+    let composed = 0;
+    const boundary = {
+      prepare: () => ({ draft, stepRunId: 'S06-attempt-1' }),
+      compose: async () => {
+        composed++;
+        return 'trusted command + accepted manual report';
+      },
+    };
+    h.service.attachCompletionBoundary(boundary);
+    h.service.ready(h.mission.id);
+    const waiting = await h.service.start({ missionId: h.mission.id, approvalFixture: false });
+    expect(waiting.mission.state).toBe('WAITING_EXTERNAL_WORK');
+    expect(h.gatewayCalls()).toBe(1);
+    const originalRun = waiting.runs[0]!.id;
+    const request = h.externalWork.accept('external-request-1', 'manual accepted');
+    h.continuations.createPending({
+      externalWorkRequestId: request.id,
+      missionId: h.mission.id,
+      missionRunId: originalRun,
+      createdAt: at,
+    });
+    const restarted = new Gate3MissionService(
+      h.store,
+      h.gate1,
+      new PermissionEngine({} as PermissionRuleStore),
+      {
+        generate: async () => {
+          throw new Error('must not replay model');
+        },
+      } as unknown as ModelGateway,
+      undefined,
+      h.clock,
+    );
+    restarted.attachHumanBridgeExecution(h.externalWork, h.continuations, {
+      getByMissionId: () => null,
+    });
+    restarted.attachCompletionBoundary(boundary);
+    expect(restarted.recoverInterrupted()).toEqual([]);
+    const done = await restarted.resumeExternalWork(continuation(request, 'ACCEPTED'));
+    await restarted.resumeExternalWork(continuation(request, 'ACCEPTED'));
+    expect(done.runs).toHaveLength(1);
+    expect(done.runs[0]).toMatchObject({
+      id: originalRun,
+      status: 'COMPLETED',
+      resultText: 'trusted command + accepted manual report',
+    });
+    expect(composed).toBe(1);
+    expect(h.gatewayCalls()).toBe(1);
+    expect(h.continuations.getByRequestId(request.id)?.state).toBe('CONSUMED');
+  });
+  it('does not consume accepted evidence or complete a Run when trusted composition fails', async () => {
+    const h = harness(true);
+    h.service.attachCompletionBoundary({
+      prepare: () => ({ draft, stepRunId: 'S06' }),
+      compose: async () => {
+        throw new Error('artifact hash changed');
+      },
+    });
+    h.service.ready(h.mission.id);
+    const waiting = await h.service.start({ missionId: h.mission.id, approvalFixture: false });
+    const request = h.externalWork.accept('external-request-1', 'manual accepted');
+    h.continuations.createPending({
+      externalWorkRequestId: request.id,
+      missionId: h.mission.id,
+      missionRunId: waiting.runs[0]!.id,
+      createdAt: at,
+    });
+    await expect(h.service.resumeExternalWork(continuation(request, 'ACCEPTED'))).rejects.toThrow(
+      'hash changed',
+    );
+    expect(h.store.getRun(waiting.runs[0]!.id)?.status).toBe('RUNNING');
+    expect(h.store.getMission(h.mission.id)?.state).toBe('WAITING_EXTERNAL_WORK');
+    expect(h.continuations.getByRequestId(request.id)?.state).toBe('PENDING');
+    expect(h.gatewayCalls()).toBe(1);
+  });
+});
 
 function continuation(
   request: ExternalWorkRequestRecord,

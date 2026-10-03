@@ -53,6 +53,27 @@ function fixture() {
 }
 
 describe('software trusted execution preparation', () => {
+  it('keeps COMMAND + MANUAL verification on a model executor before its bounded manual handoff', async () => {
+    const { adapter, detail, reviewer } = fixture();
+    detail.artifacts.push({
+      id: 'acceptance',
+      content: JSON.stringify({
+        criteria: [{ verificationMethod: 'COMMAND' }, { verificationMethod: 'MANUAL' }],
+      }),
+    } as never);
+    detail.bindings.push({
+      role: 'OUTPUT',
+      key: 'software.acceptance',
+      artifactId: 'acceptance',
+    } as never);
+    expect(
+      await adapter.prepareExecution(
+        detail.version.steps.find((s) => s.id === 'S06')!,
+        detail,
+        reviewer,
+      ),
+    ).toEqual({ routing: { executionConstraint: 'SOLO' } });
+  });
   it('excludes every actual implementation/fix actor without inventing an independent self-review', async () => {
     const { adapter, detail, reviewer } = fixture();
     const result = await adapter.prepareExecution(

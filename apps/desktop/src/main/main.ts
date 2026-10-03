@@ -95,6 +95,10 @@ import {
   verifiedSoftwareFacts,
 } from './w22-validation-policy.js';
 import { WorkflowToolGuard } from './w22-workspace-mutations.js';
+import {
+  softwareManualVerificationFacts,
+  softwareMixedVerificationBoundary,
+} from './w22-mixed-verification.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -686,6 +690,24 @@ if (!squirrelStartup)
       );
       missions.attachArtifactContext((id) => workflowArtifactContext(workflowStore, id));
       partyMissions.attachArtifactContext((id) => workflowArtifactContext(workflowStore, id));
+      const softwareFacts = {
+        ...verifiedSoftwareFacts(workspaceMutations, gate3Store),
+        listManualForStep: softwareManualVerificationFacts(workflowStore, externalWork),
+      };
+      const mixedVerification = softwareMixedVerificationBoundary(
+        workflowStore,
+        gate3Store,
+        externalWork,
+        () => tools.getWorkspace().rootPath,
+        softwareFacts,
+      );
+      if (
+        process.argv.includes('--gate1-fake-model') &&
+        process.argv.includes('--w22-stop-manual-continuation')
+      ) {
+        mixedVerification.compose = async () => new Promise<string>(() => {});
+      }
+      missions.attachCompletionBoundary(mixedVerification);
       const pendingExternalWork = externalWork.listPendingContinuations();
       const protectedMissionIds = new Set(pendingExternalWork.map((item) => item.missionId));
       for (const continuation of pendingExternalWork) {
@@ -738,7 +760,7 @@ if (!squirrelStartup)
       const workflowPolicies = officialWorkflowValidationPolicies();
       workflowPolicies.register(
         'software-integrity-v1',
-        softwareWorkflowValidationPolicy(verifiedSoftwareFacts(workspaceMutations, gate3Store)),
+        softwareWorkflowValidationPolicy(softwareFacts),
       );
       const workflows = new WorkflowService(
         workflowStore,

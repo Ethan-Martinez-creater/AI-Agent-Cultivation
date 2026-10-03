@@ -45,7 +45,7 @@ export function workflowInputPresentationFor(
         constraints: '约束',
         targetArea: '允许修改的相对路径 / 模块',
         userAcceptanceNotes: '人工验收要求',
-        allowedToolScope: '确认允许使用的工具 ID',
+        allowedToolScope: '允许使用的工具',
         contextArtifacts: '参考资料',
       },
     };

@@ -167,6 +167,18 @@ export interface Gate3ExternalWorkService {
   getExternalWorkRequest(id: string): ExternalWorkDetail | null;
   listExternalWorkRequests(missionId?: string, runId?: string): ExternalWorkRequestRecord[];
 }
+/** Trusted application seam for a bounded manual handoff after real execution.
+ * It cannot change routing, permissions, or the Mission/Run identity. */
+export interface MissionCompletionBoundary {
+  prepare(
+    mission: Mission,
+    run: MissionRunRecord,
+  ): {
+    draft: HumanBridgeExternalWorkDraft;
+    stepRunId: string;
+  } | null;
+  compose(continuation: ExternalWorkContinuation): Promise<string>;
+}
 const MAX_TOOL_STEPS = 8;
 const MAX_TOOL_CALLS = 8;
 
@@ -406,6 +418,10 @@ function skillIdsInPromptSection(section: string): string[] {
  * final visible answer is stored on its own MissionRun.
  */
 export class Gate3MissionService {
+  private completionBoundary: MissionCompletionBoundary | null = null;
+  attachCompletionBoundary(boundary: MissionCompletionBoundary): void {
+    this.completionBoundary = boundary;
+  }
   private artifactContext:
     | ((missionId: string) => Extract<ModelMessage, { role: 'assistant' }>[])
     | null = null;
@@ -625,7 +641,14 @@ export class Gate3MissionService {
       if (
         mission.state === 'WAITING_EXTERNAL_WORK' &&
         activeRun &&
-        this.isHumanBridgeCoordinator(mission)
+        (this.isHumanBridgeCoordinator(mission) ||
+          this.store
+            .listMissionEvents(mission.id)
+            .some(
+              (event) =>
+                event.runId === activeRun.id &&
+                event.eventType === 'workflow.verification.manual_requested',
+            ))
       ) {
         const pendingWork = this.externalWork
           ?.listExternalWorkRequests(mission.id, activeRun.id)
@@ -1000,14 +1023,25 @@ export class Gate3MissionService {
     const mission = this.requireMission(continuation.missionId);
     const run = this.store.getRun(continuation.runId);
     const durable = this.externalWorkContinuations?.getByRequestId(continuation.requestId) ?? null;
+    const manualHandoff = this.store
+      .listMissionEvents(mission.id)
+      .some(
+        (event) =>
+          event.runId === run?.id &&
+          event.eventType === 'workflow.verification.manual_requested' &&
+          event.payloadJson.requestId === continuation.requestId &&
+          event.actorId === mission.coordinatorTeammateId,
+      );
     if (
       !run ||
       run.missionId !== mission.id ||
       this.store.listRuns(mission.id).at(-1)?.id !== run.id ||
       mission.mode !== 'SOLO' ||
-      !this.isHumanBridgeCoordinator(mission) ||
+      (!this.isHumanBridgeCoordinator(mission) && !manualHandoff) ||
       continuation.requesterTeammateId !== mission.coordinatorTeammateId ||
-      continuation.assigneeTeammateId !== mission.coordinatorTeammateId ||
+      (manualHandoff
+        ? !isHumanBridgeTeammate(this.gate1.getTeammate(continuation.assigneeTeammateId))
+        : continuation.assigneeTeammateId !== mission.coordinatorTeammateId) ||
       (durable && (durable.missionId !== mission.id || durable.missionRunId !== run.id))
     ) {
       throw new DomainError('PERSISTENCE_INVALID', 'ExternalWork continuation 与 SOLO Run 不匹配');
@@ -1084,6 +1118,14 @@ export class Gate3MissionService {
 
     this.externalWorkContinuationsInFlight.add(continuation.requestId);
     try {
+      if (manualHandoff && !this.completionBoundary)
+        throw new DomainError('PERSISTENCE_INVALID', '人工验收缺少可信证据合并器');
+      // Composition only verifies durable facts and accepted files. No model/tool replay.
+      const resultText = manualHandoff
+        ? await this.completionBoundary!.compose(continuation)
+        : request.publicResult;
+      if (manualHandoff && (!resultText || resultText.length > MAX_RESULT_LENGTH))
+        throw new DomainError('WORKFLOW_OUTPUT_INVALID', '合并验收结果超出上限');
       const at = this.clock.now();
       const running =
         mission.state === 'WAITING_EXTERNAL_WORK'
@@ -1114,7 +1156,7 @@ export class Gate3MissionService {
           endedAt: at,
           errorCode: null,
           errorMessage: null,
-          resultText: request.publicResult,
+          resultText,
         });
         if (!this.store.transitionMission(completed, running.state)) {
           throw new DomainError('CONFLICT', 'Mission 状态已在 ExternalWork 完成前改变');
@@ -1587,6 +1629,7 @@ export class Gate3MissionService {
     this.store.transaction(() => {
       this.store.saveUsage(usage);
       this.appendUsageEvents(mission, run, teammate.id, runtime, usage);
+      if (this.pauseForCompletionBoundary(mission, run)) return;
       this.finishRun(completedRun);
       if (!this.store.transitionMission(completedMission, mission.state)) {
         throw new DomainError('CONFLICT', 'Mission 状态已被其他操作修改');
@@ -2012,7 +2055,48 @@ export class Gate3MissionService {
     }
   }
 
+  private pauseForCompletionBoundary(mission: Mission, run: MissionRunRecord): boolean {
+    const handoff = this.completionBoundary?.prepare(mission, run);
+    if (handoff) {
+      if (!this.externalWork)
+        throw new DomainError('EXTERNAL_WORK_UNAVAILABLE', '人工验收尚未配置');
+      this.store.transaction(() => {
+        const request = this.externalWork!.createExplicit({
+          ...handoff.draft,
+          missionId: mission.id,
+          runId: run.id,
+          requesterTeammateId: mission.coordinatorTeammateId,
+        });
+        this.appendEvent(
+          mission,
+          run.id,
+          'workflow.verification.manual_requested',
+          'TEAMMATE',
+          mission.coordinatorTeammateId,
+          {
+            requestId: request.id,
+            stepRunId: handoff.stepRunId,
+          },
+        );
+        this.appendAudit(
+          mission,
+          'workflow.verification.manual_requested',
+          'TEAMMATE',
+          mission.coordinatorTeammateId,
+          {
+            runId: run.id,
+            requestId: request.id,
+            stepRunId: handoff.stepRunId,
+          },
+        );
+      });
+      return true;
+    }
+    return false;
+  }
+
   private completeToolRun(mission: Mission, run: MissionRunRecord, text: string): void {
+    if (this.pauseForCompletionBoundary(mission, run)) return;
     const at = this.clock.now();
     const completed = this.transition(mission, 'COMPLETED', at);
     this.store.transaction(() => {

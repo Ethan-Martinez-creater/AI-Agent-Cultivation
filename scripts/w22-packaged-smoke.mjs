@@ -40,6 +40,12 @@ const cases = [
     paths: ['renderer.ts', 'ipc.ts', 'store.ts'],
     test: "const renderer = await import('./renderer.ts'); const ipc = await import('./ipc.ts'); const store = await import('./store.ts'); assert.equal(renderer.featureRenderer, true); assert.equal(ipc.featureIpc, 'feature:run'); assert.equal(store.featureStored, true);",
   },
+  {
+    name: 'mixed',
+    objective: '混合验收 mixed migration：命令验证与人工交付说明检查',
+    paths: ['migrations/0001_feature.sql'],
+    test: "assert.match(readFileSync('migrations/0001_feature.sql','utf8'),/feature_records/);",
+  },
 ];
 writeFileSync(
   join(workspace, 'package.json'),
@@ -61,7 +67,7 @@ function read(fn) {
     db.close();
   }
 }
-async function launch(hook = false) {
+async function launch(hook = false, manualHook = false) {
   const app = await electron.launch({
     executablePath,
     args: [
@@ -69,6 +75,7 @@ async function launch(hook = false) {
       '--r4-fake-routing',
       '--w22-fake-software',
       ...(hook ? ['--w2-stop-applied'] : []),
+      ...(manualHook ? ['--w22-stop-manual-continuation'] : []),
     ],
     env: { ...process.env, CULTIVATION_USER_DATA_DIR: profile, W22_WORKSPACE_ROOT: workspace },
     timeout: 30_000,
@@ -116,9 +123,14 @@ async function createUi(page, inputs) {
   await page.getByRole('button', { name: '新建运行', exact: true }).click();
   await page.locator('#workflow-version-select').selectOption('official.software-feature::1');
   await page.locator('#workflow-input-objective').fill(inputs.objective);
-  await page.locator('#workflow-input-workspaceRoot').fill(inputs.workspaceRoot);
-  for (const key of ['targetArea', 'allowedToolScope']) {
-    const title = key === 'targetArea' ? '允许修改的相对路径 / 模块' : '确认允许使用的工具 ID';
+  await page.locator('code[aria-label="当前 Workspace 根路径"]').waitFor();
+  assert.equal(
+    await page.locator('code[aria-label="当前 Workspace 根路径"]').innerText(),
+    inputs.workspaceRoot,
+  );
+  assert.equal(await page.locator('input#workflow-input-workspaceRoot').count(), 0);
+  for (const key of ['targetArea']) {
+    const title = '允许修改的相对路径 / 模块';
     const field = page
       .locator('.workflow-launch-drawer fieldset')
       .filter({ has: page.locator('legend', { hasText: title }) })
@@ -129,6 +141,21 @@ async function createUi(page, inputs) {
       await page.locator(`#workflow-input-${key}-${i}-`).fill(value);
     }
   }
+  const tools = await page.evaluate(async () => {
+    const api = window.cultivation.tools;
+    const discoveries = await Promise.all(
+      (await api.listMcpServers())
+        .filter((server) => server.enabled)
+        .map((server) => api.refreshMcpServer(server.id)),
+    );
+    return [...(await api.listBuiltins()), ...discoveries.flatMap((server) => server.tools)];
+  });
+  for (const id of inputs.allowedToolScope) {
+    const tool = tools.find((item) => item.id === id);
+    assert.ok(tool);
+    await page.locator(`input[data-tool-id="${id}"]`).check();
+  }
+  await page.screenshot({ path: join(evidence, '03-tool-scope-selection.png'), fullPage: true });
   await page.locator('.workflow-launch-drawer .drawer-content').evaluate((element) => {
     element.scrollTop = 0;
   });
@@ -157,6 +184,7 @@ try {
         ...new Set(version.steps.flatMap((s) => s.routing.requiredCapabilities ?? [])),
       ];
       const actors = [];
+      await api.r2.setCapability({ dimension: 'CODING', enabled: true });
       for (const [name, score] of [
         ['青岚', 95],
         ['明衡', 85],
@@ -258,11 +286,133 @@ try {
         break;
       }
       assert.notEqual(workflow.run.state, 'FAILED', JSON.stringify(current));
-      assert.notEqual(
-        workflow.run.waitReason,
-        'EXTERNAL_WORK',
-        'two model executors should support independent review',
-      );
+      if (workflow.run.waitReason === 'EXTERNAL_WORK') {
+        assert.equal(testCase.name, 'mixed', 'only mixed S06 requires manual verification');
+        assert.equal(current.stepId, 'S06');
+        const requests = await live.page.evaluate(() => window.cultivation.r2.listRequests());
+        const request = requests.find(
+          (r) =>
+            r.missionId === current.missionId &&
+            r.runId === current.missionRunId &&
+            r.state === 'PENDING',
+        );
+        assert.ok(request, 'one bounded manual request on original S06 Run');
+        const before = counts(current.missionId);
+        assert.equal(
+          read(
+            (db) =>
+              db
+                .prepare(
+                  'SELECT COUNT(*) AS n FROM workflow_verification_facts WHERE step_run_id=?',
+                )
+                .get(current.id).n,
+          ),
+          1,
+        );
+        await kill(live.app);
+        live = await launch(false, true);
+        assert.deepEqual(
+          counts(current.missionId),
+          before,
+          'manual wait restart cannot repeat commands',
+        );
+        const resumed = await detail(live.page, runId);
+        assert.equal(active(resumed).missionRunId, current.missionRunId);
+        await navigateUi(live.page, '本尊待办 Human Bridge');
+        await live.page.locator('.human-bridge-request-brief').waitFor();
+        await live.page.screenshot({
+          path: join(evidence, '04-mixed-command-human-verification.png'),
+          fullPage: true,
+        });
+        const directory = request.targetWorkspacePathsJson.items[0];
+        mkdirSync(join(workspace, directory), { recursive: true });
+        const path = `${directory}/software.tests.json`;
+        writeFileSync(
+          join(workspace, path),
+          JSON.stringify({
+            executions: [],
+            criteria: [
+              {
+                criterionId: 'AC-MANUAL',
+                status: 'PASS',
+                evidenceArtifactIds: [],
+                executionIds: [],
+              },
+            ],
+            failures: [],
+          }),
+          'utf8',
+        );
+        await live.page.evaluate(
+          async ({ id, path }) => {
+            await window.cultivation.r2.markInProgress(id);
+            await window.cultivation.r2.submitArtifacts({
+              requestId: id,
+              artifacts: [{ targetArtifactId: 'software.tests', relativePath: path }],
+            });
+          },
+          { id: request.id, path },
+        );
+        void live.page
+          .evaluate(
+            (id) =>
+              window.cultivation.r2.accept({ requestId: id, publicResult: '人工交付说明检查通过' }),
+            request.id,
+          )
+          .catch(() => {});
+        await poll(
+          (db) =>
+            db
+              .prepare(
+                "SELECT state FROM r2_external_work_continuations WHERE external_work_request_id=? AND state='PENDING'",
+              )
+              .get(request.id),
+          'accepted continuation pending',
+        );
+        const afterAccept = counts(current.missionId);
+        await kill(live.app);
+        live = await launch();
+        assert.equal(
+          read(
+            (db) =>
+              db
+                .prepare(
+                  'SELECT state FROM r2_external_work_continuations WHERE external_work_request_id=?',
+                )
+                .get(request.id).state,
+          ),
+          'CONSUMED',
+        );
+        const mission = await live.page.evaluate(
+          (id) => window.cultivation.missions.detail(id),
+          current.missionId,
+        );
+        assert.equal(mission.runs.length, 1);
+        assert.equal(mission.runs[0].id, current.missionRunId);
+        assert.equal(mission.runs[0].status, 'COMPLETED');
+        const merged = JSON.parse(mission.runs[0].resultText);
+        assert.equal(merged.executions.length, 1);
+        assert.equal(merged.criteria.find((c) => c.criterionId === 'AC-MANUAL').status, 'PASS');
+        const counted = (items, type) => items.find((i) => i.event_type === type)?.n ?? 0;
+        const after = counts(current.missionId);
+        for (const type of ['model.call_started', 'tool.result'])
+          assert.equal(counted(after, type), counted(afterAccept, type));
+        facts.mixedVerification = {
+          workflowRunId: runId,
+          stepRunId: current.id,
+          missionRunId: current.missionRunId,
+          requestId: request.id,
+          commandFactCount: 1,
+          merged,
+          waitingRestartZeroReplay: true,
+          acceptedRestartZeroReplay: true,
+          before,
+          afterAccept,
+          after,
+          continuation: 'CONSUMED',
+        };
+        continue;
+      }
       if (current?.errorCode)
         throw new Error(`W22 ${testCase.name} ${current.stepId}: ${current.errorCode}`);
       let pending;
@@ -479,7 +629,7 @@ try {
   assert.equal(facts.noPublish, 0);
   writeFileSync(join(evidence, 'w22-facts.json'), JSON.stringify(facts, null, 2), 'utf8');
   console.log(
-    `W22_PACKAGED_SMOKE_OK cases=3 independentReview=true dynamicMutation=true crashZeroReplay=true noPublish=true evidence=${evidence}`,
+    `W22_PACKAGED_SMOKE_OK cases=4 mixedVerification=true independentReview=true dynamicMutation=true crashZeroReplay=true noPublish=true evidence=${evidence}`,
   );
 } finally {
   await live.app.close();

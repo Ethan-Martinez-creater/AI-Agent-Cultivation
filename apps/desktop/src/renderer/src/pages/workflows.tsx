@@ -21,6 +21,7 @@ import { Section } from '../components/Section.js';
 import { StatusBadge } from '../components/StatusBadge.js';
 import { WorkflowInputForm } from '../components/WorkflowInputForm.js';
 import { workflowInputPresentationFor } from '../components/workflow-input-presentations.js';
+import { SoftwareFeatureWorkflowInputForm } from '../components/SoftwareFeatureWorkflowInputForm.js';
 import { PageHeading } from '../ui-shared.js';
 import './mission-party.css';
 import './product-pages.css';
@@ -629,15 +630,24 @@ export function WorkflowsPage() {
                       ) || '暂无说明。'}
                     </p>
                   )}
-                  {selectedVersion && (
-                    <WorkflowInputForm
-                      key={versionKey(selectedVersion)}
-                      schema={selectedVersion.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA}
-                      presentation={workflowInputPresentationFor(selectedVersion.definition.id)}
-                      busy={busy}
-                      onSubmit={startRun}
-                    />
-                  )}
+                  {selectedVersion &&
+                    (selectedVersion.definition.id === 'official.software-feature' ? (
+                      <SoftwareFeatureWorkflowInputForm
+                        key={versionKey(selectedVersion)}
+                        schema={selectedVersion.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA}
+                        presentation={workflowInputPresentationFor(selectedVersion.definition.id)}
+                        busy={busy}
+                        onSubmit={startRun}
+                      />
+                    ) : (
+                      <WorkflowInputForm
+                        key={versionKey(selectedVersion)}
+                        schema={selectedVersion.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA}
+                        presentation={workflowInputPresentationFor(selectedVersion.definition.id)}
+                        busy={busy}
+                        onSubmit={startRun}
+                      />
+                    ))}
                 </div>
               ) : (
                 <div className="workflow-no-definitions" role="status">

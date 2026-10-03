@@ -1,0 +1,29 @@
+{
+  "baseline": "78eca696288fbd98026f76d5ea199090417bd10e",
+  "scope": "W2.2 corrective repair",
+  "migrationVersion": 22,
+  "newMigration": null,
+  "newDependencies": [],
+  "checks": {
+    "test": { "result": "PASS", "files": 82, "tests": 686 },
+    "typecheck": { "result": "PASS" },
+    "lint": { "result": "PASS" },
+    "format:check": { "result": "PASS" },
+    "package": { "result": "PASS", "platform": "win32", "arch": "x64", "electron": "44.4.3" },
+    "smoke:package": {
+      "result": "PASS",
+      "coverage": "Gate 0-6, R0-R4, W1, W2.0, W2.1, W2.2, Product UI"
+    }
+  },
+  "w22Packaged": {
+    "cases": ["bugfix", "migration", "crossLayer", "mixed"],
+    "allCompleted": true,
+    "mixedOriginalRunRetained": true,
+    "waitingRestartZeroReplay": true,
+    "acceptedPendingRestartZeroReplay": true,
+    "independentReview": true,
+    "mutationAppliedRestartZeroReplay": true,
+    "noPublish": true,
+    "evidence": "corrective-facts.json"
+  }
+}

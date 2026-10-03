@@ -413,7 +413,7 @@ export class SoftwareWorkflowFixtureGateway extends FakeModelGateway {
         });
       }
       case 'S02': {
-        const criteria = fallbackPlanFiles(detail).flatMap((file) =>
+        const criteria: Record<string, unknown>[] = fallbackPlanFiles(detail).flatMap((file) =>
           file.acceptanceCriteriaIds.map((id) => ({
             id,
             statement: `The ${id} acceptance behavior is observable in the local repository.`,
@@ -422,6 +422,13 @@ export class SoftwareWorkflowFixtureGateway extends FakeModelGateway {
             severity: 'BLOCKING',
           })),
         );
+        if (/mixed|混合验收/i.test(String(workflowInput(detail, 'objective'))))
+          criteria.push({
+            id: 'AC-MANUAL',
+            statement: '人工检查新增功能的交付说明。',
+            verificationMethod: 'MANUAL',
+            severity: 'BLOCKING',
+          });
         return outputText(stepDefinition, {
           'software.spec': `# Requirements\n\n目标：${String(workflowInput(detail, 'objective') ?? '')}\n\n# Acceptance Criteria\n\n${criteria.map((item) => `- ${item.id}: ${item.statement}`).join('\n')}\n\n# Constraints\n\n仅修改已批准的 Workspace 范围；不得自动 push、merge、deploy 或 release。\n\n# Out of Scope\n\n不执行计划外文件变更或外部发布操作。`,
           'software.acceptance': { criteria },

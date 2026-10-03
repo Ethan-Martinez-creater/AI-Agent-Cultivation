@@ -38,7 +38,7 @@ Version 1 冻结 `software.repo_context/spec/acceptance/plan/plan_scope/changes/
 
 未引入任意 Shell。MCP verification 仍是用户手动配置的 stdio server，经过既有 Permission/Approval。当前动态变更仅支持受控 `file.writeText`，MCP 任意 Workspace mutation fail closed；目录需用户预先准备，删除操作不在本版范围。
 
-验证 MCP 需要接收已确认的 `commandId / command / acceptanceCriterionIds`，并提供 bounded `structuredContent.workflowEvidence.verification`。Main 将其规范化为 append-only verification fact；只有同时匹配真实 `tool.result` 的 actor、MissionRun、Tool call ID 和输出 hash 才是有效证据。无需 cultivation 自定义 discovery metadata；无可用验证工具或人工验收项时使用现有 Human Bridge。
+验证 MCP 需要接收已确认的 `commandId / command / acceptanceCriterionIds`，并提供 bounded `structuredContent.workflowEvidence.verification`。Main 将其规范化为 append-only verification fact；只有同时匹配真实 `tool.result` 的 actor、MissionRun、Tool call ID 和输出 hash 才是有效证据。无需 cultivation 自定义 discovery metadata；人工验收项使用现有 Human Bridge，但 COMMAND 仍须真实 Tool fact，没有验证工具时不能通过 S07。
 
 为避免不可变 Run 缺失写入授权范围，本版启动表单要求明确填写 `targetArea` 和 `allowedToolScope`，不从 objective 猜测范围，也不将这些输入当成 Permission grant。这比 AP-007 可选输入建议更严格；constraints、人工验收要求和受限参考 Artifact metadata 仍可选。
 
@@ -88,3 +88,43 @@ Windows package：`out/AI Agent Cultivation-win32-x64/AI-Agent-Cultivation.exe`�
 证据与测试 profile 全部保存在当前项目目录，未新增 C 盘测试数据、仓库外工作区或运行依赖。
 
 Reference Basis：[software-feature-v1-reference-basis](../architecture/software-feature-v1-reference-basis.md)。采用需求追踪、仓库分析、可验证验收、独立审查、有界修复/重验原则；不绑定厂商运行时、源码托管或 CI SaaS。
+
+## W2.2 corrective repair：混合验收与启动界面
+
+基线 `78eca696288fbd98026f76d5ea199090417bd10e`。本轮不修改 `official.software-feature@1` Definition、Contract 或 manifest；0001–0022 均保持原样，无新增 migration、依赖或 W2.3 功能。
+
+### 验收 provenance
+
+- 删除 HUMAN_BRIDGE 来源的命令校验豁免。每条 COMMAND claim 都须匹配真实 S06 的 WorkflowRun、StepRun/attempt、Mission/MissionRun、actor、commandId、command/hash、ToolCall 和输出 hash。还要存在对应真实 MCP `tool.result`；人工报告不能替代执行。
+- MANUAL/INSPECTION 仅接受同一 S06 MissionRun 上已 ACCEPTED 的 ExternalWork Artifact。最终报告保留 request、artifact 与原文件 hash；未验收、跨 Run/Step/actor、未知/重复 criterion、未执行命令的 PASS 均 fail closed。
+- 混合验收先用 MODEL_RUNTIME 的 TOOL_USE 执行确认范围内的命令，再在原 S06/原 MissionRun 建立一次人工 CODING 检查请求，进入 WAITING_EXTERNAL_WORK。未增加 Step、修改图或创建第二个 Runtime。
+- trusted Main completion boundary 合并实际命令事实与已验收的人工项。人工文件的命令行声明被忽略；合并输出由 Mission provenance 承载，原始人工 Artifact 保持不变并关联在 metadata。
+- ACCEPT continuation 在既有 Mission state machine 中事务完成原 Run 并 consume。恢复仅重读 durable facts 和核验文件，不调用模型或 Tool；Mission 取消会同时取消其待处理人工请求。
+- Workspace 或 accepted bytes/hash 变化时不完成 Run、不消费 continuation，保留明确错误供用户恢复原 Workspace/文件后重新处理。
+
+### 启动 presentation
+
+软件工作流使用专用 Renderer 表单：当前 canonical Workspace 自动写入 immutable input snapshot，用户通过既有 Workspace picker 更换；不要求手输绝对路径。内置 Tool 中文名称、MCP 服务名/工具名和 bounded 用途供 checkbox 选择，真实 ID 仅在 Advanced 展示并原样写入 `allowedToolScope`。`targetArea` 继续是相对路径，scope 声明不代替 Permission/Approval。其他工作流继续使用原通用表单。
+
+### Corrective 验收范围
+
+新增确定性测试覆盖 COMMAND PASS + manual ACCEPT、COMMAND FAIL + manual ACCEPT、人工伪造 PASS、跨 Run/Step/actor、缺少人工验收、non-blocking command 伪造、accepted bytes 改变、同 Run continuation 幂等与取消。完整测试为 82 files / 686 tests。
+
+Windows packaged fixture 增加第四个混合案例；原 A/B/C、plan/fix revision、dynamic mutation crash 与 independent review 保持。新案例在命令完成后的 WAITING_EXTERNAL_WORK，以及 ACCEPTED/PENDING、尚未消费 continuation 的窗口强制退出，再验证原 Run 恢复和零命令/模型重放。
+
+最终证据已归档到 [`docs/evidence/w2-2-software-feature`](../evidence/w2-2-software-feature/README.md)，包含七张创建、可读工具选择、混合人工验收、completed Workflow 截图和持久化事实，不再仅引用临时目录。
+
+### Corrective 最终六项
+
+| 命令                                            | 结果                                                 |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| `npm run test -- --reporter=dot --maxWorkers=4` | PASS：82 files / 686 tests                           |
+| `npm run typecheck`                             | PASS                                                 |
+| `npm run lint`                                  | PASS                                                 |
+| `npm run format:check`                          | PASS                                                 |
+| `npm run package`                               | PASS：Windows x64、Electron 44.4.3、native SQLite    |
+| `npm run smoke:package`                         | PASS：Gate 0–6、R0–R4、W1/W2.0/W2.1/W2.2、Product UI |
+
+专项 packaged evidence 来自 `.test-data/w22-packaged-aa47273b-e134-437c-a40b-428c562417bb/evidence`，已完整归档到上述仓库目录。全量 smoke 中 W2.2 再次通过四案例：`.test-data/w22-packaged-4ecee7bb-d6eb-4acf-821d-e74dfe4ee291/evidence`。命令 PASS + 人工 ACCEPT 的 S07 decision 为 PASS；等待及 ACCEPT 后两处 crash 的 S06 model/tool 数保持 2/1。四案例全部完成后重启，model/mutation/checkpoint 为 57/8/50，前后相同；每次 S08 的真实 actor 独立，发布事件为 0。
+
+日志 `.tmp/w22-corrective-{test,typecheck,lint,format,package,smoke-full}.log`。过程中仅修正了 packaged fixture/整合暴露的人工检查 capability（CODING，与模型 TOOL_USE 分离）及 MCP descriptor 的可读名称展示；最终完整六项均重新验证。所有数据、临时目录与独立子代理 worktree 位于当前项目内。

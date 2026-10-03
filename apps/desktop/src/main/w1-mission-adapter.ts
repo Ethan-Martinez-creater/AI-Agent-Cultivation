@@ -86,7 +86,13 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
         const criteria = (
           JSON.parse(acceptance.content) as { criteria: { verificationMethod: string }[] }
         ).criteria;
-        if (criteria.some((item) => item.verificationMethod !== 'COMMAND'))
+        const plan = latestSoftwareOutput(detail, 'software.plan_scope');
+        const requiredCommands = plan
+          ? (JSON.parse(plan.content) as { commands: { required: boolean }[] }).commands.some(
+              (c) => c.required,
+            )
+          : false;
+        if (!criteria.some((item) => item.verificationMethod === 'COMMAND') && !requiredCommands)
           return { routing: { executionConstraint: 'HUMAN_BRIDGE' as const } };
       }
       const scope = detail.run.inputSnapshot?.allowedToolScope;
@@ -127,7 +133,7 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
           routing: { executionConstraint: 'AUTO' as const, excludedTeammateIds: [...actors] },
         };
       }
-      return {};
+      return definition.id === 'S06' ? { routing: { executionConstraint: 'SOLO' as const } } : {};
     }
     if (detail.version.validationPolicy !== 'news-integrity-v1') return {};
     if (!this.workspaceRoot()) return { reason: 'WORKSPACE_REQUIRED' };
@@ -331,6 +337,45 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
       .listExternalWorkRequests(id, snapshot.run.id)
       .filter((r) => r.state === 'ACCEPTED');
     for (const request of requests) {
+      const mixedHandoff = this.store
+        .listMissionEvents(id)
+        .some(
+          (event) =>
+            event.runId === snapshot.run!.id &&
+            event.eventType === 'workflow.verification.manual_requested' &&
+            event.payloadJson.requestId === request.id &&
+            event.payloadJson.stepRunId === context?.stepRunId,
+        );
+      if (mixedHandoff) {
+        const artifact = this.externalWork
+          .getExternalWorkRequest(request.id)
+          ?.artifacts.find(
+            (a) =>
+              a.submittedAt === request.submittedAt &&
+              a.metadataJson.targetArtifactId === 'software.tests',
+          );
+        if (!artifact) throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '人工验收产物缺失');
+        const root = this.workspaceRoot();
+        if (!root || root !== boundWorkspaceRoot)
+          throw new DomainError('WORKFLOW_WORKSPACE_CHANGED', '请恢复人工验收时使用的 Workspace');
+        const inspected = await (
+          await FileWorkspace.open(root)
+        ).inspectArtifact(artifact.path, artifact.sizeBytes || 1, true);
+        if (
+          inspected.contentHash !== artifact.metadataJson.contentHash ||
+          inspected.sizeBytes !== artifact.sizeBytes
+        )
+          throw new DomainError('WORKFLOW_ARTIFACT_CHANGED', '已验收文件被修改');
+        for (const output of snapshot.outputs)
+          output.metadata = {
+            ...output.metadata,
+            manualRequestId: request.id,
+            manualArtifactId: artifact.id,
+            manualContentHash: String(artifact.metadataJson.contentHash),
+          };
+        // The accepted file remains immutable; the Main-composed report has Mission provenance.
+        continue;
+      }
       const detail = this.externalWork.getExternalWorkRequest(request.id)!;
       const root = this.workspaceRoot();
       if (!root || root !== boundWorkspaceRoot)

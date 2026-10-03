@@ -1,0 +1,1795 @@
+{
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w22-packaged-aa47273b-e134-437c-a40b-428c562417bb",
+  "workspace": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w22-packaged-aa47273b-e134-437c-a40b-428c562417bb\\workspace",
+  "cases": [
+    {
+      "name": "bugfix",
+      "runId": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+      "state": "COMPLETED",
+      "implementers": [
+        "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+        "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+        "23b04ffc-a0b2-4300-a434-bfd9d196a1f5"
+      ],
+      "reviewers": ["7b3f9ced-dffb-410c-a276-5d66c6e7b54f", "7b3f9ced-dffb-410c-a276-5d66c6e7b54f"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        },
+        {
+          "stepId": "S10",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        },
+        {
+          "stepId": "S10",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [
+        {
+          "id": "422ab1fe-7b0a-4727-965d-9d0bee8d4feb",
+          "workflowRunId": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "stepRunId": "bf83e4b5-d9c5-4ad3-b6d0-fe8e008c906e",
+          "edgeId": "s04_revise",
+          "groupId": "software.plan_revision",
+          "traversalIndex": 1,
+          "reason": "REVISE",
+          "createdAt": "2026-10-03T15:26:52.900Z"
+        },
+        {
+          "id": "d62317d7-7447-48b8-b6e2-56a0104cce4f",
+          "workflowRunId": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "stepRunId": "310ce5a9-354c-45b1-88f5-62d17c0ec07f",
+          "edgeId": "s07_revise",
+          "groupId": "software.fix_cycle",
+          "traversalIndex": 1,
+          "reason": "REVISE",
+          "createdAt": "2026-10-03T15:26:56.622Z"
+        },
+        {
+          "id": "feb8ab3c-a685-4943-9ac6-8dc71f40e1d5",
+          "workflowRunId": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "stepRunId": "0c339485-4a4b-4ef3-af80-cde9123d7634",
+          "edgeId": "s09_revise",
+          "groupId": "software.fix_cycle",
+          "traversalIndex": 2,
+          "reason": "REVISE",
+          "createdAt": "2026-10-03T15:26:58.291Z"
+        }
+      ],
+      "validations": 21,
+      "journal": [
+        {
+          "id": "071bddd5-519c-407c-bf26-5cdbb19c5ebe",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "755da8bf-8368-40e4-8e92-10815f586858",
+          "operation_receipt_id": "2d1bb6f2-830c-46ae-9357-47caa5709db5",
+          "attempt": 1,
+          "mission_id": "0de447ab-c0fb-4cda-a453-e4f1dc511b13",
+          "mission_run_id": "659d036f-82d8-4129-8573-7aa0f5811644",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-87bda08e-6cdc-4ab3-801b-a79e7635209a",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:main.js",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "main.js",
+          "before_hash": "c604a79064d3242742128d4d35c4a036e769cb6d4486a7bd5e4278fab34d76ee",
+          "expected_after_hash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+          "observed_after_hash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:26:53.300Z",
+          "updated_at": "2026-10-03T15:26:53.317Z"
+        },
+        {
+          "id": "2090e746-82e3-4253-933a-c46513bb3831",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "820faa9f-f071-4086-abdc-6af743f2fa03",
+          "operation_receipt_id": "d5c33efe-ef4b-4503-9cf3-6cb962f9fa01",
+          "attempt": 1,
+          "mission_id": "3a0ee566-0972-463c-a337-a133220a3816",
+          "mission_run_id": "8d3a64e8-ba75-4b75-b477-82a3ec01a384",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-19449925-9598-432d-a2a8-f643a347ee09",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:main.js",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "main.js",
+          "before_hash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+          "expected_after_hash": "a2098bd92b10bf8b816d24b7556b1ce8c49a879d130489065ef1051c17e042f6",
+          "observed_after_hash": "a2098bd92b10bf8b816d24b7556b1ce8c49a879d130489065ef1051c17e042f6",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:26:56.888Z",
+          "updated_at": "2026-10-03T15:26:56.904Z"
+        },
+        {
+          "id": "f755fa2b-7255-48b9-ae84-11308b1affcd",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "d7b448da-b2aa-4888-b58f-11d0d37d0f89",
+          "operation_receipt_id": "033dd18c-5515-42d1-bde7-66b3b44e7b09",
+          "attempt": 2,
+          "mission_id": "26ef619a-8c05-40eb-a5b4-1a4f10335f48",
+          "mission_run_id": "f84a006f-6ed4-415b-ba83-75da276be6b8",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-8cb5bdc2-d357-49a4-bc8e-575360d4968f",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:main.js",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "main.js",
+          "before_hash": "a2098bd92b10bf8b816d24b7556b1ce8c49a879d130489065ef1051c17e042f6",
+          "expected_after_hash": "20c8da71fce28bad72ef25cc29cbd09aaa8314e2444dcccf0afa08d78e1ff5bf",
+          "observed_after_hash": "20c8da71fce28bad72ef25cc29cbd09aaa8314e2444dcccf0afa08d78e1ff5bf",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:26:58.526Z",
+          "updated_at": "2026-10-03T15:26:58.541Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-2a1ccaf4-15dc-4353-adc4-5ffc5db3e041",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "bba8d3c3-ec86-4613-8807-788acb8a3e22",
+          "attempt": 1,
+          "mission_id": "24fa8d09-22ba-494c-984e-099a33890002",
+          "mission_run_id": "d335edc3-1ba5-4018-8966-8ee8f8a3c01a",
+          "actor_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-2a1ccaf4-15dc-4353-adc4-5ffc5db3e041",
+          "command_id": "verify-feature",
+          "tool_id": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 1,
+          "criterion_ids_json": "[\"AC-BUGFIX\"]",
+          "output_hash": "1cc332f01eed341d2c7dd8bb973cece2af30f37a63e30de1f43165f2f7ca5269",
+          "created_at": "2026-10-03T15:26:56.212Z"
+        },
+        {
+          "id": "w22-bbd3dcc2-f4c1-4b7a-8168-e6e1d430e375",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "25eb0854-3a88-4c89-850b-fb9a975b8b72",
+          "attempt": 2,
+          "mission_id": "1b04c617-81b4-4ce4-bb99-58fd16748162",
+          "mission_run_id": "68872d44-c50c-4591-8bcc-b45383147ce5",
+          "actor_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-bbd3dcc2-f4c1-4b7a-8168-e6e1d430e375",
+          "command_id": "verify-feature",
+          "tool_id": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-BUGFIX\"]",
+          "output_hash": "4bcb89dec05e495ba2fa6576da993c64a417b841afa2dfce15bb0cf693c0dc29",
+          "created_at": "2026-10-03T15:26:57.420Z"
+        },
+        {
+          "id": "w22-e7cd663b-777c-4bda-bb42-21dca472f46a",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "2056f88f-a490-429f-bad0-f4508cfc341c",
+          "attempt": 3,
+          "mission_id": "aa2e0aac-1612-4a7c-bed0-e320ff2a0d2b",
+          "mission_run_id": "5cd81225-8991-48ed-9905-ac207f211df6",
+          "actor_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-e7cd663b-777c-4bda-bb42-21dca472f46a",
+          "command_id": "verify-feature",
+          "tool_id": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-BUGFIX\"]",
+          "output_hash": "4bcb89dec05e495ba2fa6576da993c64a417b841afa2dfce15bb0cf693c0dc29",
+          "created_at": "2026-10-03T15:26:59.137Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "main.js",
+            "beforeHash": "c604a79064d3242742128d4d35c4a036e769cb6d4486a7bd5e4278fab34d76ee",
+            "afterHash": "20c8da71fce28bad72ef25cc29cbd09aaa8314e2444dcccf0afa08d78e1ff5bf"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 3,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 3,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ],
+      "decisions": [
+        {
+          "id": "53c13903-706a-4b2d-ba28-b319df49bc73",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "9dc1badb-3358-4cd0-810d-ae7d575a3bfa",
+          "edge_id": "s01_to_s02",
+          "branch": "NEXT",
+          "input_hash": "0fda3e88b533da594f7d8f6426d0e9332362f0d3d189a130e6e2a07555e21fc0",
+          "created_at": "2026-10-03T15:26:52.486Z",
+          "step_id": "S01",
+          "attempt": 1
+        },
+        {
+          "id": "0a287b7a-253d-4b7f-bf2b-a69fa038c48b",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "6f403498-2d9e-46e3-bd05-77575b5e366d",
+          "edge_id": "s02_to_s03",
+          "branch": "NEXT",
+          "input_hash": "1e1e659cc843034a7c30fc6fe0d53d50000e1cfb329bb3ebb7912901ac2cecbf",
+          "created_at": "2026-10-03T15:26:52.561Z",
+          "step_id": "S02",
+          "attempt": 1
+        },
+        {
+          "id": "e1d8a265-b99a-4c79-91f2-e0844bff3596",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "327440ee-86a6-45a5-a93b-3ec59af7470a",
+          "edge_id": "s03_to_s04",
+          "branch": "NEXT",
+          "input_hash": "9d43806f69960479cc7267aba336b6d958a6dd5f1c1c3050e3be556622a4ec8b",
+          "created_at": "2026-10-03T15:26:52.838Z",
+          "step_id": "S03",
+          "attempt": 1
+        },
+        {
+          "id": "1ab833d2-aed3-45af-a61c-08d82dd3e57a",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "bf83e4b5-d9c5-4ad3-b6d0-fe8e008c906e",
+          "edge_id": "s04_revise",
+          "branch": "REVISE",
+          "input_hash": "89f1327fceffcceace08319b728dfa69f2ddf079f07f8edf72d9f30271f6715a",
+          "created_at": "2026-10-03T15:26:52.900Z",
+          "step_id": "S04",
+          "attempt": 1
+        },
+        {
+          "id": "39562f70-c0e0-46b0-a9ec-065d24c6bf3c",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "f00a85a0-459c-461a-9c84-90543052f5c2",
+          "edge_id": "s03_to_s04",
+          "branch": "NEXT",
+          "input_hash": "3da5dbd73b4439dfd16912c93942b0feb536cefdff55b8ef452ea304a1e8d8a4",
+          "created_at": "2026-10-03T15:26:52.981Z",
+          "step_id": "S03",
+          "attempt": 2
+        },
+        {
+          "id": "7a113152-4134-4741-ac7c-216220804d75",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "a4fc1765-3c15-4e48-89f1-7991299b69b8",
+          "edge_id": "s04_pass",
+          "branch": "PASS",
+          "input_hash": "aacd7dc1ceced64a61ef7e11df7b253b6c600a793e2873ce27d4cefc57eac8a5",
+          "created_at": "2026-10-03T15:26:53.050Z",
+          "step_id": "S04",
+          "attempt": 2
+        },
+        {
+          "id": "820bf177-5796-4f32-8600-8dd4ee60e7ef",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "755da8bf-8368-40e4-8e92-10815f586858",
+          "edge_id": "s05_to_s06",
+          "branch": "NEXT",
+          "input_hash": "e4828df14be8886b7405a91ba5c593ab59eb67efe8123992c2274166c8f65bc6",
+          "created_at": "2026-10-03T15:26:55.060Z",
+          "step_id": "S05",
+          "attempt": 1
+        },
+        {
+          "id": "dd8ac336-5bf3-450f-812d-09eda2114e6a",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "bba8d3c3-ec86-4613-8807-788acb8a3e22",
+          "edge_id": "s06_to_s07",
+          "branch": "NEXT",
+          "input_hash": "e1d31224af1de278d42aa734e4b6e37777d3bd0cb60e1c0e515ae994683fa314",
+          "created_at": "2026-10-03T15:26:56.610Z",
+          "step_id": "S06",
+          "attempt": 1
+        },
+        {
+          "id": "5992854c-eda0-4d30-aa0c-4cf0d87e8935",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "310ce5a9-354c-45b1-88f5-62d17c0ec07f",
+          "edge_id": "s07_revise",
+          "branch": "REVISE",
+          "input_hash": "445055ab4ec85d2b162fbe51ef1f173003b2522d8498f2d511e8fd3599637697",
+          "created_at": "2026-10-03T15:26:56.622Z",
+          "step_id": "S07",
+          "attempt": 1
+        },
+        {
+          "id": "47fd9462-1cc1-451b-8158-88b84bb02955",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "820faa9f-f071-4086-abdc-6af743f2fa03",
+          "edge_id": "s10_to_s06",
+          "branch": "NEXT",
+          "input_hash": "ed1bb9079e6162ac76edd7ebfa9832649385a42d836beedff98f006a0fcb6112",
+          "created_at": "2026-10-03T15:26:57.178Z",
+          "step_id": "S10",
+          "attempt": 1
+        },
+        {
+          "id": "ca28cef9-ab45-4a74-b096-ab55b75053e0",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "25eb0854-3a88-4c89-850b-fb9a975b8b72",
+          "edge_id": "s06_to_s07",
+          "branch": "NEXT",
+          "input_hash": "4e3d79c74693975dc2e353d9c415cbeea696f04e9ccd3d372c69d4fb22f861bd",
+          "created_at": "2026-10-03T15:26:57.873Z",
+          "step_id": "S06",
+          "attempt": 2
+        },
+        {
+          "id": "d1d8af20-25b0-4a4d-9e8c-9c0bb549c00a",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "4962896e-1cdc-4d26-a386-cc88dc0ca993",
+          "edge_id": "s07_pass",
+          "branch": "PASS",
+          "input_hash": "df91d2776a44b76bf71f4040bc7cec94bdcd76c181d2cee4a5dd6e281169262f",
+          "created_at": "2026-10-03T15:26:57.887Z",
+          "step_id": "S07",
+          "attempt": 2
+        },
+        {
+          "id": "72822e3c-0eab-451d-933f-f75bf54f9cff",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "1337c58c-3ca9-40cc-a9d8-b4a2d458968e",
+          "edge_id": "s08_revise",
+          "branch": "REVISE",
+          "input_hash": "f798ad48ee1c1bf57caaf8c16c8d2e6878e94c049a7d6565d580512bcd101e9e",
+          "created_at": "2026-10-03T15:26:58.281Z",
+          "step_id": "S08",
+          "attempt": 1
+        },
+        {
+          "id": "495a07df-1978-4ce0-bd5a-d6a216427f3f",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "0c339485-4a4b-4ef3-af80-cde9123d7634",
+          "edge_id": "s09_revise",
+          "branch": "REVISE",
+          "input_hash": "9ade34e5f9bb171583a76976aa9a2fd0bda9ed6d43aeedbc81d03f7205accec6",
+          "created_at": "2026-10-03T15:26:58.291Z",
+          "step_id": "S09",
+          "attempt": 1
+        },
+        {
+          "id": "a470684c-a9c0-4ecd-8a03-865f8809c6e1",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "d7b448da-b2aa-4888-b58f-11d0d37d0f89",
+          "edge_id": "s10_to_s06",
+          "branch": "NEXT",
+          "input_hash": "5b7b31eb160bb7610712392cdbd4541b9dc56a31c64f19ffb47f6cd674051727",
+          "created_at": "2026-10-03T15:26:58.861Z",
+          "step_id": "S10",
+          "attempt": 2
+        },
+        {
+          "id": "8cadc158-aec5-497f-b8b3-ff858bd2a81c",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "2056f88f-a490-429f-bad0-f4508cfc341c",
+          "edge_id": "s06_to_s07",
+          "branch": "NEXT",
+          "input_hash": "7a16f80ad011f0e594166050c9d9212b20270b7c5c2e87e53e668915c4837e10",
+          "created_at": "2026-10-03T15:26:59.535Z",
+          "step_id": "S06",
+          "attempt": 3
+        },
+        {
+          "id": "6b0a0a20-3ac5-4abe-abf7-4aefbed0025b",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "ab00826b-bf0e-4060-bec4-2b44ba671cbe",
+          "edge_id": "s07_pass",
+          "branch": "PASS",
+          "input_hash": "26168cdd44ce62dd95a4d904fc5ea5f91f572b236fe03f940254c4e09a33737d",
+          "created_at": "2026-10-03T15:26:59.547Z",
+          "step_id": "S07",
+          "attempt": 3
+        },
+        {
+          "id": "8deba52f-5dd8-439e-b501-ae7364e89b33",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "a742fe04-f6a7-48d8-a085-655a1e3cb81e",
+          "edge_id": "s08_pass",
+          "branch": "PASS",
+          "input_hash": "4842c6470c67602f4527e29d3c1f4a9ca471f8b7d934c963a6ee78ff98c339cd",
+          "created_at": "2026-10-03T15:26:59.637Z",
+          "step_id": "S08",
+          "attempt": 2
+        },
+        {
+          "id": "f56b2506-a6f7-43f5-aa63-3e1b3659a84e",
+          "workflow_run_id": "1d4e37f1-be6e-4143-be6d-68f313e4e041",
+          "step_run_id": "2a3adaba-458b-47ae-86cf-b9905793b3d0",
+          "edge_id": "s09_pass",
+          "branch": "PASS",
+          "input_hash": "6b8d2d097a0084c7f96409f4a35b14292ee02bc6d06f1761f5915bca8129a7cc",
+          "created_at": "2026-10-03T15:26:59.649Z",
+          "step_id": "S09",
+          "attempt": 2
+        }
+      ]
+    },
+    {
+      "name": "migration",
+      "runId": "af8dfff1-b949-4520-a942-401c21be82ca",
+      "state": "COMPLETED",
+      "implementers": ["23b04ffc-a0b2-4300-a434-bfd9d196a1f5"],
+      "reviewers": ["7b3f9ced-dffb-410c-a276-5d66c6e7b54f"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [],
+      "validations": 11,
+      "journal": [
+        {
+          "id": "2890d613-1c55-4a82-9a60-c694dbfa2515",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "6872234f-1ca6-49ac-9d80-9a439830ed07",
+          "operation_receipt_id": "a614f3b9-f13c-421b-915c-36f84ab85d7b",
+          "attempt": 1,
+          "mission_id": "164bfa68-50f7-4159-b180-11290f89cc51",
+          "mission_run_id": "c731f0aa-c76e-496c-9d0e-94b1ea1fbcdc",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-0643b533-691a-4e82-9d74-ba01684fc0a3",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:migrations/0001_feature.sql",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "migrations/0001_feature.sql",
+          "before_hash": null,
+          "expected_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "observed_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:27:01.866Z",
+          "updated_at": "2026-10-03T15:27:01.889Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-ad303e37-fae1-41e8-a9d5-8bfec51e6637",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "e1995b02-e543-4e51-be65-18043c9939eb",
+          "attempt": 1,
+          "mission_id": "91865f83-3431-44e0-ad9d-f4cd7d117cf5",
+          "mission_run_id": "b61158f9-9afb-4c7d-ba26-3ad93847c733",
+          "actor_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-ad303e37-fae1-41e8-a9d5-8bfec51e6637",
+          "command_id": "verify-feature",
+          "tool_id": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-MIGRATION\"]",
+          "output_hash": "8d1d03262fc9e9c597513f8e489ea18489b2301c7ad3a608b1ecaba944de183d",
+          "created_at": "2026-10-03T15:27:02.279Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "migrations/0001_feature.sql",
+            "afterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "SKIPPED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ],
+      "decisions": [
+        {
+          "id": "c59b79aa-0749-44d9-81f8-6e03c40a6a70",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "eaab93a5-afed-42c6-a81c-ba19346638d0",
+          "edge_id": "s01_to_s02",
+          "branch": "NEXT",
+          "input_hash": "2b7eafc3aae44821db5936e100cd1995fc3f65a562f3805bcc55989c8923a27f",
+          "created_at": "2026-10-03T15:27:01.280Z",
+          "step_id": "S01",
+          "attempt": 1
+        },
+        {
+          "id": "5aa9b995-a97a-44b7-b801-9c45c8df2c88",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "d29fd079-038a-451a-90f6-1eed86f46ea4",
+          "edge_id": "s02_to_s03",
+          "branch": "NEXT",
+          "input_hash": "359662941ed33fd6e07192cfa78d5e6b2bf2a65491bafa0b9eca438dfe052acd",
+          "created_at": "2026-10-03T15:27:01.356Z",
+          "step_id": "S02",
+          "attempt": 1
+        },
+        {
+          "id": "8379e97a-0755-45f3-ab51-4e2c748460ca",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "dcdfb24f-a45d-4182-8fa5-b14563f798bd",
+          "edge_id": "s03_to_s04",
+          "branch": "NEXT",
+          "input_hash": "b74a9763413bce880341a7d66f93eff85c2e11f5ce45574c48a1e248f8fd7ca6",
+          "created_at": "2026-10-03T15:27:01.420Z",
+          "step_id": "S03",
+          "attempt": 1
+        },
+        {
+          "id": "b3d53857-e723-4fea-8f4a-ab47de96e7c3",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "97d3f9a6-5f28-45f1-a7fb-bdaf3b02d127",
+          "edge_id": "s04_pass",
+          "branch": "PASS",
+          "input_hash": "07e04e97b6ba3fbec9dc15ff65f7e5468f8da3e7128e0cd21b98663ee51623ce",
+          "created_at": "2026-10-03T15:27:01.668Z",
+          "step_id": "S04",
+          "attempt": 1
+        },
+        {
+          "id": "da2d9fd6-7612-4a05-8316-cae59aaaf43f",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "6872234f-1ca6-49ac-9d80-9a439830ed07",
+          "edge_id": "s05_to_s06",
+          "branch": "NEXT",
+          "input_hash": "d3d40169b209dd890fb418b9247661e938f2dfefb68aef8238703a1ce58bf888",
+          "created_at": "2026-10-03T15:27:02.093Z",
+          "step_id": "S05",
+          "attempt": 1
+        },
+        {
+          "id": "93ef55bc-01a6-4e26-bb95-0924adde930a",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "e1995b02-e543-4e51-be65-18043c9939eb",
+          "edge_id": "s06_to_s07",
+          "branch": "NEXT",
+          "input_hash": "8c289dc4f1b240b5ce49e6cab3ee42e29cd6f745e11b399b44609f76aff87001",
+          "created_at": "2026-10-03T15:27:02.601Z",
+          "step_id": "S06",
+          "attempt": 1
+        },
+        {
+          "id": "40707774-af60-48f4-bb52-9f60ebf96cea",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "c57aaaf4-f632-4842-9c06-1771d38cbcfc",
+          "edge_id": "s07_pass",
+          "branch": "PASS",
+          "input_hash": "a500f98d50369727efc1cd465b230d405028b604681b254737e3bcbd1ab9cee8",
+          "created_at": "2026-10-03T15:27:02.611Z",
+          "step_id": "S07",
+          "attempt": 1
+        },
+        {
+          "id": "35c49895-f445-469e-89c1-559556d85c80",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "043eed3b-dad1-45b9-b673-c560dcf0e49f",
+          "edge_id": "s08_pass",
+          "branch": "PASS",
+          "input_hash": "e77d9eec972244ede6a2f589a852909c478a156e752d151372bd4557190b6d76",
+          "created_at": "2026-10-03T15:27:02.684Z",
+          "step_id": "S08",
+          "attempt": 1
+        },
+        {
+          "id": "d74c102d-faff-4c59-8461-0673c748a754",
+          "workflow_run_id": "af8dfff1-b949-4520-a942-401c21be82ca",
+          "step_run_id": "61c83e89-3366-4ace-858d-1fa0e2323c08",
+          "edge_id": "s09_pass",
+          "branch": "PASS",
+          "input_hash": "8c4bbe280daf60cbd88f8c0ec9025ddc86383dc7e85d8476cfdc0c5eb7def5e7",
+          "created_at": "2026-10-03T15:27:02.692Z",
+          "step_id": "S09",
+          "attempt": 1
+        }
+      ]
+    },
+    {
+      "name": "crossLayer",
+      "runId": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+      "state": "COMPLETED",
+      "implementers": ["23b04ffc-a0b2-4300-a434-bfd9d196a1f5"],
+      "reviewers": ["7b3f9ced-dffb-410c-a276-5d66c6e7b54f"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [],
+      "validations": 11,
+      "journal": [
+        {
+          "id": "c50dd9ff-c59d-4c8e-9465-13b0abda0967",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "0bc3215e-b1f4-4890-adfe-b2872058f348",
+          "operation_receipt_id": "9edcdc10-7daa-450d-bbd7-567151453661",
+          "attempt": 1,
+          "mission_id": "cb6e7bee-79f7-4e08-8a35-05f2d27ddfd9",
+          "mission_run_id": "929ac6ea-e1b3-47c4-a194-6dc290def483",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-6b8e337b-13e8-4a0b-a0cf-ea35aeba9999",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:renderer.ts",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "renderer.ts",
+          "before_hash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+          "expected_after_hash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637",
+          "observed_after_hash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:27:04.646Z",
+          "updated_at": "2026-10-03T15:27:04.660Z"
+        },
+        {
+          "id": "fce38e2d-f429-4ba3-a19c-e0f21f59e645",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "0bc3215e-b1f4-4890-adfe-b2872058f348",
+          "operation_receipt_id": "9edcdc10-7daa-450d-bbd7-567151453661",
+          "attempt": 1,
+          "mission_id": "cb6e7bee-79f7-4e08-8a35-05f2d27ddfd9",
+          "mission_run_id": "929ac6ea-e1b3-47c4-a194-6dc290def483",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-919a06fc-0011-45fe-a5c2-719ae041046a",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:ipc.ts",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "ipc.ts",
+          "before_hash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+          "expected_after_hash": "8b84dcafe3b12ae159c083432f4a570c220fbf7ceac0f84e6f45b8c6115fc223",
+          "observed_after_hash": "8b84dcafe3b12ae159c083432f4a570c220fbf7ceac0f84e6f45b8c6115fc223",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:27:04.789Z",
+          "updated_at": "2026-10-03T15:27:04.803Z"
+        },
+        {
+          "id": "9fe4ebb1-deb4-4801-b5cc-7a21b789c57a",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "0bc3215e-b1f4-4890-adfe-b2872058f348",
+          "operation_receipt_id": "9edcdc10-7daa-450d-bbd7-567151453661",
+          "attempt": 1,
+          "mission_id": "cb6e7bee-79f7-4e08-8a35-05f2d27ddfd9",
+          "mission_run_id": "929ac6ea-e1b3-47c4-a194-6dc290def483",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-eef3bd4d-f634-49a9-b99b-7c503ebcc60a",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:store.ts",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "store.ts",
+          "before_hash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+          "expected_after_hash": "5e131e6f0eb518e8ada2b6a33329d8b10c7944ae2eb9247f5db2e13279aa7ef2",
+          "observed_after_hash": "5e131e6f0eb518e8ada2b6a33329d8b10c7944ae2eb9247f5db2e13279aa7ef2",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:27:04.931Z",
+          "updated_at": "2026-10-03T15:27:04.944Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-5f63f645-52fb-460e-acf4-240edb7092ca",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "05da6f7a-0b5e-4ff8-a113-6dd6a74759d6",
+          "attempt": 1,
+          "mission_id": "56275456-e721-40e6-ab94-d8345fa69931",
+          "mission_run_id": "2b3362c6-e6e7-4fd8-9136-93c949f9752f",
+          "actor_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-5f63f645-52fb-460e-acf4-240edb7092ca",
+          "command_id": "verify-feature",
+          "tool_id": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-UI\",\"AC-IPC\",\"AC-PERSISTENCE\"]",
+          "output_hash": "607ef3063520c9a261bc724471839216d8f4b9e1b7bc8ce96c16782a37cbd280",
+          "created_at": "2026-10-03T15:27:05.401Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "ipc.ts",
+            "beforeHash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+            "afterHash": "8b84dcafe3b12ae159c083432f4a570c220fbf7ceac0f84e6f45b8c6115fc223"
+          },
+          {
+            "relativePath": "renderer.ts",
+            "beforeHash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+            "afterHash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637"
+          },
+          {
+            "relativePath": "store.ts",
+            "beforeHash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+            "afterHash": "5e131e6f0eb518e8ada2b6a33329d8b10c7944ae2eb9247f5db2e13279aa7ef2"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "SKIPPED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ],
+      "decisions": [
+        {
+          "id": "2cf98eaf-f38c-43c2-a664-d92e0c86aa44",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "2b7709e2-e1d0-4873-9801-7cba462b32c0",
+          "edge_id": "s01_to_s02",
+          "branch": "NEXT",
+          "input_hash": "7bb0457198bd4f1412fecb67f90a6512710508fca2a359494df083234d13c9a9",
+          "created_at": "2026-10-03T15:27:04.076Z",
+          "step_id": "S01",
+          "attempt": 1
+        },
+        {
+          "id": "ae807038-30d3-4c69-a6e1-ce23cc2a1540",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "e02f34a2-f433-4d62-a9ff-cf4fdbbe7914",
+          "edge_id": "s02_to_s03",
+          "branch": "NEXT",
+          "input_hash": "37666219c52373875ba9aa78a642c119db817001cf3cd2cd51319520ce027773",
+          "created_at": "2026-10-03T15:27:04.149Z",
+          "step_id": "S02",
+          "attempt": 1
+        },
+        {
+          "id": "275d7e5e-eae1-4827-89b4-4da4a927a8c1",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "67f015b3-20f1-486b-9755-761327dd9d51",
+          "edge_id": "s03_to_s04",
+          "branch": "NEXT",
+          "input_hash": "99ec7226e4e2fee6f6ce7068a09a2b0f4999687c5226aabcbd5526f2d85e1313",
+          "created_at": "2026-10-03T15:27:04.214Z",
+          "step_id": "S03",
+          "attempt": 1
+        },
+        {
+          "id": "58ef5a46-9424-4656-a67d-2b6319afeb31",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "70a32c3a-676e-41d3-80bc-31b0846e3262",
+          "edge_id": "s04_pass",
+          "branch": "PASS",
+          "input_hash": "e0db903bfd579e5b2558405d13d45f4e8f82394700ec87e4809ede017cd6cb84",
+          "created_at": "2026-10-03T15:27:04.452Z",
+          "step_id": "S04",
+          "attempt": 1
+        },
+        {
+          "id": "ca91250a-0110-4e73-a933-dd73c8547b3a",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "0bc3215e-b1f4-4890-adfe-b2872058f348",
+          "edge_id": "s05_to_s06",
+          "branch": "NEXT",
+          "input_hash": "0db475aa238a83bc5df1d57af546b36c813233c775bb871fdc42b828953310a1",
+          "created_at": "2026-10-03T15:27:05.211Z",
+          "step_id": "S05",
+          "attempt": 1
+        },
+        {
+          "id": "14caf043-c3c6-4f1f-8981-400b8060db06",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "05da6f7a-0b5e-4ff8-a113-6dd6a74759d6",
+          "edge_id": "s06_to_s07",
+          "branch": "NEXT",
+          "input_hash": "55abcd6fed216ab174b13a51e534405b3077720be6f760db0007b366c474fc22",
+          "created_at": "2026-10-03T15:27:06.350Z",
+          "step_id": "S06",
+          "attempt": 1
+        },
+        {
+          "id": "44608ec0-9e7c-4946-b91c-705342dd286a",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "3b9d7782-6b3e-4d89-baa5-d17fae94be89",
+          "edge_id": "s07_pass",
+          "branch": "PASS",
+          "input_hash": "13c2ee4bf6afd8765a18ebaf1e9a610e8eafa4b636a4f8334be0328c4dc452d0",
+          "created_at": "2026-10-03T15:27:06.359Z",
+          "step_id": "S07",
+          "attempt": 1
+        },
+        {
+          "id": "566af300-86a9-47e9-aa8a-6cda5ae37747",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "63e7aa3c-eb68-4c8a-b1cf-b2151c916764",
+          "edge_id": "s08_pass",
+          "branch": "PASS",
+          "input_hash": "77ab2cb1a862ef2b0f3811bdb12e879301251958e55042ea1453728528e3b203",
+          "created_at": "2026-10-03T15:27:06.420Z",
+          "step_id": "S08",
+          "attempt": 1
+        },
+        {
+          "id": "5732cf9e-53fb-447a-b258-df397e953537",
+          "workflow_run_id": "67ef491a-9e9b-4514-93c2-5e2a21b10800",
+          "step_run_id": "4c4c6716-3883-4470-a844-44b1d2d1a963",
+          "edge_id": "s09_pass",
+          "branch": "PASS",
+          "input_hash": "8410bf41272da699135db0e08e86e438f1d7d78c90470d64dec0f6a2847796a6",
+          "created_at": "2026-10-03T15:27:06.429Z",
+          "step_id": "S09",
+          "attempt": 1
+        }
+      ]
+    },
+    {
+      "name": "mixed",
+      "runId": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+      "state": "COMPLETED",
+      "implementers": ["23b04ffc-a0b2-4300-a434-bfd9d196a1f5"],
+      "reviewers": ["7b3f9ced-dffb-410c-a276-5d66c6e7b54f"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [],
+      "validations": 11,
+      "journal": [
+        {
+          "id": "1cce7f39-09a1-4f08-8bb7-a93f5c2c0a9f",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "fe3d2de4-0eb1-4124-b970-b936e9f10eac",
+          "operation_receipt_id": "ed6ff606-6ed4-450e-8979-aee623e772c8",
+          "attempt": 1,
+          "mission_id": "4e06e1bf-17dd-4cc4-855f-22fa44cc4e46",
+          "mission_run_id": "e2b2e3f0-fb73-4aae-a906-1201cbdec87d",
+          "teammate_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-eb6b62ff-46e8-4590-b9ac-e4ca8b9d111b",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b0ad871fda572111:migrations/0001_feature.sql",
+          "workspace_tag": "b0ad871fda572111",
+          "relative_path": "migrations/0001_feature.sql",
+          "before_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "expected_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "observed_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-03T15:27:08.102Z",
+          "updated_at": "2026-10-03T15:27:08.120Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-590d820d-83c7-498c-8f96-7c26e671644c",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "b0daa273-a2db-4185-a801-af9107fea5d5",
+          "attempt": 1,
+          "mission_id": "6dc0abd3-0d7a-448b-a855-e1d23b09eaf7",
+          "mission_run_id": "2fd36326-f69e-44c1-8efb-837def16dc3f",
+          "actor_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+          "tool_call_id": "w22-590d820d-83c7-498c-8f96-7c26e671644c",
+          "command_id": "verify-feature",
+          "tool_id": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-MIGRATION\"]",
+          "output_hash": "8d1d03262fc9e9c597513f8e489ea18489b2301c7ad3a608b1ecaba944de183d",
+          "created_at": "2026-10-03T15:27:08.495Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "migrations/0001_feature.sql",
+            "beforeHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+            "afterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "SKIPPED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ],
+      "decisions": [
+        {
+          "id": "15b0f8ca-ad81-467e-ab26-3539af7e9b64",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "13efcbb2-b3ce-4591-bd83-ffd3a61f2fc1",
+          "edge_id": "s01_to_s02",
+          "branch": "NEXT",
+          "input_hash": "3f6b0adf055d399d86eef0509576bbf34084fefac1fab29edd1cd6b834239c6b",
+          "created_at": "2026-10-03T15:27:07.539Z",
+          "step_id": "S01",
+          "attempt": 1
+        },
+        {
+          "id": "ddef4333-9021-48f0-b1a3-754373ee0dd7",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "a02f6988-5f3f-4a75-bf5d-c9cc7ca6578e",
+          "edge_id": "s02_to_s03",
+          "branch": "NEXT",
+          "input_hash": "08710f8eccf1d0fe2e333a0b3f70006d949c5a938f975e8d67f144137a6d3d21",
+          "created_at": "2026-10-03T15:27:07.602Z",
+          "step_id": "S02",
+          "attempt": 1
+        },
+        {
+          "id": "52be0589-9561-44da-8058-f5cf4e52e88d",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "c05561cb-cb49-4d04-9653-daf0b3221376",
+          "edge_id": "s03_to_s04",
+          "branch": "NEXT",
+          "input_hash": "3c8bb3a4df67a83314bd58e175e3a2fa7dedae6aab0f11a28cf4196daf1e6896",
+          "created_at": "2026-10-03T15:27:07.842Z",
+          "step_id": "S03",
+          "attempt": 1
+        },
+        {
+          "id": "5c8b5369-580f-4a12-a320-ff219c04907d",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "e8a78828-eed5-46d3-8ca4-9ab7951c885e",
+          "edge_id": "s04_pass",
+          "branch": "PASS",
+          "input_hash": "4acd095c311f1a4e8c846334fd5be49a1c4a844d4d204fe13fa4623ecc167404",
+          "created_at": "2026-10-03T15:27:07.901Z",
+          "step_id": "S04",
+          "attempt": 1
+        },
+        {
+          "id": "83302abf-0463-46b0-bbd7-5ebe496d3e02",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "fe3d2de4-0eb1-4124-b970-b936e9f10eac",
+          "edge_id": "s05_to_s06",
+          "branch": "NEXT",
+          "input_hash": "f48b23a7dce416a703f168b09a597102a4e1a006a365f374f6e44cd938611ff1",
+          "created_at": "2026-10-03T15:27:08.307Z",
+          "step_id": "S05",
+          "attempt": 1
+        },
+        {
+          "id": "792f61d6-21cc-41d7-8757-802eef07f040",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "b0daa273-a2db-4185-a801-af9107fea5d5",
+          "edge_id": "s06_to_s07",
+          "branch": "NEXT",
+          "input_hash": "77e6f806ee051a084ec9548a06b410569883f984d305a66b064466c27af8630e",
+          "created_at": "2026-10-03T15:27:13.845Z",
+          "step_id": "S06",
+          "attempt": 1
+        },
+        {
+          "id": "0fa229b8-e210-47ec-a893-47911a303382",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "4b622c68-746a-4331-9508-cd347c24c5fd",
+          "edge_id": "s07_pass",
+          "branch": "PASS",
+          "input_hash": "e7d14dcf34401cb1dfc3147a4b8dc5dfbe70dc37ef39fad1126ecef97c1b13cc",
+          "created_at": "2026-10-03T15:27:14.585Z",
+          "step_id": "S07",
+          "attempt": 1
+        },
+        {
+          "id": "5a11a042-0902-41aa-a15b-3664b771ba59",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "b2b02737-98f1-47dd-a8e4-6868c0c1045a",
+          "edge_id": "s08_pass",
+          "branch": "PASS",
+          "input_hash": "fde3f44dc4aef8769ad0f30f6b3b5cd711431596ee758e258e0a935b9935ed6f",
+          "created_at": "2026-10-03T15:27:14.692Z",
+          "step_id": "S08",
+          "attempt": 1
+        },
+        {
+          "id": "2d0764b3-1d61-424c-b38b-f53aeb9a8f3b",
+          "workflow_run_id": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+          "step_run_id": "cd0d9c89-b8e6-4536-9c0d-4e3d81065a3e",
+          "edge_id": "s09_pass",
+          "branch": "PASS",
+          "input_hash": "6b701e463ccb9ab0575796ba5a37c0cdbb21f5a0028d67edd6c7cf1fbd1edfc1",
+          "created_at": "2026-10-03T15:27:14.704Z",
+          "step_id": "S09",
+          "attempt": 1
+        }
+      ]
+    }
+  ],
+  "mutationRestart": {
+    "receipt": {
+      "id": "2d1bb6f2-830c-46ae-9357-47caa5709db5",
+      "state": "APPLIED"
+    },
+    "missionId": "0de447ab-c0fb-4cda-a453-e4f1dc511b13",
+    "before": [
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      }
+    ],
+    "after": [
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      }
+    ],
+    "zeroReplay": true
+  },
+  "setup": {
+    "actors": [
+      {
+        "id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+        "name": "青岚",
+        "avatar": null,
+        "title": null,
+        "description": "",
+        "identityPrompt": "",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": "41e92f27-07a4-4b04-b5ff-3139fd686b83",
+        "createdAt": "2026-10-03T15:26:50.768Z",
+        "updatedAt": "2026-10-03T15:26:50.768Z"
+      },
+      {
+        "id": "7b3f9ced-dffb-410c-a276-5d66c6e7b54f",
+        "name": "明衡",
+        "avatar": null,
+        "title": null,
+        "description": "",
+        "identityPrompt": "",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": "fd43ff65-908b-4c57-a2bb-2b0313319cb0",
+        "createdAt": "2026-10-03T15:26:50.778Z",
+        "updatedAt": "2026-10-03T15:26:50.778Z"
+      }
+    ],
+    "serverId": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86",
+    "toolId": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository"
+  },
+  "mixedVerification": {
+    "workflowRunId": "cbcaf01b-9490-42bc-b9e4-aed20e9ca25b",
+    "stepRunId": "b0daa273-a2db-4185-a801-af9107fea5d5",
+    "missionRunId": "2fd36326-f69e-44c1-8efb-837def16dc3f",
+    "requestId": "6607aac0-0acc-48cf-b617-3c5fc0778ffb",
+    "commandFactCount": 1,
+    "merged": {
+      "executions": [
+        {
+          "commandId": "verify-feature",
+          "command": "node verify.mjs",
+          "toolId": "6cc844d0-b5cd-4c9b-9e9f-a3fb87514d86:verify_repository",
+          "toolExecutionId": "w22-590d820d-83c7-498c-8f96-7c26e671644c",
+          "exitStatus": 0,
+          "acceptanceCriteriaIds": ["AC-MIGRATION"],
+          "outputArtifactId": "w22-590d820d-83c7-498c-8f96-7c26e671644c",
+          "outputHash": "8d1d03262fc9e9c597513f8e489ea18489b2301c7ad3a608b1ecaba944de183d"
+        }
+      ],
+      "criteria": [
+        {
+          "criterionId": "AC-MIGRATION",
+          "status": "PASS",
+          "evidenceArtifactIds": ["w22-590d820d-83c7-498c-8f96-7c26e671644c"],
+          "executionIds": ["w22-590d820d-83c7-498c-8f96-7c26e671644c"]
+        },
+        {
+          "criterionId": "AC-MANUAL",
+          "status": "PASS",
+          "evidenceArtifactIds": ["fb9db2b8-b20e-49c8-99a5-d5470e22c939"],
+          "executionIds": []
+        }
+      ],
+      "failures": []
+    },
+    "waitingRestartZeroReplay": true,
+    "acceptedRestartZeroReplay": true,
+    "before": [
+      {
+        "event_type": "external_work.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      },
+      {
+        "event_type": "workflow.verification.manual_requested",
+        "n": 1
+      }
+    ],
+    "afterAccept": [
+      {
+        "event_type": "external_work.accepted",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.created",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.in_progress",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.submitted",
+        "n": 1
+      },
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      },
+      {
+        "event_type": "workflow.verification.manual_requested",
+        "n": 1
+      }
+    ],
+    "after": [
+      {
+        "event_type": "external_work.accepted",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.continuation_received",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.created",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.in_progress",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.submitted",
+        "n": 1
+      },
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.external_work_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      },
+      {
+        "event_type": "workflow.verification.manual_requested",
+        "n": 1
+      }
+    ],
+    "continuation": "CONSUMED",
+    "producedReport": {
+      "id": "6ecb0b0e-0777-49b1-a211-bb566b5e627b",
+      "source": "MISSION",
+      "source_id": "2fd36326-f69e-44c1-8efb-837def16dc3f",
+      "actor_id": "23b04ffc-a0b2-4300-a434-bfd9d196a1f5",
+      "mission_id": "6dc0abd3-0d7a-448b-a855-e1d23b09eaf7",
+      "mission_run_id": "2fd36326-f69e-44c1-8efb-837def16dc3f",
+      "metadata_json": "{\"manualArtifactId\":\"fb9db2b8-b20e-49c8-99a5-d5470e22c939\",\"manualContentHash\":\"80ca3279ee128a98e20fb159f34fee5a2c739e804018d7d3a4aa1be7583c6240\",\"manualRequestId\":\"6607aac0-0acc-48cf-b617-3c5fc0778ffb\"}",
+      "content_hash": "5ab9c1cc56e89f744d8da541aca919214ac5248a5c9c8a36d115f0829f9b1c79"
+    },
+    "acceptedArtifacts": [
+      {
+        "id": "fb9db2b8-b20e-49c8-99a5-d5470e22c939",
+        "external_work_request_id": "6607aac0-0acc-48cf-b617-3c5fc0778ffb",
+        "path": "workflows/cbcaf01b-9490-42bc-b9e4-aed20e9ca25b/b0daa273-a2db-4185-a801-af9107fea5d5/output/software.tests.json",
+        "file_name": "software.tests.json",
+        "extension": ".json",
+        "size_bytes": 131,
+        "mime_type": null,
+        "metadata_json": "{\"targetArtifactId\":\"software.tests\",\"contentHash\":\"80ca3279ee128a98e20fb159f34fee5a2c739e804018d7d3a4aa1be7583c6240\"}",
+        "submitted_at": "2026-10-03T15:27:11.656Z"
+      }
+    ],
+    "persistedContinuation": {
+      "external_work_request_id": "6607aac0-0acc-48cf-b617-3c5fc0778ffb",
+      "mission_id": "6dc0abd3-0d7a-448b-a855-e1d23b09eaf7",
+      "mission_run_id": "2fd36326-f69e-44c1-8efb-837def16dc3f",
+      "state": "CONSUMED",
+      "created_at": "2026-10-03T15:27:11.679Z",
+      "updated_at": "2026-10-03T15:27:13.659Z",
+      "consumed_at": "2026-10-03T15:27:13.659Z"
+    }
+  },
+  "restartIdempotent": {
+    "before": {
+      "calls": 57,
+      "mutations": 8,
+      "checkpoints": 50
+    },
+    "after": {
+      "calls": 57,
+      "mutations": 8,
+      "checkpoints": 50
+    }
+  },
+  "noPublish": 0,
+  "integrity": {
+    "migrationVersion": 22,
+    "foreignKeyCheck": []
+  }
+}
