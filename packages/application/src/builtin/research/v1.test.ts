@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  validateArtifactContract,
   validateWorkflowInputSchema,
   validateWorkflowInputs,
   validateWorkflowVersion,
@@ -34,6 +35,13 @@ describe('official research v1 package', () => {
     expect(RESEARCH_VERSION_1.version).toBe(1);
     expect(RESEARCH_VERSION_1.validationPolicy).toBe(RESEARCH_VALIDATION_POLICY);
     expect(validateBuiltinWorkflowRelease(RESEARCH_VERSION_1)).toMatch(/^[a-f0-9]{64}$/);
+    const tamperedVersion = {
+      ...RESEARCH_VERSION_1,
+      steps: RESEARCH_VERSION_1.steps.map((step) =>
+        step.id === 'R13' ? { ...step, objective: `${step.objective} altered` } : step,
+      ),
+    };
+    expect(() => validateBuiltinWorkflowRelease(tamperedVersion)).toThrow();
     expect(Object.isFrozen(RESEARCH_PACKAGE)).toBe(true);
     expect(Object.isFrozen(RESEARCH_VERSION_1.steps)).toBe(true);
     expect(Object.isFrozen(RESEARCH_VERSION_1.steps[7]?.effectPaths)).toBe(true);
@@ -238,13 +246,115 @@ describe('official research v1 package', () => {
         }),
       ]),
     );
+    expect(byId('R13').inputs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'manuscript',
+          fromStepId: 'R11',
+        }),
+        expect.objectContaining({
+          key: 'claim_evidence_map',
+          fromStepId: 'R11',
+        }),
+        expect.objectContaining({ key: 'review', fromStepId: 'R12' }),
+      ]),
+    );
+    expect(byId('R13').inputs).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ fromStepId: 'R13' })]),
+    );
+    expect(byId('R13').objective).toMatch(/检查 Main 提供的可信 Workflow Artifact history/);
+    expect(byId('R13').objective).toMatch(/attempt 顺序最新、已验证/);
     expect(byId('R14').outputs.map((spec) => spec.key)).toEqual(['research.final_package']);
     const finalPackageContract = RESEARCH_CONTRACTS.find(
       (contract) => contract.contractId === 'research.final-package',
     )!;
     expect(finalPackageContract.validator).toMatchObject({
       type: 'JSON_SCHEMA',
-      schema: { properties: { reproducibilitySummary: { type: 'string' } } },
+      schema: {
+        properties: {
+          reproducibilitySummary: { type: 'string' },
+          experimentAttempts: {
+            type: 'array',
+            maxItems: 20,
+            items: {
+              type: 'object',
+              properties: expect.objectContaining({
+                stepRunId: { type: 'string', minLength: 1, maxLength: 128 },
+                missionRunId: { type: 'string', minLength: 1, maxLength: 128 },
+                attempt: { type: 'number', minimum: 1, maximum: 5, integer: true },
+                outcome: {
+                  type: 'enum',
+                  values: ['COMPLETED', 'FAILED', 'CANCELLED', 'INTERRUPTED'],
+                },
+                recordArtifactId: { type: 'string', minLength: 0, maxLength: 128 },
+                errorCode: { type: 'string', minLength: 0, maxLength: 128 },
+                rawPaths: expect.objectContaining({ type: 'array', maxItems: 20 }),
+                rawHashes: expect.objectContaining({ type: 'array', maxItems: 20 }),
+              }),
+            },
+          },
+        },
+      },
     });
+    const finalPackageSchema = (
+      finalPackageContract.validator as {
+        schema: { properties: Record<string, unknown> };
+      }
+    ).schema.properties;
+    expect(finalPackageSchema).not.toHaveProperty('experimentAttemptArtifactIds');
+    const validPackage = {
+      finalManuscriptArtifactId: 'manuscript-final',
+      evidenceTableArtifactId: 'evidence-table',
+      claimEvidenceMapArtifactIds: ['claim-map'],
+      experimentAttempts: [
+        {
+          stepRunId: 'step-run-completed',
+          missionRunId: 'mission-run-completed',
+          attempt: 1,
+          outcome: 'COMPLETED',
+          recordArtifactId: 'experiment-record-1',
+          errorCode: '',
+          rawPaths: ['research/raw-result.json'],
+          rawHashes: ['a'.repeat(64)],
+        },
+        {
+          stepRunId: 'step-run-failed',
+          missionRunId: 'mission-run-failed',
+          attempt: 1,
+          outcome: 'FAILED',
+          recordArtifactId: '',
+          errorCode: 'TOOL_EXIT_NONZERO',
+          rawPaths: [],
+          rawHashes: [],
+        },
+      ],
+      rawResultArtifactIds: ['raw-result-1'],
+      experimentLogArtifactIds: ['experiment-log-1'],
+      analysisArtifactIds: ['analysis-1'],
+      figureArtifactIds: ['figures-1'],
+      reviewHistoryArtifactIds: ['review-1'],
+      sourceArtifactIds: ['source-1'],
+      screeningArtifactId: 'screening-1',
+      hypothesisArtifactIds: ['hypothesis-1'],
+      experimentPlanArtifactIds: ['plan-1'],
+      reproducibilitySummary: 'All attempts are listed, including failed attempts without records.',
+      conclusionStatus: 'NOT_SCIENTIFICALLY_CONFIRMED',
+      submissionStatus: 'NOT_SUBMITTED',
+    };
+    expect(
+      validateArtifactContract(finalPackageContract, {
+        kind: 'JSON',
+        content: JSON.stringify(validPackage),
+      }),
+    ).toEqual([]);
+    expect(
+      validateArtifactContract(finalPackageContract, {
+        kind: 'JSON',
+        content: JSON.stringify({
+          ...validPackage,
+          experimentAttempts: Array(21).fill(validPackage.experimentAttempts[0]),
+        }),
+      }),
+    ).toContain('JSON_SCHEMA_MISMATCH');
   });
 });
