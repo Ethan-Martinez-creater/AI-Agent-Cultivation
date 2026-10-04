@@ -518,7 +518,7 @@ function planArtifact(detail: WorkflowDetail, step: WorkflowStepRun): WorkflowAr
 function executionPaths(detail: WorkflowDetail, step: WorkflowStepRun) {
   const runId = safeId(detail.run.id, 'Workflow Run ID');
   const stepRunId = safeId(step.id, 'Step Run ID');
-  const base = `workflows/${runId}/experiments/${stepRunId}/attempt-${step.attempt}`;
+  const base = `workflows/${runId}/${stepRunId}/research`;
   return { raw: `${base}/raw-result.json`, log: `${base}/experiment-log.txt` };
 }
 
@@ -656,7 +656,9 @@ function attemptIdFor(artifact: WorkflowArtifact, value: InputRecord): string {
 }
 
 function experimentAttemptSummaries(detail: WorkflowDetail) {
-  const experimentSteps = detail.steps.filter((step) => step.stepId === 'R08');
+  const experimentSteps = detail.steps
+    .filter((step) => step.stepId === 'R08')
+    .sort((left, right) => left.attempt - right.attempt || left.id.localeCompare(right.id));
   return experimentSteps.map((step) => {
     if (!step.missionRunId)
       throw new Error(`W2.3 final package requires MissionRun provenance for ${step.id}`);
@@ -690,19 +692,14 @@ function experimentAttemptSummaries(detail: WorkflowDetail) {
         `W2.3 completed experiment ${step.id} is missing its durable record Artifact`,
       );
 
-    const files = detail.artifacts
-      .filter(
-        (artifact) =>
-          artifact.producerStepRunId === step.id &&
-          ['research.raw_result', 'research.experiment_log'].includes(
-            String(artifact.metadata.outputKey ?? artifact.metadata.logicalKey),
-          ),
-      )
-      .sort((left, right) =>
-        String(left.metadata.outputKey ?? left.metadata.logicalKey).localeCompare(
-          String(right.metadata.outputKey ?? right.metadata.logicalKey),
-        ),
+    const files = ['research.raw_result', 'research.experiment_log'].flatMap((key) => {
+      const artifact = detail.artifacts.find(
+        (candidate) =>
+          candidate.producerStepRunId === step.id &&
+          (candidate.metadata.outputKey ?? candidate.metadata.logicalKey) === key,
       );
+      return artifact ? [artifact] : [];
+    });
     const rawPaths: string[] = [];
     const rawHashes: string[] = [];
     for (const artifact of files) {
@@ -1048,6 +1045,12 @@ function outputValues(
             'research.claim_evidence_map',
           ]).map((artifact) => artifact.id),
           experimentAttempts: experimentAttemptSummaries(detail),
+          rawResultArtifactIds: artifactsForOutput(detail, ['research.raw_result']).map(
+            (artifact) => artifact.id,
+          ),
+          experimentLogArtifactIds: artifactsForOutput(detail, ['research.experiment_log']).map(
+            (artifact) => artifact.id,
+          ),
           analysisArtifactIds: artifactsForOutput(detail, [
             'research.analysis',
             'research.analysis_results',

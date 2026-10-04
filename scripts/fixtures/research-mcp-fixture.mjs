@@ -175,7 +175,7 @@ function executeExperiment(input) {
     input.method.length > 2000
   )
     throw new Error('run_experiment received invalid trusted execution context');
-  const expectedBase = `workflows/${input.workflowRunId}/experiments/${input.stepRunId}/attempt-${input.attempt}`;
+  const expectedBase = `workflows/${input.workflowRunId}/${input.stepRunId}/research`;
   const rawPath = `${expectedBase}/raw-result.json`;
   const logPath = `${expectedBase}/experiment-log.txt`;
   if (input.rawResultPath !== rawPath || input.experimentLogPath !== logPath)

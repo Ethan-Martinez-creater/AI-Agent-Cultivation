@@ -466,9 +466,9 @@ describe('ResearchWorkflowFixtureGateway', () => {
       producerStepRunId: completedAttempt.id,
       kind: 'FILE',
     });
-    raw.metadata.path = 'workflows/run/attempt-2/raw-result.json';
+    raw.metadata.path = 'workflows/run/step-run-2/research/raw-result.json';
     raw.metadata.contentHash = 'a'.repeat(64);
-    log.metadata.path = 'workflows/run/attempt-2/experiment-log.txt';
+    log.metadata.path = 'workflows/run/step-run-2/research/experiment-log.txt';
     log.metadata.contentHash = 'b'.repeat(64);
     const context = makeContext('R14', {
       steps: [failedAttempt, completedAttempt, makeContext('R14').step],
@@ -478,7 +478,8 @@ describe('ResearchWorkflowFixtureGateway', () => {
     const result = await new ResearchWorkflowFixtureGateway(() => context).generate(request());
     const finalPackage = JSON.parse(result.text) as {
       experimentAttempts: Array<Record<string, unknown>>;
-      rawResultArtifactIds?: string[];
+      rawResultArtifactIds: string[];
+      experimentLogArtifactIds: string[];
       experimentAttemptArtifactIds?: string[];
     };
     expect(finalPackage.experimentAttempts).toEqual([
@@ -500,14 +501,15 @@ describe('ResearchWorkflowFixtureGateway', () => {
         recordArtifactId: 'experiment-record-2',
         errorCode: '',
         rawPaths: [
-          'workflows/run/attempt-2/experiment-log.txt',
-          'workflows/run/attempt-2/raw-result.json',
+          'workflows/run/step-run-2/research/raw-result.json',
+          'workflows/run/step-run-2/research/experiment-log.txt',
         ],
-        rawHashes: ['b'.repeat(64), 'a'.repeat(64)],
+        rawHashes: ['a'.repeat(64), 'b'.repeat(64)],
       },
     ]);
-    expect(finalPackage).not.toHaveProperty('rawResultArtifactIds');
     expect(finalPackage).not.toHaveProperty('experimentAttemptArtifactIds');
+    expect(finalPackage.rawResultArtifactIds).toContain('raw-result-2');
+    expect(finalPackage.experimentLogArtifactIds).toContain('experiment-log-2');
   });
 
   it('creates files only for an explicit HUMAN_OR_EXTERNAL submission, without writing or asserting facts', () => {
@@ -553,8 +555,8 @@ describe('research MCP stdio fixture', () => {
       mode: 'COMPUTATIONAL',
       method: 'Calculate bounded group means.',
       datasetRelativePath: 'datasets/research-fixture.csv',
-      rawResultPath: 'workflows/workflow-1/experiments/step-r08-1/attempt-1/raw-result.json',
-      experimentLogPath: 'workflows/workflow-1/experiments/step-r08-1/attempt-1/experiment-log.txt',
+      rawResultPath: 'workflows/workflow-1/step-r08-1/research/raw-result.json',
+      experimentLogPath: 'workflows/workflow-1/step-r08-1/research/experiment-log.txt',
     };
     const messages = [
       { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25' } },
