@@ -11,6 +11,11 @@ import {
 } from '@cultivation/persistence';
 import { DomainError } from '@cultivation/shared';
 import { FileWorkspace } from './file-workspace.js';
+import type { WorkflowDetail, WorkflowStepRun } from '@cultivation/domain';
+import type {
+  ResearchExperimentFact,
+  ResearchAcceptedExperimentArtifactFact,
+} from './w23-validation-policy.js';
 
 export type ResearchInputCategory = 'SOURCE' | 'DATA' | 'CODE';
 export interface ResearchInputCandidate {
@@ -202,6 +207,120 @@ export class ResearchInputArtifactService {
         });
       });
     }
+  }
+  private experimentInputs(detail: WorkflowDetail, checkFiles: boolean) {
+    const expected = ['existingData', 'existingCode'].flatMap((inputKey) => {
+      const refs = detail.run.inputSnapshot?.[inputKey];
+      if (!Array.isArray(refs)) return [];
+      return refs.map((ref, inputIndex) => {
+        if (!ref || typeof ref !== 'object' || Array.isArray(ref)) invalid();
+        return { inputKey, inputIndex, id: ref.id, kind: ref.kind, contentHash: ref.contentHash };
+      });
+    });
+    const bindings = this.repository.bindings(detail.run.id);
+    if (
+      bindings.length !== expected.length ||
+      expected.some(
+        (ref) =>
+          !bindings.some(
+            (b) =>
+              b.inputKey === ref.inputKey &&
+              b.inputIndex === ref.inputIndex &&
+              b.id === ref.id &&
+              b.kind === ref.kind &&
+              b.contentHash === ref.contentHash,
+          ),
+      )
+    )
+      invalid();
+    for (const binding of bindings) {
+      const fact = this.repository.get(binding.id);
+      if (
+        !fact ||
+        fact.kind !== binding.kind ||
+        fact.contentHash !== binding.contentHash ||
+        fact.category !== (binding.inputKey === 'existingData' ? 'DATA' : 'CODE')
+      )
+        invalid();
+      if (checkFiles) {
+        if (fact.workspaceRoot !== this.workspaceRoot()) invalid();
+        try {
+          if (
+            FileWorkspace.inspectRegisteredInput(fact.workspaceRoot, fact.relativePath)
+              .contentHash !== fact.contentHash
+          )
+            invalid();
+        } catch {
+          invalid();
+        }
+      }
+    }
+    return bindings.map(({ id, kind, contentHash }) => ({ id, kind, contentHash }));
+  }
+  validateExperimentInputs(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+    fact: ResearchExperimentFact | undefined,
+  ): void {
+    // Historical completed attempts retain their durable provenance even if a user later edits a file.
+    const expected = this.experimentInputs(detail, step.state !== 'COMPLETED');
+    const actual = fact?.inputArtifacts;
+    if (
+      !fact ||
+      fact.workflowRunId !== detail.run.id ||
+      fact.stepRunId !== step.id ||
+      fact.missionId !== step.missionId ||
+      fact.missionRunId !== step.missionRunId ||
+      !Array.isArray(actual) ||
+      actual.length !== expected.length ||
+      new Set(actual.map((r) => r.id)).size !== actual.length ||
+      expected.some(
+        (r) =>
+          !actual.some(
+            (a) => a.id === r.id && a.kind === r.kind && a.contentHash === r.contentHash,
+          ),
+      )
+    )
+      invalid();
+  }
+  checkExperimentFiles(detail: WorkflowDetail, consumed?: unknown): void {
+    const expected = this.experimentInputs(detail, true);
+    if (consumed !== undefined) {
+      if (
+        !Array.isArray(consumed) ||
+        consumed.length !== expected.length ||
+        new Set(consumed.map((r) => r?.id)).size !== consumed.length ||
+        expected.some(
+          (r) =>
+            !consumed.some(
+              (a) => a?.id === r.id && a.kind === r.kind && a.contentHash === r.contentHash,
+            ),
+        )
+      )
+        invalid();
+    }
+  }
+  validateExternalExperimentInputs(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+    accepted: ResearchAcceptedExperimentArtifactFact[],
+  ): void {
+    this.experimentInputs(detail, step.state !== 'COMPLETED');
+    if (
+      detail.run.inputSnapshot?.experimentMode !== 'HUMAN_OR_EXTERNAL' ||
+      !accepted.length ||
+      accepted.some(
+        (fact) =>
+          fact.workflowRunId !== detail.run.id ||
+          fact.stepRunId !== step.id ||
+          fact.missionId !== step.missionId ||
+          fact.missionRunId !== step.missionRunId ||
+          fact.state !== 'ACCEPTED',
+      )
+    )
+      invalid();
+    // Existing external-record/raw/log checks still require real same-request accepted artifacts.
+    // Human execution does not acquire a fictitious MCP ToolCall.
   }
   contextForMission(missionId: string): Extract<ModelMessage, { role: 'assistant' }>[] {
     const step = this.workflows.findStepByMissionId(missionId);

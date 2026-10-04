@@ -513,6 +513,59 @@ describe('W2 workflow persistence', () => {
     }
   });
 
+  it('upgrades uncertain PREPARED file effects without fabricating hashes or allowing replay', () => {
+    const db = new Database(':memory:');
+    db.pragma('foreign_keys = ON');
+    runMigrations(
+      db,
+      migrations.filter((migration) => migration.version <= 24),
+    );
+    try {
+      const version = w2Version({
+        id: 'workflow-uncertain-file',
+        steps: [{ ...step('render', 'TASK', 'FILE_OUTPUT'), effectPaths: ['dist/result.json'] }],
+      });
+      const { workflow, w2, run } = createRun(db, version);
+      const stepRun = insertRunningStep(workflow, run.id, 'render');
+      const prepared: StepOperationReceipt = {
+        id: 'uncertain-file-operation',
+        workflowRunId: run.id,
+        stepRunId: stepRun.id,
+        attempt: 1,
+        operationKey: 'render:attempt-1',
+        effectType: 'FILE_OUTPUT',
+        state: 'PREPARED',
+        inputHash: HASH,
+        manifest: [{ relativePath: 'dist/result.json' }],
+        createdAt: NOW,
+        updatedAt: NOW,
+      };
+      w2.prepareOperation(prepared);
+      const unknown: StepOperationReceipt = { ...prepared, state: 'UNKNOWN', updatedAt: LATER };
+      expect(() => w2.transitionOperation(unknown, 'PREPARED')).toThrow(/manifest/i);
+      runMigrations(db, migrations);
+      expect(() =>
+        w2.transitionOperation(
+          { ...unknown, manifest: [{ relativePath: 'dist/result.json', afterHash: HASH }] },
+          'PREPARED',
+        ),
+      ).toThrow(/transition|evidence/i);
+      expect(w2.transitionOperation(unknown, 'PREPARED')).toBe(true);
+      expect(w2.listOperations(run.id)).toEqual([unknown]);
+      const restarted = new W2WorkflowRepository(db);
+      expect(restarted.listOperations(run.id)).toEqual([unknown]);
+      expect(restarted.transitionOperation(unknown, 'PREPARED')).toBe(false);
+      expect(() =>
+        restarted.transitionOperation({ ...unknown, state: 'APPLIED' }, 'UNKNOWN'),
+      ).toThrow(/terminal/i);
+      expect(
+        db.prepare('SELECT event_type FROM workflow_step_operation_audit ORDER BY event_id').all(),
+      ).toEqual([{ event_type: 'PREPARED' }, { event_type: 'UNKNOWN' }]);
+    } finally {
+      db.close();
+    }
+  });
+
   it('requires FILE_OUTPUT manifests to match frozen paths and defers output IDs until verification', () => {
     const db = database();
     try {

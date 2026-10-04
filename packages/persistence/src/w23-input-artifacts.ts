@@ -51,4 +51,19 @@ export class ResearchInputArtifactRepository {
       )
       .run(value);
   }
+  bindings(runId: string) {
+    return this.db
+      .prepare(
+        `SELECT input_key AS inputKey,input_index AS inputIndex,
+      artifact_id AS id,kind,content_hash AS contentHash FROM workflow_research_input_bindings
+      WHERE workflow_run_id=? AND input_key IN ('existingData','existingCode') ORDER BY input_key,input_index`,
+      )
+      .all(runId) as Array<{
+      inputKey: string;
+      inputIndex: number;
+      id: string;
+      kind: string;
+      contentHash: string;
+    }>;
+  }
 }

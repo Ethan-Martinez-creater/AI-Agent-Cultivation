@@ -214,6 +214,14 @@ export function researchIntegrityFacts(
             toolId: String(payload.toolId),
             outputHash: String(payload.outputHash),
             planArtifactId: String(experiment.planArtifactId),
+            evidenceEventId: event.id,
+            inputArtifacts: Array.isArray(experiment.inputArtifacts)
+              ? (experiment.inputArtifacts as Array<{
+                  id: string;
+                  kind: string;
+                  contentHash: string;
+                }>)
+              : [],
             status: experiment.status as 'SUCCEEDED' | 'FAILED',
             method: String(experiment.method),
             negativeResult: Boolean(experiment.negativeResult),

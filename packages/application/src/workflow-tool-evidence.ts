@@ -37,6 +37,19 @@ export function workflowToolEvidence(result: ToolResult, source: string): Record
     if (!evidence || typeof evidence !== 'object') return {};
     const hash = (value: unknown): value is string =>
       typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+    const inputRef = (
+      value: unknown,
+    ): value is { id: string; kind: 'FILE'; contentHash: string } => {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+      const ref = value as Record<string, unknown>;
+      return (
+        typeof ref.id === 'string' &&
+        ref.id.length > 0 &&
+        ref.id.length <= 256 &&
+        ref.kind === 'FILE' &&
+        hash(ref.contentHash)
+      );
+    };
     const artifactFiles = Array.isArray(evidence.artifactFiles)
       ? evidence.artifactFiles.slice(0, 20).flatMap((item: unknown) => {
           if (!item || typeof item !== 'object') return [];
@@ -82,6 +95,10 @@ export function workflowToolEvidence(result: ToolResult, source: string): Record
       typeof evidence.experiment.method === 'string' &&
       evidence.experiment.method.length <= 2000 &&
       typeof evidence.experiment.negativeResult === 'boolean' &&
+      (evidence.experiment.inputArtifacts === undefined ||
+        (Array.isArray(evidence.experiment.inputArtifacts) &&
+          evidence.experiment.inputArtifacts.length <= 40 &&
+          evidence.experiment.inputArtifacts.every(inputRef))) &&
       artifactFiles.length
         ? {
             researchExperiment: {
@@ -89,6 +106,15 @@ export function workflowToolEvidence(result: ToolResult, source: string): Record
               status: evidence.experiment.status,
               method: evidence.experiment.method,
               negativeResult: evidence.experiment.negativeResult,
+              inputArtifacts: Array.isArray(evidence.experiment.inputArtifacts)
+                ? evidence.experiment.inputArtifacts.map(
+                    (ref: { id: string; kind: string; contentHash: string }) => ({
+                      id: ref.id,
+                      kind: ref.kind,
+                      contentHash: ref.contentHash,
+                    }),
+                  )
+                : [],
             },
           }
         : {}),

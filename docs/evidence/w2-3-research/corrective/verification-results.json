@@ -1,8 +1,8 @@
 {
   "date": "2026-10-04",
-  "baseline": "555b6731f118058abc39ac053587dd39f6223e15",
-  "scope": "W2.3 corrective only",
-  "migration": "0024_w23_input_artifacts.sql",
+  "baseline": "c01a267807214aa521cc37943f77baa5b1f2e05b",
+  "scope": "W2.3 final consumed-input provenance corrective only",
+  "migration": "0025_w23_uncertain_prepared_effect.sql",
   "newDependencies": [],
   "package": {
     "platform": "win32",
@@ -14,7 +14,7 @@
       "command": "npm run test",
       "exitCode": 0,
       "filesPassed": 95,
-      "testsPassed": 789
+      "testsPassed": 795
     },
     {
       "command": "npm run typecheck",
@@ -45,7 +45,14 @@
     "runInputBindingAtomic": true,
     "staleOrForgedRefRejected": true,
     "noPermissionGrant": true,
-    "R07R08UseRegisteredArtifact": true
+    "R07R08UseRegisteredArtifact": true,
+    "consumedInputsFromDurableToolResult": true,
+    "sameRunFrozenBindingsExactMatch": true,
+    "allDataAndCodeInputsRequired": true,
+    "actualFilesCheckedBeforeAndAfterExecution": true,
+    "postExecutionInvalidityPersistsUnknown": true,
+    "noAcceptedArtifactsForAdversarialCases": true,
+    "durableInputFactsRestartSafe": true
   },
   "deliveryProjection": {
     "frozenContractReceipt": true,
@@ -67,18 +74,74 @@
   },
   "restartCounts": {
     "before": {
-      "calls": 107,
-      "tools": 13,
+      "calls": 187,
+      "tools": 25,
       "continuations": 2
     },
     "after": {
-      "calls": 107,
-      "tools": 13,
+      "calls": 187,
+      "tools": 25,
       "continuations": 2
     }
   },
   "screenshotCount": 17,
   "facts": "facts.json",
   "automaticSubmission": false,
-  "scientificConclusionCertified": false
+  "scientificConclusionCertified": false,
+  "adversarialExperimentInputs": [
+    {
+      "fault": "missing",
+      "workflowRunId": "1c07bdc4-5f3f-40c4-8f0f-c67e30e6beb8",
+      "stepRunId": "d1e48fe3-d2e4-4a37-86ac-92d363981113",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0
+    },
+    {
+      "fault": "forged",
+      "workflowRunId": "7414ff9c-0f36-4948-ad6a-00e6eedc497d",
+      "stepRunId": "3896cc07-c51e-41ad-a9cf-3d9a30614226",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0
+    },
+    {
+      "fault": "foreign",
+      "workflowRunId": "20641761-58d5-4c2c-9b3a-6c8bfae3e546",
+      "stepRunId": "a9d3632e-9868-4548-a46f-5debe6174773",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0
+    },
+    {
+      "fault": "changed-before",
+      "workflowRunId": "56b46d39-302c-4e06-abeb-9968ca4119d5",
+      "stepRunId": "9bed1e9b-79dc-4898-a68f-99d6d6ac9752",
+      "errorCode": "RESEARCH_INPUT_CHANGED",
+      "acceptedArtifacts": 0
+    },
+    {
+      "fault": "deleted-before",
+      "workflowRunId": "1f6a0212-f12d-41dc-9e63-40303670dcf8",
+      "stepRunId": "f12e0ddb-9db8-477b-881d-ad1cffff0fa0",
+      "errorCode": "RESEARCH_INPUT_CHANGED",
+      "acceptedArtifacts": 0
+    },
+    {
+      "fault": "changed-after",
+      "workflowRunId": "cae1d2d0-c22b-43b8-a53c-223ee20bfd05",
+      "stepRunId": "bd9ff3ae-99a5-4d57-be41-6cd25d78266e",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0
+    },
+    {
+      "fault": "deleted-after",
+      "workflowRunId": "d2fe8839-ecab-4131-814d-d7bf1d78075e",
+      "stepRunId": "d20f0fbc-c641-48ed-b8df-82ff4ccf8303",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0
+    }
+  ]
 }

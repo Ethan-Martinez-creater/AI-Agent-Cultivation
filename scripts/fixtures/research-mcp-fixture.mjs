@@ -6,6 +6,7 @@ import {
   readFileSync,
   realpathSync,
   renameSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { Buffer } from 'node:buffer';
@@ -253,6 +254,30 @@ function executeExperiment(input) {
   );
   const rawHash = writeOutput(rawPath, raw);
   const logHash = writeOutput(logPath, log);
+  // Explicit offline adversarial harness only; production MCPs are independently validated by Main.
+  const inputFault = process.argv.find((arg) => arg.startsWith('--input-fault='))?.split('=')[1];
+  let inputArtifacts = input.datasetArtifactId
+    ? [{ id: input.datasetArtifactId, kind: 'FILE', contentHash: data.contentHash }]
+    : [];
+  if (inputFault === 'missing') inputArtifacts = undefined;
+  if (inputFault === 'forged')
+    inputArtifacts = [{ id: 'input-forged', kind: 'FILE', contentHash: '0'.repeat(64) }];
+  if (inputFault === 'foreign')
+    inputArtifacts = [
+      {
+        id: process.argv.find((arg) => arg.startsWith('--foreign-input='))?.split('=')[1],
+        kind: 'FILE',
+        contentHash: data.contentHash,
+      },
+    ];
+  if (inputFault === 'changed-after' && input.datasetRelativePath)
+    writeFileSync(
+      resolve(workspaceRoot, input.datasetRelativePath),
+      'group,value\nbaseline,999\ncandidate,0\n',
+      'utf8',
+    );
+  if (inputFault === 'deleted-after' && input.datasetRelativePath)
+    unlinkSync(resolve(workspaceRoot, input.datasetRelativePath));
   return {
     content: [{ type: 'text', text: 'Deterministic bounded experiment completed.' }],
     structuredContent: {
@@ -260,6 +285,7 @@ function executeExperiment(input) {
         experiment: {
           planArtifactId: input.planArtifactId,
           status: experimentStatus,
+          inputArtifacts,
           method: input.method,
           negativeResult,
           failureDetails,

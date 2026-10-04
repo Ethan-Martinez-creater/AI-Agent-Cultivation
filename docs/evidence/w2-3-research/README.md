@@ -38,3 +38,9 @@
 - `corrective/verification-results.json` 与 `corrective/smoke-package.log`：最终六项及 Gate 0–6、R0–R4、W1/W2.0/W2.1/W2.2/W2.3 全量 packaged 回归。
 
 不存在引用、伪造 kind/hash、创建前文件改变均由 Main 拒绝且不创建 Run；输入事实不会授予额外模型/工具权限。原 A/B/C/D/F/E 场景截图及 restart/mutation/Human Bridge/independent review 的 durable facts 也归档在该子目录。
+
+### R08 consumed-input provenance 闭环
+
+最新 `corrective/facts.json` 的 `datasetInput.durableExperimentInputChain` 为每个 B/R08 attempt 记录：frozen id/kind/hash、同 Run input binding、真实 MissionEvent ID、ToolCall/toolId/outputHash、actor/MissionRun/StepRun、以及可信策略接受后的 Artifact/validation receipt。`durableInputFactsRestartSafe` 与 restart 前后调用计数证明原事实保持且不重放。
+
+`adversarialExperimentInputs` 记录生产 Main 对 missing、forged、foreign input facts 及执行前后改变/删除文件的拒绝：没有已接受的 R08 Artifact；已执行副作用的后置失败保存 UNKNOWN receipt。新增测试也覆盖不能通过过滤无效条目/截断溢出声明来让不合法 consumed-input 集合通过。raw-result.json 的自报字段仅是补充，不再承担安全边界。

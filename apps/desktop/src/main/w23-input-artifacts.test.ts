@@ -123,6 +123,68 @@ describe('trusted research input Artifact provenance', () => {
         }),
       ).toThrow();
       expect(h.workflows.listRuns()).toHaveLength(1);
+      const step = {
+        ...run.steps[0]!,
+        id: 'r08-step',
+        stepId: 'R08',
+        state: 'RUNNING' as const,
+        missionId: 'experiment-mission',
+        missionRunId: 'experiment-run',
+      };
+      const experiment = {
+        workflowRunId: run.run.id,
+        stepRunId: step.id,
+        missionId: step.missionId,
+        missionRunId: step.missionRunId,
+        inputArtifacts: [{ id: ref.id, kind: ref.kind, contentHash: ref.contentHash }],
+      } as import('./w23-validation-policy.js').ResearchExperimentFact;
+      expect(() => h.service.validateExperimentInputs(run, step, experiment)).not.toThrow();
+      const otherRef = (await h.service.importFile('DATA', h.file, async () => true))!;
+      const otherRun = service.createRun({
+        definitionId: 'official.research',
+        version: 1,
+        inputs: { ...inputs, existingData: [{ ...otherRef }] },
+      });
+      expect(otherRun.run.id).not.toBe(run.run.id);
+      expect(() =>
+        h.service.validateExperimentInputs(run, step, {
+          ...experiment,
+          inputArtifacts: [
+            { id: otherRef.id, kind: otherRef.kind, contentHash: otherRef.contentHash },
+          ],
+        }),
+      ).toThrow();
+      for (const inputArtifacts of [
+        undefined,
+        [],
+        [{ ...ref, id: 'other-run-input' }],
+        [{ ...ref, kind: 'JSON' }],
+        [{ ...ref, contentHash: 'a'.repeat(64) }],
+      ]) {
+        expect(() =>
+          h.service.validateExperimentInputs(run, step, { ...experiment, inputArtifacts }),
+        ).toThrow();
+      }
+      expect(() =>
+        h.service.validateExperimentInputs(run, step, {
+          ...experiment,
+          workflowRunId: 'other-run',
+        }),
+      ).toThrow();
+      const unchanged = restarted.detail(run.run.id);
+      expect(() => h.service.validateExperimentInputs(unchanged, step, experiment)).not.toThrow();
+      const bytes = 'x,y\n1,2\n';
+      writeFileSync(h.file, 'changed-after-run', 'utf8');
+      expect(() => h.service.validateExperimentInputs(run, step, experiment)).toThrow();
+      // Already validated historical attempts are not re-executed/reinterpreted from current files.
+      expect(() =>
+        h.service.validateExperimentInputs(run, { ...step, state: 'COMPLETED' }, experiment),
+      ).not.toThrow();
+      unlinkSync(h.file);
+      expect(() => h.service.validateExperimentInputs(run, step, experiment)).toThrow();
+      writeFileSync(h.file, bytes, 'utf8');
+      expect(() => h.service.validateExperimentInputs(run, step, experiment)).not.toThrow();
+      expect(h.db.prepare('SELECT COUNT(*) n FROM permission_rules').get()).toEqual({ n: 0 });
     } finally {
       h.db.close();
     }

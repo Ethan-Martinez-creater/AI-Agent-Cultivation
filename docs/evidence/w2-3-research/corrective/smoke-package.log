@@ -4,7 +4,7 @@
 
 GATE1_PACKAGED_SMOKE_OK navigation=9 ipc=ok native_sqlite=ok secret=encrypted chat=streamed sealed_binding=ok fixed_model=ok usage=ok
 GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried fixed_binding=ok
-R0_PACKAGED_SMOKE_OK migration=24 teammate_defaults=ok foreign_keys=ok
+R0_PACKAGED_SMOKE_OK migration=25 teammate_defaults=ok foreign_keys=ok
 GATE3_PACKAGED_SMOKE_OK solo=ok scope=memory_skill_permission mission_allow_over_global_ask=ok usage=mission_run approval=once restart=waiting_paused_interrupted retry=new_attempt audit=append_only
 GATE4_PACKAGED_SMOKE_OK workspace=chosen builtin_file_tools=approval_and_scope exact_star_grant=no_expansion untrusted_file_mcp_results=tool_role deny=non_mutating restart=same_run mcp=discovery_execution_permission env_whitelist=ok usage_event_audit=mission_run_attributed
 GATE5_PACKAGED_SMOKE_OK party=2 persistent_teammates consultation=initiative_invite deny=target_model_calls_zero_and_sqlite_artifacts_zero approve=member_uses_own_runtime_memory_skill coordinator_synthesis=final_artifact usage_audit=actor_attributed
@@ -17,13 +17,13 @@ R3_1_CRASH_PACKAGED_SMOKE_OK pending_restart_same_run=ok synthesis_once=ok conti
 R3_2_SDK_PACKAGED_SMOKE_OK metadata=real_http stream=real_sdk solo=real_sdk auth_failure=unavailable no_reroute=ok recovery=ok
 R3_2_PACKAGED_SMOKE_OK unknown=ok probe=ok solo=ok party=ok actor_identity=ok bridge_excluded=ok restart=ok explicit_unavailable=blocked_no_usage recovery=ok
 R3_3_UI_PACKAGED_SMOKE_OK screenshots=35 creation=unbound-templates,keyless-sealed chat=streaming,long-content,copy,unavailable memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900
-R3_3_UI_EVIDENCE_DIR E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r3-3-ui-d33368e0-3132-41b9-b936-f4be565d7009
-R3_3_UI_EVIDENCE_MANIFEST E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r3-3-ui-d33368e0-3132-41b9-b936-f4be565d7009\evidence-manifest.json
-R4_PACKAGED_EVIDENCE E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r4-packaged-d7d43943-1664-419c-b00c-ca0399349e5f\r4-evidence.json
+R3_3_UI_EVIDENCE_DIR E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r3-3-ui-0a88dbad-6ef4-4500-aa85-7f258c2b75a5
+R3_3_UI_EVIDENCE_MANIFEST E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r3-3-ui-0a88dbad-6ef4-4500-aa85-7f258c2b75a5\evidence-manifest.json
+R4_PACKAGED_EVIDENCE E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r4-packaged-464849a3-96e8-4cc8-a7d6-efcac2ba1e33\r4-evidence.json
 R4_PACKAGED_SMOKE_OK constraints=hard_conflicts_zero_side_effects explicit_human_bridge=ui_zero_probe_same_run routing_optin=independent auto_solo=90 auto_party=AD_HOC human_bridge_fallback=durable_same_run explicit_unavailable=no_substitution unmet_capability=blocked shadow=unchanged
-W1_PACKAGED_SMOKE_OK evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w1-packaged-8f7beec3-cc3d-4e69-924c-3f4e9ee74f57\evidence migration=24 routing=existing mission=existing lineage=verified recovery=no_silent_replay
-W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news+software+research-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w2-packaged-f4b9f163-98e2-488c-bbdc-89372faf8fbd\evidence
-UI_PRODUCT_SYSTEM_PACKAGED_OK screenshots=83 sizes=1440,1180,900 profile=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\ui-product-system-e1711931-e842-44f7-bc11-fa67d6a3018e
-W21_PACKAGED_SMOKE_OK cases=3 steps=14 permission=normal-mcp-approval humanBridge=typed-ipc restarts=N10-wait+N12-applied zeroReplay=true socialPublish=0 evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w21-packaged-a3c38528-8ea1-4472-a4a6-42b350eb0780\evidence
-W22_PACKAGED_SMOKE_OK cases=4 mixedVerification=true independentReview=true dynamicMutation=true crashZeroReplay=true noPublish=true evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w22-packaged-94eeb08c-c9c8-4884-b8fc-5fde1c4d3d3f\evidence
-W2.3 packaged acceptance passed: E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w23-packaged-eab90f3f-4dbe-4891-bf86-49f212a97fe1\evidence
+W1_PACKAGED_SMOKE_OK evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w1-packaged-9e7d81f2-92cc-43c8-8b23-3d2df9f1192e\evidence migration=25 routing=existing mission=existing lineage=verified recovery=no_silent_replay
+W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news+software+research-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w2-packaged-b97a6ee5-dae4-41e5-9c61-5a62cd177aa7\evidence
+UI_PRODUCT_SYSTEM_PACKAGED_OK screenshots=83 sizes=1440,1180,900 profile=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\ui-product-system-2fd24671-88ef-4dcd-b636-7669eeb309f8
+W21_PACKAGED_SMOKE_OK cases=3 steps=14 permission=normal-mcp-approval humanBridge=typed-ipc restarts=N10-wait+N12-applied zeroReplay=true socialPublish=0 evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w21-packaged-c9467bec-330a-47a8-8c6a-daff6415b0b4\evidence
+W22_PACKAGED_SMOKE_OK cases=4 mixedVerification=true independentReview=true dynamicMutation=true crashZeroReplay=true noPublish=true evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w22-packaged-7ca4cc84-c903-4e12-a276-ffc673acfb3f\evidence
+W2.3 packaged acceptance passed: E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w23-packaged-4fd79ade-43ba-45ea-8372-2c79038f2abf\evidence

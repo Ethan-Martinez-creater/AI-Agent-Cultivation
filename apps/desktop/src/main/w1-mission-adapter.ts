@@ -79,6 +79,7 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     private readonly failedExperimentFiles: (
       workflowRunId: string,
     ) => Array<{ rawPaths: string[]; rawHashes: string[] }> = () => [],
+    private readonly checkResearchInputs?: (detail: WorkflowDetail) => void,
   ) {}
   private researchAuthors(detail: WorkflowDetail, reviewed: string[]): string[] {
     const ids = new Set<string>();
@@ -114,6 +115,11 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     if (isResearchWorkflow(detail)) {
       if (!this.workspaceRoot()) return { reason: 'WORKSPACE_REQUIRED' };
       if (definition.id === 'R08') {
+        try {
+          this.checkResearchInputs?.(detail);
+        } catch {
+          return { reason: 'RESEARCH_INPUT_CHANGED' };
+        }
         if (detail.run.inputSnapshot?.experimentMode === 'HUMAN_OR_EXTERNAL')
           return { routing: { executionConstraint: 'HUMAN_BRIDGE' as const } };
         if (

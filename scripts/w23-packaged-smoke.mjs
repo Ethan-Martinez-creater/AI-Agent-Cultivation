@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import Database from 'better-sqlite3';
@@ -917,6 +917,51 @@ try {
         assert.equal(raw.inputContentHash, ref.contentHash);
       }
       facts.datasetInput.R07R08BoundToImportedArtifact = true;
+      facts.datasetInput.durableExperimentInputChain = completed.steps
+        .filter((step) => step.stepId === 'R08' && step.state === 'COMPLETED')
+        .map((step) => {
+          const events = read((db) =>
+            db
+              .prepare(
+                "SELECT id,actor_id,payload_json FROM mission_events WHERE mission_id=? AND run_id=? AND event_type='tool.result'",
+              )
+              .all(step.missionId, step.missionRunId),
+          );
+          const event = events.find((e) => JSON.parse(e.payload_json).researchExperiment);
+          assert.ok(event, 'R08 uses durable Tool result, not raw-result self-report');
+          const payload = JSON.parse(event.payload_json);
+          assert.equal(payload.success, true);
+          assert.equal(payload.source, 'MCP');
+          assert.equal(payload.capability, 'MCP_TOOL_EXECUTE');
+          assert.deepEqual(payload.researchExperiment.inputArtifacts, [
+            { id: ref.id, kind: ref.kind, contentHash: ref.contentHash },
+          ]);
+          const artifact = byKey('research.experiment_record').find(
+            (a) => a.producerStepRunId === step.id,
+          );
+          assert.equal(artifact.actorId, event.actor_id);
+          assert.equal(artifact.missionRunId, step.missionRunId);
+          const receipt = completed.validations.find(
+            (v) => v.artifactId === artifact.id && v.valid,
+          );
+          assert.ok(
+            receipt,
+            'trusted research-integrity validation accepted this durable input chain',
+          );
+          return {
+            stepRunId: step.id,
+            missionRunId: step.missionRunId,
+            actorId: event.actor_id,
+            eventId: event.id,
+            toolCallId: payload.toolCallId,
+            toolId: payload.toolId,
+            outputHash: payload.outputHash,
+            inputArtifacts: payload.researchExperiment.inputArtifacts,
+            artifactId: artifact.id,
+            validationReceipt: receipt,
+          };
+        });
+      assert.equal(facts.datasetInput.durableExperimentInputChain.length, records.length);
     }
     const finalPackage = JSON.parse(byKey('research.final_package').at(-1).content);
     assert.equal(finalPackage.submissionStatus, 'NOT_SUBMITTED');
@@ -1048,6 +1093,165 @@ try {
       },
     });
   }
+
+  // Production Main boundaries reject malicious MCP consumed-input metadata and changed files.
+  facts.adversarialExperimentInputs = [];
+  const originalDataset = readFileSync(join(workspace, datasetPath));
+  const foreignInput = facts.datasetInput.snapshot.id;
+  for (const fault of [
+    'missing',
+    'forged',
+    'foreign',
+    'changed-before',
+    'deleted-before',
+    'changed-after',
+    'deleted-after',
+  ]) {
+    writeFileSync(join(workspace, datasetPath), originalDataset);
+    await live.app.evaluate(
+      ({ dialog }, file) => {
+        dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] });
+        dialog.showMessageBox = async () => ({ response: 1, checkboxChecked: false });
+      },
+      join(workspace, datasetPath),
+    );
+    const ref = await live.page.evaluate(() => window.cultivation.workflows.importInput('DATA'));
+    assert.ok(ref && ref.id !== foreignInput);
+    await live.page.evaluate(
+      async ({ serverId, args }) => {
+        const api = window.cultivation;
+        const server = (await api.tools.listMcpServers()).find((s) => s.id === serverId);
+        const { id, name, command, envWhitelist, cwd, enabled } = server;
+        await api.tools.saveMcpServer({ id, name, command, args, envWhitelist, cwd, enabled });
+        const found = await api.tools.refreshMcpServer(serverId);
+        if (found.status !== 'READY') throw new Error(found.message);
+      },
+      {
+        serverId: setup.serverId,
+        args: [mcpFixturePath, `--input-fault=${fault}`, `--foreign-input=${foreignInput}`],
+      },
+    );
+    const failedRun = await live.page.evaluate(
+      (ref) =>
+        window.cultivation.workflows.create({
+          definitionId: 'official.research',
+          version: 1,
+          inputs: {
+            researchQuestion: '检验冻结实验输入与真实工具事实的安全边界',
+            field: '数据分析',
+            scope: '离线 provenance 拒绝测试',
+            experimentMode: 'COMPUTATIONAL',
+            maxExperimentCycles: 2,
+            existingData: [ref],
+          },
+        }),
+      ref,
+    );
+    let blocked = null;
+    let modified = false;
+    for (let iteration = 0; iteration < 200; iteration++) {
+      const d = await detail(live.page, failedRun.run.id);
+      const step = [...d.steps].reverse().find((s) => s.stepId === 'R08');
+      if (step?.errorCode || (step && d.run.waitReason === 'USER_CONFIRMATION')) {
+        blocked = d;
+        break;
+      }
+      assert.notEqual(d.run.state, 'COMPLETED');
+      if (
+        step?.stepId === 'R08' &&
+        !modified &&
+        ['changed-before', 'deleted-before'].includes(fault)
+      ) {
+        if (fault === 'changed-before')
+          writeFileSync(join(workspace, datasetPath), 'changed-after-snapshot', 'utf8');
+        else unlinkSync(join(workspace, datasetPath));
+        modified = true;
+      }
+      const current = active(d);
+      if (current?.missionId) {
+        const mission = await live.page.evaluate(
+          (id) => window.cultivation.missions.detail(id),
+          current.missionId,
+        );
+        const approval = mission.approvals.find((a) => a.state === 'PENDING');
+        if (approval) {
+          await live.page.evaluate(
+            (id) =>
+              window.cultivation.missions.resolveApproval({
+                approvalId: id,
+                decision: 'ALLOW_MISSION',
+              }),
+            approval.id,
+          );
+          continue;
+        }
+      }
+      await live.page
+        .evaluate((id) => window.cultivation.workflows.advance(id), failedRun.run.id)
+        .catch(() => {});
+      await delay(40);
+    }
+    assert.ok(blocked, `${fault} fails closed at R08`);
+    const rejectedStep = [...blocked.steps].reverse().find((s) => s.stepId === 'R08');
+    assert.notEqual(rejectedStep.state, 'COMPLETED');
+    assert.equal(
+      blocked.artifacts.filter((a) => a.producerStepRunId === rejectedStep.id).length,
+      0,
+    );
+    const rejectedEvents = read((db) =>
+      db
+        .prepare('SELECT event_type,payload_json FROM mission_events WHERE mission_id=?')
+        .all(rejectedStep.missionId),
+    );
+    assert.ok(
+      !rejectedEvents.some(
+        (e) =>
+          e.event_type === 'tool.result' &&
+          JSON.parse(e.payload_json).success &&
+          JSON.parse(e.payload_json).researchExperiment,
+      ),
+    );
+    const operation = blocked.operations.find((op) => op.stepRunId === rejectedStep.id);
+    if (!fault.endsWith('before'))
+      assert.equal(
+        operation.state,
+        'UNKNOWN',
+        'post-execution invalidity cannot replay side effects',
+      );
+    facts.adversarialExperimentInputs.push({
+      fault,
+      workflowRunId: blocked.run.id,
+      stepRunId: rejectedStep.id,
+      errorCode: rejectedStep.errorCode,
+      operationState: operation?.state,
+      acceptedArtifacts: 0,
+      frozenInput: ref,
+      events: rejectedEvents.map((e) => ({
+        type: e.event_type,
+        payload: JSON.parse(e.payload_json),
+      })),
+    });
+  }
+  writeFileSync(join(workspace, datasetPath), originalDataset);
+  await live.page.evaluate(
+    async ({ serverId, fixture }) => {
+      const server = (await window.cultivation.tools.listMcpServers()).find(
+        (s) => s.id === serverId,
+      );
+      const { id, name, command, envWhitelist, cwd, enabled } = server;
+      await window.cultivation.tools.saveMcpServer({
+        id,
+        name,
+        command,
+        args: [fixture],
+        envWhitelist,
+        cwd,
+        enabled,
+      });
+      await window.cultivation.tools.refreshMcpServer(serverId);
+    },
+    { serverId: setup.serverId, fixture: mcpFixturePath },
+  );
 
   // Fail-closed external uncertainty: a test-only state transition models the crash ambiguity
   // after a real PREPARED external action. Startup must preserve the request and require the user.
@@ -1200,6 +1404,17 @@ try {
   }));
   assert.deepEqual(after, before, 'full restart is idempotent after all three acceptance Runs');
   facts.restartIdempotent = { before, after };
+  for (const chain of facts.datasetInput.durableExperimentInputChain) {
+    const persisted = read((db) =>
+      db.prepare('SELECT payload_json FROM mission_events WHERE id=?').get(chain.eventId),
+    );
+    assert.deepEqual(
+      JSON.parse(persisted.payload_json).researchExperiment.inputArtifacts,
+      chain.inputArtifacts,
+      'restart preserves consumed input facts without model/tool replay',
+    );
+  }
+  facts.datasetInput.durableInputFactsRestartSafe = true;
   facts.noAutomaticPublication = facts.cases.every(
     (item) => item.finalPackage.submissionStatus === 'NOT_SUBMITTED',
   );

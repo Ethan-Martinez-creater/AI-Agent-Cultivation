@@ -295,6 +295,30 @@ function literatureFor(source: ResearchSourceArtifactFact) {
 }
 
 describe('research-integrity-v1', () => {
+  it('rejects R08 without trusted consumed input facts; model/raw-result claims cannot substitute', () => {
+    const h = makeComputationalAttempt();
+    h.detail.run.inputSnapshot = {
+      ...h.detail.run.inputSnapshot,
+      existingData: [{ id: 'input-data', kind: 'FILE', contentHash: hash('data') }],
+    };
+    const policy = researchWorkflowValidationPolicy(makeFacts({ experiments: [h.experiment] }));
+    expect(policy.validateStep(h.detail, h.r08, h.producedRows)).toContain(
+      'RESEARCH_EXPERIMENT_INPUT_PROVENANCE_INVALID',
+    );
+    const facts = makeFacts({
+      experiments: [{ ...h.experiment, evidenceEventId: 'durable-event' }],
+    });
+    facts.validateExperimentInputs = () => {
+      throw new Error('missing/forged binding');
+    };
+    expect(
+      researchWorkflowValidationPolicy(facts).validateStep(h.detail, h.r08, h.producedRows),
+    ).toContain('RESEARCH_EXPERIMENT_INPUT_PROVENANCE_INVALID');
+    facts.validateExperimentInputs = () => {};
+    expect(
+      researchWorkflowValidationPolicy(facts).validateStep(h.detail, h.r08, h.producedRows),
+    ).toEqual([]);
+  });
   it('rejects fabricated citations and accepts a source tied to a real same-run Tool event', () => {
     const r02 = makeStep('R02', 'RUNNING');
     const detail = makeDetail([r02]);
@@ -687,6 +711,27 @@ describe('research-integrity-v1', () => {
         ],
       ),
     ).toEqual([]);
+    detail.run.inputSnapshot = {
+      ...detail.run.inputSnapshot,
+      existingData: [{ id: 'trusted-human-input', kind: 'FILE', contentHash: hash('data') }],
+    };
+    const humanFacts = makeFacts({ accepted: () => accepted });
+    const humanOutputs = [
+      produced('research.experiment_record', recordArtifact),
+      produced('research.raw_result', rawArtifact),
+      produced('research.experiment_log', logArtifact),
+    ];
+    expect(
+      researchWorkflowValidationPolicy(humanFacts).validateStep(detail, r08, humanOutputs),
+    ).toContain('RESEARCH_EXPERIMENT_INPUT_PROVENANCE_INVALID');
+    humanFacts.validateExternalExperimentInputs = (_detail, _step, actual) => {
+      expect(actual).toEqual(accepted);
+      expect(humanFacts.listExperimentFactsForStep(r08.id)).toEqual([]);
+    };
+    expect(
+      researchWorkflowValidationPolicy(humanFacts).validateStep(detail, r08, humanOutputs),
+    ).toEqual([]);
+    delete detail.run.inputSnapshot.existingData;
     for (const reference of ['accepted-record-artifact', 'accepted-log-artifact']) {
       operation.externalReference = reference;
       expect(

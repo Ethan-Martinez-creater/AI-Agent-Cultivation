@@ -117,3 +117,44 @@ Step 仅收到其已声明 input keys 的 bounded/untrusted 引用及 Workspace-
 最终验证与实际截图归档至 `docs/evidence/w2-3-research/corrective/`，由 `verification-results.json`、`facts.json` 和 `smoke-package.log` 记录最终六项命令与真实 packaged profile。包括 UI 导入 dataset、可信 Run snapshot、R07/R08 实際 Artifact 使用、完整交付投影、倒序日期拒绝及原 A/B/C/D/F/E 回归。完整数据库、Credential/ciphertext、私人文件与应用 profile 不提交。
 
 最终 corrective 验证：95 个测试文件 / **789 tests 全部通过**；`test / typecheck / lint / format:check / package / smoke:package` 六项均 PASS。最终 Windows profile 为项目内 `.test-data/w23-packaged-eab90f3f-4dbe-4891-bf86-49f212a97fe1`，17 张真实截图已归档。B 场景展示 2 条实验记录与 4 条假设/科学审查历史，并保留最终 R13 稿件；原 A/B/C/D/F/E 及完整前置阶段回归均通过。实际 SQLite OFFICIAL release manifestHash 与 version contentHash 均与原批准 v1 完全一致，见 corrective/release-facts.json。
+
+## 最终 R08 consumed-input provenance 修复（基线 c01a267）
+
+本轮不修改 official.research@1 的 Definition / Contracts / manifest，也不修改 0001–0024。现有 append-only MissionEvent 足以保存 bounded 实验输入事实；另追加 `0025_w23_uncertain_prepared_effect.sql` 修复实际 packaged 对抗测试发现的 Operation Receipt 约束矛盾。
+
+0022 的 manifest UPDATE trigger 要求非空 UNKNOWN manifest 带 afterHash，而既有 transition trigger 又禁止转入 UNKNOWN 时更改 manifest。因此 FILE_OUTPUT 的 PREPARED 无法保留原 before-only 证据转为 UNKNOWN。0025 仅修正该校验条件：PREPARED → UNKNOWN 保留原 manifest/output/reference；APPLIED → UNKNOWN 仍保留真实 afterHash，APPLIED/VERIFIED、固定路径与动态 software journal 校验保持。不会伪造 hash、修改历史事实或授权重放。SQLite 测试覆盖真实 0024 → 0025 升级、伪造 afterHash 拒绝、UNKNOWN 审计快照与 restart 幂等。
+
+### Frozen input → Tool fact → R08 validation
+
+- MCP `workflowEvidence.experiment.inputArtifacts` 的标准形态为 `[{id,kind,contentHash}]`。Main 仅保留最多 40 条、长度受限的 ID、FILE kind 与 SHA-256；路径、指令、权限及其他字段不进入实验事实。
+- R08 采用全量输入语义：传给该 Step 的 frozen `existingData` / `existingCode` 都必须消费。Main 将 frozen snapshot 与同 Run 的 `workflow_research_input_bindings` 逐项核对，再要求 Tool 声明的输入集合在 ID/kind/hash 上完全相等。模型、plan 文本、raw-result 自报均不能替代该链路。
+- ToolRuntime 先执行现有 schema / Permission 检查，再由可信 WorkflowToolGuard 在执行前重检 registered input 的 canonical Workspace、路径/文件身份、FILE kind 与实际 hash；审批后恢复执行也经过相同 guard。Tool 返回后再次重检，并精确核对 consumed-input 声明。
+- 成功的受限输入事实随既有 `tool.result` 写入 MissionEvent/Audit；ResearchExperimentFact 从该 durable event 派生，保留 evidenceEventId、toolCallId、toolId、outputHash、actor、MissionRun、StepRun 与 inputArtifacts。`research-integrity-v1` 接受 Artifact 前再次核对 frozen bindings / Tool facts / 当前文件。缺失、伪造、跨 Run、改变或删除都 fail closed，不接受 R08 Artifact。
+- Tool 已执行但后置检查失败时，原 Operation Receipt 转 UNKNOWN 并等待用户；不得把未知副作用标成 VERIFIED 或静默重放。Completed attempt 只使用原 durable facts 校验历史，用户事后编辑文件不会重跑该 attempt；尚未完成的新 attempt 则必须重新检查当前文件。
+- 这些检查不创建 FILE_READ grant、不放宽 Workspace / Permission，也不把 ArtifactRef 变成授权。MCP 仍是用户配置的外部进程；受限 consumed-input 声明和 Main 的一致性检查不等于新增操作系统级进程沙箱。
+
+### 测试与 packaged evidence
+
+确定性测试覆盖正确输入、missing/forged kind/hash、另一 Run 中真实 Artifact、Run 创建后修改/删除、执行前后检查、UNKNOWN 副作用保护、冻结 snapshot 与 restart 幂等。B packaged 验收从 Renderer 导入开始，直接核对 SQLite binding、真实 tool.result.inputArtifacts、实际 actor/MissionRun/StepRun 与有效 R08 validation receipt；raw-result 文件核对仅作为补充。
+
+新增 packaged 对抗场景覆盖 missing / forged / foreign input facts，以及执行前后修改/删除；R08 均不得成功，也不得保存已接受的 R08 Artifact。完整原 A/B/C/D/E/F、Tool/Permission、实验副作用与 Human Bridge 恢复仍运行。
+
+纯 HUMAN_OR_EXTERNAL 模式继续使用真实 ACCEPTED ExternalWork 的 record/raw/log provenance，不伪造 MCP call。已有 Data/Code refs 在执行准备和 Artifact 接纳前仍检查同 Run binding 与当前文件；COMPUTATIONAL/MIXED 则必须具有真实 MCP consumed-input facts。Main 的 R08 Tool validator/uncertainty callback 缺失会在执行前拒绝；UNKNOWN 转移必须实际持久化成功。
+
+输入 presentation context 仅读取冻结的受限 metadata，不承担实时文件校验。实时校验集中在 execution preparation、Tool 前后 guard、Artifact validation，避免 Tool 已 fail closed 后的重复 context 异常使 Mission 留在 RUNNING；失败继续作为结构化 Tool result 返回，UNKNOWN 回执阻止 Step 完成与自动重放。
+
+### 最终验证结果（2026-10-04）
+
+95 个测试文件 / **795 tests 全部通过**；`test / typecheck / lint / format:check / package / smoke:package` 六项均 PASS。Windows x64 Electron 44.4.3 最新 package 的完整 smoke 包含 Gate 0–6、R0–R4、W1/W2.0、Product UI、W2.1/W2.2/W2.3；未新增依赖。
+
+最终科研 profile：项目内 `.test-data/w23-packaged-4fd79ade-43ba-45ea-8372-2c79038f2abf`。原 A/B/C/D/F/E 全部通过，17 张实际截图、最终六项日志和 SQLite/IPC 事实已归档到 `docs/evidence/w2-3-research/corrective/`。B 的两次 R08 attempt 均具有同一 frozen input 的 durable ToolEvent 输入集合、实际 actor/MissionRun/StepRun 与有效 `research.experiment_record@1` validation receipt；重启后该链路保持。
+
+| 对抗场景                             | 结果                                         | 已接受 R08 Artifact |
+| ------------------------------------ | -------------------------------------------- | ------------------- |
+| MCP 缺失 inputArtifacts              | WAITING / OPERATION_UNKNOWN，receipt UNKNOWN | 0                   |
+| 伪造 ID/hash                         | WAITING / OPERATION_UNKNOWN，receipt UNKNOWN | 0                   |
+| 另一 Run 的 input Artifact           | WAITING / OPERATION_UNKNOWN，receipt UNKNOWN | 0                   |
+| 执行前修改/删除 registered file      | WAITING / RESEARCH_INPUT_CHANGED，未执行 R08 | 0                   |
+| Tool 执行中修改/删除 registered file | WAITING / OPERATION_UNKNOWN，receipt UNKNOWN | 0                   |
+
+包含上述失败场景的最终整体重启：`model.call_started 187→187`、`tool.result 25→25`、`CONSUMED continuation 2→2`，没有模型/Tool/continuation 重放。OFFICIAL v1 manifestHash 与 version contentHash 均与已批准版本完全一致，核对记录保留在 `corrective/release-facts.json`。

@@ -12,6 +12,7 @@ import type {
 } from '@cultivation/persistence';
 import { DomainError } from '@cultivation/shared';
 import { FileWorkspace, FileWorkspaceError } from './file-workspace.js';
+import { workflowToolEvidence } from '../../../../packages/application/src/workflow-tool-evidence.js';
 
 export interface SoftwareToolCommand {
   id: string;
@@ -59,6 +60,7 @@ interface WorkflowToolToken {
   commandId?: string;
   criterionIds?: string[];
   createdAt?: string;
+  researchMcp?: boolean;
 }
 
 type ScopeResolver = (detail: WorkflowDetail, step: WorkflowStepRun) => SoftwareToolScope | null;
@@ -69,6 +71,15 @@ const MAX_CRITERIA = 32;
 
 /** Main-only gate for software Workflow tools. The normal PermissionEngine remains authoritative. */
 export class WorkflowToolGuard implements ToolExecutionGuard {
+  private researchInputCheck?: (detail: WorkflowDetail, consumed?: unknown) => void;
+  private researchInputUncertain?: (detail: WorkflowDetail, stepRunId: string) => void;
+  attachResearchInputCheck(
+    check: (detail: WorkflowDetail, consumed?: unknown) => void,
+    uncertain?: (detail: WorkflowDetail, stepRunId: string) => void,
+  ): void {
+    this.researchInputCheck = check;
+    this.researchInputUncertain = uncertain;
+  }
   constructor(
     private readonly workflows: WorkflowToolLookup,
     private readonly journal: MutationRepository,
@@ -116,6 +127,9 @@ export class WorkflowToolGuard implements ToolExecutionGuard {
     )
       throw new DomainError('WORKFLOW_MUTATION_SCOPE_DENIED', '实验以外的科研步骤不能修改工作区');
     if (detail.version.validationPolicy === 'research-integrity-v1' && step.stepId === 'R08') {
+      if (!this.researchInputCheck || !this.researchInputUncertain)
+        throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '科研输入校验边界未初始化');
+      this.researchInputCheck(detail);
       const operation = this.journal.getOperation(detail.run.id, step.id);
       if (!operation || operation.effectType !== 'FILE_OUTPUT' || operation.state !== 'PREPARED')
         throw new DomainError('WORKFLOW_OPERATION_INVALID', '实验必须先有固定的 PREPARED 回执');
@@ -136,7 +150,14 @@ export class WorkflowToolGuard implements ToolExecutionGuard {
         ].includes(String(input.path))
       )
         throw new DomainError('WORKFLOW_MUTATION_SCOPE_DENIED', '只能创建本次实验的输出目录');
-      return { kind: 'NOOP' };
+      return {
+        kind: 'NOOP',
+        workflowRunId: detail.run.id,
+        stepRunId: step.id,
+        researchMcp: descriptor.source === 'MCP',
+        toolCallId: call.id,
+        toolId: call.toolId,
+      };
     }
     if (detail.version.validationPolicy !== SOFTWARE_POLICY) return { kind: 'NOOP' };
     if (
@@ -282,7 +303,44 @@ export class WorkflowToolGuard implements ToolExecutionGuard {
   ): Promise<void> {
     if (!tokenValue || typeof tokenValue !== 'object') return;
     const token = tokenValue as WorkflowToolToken;
-    if (token.kind === 'NOOP') return;
+    if (token.kind === 'NOOP') {
+      if (token.workflowRunId && token.stepRunId) {
+        const detail = this.workflows.detail(token.workflowRunId);
+        if (
+          !detail ||
+          !detail.steps.some(
+            (s) =>
+              s.id === token.stepRunId &&
+              s.missionId === context.missionId &&
+              s.missionRunId === context.runId,
+          )
+        )
+          throw new DomainError(
+            'WORKFLOW_TOOL_RUN_BINDING_INVALID',
+            '实验输入检查的 Run 归属不一致',
+          );
+        try {
+          const evidence =
+            token.researchMcp && outcome.ok
+              ? workflowToolEvidence(
+                  { ...outcome, toolCallId: token.toolCallId!, toolId: token.toolId! },
+                  'MCP',
+                )
+              : {};
+          const experiment = evidence.researchExperiment as
+            | { inputArtifacts?: unknown }
+            | undefined;
+          this.researchInputCheck?.(
+            detail,
+            token.researchMcp && outcome.ok ? (experiment?.inputArtifacts ?? null) : undefined,
+          );
+        } catch (error) {
+          this.researchInputUncertain?.(detail, token.stepRunId);
+          throw error;
+        }
+      }
+      return;
+    }
     if (token.kind === 'MUTATION' && token.mutation) {
       const intent = token.mutation;
       const root = this.workspaceRoot();

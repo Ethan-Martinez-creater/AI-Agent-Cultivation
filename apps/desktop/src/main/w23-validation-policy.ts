@@ -47,6 +47,8 @@ export interface ResearchExperimentFact {
   negativeResult: boolean;
   rawResults: Array<{ artifactId: string; relativePath: string; contentHash: string }>;
   logArtifactIds: string[];
+  evidenceEventId?: string;
+  inputArtifacts?: Array<{ id: string; kind: string; contentHash: string }>;
   /** Optional full hash manifest supplied by the trusted Main workspace observer. */
   files?: Array<{
     sourceArtifactId: string;
@@ -85,6 +87,16 @@ export interface ResearchFailedExperimentAttemptFact {
 
 /** Durable Main-process facts. Values authored by a model never implement this port. */
 export interface ResearchIntegrityFacts {
+  validateExternalExperimentInputs?(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+    accepted: ResearchAcceptedExperimentArtifactFact[],
+  ): void;
+  validateExperimentInputs?(
+    detail: WorkflowDetail,
+    step: WorkflowStepRun,
+    fact: ResearchExperimentFact | undefined,
+  ): void;
   bindInputReferences?(run: import('@cultivation/domain').WorkflowRun): void;
   validateInputReferences?(
     version: WorkflowVersion,
@@ -886,6 +898,28 @@ function validateExperimentRecord(
   if (mode === 'HUMAN_OR_EXTERNAL' && executions.length > 0)
     return ['RESEARCH_EXTERNAL_MODE_HAS_NO_TOOL_AUTHORITY'];
   const execution = executions[0];
+  const inputRefs = ['existingData', 'existingCode'].flatMap((key) =>
+    Array.isArray(detail.run.inputSnapshot?.[key])
+      ? (detail.run.inputSnapshot![key] as unknown[])
+      : [],
+  );
+  if (inputRefs.length) {
+    try {
+      if (mode === 'HUMAN_OR_EXTERNAL') {
+        if (!facts.validateExternalExperimentInputs || !accepted.length)
+          return ['RESEARCH_EXPERIMENT_INPUT_PROVENANCE_INVALID'];
+        facts.validateExternalExperimentInputs(detail, step, accepted);
+      } else {
+        if (!facts.validateExperimentInputs || !execution || !nonEmpty(execution.evidenceEventId))
+          return ['RESEARCH_EXPERIMENT_INPUT_PROVENANCE_INVALID'];
+        facts.validateExperimentInputs(detail, step, execution);
+      }
+    } catch {
+      return ['RESEARCH_EXPERIMENT_INPUT_PROVENANCE_INVALID'];
+    }
+  } else if (execution?.inputArtifacts?.length) {
+    return ['RESEARCH_EXPERIMENT_INPUT_PROVENANCE_INVALID'];
+  }
   const primaryOperation = mode === 'HUMAN_OR_EXTERNAL' ? externalOperations[0] : fileOperations[0];
   if (!primaryOperation) return ['RESEARCH_EXPERIMENT_EFFECT_RECEIPT_INVALID'];
   const recordNegativeResults = record.negativeResults;

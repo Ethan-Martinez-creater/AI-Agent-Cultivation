@@ -551,34 +551,31 @@ if (!squirrelStartup)
         gateway,
         promptContext,
       );
-      const toolRuntime = new ToolRuntime(
-        registry,
-        permissionEngine,
-        new WorkflowToolGuard(
-          {
-            findStepByMissionId: (id) => workflowStore.findStepByMissionId(id),
-            detail: (id) => workflowStore.detail(id),
-            bindMissionRun: (step, context) => {
-              const run = gate3Store.getRun(context.runId);
-              if (
-                !run ||
-                run.missionId !== context.missionId ||
-                run.status !== 'RUNNING' ||
-                gate3Store.listRuns(context.missionId).at(-1)?.id !== run.id
-              )
-                throw new Error('Workflow Tool must use the actual current MissionRun');
-              if (step.missionRunId === run.id) return step;
-              const bound = { ...step, missionRunId: run.id, updatedAt: new Date().toISOString() };
-              if (!workflowStore.saveStep(bound, step.state))
-                throw new Error('Workflow MissionRun binding changed');
-              return bound;
-            },
+      const workflowToolGuard = new WorkflowToolGuard(
+        {
+          findStepByMissionId: (id) => workflowStore.findStepByMissionId(id),
+          detail: (id) => workflowStore.detail(id),
+          bindMissionRun: (step, context) => {
+            const run = gate3Store.getRun(context.runId);
+            if (
+              !run ||
+              run.missionId !== context.missionId ||
+              run.status !== 'RUNNING' ||
+              gate3Store.listRuns(context.missionId).at(-1)?.id !== run.id
+            )
+              throw new Error('Workflow Tool must use the actual current MissionRun');
+            if (step.missionRunId === run.id) return step;
+            const bound = { ...step, missionRunId: run.id, updatedAt: new Date().toISOString() };
+            if (!workflowStore.saveStep(bound, step.state))
+              throw new Error('Workflow MissionRun binding changed');
+            return bound;
           },
-          workspaceMutations,
-          () => tools.getWorkspace().rootPath,
-          (detail) => softwareToolScope(detail),
-        ),
+        },
+        workspaceMutations,
+        () => tools.getWorkspace().rootPath,
+        (detail) => softwareToolScope(detail),
       );
+      const toolRuntime = new ToolRuntime(registry, permissionEngine, workflowToolGuard);
       missions.attachTools(toolRuntime, gate4Store);
       const parties = new Gate5PartyService(gate5Store, store);
       const r3Observer = new R3ShadowMissionObserver(
@@ -727,6 +724,24 @@ if (!squirrelStartup)
         (fact) => gate3Store.appendAuditEvent(fact),
         (fn) => db.transaction(fn)(),
       );
+      workflowToolGuard.attachResearchInputCheck(
+        (detail, consumed) => researchInputs.checkExperimentFiles(detail, consumed),
+        (detail, stepRunId) => {
+          for (const operation of workflowFoundation.listOperations(detail.run.id)) {
+            if (
+              operation.stepRunId === stepRunId &&
+              ['PREPARED', 'APPLIED'].includes(operation.state)
+            )
+              if (
+                !workflowFoundation.transitionOperation(
+                  { ...operation, state: 'UNKNOWN', updatedAt: new Date().toISOString() },
+                  operation.state,
+                )
+              )
+                throw new Error('Research operation uncertainty could not be persisted');
+          }
+        },
+      );
       missions.attachArtifactContext((id) => [
         ...workflowArtifactContext(workflowStore, id),
         ...researchInputs.contextForMission(id),
@@ -764,6 +779,10 @@ if (!squirrelStartup)
       researchFacts.validateInputReferences = (version, inputs) =>
         researchInputs.validateInputs(version, inputs);
       researchFacts.bindInputReferences = (run) => researchInputs.bindRun(run);
+      researchFacts.validateExperimentInputs = (detail, step, fact) =>
+        researchInputs.validateExperimentInputs(detail, step, fact);
+      researchFacts.validateExternalExperimentInputs = (detail, step, accepted) =>
+        researchInputs.validateExternalExperimentInputs(detail, step, accepted);
       const mixedResearch = researchMixedExperimentBoundary(
         workflowStore,
         gate3Store,
@@ -815,6 +834,7 @@ if (!squirrelStartup)
             )
             .map((teammate) => teammate.id),
         (workflowRunId) => researchFacts.listFailedExperimentAttemptsForRun?.(workflowRunId) ?? [],
+        (detail) => researchInputs.checkExperimentFiles(detail),
       );
       if (
         process.argv.includes('--w1-fake-workflow') &&
