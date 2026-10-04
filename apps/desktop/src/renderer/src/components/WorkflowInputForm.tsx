@@ -93,6 +93,7 @@ function normalizedValue(schema: WorkflowValueSchema, value: unknown): unknown {
       if (typeof value.id === 'string') result.id = value.id;
       if (typeof value.kind === 'string') result.kind = value.kind;
       if (typeof value.name === 'string' && value.name.length > 0) result.name = value.name;
+      if (typeof value.contentHash === 'string') result.contentHash = value.contentHash;
       return result;
     }
   }
@@ -552,12 +553,16 @@ export function WorkflowInputForm({
   busy = false,
   submitLabel = '创建运行',
   onSubmit,
+  excludedFields = [],
+  additionalInputs,
 }: {
   schema: WorkflowObjectSchema;
   presentation?: WorkflowInputPresentation;
   busy?: boolean;
   submitLabel?: string;
   onSubmit: (inputs: WorkflowInputs) => void | Promise<void>;
+  excludedFields?: readonly string[];
+  additionalInputs?: React.ReactNode;
 }) {
   const [draft, setDraft] = useState<DraftRecord>(() => createInitialWorkflowInputs(schema));
   const [validationError, setValidationError] = useState('');
@@ -579,28 +584,31 @@ export function WorkflowInputForm({
     <form className="workflow-input-form" onSubmit={(event) => void submit(event)}>
       {schema.description && <p className="workflow-input-description">{schema.description}</p>}
       <div className="workflow-input-fields">
-        {Object.entries(schema.properties).map(([key, field]) => (
-          <InputField
-            key={key}
-            schema={field}
-            name={key}
-            path={key}
-            presentation={presentation}
-            value={draft[key]}
-            required={schema.required.includes(key)}
-            disabled={busy}
-            onChange={(value) => {
-              setDraft((current) => {
-                const next = { ...current };
-                if (value === undefined) delete next[key];
-                else next[key] = value;
-                return next;
-              });
-              setValidationError('');
-            }}
-          />
-        ))}
+        {Object.entries(schema.properties)
+          .filter(([key]) => !excludedFields.includes(key))
+          .map(([key, field]) => (
+            <InputField
+              key={key}
+              schema={field}
+              name={key}
+              path={key}
+              presentation={presentation}
+              value={draft[key]}
+              required={schema.required.includes(key)}
+              disabled={busy}
+              onChange={(value) => {
+                setDraft((current) => {
+                  const next = { ...current };
+                  if (value === undefined) delete next[key];
+                  else next[key] = value;
+                  return next;
+                });
+                setValidationError('');
+              }}
+            />
+          ))}
       </div>
+      {additionalInputs}
       {validationError && (
         <p className="workflow-input-error" role="alert">
           {validationError}

@@ -25,6 +25,8 @@ import w21AiNewsVideoSql from '../../../migrations/0020_w21_ai_news_video.sql?ra
 import w21ToolPurposeBindingsSql from '../../../migrations/0021_w21_tool_purpose_bindings.sql?raw';
 import w22SoftwareFeatureSql from '../../../migrations/0022_w22_software_feature.sql?raw';
 import w23ResearchSql from '../../../migrations/0023_w23_research.sql?raw';
+import w23InputArtifactsSql from '../../../migrations/0024_w23_input_artifacts.sql?raw';
+export { ResearchInputArtifactRepository } from './w23-input-artifacts.js';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
 
@@ -119,6 +121,7 @@ export const migrations: readonly Migration[] = [
   { version: 21, name: 'w21_tool_purpose_bindings', sql: w21ToolPurposeBindingsSql },
   { version: 22, name: 'w22_software_feature', sql: w22SoftwareFeatureSql },
   { version: 23, name: 'w23_research', sql: w23ResearchSql },
+  { version: 24, name: 'w23_input_artifacts', sql: w23InputArtifactsSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';

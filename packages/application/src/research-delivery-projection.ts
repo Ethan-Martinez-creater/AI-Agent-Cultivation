@@ -43,6 +43,7 @@ const DELIVERY_OUTPUTS: readonly DeliveryOutput[] = [
   },
   { stepId: 'R04', key: 'research.landscape', category: 'landscape', displayName: '研究版图' },
   { stepId: 'R05', key: 'research.hypotheses', category: 'hypotheses', displayName: '研究假设' },
+  { stepId: 'R06', key: 'research.review', category: 'scientific_review', displayName: '假设审查' },
   {
     stepId: 'R07',
     key: 'research.experiment_plan',
@@ -97,7 +98,9 @@ function artifactEnvelopeHash(artifact: WorkflowArtifact): string {
 }
 
 function bindingHash(binding: WorkflowArtifactBinding): string {
-  return createHash('sha256').update(JSON.stringify(canonical(binding))).digest('hex');
+  return createHash('sha256')
+    .update(JSON.stringify(canonical(binding)))
+    .digest('hex');
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -121,9 +124,11 @@ function hasFrozenOfficialResearchVersion(detail: WorkflowDetail): boolean {
 
   try {
     const frozenHash = RESEARCH_VERSION_1.releaseMetadata?.manifestHash;
-    return !!frozenHash &&
+    return (
+      !!frozenHash &&
       validateBuiltinWorkflowRelease(detail.version) === frozenHash &&
-      detail.version.releaseMetadata?.manifestHash === frozenHash;
+      detail.version.releaseMetadata?.manifestHash === frozenHash
+    );
   } catch {
     return false;
   }
@@ -183,10 +188,7 @@ function validBoundArtifact(
   );
   if (bindings.length !== 1) return null;
   const binding = bindings[0]!;
-  if (
-    binding.contractId !== spec.contractId ||
-    binding.contractVersion !== spec.contractVersion
-  )
+  if (binding.contractId !== spec.contractId || binding.contractVersion !== spec.contractVersion)
     return null;
 
   const artifacts = detail.artifacts.filter((candidate) => candidate.id === binding.artifactId);
@@ -266,10 +268,7 @@ function parsedOutcome(
   return verdict as ResearchDeliveryOutcome;
 }
 
-function latestCompletedStep(
-  detail: WorkflowDetail,
-  stepId: string,
-): WorkflowStepRun | null {
+function latestCompletedStep(detail: WorkflowDetail, stepId: string): WorkflowStepRun | null {
   const completed = detail.steps.filter(
     (step) =>
       step.workflowRunId === detail.run.id && step.stepId === stepId && step.state === 'COMPLETED',
@@ -280,10 +279,7 @@ function latestCompletedStep(
   return latest.length === 1 ? latest[0]! : null;
 }
 
-function itemFor(
-  bound: ValidBoundArtifact,
-  output: DeliveryOutput,
-): ResearchDeliveryItem | null {
+function itemFor(bound: ValidBoundArtifact, output: DeliveryOutput): ResearchDeliveryItem | null {
   const outcome = parsedOutcome(bound, output);
   if (outcome === null) return null;
   return {
@@ -323,17 +319,11 @@ export function projectResearchDelivery(
     return emptyProjection();
 
   const ordered: Array<{ item: ResearchDeliveryItem; order: number }> = [];
-  const addEligible = (
-    output: DeliveryOutput,
-    producer?: WorkflowStepRun,
-  ): void => {
+  const addEligible = (output: DeliveryOutput, producer?: WorkflowStepRun): void => {
     const candidates = producer
       ? [producer]
       : detail.steps
-          .filter(
-            (step) =>
-              step.workflowRunId === detail.run.id && step.stepId === output.stepId,
-          )
+          .filter((step) => step.workflowRunId === detail.run.id && step.stepId === output.stepId)
           .sort((left, right) => left.attempt - right.attempt);
     for (const candidate of candidates) {
       const bound = validBoundArtifact(detail, output, candidate, options);
@@ -345,7 +335,12 @@ export function projectResearchDelivery(
 
   for (const output of DELIVERY_OUTPUTS) {
     if (output.key === 'research.final_package') continue;
-    addEligible(output);
+    if (output.category === 'experiment_record' || output.category === 'scientific_review')
+      addEligible(output);
+    else {
+      const producer = latestCompletedStep(detail, output.stepId);
+      if (producer) addEligible(output, producer);
+    }
   }
 
   const r13 = latestCompletedStep(detail, 'R13');
@@ -366,19 +361,15 @@ export function projectResearchDelivery(
         }
       : null;
   const latestManuscriptStep = r13 ?? r11;
-  if (manuscriptOutput && latestManuscriptStep)
-    addEligible(manuscriptOutput, latestManuscriptStep);
+  if (manuscriptOutput && latestManuscriptStep) addEligible(manuscriptOutput, latestManuscriptStep);
 
   const finalPackageStep = latestCompletedStep(detail, 'R14');
   const finalPackageOutput = DELIVERY_OUTPUTS.find(
     (output) => output.key === 'research.final_package',
   );
-  if (finalPackageStep && finalPackageOutput)
-    addEligible(finalPackageOutput, finalPackageStep);
+  if (finalPackageStep && finalPackageOutput) addEligible(finalPackageOutput, finalPackageStep);
 
   return {
-    items: ordered
-      .sort((left, right) => left.order - right.order)
-      .map(({ item }) => item),
+    items: ordered.sort((left, right) => left.order - right.order).map(({ item }) => item),
   };
 }

@@ -85,6 +85,11 @@ export interface ResearchFailedExperimentAttemptFact {
 
 /** Durable Main-process facts. Values authored by a model never implement this port. */
 export interface ResearchIntegrityFacts {
+  bindInputReferences?(run: import('@cultivation/domain').WorkflowRun): void;
+  validateInputReferences?(
+    version: WorkflowVersion,
+    inputs: import('@cultivation/domain').WorkflowInputs,
+  ): void;
   listSourceArtifactsForRun(workflowRunId: string): ResearchSourceArtifactFact[];
   listExperimentFactsForStep(stepRunId: string): ResearchExperimentFact[];
   resolveSourceArtifact?(
@@ -1669,6 +1674,9 @@ export function researchWorkflowValidationPolicy(
   facts: ResearchIntegrityFacts,
 ): WorkflowValidationPolicyPort {
   return {
+    onRunCreated(run) {
+      facts.bindInputReferences?.(run);
+    },
     validateInputs(version, inputs) {
       validateWorkflowIdentity(version);
       if (
@@ -1702,6 +1710,18 @@ export function researchWorkflowValidationPolicy(
             'WORKFLOW_INPUT_INVALID',
             '已有资料只能以受限 ArtifactRef 元数据提供',
           );
+      }
+      if (
+        ['existingSources', 'existingData', 'existingCode'].some(
+          (key) => Array.isArray(inputs[key]) && (inputs[key] as unknown[]).length > 0,
+        )
+      ) {
+        if (!facts.validateInputReferences)
+          throw new DomainError(
+            'WORKFLOW_INPUT_INVALID',
+            '科研资料必须通过可信 Artifact 登记与选择',
+          );
+        facts.validateInputReferences(version, inputs);
       }
     },
     validateStep(detail, step, produced) {

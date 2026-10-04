@@ -589,6 +589,8 @@ describe('research MCP stdio fixture', () => {
       mode: 'COMPUTATIONAL',
       method: 'Calculate bounded group means.',
       datasetRelativePath: 'datasets/research-fixture.csv',
+      datasetArtifactId: 'input-unit-dataset',
+      datasetContentHash: sha256(readFileSync(join(workspace, 'datasets', 'research-fixture.csv'))),
       rawResultPath: 'workflows/workflow-1/step-r08-1/research/raw-result.json',
       experimentLogPath: 'workflows/workflow-1/step-r08-1/research/experiment-log.txt',
     };

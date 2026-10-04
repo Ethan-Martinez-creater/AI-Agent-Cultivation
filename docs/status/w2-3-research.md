@@ -84,3 +84,36 @@ R08 显式重试必须创建新的 Step attempt，而非在旧目录重跑 Missi
 自动验收使用离线 FakeModelGateway 与用户配置的 stdio MCP fixture，不依赖互联网/API Key。实际科研工具仍需用户提供并授权；本版不增加 Shell、自动装工具、伦理审批或实验安全审批。计算型 MCP 应提供可核对的 bounded experiment/file evidence；Main 仍核对实际文件与同 Run/Step 的 Tool fact。
 
 Reference Basis 见 `docs/reference-basis/research-v1.md`。本 Workflow 不替代系统综述规范、伦理审批、实验安全审批或领域专家判断。
+
+## W2.3 corrective repair（2026-10-04）
+
+修复基线 `555b6731f118058abc39ac053587dd39f6223e15`。`official.research@1` Definition、Contracts、manifest 与 0001–0023 完全不修改；W2.1/W2.2 frozen packages 保持原样。本轮没有新增依赖，也没有进入 W2.4 或 Generation 实现。
+
+### Research Delivery Projection
+
+Main/application 的可信投影只选择同 Run 的实际 Artifact，逐项核对冻结官方版本、精确 output binding、Contract/version/validator 回执、W1 envelope hash、completed producer/checkpoint，以及真实 Mission/MissionRun/actor 来源。最终包里的字符串 ID 不用于推断 Artifact 存在。
+
+普通交付列表展示研究摘要、证据表、研究版图、当前有效假设和实验计划、全部有效实验记录、当前有效分析、最终稿件、全部假设与科学审查记录及最终资料包。R13 已完成后只选最高有效 attempt 的修订稿；若该最新稿损坏，不退回旧 R11 稿冒充最终稿。实验记录保留全部 completed producer attempts，包括记录中的 FAILED/negative result；历史假设、计划、分析及所有 Artifact 技术事实继续保留在 Advanced，未删除原事实。
+
+### Trusted Input Artifact 与 0024
+
+追加 `0024_w23_input_artifacts.sql`：
+
+- `workflow_input_artifacts`：Main 登记的不可变 DATA/CODE 文件事实，关联真实 USER Tool read audit、相对路径、内部 Workspace identity、已读取内容和 SHA-256。
+- `workflow_research_input_bindings`：同 Run input key/index 与可信 Artifact 的不可变关联；INSERT trigger 校验 frozen input snapshot 的 id/kind/hash 与真实资料/Source provenance。创建 Run、快照及 input binding 同一事务提交。
+
+科研创建界面只接受 Main 候选。已有来源来自先前真实 Research Tool 成功结果的持久化 Source facts；数据/代码通过 Main 原生文件选择与读取确认，在当前 Workspace 中经 `file.readText → ToolRuntime → PermissionEngine` 登记。USER 导入不伪造 Mission/道友行为，不生成 Agent grant；显式 DENY 仍优先。Renderer 不能指定导入绝对路径、批准权限、执行任意 Tool 或登记身份字段。名称由 Main 规范化为展示字段，不构成文件授权。
+
+创建 Run 前同步校验资料可解析、kind/category/hash、存储内容及实际文件 SHA-256，并重新验证 canonical root、路径组件、symlink/junction、打开文件身份和大小；不存在、跨类别、伪造类型/哈希、改变/删除的文件均 fail closed。资料及绑定 append-only，Run snapshot 继续由既有 0018 防线冻结。
+
+Step 仅收到其已声明 input keys 的 bounded/untrusted 引用及 Workspace-relative metadata，绝对路径和文件内容不由 opaque Ref 自动注入模型。R07/R08 的实际文件使用仍经过原 Tool/MCP/Permission 链，验收同时核对实际 raw result 的 inputArtifactId/inputContentHash 与 frozen snapshot。导入不是新的文件读取权限。当前本地资料登记支持不超过 64 KiB 的 UTF-8 FILE；未新增目录导入或 W3 Import Existing Work。修复前未受信的旧引用不会被自动补造 provenance。
+
+### 日期范围与产品展示
+
+可信 `research-integrity-v1` 校验 `literatureTimeRange.from <= to`，支持仅 from、仅 to、合法双边界；倒序在 Main 拒绝创建。UI 保持 frozen `{from,to}` shape，以一组并排日期控件展示，没有重复清除按钮。资料选择器只展示名称；验证错误显示在创建抽屉内。
+
+### Corrective 验证与证据
+
+最终验证与实际截图归档至 `docs/evidence/w2-3-research/corrective/`，由 `verification-results.json`、`facts.json` 和 `smoke-package.log` 记录最终六项命令与真实 packaged profile。包括 UI 导入 dataset、可信 Run snapshot、R07/R08 实際 Artifact 使用、完整交付投影、倒序日期拒绝及原 A/B/C/D/F/E 回归。完整数据库、Credential/ciphertext、私人文件与应用 profile 不提交。
+
+最终 corrective 验证：95 个测试文件 / **789 tests 全部通过**；`test / typecheck / lint / format:check / package / smoke:package` 六项均 PASS。最终 Windows profile 为项目内 `.test-data/w23-packaged-eab90f3f-4dbe-4891-bf86-49f212a97fe1`，17 张真实截图已归档。B 场景展示 2 条实验记录与 4 条假设/科学审查历史，并保留最终 R13 稿件；原 A/B/C/D/F/E 及完整前置阶段回归均通过。实际 SQLite OFFICIAL release manifestHash 与 version contentHash 均与原批准 v1 完全一致，见 corrective/release-facts.json。

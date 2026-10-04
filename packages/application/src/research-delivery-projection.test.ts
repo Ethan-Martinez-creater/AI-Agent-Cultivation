@@ -42,7 +42,9 @@ function canonical(value: unknown): unknown {
 }
 
 function workflowHash(value: unknown): string {
-  return createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
+  return createHash('sha256')
+    .update(JSON.stringify(canonical(value)))
+    .digest('hex');
 }
 
 function createDetail(): WorkflowDetail {
@@ -367,6 +369,37 @@ function itemsFor(detail: WorkflowDetail, category: ResearchDeliveryItem['catego
 }
 
 describe('trusted Research delivery projection', () => {
+  it('includes validated hypothesis review history as well as scientific manuscript reviews', () => {
+    const detail = createDetail();
+    addCompleteDeliveryFixture(detail);
+    const review = addOutput(
+      detail,
+      'R06',
+      3,
+      'research.review',
+      json({
+        verdict: 'REVISE',
+        findings: ['明确假设'],
+        evidence: [],
+        summary: '需要完善假设',
+        reviewedArtifactIds: [],
+      }),
+    );
+    finishCheckpoints(detail);
+    expect(itemsFor(detail, 'scientific_review').map((item) => item.artifactId)).toContain(
+      review.id,
+    );
+  });
+  it('shows the latest validated hypotheses and plan while retaining older artifacts in Advanced', () => {
+    const detail = createDetail();
+    addCompleteDeliveryFixture(detail);
+    const latest = addOutput(detail, 'R05', 2, 'research.hypotheses', json({ hypotheses: [] }));
+    finishCheckpoints(detail);
+    expect(itemsFor(detail, 'hypotheses').map((item) => item.artifactId)).toEqual([latest.id]);
+    expect(
+      detail.artifacts.filter((artifact) => artifact.metadata.outputKey === 'research.hypotheses'),
+    ).toHaveLength(2);
+  });
   it('projects every validated experiment record and keeps failed and negative outcomes visible', () => {
     const detail = createDetail();
     const { recordArtifacts } = addCompleteDeliveryFixture(detail);

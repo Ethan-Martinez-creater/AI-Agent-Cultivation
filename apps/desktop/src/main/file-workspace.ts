@@ -1,4 +1,5 @@
 import { constants as fsConstants } from 'node:fs';
+import { realpathSync, lstatSync, openSync, fstatSync, readSync, closeSync } from 'node:fs';
 import {
   lstat,
   mkdir,
@@ -76,6 +77,61 @@ export class FileWorkspace {
 
   getRoot(): string {
     return this.rootPath;
+  }
+
+  /** Synchronous bounded reinspection at Run creation; no await separates hash validation and snapshot commit. */
+  static inspectRegisteredInput(
+    root: string,
+    relativePath: string,
+  ): { contentHash: string; sizeBytes: number } {
+    const canonicalRoot = realpathSync(root);
+    if (canonicalRoot.toLowerCase() !== root.toLowerCase())
+      throw new FileWorkspaceError('FILE_WORKSPACE_PATH_ESCAPE', 'Registered Workspace changed');
+    const workspace = new FileWorkspace(canonicalRoot);
+    const target = workspace.resolveRelative(relativePath);
+    const verify = () => {
+      let current = canonicalRoot;
+      for (const segment of path.relative(canonicalRoot, target).split(path.sep)) {
+        current = path.join(current, segment);
+        if (lstatSync(current).isSymbolicLink())
+          throw new FileWorkspaceError('FILE_WORKSPACE_SYMLINK', 'Symbolic links are not allowed');
+      }
+      if (realpathSync(target).toLowerCase() !== target.toLowerCase())
+        throw new FileWorkspaceError('FILE_WORKSPACE_PATH_ESCAPE', 'Input path changed');
+    };
+    verify();
+    const fd = openSync(target, fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0));
+    try {
+      const before = fstatSync(fd);
+      if (!before.isFile() || before.size > MAX_TEXT_BYTES)
+        throw new FileWorkspaceError('FILE_WORKSPACE_TOO_LARGE', 'Input must be a bounded file');
+      verify();
+      if (!workspace.sameFile(before, lstatSync(target)))
+        throw new FileWorkspaceError('FILE_WORKSPACE_SYMLINK', 'Input identity changed');
+      const buffer = Buffer.alloc(MAX_TEXT_BYTES + 1);
+      let length = 0;
+      while (length < buffer.length) {
+        const n = readSync(fd, buffer, length, buffer.length - length, length);
+        if (!n) break;
+        length += n;
+      }
+      const bytes = buffer.subarray(0, length);
+      const after = fstatSync(fd);
+      verify();
+      if (
+        bytes.length > MAX_TEXT_BYTES ||
+        before.size !== after.size ||
+        before.mtimeMs !== after.mtimeMs ||
+        !workspace.sameFile(after, lstatSync(target))
+      )
+        throw new FileWorkspaceError('FILE_WORKSPACE_IO', 'Input changed while reading');
+      return {
+        contentHash: createHash('sha256').update(bytes).digest('hex'),
+        sizeBytes: bytes.length,
+      };
+    } finally {
+      closeSync(fd);
+    }
   }
 
   /** Verify a submitted artifact against the same canonical Workspace boundary as file tools. */

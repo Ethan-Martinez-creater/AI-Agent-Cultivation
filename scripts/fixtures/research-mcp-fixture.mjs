@@ -186,6 +186,8 @@ function executeExperiment(input) {
   let negativeResult = false;
   if (input.datasetRelativePath !== undefined) {
     data = readDataset(input.datasetRelativePath);
+    if (!safeId(input.datasetArtifactId) || input.datasetContentHash !== data.contentHash)
+      throw new Error('Dataset Artifact identity/hash does not match the actual bounded file');
     const mean = (group) => {
       const values = data.rows.filter((row) => row.group === group).map((row) => row.value);
       return values.reduce((total, value) => total + value, 0) / values.length;
@@ -233,6 +235,7 @@ function executeExperiment(input) {
         planArtifactId: input.planArtifactId,
         method: input.method,
         inputContentHash: data.contentHash,
+        ...(input.datasetArtifactId ? { inputArtifactId: input.datasetArtifactId } : {}),
         observations: data.rows,
         metrics: [metric],
         negativeResult,
@@ -328,6 +331,8 @@ const tools = [
         mode: { type: 'string', enum: ['COMPUTATIONAL', 'MIXED'] },
         method: { type: 'string', minLength: 1, maxLength: 2000 },
         datasetRelativePath: { type: 'string', enum: ['datasets/research-fixture.csv'] },
+        datasetArtifactId: { type: 'string', minLength: 1, maxLength: 128 },
+        datasetContentHash: { type: 'string', minLength: 64, maxLength: 64 },
         rawResultPath: { type: 'string', minLength: 1, maxLength: 512 },
         experimentLogPath: { type: 'string', minLength: 1, maxLength: 512 },
       },

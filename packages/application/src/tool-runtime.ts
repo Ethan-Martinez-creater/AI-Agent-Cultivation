@@ -135,6 +135,33 @@ export class ToolRuntime {
     context: ToolContext,
     approvalGranted = false,
   ): Promise<ToolDispatch> {
+    return this.dispatchChecked(call, context, approvalGranted);
+  }
+
+  /** Main-only explicit user import. Never grants a Teammate or Mission permission. */
+  async dispatchUserRead(
+    call: ToolCall,
+    userId: string,
+    approvedByNativeDialog: boolean,
+  ): Promise<ToolDispatch> {
+    const tool = this.registry.get(call.toolId);
+    if (
+      call.toolId !== 'file.readText' ||
+      !userId ||
+      tool?.descriptor.source !== 'BUILTIN' ||
+      tool.descriptor.capability !== 'FILE_READ' ||
+      tool.descriptor.sideEffect !== 'NONE'
+    )
+      throw new Error('User import is restricted to the builtin text reader');
+    return this.dispatchChecked(call, null, approvedByNativeDialog, userId);
+  }
+
+  private async dispatchChecked(
+    call: ToolCall,
+    context: ToolContext | null,
+    approvalGranted: boolean,
+    userId?: string,
+  ): Promise<ToolDispatch> {
     const registered = this.registry.get(call.toolId);
     const trace: ToolTrace = {
       toolId: call.toolId.slice(0, 128),
@@ -171,19 +198,19 @@ export class ToolRuntime {
     }
     trace.resource = resource;
     const decision = this.permissions.evaluate({
-      subjectType: 'TEAMMATE',
-      subjectId: context.teammateId,
+      subjectType: context ? 'TEAMMATE' : 'USER',
+      subjectId: context?.teammateId ?? userId!,
       capability: registered.descriptor.capability,
       resource,
-      teammateId: context.teammateId,
-      missionId: context.missionId,
+      teammateId: context?.teammateId ?? null,
+      missionId: context?.missionId ?? null,
     }).decision;
     if (decision === 'DENY') return finished(false, 'PERMISSION_DENIED', 'Permission denied.');
     if (decision === 'ASK' && !approvalGranted) return { kind: 'APPROVAL', trace, call };
     let guardToken: unknown;
     let guardPrepared = false;
     try {
-      if (this.executionGuard) {
+      if (this.executionGuard && context) {
         guardToken = await this.executionGuard.before(
           call,
           context,
@@ -199,7 +226,7 @@ export class ToolRuntime {
       const dispatch = finished(ok, output.code ?? (ok ? 'OK' : 'TOOL_FAILED'), output.content);
       if (guardPrepared && dispatch.kind === 'RESULT') {
         try {
-          await this.executionGuard!.after(guardToken, context, dispatch.result);
+          await this.executionGuard!.after(guardToken, context!, dispatch.result);
         } catch {
           // The effect may have happened. Keep the guard's PREPARED evidence for recovery and
           // prevent the caller from interpreting the operation as verified.
@@ -215,7 +242,7 @@ export class ToolRuntime {
       const failed = finished(false, 'TOOL_FAILED', 'Tool failed safely.');
       if (guardPrepared && failed.kind === 'RESULT') {
         try {
-          await this.executionGuard!.after(guardToken, context, failed.result);
+          await this.executionGuard!.after(guardToken, context!, failed.result);
         } catch {
           // Leave the durable PREPARED intent for restart inspection.
         }

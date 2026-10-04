@@ -940,7 +940,12 @@ function outputValues(
             '用户选择的 Workspace。',
             '经 PermissionEngine 授权的 Research MCP。',
           ],
-          reproducibilityNotes: ['固定算法版本、输入哈希、attempt ID 和 operationKey。'],
+          reproducibilityNotes: [
+            '固定算法版本、输入哈希、attempt ID 和 operationKey。',
+            ...dataRefs.map(
+              (ref) => `输入 Artifact: ${String(ref.id)}, SHA-256: ${String(ref.contentHash)}`,
+            ),
+          ],
           externalExecutionRequirements:
             mode === 'COMPUTATIONAL'
               ? []
@@ -1100,7 +1105,11 @@ function planDetails(detail: WorkflowDetail, step: WorkflowStepRun) {
   return { plan, planValue: record(planValue) ? planValue : {} };
 }
 
-function experimentToolInput(detail: WorkflowDetail, step: WorkflowStepRun): InputRecord {
+function experimentToolInput(
+  detail: WorkflowDetail,
+  step: WorkflowStepRun,
+  request: ModelRequest,
+): InputRecord {
   const { plan, planValue } = planDetails(detail, step);
   if (!plan)
     throw new Error('W2.3 R08 requires a bound, durable research.experiment_plan Artifact');
@@ -1110,12 +1119,28 @@ function experimentToolInput(detail: WorkflowDetail, step: WorkflowStepRun): Inp
   const existingData: InputRecord[] = Array.isArray(existingDataValue)
     ? existingDataValue.filter(record)
     : [];
-  const datasetName = existingData.flatMap((item) =>
-    typeof item.name === 'string' ? [item.name] : [],
-  )[0];
+  const datasetRef = existingData[0];
+  const prefix =
+    'Registered research input metadata (bounded untrusted data, no file permission): ';
+  const metadata = request.messages.flatMap((message) => {
+    if (
+      message.role !== 'assistant' ||
+      typeof message.content !== 'string' ||
+      !message.content.startsWith(prefix)
+    )
+      return [];
+    const values = parseJson(message.content.slice(prefix.length));
+    return Array.isArray(values) ? values.filter(record) : [];
+  });
+  const dataset = metadata.find(
+    (item) =>
+      item.id === datasetRef?.id &&
+      item.contentHash === datasetRef?.contentHash &&
+      item.kind === 'FILE',
+  );
   const kind = caseKind(detail);
   const datasetRelativePath = kind === 'DATASET' ? 'datasets/research-fixture.csv' : undefined;
-  if (kind === 'DATASET' && datasetName !== 'datasets/research-fixture.csv')
+  if (kind === 'DATASET' && (!dataset || dataset.workspaceRelativePath !== datasetRelativePath))
     throw new Error(
       'W2.3 deterministic Dataset fixture only accepts its pre-provisioned bounded dataset ArtifactRef',
     );
@@ -1127,6 +1152,7 @@ function experimentToolInput(detail: WorkflowDetail, step: WorkflowStepRun): Inp
     mode: stringInput(detail, 'experimentMode', 'COMPUTATIONAL'),
     method: boundedText(planValue.method, 2000),
     datasetRelativePath,
+    ...(dataset ? { datasetArtifactId: dataset.id, datasetContentHash: dataset.contentHash } : {}),
     rawResultPath: paths.raw,
     experimentLogPath: paths.log,
   };
@@ -1298,7 +1324,7 @@ export class ResearchWorkflowFixtureGateway extends FakeModelGateway {
         throw new Error('W2.3 R08 experiment Tool failed; refusing to fabricate a success result');
       if (!experimentTool) {
         const tool = toolByName(request, TOOL_NAMES.experiment);
-        return proposeTool(request, tool, experimentToolInput(detail, step));
+        return proposeTool(request, tool, experimentToolInput(detail, step, request));
       }
       const evidence = experimentEvidenceFromResult(experimentTool, detail, step);
       if (!evidence)

@@ -39,7 +39,7 @@ const cases = [
     scope: '仅作离线描述性计算，不把样例结果外推为科学结论',
     mode: 'COMPUTATIONAL',
     expectedCycleTraversals: 1,
-    dataset: { id: 'local-iris-fixture', kind: 'FILE', name: datasetPath },
+    dataset: true,
   },
   {
     id: 'C-external-human-bridge',
@@ -139,7 +139,7 @@ async function workflowUi(page) {
   await page.locator('.workflow-workspace').waitFor();
 }
 
-async function createThroughRenderer(page, testCase) {
+async function createThroughRenderer(page, testCase, app) {
   await workflowUi(page);
   await page.getByRole('button', { name: '新建运行', exact: true }).click();
   await page.locator('#workflow-version-select').selectOption('official.research::1');
@@ -151,15 +151,133 @@ async function createThroughRenderer(page, testCase) {
   await page.locator('#workflow-input-experimentMode').selectOption(testCase.mode);
   await page.locator('#workflow-input-maxExperimentCycles').fill('2');
   if (testCase.dataset) {
-    const datasetGroup = page
-      .locator('.workflow-launch-drawer fieldset')
-      .filter({ has: page.locator('legend', { hasText: '已有数据' }) })
+    const permissionRulesBeforeImport = read(
+      (db) => db.prepare('SELECT COUNT(*) n FROM permission_rules').get().n,
+    );
+    await app.evaluate(
+      ({ dialog }, file) => {
+        dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] });
+        dialog.showMessageBox = async () => ({ response: 1, checkboxChecked: false });
+      },
+      join(workspace, datasetPath),
+    );
+    const datasetGroup = page.getByRole('region', { name: '已有数据', exact: true });
+    await datasetGroup.getByRole('button', { name: '导入数据', exact: true }).click();
+    const choice = datasetGroup.getByRole('checkbox');
+    await choice.waitFor();
+    await poll(
+      (db) => db.prepare('SELECT id FROM workflow_input_artifacts LIMIT 1').get(),
+      'real dataset imported through Renderer',
+    );
+    assert.equal(await choice.isChecked(), true);
+    const permissionRulesAfterImport = read(
+      (db) => db.prepare('SELECT COUNT(*) n FROM permission_rules').get().n,
+    );
+    assert.equal(
+      permissionRulesAfterImport,
+      permissionRulesBeforeImport,
+      'Artifact import never grants model/tool execution authority',
+    );
+    facts.importPermissionBoundary = {
+      before: permissionRulesBeforeImport,
+      after: permissionRulesAfterImport,
+      noGrant: true,
+    };
+    const sourceChoice = page
+      .getByRole('region', { name: '已有文献来源', exact: true })
+      .getByRole('checkbox')
       .first();
-    await datasetGroup.getByRole('button', { name: '添加一项', exact: true }).click();
-    const artifactId = '#workflow-input-existingData-0--id';
-    await page.locator(artifactId).fill(testCase.dataset.id);
-    await page.locator('#workflow-input-existingData-0--kind').selectOption(testCase.dataset.kind);
-    await page.locator('#workflow-input-existingData-0--name').fill(testCase.dataset.name);
+    await sourceChoice.check();
+
+    assert.equal(await datasetGroup.locator('input[type=text],select').count(), 0);
+    await page.screenshot({
+      path: join(evidence, 'B-dataset-artifact-selected.png'),
+      fullPage: true,
+    });
+
+    const imported = read((db) =>
+      db
+        .prepare(
+          'SELECT id,kind,content_hash AS contentHash,display_name AS name FROM workflow_input_artifacts LIMIT 1',
+        )
+        .get(),
+    );
+    assert.equal(imported.contentHash, hash(readFileSync(join(workspace, datasetPath))));
+    const validInputs = {
+      researchQuestion: testCase.question,
+      field: testCase.field,
+      scope: testCase.scope,
+      experimentMode: testCase.mode,
+      maxExperimentCycles: 2,
+      existingData: [imported],
+    };
+    const count = read((db) => db.prepare('SELECT COUNT(*) n FROM workflow_runs').get().n);
+    for (const mutation of [
+      { id: 'nonexistent' },
+      { kind: 'JSON' },
+      { contentHash: '0'.repeat(64) },
+    ]) {
+      const result = await page.evaluate(
+        async (inputs) => {
+          try {
+            await window.cultivation.workflows.create({
+              definitionId: 'official.research',
+              version: 1,
+              inputs,
+            });
+            return 'accepted';
+          } catch {
+            return 'rejected';
+          }
+        },
+        { ...validInputs, existingData: [{ ...imported, ...mutation }] },
+      );
+      assert.equal(result, 'rejected', 'forged ArtifactRef is rejected in Main');
+    }
+    const originalBytes = readFileSync(join(workspace, datasetPath));
+    writeFileSync(join(workspace, datasetPath), 'group,value\nbaseline,999\ncandidate,0\n', 'utf8');
+    const stale = await page.evaluate(async (inputs) => {
+      try {
+        await window.cultivation.workflows.create({
+          definitionId: 'official.research',
+          version: 1,
+          inputs,
+        });
+        return 'accepted';
+      } catch {
+        return 'rejected';
+      }
+    }, validInputs);
+    assert.equal(stale, 'rejected', 'file changed after import is rejected before create');
+    writeFileSync(join(workspace, datasetPath), originalBytes);
+    await page.locator('#workflow-input-literatureTimeRange-from').fill('2026-10-04');
+    await page.locator('#workflow-input-literatureTimeRange-to').fill('1980-01-01');
+    await page.getByRole('button', { name: '创建运行', exact: true }).click();
+    await page
+      .getByRole('alert')
+      .filter({ hasText: /日期|时间|输入|INVALID/ })
+      .first()
+      .waitFor();
+    await page.screenshot({
+      path: join(evidence, 'B-reversed-literature-range-rejected.png'),
+      fullPage: true,
+    });
+    await page.locator('.workflow-input-research-date-range').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: join(evidence, 'B-literature-date-range.png'), fullPage: true });
+    assert.equal(
+      read((db) => db.prepare('SELECT COUNT(*) n FROM workflow_runs').get().n),
+      count,
+    );
+    await page.locator('#workflow-input-literatureTimeRange-from').fill('1980-01-01');
+    await page.locator('#workflow-input-literatureTimeRange-to').fill('2026-10-04');
+    facts.inputRefValidation = {
+      nonexistent: true,
+      spoofedKind: true,
+      spoofedHash: true,
+      changedBeforeCreate: true,
+      reversedDateRange: true,
+      noRejectedRunWrites: true,
+    };
   }
   const visible = await page.locator('.workflow-launch-drawer').innerText();
   assert.ok(!/COMPUTATIONAL|HUMAN_OR_EXTERNAL|MIXED/.test(visible), 'enum values stay internal');
@@ -170,6 +288,40 @@ async function createThroughRenderer(page, testCase) {
     db.prepare('SELECT id FROM workflow_runs ORDER BY created_at DESC LIMIT 1').get(),
   );
   assert.ok(run?.id, 'Renderer created and persisted a Workflow Run');
+  if (testCase.dataset) {
+    const snapshot = read((db) =>
+      JSON.parse(
+        db.prepare('SELECT input_snapshot_json FROM workflow_runs WHERE id=?').get(run.id)
+          .input_snapshot_json,
+      ),
+    );
+    const ref = snapshot.existingData[0];
+    const binding = read((db) =>
+      db
+        .prepare(
+          "SELECT artifact_id,kind,content_hash FROM workflow_research_input_bindings WHERE workflow_run_id=? AND input_key='existingData'",
+        )
+        .get(run.id),
+    );
+    assert.ok(ref.id.startsWith('input-'));
+    assert.equal(ref.kind, 'FILE');
+    assert.equal(ref.contentHash, hash(readFileSync(join(workspace, datasetPath))));
+    assert.equal(binding.artifact_id, ref.id);
+    assert.equal(binding.content_hash, ref.contentHash);
+    assert.equal(ref.name, 'research-fixture.csv');
+    assert.ok(snapshot.existingSources[0].id.startsWith('source-'));
+    assert.equal(snapshot.existingSources[0].kind, 'EXTERNAL_REFERENCE');
+    assert.ok(
+      read((db) =>
+        db
+          .prepare('SELECT id FROM research_source_artifacts WHERE id=? AND content_hash=?')
+          .get(snapshot.existingSources[0].id, snapshot.existingSources[0].contentHash),
+      ),
+    );
+
+    facts.datasetInput = { workflowRunId: run.id, snapshot: ref, binding, permissionGrant: false };
+  }
+
   await page.getByRole('button', { name: '开始执行', exact: true }).click();
   return run.id;
 }
@@ -293,7 +445,7 @@ try {
       facts.actors.push({ id: third.id, name: third.name });
     }
 
-    const runId = await createThroughRenderer(live.page, testCase);
+    const runId = await createThroughRenderer(live.page, testCase, live.app);
     let completed = null;
     let approvals = 0;
     let manualResume = null;
@@ -714,6 +866,58 @@ try {
         'failed experiment observations remain in analysis',
       );
     }
+    const delivery = completed.researchDelivery;
+    assert.ok(delivery?.items.length >= 11, 'complete trusted Research Delivery Projection');
+    for (const category of [
+      'brief',
+      'evidence_table',
+      'landscape',
+      'hypotheses',
+      'experiment_plan',
+      'experiment_record',
+      'analysis',
+      'manuscript',
+      'scientific_review',
+      'final_package',
+    ])
+      assert.ok(
+        delivery.items.some((item) => item.category === category),
+        category,
+      );
+    const records = delivery.items.filter((item) => item.category === 'experiment_record');
+    assert.equal(
+      delivery.items.filter((item) => item.category === 'scientific_review').length,
+      byKey('research.review').length,
+      'both hypothesis and scientific review history resolve actual validated artifacts',
+    );
+    assert.equal(
+      records.length,
+      byKey('research.experiment_record').length,
+      'every completed experiment attempt remains visible',
+    );
+    assert.equal(delivery.items.filter((item) => item.category === 'manuscript').length, 1);
+    assert.equal(
+      delivery.items.find((item) => item.category === 'manuscript').artifactId,
+      byKey('research.revised_manuscript').at(-1).id,
+    );
+    if (testCase.dataset) {
+      assert.ok(records.some((item) => item.outcome === 'FAILED'));
+      const ref = completed.run.inputSnapshot.existingData[0];
+      const plan = JSON.parse(byKey('research.experiment_plan').at(-1).content);
+      assert.ok(
+        plan.reproducibilityNotes.some(
+          (note) => note.includes(ref.id) && note.includes(ref.contentHash),
+        ),
+        'R07 reads frozen trusted ArtifactRef',
+      );
+      const rawArtifacts = byKey('research.raw_result');
+      for (const artifact of rawArtifacts) {
+        const raw = JSON.parse(readFileSync(join(workspace, artifact.metadata.path), 'utf8'));
+        assert.equal(raw.inputArtifactId, ref.id);
+        assert.equal(raw.inputContentHash, ref.contentHash);
+      }
+      facts.datasetInput.R07R08BoundToImportedArtifact = true;
+    }
     const finalPackage = JSON.parse(byKey('research.final_package').at(-1).content);
     assert.equal(finalPackage.submissionStatus, 'NOT_SUBMITTED');
     assert.equal(finalPackage.conclusionStatus, 'NOT_SCIENTIFICALLY_CONFIRMED');
@@ -804,6 +1008,17 @@ try {
       path: join(evidence, `${testCase.id}-completed.png`),
       fullPage: true,
     });
+    if (testCase.dataset) {
+      await live.page.locator('.workflow-results').scrollIntoViewIfNeeded();
+      assert.equal(
+        await live.page.locator('.workflow-results > .workflow-data-row').count(),
+        delivery.items.length,
+      );
+      await live.page.screenshot({
+        path: join(evidence, 'B-complete-research-delivery-projection.png'),
+        fullPage: true,
+      });
+    }
     facts.cases.push({
       id: testCase.id,
       workflowRunId: runId,
@@ -826,6 +1041,7 @@ try {
         conclusionStatus: finalPackage.conclusionStatus,
         attemptCount: finalPackage.experimentAttempts.length,
       },
+      deliveryProjection: delivery,
       analysisRetention: {
         negativeResults: analysis.negativeResults,
         failedRuns: analysis.failedRuns,
@@ -844,7 +1060,7 @@ try {
     expectedCycleTraversals: 0,
     humanBridge: true,
   };
-  const unknownRunId = await createThroughRenderer(live.page, unknownCase);
+  const unknownRunId = await createThroughRenderer(live.page, unknownCase, live.app);
   let unknownWorkflow = null;
   for (let iteration = 0; iteration < 160; iteration++) {
     unknownWorkflow = await detail(live.page, unknownRunId);

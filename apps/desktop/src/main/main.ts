@@ -22,6 +22,7 @@ import {
   W2WorkflowRepository,
   W22WorkspaceMutationRepository,
   ResearchSourceRepository,
+  ResearchInputArtifactRepository,
   openDatabase,
 } from '@cultivation/persistence';
 import { Gate1Service, type ChatPromptContext } from '@cultivation/application/gate1-service';
@@ -85,6 +86,8 @@ import { routingFixtureGateway } from './r4-fixture-decision.js';
 import { WorkflowMissionAdapter } from './w1-mission-adapter.js';
 import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.js';
 import { registerWorkflowIpc } from './w1-ipc.js';
+import { ResearchInputArtifactService } from './w23-input-artifacts.js';
+import { registerResearchInputIpc } from './w23-input-ipc.js';
 import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.js';
 import { installOfficialBuiltinWorkflows } from './w2-builtin-installation.js';
 import { officialWorkflowValidationPolicies } from './w21-validation-policy.js';
@@ -143,6 +146,7 @@ function createWindow(
   routing: RoutingMissionService,
   routingStore: R4RoutingRepository,
   workflows: WorkflowService,
+  researchInputs: ResearchInputArtifactService,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -274,6 +278,7 @@ function createWindow(
     r3Observer.observeMission(mission),
   );
   registerWorkflowIpc(validSender, workflows);
+  registerResearchInputIpc(window, validSender, researchInputs);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -713,12 +718,23 @@ if (!squirrelStartup)
         parties,
         () => Boolean(tools.getWorkspace().rootPath),
       );
+      const researchInputs = new ResearchInputArtifactService(
+        new ResearchInputArtifactRepository(db),
+        researchSources,
+        workflowStore,
+        toolRuntime,
+        () => tools.getWorkspace().rootPath,
+        (fact) => gate3Store.appendAuditEvent(fact),
+        (fn) => db.transaction(fn)(),
+      );
       missions.attachArtifactContext((id) => [
         ...workflowArtifactContext(workflowStore, id),
+        ...researchInputs.contextForMission(id),
         ...researchFailureContext(workflowStore, researchFacts, id),
       ]);
       partyMissions.attachArtifactContext((id) => [
         ...workflowArtifactContext(workflowStore, id),
+        ...researchInputs.contextForMission(id),
         ...researchFailureContext(workflowStore, researchFacts, id),
       ]);
       const softwareFacts = {
@@ -745,6 +761,9 @@ if (!squirrelStartup)
         researchSources,
         externalWork,
       );
+      researchFacts.validateInputReferences = (version, inputs) =>
+        researchInputs.validateInputs(version, inputs);
+      researchFacts.bindInputReferences = (run) => researchInputs.bindRun(run);
       const mixedResearch = researchMixedExperimentBoundary(
         workflowStore,
         gate3Store,
@@ -868,6 +887,7 @@ if (!squirrelStartup)
         routing,
         routingStore,
         workflows,
+        researchInputs,
       );
       externalWork.subscribeCreated((created) => {
         try {
@@ -908,6 +928,7 @@ if (!squirrelStartup)
             routing,
             routingStore,
             workflows,
+            researchInputs,
           );
       });
     })

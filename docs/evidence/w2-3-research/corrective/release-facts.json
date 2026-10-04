@@ -1,0 +1,31 @@
+{
+  "release": {
+    "definition_id": "official.research",
+    "version": 1,
+    "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+    "released_at": "2026-10-04T00:00:00.000Z"
+  },
+  "versionContentHash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+  "source": "BUILTIN",
+  "stepCount": 14,
+  "contractCount": 21,
+  "revisionGroups": [
+    {
+      "id": "research.hypothesis_revision",
+      "maxTotalTraversals": 2,
+      "onExhausted": "WAITING_USER"
+    },
+    {
+      "id": "research.experiment_cycle",
+      "maxTotalTraversals": 2,
+      "onExhausted": "WAITING_USER"
+    },
+    {
+      "id": "research.manuscript_revision",
+      "maxTotalTraversals": 2,
+      "onExhausted": "WAITING_USER"
+    }
+  ],
+  "validationPolicy": "research-integrity-v1",
+  "unchangedFromApprovedV1": true
+}

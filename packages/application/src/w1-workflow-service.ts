@@ -12,6 +12,7 @@ import {
 } from '@cultivation/domain';
 import { validateWorkflowReviewResult } from './w2-contracts.js';
 import { WorkflowValidationPolicyRegistry } from './workflow-validation-policy-registry.js';
+import { projectResearchDelivery } from './research-delivery-projection.js';
 import {
   effectiveResearchStep,
   effectiveResearchRevisionBudget,
@@ -65,6 +66,8 @@ function parseJson(content: string): unknown {
 }
 
 export interface WorkflowValidationPolicyPort {
+  /** Trusted input provenance binding, committed atomically with the immutable Run snapshot. */
+  onRunCreated?(run: WorkflowRun): void;
   /** Trusted deterministic branch computation; only declared branches may be selected. */
   decisionBranch?(
     detail: WorkflowDetail,
@@ -167,7 +170,7 @@ export class WorkflowService {
   detail(id: string): WorkflowDetail {
     const detail = this.store.detail(id);
     if (!detail) throw new DomainError('NOT_FOUND', 'Workflow Run 不存在');
-    return {
+    const enriched = {
       ...detail,
       ...(this.foundation
         ? {
@@ -176,6 +179,32 @@ export class WorkflowService {
           }
         : {}),
     };
+    return isResearchWorkflow(enriched)
+      ? {
+          ...enriched,
+          researchDelivery: projectResearchDelivery(enriched, {
+            verifyMissionFact: (artifact, producer) => {
+              const snapshot = this.missions.snapshot(artifact.missionId);
+              if (
+                snapshot.mission.id !== producer.missionId ||
+                snapshot.mission.state !== 'COMPLETED' ||
+                snapshot.run?.id !== producer.missionRunId ||
+                snapshot.run.status !== 'COMPLETED' ||
+                snapshot.run.missionId !== producer.missionId
+              )
+                return false;
+              return artifact.source === 'HUMAN_BRIDGE'
+                ? this.missions.hasAcceptedArtifactProvenance?.(artifact) === true
+                : snapshot.outputs.some(
+                    (output) =>
+                      output.source === 'MISSION' &&
+                      output.sourceId === artifact.sourceId &&
+                      output.actorId === artifact.actorId,
+                  );
+            },
+          }),
+        }
+      : enriched;
   }
   createRun(input: {
     definitionId: string;
@@ -196,7 +225,8 @@ export class WorkflowService {
       version.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA,
       input.inputs ?? {},
     );
-    this.policyForVersion(version)?.validateInputs(version, snapshot);
+    const policy = this.policyForVersion(version);
+    policy?.validateInputs(version, snapshot);
     for (const step of version.steps) workflowInputsForStep(version, snapshot, step.id);
     const at = this.clock.now();
     const run: WorkflowRun = {
@@ -211,6 +241,7 @@ export class WorkflowService {
     };
     this.store.transaction(() => {
       this.store.insertRun(run);
+      policy?.onRunCreated?.(run);
       for (const definition of version.steps)
         this.store.insertStep({
           id: this.clock.id(),

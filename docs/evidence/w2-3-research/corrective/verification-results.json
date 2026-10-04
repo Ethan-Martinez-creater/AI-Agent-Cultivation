@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-04",
+  "baseline": "555b6731f118058abc39ac053587dd39f6223e15",
+  "scope": "W2.3 corrective only",
+  "migration": "0024_w23_input_artifacts.sql",
+  "newDependencies": [],
+  "package": {
+    "platform": "win32",
+    "architecture": "x64",
+    "electron": "44.4.3"
+  },
+  "commands": [
+    {
+      "command": "npm run test",
+      "exitCode": 0,
+      "filesPassed": 95,
+      "testsPassed": 789
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run format:check",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run package",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run smoke:package",
+      "exitCode": 0,
+      "log": "smoke-package.log"
+    }
+  ],
+  "inputArtifactProvenance": {
+    "rendererNativeImport": true,
+    "mainOwnedIdKindHash": true,
+    "runSnapshotImmutable": true,
+    "runInputBindingAtomic": true,
+    "staleOrForgedRefRejected": true,
+    "noPermissionGrant": true,
+    "R07R08UseRegisteredArtifact": true
+  },
+  "deliveryProjection": {
+    "frozenContractReceipt": true,
+    "envelopeHash": true,
+    "checkpoint": true,
+    "missionRunProvenance": true,
+    "allExperimentRecords": true,
+    "allHypothesisAndScientificReviews": true,
+    "latestValidR13Manuscript": true,
+    "noStringIdAssumption": true
+  },
+  "acceptance": {
+    "A": "COMPLETED: algorithm, independent review, APPLIED crash verification",
+    "B": "COMPLETED: UI imported actual dataset, bound snapshot, failed/negative records and two attempts",
+    "C": "COMPLETED: Human Bridge PENDING continuation recovery",
+    "D": "COMPLETED: mixed computation + Human Bridge, zero replay",
+    "F": "WAITING: shared two-edge budget exhausted",
+    "E": "WAITING: EXTERNAL_ACTION UNKNOWN, zero silent replay"
+  },
+  "restartCounts": {
+    "before": {
+      "calls": 107,
+      "tools": 13,
+      "continuations": 2
+    },
+    "after": {
+      "calls": 107,
+      "tools": 13,
+      "continuations": 2
+    }
+  },
+  "screenshotCount": 17,
+  "facts": "facts.json",
+  "automaticSubmission": false,
+  "scientificConclusionCertified": false
+}

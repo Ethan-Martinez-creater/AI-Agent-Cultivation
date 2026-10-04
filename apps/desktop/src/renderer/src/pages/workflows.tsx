@@ -25,6 +25,7 @@ import {
   workflowPhaseLabelFor,
 } from '../components/workflow-input-presentations.js';
 import { SoftwareFeatureWorkflowInputForm } from '../components/SoftwareFeatureWorkflowInputForm.js';
+import { ResearchWorkflowInputForm } from '../components/ResearchWorkflowInputForm.js';
 import { PageHeading } from '../ui-shared.js';
 import './mission-party.css';
 import './product-pages.css';
@@ -291,23 +292,28 @@ export function WorkflowsPage() {
           .every(({ state }) => state === 'COMPLETED' || state === 'SKIPPED'),
       ).length
     : progressCount;
-  const workflowResults = detail
-    ? detail.artifacts.filter((artifact) =>
-        detail.bindings.some(
-          (binding) =>
-            binding.artifactId === artifact.id &&
-            binding.role === 'OUTPUT' &&
-            (!phases.length ||
-              (detail.version.outputSchema?.outputs ?? []).some(
-                (output) =>
-                  output.outputKey === binding.key &&
-                  latestAttempt(
-                    detail.steps.filter((attempt) => attempt.stepId === output.fromStepId),
-                  )?.id === binding.stepRunId,
-              )),
-        ),
-      )
-    : [];
+  const workflowResults = detail?.researchDelivery
+    ? detail.researchDelivery.items.flatMap((item) => {
+        const artifact = detail.artifacts.find((a) => a.id === item.artifactId);
+        return artifact ? [artifact] : [];
+      })
+    : detail
+      ? detail.artifacts.filter((artifact) =>
+          detail.bindings.some(
+            (binding) =>
+              binding.artifactId === artifact.id &&
+              binding.role === 'OUTPUT' &&
+              (!phases.length ||
+                (detail.version.outputSchema?.outputs ?? []).some(
+                  (output) =>
+                    output.outputKey === binding.key &&
+                    latestAttempt(
+                      detail.steps.filter((attempt) => attempt.stepId === output.fromStepId),
+                    )?.id === binding.stepRunId,
+                )),
+          ),
+        )
+      : [];
   const retryableStep =
     detail &&
     (detail.run.state === 'FAILED' ||
@@ -666,6 +672,15 @@ export function WorkflowsPage() {
                         busy={busy}
                         onSubmit={startRun}
                       />
+                    ) : selectedVersion.definition.id === 'official.research' ? (
+                      <ResearchWorkflowInputForm
+                        key={versionKey(selectedVersion)}
+                        schema={selectedVersion.inputSchema ?? EMPTY_WORKFLOW_INPUT_SCHEMA}
+                        presentation={workflowInputPresentationFor(selectedVersion.definition.id)}
+                        busy={busy}
+                        onSubmit={startRun}
+                        submitError={error}
+                      />
                     ) : (
                       <WorkflowInputForm
                         key={versionKey(selectedVersion)}
@@ -882,14 +897,17 @@ export function WorkflowsPage() {
                       key={artifact.id}
                       artifact={artifact}
                       displayName={
-                        phases.length
+                        detail.researchDelivery?.items.find(
+                          (item) => item.artifactId === artifact.id,
+                        )?.displayName ??
+                        (phases.length
                           ? newsResultNames[
                               detail.bindings.find(
                                 (binding) =>
                                   binding.artifactId === artifact.id && binding.role === 'OUTPUT',
                               )?.key ?? ''
                             ]
-                          : undefined
+                          : undefined)
                       }
                       binding={detail.bindings.find(
                         (binding) =>

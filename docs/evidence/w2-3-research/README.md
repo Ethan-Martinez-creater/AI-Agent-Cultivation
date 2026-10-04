@@ -26,3 +26,15 @@
 ## 限制
 
 科研来源 fixture 提供有明确标识的离线来源快照；生产 Research Tool/MCP 和外部实验需用户配置与授权。MCP 为用户配置的外部进程，本轮不提供操作系统级沙箱。最终资料包始终 `NOT_SUBMITTED / NOT_SCIENTIFICALLY_CONFIRMED`，无自动投稿或发布。
+
+## 最终 corrective evidence
+
+`corrective/` 保存 W2.3 最后一轮修复的真实 Windows package 验收；本目录原始 evidence 保留为实现阶段的历史记录。
+
+- `corrective/facts.json`：Main 导入后可信 dataset ID/kind/hash、不可变 Run snapshot、输入 binding、导入前后 PermissionRule 数量不变、R07/R08 的实际使用，以及每个 Run 的完整可信 delivery projection。
+- `corrective/B-dataset-artifact-selected.png`：Renderer UI 通过原生选择/确认导入真实 Workspace CSV，仅显示可选名称。
+- `corrective/B-complete-research-delivery-projection.png`：完整交付列表与全部实验/审查尝试，最终 R13 稿件。
+- `corrective/B-reversed-literature-range-rejected.png` / `corrective/B-literature-date-range.png`：倒序日期被拒绝，紧凑控件保留 frozen shape。
+- `corrective/verification-results.json` 与 `corrective/smoke-package.log`：最终六项及 Gate 0–6、R0–R4、W1/W2.0/W2.1/W2.2/W2.3 全量 packaged 回归。
+
+不存在引用、伪造 kind/hash、创建前文件改变均由 Main 拒绝且不创建 Run；输入事实不会授予额外模型/工具权限。原 A/B/C/D/F/E 场景截图及 restart/mutation/Human Bridge/independent review 的 durable facts 也归档在该子目录。

@@ -382,6 +382,14 @@ export interface CultivationBridge {
     }): Promise<MissionDetail>;
   };
   workflows: {
+    inputCandidates(
+      category: 'SOURCE' | 'DATA' | 'CODE',
+    ): Promise<
+      Array<{ id: string; kind: 'FILE' | 'EXTERNAL_REFERENCE'; contentHash: string; name: string }>
+    >;
+    importInput(
+      category: 'DATA' | 'CODE',
+    ): Promise<{ id: string; kind: 'FILE'; contentHash: string; name: string } | null>;
     versions(): Promise<WorkflowVersion[]>;
     list(): Promise<WorkflowRun[]>;
     detail(id: string): Promise<WorkflowDetail>;
@@ -597,6 +605,8 @@ const bridge: CultivationBridge = {
     resolveCollaboration: (input) => ipcRenderer.invoke('missions:resolveCollaboration', input),
   },
   workflows: {
+    inputCandidates: (category) => ipcRenderer.invoke('workflows:inputCandidates', category),
+    importInput: (category) => ipcRenderer.invoke('workflows:importInput', category),
     versions: () => ipcRenderer.invoke('workflows:versions'),
     list: () => ipcRenderer.invoke('workflows:list'),
     detail: (id) => ipcRenderer.invoke('workflows:detail', id),
