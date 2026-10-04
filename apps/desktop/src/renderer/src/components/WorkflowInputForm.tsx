@@ -182,6 +182,52 @@ function InputField({
 
   if (schema.type === 'object') {
     const objectValue = isRecord(value) ? value : {};
+    const rangeKeys = Object.keys(schema.properties);
+    if (
+      path === 'literatureTimeRange' &&
+      rangeKeys.length === 2 &&
+      rangeKeys.includes('from') &&
+      rangeKeys.includes('to') &&
+      schema.properties.from?.type === 'date' &&
+      schema.properties.to?.type === 'date'
+    ) {
+      return (
+        <fieldset className="workflow-input-group workflow-input-date-range workflow-input-research-date-range">
+          <legend>
+            {title} <RequiredMark required={required} />
+          </legend>
+          {description}
+          <div className="workflow-input-date-pair">
+            {(['from', 'to'] as const).map((key) => {
+              const childSchema = schema.properties[key];
+              if (!childSchema || childSchema.type !== 'date') return null;
+              const childPath = `${path}.${key}`;
+              const childId = controlId(childPath);
+              return (
+                <div className="workflow-input-field" key={key}>
+                  <label className="workflow-input-label" htmlFor={childId}>
+                    {presentation?.fieldLabels?.[childPath] ??
+                      childSchema.title ??
+                      (key === 'from' ? '起始日期' : '结束日期')}
+                  </label>
+                  <input
+                    id={childId}
+                    type="date"
+                    value={typeof objectValue[key] === 'string' ? objectValue[key] : ''}
+                    min={childSchema.minDate}
+                    max={childSchema.maxDate}
+                    required={schema.required.includes(key)}
+                    disabled={disabled}
+                    aria-describedby={describedBy}
+                    onChange={(event) => onChange({ ...objectValue, [key]: event.target.value })}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </fieldset>
+      );
+    }
     return (
       <fieldset className="workflow-input-group">
         <legend>

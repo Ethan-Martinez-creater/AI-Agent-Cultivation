@@ -281,6 +281,16 @@
     padding: 0 var(--space-1);
   }
 
+  .workflow-input-research-date-range {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .workflow-input-research-date-range legend {
+    padding: 0;
+  }
+
   .workflow-input-group > .workflow-input-description,
   .workflow-input-group > .workflow-input-hint {
     margin: 0 0 var(--space-2);

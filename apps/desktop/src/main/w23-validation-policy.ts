@@ -1644,6 +1644,26 @@ function validateWorkflowIdentity(version: WorkflowVersion): void {
     throw new DomainError('INVALID_INPUT', '科研完整性策略只适用于 official.research@1');
 }
 
+function validDateString(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function validateResearchLiteratureTimeRange(value: unknown): void {
+  if (value === undefined) return;
+  if (!isObject(value)) throw new DomainError('WORKFLOW_INPUT_INVALID', '文献时间范围无效');
+
+  const from = value.from;
+  const to = value.to;
+  if (
+    (from !== undefined && !validDateString(from)) ||
+    (to !== undefined && !validDateString(to)) ||
+    (typeof from === 'string' && typeof to === 'string' && from > to)
+  )
+    throw new DomainError('WORKFLOW_INPUT_INVALID', '文献时间范围无效');
+}
+
 /** Trusted, deterministic provenance/integrity gate registered only by Main code. */
 export function researchWorkflowValidationPolicy(
   facts: ResearchIntegrityFacts,
@@ -1661,6 +1681,7 @@ export function researchWorkflowValidationPolicy(
           'WORKFLOW_INPUT_INVALID',
           '科研问题、领域、实验模式或实验循环上限无效',
         );
+      validateResearchLiteratureTimeRange(inputs.literatureTimeRange);
       for (const key of ['existingSources', 'existingData', 'existingCode']) {
         const refs = inputs[key];
         if (refs === undefined) continue;

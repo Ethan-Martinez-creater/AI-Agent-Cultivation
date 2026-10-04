@@ -170,6 +170,8 @@ describe('WorkflowInputForm', () => {
     expect(markup).toContain('启用审核');
     expect(markup).toContain('type="checkbox"');
     expect(markup).toContain('type="date"');
+    expect(markup).toContain('id="workflow-input-period-start"');
+    expect(markup).toContain('id="workflow-input-period-end"');
     expect(markup).toContain('添加一项');
     expect(markup).toContain('引用 ID');
     expect(markup).not.toContain('placeholder=');
@@ -260,6 +262,14 @@ describe('WorkflowInputForm', () => {
     ]) {
       expect(markup).toContain(label);
     }
+    const literatureRangeMarkup = markup.match(
+      /<fieldset class="[^"]*workflow-input-research-date-range[^"]*">[\s\S]*?<\/fieldset>/,
+    )?.[0];
+    expect(literatureRangeMarkup).toBeDefined();
+    expect([...literatureRangeMarkup!.matchAll(/type="date"/g)]).toHaveLength(2);
+    expect(literatureRangeMarkup).not.toContain('workflow-input-fields');
+    expect(literatureRangeMarkup).not.toContain('workflow-input-clear');
+
     expect(markup).toContain('value="COMPUTATIONAL">可计算实验</option>');
     expect(markup).toContain('value="HUMAN_OR_EXTERNAL">人工或外部实验</option>');
     expect(markup).toContain('value="MIXED">混合实验</option>');
@@ -284,6 +294,7 @@ describe('WorkflowInputForm', () => {
     });
     expect(inputs.experimentMode).toBe('MIXED');
     expect(inputs.maxExperimentCycles).toBe(2);
+    expect(inputs.literatureTimeRange).toEqual({ from: '2022-01-01', to: '2026-01-01' });
     expect(inputs.existingSources).toEqual([
       { id: 'artifact-source-1', kind: 'EXTERNAL_REFERENCE', name: '用户提供来源' },
     ]);

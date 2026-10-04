@@ -796,4 +796,52 @@ describe('research-integrity-v1', () => {
     const empty = makeDetail([r10]);
     expect(policy.decisionBranch?.(empty, r10)).toEqual({ branch: 'BLOCKED', waitForUser: true });
   });
+
+  it('accepts a literature time range with only a lower bound', () => {
+    const policy = researchWorkflowValidationPolicy(makeFacts());
+    expect(() =>
+      policy.validateInputs(makeDetail([]).version, {
+        researchQuestion: 'Question?',
+        field: 'Systems',
+        experimentMode: 'COMPUTATIONAL',
+        literatureTimeRange: { from: '2020-01-01' },
+      }),
+    ).not.toThrow();
+  });
+
+  it('accepts a literature time range with only an upper bound', () => {
+    const policy = researchWorkflowValidationPolicy(makeFacts());
+    expect(() =>
+      policy.validateInputs(makeDetail([]).version, {
+        researchQuestion: 'Question?',
+        field: 'Systems',
+        experimentMode: 'COMPUTATIONAL',
+        literatureTimeRange: { to: '2026-12-31' },
+      }),
+    ).not.toThrow();
+  });
+
+  it('accepts an ordered literature time range with both bounds', () => {
+    const policy = researchWorkflowValidationPolicy(makeFacts());
+    expect(() =>
+      policy.validateInputs(makeDetail([]).version, {
+        researchQuestion: 'Question?',
+        field: 'Systems',
+        experimentMode: 'COMPUTATIONAL',
+        literatureTimeRange: { from: '2020-01-01', to: '2026-12-31' },
+      }),
+    ).not.toThrow();
+  });
+
+  it('rejects a reversed literature time range', () => {
+    const policy = researchWorkflowValidationPolicy(makeFacts());
+    expect(() =>
+      policy.validateInputs(makeDetail([]).version, {
+        researchQuestion: 'Question?',
+        field: 'Systems',
+        experimentMode: 'COMPUTATIONAL',
+        literatureTimeRange: { from: '2026-12-31', to: '2020-01-01' },
+      }),
+    ).toThrow('文献时间范围无效');
+  });
 });
