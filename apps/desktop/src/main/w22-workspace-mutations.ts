@@ -86,11 +86,7 @@ export class WorkflowToolGuard implements ToolExecutionGuard {
     const pendingStep = this.workflows.findStepByMissionId(context.missionId);
     if (!pendingStep) return { kind: 'NOOP' };
     const pendingDetail = this.workflows.detail(pendingStep.workflowRunId);
-    if (
-      pendingDetail?.version.definition.source !== 'BUILTIN' ||
-      pendingDetail.version.validationPolicy !== SOFTWARE_POLICY
-    )
-      return { kind: 'NOOP' };
+    if (pendingDetail?.version.definition.source !== 'BUILTIN') return { kind: 'NOOP' };
     const boundStep = this.workflows.bindMissionRun(pendingStep, context);
     if (!boundStep)
       throw new DomainError(
@@ -100,6 +96,48 @@ export class WorkflowToolGuard implements ToolExecutionGuard {
     const detail = this.workflows.detail(boundStep.workflowRunId);
     const step = detail?.steps.find((item) => item.id === boundStep.id);
     if (!detail || !step || detail.version.definition.source !== 'BUILTIN') return { kind: 'NOOP' };
+    if (
+      detail.version.validationPolicy === 'research-integrity-v1' &&
+      descriptor.source === 'MCP' &&
+      !['R02', 'R08'].includes(step.stepId)
+    )
+      throw new DomainError('WORKFLOW_TOOL_SCOPE_DENIED', '仅文献发现和实验执行可调用科研 MCP');
+    if (
+      detail.version.validationPolicy === 'research-integrity-v1' &&
+      descriptor.source === 'MCP' &&
+      !descriptor.workflowPurposes?.includes('RESEARCH')
+    )
+      throw new DomainError('WORKFLOW_TOOL_SCOPE_DENIED', '请先为科研工具指定研究用途');
+    if (
+      detail.version.validationPolicy === 'research-integrity-v1' &&
+      step.stepId !== 'R08' &&
+      descriptor.source === 'BUILTIN' &&
+      descriptor.sideEffect !== 'NONE'
+    )
+      throw new DomainError('WORKFLOW_MUTATION_SCOPE_DENIED', '实验以外的科研步骤不能修改工作区');
+    if (detail.version.validationPolicy === 'research-integrity-v1' && step.stepId === 'R08') {
+      const operation = this.journal.getOperation(detail.run.id, step.id);
+      if (!operation || operation.effectType !== 'FILE_OUTPUT' || operation.state !== 'PREPARED')
+        throw new DomainError('WORKFLOW_OPERATION_INVALID', '实验必须先有固定的 PREPARED 回执');
+      const prefix = `workflows/${detail.run.id}/${step.id}/research/`;
+      if (
+        call.toolId === 'file.writeText' &&
+        (typeof input.path !== 'string' ||
+          ![prefix + 'raw-result.json', prefix + 'experiment-log.txt'].includes(input.path))
+      )
+        throw new DomainError('WORKFLOW_MUTATION_SCOPE_DENIED', '不能覆盖其他实验尝试');
+      if (
+        call.toolId === 'file.createDirectory' &&
+        ![
+          'workflows',
+          `workflows/${detail.run.id}`,
+          `workflows/${detail.run.id}/${step.id}`,
+          prefix.slice(0, -1),
+        ].includes(String(input.path))
+      )
+        throw new DomainError('WORKFLOW_MUTATION_SCOPE_DENIED', '只能创建本次实验的输出目录');
+      return { kind: 'NOOP' };
+    }
     if (detail.version.validationPolicy !== SOFTWARE_POLICY) return { kind: 'NOOP' };
     if (
       step.missionId !== context.missionId ||

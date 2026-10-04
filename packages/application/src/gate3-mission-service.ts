@@ -1,4 +1,4 @@
-import { workflowToolEvidence } from './workflow-tool-evidence.js';
+import { workflowToolEvidence, annotateResearchToolResult } from './workflow-tool-evidence.js';
 import { createHash } from 'node:crypto';
 import type {
   ApprovalRequest,
@@ -418,9 +418,14 @@ function skillIdsInPromptSection(section: string): string[] {
  * final visible answer is stored on its own MissionRun.
  */
 export class Gate3MissionService {
-  private completionBoundary: MissionCompletionBoundary | null = null;
-  attachCompletionBoundary(boundary: MissionCompletionBoundary): void {
-    this.completionBoundary = boundary;
+  private readonly completionBoundaries = new Map<string, MissionCompletionBoundary>();
+  attachCompletionBoundary(
+    boundary: MissionCompletionBoundary,
+    id = 'software-verification-v1',
+  ): void {
+    if (!/^[a-z][a-z0-9.-]{0,79}$/.test(id) || this.completionBoundaries.has(id))
+      throw new DomainError('INVALID_INPUT', '重复或无效的可信 Mission completion boundary');
+    this.completionBoundaries.set(id, boundary);
   }
   private artifactContext:
     | ((missionId: string) => Extract<ModelMessage, { role: 'assistant' }>[])
@@ -1023,15 +1028,21 @@ export class Gate3MissionService {
     const mission = this.requireMission(continuation.missionId);
     const run = this.store.getRun(continuation.runId);
     const durable = this.externalWorkContinuations?.getByRequestId(continuation.requestId) ?? null;
-    const manualHandoff = this.store
+    const handoffMarker = this.store
       .listMissionEvents(mission.id)
-      .some(
+      .find(
         (event) =>
           event.runId === run?.id &&
           event.eventType === 'workflow.verification.manual_requested' &&
           event.payloadJson.requestId === continuation.requestId &&
           event.actorId === mission.coordinatorTeammateId,
       );
+    const manualHandoff = Boolean(handoffMarker);
+    const completionBoundary = handoffMarker
+      ? this.completionBoundaries.get(
+          String(handoffMarker.payloadJson.boundaryId ?? 'software-verification-v1'),
+        )
+      : undefined;
     if (
       !run ||
       run.missionId !== mission.id ||
@@ -1118,11 +1129,11 @@ export class Gate3MissionService {
 
     this.externalWorkContinuationsInFlight.add(continuation.requestId);
     try {
-      if (manualHandoff && !this.completionBoundary)
+      if (manualHandoff && !completionBoundary)
         throw new DomainError('PERSISTENCE_INVALID', '人工验收缺少可信证据合并器');
       // Composition only verifies durable facts and accepted files. No model/tool replay.
       const resultText = manualHandoff
-        ? await this.completionBoundary!.compose(continuation)
+        ? await completionBoundary!.compose(continuation)
         : request.publicResult;
       if (manualHandoff && (!resultText || resultText.length > MAX_RESULT_LENGTH))
         throw new DomainError('WORKFLOW_OUTPUT_INVALID', '合并验收结果超出上限');
@@ -2014,6 +2025,8 @@ export class Gate3MissionService {
     result: ToolResult,
     approvalId: string | null = null,
   ): void {
+    annotateResearchToolResult(result, metadata.source);
+    const evidence = workflowToolEvidence(result, metadata.source);
     const payload = {
       toolCallId: result.toolCallId,
       outputHash: createHash('sha256').update(result.content).digest('hex'),
@@ -2026,7 +2039,7 @@ export class Gate3MissionService {
       code: result.code,
       inputSummary: { bytes: Buffer.byteLength(metadata.inputJson) },
       outputSummary: { bytes: Buffer.byteLength(result.content) },
-      ...workflowToolEvidence(result, metadata.source),
+      ...evidence,
     };
     this.store.transaction(() => {
       this.appendEvent(
@@ -2056,7 +2069,13 @@ export class Gate3MissionService {
   }
 
   private pauseForCompletionBoundary(mission: Mission, run: MissionRunRecord): boolean {
-    const handoff = this.completionBoundary?.prepare(mission, run);
+    const matches = [...this.completionBoundaries].flatMap(([id, boundary]) => {
+      const handoff = boundary.prepare(mission, run);
+      return handoff ? [{ ...handoff, boundaryId: id }] : [];
+    });
+    if (matches.length > 1)
+      throw new DomainError('PERSISTENCE_INVALID', '多个 completion boundary 同时命中');
+    const handoff = matches[0];
     if (handoff) {
       if (!this.externalWork)
         throw new DomainError('EXTERNAL_WORK_UNAVAILABLE', '人工验收尚未配置');
@@ -2076,6 +2095,7 @@ export class Gate3MissionService {
           {
             requestId: request.id,
             stepRunId: handoff.stepRunId,
+            boundaryId: handoff.boundaryId,
           },
         );
         this.appendAudit(
@@ -2087,6 +2107,7 @@ export class Gate3MissionService {
             runId: run.id,
             requestId: request.id,
             stepRunId: handoff.stepRunId,
+            boundaryId: handoff.boundaryId,
           },
         );
       });

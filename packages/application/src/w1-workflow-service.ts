@@ -12,6 +12,11 @@ import {
 } from '@cultivation/domain';
 import { validateWorkflowReviewResult } from './w2-contracts.js';
 import { WorkflowValidationPolicyRegistry } from './workflow-validation-policy-registry.js';
+import {
+  effectiveResearchStep,
+  effectiveResearchRevisionBudget,
+  isResearchWorkflow,
+} from './research-execution-policy.js';
 import type {
   WorkflowRun,
   WorkflowStepRun,
@@ -251,6 +256,7 @@ export class WorkflowService {
           this.finishRun(detail);
           break;
         }
+        if (this.waitForUnknownOperation(detail, step)) break;
         if (step.state === 'WAITING' && step.waitReason === 'USER_CONFIRMATION') {
           this.setRun(detail.run, 'WAITING', 'USER_CONFIRMATION');
           break;
@@ -409,6 +415,11 @@ export class WorkflowService {
     this.assertIdle(id);
     const detail = this.detail(id);
     const step = this.active(detail, true);
+    if (isResearchWorkflow(detail) && step?.stepId === 'R08')
+      throw new DomainError(
+        'WORKFLOW_STEP_RETRY_REQUIRED',
+        '实验重试必须创建新的步骤尝试，以保留原始结果；请使用重试步骤',
+      );
     const operation = step && this.operation(detail, step);
     if (operation?.state === 'UNKNOWN')
       throw new DomainError(
@@ -605,7 +616,11 @@ export class WorkflowService {
     );
   }
   private definition(detail: WorkflowDetail, step: WorkflowStepRun): WorkflowStepDefinition {
-    return detail.version.steps.find((s) => s.id === step.stepId)!;
+    return effectiveResearchStep(
+      detail,
+      step,
+      detail.version.steps.find((s) => s.id === step.stepId)!,
+    );
   }
   private bindInputs(
     detail: WorkflowDetail,
@@ -716,6 +731,7 @@ export class WorkflowService {
     step: WorkflowStepRun,
     snapshot: WorkflowMissionSnapshot,
   ): Promise<boolean> {
+    if (this.waitForUnknownOperation(detail, step)) return false;
     if (snapshot.run && step.missionRunId !== snapshot.run.id) {
       this.saveStep({ ...step, missionRunId: snapshot.run.id }, step.state);
       step = this.detail(detail.run.id).steps.find((s) => s.id === step.id)!;
@@ -1121,7 +1137,10 @@ export class WorkflowService {
       const traversals = detail.traversals ?? [];
       const edgeCount = traversals.filter((t) => t.edgeId === edge.id).length;
       const groupCount = traversals.filter((t) => t.groupId === group.id).length;
-      if (edgeCount >= edge.revision.maxTraversals || groupCount >= group.maxTotalTraversals) {
+      if (
+        edgeCount >= edge.revision.maxTraversals ||
+        groupCount >= effectiveResearchRevisionBudget(detail, group)
+      ) {
         if (group.onExhausted === 'FAILED') {
           this.setStep(step, 'FAILED');
           this.setRun(this.detail(detail.run.id).run, 'FAILED');
@@ -1276,7 +1295,15 @@ export class WorkflowService {
     detail: WorkflowDetail,
     step: WorkflowStepRun,
   ): StepOperationReceipt | undefined {
-    return detail.operations?.find((o) => o.stepRunId === step.id);
+    return detail.operations?.find(
+      (o) => o.stepRunId === step.id && !o.operationKey.endsWith(':external'),
+    );
+  }
+  private waitForUnknownOperation(detail: WorkflowDetail, step: WorkflowStepRun): boolean {
+    if (!detail.operations?.some((o) => o.stepRunId === step.id && o.state === 'UNKNOWN'))
+      return false;
+    this.wait(step, 'USER_CONFIRMATION', 'OPERATION_UNKNOWN');
+    return true;
   }
   private async prepareOperation(
     detail: WorkflowDetail,

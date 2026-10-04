@@ -146,6 +146,11 @@ function phaseName(value: string, definitionId?: string): string {
   return newsPhaseNames[value] ?? value;
 }
 const newsResultNames: Record<string, string> = {
+  'research.landscape': '研究概况',
+  'research.raw_result': '原始结果文件',
+  'research.experiment_log': '实验日志',
+  'research.analysis_results': '分析结果',
+  'research.revised_manuscript': '修订稿件',
   'news.video.draft': '视频成片',
   'news.source_packets': '来源与归属',
   'news.script': '最终脚本',

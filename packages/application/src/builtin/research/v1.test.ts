@@ -66,11 +66,20 @@ describe('official research v1 package', () => {
     );
   });
 
+  it('allows the declared combined revision budgets to revisit the experiment decision chain', () => {
+    for (const id of ['R05', 'R06', 'R07', 'R08', 'R09', 'R10'])
+      expect(
+        RESEARCH_VERSION_1.steps.find((step) => step.id === id)!.maxAttempts,
+      ).toBeGreaterThanOrEqual(5);
+  });
+
   it('deterministically bounds and validates the frozen Workflow inputs', () => {
     expect(validateWorkflowInputs(RESEARCH_VERSION_1.inputSchema!, validInputs)).toEqual(
       validInputs,
     );
-    const { researchQuestion: _required, field: _field, ...missingQuestion } = validInputs;
+    const missingQuestion = Object.fromEntries(
+      Object.entries(validInputs).filter(([key]) => !['researchQuestion', 'field'].includes(key)),
+    );
     expect(() =>
       validateWorkflowInputs(RESEARCH_VERSION_1.inputSchema!, missingQuestion),
     ).toThrow();

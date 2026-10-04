@@ -195,7 +195,11 @@ function installVisualDefinition() {
     })();
     assert.deepEqual(
       db.prepare("SELECT id FROM workflow_definitions WHERE source='BUILTIN' ORDER BY id").all(),
-      [{ id: 'official.ai-news-video' }, { id: 'official.software-feature' }],
+      [
+        { id: 'official.ai-news-video' },
+        { id: 'official.research' },
+        { id: 'official.software-feature' },
+      ],
     );
   } finally {
     db.close();

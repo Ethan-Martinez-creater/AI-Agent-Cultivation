@@ -282,7 +282,11 @@ describe('ResearchWorkflowFixtureGateway', () => {
       sourceId: 'source-included',
       sourceArtifactId: 'source-included',
       status: 'EVIDENCE',
+      metric: expect.any(String),
+      result: expect.any(String),
     });
+    expect(String(evidence.claims[0]!.metric).length).toBeGreaterThan(0);
+    expect(String(evidence.claims[0]!.result).length).toBeGreaterThan(0);
   });
 
   it('produces bounded hypothesis and manuscript reviews without claiming review independence', async () => {
@@ -325,7 +329,7 @@ describe('ResearchWorkflowFixtureGateway', () => {
     const output = {
       structuredContent: {
         workflowEvidence: {
-          researchExperiment: {
+          experiment: {
             planArtifactId: plan.id,
             status: 'SUCCEEDED',
             method: 'Run a deterministic bounded calculation.',
@@ -406,8 +410,8 @@ describe('ResearchWorkflowFixtureGateway', () => {
       dataComplete: true,
       executionValid: true,
       refinementTarget: 'NONE',
-      failedRuns: [expect.objectContaining({ attemptId: 'step-r08-1-attempt-1' })],
-      negativeResults: [expect.objectContaining({ attemptId: 'step-r08-2-attempt-2' })],
+      failedRuns: [expect.objectContaining({ attemptId: 'research-fixture-run:R08:1' })],
+      negativeResults: [expect.objectContaining({ attemptId: 'research-fixture-run:R08:2' })],
     });
     expect(values.supportingArtifactIds).toEqual(
       expect.arrayContaining(['record-failed', 'record-negative', 'raw-1', 'log-1']),
@@ -474,6 +478,30 @@ describe('ResearchWorkflowFixtureGateway', () => {
       steps: [failedAttempt, completedAttempt, makeContext('R14').step],
       artifacts: [record, raw, log],
     });
+    const review = makeArtifact('research.review', { verdict: 'PASS' });
+    const hypotheses = makeArtifact('research.hypotheses', { hypotheses: [] });
+    const plan = makeArtifact('research.experiment_plan', { method: 'bounded' });
+    review.metadata = {};
+    hypotheses.metadata = {};
+    plan.metadata = {};
+    for (const [key, artifact] of [
+      ['research.review', review],
+      ['research.hypotheses', hypotheses],
+      ['research.experiment_plan', plan],
+    ] as const) {
+      context.detail.artifacts.push(artifact);
+      context.detail.bindings.push({
+        id: `binding-${key}`,
+        workflowRunId: runId,
+        stepRunId: artifact.producerStepRunId,
+        artifactId: artifact.id,
+        key,
+        role: 'OUTPUT',
+        contractId: key,
+        contractVersion: '1',
+        createdAt,
+      });
+    }
 
     const result = await new ResearchWorkflowFixtureGateway(() => context).generate(request());
     const finalPackage = JSON.parse(result.text) as {
@@ -481,6 +509,9 @@ describe('ResearchWorkflowFixtureGateway', () => {
       rawResultArtifactIds: string[];
       experimentLogArtifactIds: string[];
       experimentAttemptArtifactIds?: string[];
+      reviewHistoryArtifactIds: string[];
+      hypothesisArtifactIds: string[];
+      experimentPlanArtifactIds: string[];
     };
     expect(finalPackage.experimentAttempts).toEqual([
       {
@@ -510,6 +541,9 @@ describe('ResearchWorkflowFixtureGateway', () => {
     expect(finalPackage).not.toHaveProperty('experimentAttemptArtifactIds');
     expect(finalPackage.rawResultArtifactIds).toContain('raw-result-2');
     expect(finalPackage.experimentLogArtifactIds).toContain('experiment-log-2');
+    expect(finalPackage.reviewHistoryArtifactIds).toContain(review.id);
+    expect(finalPackage.hypothesisArtifactIds).toContain(hypotheses.id);
+    expect(finalPackage.experimentPlanArtifactIds).toContain(plan.id);
   });
 
   it('creates files only for an explicit HUMAN_OR_EXTERNAL submission, without writing or asserting facts', () => {
@@ -620,15 +654,16 @@ describe('research MCP stdio fixture', () => {
     const experiment = replies[2]!.result as {
       structuredContent: {
         workflowEvidence: {
-          researchExperiment: Record<string, unknown>;
+          experiment: Record<string, unknown>;
           artifactFiles: Array<Record<string, unknown>>;
         };
       };
     };
-    expect(experiment.structuredContent.workflowEvidence.researchExperiment).toMatchObject({
+    expect(experiment.structuredContent.workflowEvidence.experiment).toMatchObject({
       planArtifactId: 'plan-1',
-      status: 'SUCCEEDED',
+      status: 'FAILED',
       negativeResult: true,
+      failureDetails: [expect.any(String)],
     });
     for (const file of experiment.structuredContent.workflowEvidence.artifactFiles) {
       const path = join(workspace, ...String(file.path).split('/'));

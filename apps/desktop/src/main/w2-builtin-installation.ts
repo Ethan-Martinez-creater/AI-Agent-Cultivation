@@ -7,10 +7,11 @@ import type { W1WorkflowRepository, W2WorkflowRepository } from '@cultivation/pe
 
 import { AI_NEWS_VIDEO_PACKAGE } from '../../../../packages/application/src/builtin/ai-news-video/v1.js';
 import { SOFTWARE_FEATURE_PACKAGE } from '../../../../packages/application/src/builtin/software-feature/v1.js';
+import { RESEARCH_PACKAGE } from '../../../../packages/application/src/builtin/research/v1.js';
 
 /** Static application-owned official packages; no Renderer registration path. */
 export const OFFICIAL_BUILTIN_WORKFLOW_PACKAGES: readonly OfficialBuiltinWorkflowPackage[] =
-  Object.freeze([AI_NEWS_VIDEO_PACKAGE, SOFTWARE_FEATURE_PACKAGE]);
+  Object.freeze([AI_NEWS_VIDEO_PACKAGE, SOFTWARE_FEATURE_PACKAGE, RESEARCH_PACKAGE]);
 
 export function createBuiltinWorkflowInstaller(
   registry: BuiltinWorkflowRegistry,

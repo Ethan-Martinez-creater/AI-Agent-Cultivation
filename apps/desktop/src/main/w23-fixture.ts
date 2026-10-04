@@ -242,10 +242,15 @@ function artifactsForOutput(
   detail: WorkflowDetail,
   outputKeys: readonly string[],
 ): WorkflowArtifact[] {
+  const boundIds = new Set(
+    detail.bindings
+      .filter((binding) => binding.role === 'OUTPUT' && outputKeys.includes(binding.key))
+      .map((binding) => binding.artifactId),
+  );
   return detail.artifacts
     .filter((artifact) => {
       const key = artifact.metadata.outputKey ?? artifact.metadata.logicalKey;
-      return typeof key === 'string' && outputKeys.includes(key);
+      return boundIds.has(artifact.id) || (typeof key === 'string' && outputKeys.includes(key));
     })
     .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
 }
@@ -443,8 +448,11 @@ function screeningAndEvidence(detail: WorkflowDetail) {
         method: '来源页面元数据与离线快照摘要核对。',
         populationOrDataset:
           kind === 'DATASET' ? 'Iris 数据集条目' : '大型在线服务（来源摘要所述）',
-        metric: '',
-        result: '',
+        metric: '来源条目主题与可追溯标识',
+        result:
+          kind === 'DATASET'
+            ? '来源目录将 Iris 标识为分类数据集；未声称复现实验。'
+            : '来源出版记录描述尾延迟问题；未声称复现实验。',
         limitations: ['离线快照不包含完整全文；不能据此声称已复现原研究。'],
         status: 'EVIDENCE',
       },
@@ -538,8 +546,8 @@ function experimentEvidenceFromResult(
   step: WorkflowStepRun,
 ): ExperimentEvidence | null {
   const evidence = structuredWorkflowEvidence(result);
-  if (!evidence || !record(evidence.researchExperiment)) return null;
-  const candidate = evidence.researchExperiment;
+  if (!evidence || !record(evidence.experiment)) return null;
+  const candidate = evidence.experiment;
   const expectedPlan = planArtifact(detail, step);
   const expectedPaths = executionPaths(detail, step);
   const expectedOperationKey = `workflow:${detail.run.id}:${step.id}`;
@@ -652,7 +660,7 @@ function allExperimentRecords(
 
 function attemptIdFor(artifact: WorkflowArtifact, value: InputRecord): string {
   const attemptNumber = Number.isInteger(value.attemptNumber) ? value.attemptNumber : 1;
-  return `${artifact.producerStepRunId}-attempt-${attemptNumber}`;
+  return `${artifact.workflowRunId}:R08:${attemptNumber}`;
 }
 
 function experimentAttemptSummaries(detail: WorkflowDetail) {
@@ -950,21 +958,29 @@ function outputValues(
     case 'R09': {
       const target = refinementTarget(detail);
       const allMetrics = experiments.flatMap(({ artifact, value }) =>
-        Array.isArray(value.metrics)
-          ? value.metrics.filter(record).map((metric) => ({
-              name: String(metric.name ?? 'metric'),
-              value: String(metric.value ?? 'unknown'),
-              unit: String(metric.unit ?? ''),
-              uncertainty: String(metric.uncertainty ?? '未量化'),
-              attemptIds: [attemptIdFor(artifact, value)],
-              evidenceArtifactIds: [
-                artifact.id,
-                ...artifactsForOutput(detail, ['research.raw_result', 'research.experiment_log'])
-                  .filter((file) => file.producerStepRunId === artifact.producerStepRunId)
-                  .map((file) => file.id),
-              ].slice(0, 20),
-            }))
-          : [],
+        (Array.isArray(value.metrics) && value.metrics.length
+          ? value.metrics.filter(record)
+          : [
+              {
+                name: 'execution_status',
+                value: String(value.status),
+                unit: '',
+                uncertainty: '没有有效数值测量，仅保留实际执行状态。',
+              },
+            ]
+        ).map((metric) => ({
+          name: String(metric.name ?? 'metric'),
+          value: String(metric.value ?? 'unknown'),
+          unit: String(metric.unit ?? ''),
+          uncertainty: String(metric.uncertainty ?? '未量化'),
+          attemptIds: [attemptIdFor(artifact, value)],
+          evidenceArtifactIds: [
+            artifact.id,
+            ...artifactsForOutput(detail, ['research.raw_result', 'research.experiment_log'])
+              .filter((file) => file.producerStepRunId === artifact.producerStepRunId)
+              .map((file) => file.id),
+          ].slice(0, 20),
+        })),
       );
       const analysis = `# 分析方法\n\n结合所有实验 attempt 的原始结果，按冻结指标逐项比较，不丢弃失败或负面结果。\n\n# 指标\n\n${allMetrics.map((metric) => `- ${metric.name}：${metric.value} ${metric.unit}（${metric.uncertainty}）`).join('\n') || '当前没有可验证的数值指标。'}\n\n# 不确定性\n\n样本量、运行环境与测量噪声限制外推。\n\n# 负面结果\n\n${negativeResults.map((item) => `- ${item.attemptId}：${item.observation}`).join('\n') || '没有负面结果；此记录不表示已证明假设。'}\n\n# 失败实验\n\n${failedRuns.map((item) => `- ${item.attemptId}：${item.reason}`).join('\n') || '没有失败实验。'}\n\n# 局限\n\n结果仅适用于已记录输入、方法和运行条件。`;
       return {
@@ -977,9 +993,7 @@ function outputValues(
           failedRuns,
           limitations: ['结果受数据和运行环境限制。', '本 Workflow 不代表同行评审或结论最终证实。'],
           dataComplete: experiments.length > 0,
-          executionValid: experiments.every(
-            ({ value }) => value.status === 'COMPLETED' || value.status === 'FAILED',
-          ),
+          executionValid: experiments.at(-1)?.value.status === 'COMPLETED',
           refinementTarget: target,
           decisionRationale:
             target === 'NONE'
@@ -1054,7 +1068,6 @@ function outputValues(
           analysisArtifactIds: artifactsForOutput(detail, [
             'research.analysis',
             'research.analysis_results',
-            'research.figures',
           ]).map((artifact) => artifact.id),
           figureArtifactIds: artifactsForOutput(detail, ['research.figures']).map(
             (artifact) => artifact.id,

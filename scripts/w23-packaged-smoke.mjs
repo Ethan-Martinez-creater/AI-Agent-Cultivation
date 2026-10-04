@@ -59,6 +59,15 @@ const cases = [
     expectedCycleTraversals: 0,
     humanBridge: true,
   },
+  {
+    id: 'F-shared-cycle-limit',
+    question: '验证科研循环上限同时约束实验调整和假设调整',
+    field: '计算机系统',
+    scope: '只验证两个声明的实验回环共用预算，到达上限后等待用户',
+    mode: 'COMPUTATIONAL',
+    expectedCycleTraversals: 2,
+    boundedStop: true,
+  },
 ];
 
 mkdirSync(workspace, { recursive: true });
@@ -137,7 +146,7 @@ async function createThroughRenderer(page, testCase) {
   await page.locator('#workflow-input-researchQuestion').fill(testCase.question);
   await page.locator('#workflow-input-field').fill(testCase.field);
   await page.locator('#workflow-input-scope').fill(testCase.scope);
-  await page.locator('#workflow-input-literatureTimeRange-from').fill('2020-01-01');
+  await page.locator('#workflow-input-literatureTimeRange-from').fill('1980-01-01');
   await page.locator('#workflow-input-literatureTimeRange-to').fill('2026-10-04');
   await page.locator('#workflow-input-experimentMode').selectOption(testCase.mode);
   await page.locator('#workflow-input-maxExperimentCycles').fill('2');
@@ -297,13 +306,42 @@ try {
         break;
       }
       assert.notEqual(workflow.run.state, 'FAILED', `${testCase.id}: ${JSON.stringify(current)}`);
-      if (workflow.run.waitReason === 'USER_CONFIRMATION') {
+      if (
+        workflow.run.waitReason === 'USER_CONFIRMATION' &&
+        current?.stepId === 'R14' &&
+        current.errorCode === 'FINAL_USER_CONFIRMATION_REQUIRED'
+      ) {
         await workflowUi(live.page);
         await live.page.getByRole('button', { name: '确认交付，不发布', exact: true }).click();
         await delay(60);
         continue;
       }
       assert.ok(current, `${testCase.id} has a durable active Step`);
+      if (
+        testCase.boundedStop &&
+        current.stepId === 'R10' &&
+        workflow.run.waitReason === 'USER_CONFIRMATION' &&
+        current.errorCode === 'DECISION_BLOCKED'
+      ) {
+        const traversals = workflow.traversals.filter(
+          (item) => item.groupId === 'research.experiment_cycle',
+        );
+        assert.equal(traversals.length, 2);
+        assert.equal(new Set(traversals.map((item) => item.edgeId)).size, 2);
+        await workflowUi(live.page);
+        await live.page.screenshot({
+          path: join(evidence, `${testCase.id}-waiting.png`),
+          fullPage: true,
+        });
+        facts.sharedCycleLimit = {
+          runId,
+          state: workflow.run.state,
+          errorCode: current.errorCode,
+          traversals,
+        };
+        completed = workflow;
+        break;
+      }
       if (current.errorCode)
         throw new Error(`${testCase.id} ${current.stepId} failed: ${current.errorCode}`);
 
@@ -347,7 +385,10 @@ try {
         }, current.missionId);
         assert.ok(request, 'experiment has a durable Human Bridge request');
         const detailBefore = workflow;
-        const outputKey = (artifact) => artifact.metadata.outputKey ?? artifact.metadata.logicalKey;
+        const outputKey = (artifact) =>
+          detailBefore.bindings.find(
+            (binding) => binding.role === 'OUTPUT' && binding.artifactId === artifact.id,
+          )?.key;
         const plan = detailBefore.artifacts.find(
           (artifact) => outputKey(artifact) === 'research.experiment_plan',
         );
@@ -390,7 +431,14 @@ try {
           status: 'COMPLETED',
           rawResult,
           experimentLog,
-          metrics: [],
+          metrics: [
+            {
+              name: '用户观察完成情况',
+              value: '记录已提交，仅限本次离线模拟',
+              unit: '',
+              uncertainty: '人工观察未量化误差，不支持外推',
+            },
+          ],
           negativeResults: ['人工观察仅为离线模拟补充，不扩大实验结论。'],
           failureDetails: [],
           limitations: ['本尊提交的验收记录不构成真实领域实验。'],
@@ -405,11 +453,16 @@ try {
           .replaceAll('\\', '/')
           .replace(/\/+$/, '');
         assert.ok(Array.isArray(targets) && targets.length > 0);
-        assert.equal(
-          safeTargetDirectory,
-          base,
+        assert.ok(
+          safeTargetDirectory.startsWith(`workflows/${runId}/${current.id}/`),
           'Human Bridge record stays in its step-scoped Workspace directory',
         );
+        assert.ok(
+          request.targetWorkspacePathsJson.items.some(
+            (path) => String(path).replaceAll('\\', '/').replace(/\/+$/, '') === base,
+          ),
+        );
+        mkdirSync(join(workspace, safeTargetDirectory), { recursive: true });
         const submissions = [];
         for (const target of targets) {
           const key = String(target.id).toLowerCase().replaceAll('.', '_').replaceAll('-', '_');
@@ -507,10 +560,11 @@ try {
               .get(request.id)?.state === 'CONSUMED',
           'accepted continuation consumed after restart',
         );
+        await live.page.evaluate((id) => window.cultivation.workflows.advance(id), runId);
         workflow = await detail(live.page, runId);
         const resumedStep = workflow.steps.find((step) => step.id === current.id);
         assert.equal(resumedStep?.missionRunId, current.missionRunId);
-        assert.equal(resumedStep?.state, 'COMPLETED');
+        assert.equal(resumedStep?.state, 'COMPLETED', JSON.stringify(resumedStep));
         assert.equal(
           read(
             (db) =>
@@ -607,6 +661,10 @@ try {
       await live.page.evaluate((id) => window.cultivation.workflows.advance(id), runId);
       await delay(80);
     }
+    if (testCase.boundedStop) {
+      assert.ok(facts.sharedCycleLimit, 'both declared refine edges share the frozen total budget');
+      continue;
+    }
     assert.ok(
       completed || (completed = await detail(live.page, runId)).run.state === 'COMPLETED',
       `${testCase.id} completes`,
@@ -616,7 +674,14 @@ try {
 
     const byKey = (key) =>
       completed.artifacts
-        .filter((artifact) => (artifact.metadata.outputKey ?? artifact.metadata.logicalKey) === key)
+        .filter((artifact) =>
+          completed.bindings.some(
+            (binding) =>
+              binding.role === 'OUTPUT' &&
+              binding.key === key &&
+              binding.artifactId === artifact.id,
+          ),
+        )
         .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
     const literature = JSON.parse(byKey('research.literature').at(-1).content);
     assert.ok(literature.sources.length >= 1);
@@ -630,8 +695,8 @@ try {
       ),
     );
     const screening = JSON.parse(byKey('research.screening').at(-1).content);
-    assert.ok(screening.sources.some((source) => source.included === true && source.reason));
-    assert.ok(screening.sources.some((source) => source.included === false && source.reason));
+    assert.ok(screening.sources.some((source) => source.decision === 'INCLUDED' && source.reason));
+    assert.ok(screening.sources.some((source) => source.decision === 'EXCLUDED' && source.reason));
     const claimMap = JSON.parse(byKey('research.claim_evidence_map').at(-1).content);
     const artifactIds = new Set(completed.artifacts.map((artifact) => artifact.id));
     assert.ok(claimMap.claims.length > 0);
@@ -642,7 +707,13 @@ try {
       ),
     );
     const analysis = JSON.parse(byKey('research.analysis_results').at(-1).content);
-    if (testCase.id === 'B-dataset') assert.ok(analysis.negativeResults.length > 0);
+    if (testCase.id === 'B-dataset') {
+      assert.ok(analysis.negativeResults.length > 0);
+      assert.ok(
+        analysis.failedRuns.length > 0,
+        'failed experiment observations remain in analysis',
+      );
+    }
     const finalPackage = JSON.parse(byKey('research.final_package').at(-1).content);
     assert.equal(finalPackage.submissionStatus, 'NOT_SUBMITTED');
     assert.equal(finalPackage.conclusionStatus, 'NOT_SCIENTIFICALLY_CONFIRMED');
@@ -754,6 +825,10 @@ try {
         submissionStatus: finalPackage.submissionStatus,
         conclusionStatus: finalPackage.conclusionStatus,
         attemptCount: finalPackage.experimentAttempts.length,
+      },
+      analysisRetention: {
+        negativeResults: analysis.negativeResults,
+        failedRuns: analysis.failedRuns,
       },
     });
   }

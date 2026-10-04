@@ -1,4 +1,4 @@
-import { workflowToolEvidence } from './workflow-tool-evidence.js';
+import { workflowToolEvidence, annotateResearchToolResult } from './workflow-tool-evidence.js';
 import { createHash } from 'node:crypto';
 import type {
   ApprovalRequest,
@@ -2243,6 +2243,7 @@ export class Gate5CollaborationService {
     externalWorkRequestId: string | null = null,
     resource: string | null = null,
   ): void {
+    annotateResearchToolResult(result, source);
     this.record(mission, run.id, 'tool.result', 'TEAMMATE', teammateId, {
       teammateId,
       toolCallId: result.toolCallId,

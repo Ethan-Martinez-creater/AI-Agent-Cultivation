@@ -6,6 +6,13 @@ import { scopedWorkflowStep } from './w21-execution-contract.js';
 
 const MAX_PUBLIC_CONTEXT = 16_000;
 const MAX_PROMPT = 20_000;
+const deliveryNames: Record<string, string> = {
+  'research.experiment_record': '实验记录',
+  'research.raw_result': '原始实验结果',
+  'research.experiment_log': '实验日志',
+  'research.source_packet': '文献来源包',
+  'research.literature': '文献发现记录',
+};
 
 /**
  * Builds the existing durable Human Bridge handoff for a research step. Workflow
@@ -44,7 +51,7 @@ export function researchExternalDraft(
         throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '科研目录产物没有冻结的精确文件清单');
       return prefix.map((path, index) => ({
         id: `${output.key}.${index + 1}`,
-        name: path.split('/').at(-1)!,
+        name: deliveryNames[output.key] ?? path.split('/').at(-1)!,
         required: output.required,
         allowedExtensions: [path.slice(path.lastIndexOf('.')).toLowerCase()],
         maxSizeBytes: output.maxSizeBytes,
@@ -142,7 +149,12 @@ export function researchExternalDraft(
 
   return {
     capability: definition.routing.requiredCapabilities?.[0] ?? 'GENERAL_REASONING',
-    title: definition.title,
+    title:
+      step.stepId === 'R08'
+        ? '完成实验并提交记录'
+        : step.stepId === 'R02'
+          ? '检索并交付文献来源'
+          : '科研材料交付',
     prompt,
     requirements: ['按冻结产物契约交付，并保留可核对的来源、方法和结果记录。'],
     targetArtifacts,

@@ -218,6 +218,12 @@ function executeExperiment(input) {
     };
   }
 
+  const experimentStatus =
+    input.datasetRelativePath && input.attemptNumber === 1 ? 'FAILED' : 'SUCCEEDED';
+  const failureDetails =
+    experimentStatus === 'FAILED'
+      ? ['离线验收主动模拟首次数据实验测量失败；原始观察仍保留，不作为成功实验结论。']
+      : [];
   const raw = Buffer.from(
     JSON.stringify(
       {
@@ -230,6 +236,8 @@ function executeExperiment(input) {
         observations: data.rows,
         metrics: [metric],
         negativeResult,
+        status: experimentStatus,
+        failureDetails,
         limitation:
           'Deterministic offline acceptance fixture; not scientific evidence beyond this bounded sample.',
       },
@@ -238,7 +246,7 @@ function executeExperiment(input) {
     ),
   );
   const log = Buffer.from(
-    `workflowRunId=${input.workflowRunId}\nstepRunId=${input.stepRunId}\nattempt=${input.attempt}\nplanArtifactId=${input.planArtifactId}\nstatus=SUCCEEDED\nmethod=${input.method.slice(0, 200)}\n`,
+    `workflowRunId=${input.workflowRunId}\nstepRunId=${input.stepRunId}\nattempt=${input.attempt}\nplanArtifactId=${input.planArtifactId}\nstatus=${experimentStatus}\nmethod=${input.method.slice(0, 200)}\n`,
   );
   const rawHash = writeOutput(rawPath, raw);
   const logHash = writeOutput(logPath, log);
@@ -246,11 +254,12 @@ function executeExperiment(input) {
     content: [{ type: 'text', text: 'Deterministic bounded experiment completed.' }],
     structuredContent: {
       workflowEvidence: {
-        researchExperiment: {
+        experiment: {
           planArtifactId: input.planArtifactId,
-          status: 'SUCCEEDED',
+          status: experimentStatus,
           method: input.method,
           negativeResult,
+          failureDetails,
           metrics: [metric],
           limitations: [
             'Deterministic offline acceptance fixture; do not generalize beyond this sample.',
@@ -284,8 +293,8 @@ const tools = [
         literatureTimeRange: {
           type: 'object',
           properties: {
-            from: { type: 'string', format: 'date' },
-            to: { type: 'string', format: 'date' },
+            from: { type: 'string', minLength: 10, maxLength: 10 },
+            to: { type: 'string', minLength: 10, maxLength: 10 },
           },
           additionalProperties: false,
         },

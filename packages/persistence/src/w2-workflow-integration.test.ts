@@ -564,6 +564,52 @@ describe('W2 Workflow real SQLite/application integration', () => {
     }
   });
 
+  it('stops a still-pending external Mission when its receipt is already UNKNOWN', async () => {
+    const db = database();
+    try {
+      const contract = createW2FixtureContract('1');
+      const version = createW2FixtureVersion({
+        definitionId: 'test-pending-unknown-external',
+        version: 1,
+        contracts: [contract],
+        steps: [
+          createW2FixtureStep('external', {
+            effectType: 'EXTERNAL_ACTION',
+            outputs: [createW2FixtureArtifactSpec(contract)],
+          }),
+        ],
+      });
+      const h = makeService({
+        db,
+        version,
+        idPrefix: 'pending-unknown',
+        startMode: 'WAIT_EXTERNAL',
+      });
+      h.service.publish(version);
+      const run = h.service.createRun({ definitionId: version.definition.id, version: 1 });
+      await h.service.advance(run.run.id);
+      const before = h.service.detail(run.run.id);
+      const receipt = before.operations![0]!;
+      expect(before.run.waitReason).toBe('EXTERNAL_WORK');
+      expect(h.foundation.transitionOperation({ ...receipt, state: 'UNKNOWN' }, 'PREPARED')).toBe(
+        true,
+      );
+      const calls = { ...h.missions.calls };
+      await h.service.recover();
+      const waiting = h.service.detail(run.run.id);
+      expect(waiting.run.waitReason).toBe('USER_CONFIRMATION');
+      expect(waiting.steps[0]?.errorCode).toBe('OPERATION_UNKNOWN');
+      expect(waiting.steps[0]?.missionRunId).toBe(before.steps[0]?.missionRunId);
+      expect(waiting.operations![0]?.state).toBe('UNKNOWN');
+      await h.service.advance(run.run.id);
+      await h.service.recover();
+      expect(h.missions.calls).toEqual(calls);
+      expect(h.service.detail(run.run.id).run.waitReason).toBe('USER_CONFIRMATION');
+    } finally {
+      db.close();
+    }
+  });
+
   it('continues to run a legacy W1 version without a W2 Contract manifest or operation receipt', async () => {
     const db = database();
     try {

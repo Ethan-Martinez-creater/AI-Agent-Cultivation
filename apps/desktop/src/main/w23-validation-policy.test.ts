@@ -470,6 +470,54 @@ describe('research-integrity-v1', () => {
     ).toContain('RESEARCH_REVIEW_EVIDENCE_INVALID');
   });
 
+  it('uses the current scientific review, not a higher-attempt earlier hypothesis review', () => {
+    const r06 = makeStep('R06', 'COMPLETED', 3);
+    const r12 = makeStep('R12');
+    const r13 = makeStep('R13', 'RUNNING');
+    const detail = makeDetail([r06, r12, r13]);
+    addOutput(detail, r06, 'research.review', { findings: ['earlier hypothesis finding'] });
+    addOutput(detail, r12, 'research.review', { findings: ['current scientific finding'] });
+    const evidence = addOutput(detail, r12, 'research.evidence', { claims: [] });
+    const response = addOutput(detail, r13, 'research.revision_response', {
+      responses: [
+        {
+          finding: 'current scientific finding',
+          response: 'Addressed in limitations',
+          manuscriptSection: 'Limitations',
+          evidenceArtifactIds: [evidence.id],
+        },
+      ],
+      unresolvedFindings: [],
+    });
+    const map = addOutput(detail, r13, 'research.claim_evidence_map', {
+      claims: [
+        {
+          claimId: 'claim',
+          claim: 'Bounded observation',
+          classification: 'EVIDENCE',
+          artifactIds: [evidence.id],
+        },
+      ],
+    });
+    const policy = researchWorkflowValidationPolicy(makeFacts());
+    expect(
+      policy.validateStep(detail, r13, [
+        produced('research.revision_response', response),
+        produced('research.claim_evidence_map', map),
+      ]),
+    ).toEqual([]);
+    response.content = response.content.replace(
+      'current scientific finding',
+      'earlier hypothesis finding',
+    );
+    expect(
+      policy.validateStep(detail, r13, [
+        produced('research.revision_response', response),
+        produced('research.claim_evidence_map', map),
+      ]),
+    ).toContain('RESEARCH_REVISION_RESPONSE_INVALID');
+  });
+
   it('rejects legacy claimType and artifact IDs outside the current Run', () => {
     const r11 = makeStep('R11', 'RUNNING');
     const detail = makeDetail([r11]);
@@ -596,7 +644,7 @@ describe('research-integrity-v1', () => {
       effectType: 'EXTERNAL_ACTION',
       state: 'APPLIED',
       inputHash: hash('external input'),
-      externalReference: 'accepted-record-artifact',
+      externalReference: 'accepted-raw-artifact',
     };
     detail.operations = [operation] as never;
     const accepted = [
@@ -639,6 +687,96 @@ describe('research-integrity-v1', () => {
         ],
       ),
     ).toEqual([]);
+    for (const reference of ['accepted-record-artifact', 'accepted-log-artifact']) {
+      operation.externalReference = reference;
+      expect(
+        researchWorkflowValidationPolicy(makeFacts({ accepted: () => accepted })).validateStep(
+          detail,
+          r08,
+          [
+            produced('research.experiment_record', recordArtifact),
+            produced('research.raw_result', rawArtifact),
+            produced('research.experiment_log', logArtifact),
+          ],
+        ),
+      ).toEqual([]);
+    }
+    operation.externalReference = 'unrelated-artifact';
+    expect(
+      researchWorkflowValidationPolicy(makeFacts({ accepted: () => accepted })).validateStep(
+        detail,
+        r08,
+        [
+          produced('research.experiment_record', recordArtifact),
+          produced('research.raw_result', rawArtifact),
+          produced('research.experiment_log', logArtifact),
+        ],
+      ),
+    ).toContain('RESEARCH_ACCEPTED_EXTERNAL_FACT_REQUIRED');
+  });
+
+  it('allows hypothesis refinement from actual negative experiment facts without inventing literature contradictions', () => {
+    const { detail, r08, producedRows, experiment, rawArtifact, logArtifact } =
+      makeComputationalAttempt();
+    r08.state = 'COMPLETED';
+    const record = producedRows[0]!.artifact;
+    record.content = JSON.stringify({
+      ...JSON.parse(record.content),
+      negativeResults: ['No improvement'],
+    });
+    experiment.negativeResult = true;
+    detail.operations = [
+      {
+        ...detail.operations![0]!,
+        state: 'VERIFIED',
+        outputArtifactIds: [rawArtifact.id, logArtifact.id],
+      },
+    ];
+    const r05 = makeStep('R05');
+    const r09 = makeStep('R09');
+    const r10 = makeStep('R10', 'RUNNING');
+    detail.steps.push(r05, r09, r10);
+    detail.version.steps.push(...[r05, r09, r10].map((step) => ({ id: step.stepId }) as never));
+    addOutput(detail, r05, 'research.hypotheses', {
+      hypotheses: [{ hypothesisId: 'hypothesis', contradictingEvidenceIds: [] }],
+    });
+    addOutput(detail, r09, 'research.analysis', 'All attempts and their uncertainty are retained.');
+    addOutput(detail, r09, 'research.analysis_results', {
+      method: 'bounded comparison',
+      metrics: [
+        {
+          name: 'mean',
+          value: '2',
+          uncertainty: 'small sample',
+          attemptIds: [`${runId}:R08:1`],
+          evidenceArtifactIds: [record.id],
+        },
+      ],
+      uncertainty: ['small sample'],
+      negativeResults: [
+        {
+          attemptId: `${runId}:R08:1`,
+          metric: 'mean',
+          observation: 'No improvement',
+          interpretation: 'no observed improvement',
+        },
+      ],
+      failedRuns: [],
+      limitations: ['bounded sample'],
+      dataComplete: true,
+      executionValid: true,
+      refinementTarget: 'HYPOTHESIS',
+      decisionRationale: 'Observed negative result',
+      supportingArtifactIds: [record.id],
+    });
+    addOutput(detail, r09, 'research.figures', { figures: [] });
+    const policy = researchWorkflowValidationPolicy(makeFacts({ experiments: [experiment] }));
+    expect(policy.decisionBranch?.(detail, r10)).toEqual({
+      branch: 'REFINE_HYPOTHESIS',
+      waitForUser: false,
+    });
+    experiment.negativeResult = false;
+    expect(policy.decisionBranch?.(detail, r10)).toEqual({ branch: 'BLOCKED', waitForUser: true });
   });
 
   it('blocks cycle limits above the frozen maximum and an R10 step without validated analysis', () => {

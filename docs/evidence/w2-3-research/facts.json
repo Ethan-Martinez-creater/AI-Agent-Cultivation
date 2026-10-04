@@ -1,0 +1,561 @@
+{
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w23-packaged-1948057d-0529-45ca-8178-164f94ec68e2",
+  "workspace": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w23-packaged-1948057d-0529-45ca-8178-164f94ec68e2\\workspace",
+  "cases": [
+    {
+      "id": "A-algorithm",
+      "workflowRunId": "caf350ea-f281-43f5-b0c1-0f679ddd9345",
+      "state": "COMPLETED",
+      "mode": "COMPUTATIONAL",
+      "approvals": 2,
+      "experimentAttempts": [
+        {
+          "stepRunId": "ac9f5c74-c5d5-40c5-b446-14d789f26a42",
+          "missionRunId": "409de5df-f9d4-49bd-b451-1f147a2b4c76",
+          "attempt": 1,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "96d14217-e9bf-4f80-9f5d-ce8fdb81e16c",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/caf350ea-f281-43f5-b0c1-0f679ddd9345/ac9f5c74-c5d5-40c5-b446-14d789f26a42/research/raw-result.json",
+            "workflows/caf350ea-f281-43f5-b0c1-0f679ddd9345/ac9f5c74-c5d5-40c5-b446-14d789f26a42/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "b6b72512b990d46f2754e81878d7296802a6beede22f620768f4f1618a360cba",
+            "1f7a3630f55ebc1a39bffce490976a22324b0671a84bd9eb623da2a6c7b42a37"
+          ]
+        }
+      ],
+      "experimentTraversals": [],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "4267578c-5b2a-4e2a-805b-5d08df69a23d",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        },
+        {
+          "reviewerId": "4267578c-5b2a-4e2a-805b-5d08df69a23d",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        },
+        {
+          "reviewerId": "4267578c-5b2a-4e2a-805b-5d08df69a23d",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        },
+        {
+          "reviewerId": "4267578c-5b2a-4e2a-805b-5d08df69a23d",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "a0ae096b-4c8b-444c-8cd5-5ec1678309a1",
+            "96d14217-e9bf-4f80-9f5d-ce8fdb81e16c",
+            "76f88d05-7d48-470b-b947-e09b3cb64c1d"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": null,
+      "computationalRestart": {
+        "receipt": {
+          "id": "a603f305-84cf-44b9-b685-fd440b2bf966",
+          "state": "APPLIED"
+        },
+        "before": [
+          {
+            "event_type": "model.call_started",
+            "n": 2
+          },
+          {
+            "event_type": "tool.result",
+            "n": 1
+          }
+        ],
+        "after": [
+          {
+            "event_type": "model.call_started",
+            "n": 2
+          },
+          {
+            "event_type": "tool.result",
+            "n": 1
+          }
+        ],
+        "stepFiles": [
+          {
+            "path": "workflows/caf350ea-f281-43f5-b0c1-0f679ddd9345/ac9f5c74-c5d5-40c5-b446-14d789f26a42/research/raw-result.json",
+            "contentHash": "b6b72512b990d46f2754e81878d7296802a6beede22f620768f4f1618a360cba"
+          },
+          {
+            "path": "workflows/caf350ea-f281-43f5-b0c1-0f679ddd9345/ac9f5c74-c5d5-40c5-b446-14d789f26a42/research/experiment-log.txt",
+            "contentHash": "1f7a3630f55ebc1a39bffce490976a22324b0671a84bd9eb623da2a6c7b42a37"
+          }
+        ],
+        "zeroReplay": true
+      },
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 1
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "caf350ea-f281-43f5-b0c1-0f679ddd9345:R08:1",
+            "metric": "observed metric",
+            "observation": "预设比较中未观察到预期改善；该结果已保留并纳入分析。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": []
+      }
+    },
+    {
+      "id": "B-dataset",
+      "workflowRunId": "949f3601-9638-4a22-aa13-e7ea43803f58",
+      "state": "COMPLETED",
+      "mode": "COMPUTATIONAL",
+      "approvals": 3,
+      "experimentAttempts": [
+        {
+          "stepRunId": "198be8d9-aa7e-4f78-a39c-de638d41d955",
+          "missionRunId": "4ee65631-5f93-4553-b3aa-9a0e0cd96fea",
+          "attempt": 1,
+          "outcome": "FAILED",
+          "recordArtifactId": "0de300d7-5f52-4665-8749-627e7b69bf15",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/949f3601-9638-4a22-aa13-e7ea43803f58/198be8d9-aa7e-4f78-a39c-de638d41d955/research/raw-result.json",
+            "workflows/949f3601-9638-4a22-aa13-e7ea43803f58/198be8d9-aa7e-4f78-a39c-de638d41d955/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "42dbd303b74239504a47b1e560c7a329be656713fefc07186d4c06e9d5e237be",
+            "f783663b26b32357cb940ce0268537c50f70c04accf86149d8ac3f0f5b329351"
+          ]
+        },
+        {
+          "stepRunId": "1642122c-1855-4233-a97a-5492a2ab328e",
+          "missionRunId": "d6405061-e7bc-4ec9-bfe8-27a8688616b6",
+          "attempt": 2,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "c65ad371-be02-4861-a0f3-3ebc022b099b",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/949f3601-9638-4a22-aa13-e7ea43803f58/1642122c-1855-4233-a97a-5492a2ab328e/research/raw-result.json",
+            "workflows/949f3601-9638-4a22-aa13-e7ea43803f58/1642122c-1855-4233-a97a-5492a2ab328e/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "a6b3b89929cc4f946482f858ad1f9561c0c0fe7cce99b378cd2e05ac0bdc10c3",
+            "9c947b691c5d36bfc445958cc01fad99f3c148f2eb3149a63ec4150a480c7f58"
+          ]
+        }
+      ],
+      "experimentTraversals": [
+        {
+          "id": "6f4bc9ed-43c8-4fe4-9480-4748646310d9",
+          "workflowRunId": "949f3601-9638-4a22-aa13-e7ea43803f58",
+          "stepRunId": "2debdb90-7d58-4bcf-96bf-7491923a7ab9",
+          "edgeId": "r10_refine_experiment",
+          "groupId": "research.experiment_cycle",
+          "traversalIndex": 1,
+          "reason": "REFINE_EXPERIMENT",
+          "createdAt": "2026-10-04T08:17:14.970Z"
+        }
+      ],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        },
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        },
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        },
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "79ccb0fb-c9ce-4e2f-8a22-c1a9be0770da",
+            "0de300d7-5f52-4665-8749-627e7b69bf15",
+            "c65ad371-be02-4861-a0f3-3ebc022b099b",
+            "15a2555a-bba8-4921-b83e-97f7c40916dd"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": null,
+      "computationalRestart": null,
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 2
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "949f3601-9638-4a22-aa13-e7ea43803f58:R08:1",
+            "metric": "observed metric",
+            "observation": "预设比较中未观察到预期改善；该结果已保留并纳入分析。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          },
+          {
+            "attemptId": "949f3601-9638-4a22-aa13-e7ea43803f58:R08:2",
+            "metric": "observed metric",
+            "observation": "预设比较中未观察到预期改善；该结果已保留并纳入分析。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": [
+          {
+            "attemptId": "949f3601-9638-4a22-aa13-e7ea43803f58:R08:1",
+            "reason": "离线验收主动模拟首次数据实验测量失败；原始观察仍保留，不作为成功实验结论。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C-external-human-bridge",
+      "workflowRunId": "a85dd404-a4e2-4293-b189-02dd65e9fb56",
+      "state": "COMPLETED",
+      "mode": "HUMAN_OR_EXTERNAL",
+      "approvals": 1,
+      "experimentAttempts": [
+        {
+          "stepRunId": "acf9f9ed-7738-4fc4-a2c9-ee68ac07f7f5",
+          "missionRunId": "817931d2-50ef-41a7-b8ef-8b01eea589b0",
+          "attempt": 1,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "7c295c4d-2970-4fb4-9f80-cd6804bb35e4",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/a85dd404-a4e2-4293-b189-02dd65e9fb56/acf9f9ed-7738-4fc4-a2c9-ee68ac07f7f5/research/raw-result.json",
+            "workflows/a85dd404-a4e2-4293-b189-02dd65e9fb56/acf9f9ed-7738-4fc4-a2c9-ee68ac07f7f5/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "b084befc5bb581ca04afc424010690a3579e1ffb0c38ca27d50b10b39fa447fb",
+            "fd94c5cb8d9b8c3d93af07464df7092b790e82e13fceeb4ddd13aa3f3b82de1f"
+          ]
+        }
+      ],
+      "experimentTraversals": [],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        },
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        },
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        },
+        {
+          "reviewerId": "535c3f19-2284-47a8-a448-5dd44e651d12",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": false
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "5e3bd566-d736-49e1-a65f-dfee243718d5",
+            "7c295c4d-2970-4fb4-9f80-cd6804bb35e4",
+            "4c199197-9ee7-4ced-82a6-6451915dad26"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": {
+        "requestId": "9b26722e-2893-406a-b9a6-dfaeca798d1d",
+        "missionRunId": "817931d2-50ef-41a7-b8ef-8b01eea589b0",
+        "continuation": "CONSUMED",
+        "rawResult": {
+          "relativePath": "workflows/a85dd404-a4e2-4293-b189-02dd65e9fb56/acf9f9ed-7738-4fc4-a2c9-ee68ac07f7f5/research/raw-result.json",
+          "contentHash": "b084befc5bb581ca04afc424010690a3579e1ffb0c38ca27d50b10b39fa447fb"
+        },
+        "experimentLog": {
+          "relativePath": "workflows/a85dd404-a4e2-4293-b189-02dd65e9fb56/acf9f9ed-7738-4fc4-a2c9-ee68ac07f7f5/research/experiment-log.txt",
+          "contentHash": "fd94c5cb8d9b8c3d93af07464df7092b790e82e13fceeb4ddd13aa3f3b82de1f"
+        },
+        "noModelOrToolReplay": true
+      },
+      "computationalRestart": null,
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 1
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "a85dd404-a4e2-4293-b189-02dd65e9fb56:R08:1",
+            "metric": "observed metric",
+            "observation": "人工观察仅为离线模拟补充，不扩大实验结论。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": []
+      }
+    },
+    {
+      "id": "D-mixed-human-bridge",
+      "workflowRunId": "2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c",
+      "state": "COMPLETED",
+      "mode": "MIXED",
+      "approvals": 2,
+      "experimentAttempts": [
+        {
+          "stepRunId": "4dfd8404-ac40-411c-8cec-fb79e086219d",
+          "missionRunId": "1a4ecd2f-ad14-4f9e-9175-f24d138b381b",
+          "attempt": 1,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "af904367-66f9-40d3-8727-9407078068e3",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c/4dfd8404-ac40-411c-8cec-fb79e086219d/research/raw-result.json",
+            "workflows/2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c/4dfd8404-ac40-411c-8cec-fb79e086219d/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "e2983e7a7bfef005e11b5c3ded2a2e299834cf8e7eb81563d6a406e1dbc360a2",
+            "7e71f9a196c18124eadba7dde6bcbc69dd03f2d12bd8e4f96b69041e2070e56f"
+          ]
+        }
+      ],
+      "experimentTraversals": [],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "bc4022cd-63f7-462c-b61f-863958a26172",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        },
+        {
+          "reviewerId": "bc4022cd-63f7-462c-b61f-863958a26172",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        },
+        {
+          "reviewerId": "bc4022cd-63f7-462c-b61f-863958a26172",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        },
+        {
+          "reviewerId": "bc4022cd-63f7-462c-b61f-863958a26172",
+          "authorIds": ["535c3f19-2284-47a8-a448-5dd44e651d12"],
+          "independent": true
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "a71db35d-c225-4500-9d9d-0b4ef49fb820",
+            "af904367-66f9-40d3-8727-9407078068e3",
+            "7e4c7189-3c4b-4fa4-9923-925f6390627f"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": {
+        "requestId": "15e1657a-4c1a-42a6-827c-07e393371b6a",
+        "missionRunId": "1a4ecd2f-ad14-4f9e-9175-f24d138b381b",
+        "continuation": "CONSUMED",
+        "rawResult": {
+          "relativePath": "workflows/2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c/4dfd8404-ac40-411c-8cec-fb79e086219d/research/raw-result.json",
+          "contentHash": "e2983e7a7bfef005e11b5c3ded2a2e299834cf8e7eb81563d6a406e1dbc360a2"
+        },
+        "experimentLog": {
+          "relativePath": "workflows/2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c/4dfd8404-ac40-411c-8cec-fb79e086219d/research/experiment-log.txt",
+          "contentHash": "7e71f9a196c18124eadba7dde6bcbc69dd03f2d12bd8e4f96b69041e2070e56f"
+        },
+        "noModelOrToolReplay": true
+      },
+      "computationalRestart": null,
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 1
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c:R08:1",
+            "metric": "observed metric",
+            "observation": "人工观察仅为离线模拟补充，不扩大实验结论。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": []
+      }
+    }
+  ],
+  "computationalRestart": {
+    "receipt": {
+      "id": "a603f305-84cf-44b9-b685-fd440b2bf966",
+      "state": "APPLIED"
+    },
+    "before": [
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      }
+    ],
+    "after": [
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      }
+    ],
+    "stepFiles": [
+      {
+        "path": "workflows/caf350ea-f281-43f5-b0c1-0f679ddd9345/ac9f5c74-c5d5-40c5-b446-14d789f26a42/research/raw-result.json",
+        "contentHash": "b6b72512b990d46f2754e81878d7296802a6beede22f620768f4f1618a360cba"
+      },
+      {
+        "path": "workflows/caf350ea-f281-43f5-b0c1-0f679ddd9345/ac9f5c74-c5d5-40c5-b446-14d789f26a42/research/experiment-log.txt",
+        "contentHash": "1f7a3630f55ebc1a39bffce490976a22324b0671a84bd9eb623da2a6c7b42a37"
+      }
+    ],
+    "zeroReplay": true
+  },
+  "mixedContinuationRestart": {
+    "requestId": "15e1657a-4c1a-42a6-827c-07e393371b6a",
+    "missionRunId": "1a4ecd2f-ad14-4f9e-9175-f24d138b381b",
+    "continuation": "CONSUMED",
+    "rawResult": {
+      "relativePath": "workflows/2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c/4dfd8404-ac40-411c-8cec-fb79e086219d/research/raw-result.json",
+      "contentHash": "e2983e7a7bfef005e11b5c3ded2a2e299834cf8e7eb81563d6a406e1dbc360a2"
+    },
+    "experimentLog": {
+      "relativePath": "workflows/2e9aa60d-52c2-4a8f-9a9d-b8e9db5dfa2c/4dfd8404-ac40-411c-8cec-fb79e086219d/research/experiment-log.txt",
+      "contentHash": "7e71f9a196c18124eadba7dde6bcbc69dd03f2d12bd8e4f96b69041e2070e56f"
+    },
+    "noModelOrToolReplay": true
+  },
+  "noPublication": true,
+  "setup": {
+    "serverId": "e09bf0c6-863e-4e9a-a2ea-990729aad747",
+    "sourceToolId": "e09bf0c6-863e-4e9a-a2ea-990729aad747:research_sources",
+    "experimentToolId": "e09bf0c6-863e-4e9a-a2ea-990729aad747:run_experiment",
+    "dimensions": ["GENERAL_REASONING", "TOOL_USE", "LONG_CONTEXT_REASONING", "CODING"]
+  },
+  "actors": [
+    {
+      "id": "535c3f19-2284-47a8-a448-5dd44e651d12",
+      "name": "青岚"
+    },
+    {
+      "id": "4267578c-5b2a-4e2a-805b-5d08df69a23d",
+      "name": "明衡"
+    },
+    {
+      "id": "bc4022cd-63f7-462c-b61f-863958a26172",
+      "name": "知微"
+    }
+  ],
+  "sharedCycleLimit": {
+    "runId": "ae1fe772-538a-4c70-9231-60b95f34c046",
+    "state": "WAITING",
+    "errorCode": "DECISION_BLOCKED",
+    "traversals": [
+      {
+        "id": "c59cf77a-ef5e-41f9-89b1-3501535fe0b9",
+        "workflowRunId": "ae1fe772-538a-4c70-9231-60b95f34c046",
+        "stepRunId": "2e47e615-1125-467b-b1b4-592c44bdee9b",
+        "edgeId": "r10_refine_experiment",
+        "groupId": "research.experiment_cycle",
+        "traversalIndex": 1,
+        "reason": "REFINE_EXPERIMENT",
+        "createdAt": "2026-10-04T08:17:35.633Z"
+      },
+      {
+        "id": "313fc0a6-e5cc-43fa-b241-39cc3fcafdf1",
+        "workflowRunId": "ae1fe772-538a-4c70-9231-60b95f34c046",
+        "stepRunId": "be91f49d-2b2c-4906-b6eb-02a4b5e41abc",
+        "edgeId": "r10_refine_hypothesis",
+        "groupId": "research.experiment_cycle",
+        "traversalIndex": 2,
+        "reason": "REFINE_HYPOTHESIS",
+        "createdAt": "2026-10-04T08:17:36.925Z"
+      }
+    ]
+  },
+  "unknownExternalAction": {
+    "workflowRunId": "fd436e62-456c-4a7b-912d-650c688815c8",
+    "stepRunId": "da5c9f21-6817-463f-b52a-c7a5237a7382",
+    "missionRunId": "23e47f85-f128-4de3-916c-8e33c5742f51",
+    "requestId": "0006b187-c919-41d7-bb2a-790d8a4b4413",
+    "receiptId": "56b9717d-c693-4622-ba0b-c8d73c7d513b",
+    "state": "UNKNOWN",
+    "waitReason": "USER_CONFIRMATION",
+    "noModelOrToolReplay": true
+  },
+  "restartIdempotent": {
+    "before": {
+      "calls": 107,
+      "tools": 13,
+      "continuations": 2
+    },
+    "after": {
+      "calls": 107,
+      "tools": 13,
+      "continuations": 2
+    }
+  },
+  "noAutomaticPublication": true
+}

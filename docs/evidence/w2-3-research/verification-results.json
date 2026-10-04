@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-04",
+  "baseline": "8de0e20690c7d8e943e023e534faa314cb3b2a6f",
+  "scope": "W2.3 only",
+  "migration": "0023_w23_research.sql",
+  "newDependencies": [],
+  "package": { "platform": "win32", "architecture": "x64", "electron": "44.4.3" },
+  "commands": [
+    { "command": "npm run test", "exitCode": 0, "filesPassed": 92, "testsPassed": 760 },
+    { "command": "npm run typecheck", "exitCode": 0 },
+    { "command": "npm run lint", "exitCode": 0 },
+    { "command": "npm run format:check", "exitCode": 0 },
+    { "command": "npm run package", "exitCode": 0 },
+    { "command": "npm run smoke:package", "exitCode": 0, "log": "smoke-package.log" }
+  ],
+  "acceptance": {
+    "A": "COMPLETED: algorithm/system computation and APPLIED crash verification",
+    "B": "COMPLETED: existing dataset, failed/negative result retention and new attempt",
+    "C": "COMPLETED: external Human Bridge and PENDING continuation restart",
+    "D": "COMPLETED: mixed computation + Human Bridge without replay",
+    "F": "WAITING: two declared edges share frozen total budget 2",
+    "E": "WAITING: UNKNOWN external action, explicit user handling, zero replay"
+  },
+  "restartCounts": {
+    "before": { "modelCalls": 107, "toolResults": 13, "consumedContinuations": 2 },
+    "after": { "modelCalls": 107, "toolResults": 13, "consumedContinuations": 2 }
+  },
+  "screenshotCount": 13,
+  "facts": "facts.json",
+  "scientificConclusionCertified": false,
+  "automaticSubmission": false
+}

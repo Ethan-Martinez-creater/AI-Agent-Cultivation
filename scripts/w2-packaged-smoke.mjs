@@ -169,8 +169,8 @@ try {
   const installed = installSnapshot();
   assert.equal(
     installed.releases.length,
-    4,
-    'News/software OFFICIAL packages and the two isolated test packages have distinct release facts',
+    5,
+    'News/software/research OFFICIAL packages and the two isolated test packages have distinct release facts',
   );
   const revision = await create(live.page, 'w2-fixture-revision');
   await advance(live.page, revision.run.id);
@@ -349,7 +349,7 @@ try {
       .all(),
     traversals: db.prepare('SELECT * FROM workflow_revision_traversals').all(),
   }));
-  assert.equal(facts.persistence.migration, 22);
+  assert.equal(facts.persistence.migration, 23);
   assert.deepEqual(
     installSnapshot(),
     installed,
@@ -369,7 +369,7 @@ try {
     await live.page.evaluate(async () =>
       (await window.cultivation.workflows.versions()).map((v) => v.definition.id),
     ),
-    ['official.ai-news-video', 'official.software-feature'],
+    ['official.ai-news-video', 'official.research', 'official.software-feature'],
     'Normal production bootstrap loads only official packages, never test fixtures',
   );
   const normalDatabase = new Database(join(profile, 'production', 'data', 'cultivation.sqlite'), {
@@ -391,7 +391,7 @@ try {
   }
   writeFileSync(join(evidence, 'w2-facts.json'), JSON.stringify(facts, null, 2), 'utf8');
   console.log(
-    `W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news+software-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=${evidence}`,
+    `W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news+software+research-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=${evidence}`,
   );
 } finally {
   await live.app.close();

@@ -28,6 +28,11 @@ import { inspectNewsMediaBytes, inspectNewsImageBytes } from './w21-media-valida
 import { softwareExternalDraft } from './w22-execution-contract.js';
 import type { W22WorkspaceMutationRepository } from '@cultivation/persistence';
 import { latestSoftwareOutput } from './w22-validation-policy.js';
+import {
+  effectiveResearchStep,
+  isResearchWorkflow,
+} from '../../../../packages/application/src/research-execution-policy.js';
+import { researchExternalDraft } from './w23-execution-contract.js';
 
 /** Retain source/event provenance without exceeding the existing scalar metadata limits. */
 export function boundedResearchMetadata(
@@ -70,13 +75,84 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
       W22WorkspaceMutationRepository,
       'listMutations' | 'listRunMutations'
     >,
+    private readonly eligibleReviewers: (definition: WorkflowStepDefinition) => string[] = () => [],
+    private readonly failedExperimentFiles: (
+      workflowRunId: string,
+    ) => Array<{ rawPaths: string[]; rawHashes: string[] }> = () => [],
   ) {}
+  private researchAuthors(detail: WorkflowDetail, reviewed: string[]): string[] {
+    const ids = new Set<string>();
+    for (const prior of detail.steps.filter(
+      (item) => reviewed.includes(item.stepId) && item.state === 'COMPLETED' && item.missionId,
+    )) {
+      for (const event of this.store.listMissionEvents(prior.missionId!))
+        if (
+          event.runId === prior.missionRunId &&
+          event.actorId &&
+          event.actorType === 'TEAMMATE' &&
+          ['model.call_started', 'tool.execution_started', 'tool.result'].includes(event.eventType)
+        )
+          ids.add(event.actorId);
+      const mission = this.store.getMission(prior.missionId!);
+      if (mission) ids.add(mission.coordinatorTeammateId);
+    }
+    return [...ids].sort();
+  }
+  private effectiveStep(
+    definition: WorkflowStepDefinition,
+    context?: WorkflowStepExecutionContext,
+  ): WorkflowStepDefinition {
+    const detail = context ? this.workflows?.detail(context.workflowRunId) : null;
+    const step = detail?.steps.find((item) => item.id === context?.stepRunId);
+    return detail && step ? effectiveResearchStep(detail, step, definition) : definition;
+  }
   async prepareExecution(
     definition: WorkflowStepDefinition,
     detail: WorkflowDetail,
     step: WorkflowStepRun,
   ) {
-    void step;
+    if (isResearchWorkflow(detail)) {
+      if (!this.workspaceRoot()) return { reason: 'WORKSPACE_REQUIRED' };
+      if (definition.id === 'R08') {
+        if (detail.run.inputSnapshot?.experimentMode === 'HUMAN_OR_EXTERNAL')
+          return { routing: { executionConstraint: 'HUMAN_BRIDGE' as const } };
+        if (
+          !this.availableTools().some(
+            (tool) => tool.source === 'MCP' && tool.workflowPurposes?.includes('RESEARCH'),
+          )
+        )
+          return { reason: 'RESEARCH_EXPERIMENT_TOOL_REQUIRED' };
+        return {
+          routing: {
+            executionConstraint: 'SOLO' as const,
+            requiredCapabilities: ['GENERAL_REASONING' as const, 'TOOL_USE' as const],
+          },
+        };
+      }
+      if (
+        definition.id === 'R02' &&
+        !this.availableTools().some((tool) => tool.workflowPurposes?.includes('RESEARCH')) &&
+        !(
+          Array.isArray(detail.run.inputSnapshot?.existingSources) &&
+          detail.run.inputSnapshot.existingSources.length
+        )
+      )
+        return { routing: { executionConstraint: 'HUMAN_BRIDGE' as const } };
+      const reviewSteps = definition.executionRequirements?.independentReviewOfStepIds;
+      if (reviewSteps) {
+        const authors = this.researchAuthors(detail, reviewSteps);
+        const alternatives = this.eligibleReviewers(definition).filter(
+          (id) => !authors.includes(id),
+        );
+        return {
+          routing: {
+            executionConstraint: 'SOLO' as const,
+            ...(alternatives.length ? { excludedTeammateIds: authors } : {}),
+          },
+        };
+      }
+      return {};
+    }
     if (detail.version.validationPolicy === 'software-integrity-v1') {
       const root = this.workspaceRoot();
       if (!root || detail.run.inputSnapshot?.workspaceRoot !== root)
@@ -176,12 +252,41 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
         ...input,
         ...(detail?.version.validationPolicy === 'news-integrity-v1' && step
           ? { externalWorkDraft: () => workflowExternalDraft(detail, step) }
-          : detail?.version.validationPolicy === 'software-integrity-v1' && step
-            ? { externalWorkDraft: () => softwareExternalDraft(detail, step) }
-            : {}),
+          : detail && isResearchWorkflow(detail) && step
+            ? { externalWorkDraft: () => researchExternalDraft(detail, step) }
+            : detail?.version.validationPolicy === 'software-integrity-v1' && step
+              ? { externalWorkDraft: () => softwareExternalDraft(detail, step) }
+              : {}),
       },
       bind,
     );
+    if (
+      result.status === 'CREATED' &&
+      detail &&
+      isResearchWorkflow(detail) &&
+      step &&
+      ['R06', 'R12'].includes(step.stepId)
+    ) {
+      const reviewed =
+        detail.version.steps.find((item) => item.id === step.stepId)!.executionRequirements
+          ?.independentReviewOfStepIds ?? [];
+      const authors = this.researchAuthors(detail, reviewed);
+      this.store.appendMissionEvent({
+        id: crypto.randomUUID(),
+        missionId: result.mission.id,
+        runId: null,
+        eventType: 'workflow.review_independence',
+        actorType: 'SYSTEM',
+        actorId: null,
+        payloadJson: {
+          stepRunId: step.id,
+          reviewIndependence: !authors.includes(result.mission.coordinatorTeammateId),
+          reviewerId: result.mission.coordinatorTeammateId,
+          authorIds: authors,
+        },
+        createdAt: new Date().toISOString(),
+      });
+    }
     return result.status === 'CREATED'
       ? { status: result.status, mission: result.mission }
       : { status: result.status, reason: result.reason };
@@ -221,7 +326,7 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     const detail = step ? this.workflows?.detail(step.workflowRunId) : null;
     if (
       !detail ||
-      !['news-integrity-v1', 'software-integrity-v1'].includes(
+      !['news-integrity-v1', 'software-integrity-v1', 'research-integrity-v1'].includes(
         detail.version.validationPolicy ?? '',
       )
     )
@@ -270,7 +375,7 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
       this.mutationJournal,
     ).capture(
       scopedWorkflowStep(
-        definition,
+        this.effectiveStep(definition, context),
         context,
         context ? (this.workflows?.detail(context.workflowRunId) ?? undefined) : undefined,
       ),
@@ -291,7 +396,7 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     ).verify(
       receipt,
       scopedWorkflowStep(
-        definition,
+        this.effectiveStep(definition, context),
         context,
         context ? (this.workflows?.detail(context.workflowRunId) ?? undefined) : undefined,
       ),
@@ -308,6 +413,46 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
   ): Promise<WorkflowMissionSnapshot> {
     const snapshot = this.snapshot(id);
     if (!snapshot.run || snapshot.run.status !== 'COMPLETED') return snapshot;
+    const researchDetailForValidation = context
+      ? this.workflows?.detail(context.workflowRunId)
+      : null;
+    if (
+      researchDetailForValidation &&
+      isResearchWorkflow(researchDetailForValidation) &&
+      definition?.id === 'R14'
+    ) {
+      const root = this.workspaceRoot();
+      if (!root || root !== boundWorkspaceRoot)
+        throw new DomainError('WORKFLOW_WORKSPACE_CHANGED', '请恢复实验使用的工作区');
+      const workspace = await FileWorkspace.open(root);
+      for (const artifact of researchDetailForValidation.artifacts.filter(
+        (item) =>
+          item.kind === 'FILE' &&
+          ['research.raw_result', 'research.experiment_log'].includes(
+            String(item.metadata.outputKey),
+          ) &&
+          researchDetailForValidation.steps.some(
+            (producer) =>
+              producer.id === item.producerStepRunId &&
+              producer.stepId === 'R08' &&
+              producer.state === 'COMPLETED',
+          ),
+      )) {
+        const path = artifact.metadata.path;
+        const expectedHash = artifact.metadata.contentHash;
+        if (typeof path !== 'string' || typeof expectedHash !== 'string')
+          throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '历史实验产物缺少文件事实');
+        const inspected = await workspace.inspectArtifact(path, 4_000_000, true);
+        if (inspected.contentHash !== expectedHash)
+          throw new DomainError('WORKFLOW_ARTIFACT_CHANGED', '历史实验原始结果已改变');
+      }
+      for (const failure of this.failedExperimentFiles(researchDetailForValidation.run.id))
+        for (const [index, path] of failure.rawPaths.entries()) {
+          const inspected = await workspace.inspectArtifact(path, 4_000_000, true);
+          if (inspected.contentHash !== failure.rawHashes[index])
+            throw new DomainError('WORKFLOW_ARTIFACT_CHANGED', '历史失败实验结果已改变');
+        }
+    }
     if (definition?.executionRequirements?.toolPurpose === 'RESEARCH') {
       const events = this.store
         .listMissionEvents(id)
@@ -333,13 +478,23 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
       for (const output of snapshot.outputs)
         output.metadata = { ...output.metadata, ...boundedResearchMetadata(references) };
     }
+    const reviewFact = this.store
+      .listMissionEvents(id)
+      .find((event) => event.eventType === 'workflow.review_independence');
+    if (reviewFact)
+      for (const output of snapshot.outputs)
+        output.metadata = {
+          ...output.metadata,
+          reviewIndependence: reviewFact.payloadJson.reviewIndependence === true ? 1 : 0,
+          reviewAuthorIds: JSON.stringify(reviewFact.payloadJson.authorIds),
+        };
     const requests = this.externalWork
       .listExternalWorkRequests(id, snapshot.run.id)
       .filter((r) => r.state === 'ACCEPTED');
     for (const request of requests) {
       const mixedHandoff = this.store
         .listMissionEvents(id)
-        .some(
+        .find(
           (event) =>
             event.runId === snapshot.run!.id &&
             event.eventType === 'workflow.verification.manual_requested' &&
@@ -352,7 +507,10 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
           ?.artifacts.find(
             (a) =>
               a.submittedAt === request.submittedAt &&
-              a.metadataJson.targetArtifactId === 'software.tests',
+              a.metadataJson.targetArtifactId ===
+                (mixedHandoff.payloadJson.boundaryId === 'research-experiment-v1'
+                  ? 'research.experiment_record'
+                  : 'software.tests'),
           );
         if (!artifact) throw new DomainError('WORKFLOW_INTEGRITY_ERROR', '人工验收产物缺失');
         const root = this.workspaceRoot();
@@ -427,6 +585,22 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
               })
             : {};
         const image = bytes && artifact.extension === '.png' ? inspectNewsImageBytes(bytes) : {};
+        const researchDetail = context ? this.workflows?.detail(context.workflowRunId) : null;
+        const researchFile =
+          researchDetail &&
+          isResearchWorkflow(researchDetail) &&
+          definition?.id === 'R08' &&
+          target?.kind === 'FILE';
+        if (researchFile) {
+          const contentBytes = await workspace.readArtifactBytes(
+            artifact.path,
+            target.maxSizeBytes,
+          );
+          if (createHash('sha256').update(contentBytes).digest('hex') !== inspected.contentHash)
+            throw new DomainError('WORKFLOW_ARTIFACT_CHANGED', '实验交付文件在检验期间改变');
+          const text = new TextDecoder('utf8', { fatal: true }).decode(contentBytes);
+          if (artifact.extension === '.json') JSON.parse(text);
+        }
         snapshot.outputs.push({
           source: 'HUMAN_BRIDGE',
           sourceId: artifact.id,
@@ -441,6 +615,9 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
             targetArtifactId: String(artifact.metadataJson.targetArtifactId),
             contentHash: inspected.contentHash!,
             ...(target ? { outputKey: target.key } : {}),
+            ...(researchFile
+              ? { mediaType: artifact.extension === '.json' ? 'application/json' : 'text/plain' }
+              : {}),
             ...(structured &&
             target.kind === 'JSON' &&
             definition.executionRequirements?.toolPurpose === 'RESEARCH'
@@ -464,7 +641,7 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
         ).collect(
           snapshot,
           scopedWorkflowStep(
-            definition,
+            this.effectiveStep(definition, context),
             context,
             context ? (this.workflows?.detail(context.workflowRunId) ?? undefined) : undefined,
           ),
@@ -484,10 +661,34 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
       for (const output of collected.outputs.filter(
         (item) => item.kind === 'FILE' && item.source === 'MISSION',
       )) {
+        const researchDetail = context ? this.workflows?.detail(context.workflowRunId) : null;
+        if (researchDetail && isResearchWorkflow(researchDetail) && definition.id === 'R08') {
+          const fileKey = String(output.metadata.path).endsWith('raw-result.json')
+            ? 'research.raw_result'
+            : String(output.metadata.path).endsWith('experiment-log.txt')
+              ? 'research.experiment_log'
+              : null;
+          if (fileKey) {
+            const bytes = await workspace.readArtifactBytes(
+              String(output.metadata.path),
+              4_000_000,
+            );
+            if (createHash('sha256').update(bytes).digest('hex') !== output.metadata.contentHash)
+              throw new DomainError('WORKFLOW_ARTIFACT_CHANGED', '实验文件在检验期间改变');
+            const decoded = new TextDecoder('utf8', { fatal: true }).decode(bytes);
+            if (String(output.metadata.extension) === '.json') JSON.parse(decoded);
+            output.metadata = {
+              ...output.metadata,
+              outputKey: fileKey,
+              mediaType:
+                String(output.metadata.extension) === '.json' ? 'application/json' : 'text/plain',
+            };
+          }
+        }
         if (
           fileSpecs.length === 1 &&
           scopedWorkflowStep(
-            definition,
+            this.effectiveStep(definition, context),
             context,
             context ? (this.workflows?.detail(context.workflowRunId) ?? undefined) : undefined,
           ).effectPaths?.includes(String(output.metadata.path))

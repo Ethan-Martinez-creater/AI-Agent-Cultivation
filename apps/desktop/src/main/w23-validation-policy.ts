@@ -165,9 +165,11 @@ function outputBindings(detail: WorkflowDetail, key: string) {
         sameRun(detail, entry.artifact),
     )
     .sort((left, right) => {
-      const a = stepForArtifact(detail, left.artifact)?.attempt ?? 0;
-      const b = stepForArtifact(detail, right.artifact)?.attempt ?? 0;
-      return b - a || right.artifact.createdAt.localeCompare(left.artifact.createdAt);
+      const a = stepForArtifact(detail, left.artifact);
+      const b = stepForArtifact(detail, right.artifact);
+      // Attempt numbers are local to a Step, not comparable across R06/R12 or R11/R13.
+      const attemptOrder = a?.stepId === b?.stepId ? (b?.attempt ?? 0) - (a?.attempt ?? 0) : 0;
+      return attemptOrder || right.artifact.createdAt.localeCompare(left.artifact.createdAt);
     });
 }
 
@@ -1001,10 +1003,14 @@ function validateExperimentRecord(
       acceptedRaw.actorId !== acceptedLog.actorId ||
       acceptedRaw.actorId !== acceptedRecord.actorId ||
       acceptedRecord.actorId !== recordArtifact.actorId ||
-      // The existing W1 EXTERNAL_ACTION receipt binds its reference to the
-      // accepted target artifact. MIXED's secondary continuation has its own
+      // W2 binds the first accepted output in the Mission snapshot; repository
+      // ordering is not an output-key guarantee. Require membership in this
+      // exact accepted tuple, all from the same request/Run/actor.
+      // MIXED's secondary continuation has its own
       // request-id binding below and keeps that durable contract unchanged.
-      primaryOperation.externalReference !== acceptedRecord.artifactId ||
+      ![acceptedRaw.artifactId, acceptedLog.artifactId, acceptedRecord.artifactId].includes(
+        primaryOperation.externalReference ?? '',
+      ) ||
       acceptedRaw.relativePath !== rawRecord.relativePath ||
       acceptedRaw.contentHash !== rawRecord.contentHash ||
       acceptedLog.relativePath !== logRecord.relativePath ||
@@ -1203,7 +1209,8 @@ function validateAnalysis(
       fact.missionRunId !== failedStep.missionRunId ||
       fact.attempt !== failedStep.attempt ||
       !['FAILED', 'CANCELLED', 'INTERRUPTED'].includes(fact.outcome) ||
-      !nonEmpty(fact.errorCode) ||
+      typeof fact.errorCode !== 'string' ||
+      fact.errorCode.length > 128 ||
       !Array.isArray(fact.rawPaths) ||
       !Array.isArray(fact.rawHashes) ||
       fact.rawPaths.length !== fact.rawHashes.length ||
@@ -1337,12 +1344,31 @@ function deriveEvidenceDecision(
   else if (requested === 'HYPOTHESIS') {
     const hypotheses = parseObject(latestOutput(detail, 'research.hypotheses')?.content ?? '{}');
     const rows = objectRows(hypotheses.hypotheses);
-    if (
-      !rows.some(
-        (row) =>
-          Array.isArray(row.contradictingEvidenceIds) && row.contradictingEvidenceIds.length > 0,
-      )
-    )
+    const literatureContradiction = rows.some(
+      (row) =>
+        Array.isArray(row.contradictingEvidenceIds) && row.contradictingEvidenceIds.length > 0,
+    );
+    const negativeExperiment = attempts.some(({ step: attempt, record }) => {
+      if (!Array.isArray(record.negativeResults) || !record.negativeResults.length) return false;
+      if (record.mode === 'HUMAN_OR_EXTERNAL')
+        return listAcceptedForStep(facts, attempt.id).some(
+          (fact) =>
+            fact.workflowRunId === detail.run.id &&
+            fact.missionRunId === attempt.missionRunId &&
+            fact.state === 'ACCEPTED' &&
+            fact.targetArtifactId === 'research.experiment_record',
+        );
+      return facts
+        .listExperimentFactsForStep(attempt.id)
+        .some(
+          (fact) =>
+            fact.workflowRunId === detail.run.id &&
+            fact.stepRunId === attempt.id &&
+            fact.missionRunId === attempt.missionRunId &&
+            fact.negativeResult,
+        );
+    });
+    if (!literatureContradiction && !negativeExperiment)
       return { branch: 'BLOCKED', waitForUser: true };
     branch = 'REFINE_HYPOTHESIS';
   }
@@ -1591,7 +1617,8 @@ function validateFinalPackage(
         step.missionId !== fact.missionId ||
         step.missionRunId !== fact.missionRunId ||
         step.attempt !== fact.attempt ||
-        !nonEmpty(fact.errorCode) ||
+        typeof fact.errorCode !== 'string' ||
+        fact.errorCode.length > 128 ||
         !Array.isArray(fact.rawPaths) ||
         !Array.isArray(fact.rawHashes) ||
         fact.rawPaths.length !== fact.rawHashes.length ||
