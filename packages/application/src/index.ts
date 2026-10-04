@@ -15,6 +15,7 @@ import type {
 } from '@cultivation/domain';
 export * from './w1-workflow-ports.js';
 export * from './w1-workflow-service.js';
+export * from './research-delivery-projection.js';
 export * from './workflow-validation-policy-registry.js';
 export * from './w1-artifact-context.js';
 

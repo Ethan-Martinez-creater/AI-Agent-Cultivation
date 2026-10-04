@@ -263,6 +263,44 @@ export interface WorkflowDetail {
   finalValidations?: WorkflowFinalValidation[];
   operations?: StepOperationReceipt[];
   traversals?: RevisionTraversal[];
+  /** Trusted artifact IDs selected for the official research delivery view. */
+  researchDelivery?: ResearchDeliveryProjection;
+}
+
+export type ResearchDeliveryCategory =
+  | 'brief'
+  | 'evidence_table'
+  | 'landscape'
+  | 'hypotheses'
+  | 'experiment_plan'
+  | 'experiment_record'
+  | 'analysis'
+  | 'scientific_review'
+  | 'manuscript'
+  | 'final_package';
+
+export type ResearchDeliveryOutcome =
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+  | 'INTERRUPTED'
+  | 'UNKNOWN'
+  | 'PASS'
+  | 'REVISE'
+  | 'FAIL';
+
+/** Artifact references only; the Renderer must resolve content from the same Workflow detail. */
+export interface ResearchDeliveryItem {
+  artifactId: string;
+  key: string;
+  displayName: string;
+  attempt: number;
+  category: ResearchDeliveryCategory;
+  outcome?: ResearchDeliveryOutcome;
+}
+
+export interface ResearchDeliveryProjection {
+  items: ResearchDeliveryItem[];
 }
 
 const runTransitions: Record<WorkflowRunState, WorkflowRunState[]> = {
