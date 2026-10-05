@@ -11,9 +11,17 @@ import type {
 } from '@cultivation/domain';
 import { FakeModelGateway } from '@cultivation/agent-runtime';
 import type { ModelGateway, SecretStore } from './index.js';
-import { Gate1Service, type Gate1Store, type StoredCredential } from './gate1-service.js';
+import {
+  Gate1Service,
+  type Gate1Store,
+  type GenerationIdentityVerificationPort,
+  type StoredCredential,
+} from './gate1-service.js';
 
-function setup(gateway: ModelGateway = new FakeModelGateway()) {
+function setup(
+  gateway: ModelGateway = new FakeModelGateway(),
+  generationIdentityVerification?: GenerationIdentityVerificationPort,
+) {
   const providers = new Map<string, ProviderConfig>();
   const credentials = new Map<string, StoredCredential>();
   const runtimes = new Map<string, RuntimeProfile>();
@@ -56,6 +64,7 @@ function setup(gateway: ModelGateway = new FakeModelGateway()) {
         providerKind: provider.kind,
         baseUrl: provider.baseUrl,
         modelId: runtime.modelId,
+        executionProtocol: runtime.executionProtocol ?? 'LANGUAGE',
         credentialId: runtime.credentialId,
         runtimeUpdatedAt: runtime.updatedAt,
         providerUpdatedAt: provider.updatedAt,
@@ -93,6 +102,7 @@ function setup(gateway: ModelGateway = new FakeModelGateway()) {
         providerKind: provider.kind,
         endpoint: provider.baseUrl,
         modelId: runtime.modelId,
+        executionProtocol: runtime.executionProtocol ?? 'LANGUAGE',
         credentialId: runtime.credentialId,
         verifiedAt,
         sealedAt: verifiedAt,
@@ -130,7 +140,7 @@ function setup(gateway: ModelGateway = new FakeModelGateway()) {
     decrypt: async (ciphertext) => Buffer.from(ciphertext).toString().slice('sealed:'.length),
   };
   return {
-    service: new Gate1Service(store, secrets, gateway),
+    service: new Gate1Service(store, secrets, gateway, undefined, generationIdentityVerification),
     store,
     credentials,
     messages,
@@ -163,6 +173,103 @@ async function collect(
 }
 
 describe('Gate 1 application vertical slice', () => {
+  it('seals generation protocol identity, verifies its descriptor, and blocks ordinary chat', async () => {
+    let languageConnectionCalls = 0;
+    let languageExecutionCalls = 0;
+    let descriptorCalls = 0;
+    const gateway = {
+      testConnection: async () => {
+        languageConnectionCalls += 1;
+        return { ok: true, message: 'language connection' };
+      },
+      prepare: async () => {
+        languageExecutionCalls += 1;
+      },
+      async *stream() {
+        languageExecutionCalls += 1;
+        yield { type: 'finish', usage: null };
+      },
+    } as unknown as ModelGateway;
+    const { service, store } = setup(gateway, {
+      getDescriptor: async () => {
+        descriptorCalls += 1;
+        return { modelId: 'video-model' };
+      },
+    });
+    const provider = service.createProvider({
+      name: 'Generation adapter',
+      kind: 'OPENAI_COMPATIBLE',
+      baseUrl: 'http://localhost:9999/v1',
+    });
+    const runtime = service.createRuntimeProfile({
+      name: 'Video model',
+      providerId: provider.id,
+      credentialId: null,
+      modelId: 'video-model',
+      executionProtocol: 'GENERATION',
+    });
+
+    expect((await service.testConnection(runtime.id)).ok).toBe(true);
+    expect(() =>
+      service.updateRuntimeProfile({ ...runtime, executionProtocol: 'LANGUAGE' }),
+    ).toThrow('执行协议创建后固定');
+
+    const teammate = await service.createTeammate(teammateInput(runtime.id));
+    const binding = store.getModelBinding(teammate.id);
+    const privateRuntime = store.getRuntimeProfile(teammate.currentRuntimeProfileId!);
+    expect(binding?.executionProtocol).toBe('GENERATION');
+    expect(privateRuntime?.executionProtocol).toBe('GENERATION');
+    expect(descriptorCalls).toBe(2);
+    expect(languageConnectionCalls).toBe(0);
+
+    expect(() => service.createConversation(teammate.id)).toThrow('不能创建普通聊天');
+    const conversation: Conversation = {
+      id: 'generation-conversation-fixture',
+      teammateId: teammate.id,
+      createdAt: '2026-10-01T00:00:00.000Z',
+      updatedAt: '2026-10-01T00:00:00.000Z',
+    };
+    store.saveConversation(conversation);
+    await expect(collect(service, teammate.id, conversation.id, 'Create a clip')).rejects.toThrow(
+      '生成型道友必须通过生成任务执行',
+    );
+    expect(languageExecutionCalls).toBe(0);
+  });
+
+  it('fails closed when generation descriptor identity is missing or mismatched', async () => {
+    let languageConnectionCalls = 0;
+    const gateway = {
+      testConnection: async () => {
+        languageConnectionCalls += 1;
+        return { ok: true, message: 'language connection' };
+      },
+    } as unknown as ModelGateway;
+    const { service } = setup(gateway, {
+      getDescriptor: async () => ({ modelId: 'different-model' }),
+    });
+    const provider = service.createProvider({
+      name: 'Generation adapter',
+      kind: 'OPENAI_COMPATIBLE',
+      baseUrl: 'http://localhost:9999/v1',
+    });
+    const runtime = service.createRuntimeProfile({
+      name: 'Video model',
+      providerId: provider.id,
+      credentialId: null,
+      modelId: 'video-model',
+      executionProtocol: 'GENERATION',
+    });
+
+    expect(await service.testConnection(runtime.id)).toEqual({
+      ok: false,
+      message: 'Provider 返回的 Model ID 与运行配置不一致',
+    });
+    await expect(service.createTeammate(teammateInput(runtime.id))).rejects.toThrow(
+      '连接测试未通过',
+    );
+    expect(languageConnectionCalls).toBe(0);
+  });
+
   it('tests and seals a keyless compatible model with null credential and fixed identity', async () => {
     const { service, store, credentials } = setup();
     const provider = service.createProvider({

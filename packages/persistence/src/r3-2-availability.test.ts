@@ -47,6 +47,7 @@ function seedTeammate(db: Database.Database, id = 'teammate-a') {
     providerId: provider.id,
     credentialId,
     modelId: 'gpt-4o-mini',
+    executionProtocol: 'LANGUAGE',
     parameters: {},
     capabilityOverrides: {},
     createdAt: timestamp,
@@ -116,7 +117,7 @@ describe('R3.2 availability persistence', () => {
     runMigrations(db, migrations);
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 26,
+      version: 27,
     });
     expect(new R32AvailabilityRepository(db).getAvailability('teammate-legacy')).toEqual({
       teammateId: 'teammate-legacy',

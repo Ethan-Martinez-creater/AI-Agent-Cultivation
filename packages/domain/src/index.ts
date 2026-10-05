@@ -9,6 +9,8 @@ export type ExecutorKind = 'MODEL_RUNTIME' | 'USER_BRIDGE';
 export type RoutingPolicy = 'NORMAL' | 'FALLBACK_ONLY' | 'MANUAL_ONLY';
 export type SystemKind = 'HUMAN_BRIDGE';
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
+/** Fixed execution identity for an ordinary MODEL_RUNTIME teammate. */
+export type ExecutionProtocol = 'LANGUAGE' | 'GENERATION';
 export interface ProviderConfig {
   id: Id;
   name: string;
@@ -50,6 +52,8 @@ export interface RuntimeProfile {
   providerId: Id;
   credentialId: Id | null;
   modelId: string;
+  /** Missing only in legacy in-memory fixtures; persisted rows always return LANGUAGE or GENERATION. */
+  executionProtocol?: ExecutionProtocol;
   parameters: Record<string, unknown>;
   capabilityOverrides: Record<string, boolean>;
   createdAt: IsoDateTime;
@@ -62,6 +66,8 @@ export interface RuntimeIdentitySnapshot {
   providerKind: ProviderKind;
   baseUrl: string | null;
   modelId: string;
+  /** Missing only in legacy in-memory fixtures; persisted snapshots always include this identity. */
+  executionProtocol?: ExecutionProtocol;
   credentialId: Id | null;
   runtimeUpdatedAt: IsoDateTime;
   providerUpdatedAt: IsoDateTime;
@@ -75,6 +81,8 @@ export interface TeammateModelBinding {
   providerKind: ProviderKind;
   endpoint: string | null;
   modelId: string;
+  /** Missing only in legacy in-memory fixtures; persisted bindings always include this identity. */
+  executionProtocol?: ExecutionProtocol;
   credentialId: Id | null;
   verifiedAt: IsoDateTime | null;
   verificationSource: 'LIVE_TEST' | 'LEGACY_STRUCTURAL';

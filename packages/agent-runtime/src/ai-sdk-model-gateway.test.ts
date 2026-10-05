@@ -67,6 +67,34 @@ function responseFor(kind: RuntimeProviderKind): Record<string, unknown> {
 }
 
 describe('AiSdkModelGateway', () => {
+  it('rejects GENERATION runtimes before language model provider I/O', async () => {
+    let fetchCalls = 0;
+    const gateway = new AiSdkModelGateway(
+      async () => ({
+        kind: 'OPENAI_COMPATIBLE',
+        baseUrl: 'https://provider.example/v1',
+        modelId: 'video-model',
+        apiKey: 'test-secret',
+        executionProtocol: 'GENERATION',
+      }),
+      {
+        fetch: async () => {
+          fetchCalls += 1;
+          return new Response('{}', { status: 200 });
+        },
+      },
+    );
+
+    await expect(gateway.generate(request)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_EXECUTION_PROTOCOL',
+    });
+    await expect(gateway.testConnection('runtime-1')).resolves.toEqual({
+      ok: false,
+      message: 'This runtime cannot be used through language model execution.',
+    });
+    expect(fetchCalls).toBe(0);
+  });
+
   it('keeps accepted external work as bounded untrusted data outside user and tool messages', async () => {
     let body: Record<string, unknown> | null = null;
     const gateway = new AiSdkModelGateway(

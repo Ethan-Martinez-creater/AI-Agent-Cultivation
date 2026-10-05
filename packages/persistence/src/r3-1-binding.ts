@@ -1,13 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import Database from 'better-sqlite3';
 import type {
+  ExecutionProtocol,
   ProviderKind as DomainProviderKind,
   RuntimeIdentitySnapshot,
   TeammateModelBinding,
 } from '@cultivation/domain';
 import type { RuntimeProfileRecord, TeammateRecord } from './index.js';
 
-export type TeammateModelBindingRecord = TeammateModelBinding;
+export interface TeammateModelBindingRecord
+  extends Omit<TeammateModelBinding, 'executionProtocol'> {
+  executionProtocol: ExecutionProtocol;
+}
 
 export interface SealedTeammateCreation {
   teammate: TeammateRecord;
@@ -20,6 +24,7 @@ interface ModelBindingRow {
   provider_kind: DomainProviderKind;
   endpoint: string | null;
   model_id: string;
+  execution_protocol: ExecutionProtocol;
   credential_id: string | null;
   verified_at: string | null;
   verification_source: 'LIVE_TEST' | 'LEGACY_STRUCTURAL';
@@ -32,6 +37,7 @@ interface RuntimeProviderRow {
   provider_id: string;
   credential_id: string | null;
   model_id: string;
+  execution_protocol: ExecutionProtocol;
   parameters_json: string;
   capability_overrides_json: string;
   created_at: string;
@@ -137,6 +143,7 @@ export class R31BindingRepository {
         providerId: source.provider_id,
         credentialId: source.credential_id,
         modelId: source.model_id,
+        executionProtocol: source.execution_protocol,
         parameters: JSON.parse(source.parameters_json) as Record<string, unknown>,
         capabilityOverrides: JSON.parse(source.capability_overrides_json) as Record<
           string,
@@ -148,9 +155,9 @@ export class R31BindingRepository {
       this.db
         .prepare(
           `INSERT INTO runtime_profiles
-            (id, name, provider_id, credential_id, model_id, parameters_json,
+            (id, name, provider_id, credential_id, model_id, execution_protocol, parameters_json,
              capability_overrides_json, created_at, updated_at)
-           VALUES (@id, @name, @providerId, @credentialId, @modelId, @parameters,
+           VALUES (@id, @name, @providerId, @credentialId, @modelId, @executionProtocol, @parameters,
              @capabilityOverrides, @createdAt, @updatedAt)`,
         )
         .run({
@@ -184,6 +191,7 @@ export class R31BindingRepository {
         providerKind: source.provider_kind,
         endpoint: source.endpoint,
         modelId: source.model_id,
+        executionProtocol: source.execution_protocol,
         credentialId: source.credential_id,
         verifiedAt,
         verificationSource: 'LIVE_TEST',
@@ -230,6 +238,7 @@ export class R31BindingRepository {
       .prepare(
         `SELECT b.*, p.kind AS actual_provider_kind, p.base_url AS provider_endpoint,
                 p.enabled AS provider_enabled, rp.provider_id, rp.model_id AS runtime_model_id,
+                rp.execution_protocol AS runtime_execution_protocol,
                 rp.credential_id AS runtime_credential_id, c.provider_id AS credential_provider_id,
                 t.current_runtime_profile_id, t.executor_kind, t.system_kind
          FROM teammate_model_bindings AS b
@@ -246,6 +255,7 @@ export class R31BindingRepository {
           provider_enabled: number;
           provider_id: string;
           runtime_model_id: string;
+          runtime_execution_protocol: ExecutionProtocol;
           runtime_credential_id: string | null;
           credential_provider_id: string | null;
           current_runtime_profile_id: string | null;
@@ -264,6 +274,7 @@ export class R31BindingRepository {
       row.provider_enabled === 1 &&
       row.provider_endpoint === row.endpoint &&
       row.runtime_model_id === row.model_id &&
+      row.runtime_execution_protocol === row.execution_protocol &&
       row.runtime_credential_id === row.credential_id &&
       (row.credential_id === null || row.credential_provider_id === row.provider_id) &&
       (row.credential_id !== null || row.provider_kind === 'OPENAI_COMPATIBLE') &&
@@ -302,9 +313,9 @@ export class R31BindingRepository {
     this.db
       .prepare(
         `INSERT INTO teammate_model_bindings
-          (teammate_id, runtime_profile_id, provider_kind, endpoint, model_id,
+          (teammate_id, runtime_profile_id, provider_kind, endpoint, model_id, execution_protocol,
            credential_id, verified_at, verification_source, sealed_at)
-         VALUES (@teammateId, @runtimeProfileId, @providerKind, @endpoint, @modelId,
+         VALUES (@teammateId, @runtimeProfileId, @providerKind, @endpoint, @modelId, @executionProtocol,
            @credentialId, @verifiedAt, @verificationSource, @sealedAt)`,
       )
       .run(binding);
@@ -350,6 +361,7 @@ function runtimeIdentityFromRow(row: RuntimeProviderRow): RuntimeIdentitySnapsho
     providerKind: row.provider_kind,
     baseUrl: row.endpoint,
     modelId: row.model_id,
+    executionProtocol: row.execution_protocol,
     credentialId: row.credential_id,
     runtimeUpdatedAt: row.updated_at,
     providerUpdatedAt: row.provider_updated_at,
@@ -366,6 +378,7 @@ function sameRuntimeIdentity(
     left.providerKind === right.providerKind &&
     left.baseUrl === right.baseUrl &&
     left.modelId === right.modelId &&
+    (left.executionProtocol ?? 'LANGUAGE') === (right.executionProtocol ?? 'LANGUAGE') &&
     left.credentialId === right.credentialId &&
     left.runtimeUpdatedAt === right.runtimeUpdatedAt &&
     left.providerUpdatedAt === right.providerUpdatedAt &&
@@ -380,6 +393,7 @@ function mapModelBinding(row: ModelBindingRow): TeammateModelBindingRecord {
     providerKind: row.provider_kind,
     endpoint: row.endpoint,
     modelId: row.model_id,
+    executionProtocol: row.execution_protocol,
     credentialId: row.credential_id,
     verifiedAt: row.verified_at,
     verificationSource: row.verification_source,

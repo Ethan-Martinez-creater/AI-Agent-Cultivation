@@ -132,6 +132,12 @@ export class AvailabilityService {
     freshProbe?: boolean;
   }): Promise<PrepareModelOutcome> {
     const identity = this.inspectIdentity(input.teammateId, input.runtimeProfileId);
+    if (identity.reason === 'EXECUTION_PROTOCOL_UNSUPPORTED') {
+      throw new DomainError(
+        'EXECUTION_PROTOCOL_UNSUPPORTED',
+        '生成型道友必须通过生成任务执行，不能使用语言模型可用性探测',
+      );
+    }
     let availability = this.get(input.teammateId);
     if (!availability) availability = unknownProjection(input.teammateId, input.runtimeProfileId);
     if (identity.reason) {
@@ -286,6 +292,12 @@ export class AvailabilityService {
     ) {
       throw new DomainError('INVALID_MODEL_IDENTITY', '道友模型绑定无效');
     }
+    if (identity.reason === 'EXECUTION_PROTOCOL_UNSUPPORTED') {
+      throw new DomainError(
+        'EXECUTION_PROTOCOL_UNSUPPORTED',
+        '生成模型需要专用 Provider 验证；语言模型可用性探测已跳过',
+      );
+    }
     const providerFailure = identity.reason ?? (!identity.provider ? 'PROVIDER_INVALID' : null);
     if (providerFailure) {
       return this.recordOutcome({
@@ -353,9 +365,13 @@ export class AvailabilityService {
       binding.endpoint !== provider.baseUrl ||
       binding.modelId !== runtime.modelId ||
       binding.credentialId !== runtime.credentialId ||
+      (binding.executionProtocol ?? 'LANGUAGE') !== (runtime.executionProtocol ?? 'LANGUAGE') ||
       runtime.providerId !== provider.id
     ) {
       return { binding, reason: 'PROVIDER_INVALID' };
+    }
+    if ((runtime.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE') {
+      return { binding, reason: 'EXECUTION_PROTOCOL_UNSUPPORTED', teammate, runtime, provider };
     }
     if (!provider.enabled)
       return { binding, reason: 'PROVIDER_DISABLED', teammate, runtime, provider };
@@ -436,9 +452,13 @@ export class RoutingEligibilityService {
       binding.providerKind !== provider.kind ||
       binding.endpoint !== provider.baseUrl ||
       binding.modelId !== runtime.modelId ||
+      (binding.executionProtocol ?? 'LANGUAGE') !== (runtime.executionProtocol ?? 'LANGUAGE') ||
       binding.credentialId !== runtime.credentialId
     ) {
       return failure('BINDING_INVALID');
+    }
+    if ((runtime.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE') {
+      return failure('EXECUTION_PROTOCOL_UNSUPPORTED', { providerKind: provider.kind });
     }
     if (!provider.enabled) {
       return failure('PROVIDER_DISABLED', {

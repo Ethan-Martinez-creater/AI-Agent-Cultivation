@@ -25,6 +25,7 @@ const runtimeInput = z
     providerId: idSchema,
     credentialId: idSchema.nullable(),
     modelId: z.string().min(1).max(256),
+    executionProtocol: z.enum(['LANGUAGE', 'GENERATION']).default('LANGUAGE'),
   })
   .strict();
 const teammateInput = z

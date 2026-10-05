@@ -48,6 +48,8 @@ export interface ResolvedRuntime {
   baseUrl: string | null;
   modelId: string;
   apiKey: string;
+  /** Missing only for legacy fake resolvers; production resolution always supplies the value. */
+  executionProtocol?: 'LANGUAGE' | 'GENERATION';
   parameters?: Record<string, unknown>;
 }
 
@@ -63,6 +65,7 @@ export type ModelGatewayErrorCode =
   | 'RUNTIME_UNAVAILABLE'
   | 'INVALID_RUNTIME'
   | 'UNSUPPORTED_PROVIDER'
+  | 'UNSUPPORTED_EXECUTION_PROTOCOL'
   | 'PROVIDER_REQUEST_FAILED';
 
 const safeErrorMessages: Record<ModelGatewayErrorCode, string> = {
@@ -70,6 +73,7 @@ const safeErrorMessages: Record<ModelGatewayErrorCode, string> = {
   RUNTIME_UNAVAILABLE: 'Runtime profile is unavailable.',
   INVALID_RUNTIME: 'Runtime profile settings are incomplete or invalid.',
   UNSUPPORTED_PROVIDER: 'This provider type is not supported.',
+  UNSUPPORTED_EXECUTION_PROTOCOL: 'This runtime cannot be used through language model execution.',
   PROVIDER_REQUEST_FAILED: 'Provider request failed. Check provider settings and connectivity.',
 };
 
@@ -85,7 +89,10 @@ export class ModelGatewayError extends Error {
     this.name = 'ModelGatewayError';
     this.availabilityKind =
       availabilityKind ??
-      (code === 'RUNTIME_NOT_FOUND' || code === 'INVALID_RUNTIME' || code === 'UNSUPPORTED_PROVIDER'
+      (code === 'RUNTIME_NOT_FOUND' ||
+      code === 'INVALID_RUNTIME' ||
+      code === 'UNSUPPORTED_PROVIDER' ||
+      code === 'UNSUPPORTED_EXECUTION_PROTOCOL'
         ? 'HARD_FAILURE'
         : 'TRANSIENT_FAILURE');
   }
@@ -569,6 +576,9 @@ export class AiSdkModelGateway implements ModelGateway, MemoryCandidateExtractor
     }
 
     if (!runtime) throw new ModelGatewayError('RUNTIME_NOT_FOUND');
+    if (runtime.executionProtocol !== undefined && runtime.executionProtocol !== 'LANGUAGE') {
+      throw new ModelGatewayError('UNSUPPORTED_EXECUTION_PROTOCOL');
+    }
     if (
       !runtime.modelId.trim() ||
       typeof runtime.apiKey !== 'string' ||

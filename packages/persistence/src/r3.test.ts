@@ -112,7 +112,7 @@ describe('R3 Decision Plane persistence', () => {
     runMigrations(db, migrations);
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 26,
+      version: 27,
     });
     expect(
       db.prepare('SELECT id, state_hash, input_summary, mode FROM decision_receipts').get(),

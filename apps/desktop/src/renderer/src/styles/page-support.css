@@ -1986,6 +1986,31 @@
       grid-column: 2;
     }
   }
+  .generation-jobs-list,
+  .generation-results,
+  .generation-job-detail {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .generation-job-row {
+    width: 100%;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    text-align: left;
+    flex-wrap: wrap;
+  }
+  .generation-job-row[aria-pressed='true'] {
+    border-color: var(--primary);
+  }
+  .generation-result {
+    padding-block: var(--space-4);
+    border-block: 1px solid var(--border);
+  }
+  .generation-result p {
+    margin-block: var(--space-2);
+    color: var(--text-secondary);
+  }
 
   @media (max-width: 680px) {
     .runtime-identity-details {

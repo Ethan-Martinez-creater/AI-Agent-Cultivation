@@ -38,7 +38,12 @@ function createDatabase(): Database.Database {
   return db;
 }
 
-function seedProviderRuntime(repository: Gate1SqliteRepository, runtimeId = 'runtime-template') {
+function seedProviderRuntime(
+  repository: Gate1SqliteRepository,
+  runtimeId = 'runtime-template',
+  db?: Database.Database,
+  executionProtocol: 'LANGUAGE' | 'GENERATION' = 'LANGUAGE',
+) {
   const provider: ProviderConfig = {
     id: 'provider-openai',
     name: 'OpenAI',
@@ -63,13 +68,34 @@ function seedProviderRuntime(repository: Gate1SqliteRepository, runtimeId = 'run
     providerId: provider.id,
     credentialId: 'credential-openai',
     modelId: 'gpt-4o',
+    executionProtocol,
     parameters: { temperature: 0.2 },
     capabilityOverrides: { CODING: true },
     createdAt: timestamp,
     updatedAt: timestamp,
   };
-  repository.saveRuntimeProfile(runtime);
+  if (db && !hasColumn(db, 'runtime_profiles', 'execution_protocol')) {
+    db.prepare(
+      `INSERT INTO runtime_profiles
+        (id, name, provider_id, credential_id, model_id, parameters_json,
+         capability_overrides_json, created_at, updated_at)
+       VALUES (@id, @name, @providerId, @credentialId, @modelId, @parameters,
+         @capabilityOverrides, @createdAt, @updatedAt)`,
+    ).run({
+      ...runtime,
+      parameters: JSON.stringify(runtime.parameters),
+      capabilityOverrides: JSON.stringify(runtime.capabilityOverrides),
+    });
+  } else {
+    repository.saveRuntimeProfile(runtime);
+  }
   return { provider, runtime };
+}
+
+function hasColumn(db: Database.Database, table: string, column: string): boolean {
+  return (db.pragma(`table_info(${table})`) as { name: string }[]).some(
+    (row) => row.name === column,
+  );
 }
 
 describe('R3.1 sealed teammate model binding', () => {
@@ -78,7 +104,7 @@ describe('R3.1 sealed teammate model binding', () => {
     db.pragma('foreign_keys = ON');
     runMigrations(db, migrations.slice(0, 13));
     const repository = new Gate1SqliteRepository(db);
-    seedProviderRuntime(repository, 'runtime-shared');
+    seedProviderRuntime(repository, 'runtime-shared', db);
     repository.saveTeammate(teammate('teammate-a', 'runtime-shared'));
     repository.saveTeammate(teammate('teammate-b', 'runtime-shared'));
     db.prepare(
@@ -127,6 +153,21 @@ describe('R3.1 sealed teammate model binding', () => {
     ).run(timestamp);
 
     runMigrations(db, migrations);
+
+    expect(
+      db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM runtime_profiles WHERE execution_protocol != 'LANGUAGE'",
+        )
+        .get(),
+    ).toEqual({ n: 0 });
+    expect(
+      db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM teammate_model_bindings WHERE execution_protocol != 'LANGUAGE'",
+        )
+        .get(),
+    ).toEqual({ n: 0 });
 
     const bindings = db
       .prepare(
@@ -287,6 +328,56 @@ describe('R3.1 sealed teammate model binding', () => {
     db.close();
   });
 
+  it('snapshots and privately clones GENERATION execution identity immutably', () => {
+    const db = createDatabase();
+    const repository = new Gate1SqliteRepository(db);
+    const { runtime } = seedProviderRuntime(
+      repository,
+      'runtime-generation-template',
+      undefined,
+      'GENERATION',
+    );
+    const verifiedIdentity = repository.getRuntimeIdentitySnapshot(runtime.id)!;
+    expect(verifiedIdentity.executionProtocol).toBe('GENERATION');
+    expect(() =>
+      repository.createSealedTeammate(
+        teammate('teammate-generation-stale', runtime.id),
+        runtime.id,
+        { ...verifiedIdentity, executionProtocol: 'LANGUAGE' },
+        timestamp,
+      ),
+    ).toThrow('Runtime identity changed after connection verification');
+
+    const created = repository.createSealedTeammate(
+      teammate('teammate-generation', runtime.id),
+      runtime.id,
+      verifiedIdentity,
+      timestamp,
+    );
+    const privateRuntime = repository.getRuntimeProfile(created.teammate.currentRuntimeProfileId!)!;
+    expect(created.binding.executionProtocol).toBe('GENERATION');
+    expect(privateRuntime.executionProtocol).toBe('GENERATION');
+    expect(repository.hasValidModelBinding(created.teammate.id)).toBe(true);
+    expect(() =>
+      db
+        .prepare("UPDATE runtime_profiles SET execution_protocol = 'LANGUAGE' WHERE id = ?")
+        .run(runtime.id),
+    ).toThrow('Runtime execution protocol is immutable');
+    expect(() =>
+      db
+        .prepare("UPDATE runtime_profiles SET execution_protocol = 'LANGUAGE' WHERE id = ?")
+        .run(privateRuntime.id),
+    ).toThrow();
+    expect(() =>
+      db
+        .prepare(
+          "UPDATE teammate_model_bindings SET execution_protocol = 'LANGUAGE' WHERE teammate_id = ?",
+        )
+        .run(created.teammate.id),
+    ).toThrow('Sealed ModelBinding execution protocol is immutable');
+    db.close();
+  });
+
   it('fails closed for a migrated disabled Provider and can recover after credential rotation', () => {
     const db = new Database(':memory:');
     db.pragma('foreign_keys = ON');
@@ -301,17 +392,13 @@ describe('R3.1 sealed teammate model binding', () => {
       createdAt: timestamp,
       updatedAt: timestamp,
     });
-    repository.saveRuntimeProfile({
-      id: 'runtime-missing-key',
-      name: 'Legacy runtime',
-      providerId: 'provider-openai',
-      credentialId: null,
-      modelId: 'gpt-4o',
-      parameters: {},
-      capabilityOverrides: {},
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    });
+    db.prepare(
+      `INSERT INTO runtime_profiles
+        (id, name, provider_id, credential_id, model_id, parameters_json,
+         capability_overrides_json, created_at, updated_at)
+       VALUES ('runtime-missing-key', 'Legacy runtime', 'provider-openai', NULL, 'gpt-4o',
+         '{}', '{}', ?, ?)`,
+    ).run(timestamp, timestamp);
     repository.saveTeammate(teammate('teammate-legacy', 'runtime-missing-key'));
 
     runMigrations(db, migrations);

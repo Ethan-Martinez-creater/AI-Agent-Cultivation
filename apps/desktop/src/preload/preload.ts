@@ -1,7 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import type { GenerationArtifact, GenerationJob } from '@cultivation/domain/g1-generation';
+import type { z } from 'zod';
+import type { generationCreateInput } from '../main/g1-ipc.js';
 import type {
   Conversation,
   CredentialSummary,
+  ExecutionProtocol,
   Message,
   MemoryRecord,
   MemoryStatus,
@@ -81,6 +85,7 @@ export interface RuntimeInput {
   providerId: string;
   credentialId: string | null;
   modelId: string;
+  executionProtocol?: ExecutionProtocol;
 }
 export interface TeammateInput {
   name: string;
@@ -164,6 +169,12 @@ export interface R3ShadowObservationView {
 }
 
 export interface CultivationBridge {
+  generation: {
+    list(): Promise<GenerationJob[]>;
+    detail(id: string): Promise<{ job: GenerationJob; artifacts: GenerationArtifact[] }>;
+    create(input: z.infer<typeof generationCreateInput>): Promise<GenerationJob>;
+    advance(id: string): Promise<GenerationJob>;
+  };
   routing: {
     config(): Promise<{ cloudEnabled: boolean; policyVersion: string }>;
     setCloudEnabled(enabled: boolean): Promise<{ cloudEnabled: boolean; policyVersion: string }>;
@@ -454,6 +465,12 @@ export interface CultivationBridge {
 }
 
 const bridge: CultivationBridge = {
+  generation: {
+    list: () => ipcRenderer.invoke('generation:list'),
+    detail: (id) => ipcRenderer.invoke('generation:detail', id),
+    create: (input) => ipcRenderer.invoke('generation:create', input),
+    advance: (id) => ipcRenderer.invoke('generation:advance', id),
+  },
   routing: {
     config: () => ipcRenderer.invoke('routing:config'),
     setCloudEnabled: (enabled) => ipcRenderer.invoke('routing:setCloudEnabled', enabled),

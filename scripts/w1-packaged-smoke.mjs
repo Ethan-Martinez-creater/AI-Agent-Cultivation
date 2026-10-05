@@ -609,7 +609,7 @@ try {
       .prepare('SELECT teammate_id,runtime_profile_id,mission_id,run_id FROM usage_records')
       .all(),
   }));
-  assert.equal(durable.migration, 26);
+  assert.equal(durable.migration, 27);
   assert.deepEqual(durable.foreignKeys, []);
   assert.equal(
     durable.usage.every(
@@ -659,7 +659,7 @@ try {
     'utf8',
   );
   console.log(
-    `W1_PACKAGED_SMOKE_OK evidence=${evidence} migration=26 routing=existing mission=existing lineage=verified recovery=no_silent_replay`,
+    `W1_PACKAGED_SMOKE_OK evidence=${evidence} migration=27 routing=existing mission=existing lineage=verified recovery=no_silent_replay`,
   );
 } finally {
   if (live) await live.app.close();

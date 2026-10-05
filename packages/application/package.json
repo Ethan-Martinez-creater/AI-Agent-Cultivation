@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./g1-generation": "./src/g1-generation.ts",
     "./gate1-service": "./src/gate1-service.ts",
     "./gate2-memory-service": "./src/gate2-memory-service.ts",
     "./gate2-hybrid-memory-service": "./src/gate2-hybrid-memory-service.ts",

@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import Database from 'better-sqlite3';
-import type { RuntimeIdentitySnapshot } from '@cultivation/domain';
+import type { ExecutionProtocol, RuntimeIdentitySnapshot } from '@cultivation/domain';
 import initialSql from '../../../migrations/0001_initial.sql?raw';
 import gate1Sql from '../../../migrations/0002_gate1.sql?raw';
 import gate2Sql from '../../../migrations/0003_gate2.sql?raw';
@@ -28,6 +28,7 @@ import w23ResearchSql from '../../../migrations/0023_w23_research.sql?raw';
 import w23InputArtifactsSql from '../../../migrations/0024_w23_input_artifacts.sql?raw';
 import w23UncertainPreparedEffectSql from '../../../migrations/0025_w23_uncertain_prepared_effect.sql?raw';
 import w24DynamicManifestIntegritySql from '../../../migrations/0026_w24_dynamic_manifest_integrity.sql?raw';
+import g1GenerationFoundationSql from '../../../migrations/0027_g1_generation_foundation.sql?raw';
 export { ResearchInputArtifactRepository } from './w23-input-artifacts.js';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
@@ -126,6 +127,7 @@ export const migrations: readonly Migration[] = [
   { version: 24, name: 'w23_input_artifacts', sql: w23InputArtifactsSql },
   { version: 25, name: 'w23_uncertain_prepared_effect', sql: w23UncertainPreparedEffectSql },
   { version: 26, name: 'w24_dynamic_manifest_integrity', sql: w24DynamicManifestIntegritySql },
+  { version: 27, name: 'g1_generation_foundation', sql: g1GenerationFoundationSql },
 ];
 
 export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
@@ -157,6 +159,7 @@ export interface RuntimeProfileRecord {
   providerId: string;
   credentialId: string | null;
   modelId: string;
+  executionProtocol: ExecutionProtocol;
   parameters: Record<string, unknown>;
   capabilityOverrides: Record<string, boolean>;
   createdAt: string;
@@ -245,6 +248,7 @@ interface RuntimeProfileRow {
   provider_id: string;
   credential_id: string | null;
   model_id: string;
+  execution_protocol: ExecutionProtocol;
   parameters_json: string;
   capability_overrides_json: string;
   created_at: string;
@@ -382,13 +386,14 @@ export class Gate1SqliteRepository {
     this.db
       .prepare(
         `INSERT INTO runtime_profiles
-          (id, name, provider_id, credential_id, model_id, parameters_json,
+          (id, name, provider_id, credential_id, model_id, execution_protocol, parameters_json,
            capability_overrides_json, created_at, updated_at)
-         VALUES (@id, @name, @providerId, @credentialId, @modelId, @parameters,
+         VALUES (@id, @name, @providerId, @credentialId, @modelId, @executionProtocol, @parameters,
            @capabilityOverrides, @createdAt, @updatedAt)
          ON CONFLICT(id) DO UPDATE SET
            name=excluded.name, provider_id=excluded.provider_id,
            credential_id=excluded.credential_id, model_id=excluded.model_id,
+           execution_protocol=excluded.execution_protocol,
            parameters_json=excluded.parameters_json,
            capability_overrides_json=excluded.capability_overrides_json,
            updated_at=excluded.updated_at`,
@@ -639,6 +644,7 @@ function mapRuntimeProfile(row: RuntimeProfileRow): RuntimeProfileRecord {
     providerId: row.provider_id,
     credentialId: row.credential_id,
     modelId: row.model_id,
+    executionProtocol: row.execution_protocol,
     parameters: JSON.parse(row.parameters_json) as Record<string, unknown>,
     capabilityOverrides: JSON.parse(row.capability_overrides_json) as Record<string, boolean>,
     createdAt: row.created_at,

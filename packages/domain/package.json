@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./g1-generation": "./src/g1-generation.ts"
   },
   "dependencies": {
     "@cultivation/shared": "0.0.1"

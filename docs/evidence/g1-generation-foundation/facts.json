@@ -1,0 +1,206 @@
+{
+  "crashes": [
+    {
+      "point": "created",
+      "beforeState": "PENDING",
+      "beforeProviderStatus": null,
+      "providerJobId": "generation-a7cd667c-4ab8-4b5f-ab30-354be3d1701b",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "b9fd4080e2e58fd2343c5c85ed07d868344fcb671520f886c6d28acaacb31bb8",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "submitting",
+      "beforeState": "SUBMITTING",
+      "beforeProviderStatus": null,
+      "providerJobId": "generation-4a68f116-c586-41dc-b203-3e478472b00c",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "01a5eaa019855a137a5a3777cd0f57145312b9c1087c3ede9ad64d4b4791ebd5",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "submission_sent",
+      "beforeState": "SUBMITTING",
+      "beforeProviderStatus": null,
+      "providerJobId": "generation-cd2f9717-fe83-405e-8a3e-5983f67b47f8",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "e477b0371106c53e44d84c77ff0994934efad39dceef42a7c23fe467a9aa8b83",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "submitted",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "QUEUED",
+      "providerJobId": "generation-8e57bea8-c6d4-4005-9276-a770a74b00e1",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "6c7c9efe11447804ed13a8076692d399d7edce1ffcbb33110f2c2d79a03403ca",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "provider_completed",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-87e1de86-b48b-4c7e-a2c0-532728308259",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "52973a69c731dcdfa8ee0dc7a2565e20d4455b082a6b8f0d7a9102c698f56f03",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "staged",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-f12c7856-17d6-497c-8872-0f252c90bea1",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "9a957e90500b82e47baa71ae5dfc4c5954c60df1981e47c4ba9ad6a44256db23",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "committed",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-fe483480-3b50-4130-a5bb-b02c89f56936",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "5da564d5f92a3ed9f0830d10fb130354cd9774c390963c6d7b36f604a59f25fb",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "registered",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-6baa8839-9899-4c53-a275-8d7c070a286c",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "artifacts": [
+        {
+          "id": "f08d7fb03a1889302de58ab1a32f1b60813af9027f4250206c487de835a8ddf3",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    }
+  ],
+  "failClosed": [
+    {
+      "scenario": "UNKNOWN",
+      "state": "UNKNOWN",
+      "errorCode": "SUBMISSION_STATE_UNKNOWN"
+    },
+    {
+      "scenario": "INVALID_MIME",
+      "state": "FAILED",
+      "errorCode": "UNSUPPORTED_MEDIA_TYPE"
+    },
+    {
+      "scenario": "INVALID_HASH",
+      "state": "FAILED",
+      "errorCode": "ARTIFACT_INTEGRITY"
+    },
+    {
+      "scenario": "MISSING",
+      "state": "FAILED",
+      "errorCode": "OUTPUT_MISSING"
+    }
+  ],
+  "production": {
+    "migration": 27,
+    "jobs": 0
+  },
+  "workspace": [
+    {
+      "deny": false,
+      "state": "COMPLETED",
+      "errorCode": null,
+      "artifacts": [
+        {
+          "id": "7173efd53a17b07ce0937380be71d89eec5a659c947ffff009eeb101ad774e8b",
+          "hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "scope": "MISSION_WORKSPACE"
+        }
+      ]
+    },
+    {
+      "deny": true,
+      "state": "FAILED",
+      "errorCode": "PERMISSION_DENIED",
+      "artifacts": []
+    }
+  ],
+  "frozenHashes": [
+    {
+      "definition_id": "official.ai-news-video",
+      "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd",
+      "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153"
+    },
+    {
+      "definition_id": "official.research",
+      "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+      "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7"
+    },
+    {
+      "definition_id": "official.software-feature",
+      "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d",
+      "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    }
+  ],
+  "runtimeUi": {
+    "id": "714e2d85-8c3b-4409-aa31-d989a837f160",
+    "executionProtocol": "GENERATION",
+    "generationEntry": true
+  },
+  "unknownRestart": {
+    "state": "UNKNOWN",
+    "automaticSubmissions": 0,
+    "automaticDownloads": 0,
+    "automaticQueries": 0
+  }
+}

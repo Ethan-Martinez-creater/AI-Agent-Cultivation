@@ -13,6 +13,7 @@ import {
 } from 'react-router-dom';
 import { HumanBridgePage } from './r2-human-bridge.js';
 import { HomePage } from './pages/home.js';
+import { GenerationPage } from './pages/generation.js';
 import { ToolsPage } from './pages/tools.js';
 import { PartiesPage } from './pages/parties.js';
 import { MissionPage } from './pages/missions.js';
@@ -35,7 +36,7 @@ function App() {
     ? '/teammates'
     : ['/external-work', '/workflows'].includes(location.pathname)
       ? '/missions'
-      : ['/tools', '/skills', '/usage'].includes(location.pathname)
+      : ['/tools', '/skills', '/usage', '/generation'].includes(location.pathname)
         ? '/settings'
         : location.pathname;
   const [version, setVersion] = useState('…');
@@ -99,6 +100,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/generation" element={<GenerationPage />} />
             <Route path="/teammates" element={<TeammatesPage />} />
             <Route path="/chat/:teammateId" element={<ChatPage />} />
             <Route path="/usage" element={<UsagePage />} />

@@ -1,6 +1,7 @@
 import type {
   Conversation,
   CredentialSummary,
+  ExecutionProtocol,
   Message,
   MemoryRecord,
   ProviderConfig,
@@ -69,6 +70,11 @@ export interface ChatPromptContext {
   }>;
 }
 
+/** Main-only identity verification port for a generation provider descriptor. */
+export interface GenerationIdentityVerificationPort {
+  getDescriptor(runtimeProfileId: string): Promise<{ modelId: string }>;
+}
+
 const CHAT_PLATFORM_POLICY =
   'You are the selected Teammate in a one-to-one conversation. Use only the current conversation, ' +
   'the selected Teammate identity, approved scoped memory, and explicitly enabled skills. ' +
@@ -97,6 +103,7 @@ function sameRuntimeIdentity(
     left.providerKind === right.providerKind &&
     left.baseUrl === right.baseUrl &&
     left.modelId === right.modelId &&
+    (left.executionProtocol ?? 'LANGUAGE') === (right.executionProtocol ?? 'LANGUAGE') &&
     left.credentialId === right.credentialId &&
     left.runtimeUpdatedAt === right.runtimeUpdatedAt &&
     left.providerUpdatedAt === right.providerUpdatedAt &&
@@ -112,6 +119,7 @@ export class Gate1Service {
     private readonly secrets: SecretStore,
     private readonly gateway: ModelGateway,
     private readonly promptContext?: ChatPromptContext,
+    private readonly generationIdentityVerification?: GenerationIdentityVerificationPort,
   ) {}
 
   listProviders(): ProviderConfig[] {
@@ -218,6 +226,7 @@ export class Gate1Service {
     providerId: string;
     credentialId: string | null;
     modelId: string;
+    executionProtocol?: ExecutionProtocol;
   }): RuntimeProfile {
     this.validateRuntimeBinding(input.providerId, input.credentialId);
     const timestamp = now();
@@ -227,6 +236,7 @@ export class Gate1Service {
       providerId: input.providerId,
       credentialId: input.credentialId,
       modelId: required(input.modelId, 'Model ID'),
+      executionProtocol: input.executionProtocol ?? 'LANGUAGE',
       parameters: {},
       capabilityOverrides: {},
       createdAt: timestamp,
@@ -242,9 +252,16 @@ export class Gate1Service {
     providerId: string;
     credentialId: string | null;
     modelId: string;
+    executionProtocol?: ExecutionProtocol;
   }): RuntimeProfile {
     const previous = this.store.getRuntimeProfile(input.id);
     if (!previous) notFound('RuntimeProfile');
+    if (
+      input.executionProtocol !== undefined &&
+      input.executionProtocol !== (previous.executionProtocol ?? 'LANGUAGE')
+    ) {
+      throw new DomainError('INVALID_INPUT', '运行配置执行协议创建后固定；请新建运行配置');
+    }
     if (this.store.isRuntimeBound(input.id)) {
       if (
         input.providerId !== previous.providerId ||
@@ -261,6 +278,7 @@ export class Gate1Service {
       providerId: input.providerId,
       credentialId: input.credentialId,
       modelId: required(input.modelId, 'Model ID'),
+      executionProtocol: previous.executionProtocol ?? 'LANGUAGE',
       updatedAt: now(),
     };
     this.store.saveRuntimeProfile(runtime);
@@ -272,6 +290,7 @@ export class Gate1Service {
     kind: ProviderKind;
     baseUrl: string | null;
     modelId: string;
+    executionProtocol: ExecutionProtocol;
     apiKey: string;
     parameters: Record<string, unknown>;
   }> {
@@ -287,13 +306,31 @@ export class Gate1Service {
       kind: provider.kind,
       baseUrl: provider.baseUrl,
       modelId: runtime.modelId,
+      executionProtocol: runtime.executionProtocol ?? 'LANGUAGE',
       apiKey: credential ? await this.secrets.decrypt(credential.ciphertext) : '',
       parameters: runtime.parameters,
     };
   }
 
   async testConnection(runtimeProfileId: string): Promise<{ ok: boolean; message: string }> {
-    if (!this.store.getRuntimeProfile(runtimeProfileId)) notFound('RuntimeProfile');
+    const runtime = this.store.getRuntimeProfile(runtimeProfileId);
+    if (!runtime) notFound('RuntimeProfile');
+    if ((runtime.executionProtocol ?? 'LANGUAGE') === 'GENERATION') {
+      if (!this.generationIdentityVerification) {
+        return { ok: false, message: '生成模型身份验证服务尚未配置' };
+      }
+      try {
+        this.validateRuntimeBinding(runtime.providerId, runtime.credentialId);
+        const descriptor =
+          await this.generationIdentityVerification.getDescriptor(runtimeProfileId);
+        if (descriptor.modelId !== runtime.modelId) {
+          return { ok: false, message: 'Provider 返回的 Model ID 与运行配置不一致' };
+        }
+        return { ok: true, message: '生成模型身份验证成功' };
+      } catch {
+        return { ok: false, message: '生成模型身份验证失败，请检查配置与 Provider' };
+      }
+    }
     try {
       const result = await this.gateway.testConnection(runtimeProfileId);
       return { ok: result.ok, message: result.ok ? '连接成功' : '连接失败，请检查模型与凭证' };
@@ -449,6 +486,16 @@ export class Gate1Service {
     if (!teammate) notFound('道友');
     if (teammate.status !== 'ACTIVE')
       throw new DomainError('INVALID_INPUT', '已归档道友不可新建对话');
+    const runtime = teammate.currentRuntimeProfileId
+      ? this.store.getRuntimeProfile(teammate.currentRuntimeProfileId)
+      : null;
+    const binding = this.store.getModelBinding(teammateId);
+    if (
+      (runtime?.executionProtocol ?? 'LANGUAGE') === 'GENERATION' ||
+      (binding?.executionProtocol ?? 'LANGUAGE') === 'GENERATION'
+    ) {
+      throw new DomainError('INVALID_INPUT', '生成型道友请使用生成任务入口，不能创建普通聊天');
+    }
     const timestamp = now();
     const conversation = { id: id(), teammateId, createdAt: timestamp, updatedAt: timestamp };
     this.store.saveConversation(conversation);
@@ -515,6 +562,12 @@ export class Gate1Service {
     const binding = this.store.getModelBinding(teammate.id);
     if (!binding || binding.runtimeProfileId !== runtime.id) {
       throw new DomainError('INVALID_INPUT', '道友缺少有效的封存模型绑定');
+    }
+    if (
+      (runtime.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE' ||
+      (binding.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE'
+    ) {
+      throw new DomainError('INVALID_INPUT', '生成型道友必须通过生成任务执行，不能使用普通聊天');
     }
     await this.gateway.prepare?.({ teammateId: teammate.id, runtimeProfileId: runtime.id });
     if (this.activeConversations.has(input.conversationId)) {

@@ -745,6 +745,7 @@ interface RuntimeForm {
   providerId: string;
   credentialId: string;
   modelId: string;
+  executionProtocol: 'LANGUAGE' | 'GENERATION';
 }
 
 const blankRuntime: RuntimeForm = {
@@ -753,6 +754,7 @@ const blankRuntime: RuntimeForm = {
   providerId: '',
   credentialId: '',
   modelId: '',
+  executionProtocol: 'LANGUAGE',
 };
 
 export function RuntimesPanel({
@@ -789,7 +791,11 @@ export function RuntimesPanel({
   };
   const beginEdit = (runtime: RuntimeProfileView) => {
     if (isSealed(runtime.id)) return;
-    setForm({ ...runtime, credentialId: runtime.credentialId ?? '' });
+    setForm({
+      ...runtime,
+      executionProtocol: runtime.executionProtocol ?? 'LANGUAGE',
+      credentialId: runtime.credentialId ?? '',
+    });
     setError('');
     setNotice('');
     setFormOpen(true);
@@ -808,6 +814,7 @@ export function RuntimesPanel({
       providerId: form.providerId,
       credentialId: form.credentialId || null,
       modelId: form.modelId.trim(),
+      executionProtocol: form.executionProtocol,
     };
     try {
       if (form.id) await window.cultivation.runtimes.update({ id: form.id, ...payload });
@@ -868,19 +875,23 @@ export function RuntimesPanel({
                       <strong>{runtime.name}</strong>
                       <small>
                         {provider?.name ?? '服务商不可用'} · {runtime.modelId}
+                        {' · '}
+                        {runtime.executionProtocol === 'GENERATION' ? '生成模型' : '文本模型'}
                       </small>
                     </div>
                     <div className="object-row-statuses">
                       <StatusBadge tone={isRuntimeSealed ? 'neutral' : 'warning'}>
                         {isRuntimeSealed ? '已封存' : '可编辑模板'}
                       </StatusBadge>
-                      {isRuntimeSealed && activeBinding && (
-                        <AvailabilityBadge
-                          teammateId={activeBinding.id}
-                          teammateStatus={activeBinding.status}
-                          executorKind={activeBinding.executorKind}
-                        />
-                      )}
+                      {isRuntimeSealed &&
+                        activeBinding &&
+                        runtime.executionProtocol !== 'GENERATION' && (
+                          <AvailabilityBadge
+                            teammateId={activeBinding.id}
+                            teammateStatus={activeBinding.status}
+                            executorKind={activeBinding.executorKind}
+                          />
+                        )}
                       {isRuntimeSealed && !activeBinding && <StatusBadge>道友已归档</StatusBadge>}
                     </div>
                   </header>
@@ -900,6 +911,12 @@ export function RuntimesPanel({
                           <div>
                             <dt>模型</dt>
                             <dd>{runtime.modelId}</dd>
+                          </div>
+                          <div>
+                            <dt>执行协议</dt>
+                            <dd>
+                              {runtime.executionProtocol === 'GENERATION' ? '生成模型' : '文本模型'}
+                            </dd>
                           </div>
                           <div>
                             <dt>凭据</dt>
@@ -928,16 +945,42 @@ export function RuntimesPanel({
                           </Button>
                         </div>
                       )}
+                      {runtime.executionProtocol === 'GENERATION' && (
+                        <div className="button-row compact object-row-actions">
+                          <Link
+                            className="button secondary"
+                            to={{
+                              pathname: '/generation',
+                              search: `?runtimeProfileId=${encodeURIComponent(runtime.id)}`,
+                            }}
+                          >
+                            打开生成任务
+                          </Link>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <>
                       <div className="runtime-meta object-row-meta">
-                        凭据：{credential?.label ?? '未绑定凭据'}
+                        {runtime.executionProtocol === 'GENERATION' ? '生成模型' : '文本模型'}
+                        {' · 凭据：'}
+                        {credential?.label ?? '未绑定凭据'}
                       </div>
                       <div className="button-row compact object-row-actions">
                         <Button variant="secondary" onClick={() => beginEdit(runtime)}>
                           编辑配置
                         </Button>
+                        {runtime.executionProtocol === 'GENERATION' && (
+                          <Link
+                            className="button secondary"
+                            to={{
+                              pathname: '/generation',
+                              search: `?runtimeProfileId=${encodeURIComponent(runtime.id)}`,
+                            }}
+                          >
+                            打开生成任务
+                          </Link>
+                        )}
                         <Button
                           variant="ghost"
                           disabled={testingId === runtime.id}
@@ -1010,6 +1053,22 @@ export function RuntimesPanel({
               value={form.modelId}
               onChange={(event) => update({ modelId: event.target.value })}
             />
+          </label>
+          <label className="field">
+            <span>模型类型</span>
+            <select
+              required
+              disabled={busy || Boolean(form.id)}
+              value={form.executionProtocol}
+              onChange={(event) =>
+                update({
+                  executionProtocol: event.target.value as RuntimeForm['executionProtocol'],
+                })
+              }
+            >
+              <option value="LANGUAGE">文本模型</option>
+              <option value="GENERATION">生成模型</option>
+            </select>
           </label>
           {error && <InlineMessage tone="error">{error}</InlineMessage>}
           <div className="button-row">

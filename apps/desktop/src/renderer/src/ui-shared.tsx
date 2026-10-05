@@ -29,6 +29,7 @@ export interface RuntimeProfileView {
   providerId: string;
   credentialId: string | null;
   modelId: string;
+  executionProtocol?: 'LANGUAGE' | 'GENERATION';
 }
 
 export interface TeammateView {
@@ -349,6 +350,7 @@ export interface ChatEvent {
 }
 
 export interface CultivationBridge {
+  generation: PreloadBridge['generation'];
   routing: PreloadBridge['routing'];
   desktop: PreloadBridge['desktop'];
   avatars: PreloadBridge['avatars'];
@@ -398,6 +400,7 @@ export interface CultivationBridge {
       providerId: string;
       credentialId: string | null;
       modelId: string;
+      executionProtocol?: 'LANGUAGE' | 'GENERATION';
     }): Promise<RuntimeProfileView>;
     update(input: {
       id: string;
@@ -405,6 +408,7 @@ export interface CultivationBridge {
       providerId: string;
       credentialId: string | null;
       modelId: string;
+      executionProtocol?: 'LANGUAGE' | 'GENERATION';
     }): Promise<RuntimeProfileView>;
     testConnection(runtimeProfileId: string): Promise<{ ok: boolean; message: string }>;
   };

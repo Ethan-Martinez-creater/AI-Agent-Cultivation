@@ -349,7 +349,7 @@ try {
       .all(),
     traversals: db.prepare('SELECT * FROM workflow_revision_traversals').all(),
   }));
-  assert.equal(facts.persistence.migration, 26);
+  assert.equal(facts.persistence.migration, 27);
   assert.deepEqual(
     installSnapshot(),
     installed,

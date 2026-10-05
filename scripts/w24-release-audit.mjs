@@ -19,7 +19,7 @@ export const hash = (value) =>
 // Same assertions apply to ALL installed templates and ALL attempts, including
 // blocked/adversarial runs. No template-specific fixture can exempt its facts.
 export function auditCrossWorkflow(db, officialPackages) {
-  assert.equal(db.prepare('SELECT MAX(version) AS n FROM schema_migrations').get().n, 26);
+  assert.equal(db.prepare('SELECT MAX(version) AS n FROM schema_migrations').get().n, 27);
   assert.deepEqual(db.pragma('foreign_key_check'), []);
   assert.equal(db.pragma('integrity_check')[0].integrity_check, 'ok');
   const versions = new Map();

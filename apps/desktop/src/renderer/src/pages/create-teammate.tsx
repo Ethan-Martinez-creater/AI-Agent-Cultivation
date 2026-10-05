@@ -62,6 +62,7 @@ export function CreateTeammatePanel({
   const [providerKind, setProviderKind] = useState<ProviderKind>('OPENAI');
   const [endpoint, setEndpoint] = useState('');
   const [modelId, setModelId] = useState('');
+  const [executionProtocol, setExecutionProtocol] = useState<'LANGUAGE' | 'GENERATION'>('LANGUAGE');
   const [createdProviderId, setCreatedProviderId] = useState('');
   const [createdProviderKey, setCreatedProviderKey] = useState('');
   const [createdCredentialId, setCreatedCredentialId] = useState('');
@@ -85,11 +86,23 @@ export function CreateTeammatePanel({
   const modelLabel = useMemo(() => {
     if (mode === 'existing' && selectedRuntime) {
       const provider = providers.find((item) => item.id === selectedRuntime.providerId);
-      return [provider?.name, selectedRuntime.modelId].filter(Boolean).join(' · ');
+      return [
+        provider?.name,
+        selectedRuntime.modelId,
+        selectedRuntime.executionProtocol === 'GENERATION' ? '生成模型' : '文本模型',
+      ]
+        .filter(Boolean)
+        .join(' · ');
     }
     if (draftRuntime) {
       const provider = providers.find((item) => item.id === draftRuntime.providerId);
-      return [provider?.name, draftRuntime.modelId].filter(Boolean).join(' · ');
+      return [
+        provider?.name,
+        draftRuntime.modelId,
+        draftRuntime.executionProtocol === 'GENERATION' ? '生成模型' : '文本模型',
+      ]
+        .filter(Boolean)
+        .join(' · ');
     }
     return '';
   }, [draftRuntime, mode, providers, selectedRuntime]);
@@ -110,6 +123,7 @@ export function CreateTeammatePanel({
     setProviderKind('OPENAI');
     setEndpoint('');
     setModelId('');
+    setExecutionProtocol('LANGUAGE');
     setCreatedProviderId('');
     setCreatedProviderKey('');
     setCreatedCredentialId('');
@@ -245,6 +259,7 @@ export function CreateTeammatePanel({
           providerId,
           credentialId,
           modelId: modelId.trim(),
+          executionProtocol,
         };
         const saved = draftRuntimeId
           ? await window.cultivation.runtimes.update({ id: draftRuntimeId, ...runtimeInput })
@@ -473,6 +488,9 @@ export function CreateTeammatePanel({
                       <span className="create-runtime-copy">
                         <strong>{provider?.name ?? '已配置服务商'}</strong>
                         <small>{runtime.modelId}</small>
+                        <small>
+                          {runtime.executionProtocol === 'GENERATION' ? '生成模型' : '文本模型'}
+                        </small>
                         {provider?.baseUrl && <small>{provider.baseUrl}</small>}
                       </span>
                     </label>
@@ -544,6 +562,21 @@ export function CreateTeammatePanel({
                       invalidateTest();
                     }}
                   />
+                </label>
+                <label className="field">
+                  <span>执行协议</span>
+                  <select
+                    disabled={busy || Boolean(draftRuntimeId)}
+                    value={executionProtocol}
+                    onChange={(event) => {
+                      setExecutionProtocol(event.target.value as 'LANGUAGE' | 'GENERATION');
+                      invalidateTest();
+                    }}
+                  >
+                    <option value="LANGUAGE">文本模型（普通聊天与路由）</option>
+                    <option value="GENERATION">生成模型（图片、视频、音乐、语音）</option>
+                  </select>
+                  <small>运行配置创建后执行协议固定；如需更改，请从设置中新建运行配置。</small>
                 </label>
                 <div className="create-key-import">
                   <div>

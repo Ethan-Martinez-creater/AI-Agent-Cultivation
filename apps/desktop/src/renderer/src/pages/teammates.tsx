@@ -88,6 +88,12 @@ export function TeammatesPage() {
   }, [searchParams]);
 
   const selected = teammates.find((item) => item.id === selectedId);
+  const isGeneration = (teammate: TeammateView) =>
+    runtimes.some(
+      (runtime) =>
+        runtime.id === teammate.currentRuntimeProfileId &&
+        runtime.executionProtocol === 'GENERATION',
+    );
   const selectedRuntime = selected?.currentRuntimeProfileId
     ? runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
     : undefined;
@@ -288,6 +294,8 @@ export function TeammatesPage() {
                       <span className="teammate-roster-human" aria-label="本尊，可接收委托">
                         <Icon name="HumanBridge" size={15} />
                       </span>
+                    ) : isGeneration(teammate) ? (
+                      <span className="product-status neutral">生成模型</span>
                     ) : (
                       <AvailabilityBadge
                         teammateId={teammate.id}
@@ -346,6 +354,8 @@ export function TeammatesPage() {
                     </span>
                   ) : selected.status === 'ARCHIVED' ? (
                     <span className="teammate-archived-status">已归档</span>
+                  ) : isGeneration(selected) ? (
+                    <span className="product-status neutral">生成模型</span>
                   ) : (
                     <AvailabilityBadge
                       teammateId={selected.id}
@@ -362,6 +372,19 @@ export function TeammatesPage() {
                       onClick={() => navigate('/external-work')}
                     >
                       <Icon name="HumanBridge" size={16} /> 查看本尊待办
+                    </button>
+                  ) : selected.status === 'ACTIVE' && isGeneration(selected) ? (
+                    <button
+                      className="button primary"
+                      type="button"
+                      onClick={() =>
+                        navigate(
+                          '/generation?runtimeProfileId=' +
+                            encodeURIComponent(selected.currentRuntimeProfileId!),
+                        )
+                      }
+                    >
+                      <Icon name="Model" size={16} /> 查看生成任务
                     </button>
                   ) : selected.status === 'ACTIVE' ? (
                     <>

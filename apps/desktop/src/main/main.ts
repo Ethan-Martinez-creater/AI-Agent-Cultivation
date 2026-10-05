@@ -108,6 +108,10 @@ import { researchIntegrityFacts } from './w23-facts.js';
 import { researchWorkflowValidationPolicy } from './w23-validation-policy.js';
 import { researchMixedExperimentBoundary } from './w23-mixed-experiment.js';
 import { researchFailureContext } from './w23-artifact-context.js';
+import { generationFoundation } from './g1-foundation.js';
+import { seedGenerationWorkspaceFixture } from './g1-fixture.js';
+import { registerGenerationIpc } from './g1-ipc.js';
+import type { GenerationService } from '@cultivation/application/g1-generation';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -147,6 +151,7 @@ function createWindow(
   routingStore: R4RoutingRepository,
   workflows: WorkflowService,
   researchInputs: ResearchInputArtifactService,
+  generation: GenerationService,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -227,6 +232,11 @@ function createWindow(
       }
     },
     async (runtimeProfileId) => {
+      if (
+        service.listRuntimeProfiles().find((row) => row.id === runtimeProfileId)
+          ?.executionProtocol === 'GENERATION'
+      )
+        return service.testConnection(runtimeProfileId);
       const teammate = service
         .listTeammates()
         .find(
@@ -279,6 +289,7 @@ function createWindow(
   );
   registerWorkflowIpc(validSender, workflows);
   registerResearchInputIpc(window, validSender, researchInputs);
+  registerGenerationIpc(validSender, generation);
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -512,12 +523,39 @@ if (!squirrelStartup)
           skillAssignments: gate2Store.listSkillAssignments(teammateId),
         }),
       };
-      const service: Gate1Service = new Gate1Service(store, secretStore, gateway, promptContext);
+      const service: Gate1Service = new Gate1Service(store, secretStore, gateway, promptContext, {
+        getDescriptor: (runtimeId) => generation.gateway.getDescriptor(runtimeId),
+      });
       const permissionEngine = new PermissionEngine(gate3Store);
       const registry = new ToolRegistry();
       const mcpHost = new McpHost();
       const tools = new Gate4ToolsService(gate4Store, registry, mcpHost);
       await tools.initialize();
+      const generation = generationFoundation({
+        db,
+        userData: app.getPath('userData'),
+        store,
+        missions: gate3Store,
+        tools: gate4Store,
+        permission: permissionEngine,
+        testOnly: process.argv.includes('--g1-fake-generation'),
+      });
+      await generation.service.recover();
+      if (
+        process.argv.includes('--g1-fake-generation') &&
+        process.argv.includes('--g1-workspace-fixture') &&
+        process.env.CULTIVATION_G1_WORKSPACE_DIR &&
+        generation.service.list().length === 0
+      ) {
+        await seedGenerationWorkspaceFixture(
+          service,
+          generation.service,
+          gate3Store,
+          gate4Store,
+          process.env.CULTIVATION_G1_WORKSPACE_DIR,
+          process.argv.includes('--g1-deny-write'),
+        );
+      }
       const externalWork = new ExternalWorkService(
         r2Store,
         {
@@ -919,6 +957,7 @@ if (!squirrelStartup)
         routingStore,
         workflows,
         researchInputs,
+        generation.service,
       );
       externalWork.subscribeCreated((created) => {
         try {
@@ -960,6 +999,7 @@ if (!squirrelStartup)
             routingStore,
             workflows,
             researchInputs,
+            generation.service,
           );
       });
     })

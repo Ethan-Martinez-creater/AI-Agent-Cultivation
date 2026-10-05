@@ -152,6 +152,8 @@ function fixture(
       modelBinding.providerKind === currentProvider.kind &&
       modelBinding.endpoint === currentProvider.baseUrl &&
       modelBinding.modelId === currentRuntime.modelId &&
+      (modelBinding.executionProtocol ?? 'LANGUAGE') ===
+        (currentRuntime.executionProtocol ?? 'LANGUAGE') &&
       modelBinding.credentialId === currentRuntime.credentialId,
   };
   const store: AvailabilityStore = {
@@ -231,6 +233,27 @@ function usage() {
 }
 
 describe('R3.2 availability policy', () => {
+  it('does not language-probe generation identities and excludes them from R4 eligibility', async () => {
+    const context = fixture();
+    context.currentRuntime = runtime({ executionProtocol: 'GENERATION' });
+    context.modelBinding = binding({ executionProtocol: 'GENERATION' });
+
+    await expect(context.service.recheck('teammate-a')).rejects.toThrow('专用 Provider 验证');
+    expect(context.probeCount).toBe(0);
+    expect(context.stored).toBeNull();
+    await expect(
+      context.service.prepare({ teammateId: 'teammate-a', runtimeProfileId: 'runtime-a' }),
+    ).rejects.toThrow('不能使用语言模型可用性探测');
+    expect(context.probeCount).toBe(0);
+    expect(context.stored).toBeNull();
+
+    const eligibility = new RoutingEligibilityService(context.identity, context.service).evaluate(
+      'teammate-a',
+    );
+    expect(eligibility.eligible).toBe(false);
+    expect(eligibility.reason).toBe('EXECUTION_PROTOCOL_UNSUPPORTED');
+  });
+
   it('starts UNKNOWN, records ordinary success as AVAILABLE, and keeps only bounded recent outcomes', () => {
     const unknown = projection('UNKNOWN');
     expect(unknown.lastCheckedAt).toBeNull();
