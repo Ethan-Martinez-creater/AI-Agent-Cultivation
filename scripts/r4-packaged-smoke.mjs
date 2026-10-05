@@ -928,7 +928,7 @@ async function main() {
     JSON.stringify(
       {
         verifiedAt: new Date().toISOString(),
-        migration: 28,
+        migration: 29,
         decisionMode: 'ACTIVE',
         shadowEnabled: false,
         checks: [

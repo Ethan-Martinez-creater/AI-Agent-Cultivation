@@ -175,7 +175,11 @@ function makeFixture(
     submit: vi.fn(async (id, request) =>
       options.submit
         ? options.submit(id, request)
-        : { providerJobId: 'provider-job-a', status: 'QUEUED' as const },
+        : {
+            outcome: 'SUBMITTED' as const,
+            providerJobId: 'provider-job-a',
+            status: 'QUEUED' as const,
+          },
     ),
     getJob: vi.fn(async (id, jobId) =>
       options.getJob
@@ -361,6 +365,7 @@ describe('G2 generation availability', () => {
   it('prepares the fixed identity before real submit and records adapter success', async () => {
     const context = makeFixture();
     await expect(context.gateway.submit('runtime-a', generationRequest)).resolves.toEqual({
+      outcome: 'SUBMITTED',
       providerJobId: 'provider-job-a',
       status: 'QUEUED',
     });
@@ -399,6 +404,24 @@ describe('G2 generation availability', () => {
       errorCode: 'GENERATION_FAILED',
     });
     expect(context.availability.get('teammate-a')?.status).toBe('UNAVAILABLE');
+    await runner.service.recover();
+    expect(context.raw.submit).toHaveBeenCalledTimes(1);
+  });
+
+  it('maps a provider-neutral definitive rejection to FAILED and never replays its task key', async () => {
+    const context = makeFixture({
+      submit: async () => ({ outcome: 'REJECTED', errorCode: 'MODEL_DURATION_LIMIT' }),
+    });
+    const runner = makeGenerationRunner(context);
+    const job = await runner.create();
+    await expect(runner.service.advance(job.id)).resolves.toMatchObject({
+      state: 'FAILED',
+      errorCode: 'MODEL_DURATION_LIMIT',
+    });
+    expect(context.availability.get('teammate-a')?.recentOutcomes.at(-1)).toMatchObject({
+      kind: 'SUCCESS',
+      code: 'GENERATION_DESCRIPTOR_OK',
+    });
     await runner.service.recover();
     expect(context.raw.submit).toHaveBeenCalledTimes(1);
   });

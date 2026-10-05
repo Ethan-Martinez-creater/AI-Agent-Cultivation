@@ -383,7 +383,9 @@ export class GenerationService {
             { errorCode: safeCode(error) },
           );
         }
-        if (submission.status === 'UNKNOWN' || !submission.providerJobId)
+        if (submission.outcome === 'REJECTED')
+          return this.move(job, 'FAILED', { errorCode: submission.errorCode });
+        if (submission.outcome === 'UNKNOWN')
           return this.move(job, 'UNKNOWN', { errorCode: 'SUBMISSION_STATE_UNKNOWN' });
         job = this.move(job, submission.status === 'QUEUED' ? 'QUEUED' : 'RUNNING', {
           providerJobId: submission.providerJobId,

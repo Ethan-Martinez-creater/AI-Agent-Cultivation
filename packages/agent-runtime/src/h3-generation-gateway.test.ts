@@ -196,7 +196,11 @@ describe('H3 GenerationGateway HTTP adapter', () => {
       });
       const first = createGateway(fixture, stateStore, outputCache);
       const result = await first.gateway.submit(RUNTIME_ID, request);
-      expect(result).toMatchObject({ providerJobId: 'gen_1', status: 'QUEUED' });
+      expect(result).toEqual({
+        outcome: 'SUBMITTED',
+        providerJobId: 'gen_1',
+        status: 'QUEUED',
+      });
       expect(fixture.stats()).toMatchObject({
         uploadRequests: 1,
         submitRequests: 1,
@@ -389,17 +393,18 @@ describe('H3 GenerationGateway HTTP adapter', () => {
       fixture.setMode('unknown-submit');
       const request = makeRequest();
       const first = createGateway(fixture, stateStore);
-      await rejectsCode(first.gateway.submit(RUNTIME_ID, request), 'SUBMISSION_STATE_UNKNOWN');
+      await expect(first.gateway.submit(RUNTIME_ID, request)).resolves.toEqual({
+        outcome: 'UNKNOWN',
+      });
       expect(await stateStore.get(RUNTIME_ID, request.idempotencyKey)).toMatchObject({
         phase: 'UNKNOWN',
         providerJobId: null,
       });
 
       const afterRestart = createGateway(fixture, stateStore);
-      await rejectsCode(
-        afterRestart.gateway.submit(RUNTIME_ID, request),
-        'SUBMISSION_STATE_UNKNOWN',
-      );
+      await expect(afterRestart.gateway.submit(RUNTIME_ID, request)).resolves.toEqual({
+        outcome: 'UNKNOWN',
+      });
       expect(fixture.stats()).toMatchObject({
         submitRequests: 1,
         createdJobs: 1,
@@ -409,22 +414,160 @@ describe('H3 GenerationGateway HTTP adapter', () => {
     }
   });
 
-  it('maps queue errors and preserves a recoverable job when output download is interrupted', async () => {
+  it('persists only explicit stable pre-acceptance errors as REJECTED and never reposts them', async () => {
+    const fixture = await startH3HttpFixture();
+    const stateStore = new MemoryStateStore();
+    const codes = [
+      'AUTH_FAILED',
+      'MODEL_NOT_FOUND',
+      'INVALID_INPUT',
+      'UNSUPPORTED_FEATURE',
+      'UNSUPPORTED_INPUT_ROLE',
+      'MODEL_DURATION_LIMIT',
+      'QUEUE_FULL',
+      'IDEMPOTENCY_CONFLICT',
+    ] as const;
+    try {
+      for (const code of codes) {
+        fixture.setSubmissionError({
+          error: {
+            code,
+            message: 'bounded stable error',
+            retryable: code === 'QUEUE_FULL',
+            accepted: false,
+          },
+        });
+        const request = makeRequest({
+          idempotencyKey: 'task-rejected-' + code,
+          fingerprint: fingerprint('rejected-' + code),
+        });
+        const first = createGateway(fixture, stateStore);
+        await expect(first.gateway.submit(RUNTIME_ID, request)).resolves.toEqual({
+          outcome: 'REJECTED',
+          errorCode: code,
+        });
+        expect(await stateStore.get(RUNTIME_ID, request.idempotencyKey)).toMatchObject({
+          phase: 'REJECTED',
+          providerJobId: null,
+          errorCode: code,
+        });
+
+        const afterRestart = createGateway(fixture, stateStore);
+        await expect(afterRestart.gateway.submit(RUNTIME_ID, request)).resolves.toEqual({
+          outcome: 'REJECTED',
+          errorCode: code,
+        });
+        await rejectsCode(
+          afterRestart.gateway.submit(RUNTIME_ID, {
+            ...request,
+            fingerprint: fingerprint('changed-' + code),
+            prompt: 'changed',
+          }),
+          'IDEMPOTENCY_CONFLICT',
+        );
+      }
+      expect(fixture.stats()).toMatchObject({
+        submitRequests: codes.length,
+        createdJobs: 0,
+      });
+    } finally {
+      await fixture.close();
+    }
+  });
+
+  it('keeps malformed, absent, contradictory, or affirmative acceptance facts UNKNOWN', async () => {
+    const fixture = await startH3HttpFixture();
+    const stateStore = new MemoryStateStore();
+    const ambiguousPayloads: unknown[] = [
+      {
+        error: {
+          code: 'AUTH_FAILED',
+          message: 'stable code but no acceptance fact',
+          retryable: false,
+        },
+      },
+      {
+        error: {
+          code: 'AUTH_FAILED',
+          message: 'accepted is affirmative',
+          retryable: false,
+          accepted: true,
+        },
+      },
+      {
+        error: {
+          code: 'AUTH_FAILED',
+          message: 'malformed retryable field',
+          retryable: 'false',
+          accepted: false,
+        },
+      },
+      {
+        task_id: 'gen_conflicting',
+        error: {
+          code: 'AUTH_FAILED',
+          message: 'conflicting accepted job identity',
+          retryable: false,
+          accepted: false,
+        },
+      },
+      {
+        error: {
+          code: 'UNLISTED_REJECTION',
+          message: 'unlisted code',
+          retryable: false,
+          accepted: false,
+        },
+      },
+    ];
+    try {
+      for (let index = 0; index < ambiguousPayloads.length; index += 1) {
+        fixture.setSubmissionError(ambiguousPayloads[index] ?? null);
+        const request = makeRequest({
+          idempotencyKey: 'task-ambiguous-' + index,
+          fingerprint: fingerprint('ambiguous-' + index),
+        });
+        await expect(
+          createGateway(fixture, stateStore).gateway.submit(RUNTIME_ID, request),
+        ).resolves.toEqual({ outcome: 'UNKNOWN' });
+        expect(await stateStore.get(RUNTIME_ID, request.idempotencyKey)).toMatchObject({
+          phase: 'UNKNOWN',
+          providerJobId: null,
+        });
+        await expect(
+          createGateway(fixture, stateStore).gateway.submit(RUNTIME_ID, request),
+        ).resolves.toEqual({ outcome: 'UNKNOWN' });
+      }
+      expect(fixture.stats()).toMatchObject({
+        submitRequests: ambiguousPayloads.length,
+        createdJobs: 0,
+      });
+    } finally {
+      await fixture.close();
+    }
+  });
+
+  it('preserves a recoverable job when output download is interrupted', async () => {
     const fixture = await startH3HttpFixture();
     try {
       const queueGateway = createGateway(fixture);
       fixture.setMode('queue-full');
-      await rejectsCode(queueGateway.gateway.submit(RUNTIME_ID, makeRequest()), 'QUEUE_FULL');
+      await expect(queueGateway.gateway.submit(RUNTIME_ID, makeRequest())).resolves.toEqual({
+        outcome: 'REJECTED',
+        errorCode: 'QUEUE_FULL',
+      });
 
       fixture.setMode('normal');
       const { gateway } = createGateway(fixture);
-      const { providerJobId } = await gateway.submit(
+      const submission = await gateway.submit(
         RUNTIME_ID,
         makeRequest({
           idempotencyKey: 'task-download-retry',
           fingerprint: fingerprint('download-retry'),
         }),
       );
+      if (submission.outcome !== 'SUBMITTED') throw new Error('Expected a submitted fixture job');
+      const { providerJobId } = submission;
       fixture.setJobStatus(providerJobId!, 'completed');
       fixture.setMode('download-unavailable');
       await expect(gateway.getJob(RUNTIME_ID, providerJobId!)).rejects.toBeInstanceOf(
@@ -547,7 +690,9 @@ describe('H3 GenerationGateway HTTP adapter', () => {
     const fixture = await startH3HttpFixture();
     try {
       const { gateway } = createGateway(fixture);
-      const { providerJobId } = await gateway.submit(RUNTIME_ID, makeRequest());
+      const submission = await gateway.submit(RUNTIME_ID, makeRequest());
+      if (submission.outcome !== 'SUBMITTED') throw new Error('Expected a submitted fixture job');
+      const { providerJobId } = submission;
       fixture.setJobStatus(providerJobId!, 'completed');
       fixture.setMode('wrong-output-mime');
       await rejectsCode(gateway.getJob(RUNTIME_ID, providerJobId!), 'OUTPUT_MISSING');

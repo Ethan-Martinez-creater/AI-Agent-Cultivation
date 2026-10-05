@@ -89,6 +89,7 @@ export interface H3HttpFixture {
   baseUrl: string;
   server: Server;
   setMode(mode: H3HttpFixtureMode): void;
+  setSubmissionError(payload: unknown | null): void;
   setJobStatus(providerJobId: string, status: FixtureJob['status']): void;
   stats(): H3HttpFixtureStats;
   close(): Promise<void>;
@@ -103,6 +104,7 @@ export async function startH3HttpFixture(): Promise<H3HttpFixture> {
   let submitRequests = 0;
   let lastSubmitBody: Record<string, unknown> | null = null;
   let lastIdempotencyKey: string | null = null;
+  let submissionError: unknown | null = null;
   const jobs = new Map<string, FixtureJob>();
   const uploads = new Map<string, { bytes: Buffer; mimeType: string; sha256: string }>();
   const byIdempotencyKey = new Map<string, { body: string; jobId: string }>();
@@ -200,10 +202,6 @@ export async function startH3HttpFixture(): Promise<H3HttpFixture> {
       }
       if (url.pathname === '/v1/files' && request.method === 'POST') {
         uploadRequests += 1;
-        if (mode === 'queue-full') {
-          sendJson(response, 429, fixtureError('QUEUE_FULL'));
-          return;
-        }
         const file = await parseMultipartFile(request);
         const fileId = 'file_' + ++nextFileId;
         const digest = createHash('sha256').update(file.bytes).digest('hex');
@@ -242,8 +240,19 @@ export async function startH3HttpFixture(): Promise<H3HttpFixture> {
           sendJson(response, 200, { task_id: existing.jobId, status: 'queued' });
           return;
         }
+        if (submissionError !== null) {
+          sendJson(response, 400, submissionError);
+          return;
+        }
         if (mode === 'queue-full') {
-          sendJson(response, 429, fixtureError('QUEUE_FULL'));
+          sendJson(response, 429, {
+            error: {
+              code: 'QUEUE_FULL',
+              message: 'offline fixture rejection',
+              retryable: true,
+              accepted: false,
+            },
+          });
           return;
         }
         const jobId = 'gen_' + ++nextJobId;
@@ -325,6 +334,9 @@ export async function startH3HttpFixture(): Promise<H3HttpFixture> {
     server,
     setMode(nextMode) {
       mode = nextMode;
+    },
+    setSubmissionError(payload) {
+      submissionError = payload;
     },
     setJobStatus(providerJobId, status) {
       const job = jobs.get(providerJobId);

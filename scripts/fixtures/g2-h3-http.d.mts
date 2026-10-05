@@ -3,6 +3,7 @@ export interface H3Fixture {
   facts: {
     uploads: number;
     submissions: number;
+    postAttempts: number;
     downloads: number;
     statusQueries: number;
     healthChecks: number;
@@ -16,6 +17,8 @@ export interface H3Fixture {
     uploadHashMismatch: boolean;
     downloadInterrupted: boolean;
     hold: boolean;
+    rejectCode: string | null;
+    rejectionProof: boolean;
   };
   video: Uint8Array;
   png: Uint8Array;

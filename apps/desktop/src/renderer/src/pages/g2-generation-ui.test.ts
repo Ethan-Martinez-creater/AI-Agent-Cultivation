@@ -4,7 +4,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { AvailabilityBadge } from '../r3-2-availability.js';
 import { canTestNewModel, newModelCredentialId } from './create-model-policy.js';
-import { errorCodeOf, generationErrorText } from './generation-chat.js';
+import {
+  errorCodeOf,
+  GenerationEntry,
+  generationErrorText,
+  generationFailureText,
+} from './generation-chat.js';
+import type { GenerationChatEntryView } from '../ui-shared.js';
 
 function readSource(relativePath: string): string {
   return readFileSync(new URL(relativePath, import.meta.url), 'utf8');
@@ -186,10 +192,84 @@ describe('G2 Generation single chat UI contracts', () => {
         new Error('GENERATION_FAILED: secret provider response'),
         '生成任务失败。',
       ),
-    ).toBe('生成任务失败。（GENERATION_FAILED）');
+    ).toBe('生成任务失败。');
     expect(generationErrorText(new Error('secret provider response'), '生成任务失败。')).toBe(
       '生成任务失败。',
     );
+  });
+
+  it('presents stable rejection and uncertainty codes as product language', () => {
+    for (const code of [
+      'SUBMISSION_STATE_UNKNOWN',
+      'AUTH_FAILED',
+      'MODEL_NOT_FOUND',
+      'INVALID_INPUT',
+      'UNSUPPORTED_FEATURE',
+      'UNSUPPORTED_INPUT_ROLE',
+      'MODEL_DURATION_LIMIT',
+      'QUEUE_FULL',
+      'IDEMPOTENCY_CONFLICT',
+    ]) {
+      const text = generationFailureText(code, '生成任务失败。');
+      expect(text).not.toContain(code);
+      expect(text).not.toBe('生成任务失败。');
+    }
+    const source = readSource('./generation-chat.tsx');
+    expect(source).toContain('<summary>技术详情</summary>');
+    expect(source).not.toContain('errorCode ? `（${errorCode}）`');
+  });
+
+  it('keeps job codes and provider identity in closed technical details', () => {
+    for (const state of ['FAILED', 'UNKNOWN'] as const) {
+      const code = state === 'FAILED' ? 'AUTH_FAILED' : 'SUBMISSION_STATE_UNKNOWN';
+      const entry: GenerationChatEntryView = {
+        message: {
+          id: 'message',
+          missionId: null,
+          conversationId: 'conversation',
+          actorType: 'USER',
+          actorId: 'user',
+          role: 'USER',
+          content: '湖面视频',
+          createdAt: '2026-10-06T00:00:00Z',
+        },
+        inputs: [],
+        parameters: {},
+        artifacts: [],
+        preparationErrorCode: null,
+        job: {
+          id: 'internal-job-id',
+          generationTaskId: 'task',
+          teammateId: 'teammate',
+          runtimeProfileId: 'runtime',
+          providerJobId: 'internal-provider-id',
+          idempotencyKey: 'task',
+          requestFingerprint: 'hash',
+          completedAt: null,
+          state,
+          providerStatus: 'internal-provider-status',
+          outputArtifactIds: [],
+          errorCode: code,
+          createdAt: '2026-10-06T00:00:00Z',
+          updatedAt: '2026-10-06T00:00:00Z',
+        },
+      };
+      const html = renderToStaticMarkup(
+        createElement(GenerationEntry, {
+          entry,
+          teammate: null,
+          attachments: [],
+          parameterSummary: [],
+        }),
+      );
+      const primary = html.replace(/<details\b[\s\S]*?<\/details>/g, '');
+      expect(primary).not.toContain(code);
+      expect(primary).not.toContain('internal-job-id');
+      expect(primary).not.toContain('internal-provider-id');
+      expect(html).toContain(code);
+      expect(html).toContain('internal-provider-status');
+      expect(html).not.toMatch(/<details[^>]*\bopen\b/);
+    }
   });
 
   it('routes only Generation HTTP models to the new page and keeps language chat on its existing bridge', () => {

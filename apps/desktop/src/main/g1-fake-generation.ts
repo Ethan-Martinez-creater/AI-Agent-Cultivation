@@ -133,10 +133,13 @@ export class FakeGenerationGateway implements GenerationGateway {
     if (old) {
       if (old.fingerprint !== fingerprint || old.suppliedFingerprint !== request.fingerprint)
         throw new DomainError('IDEMPOTENCY_CONFLICT', '相同任务不能提交不同请求');
-      return {
-        providerJobId: old.job.status === 'UNKNOWN' ? null : old.job.providerJobId,
-        status: old.job.status === 'UNKNOWN' ? 'UNKNOWN' : 'QUEUED',
-      };
+      return old.job.status === 'UNKNOWN'
+        ? { outcome: 'UNKNOWN' }
+        : {
+            outcome: 'SUBMITTED',
+            providerJobId: old.job.providerJobId,
+            status: 'QUEUED',
+          };
     }
     const descriptor = await this.getDescriptor(runtimeId);
     if (
@@ -178,10 +181,9 @@ export class FakeGenerationGateway implements GenerationGateway {
     };
     this.facts.submissions++;
     this.save();
-    return {
-      providerJobId: scenario === 'UNKNOWN' ? null : providerJobId,
-      status: scenario === 'UNKNOWN' ? 'UNKNOWN' : 'QUEUED',
-    };
+    return scenario === 'UNKNOWN'
+      ? { outcome: 'UNKNOWN' }
+      : { outcome: 'SUBMITTED', providerJobId, status: 'QUEUED' };
   }
   async getJob(_runtimeId: string, providerJobId: string): Promise<ProviderGenerationJob> {
     const entry = Object.values(this.facts.entries).find(

@@ -30,6 +30,7 @@ import w23UncertainPreparedEffectSql from '../../../migrations/0025_w23_uncertai
 import w24DynamicManifestIntegritySql from '../../../migrations/0026_w24_dynamic_manifest_integrity.sql?raw';
 import g1GenerationFoundationSql from '../../../migrations/0027_g1_generation_foundation.sql?raw';
 import g2GenerationHttpSql from '../../../migrations/0028_g2_generation_http.sql?raw';
+import g2SubmissionContinuationSql from '../../../migrations/0029_g2_submission_continuation.sql?raw';
 export { ResearchInputArtifactRepository } from './w23-input-artifacts.js';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
@@ -135,6 +136,7 @@ export const migrations: readonly Migration[] = [
     sql: g2GenerationHttpSql,
     requiresForeignKeysOff: true,
   },
+  { version: 29, name: 'g2_submission_continuation', sql: g2SubmissionContinuationSql },
 ];
 
 export type ProviderKind = import('@cultivation/domain').ProviderKind;

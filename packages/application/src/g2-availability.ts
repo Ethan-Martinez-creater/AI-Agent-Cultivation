@@ -129,8 +129,20 @@ export class GenerationAvailabilityGateway implements GenerationGateway {
     ) {
       throw new DomainError('INVALID_MODEL_IDENTITY', '生成身份在提交前发生变化');
     }
-    return this.observe(runtimeProfileId, 'SUBMIT', () =>
-      this.delegate.submit(runtimeProfileId, request),
+    return this.observe(
+      runtimeProfileId,
+      'SUBMIT',
+      () => this.delegate.submit(runtimeProfileId, request),
+      (submission) => {
+        if (submission.outcome === 'UNKNOWN')
+          return { kind: 'TRANSIENT_FAILURE', code: 'SUBMISSION_STATE_UNKNOWN' };
+        if (submission.outcome === 'REJECTED')
+          return classifyGenerationFailure(
+            new DomainError(submission.errorCode, 'Provider rejected the submission'),
+            failureCode('SUBMIT'),
+          );
+        return undefined;
+      },
     );
   }
 
@@ -156,12 +168,24 @@ export class GenerationAvailabilityGateway implements GenerationGateway {
     runtimeProfileId: string,
     call: GenerationCall,
     operation: (identity: GenerationAvailabilityIdentity) => Promise<T>,
+    observeResult?: (result: T) => GenerationFailureClassification | null | undefined,
   ): Promise<T> {
     const identity = this.requireIdentity(runtimeProfileId);
     const revision = this.availability.identityRevision(identity.teammateId, runtimeProfileId);
     try {
       const result = await operation(identity);
-      await this.record(identity, runtimeProfileId, 'SUCCESS', successCode(call), revision);
+      const resultFailure = observeResult?.(result);
+      if (resultFailure === undefined) {
+        await this.record(identity, runtimeProfileId, 'SUCCESS', successCode(call), revision);
+      } else if (resultFailure) {
+        await this.record(
+          identity,
+          runtimeProfileId,
+          resultFailure.kind,
+          resultFailure.code,
+          revision,
+        );
+      }
       return result;
     } catch (error) {
       if (error instanceof GenerationCrash) {
@@ -314,6 +338,7 @@ function classifyGenerationFailure(
       'UNSUPPORTED_INPUT_ROLE',
       'UNSUPPORTED_CAPABILITY',
       'INVALID_INPUT',
+      'MODEL_DURATION_LIMIT',
       'INPUT_TOO_LARGE',
       'UNSUPPORTED_MEDIA_TYPE',
       'IDEMPOTENCY_CONFLICT',

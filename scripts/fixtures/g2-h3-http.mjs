@@ -13,6 +13,7 @@ export async function startH3Fixture() {
   const facts = {
     uploads: 0,
     submissions: 0,
+    postAttempts: 0,
     downloads: 0,
     statusQueries: 0,
     healthChecks: 0,
@@ -26,6 +27,8 @@ export async function startH3Fixture() {
     uploadHashMismatch: false,
     downloadInterrupted: false,
     hold: false,
+    rejectCode: null,
+    rejectionProof: true,
   };
   const jobs = new Map();
   const fileIds = new Set();
@@ -96,6 +99,7 @@ export async function startH3Fixture() {
         });
       }
       if (request.method === 'POST' && url.pathname === '/v1/videos') {
+        facts.postAttempts++;
         let text = '';
         for await (const chunk of request) {
           text += chunk;
@@ -104,6 +108,15 @@ export async function startH3Fixture() {
         const body = JSON.parse(text);
         const key = String(request.headers['idempotency-key'] ?? '');
         if (!key) return error(response, 400, 'INVALID_INPUT');
+        if (mode.rejectCode)
+          return json(response, 429, {
+            error: {
+              code: mode.rejectCode,
+              message: 'Private service rejection',
+              retryable: mode.rejectCode === 'QUEUE_FULL',
+              ...(mode.rejectionProof ? { accepted: false } : {}),
+            },
+          });
         const hash = createHash('sha256').update(text).digest('hex');
         const previous = jobs.get(key);
         if (previous) {

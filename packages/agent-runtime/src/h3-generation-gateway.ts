@@ -11,6 +11,7 @@ import type {
   GenerationModelDescriptor,
   GenerationOutputDescriptor,
   GenerationSubmission,
+  GenerationSubmissionRejectionCode,
   ProviderGenerationJob,
 } from '@cultivation/domain/g1-generation';
 
@@ -20,7 +21,7 @@ export interface H3ResolvedRuntime {
   apiKey: string;
 }
 export type H3ResolveRuntime = (runtimeProfileId: string) => Promise<H3ResolvedRuntime | null>;
-export type H3SubmissionPhase = 'PREPARED' | 'SUBMITTING' | 'SUBMITTED' | 'UNKNOWN';
+export type H3SubmissionPhase = 'PREPARED' | 'SUBMITTING' | 'SUBMITTED' | 'REJECTED' | 'UNKNOWN';
 export interface H3UploadedFileIdentity {
   artifactId: string;
   role: string;
@@ -38,6 +39,7 @@ export interface H3AdapterSubmissionState {
   exactBody: string;
   phase: H3SubmissionPhase;
   providerJobId: string | null;
+  errorCode?: GenerationSubmissionRejectionCode | null;
 }
 export interface H3AdapterStateStore {
   get(runtimeId: string, key: string): Promise<H3AdapterSubmissionState | null>;
@@ -148,6 +150,16 @@ const KNOWN_ERRORS = new Set<H3ProviderErrorCode>([
   'OUTPUT_MISSING',
   'INTERNAL_ERROR',
 ]);
+const DEFINITIVE_REJECTION_CODES = new Set<GenerationSubmissionRejectionCode>([
+  'AUTH_FAILED',
+  'MODEL_NOT_FOUND',
+  'INVALID_INPUT',
+  'UNSUPPORTED_FEATURE',
+  'UNSUPPORTED_INPUT_ROLE',
+  'MODEL_DURATION_LIMIT',
+  'QUEUE_FULL',
+  'IDEMPOTENCY_CONFLICT',
+]);
 const SAFE_MESSAGES: Record<H3ProviderErrorCode, string> = {
   AUTH_FAILED: 'H3 runtime authentication failed.',
   MODEL_NOT_FOUND: 'The configured H3 model was not found.',
@@ -188,6 +200,29 @@ function errorCodeFromPayload(value: unknown): H3ProviderErrorCode | null {
   return typeof code === 'string' && KNOWN_ERRORS.has(code as H3ProviderErrorCode)
     ? (code as H3ProviderErrorCode)
     : null;
+}
+/**
+ * Generation Software Spec v0.2 §15–16 lacks an acceptance marker. The optional adapter contract
+ * extension requires `accepted:false`; codes or retryable values alone are never enough to
+ * distinguish a rejection from a lost/ambiguous accepted submission.
+ */
+function definitiveSubmissionRejection(value: unknown): GenerationSubmissionRejectionCode | null {
+  const root = asRecord(value);
+  if (!root || Object.keys(root).length !== 1 || !Object.hasOwn(root, 'error')) return null;
+  const error = asRecord(root.error);
+  if (!error) return null;
+  const expectedFields = ['accepted', 'code', 'message', 'retryable'];
+  if (
+    Object.keys(error).length !== expectedFields.length ||
+    expectedFields.some((field) => !Object.hasOwn(error, field)) ||
+    error.accepted !== false ||
+    typeof error.retryable !== 'boolean' ||
+    !boundedString(error.message, 512) ||
+    typeof error.code !== 'string' ||
+    !DEFINITIVE_REJECTION_CODES.has(error.code as GenerationSubmissionRejectionCode)
+  )
+    return null;
+  return error.code as GenerationSubmissionRejectionCode;
 }
 function statusErrorCode(status: number, fallback: H3ProviderErrorCode): H3ProviderErrorCode {
   if (status === 401 || status === 403) return 'AUTH_FAILED';
@@ -1012,12 +1047,21 @@ export class H3GenerationGateway implements GenerationGateway {
         fail('IDEMPOTENCY_CONFLICT');
       if (state.phase === 'SUBMITTED') {
         if (!state.providerJobId) fail('SUBMISSION_STATE_UNKNOWN');
-        return { providerJobId: state.providerJobId, status: 'QUEUED' };
+        return {
+          outcome: 'SUBMITTED',
+          providerJobId: state.providerJobId,
+          status: 'QUEUED',
+        };
+      }
+      if (state.phase === 'REJECTED') {
+        if (!state.errorCode || !DEFINITIVE_REJECTION_CODES.has(state.errorCode))
+          fail('SUBMISSION_STATE_UNKNOWN');
+        return { outcome: 'REJECTED', errorCode: state.errorCode };
       }
       if (state.phase === 'SUBMITTING' || state.phase === 'UNKNOWN') {
         if (state.phase === 'SUBMITTING')
           await this.stateStore.put({ ...state, phase: 'UNKNOWN', providerJobId: null });
-        fail('SUBMISSION_STATE_UNKNOWN');
+        return { outcome: 'UNKNOWN' };
       }
       if (state.phase !== 'PREPARED' || !state.exactBody || !Array.isArray(state.uploadedFiles))
         fail('INTERNAL_ERROR');
@@ -1041,10 +1085,16 @@ export class H3GenerationGateway implements GenerationGateway {
         exactBody: JSON.stringify(body),
         phase: 'PREPARED',
         providerJobId: null,
+        errorCode: null,
       };
       await this.stateStore.put(state);
     }
-    await this.stateStore.put({ ...state, phase: 'SUBMITTING', providerJobId: null });
+    await this.stateStore.put({
+      ...state,
+      phase: 'SUBMITTING',
+      providerJobId: null,
+      errorCode: null,
+    });
     let response: Response;
     try {
       response = await this.fetchImplementation(apiUrl(runtime, '/v1/videos'), {
@@ -1056,12 +1106,28 @@ export class H3GenerationGateway implements GenerationGateway {
       });
     } catch {
       await this.markUnknown(state);
-      fail('SUBMISSION_STATE_UNKNOWN');
+      return { outcome: 'UNKNOWN' };
     }
     const payload = await readBoundedJson(response);
     if (!response.ok) {
-      await this.markUnknown(state);
-      safeResponseError(response.status, payload, 'GENERATION_FAILED');
+      const errorCode = definitiveSubmissionRejection(payload);
+      if (!errorCode) {
+        await this.markUnknown(state);
+        return { outcome: 'UNKNOWN' };
+      }
+      try {
+        await this.stateStore.put({
+          ...state,
+          phase: 'REJECTED',
+          providerJobId: null,
+          errorCode,
+        });
+      } catch {
+        // The provider says it rejected the task, but without a durable rejection fact a restart
+        // must retain the existing SUBMITTING barrier and report uncertainty.
+        return { outcome: 'UNKNOWN' };
+      }
+      return { outcome: 'REJECTED', errorCode };
     }
     const result = asRecord(payload);
     const rawStatus = result?.status;
@@ -1072,14 +1138,18 @@ export class H3GenerationGateway implements GenerationGateway {
       (rawStatus !== 'queued' && rawStatus !== 'running')
     ) {
       await this.markUnknown(state);
-      fail('SUBMISSION_STATE_UNKNOWN');
+      return { outcome: 'UNKNOWN' };
     }
     try {
       await this.stateStore.put({ ...state, phase: 'SUBMITTED', providerJobId });
     } catch {
       fail('SUBMISSION_STATE_UNKNOWN');
     }
-    return { providerJobId, status: rawStatus === 'running' ? 'RUNNING' : 'QUEUED' };
+    return {
+      outcome: 'SUBMITTED',
+      providerJobId,
+      status: rawStatus === 'running' ? 'RUNNING' : 'QUEUED',
+    };
   }
 
   private bodyMatchesState(

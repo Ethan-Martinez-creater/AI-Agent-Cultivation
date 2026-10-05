@@ -610,6 +610,12 @@ if (!squirrelStartup)
             permission: permissionEngine,
             secrets: secretStore,
             onAvailabilityChanged: { onChanged: notifyAvailability },
+            chatCrash:
+              process.env.CULTIVATION_G2_ACCEPTANCE === '1'
+                ? (point) => {
+                    if (process.env.CULTIVATION_G2_PREPARATION_CRASH === point) app.exit(81);
+                  }
+                : undefined,
           });
       const generation =
         g2 ??
@@ -1059,7 +1065,7 @@ if (!squirrelStartup)
             polling = false;
           }
         };
-        void queryPending();
+        void g2.chat.recoverPreparations().then(queryPending);
         const timer = setInterval(() => void queryPending(), 10000);
         app.once('before-quit', () => clearInterval(timer));
       }

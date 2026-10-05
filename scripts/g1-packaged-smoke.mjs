@@ -97,7 +97,7 @@ try {
     migration: db.prepare('SELECT MAX(version) AS n FROM schema_migrations').get().n,
     jobs: db.prepare('SELECT COUNT(*) AS n FROM generation_jobs').get().n,
   }));
-  assert.deepEqual(facts.production, { migration: 28, jobs: 0 });
+  assert.deepEqual(facts.production, { migration: 29, jobs: 0 });
   facts.frozenHashes = read(production, (db) =>
     db
       .prepare(

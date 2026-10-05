@@ -65,7 +65,7 @@ const initial = read((db) => ({
 }));
 assert.deepEqual(
   initial.migrations,
-  Array.from({ length: 28 }, (_, index) => index + 1),
+  Array.from({ length: 29 }, (_, index) => index + 1),
 );
 assert.equal(initial.runs, 0);
 assert.equal(initial.releases.length, 3);
@@ -166,7 +166,7 @@ try {
       'utf8',
     );
     console.log(
-      `W24_PACKAGED_SMOKE_OK cleanProfile=${profile} migration=28 official=3 sharedDatabase=true frozenHashes=true finalProductionRestartZeroReplay=true evidence=${evidence}`,
+      `W24_PACKAGED_SMOKE_OK cleanProfile=${profile} migration=29 official=3 sharedDatabase=true frozenHashes=true finalProductionRestartZeroReplay=true evidence=${evidence}`,
     );
   } finally {
     await live.app.close();

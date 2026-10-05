@@ -18,9 +18,9 @@ describe('G1 adapter idempotency boundary', () => {
       inputs: [],
     };
     const first = await gateway.submit('r', request);
-    expect((await gateway.submit('r', request)).providerJobId).toBe(first.providerJobId);
+    expect(await gateway.submit('r', request)).toEqual(first);
     const reopened = new FakeGenerationGateway(file, () => 'image-v1');
-    expect((await reopened.submit('r', request)).providerJobId).toBe(first.providerJobId);
+    expect(await reopened.submit('r', request)).toEqual(first);
     expect(reopened.counters().submissions).toBe(1);
     await expect(reopened.submit('r', { ...request, prompt: '另一张图片' })).rejects.toMatchObject({
       code: 'IDEMPOTENCY_CONFLICT',
@@ -42,14 +42,11 @@ describe('G1 adapter idempotency boundary', () => {
       parameters: { scenario: 'UNKNOWN' },
       inputs: [],
     };
-    expect(
-      await new FakeGenerationGateway(file, () => 'image-v1').submit('r', request),
-    ).toMatchObject({ status: 'UNKNOWN', providerJobId: null });
-    const reopened = new FakeGenerationGateway(file, () => 'image-v1');
-    expect(await reopened.submit('r', request)).toMatchObject({
-      status: 'UNKNOWN',
-      providerJobId: null,
+    expect(await new FakeGenerationGateway(file, () => 'image-v1').submit('r', request)).toEqual({
+      outcome: 'UNKNOWN',
     });
+    const reopened = new FakeGenerationGateway(file, () => 'image-v1');
+    expect(await reopened.submit('r', request)).toEqual({ outcome: 'UNKNOWN' });
     expect(reopened.counters().submissions).toBe(1);
   });
 });

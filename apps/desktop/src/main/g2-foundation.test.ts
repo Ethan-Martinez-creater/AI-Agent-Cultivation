@@ -13,9 +13,13 @@ import {
 import Database from 'better-sqlite3';
 import { Gate1Service } from '@cultivation/application/gate1-service';
 import { FakeModelGateway } from '@cultivation/agent-runtime';
+import { GenerationCrash } from '@cultivation/application/g1-generation';
+import { DomainError } from '@cultivation/shared';
 import { PermissionEngine } from '@cultivation/application/permission-engine';
 import { h3GenerationFoundation } from './g2-foundation.js';
+import { GenerationChatService } from './g2-chat.js';
 import { startH3Fixture } from '../../../../scripts/fixtures/g2-h3-http.mjs';
+import type { GenerationInputBinding, GenerationTask } from '@cultivation/domain/g1-generation';
 const secrets = {
   encrypt: async (s: string) => new TextEncoder().encode(s),
   decrypt: async (s: Uint8Array) => new TextDecoder().decode(s),
@@ -107,6 +111,35 @@ async function complete(x: Awaited<ReturnType<typeof harness>>) {
     });
   return d;
 }
+function chatWithCrash(
+  x: Awaited<ReturnType<typeof harness>>,
+  point: 'ENTRY_COMMITTED' | 'JOB_CREATED',
+) {
+  return new GenerationChatService(
+    x.db,
+    x.h.store,
+    x.h.generation.service,
+    x.h.generation.gateway,
+    x.h.generation.availability,
+    {
+      crash: (current) => {
+        if (current === point) throw new GenerationCrash(`fixture crash at ${point}`);
+      },
+    },
+  );
+}
+
+const generationPrompt = (
+  x: Awaited<ReturnType<typeof harness>>,
+  inputs: GenerationInputBinding[] = [],
+) => ({
+  teammateId: x.teammate.id,
+  conversationId: x.conversation.id,
+  prompt: '生成一段山川日落短片',
+  inputs,
+  parameters: { duration: 5, aspect: '16:9' },
+});
+
 describe('G2 trusted H3 Main integration', () => {
   it('accepts the real MP4 fixture through frozen bounded media validation', async () => {
     const x = await harness();
@@ -146,6 +179,171 @@ describe('G2 trusted H3 Main integration', () => {
       await x.close();
     }
   });
+  it('recovers a committed chat intent when Main crashes before creating its Job', async () => {
+    const x = await harness();
+    try {
+      const crashed = chatWithCrash(x, 'ENTRY_COMMITTED');
+      await expect(crashed.send(generationPrompt(x))).rejects.toBeInstanceOf(GenerationCrash);
+      expect(x.h.generation.service.list()).toHaveLength(0);
+      expect(
+        x.db
+          .prepare('SELECT COUNT(*) AS n FROM generation_chat_entries WHERE job_id IS NULL')
+          .get(),
+      ).toEqual({ n: 1 });
+
+      x.restart();
+      await Promise.all([
+        x.h.generation.chat.recoverPreparations(),
+        x.h.generation.chat.recoverPreparations(),
+      ]);
+      expect(x.h.generation.service.list()).toHaveLength(1);
+      await x.h.generation.service.recover();
+      expect(x.h.generation.service.list()).toHaveLength(1);
+      expect(x.http.facts.submissions).toBe(1);
+    } finally {
+      await x.close();
+    }
+  });
+  it('leaves transient preparation pending and does not retry it from automatic chat refresh', async () => {
+    const x = await harness();
+    try {
+      await expect(
+        chatWithCrash(x, 'ENTRY_COMMITTED').send(generationPrompt(x)),
+      ).rejects.toBeInstanceOf(GenerationCrash);
+      x.restart();
+      vi.spyOn(x.h.generation.gateway, 'getDescriptor').mockRejectedValueOnce(
+        new DomainError('MODEL_UNAVAILABLE', 'fixture transient failure'),
+      );
+      await x.h.generation.chat.recoverPreparations();
+      expect(x.h.generation.service.list()).toHaveLength(0);
+      expect(
+        x.db.prepare('SELECT preparation_error_code FROM generation_chat_entries').get(),
+      ).toEqual({ preparation_error_code: null });
+
+      await x.h.generation.chat.refresh({
+        teammateId: x.teammate.id,
+        conversationId: x.conversation.id,
+      });
+      expect(x.h.generation.service.list()).toHaveLength(0);
+
+      await x.h.generation.chat.recoverPreparations();
+      expect(x.h.generation.service.list()).toHaveLength(1);
+      await x.h.generation.service.recover();
+      expect(x.http.facts.submissions).toBe(1);
+    } finally {
+      await x.close();
+    }
+  });
+  it('reuses the original bound Job when Main crashes before send returns', async () => {
+    const x = await harness();
+    try {
+      await expect(
+        chatWithCrash(x, 'JOB_CREATED').send(generationPrompt(x)),
+      ).rejects.toBeInstanceOf(GenerationCrash);
+      const original = x.h.generation.service.list();
+      expect(original).toHaveLength(1);
+      expect(x.db.prepare('SELECT job_id FROM generation_chat_entries').get()).toEqual({
+        job_id: original[0]!.id,
+      });
+
+      x.restart();
+      await x.h.generation.chat.recoverPreparations();
+      expect(x.h.generation.service.list().map((job) => job.id)).toEqual([original[0]!.id]);
+      await x.h.generation.service.recover();
+      expect(x.h.generation.service.list().map((job) => job.id)).toEqual([original[0]!.id]);
+      expect(x.http.facts.submissions).toBe(1);
+    } finally {
+      await x.close();
+    }
+  });
+  it('stores deterministic preparation failure and does not retry it after restart', async () => {
+    const x = await harness();
+    try {
+      await expect(
+        x.h.generation.chat.send(generationPrompt(x, [{ artifactId: 'fake-id', role: 'UNKNOWN' }])),
+      ).rejects.toThrow();
+      expect(x.h.generation.service.list()).toHaveLength(0);
+      expect(
+        x.db.prepare('SELECT preparation_error_code FROM generation_chat_entries').get(),
+      ).toEqual({ preparation_error_code: 'UNSUPPORTED_INPUT_ROLE' });
+      const messageId = x.db
+        .prepare('SELECT message_id FROM generation_chat_entries')
+        .pluck()
+        .get() as string;
+      expect(() =>
+        x.db
+          .prepare(
+            'UPDATE generation_chat_entries SET preparation_error_code=NULL WHERE message_id=?',
+          )
+          .run(messageId),
+      ).toThrow();
+      expect(() =>
+        x.db
+          .prepare(
+            "UPDATE generation_chat_entries SET preparation_error_code='AUTH_FAILED' WHERE message_id=?",
+          )
+          .run(messageId),
+      ).toThrow();
+
+      x.restart();
+      await x.h.generation.chat.recoverPreparations();
+      await x.h.generation.chat.recoverPreparations();
+      expect(x.h.generation.service.list()).toHaveLength(0);
+      expect(x.http.facts.submissions).toBe(0);
+    } finally {
+      await x.close();
+    }
+  });
+  it('rejects a second GenerationJob for an already bound chat intent atomically', async () => {
+    const x = await harness();
+    try {
+      await x.h.generation.chat.send(generationPrompt(x));
+      const counts = () => ({
+        tasks: (x.db.prepare('SELECT COUNT(*) AS n FROM generation_tasks').get() as { n: number })
+          .n,
+        jobs: x.h.generation.service.list().length,
+      });
+      const before = counts();
+      const row = x.db.prepare('SELECT task_json FROM generation_tasks LIMIT 1').get() as {
+        task_json: string;
+      };
+      const stored = JSON.parse(row.task_json) as GenerationTask;
+      const { id: _id, createdAt: _createdAt, ...duplicateIntent } = stored;
+      void _id;
+      void _createdAt;
+
+      await expect(x.h.generation.service.create(duplicateIntent)).rejects.toThrow();
+      expect(counts()).toEqual(before);
+    } finally {
+      await x.close();
+    }
+  });
+  it.each([
+    ['completed', false],
+    ['unknown', true],
+  ] as const)(
+    '%s entry is terminal and never creates a replacement Job',
+    async (_name, uncertain) => {
+      const x = await harness();
+      try {
+        x.http.mode.uncertain = uncertain;
+        await x.h.generation.chat.send(generationPrompt(x));
+        if (!uncertain) await complete(x);
+        const before = x.h.generation.service.list();
+        expect(before).toHaveLength(1);
+        expect(before[0]!.state).toBe(uncertain ? 'UNKNOWN' : 'COMPLETED');
+        const submissionCount = x.http.facts.submissions;
+
+        x.restart();
+        await x.h.generation.chat.recoverPreparations();
+        await x.h.generation.service.recover();
+        expect(x.h.generation.service.list().map((job) => job.id)).toEqual([before[0]!.id]);
+        expect(x.http.facts.submissions).toBe(submissionCount);
+      } finally {
+        await x.close();
+      }
+    },
+  );
   it('persists real user message → job → safe Artifact without assistant text, secret or path', async () => {
     const x = await harness();
     try {
@@ -332,7 +530,7 @@ describe('G2 trusted H3 Main integration', () => {
       await x.close();
     }
   });
-  it('migration 27→28 preserves existing availability and foreign keys', () => {
+  it('latest migration preserves existing availability and foreign keys', () => {
     const db = new Database(':memory:');
     try {
       db.pragma('foreign_keys=ON');
@@ -343,7 +541,7 @@ describe('G2 trusted H3 Main integration', () => {
       runMigrations(db, migrations);
       expect(db.pragma('foreign_key_check')).toEqual([]);
       expect(db.prepare('SELECT MAX(version) AS n FROM schema_migrations').get()).toEqual({
-        n: 28,
+        n: migrations[migrations.length - 1]!.version,
       });
     } finally {
       db.close();

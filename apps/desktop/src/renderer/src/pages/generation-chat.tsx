@@ -598,9 +598,7 @@ export function GenerationChatPage() {
                   </button>
                 </div>
               )}
-              {errorCode && errorCode !== 'MODEL_UNAVAILABLE' && (
-                <code>{safeErrorCode(errorCode)}</code>
-              )}
+              {errorCode && <GenerationTechnicalDetails errorCode={errorCode} />}
             </div>
           )}
           {notice && (
@@ -781,7 +779,7 @@ export function GenerationChatPage() {
   );
 }
 
-function GenerationEntry({
+export function GenerationEntry({
   entry,
   teammate,
   attachments,
@@ -824,9 +822,15 @@ function GenerationEntry({
           <Icon name="Alert" size={18} />
           <span>
             <strong>任务准备失败</strong>
-            <small>{safeErrorCode(entry.preparationErrorCode)}</small>
+            <small>{generationFailureText(entry.preparationErrorCode, '请检查输入与配置。')}</small>
+            <GenerationTechnicalDetails errorCode={entry.preparationErrorCode} />
           </span>
         </div>
+      )}
+      {!entry.job && !entry.preparationErrorCode && (
+        <p className="g2-generation-technical" role="status">
+          任务准备中
+        </p>
       )}
       {entry.job && (
         <div
@@ -849,9 +853,16 @@ function GenerationEntry({
               {parameterSummary.length
                 ? parameterSummary.join(' · ')
                 : '提示词与显式素材参数已保存'}
-              {entry.job.errorCode ? ` · ${safeErrorCode(entry.job.errorCode)}` : ''}
             </small>
-            {entry.job.state === 'UNKNOWN' && <small>状态待确认；此任务不会自动重新提交。</small>}
+            {(entry.job.errorCode || entry.job.state === 'UNKNOWN') && (
+              <small>
+                {generationFailureText(
+                  entry.job.errorCode ?? 'SUBMISSION_STATE_UNKNOWN',
+                  '任务未能完成，请检查配置后重新创建。',
+                )}
+              </small>
+            )}
+            <GenerationTechnicalDetails job={entry.job} />
           </span>
           <StatusBadge
             tone={
@@ -870,6 +881,51 @@ function GenerationEntry({
         <GenerationArtifactCard key={artifact.id} artifact={artifact} teammate={teammate} />
       ))}
     </div>
+  );
+}
+
+function GenerationTechnicalDetails({
+  errorCode,
+  job,
+}: {
+  errorCode?: string | null;
+  job?: GenerationChatEntryView['job'];
+}) {
+  const code = errorCode ?? job?.errorCode;
+  return (
+    <details className="g2-generation-technical" data-testid="generation-technical-details">
+      <summary>技术详情</summary>
+      <dl>
+        {code && (
+          <>
+            <dt>错误代码</dt>
+            <dd>
+              <code>{safeErrorCode(code)}</code>
+            </dd>
+          </>
+        )}
+        {job && (
+          <>
+            <dt>任务 ID</dt>
+            <dd>
+              <code>{job.id}</code>
+            </dd>
+            <dt>服务状态</dt>
+            <dd>
+              <code>{job.providerStatus ?? '—'}</code>
+            </dd>
+            {job.providerJobId && (
+              <>
+                <dt>服务任务 ID</dt>
+                <dd>
+                  <code>{job.providerJobId}</code>
+                </dd>
+              </>
+            )}
+          </>
+        )}
+      </dl>
+    </details>
   );
 }
 
@@ -1180,8 +1236,27 @@ export function errorCodeOf(cause: unknown): string {
 
 export function generationErrorText(cause: unknown, fallback: string): string {
   const code = errorCodeOf(cause);
-  if (code === 'MODEL_UNAVAILABLE') return '生成服务暂时不可用，请重新检测后再决定是否重试。';
-  return code ? `${fallback}（${safeErrorCode(code)}）` : fallback;
+  return generationFailureText(code, fallback);
+}
+
+export function generationFailureText(code: string, fallback: string): string {
+  const labels: Record<string, string> = {
+    MODEL_UNAVAILABLE: '生成服务暂时不可用，请重新检测后再决定是否重试。',
+    SUBMISSION_STATE_UNKNOWN: '状态待确认；此任务不会自动重新提交。',
+    AUTH_FAILED: '认证失败，请检查服务凭据。',
+    MODEL_NOT_FOUND: '找不到所选模型，请检查模型配置。',
+    INVALID_INPUT: '参数不受支持，请检查输入。',
+    UNSUPPORTED_FEATURE: '当前模型不支持所选生成选项。',
+    UNSUPPORTED_INPUT_ROLE: '当前模型不支持所选素材用途。',
+    MODEL_DURATION_LIMIT: '时长超过模型限制，请调整时长。',
+    QUEUE_FULL: '服务繁忙，请稍后创建新的生成任务。',
+    IDEMPOTENCY_CONFLICT: '提交信息不一致，此任务已停止。',
+    INPUT_TOO_LARGE: '素材超过模型允许的大小。',
+    OUTPUT_TOO_LARGE: '生成结果超过安全大小限制。',
+    INPUT_HASH_MISMATCH: '素材校验失败，请重新导入。',
+    ARTIFACT_INTEGRITY: '素材或结果校验失败，任务未能安全完成。',
+  };
+  return labels[code] ?? fallback;
 }
 
 function safeErrorCode(value: string): string {

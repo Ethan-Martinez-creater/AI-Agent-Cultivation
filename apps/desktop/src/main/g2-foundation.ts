@@ -21,6 +21,7 @@ import { GenerationArtifactStore } from './g1-artifact-store.js';
 import { GenerationMediaStore } from './g2-media-store.js';
 import { GenerationAdapterStateStore } from './g2-adapter-state.js';
 import { GenerationChatService } from './g2-chat.js';
+import type { GenerationChatServiceOptions } from './g2-chat.js';
 
 /** Trusted Main dispatch; production never supplies a fake generation provider. */
 export function h3GenerationFoundation(options: {
@@ -32,6 +33,7 @@ export function h3GenerationFoundation(options: {
   permission: PermissionEngine;
   secrets: SecretStore;
   onAvailabilityChanged?: Parameters<typeof createGenerationAvailabilityService>[4];
+  chatCrash?: GenerationChatServiceOptions['crash'];
 }) {
   const { db, store } = options;
   const repository = new GenerationSqliteRepository(db);
@@ -155,7 +157,9 @@ export function h3GenerationFoundation(options: {
     artifacts,
     { id: randomUUID },
   );
-  const chat = new GenerationChatService(db, store, service, gateway, availability);
+  const chat = new GenerationChatService(db, store, service, gateway, availability, {
+    crash: options.chatCrash,
+  });
   const listAttachments = () => [
     ...media.list(),
     ...repository

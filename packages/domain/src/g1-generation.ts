@@ -100,10 +100,23 @@ export interface GenerationOutputDescriptor {
   contentHash: string;
   metadata: Record<string, number | string | boolean | null>;
 }
-export interface GenerationSubmission {
-  providerJobId: string | null;
-  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'UNKNOWN';
-}
+/**
+ * The adapter must only return REJECTED when its stable response contract proves that
+ * no provider Job was accepted. Network ambiguity is UNKNOWN and must never be replayed.
+ */
+export type GenerationSubmissionRejectionCode =
+  | 'AUTH_FAILED'
+  | 'MODEL_NOT_FOUND'
+  | 'INVALID_INPUT'
+  | 'UNSUPPORTED_FEATURE'
+  | 'UNSUPPORTED_INPUT_ROLE'
+  | 'MODEL_DURATION_LIMIT'
+  | 'QUEUE_FULL'
+  | 'IDEMPOTENCY_CONFLICT';
+export type GenerationSubmission =
+  | { outcome: 'SUBMITTED'; providerJobId: string; status: 'QUEUED' | 'RUNNING' }
+  | { outcome: 'REJECTED'; errorCode: GenerationSubmissionRejectionCode }
+  | { outcome: 'UNKNOWN' };
 export interface ProviderGenerationJob {
   providerJobId: string;
   status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'UNKNOWN';

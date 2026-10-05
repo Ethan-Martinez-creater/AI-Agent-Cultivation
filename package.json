@@ -16,8 +16,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "package": "electron-forge package --platform=win32 --arch=x64",
+    "format:check": "node scripts/format-check.mjs",
+    "package": "node scripts/electron-forge-runner.mjs package --platform=win32 --arch=x64",
     "make": "electron-forge make --platform=win32 --arch=x64",
     "smoke:package": "node scripts/smoke-packaged.mjs",
     "smoke:installer": "node scripts/smoke-installer.mjs"
