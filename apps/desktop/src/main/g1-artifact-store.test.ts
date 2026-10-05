@@ -1,10 +1,12 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, readFile, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, symlink, writeFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { deflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 import { DomainError } from '@cultivation/shared';
+import type { GenerationBinarySource } from '@cultivation/application/g1-generation';
+import { GenerationCrash } from '@cultivation/application/g1-generation';
 import type {
   GenerationArtifact,
   GenerationJob,
@@ -53,6 +55,20 @@ function png(width: number, height: number): Buffer {
 }
 
 const PNG = png(1, 1);
+
+function binarySource(bytes: Uint8Array): GenerationBinarySource {
+  const controller = new AbortController();
+  return {
+    open: (signal?: AbortSignal) =>
+      (async function* () {
+        for (let offset = 0; offset < bytes.byteLength; offset += 8) {
+          if (signal?.aborted || controller.signal.aborted) throw new Error('cancelled');
+          yield bytes.subarray(offset, Math.min(bytes.byteLength, offset + 8));
+        }
+      })(),
+    cancel: () => controller.abort(),
+  };
+}
 
 class MemoryGenerationRepository {
   private readonly artifacts = new Map<string, GenerationArtifact>();
@@ -173,7 +189,7 @@ function makeStore(
       resource: string,
     ) => Promise<void>;
     maxBytes?: number;
-    crash?: (point: 'STAGED' | 'COMMITTED', job: GenerationJob) => void;
+    crash?: (point: 'DOWNLOADING' | 'STAGED' | 'COMMITTED', job: GenerationJob) => void;
   } = {},
 ) {
   return new GenerationArtifactStore({
@@ -187,6 +203,280 @@ function makeStore(
 }
 
 describe('GenerationArtifactStore', () => {
+  it('streams realistic media above 16 MiB with bounded buffers and keeps Workspace authority', async () => {
+    const f = await fixture();
+    const repository = new MemoryGenerationRepository();
+    const dataBytes = 17 * 1024 * 1024;
+    const header = Buffer.alloc(44);
+    header.write('RIFF', 0);
+    header.writeUInt32LE(dataBytes + 36, 4);
+    header.write('WAVEfmt ', 8);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20);
+    header.writeUInt16LE(1, 22);
+    header.writeUInt32LE(16000, 24);
+    header.writeUInt32LE(32000, 28);
+    header.writeUInt16LE(2, 32);
+    header.writeUInt16LE(16, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(dataBytes, 40);
+    const chunk = Buffer.alloc(64 * 1024);
+    const hash = createHash('sha256').update(header);
+    for (let offset = 0; offset < dataBytes; offset += chunk.length) hash.update(chunk);
+    const source: GenerationBinarySource = {
+      open: () =>
+        (async function* () {
+          yield header;
+          for (let offset = 0; offset < dataBytes; offset += chunk.length) yield chunk;
+        })(),
+      cancel: () => undefined,
+    };
+    const task = {
+      ...makeTask('large-audio', 'MISSION_WORKSPACE', 'music.wav'),
+      capability: 'MUSIC_GENERATION' as const,
+      expectedOutput: { artifactKind: 'AUDIO' as const, mimeTypes: ['audio/wav'] },
+    };
+    const descriptor = {
+      ...makeDescriptor(),
+      outputCapability: 'MUSIC_GENERATION' as const,
+      outputTypes: ['audio/wav'],
+      inputRoles: [
+        { role: 'REFERENCE', artifactKinds: ['AUDIO'], mimeTypes: ['audio/wav'], maxFiles: 1 },
+      ],
+      limits: {
+        ...makeDescriptor().limits,
+        maxInputBytes: 32 * 1024 * 1024,
+        maxOutputBytes: 32 * 1024 * 1024,
+      },
+    };
+    const output = {
+      ...makeOutput(),
+      mimeType: 'audio/wav',
+      extension: '.wav',
+      sizeBytes: dataBytes + header.length,
+      contentHash: hash.digest('hex'),
+      metadata: { channels: 1, sampleRate: 16000, bitsPerSample: 16 },
+    };
+    const authority = vi.fn(async () => undefined);
+    const store = makeStore(f, repository, { authorize: authority });
+    const download = vi.fn(async () => source);
+    const allocate = vi.spyOn(Buffer, 'alloc');
+    const concat = vi.spyOn(Buffer, 'concat');
+    let artifact: GenerationArtifact;
+    try {
+      artifact = await store.commit(makeJob(task), task, descriptor, output, download);
+      repository.add(makeJob(task), task, artifact);
+      await store.verify(artifact, task);
+      expect(Math.max(...allocate.mock.calls.map((args) => args[0]))).toBeLessThanOrEqual(
+        64 * 1024,
+      );
+      expect(
+        concat.mock.calls.every(
+          (args) => args[0].reduce((sum, b) => sum + b.byteLength, 0) < dataBytes,
+        ),
+      ).toBe(true);
+    } finally {
+      allocate.mockRestore();
+      concat.mockRestore();
+    }
+    expect(artifact!.sizeBytes).toBe(dataBytes + 44);
+    expect(download).toHaveBeenCalledTimes(1);
+    expect(authority.mock.calls).toHaveLength(3);
+    const resolved = await store.resolveInput(
+      { artifactId: artifact!.id, role: 'REFERENCE' },
+      makeTask('consumer'),
+    );
+    expect(Object.keys(resolved)).not.toContain('path');
+    expect(Object.keys(resolved.source).sort()).toEqual(['cancel', 'open']);
+    let size = 0;
+    for await (const bytes of resolved.source.open()) size += bytes.byteLength;
+    expect(size).toBe(dataBytes + 44);
+    const denied = new DomainError('PERMISSION_DENIED', 'revoked');
+    authority.mockRejectedValueOnce(denied);
+    const reader = resolved.source.open()[Symbol.asyncIterator]();
+    await expect(reader.next()).rejects.toBe(denied);
+  });
+
+  it.each([-1, 1])('rejects advertised/streamed size mismatch (%s)', async (difference) => {
+    const f = await fixture();
+    const store = makeStore(f);
+    const task = makeTask('size-mismatch');
+    const job = makeJob(task);
+    await expect(
+      store.commit(
+        job,
+        task,
+        makeDescriptor(),
+        { ...makeOutput(), sizeBytes: PNG.length + difference },
+        async () => binarySource(PNG),
+      ),
+    ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
+    await expect(
+      stat(
+        path.join(
+          f.userData,
+          'generation-artifacts',
+          'files',
+          makeArtifactId(job.id, 'output-1') + '.png',
+        ),
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('aborts an overflowing source immediately and never publishes an Artifact', async () => {
+    const f = await fixture();
+    const store = makeStore(f, new MemoryGenerationRepository(), { maxBytes: PNG.length });
+    const task = makeTask('overflow');
+    const job = makeJob(task);
+    let returned = false;
+    const cancel = vi.fn();
+    const source: GenerationBinarySource = {
+      open: () =>
+        (async function* () {
+          try {
+            yield PNG;
+            yield Uint8Array.of(1);
+            throw new Error('must not continue');
+          } finally {
+            returned = true;
+          }
+        })(),
+      cancel,
+    };
+    await expect(
+      store.commit(job, task, makeDescriptor(), makeOutput(), async () => source),
+    ).rejects.toMatchObject({ code: 'INPUT_TOO_LARGE' });
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(returned).toBe(true);
+    await expect(
+      stat(
+        path.join(
+          f.userData,
+          'generation-artifacts',
+          'files',
+          makeArtifactId(job.id, 'output-1') + '.png',
+        ),
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('retains incomplete staging after mid-download failure and restarts only the original download', async () => {
+    const f = await fixture();
+    const task = makeTask('partial');
+    const job = makeJob(task);
+    const output = makeOutput();
+    const source: GenerationBinarySource = {
+      open: () =>
+        (async function* () {
+          yield PNG.subarray(0, 8);
+          throw new Error('connection closed');
+        })(),
+      cancel: vi.fn(),
+    };
+    const store = makeStore(f);
+    await expect(
+      store.commit(job, task, makeDescriptor(), output, async () => source),
+    ).rejects.toBeInstanceOf(GenerationCrash);
+    const stage = path.join(
+      f.userData,
+      'generation-artifacts',
+      'staging',
+      sha256(Buffer.from(job.id)),
+      sha256(Buffer.from(output.id)) + '.png.stage',
+    );
+    expect((await stat(stage + '.partial')).size).toBe(8);
+    await expect(stat(stage)).rejects.toThrow();
+    const download = vi.fn(async () => binarySource(PNG));
+    const restarted = makeStore(f);
+    const artifact = await restarted.commit(job, task, makeDescriptor(), output, download);
+    expect(artifact.contentHash).toBe(output.contentHash);
+    expect(download).toHaveBeenCalledTimes(1);
+    await restarted.commit(job, task, makeDescriptor(), output, download);
+    expect(download).toHaveBeenCalledTimes(1);
+  });
+
+  it('validates recovered Workspace staging before publishing a final path', async () => {
+    const f = await fixture();
+    const task = makeTask('changed-workspace-stage', 'MISSION_WORKSPACE', 'result.png');
+    const stageDirectory = path.join(
+      f.workspace,
+      '.generation-artifact-staging',
+      sha256(Buffer.from(task.id)),
+    );
+    await mkdir(stageDirectory, { recursive: true });
+    await writeFile(
+      path.join(stageDirectory, sha256(Buffer.from('output-1')) + '.png.stage'),
+      Buffer.from('changed staging'),
+    );
+    await expect(
+      makeStore(f).commit(makeJob(task), task, makeDescriptor(), makeOutput(), async () =>
+        binarySource(PNG),
+      ),
+    ).rejects.toThrow();
+    await expect(stat(path.join(f.workspace, 'result.png'))).rejects.toThrow();
+  });
+
+  it('propagates cancellation to the source and never registers a partial output', async () => {
+    const f = await fixture();
+    const task = makeTask('cancel');
+    const controller = new AbortController();
+    const cancel = vi.fn();
+    const source: GenerationBinarySource = {
+      open: () =>
+        (async function* () {
+          yield PNG.subarray(0, 8);
+          controller.abort();
+          yield PNG.subarray(8);
+        })(),
+      cancel,
+    };
+    await expect(
+      makeStore(f).commit(makeJob(task), task, makeDescriptor(), makeOutput(), async () => source, {
+        signal: controller.signal,
+      }),
+    ).rejects.toMatchObject({ code: 'GENERATION_CANCELLED' });
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels a source stalled between chunks without waiting for its next output', async () => {
+    const f = await fixture();
+    const task = makeTask('stalled-cancel');
+    const controller = new AbortController();
+    let resume!: () => void;
+    let opened!: () => void;
+    const ready = new Promise<void>((resolve) => {
+      opened = resolve;
+    });
+    const waiting = new Promise<void>((resolve) => {
+      resume = resolve;
+    });
+    const cancel = vi.fn(() => {
+      resume();
+    });
+    const source: GenerationBinarySource = {
+      open: () =>
+        (async function* () {
+          yield PNG.subarray(0, 8);
+          opened();
+          await waiting;
+        })(),
+      cancel,
+    };
+    const commit = makeStore(f).commit(
+      makeJob(task),
+      task,
+      makeDescriptor(),
+      makeOutput(),
+      async () => source,
+      { signal: controller.signal },
+    );
+    const rejected = expect(commit).rejects.toMatchObject({ code: 'GENERATION_CANCELLED' });
+    await ready;
+    controller.abort();
+    await rejected;
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
   it('fingerprints canonical JSON and raw Uint8Array bytes with SHA-256', async () => {
     const f = await fixture();
     const store = makeStore(f);
@@ -211,7 +501,7 @@ describe('GenerationArtifactStore', () => {
     const task = makeTask('task-staged');
     const job = makeJob(task);
     const output = makeOutput();
-    const download = vi.fn(async () => PNG);
+    const download = vi.fn(async () => binarySource(PNG));
     const commit = () => store.commit(job, task, makeDescriptor(), output, download);
 
     await expect(commit()).rejects.toThrow('simulated process stop');
@@ -240,7 +530,7 @@ describe('GenerationArtifactStore', () => {
     const task = makeTask('task-committed');
     const job = makeJob(task);
     const output = makeOutput();
-    const download = vi.fn(async () => PNG);
+    const download = vi.fn(async () => binarySource(PNG));
     const commit = () => store.commit(job, task, makeDescriptor(), output, download);
 
     await expect(commit()).rejects.toThrow('crash after publish');
@@ -285,7 +575,7 @@ describe('GenerationArtifactStore', () => {
       outputTypes: ['video/mp4'],
     };
     await expect(
-      store.commit(makeJob(task), task, descriptor, output, async () => bytes),
+      store.commit(makeJob(task), task, descriptor, output, async () => binarySource(bytes)),
     ).rejects.toMatchObject({ code: 'UNSUPPORTED_MEDIA_TYPE' });
   });
 
@@ -312,7 +602,9 @@ describe('GenerationArtifactStore', () => {
       code: 'WORKSPACE_CHANGED',
     });
     await expect(
-      store.commit(makeJob(task), task, makeDescriptor(), makeOutput(), async () => PNG),
+      store.commit(makeJob(task), task, makeDescriptor(), makeOutput(), async () =>
+        binarySource(PNG),
+      ),
     ).rejects.toMatchObject({ code: 'WORKSPACE_CHANGED' });
   });
 
@@ -327,7 +619,9 @@ describe('GenerationArtifactStore', () => {
     });
     const task = makeTask('task-workspace-output', 'MISSION_WORKSPACE', 'renders/shot');
     const job = makeJob(task);
-    const artifact = await store.commit(job, task, makeDescriptor(), makeOutput(), async () => PNG);
+    const artifact = await store.commit(job, task, makeDescriptor(), makeOutput(), async () =>
+      binarySource(PNG),
+    );
     repository.add(job, task, artifact);
     await store.verify(artifact, task);
     const root = await import('node:fs/promises').then(({ realpath }) => realpath(f.workspace));
@@ -356,7 +650,7 @@ describe('GenerationArtifactStore', () => {
     const store = makeStore(f);
     const task = makeTask('task-invalid');
     const job = makeJob(task);
-    const download = vi.fn(async () => PNG);
+    const download = vi.fn(async () => binarySource(PNG));
     await expect(
       store.commit(
         job,
@@ -401,7 +695,7 @@ describe('GenerationArtifactStore', () => {
       sourceTask,
       makeDescriptor(),
       makeOutput(),
-      async () => PNG,
+      async () => binarySource(PNG),
     );
     repository.add(sourceJob, sourceTask, artifact);
     const consumerTask = makeTask('task-consumer');
@@ -415,7 +709,18 @@ describe('GenerationArtifactStore', () => {
       kind: 'IMAGE',
       mimeType: 'image/png',
     });
-    expect(Buffer.from(resolved.bytes).equals(PNG)).toBe(true);
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of resolved.source.open()) chunks.push(chunk);
+    expect(Buffer.concat(chunks).equals(PNG)).toBe(true);
+    expect(resolved.sizeBytes).toBe(PNG.byteLength);
+    expect('bytes' in resolved).toBe(false);
+    const cancelled = new AbortController();
+    cancelled.abort();
+    await expect(
+      store.resolveInput({ artifactId: artifact.id, role: 'REFERENCE' }, consumerTask, {
+        signal: cancelled.signal,
+      }),
+    ).rejects.toMatchObject({ code: 'GENERATION_CANCELLED' });
     await expect(
       store.resolveInput(
         { artifactId: 'artifact-ref-from-renderer', role: 'REFERENCE' },
@@ -485,7 +790,9 @@ describe('GenerationArtifactStore', () => {
     const store = makeStore(f);
     const task = makeTask('task-symlink', 'MISSION_WORKSPACE', 'link/escape.png');
     await expect(
-      store.commit(makeJob(task), task, makeDescriptor(), makeOutput(), async () => PNG),
+      store.commit(makeJob(task), task, makeDescriptor(), makeOutput(), async () =>
+        binarySource(PNG),
+      ),
     ).rejects.toMatchObject({ code: 'WORKSPACE_PATH_ESCAPE' });
   });
 });

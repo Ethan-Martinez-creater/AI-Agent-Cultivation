@@ -11,6 +11,23 @@ import type {
   GenerationSubmission,
   ProviderGenerationJob,
 } from '@cultivation/domain/g1-generation';
+import {
+  generationMediaCategory,
+  getGenerationMediaCeilingBytes,
+  isGenerationMetadataWithinLimit,
+} from './g1-media-policy.js';
+import type { GenerationMediaCategory } from './g1-media-policy.js';
+
+/** Provider-neutral readable capability. No local paths; honor abort and cancel,
+ * yield chunks bounded by the shared media policy, and release resources on iterator return. */
+export interface GenerationBinarySource {
+  open(signal?: AbortSignal): AsyncIterable<Uint8Array>;
+  cancel(reason?: unknown): void | Promise<void>;
+}
+
+export interface GenerationOperationOptions {
+  signal?: AbortSignal;
+}
 
 export interface GenerationResolvedInput {
   artifactId: string;
@@ -18,7 +35,8 @@ export interface GenerationResolvedInput {
   kind: string;
   mimeType: string;
   contentHash: string;
-  bytes: Uint8Array;
+  sizeBytes: number;
+  source: GenerationBinarySource;
 }
 /** Adapter guarantees stable logical submission for key + fingerprint, including across restart. */
 export interface ProviderGenerationRequest {
@@ -42,7 +60,8 @@ export interface GenerationGateway {
     runtimeProfileId: string,
     providerJobId: string,
     outputId: string,
-  ): Promise<Uint8Array>;
+    options?: GenerationOperationOptions,
+  ): Promise<GenerationBinarySource>;
 }
 export interface GenerationRepository {
   create(task: GenerationTask, descriptor: GenerationModelDescriptor, job: GenerationJob): void;
@@ -79,6 +98,7 @@ export interface GenerationArtifactPort {
   resolveInput(
     binding: GenerationTask['inputs'][number],
     task: GenerationTask,
+    options?: GenerationOperationOptions,
   ): Promise<GenerationResolvedInput>;
   fingerprint(value: unknown): string;
   /** Reuses a verified staging/committed file; invokes download only when no safe result exists. */
@@ -87,7 +107,8 @@ export interface GenerationArtifactPort {
     task: GenerationTask,
     descriptor: GenerationModelDescriptor,
     output: GenerationOutputDescriptor,
-    download: () => Promise<Uint8Array>,
+    download: (options?: GenerationOperationOptions) => Promise<GenerationBinarySource>,
+    options?: GenerationOperationOptions,
   ): Promise<GenerationArtifact>;
   verify(artifact: GenerationArtifact, task: GenerationTask): Promise<void>;
 }
@@ -102,6 +123,13 @@ export class GenerationCrash extends Error {}
 const terminal = new Set<GenerationJobState>(['COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN']);
 const safeCode = (error: unknown) =>
   error instanceof DomainError ? error.code : 'GENERATION_FAILED';
+function throwIfAborted(signal?: AbortSignal): void {
+  if (!signal?.aborted) return;
+  if (signal.reason !== undefined) throw signal.reason;
+  const error = new Error('Generation operation aborted');
+  error.name = 'AbortError';
+  throw error;
+}
 
 export function validateGenerationTask(
   task: GenerationTask,
@@ -123,10 +151,8 @@ export function validateGenerationTask(
     descriptor.limits.maxInputFiles > 16 ||
     !Number.isSafeInteger(descriptor.limits.maxInputBytes) ||
     descriptor.limits.maxInputBytes < 0 ||
-    descriptor.limits.maxInputBytes > 16 * 1024 * 1024 ||
     !Number.isSafeInteger(descriptor.limits.maxOutputBytes) ||
     descriptor.limits.maxOutputBytes < 1 ||
-    descriptor.limits.maxOutputBytes > 16 * 1024 * 1024 ||
     !Number.isSafeInteger(descriptor.limits.maxOutputs) ||
     descriptor.limits.maxOutputs < 1 ||
     descriptor.limits.maxOutputs > 8
@@ -188,7 +214,10 @@ export class GenerationService {
     if (!job) throw new DomainError('NOT_FOUND', '生成任务不存在');
     return { job, artifacts: this.repository.listArtifacts(id) };
   }
-  async create(input: Omit<GenerationTask, 'id' | 'createdAt'>): Promise<GenerationJob> {
+  async create(
+    input: Omit<GenerationTask, 'id' | 'createdAt'>,
+    options?: GenerationOperationOptions,
+  ): Promise<GenerationJob> {
     const identity = this.identities.requireGenerationIdentity(input.targetTeammateId);
     const descriptor = await this.gateway.getDescriptor(identity.runtimeProfileId);
     if (descriptor.modelId !== identity.modelId)
@@ -205,19 +234,20 @@ export class GenerationService {
     ) as GenerationTask;
     validateGenerationTask(task, descriptor);
     await this.identities.validateDestination(task);
-    const inputs = await this.inputs(task, descriptor);
+    const inputs = await this.inputs(task, descriptor, options);
     const requestFingerprint = this.artifacts.fingerprint({
       modelId: descriptor.modelId,
       capability: task.capability,
       requiredFeatures: task.requiredFeatures,
       prompt: task.prompt,
       parameters: task.parameters,
-      inputs: inputs.map(({ artifactId, role, kind, mimeType, contentHash }) => ({
+      inputs: inputs.map(({ artifactId, role, kind, mimeType, contentHash, sizeBytes }) => ({
         artifactId,
         role,
         kind,
         mimeType,
         contentHash,
+        sizeBytes,
       })),
     });
     const job: GenerationJob = {
@@ -240,10 +270,10 @@ export class GenerationService {
     this.options.crash?.('CREATED', job);
     return job;
   }
-  advance(id: string): Promise<GenerationJob> {
+  advance(id: string, options?: GenerationOperationOptions): Promise<GenerationJob> {
     const running = this.active.get(id);
     if (running) return running;
-    const operation = this.advanceOnce(id).finally(() => this.active.delete(id));
+    const operation = this.advanceOnce(id, options).finally(() => this.active.delete(id));
     this.active.set(id, operation);
     return operation;
   }
@@ -257,10 +287,13 @@ export class GenerationService {
   private async inputs(
     task: GenerationTask,
     descriptor: GenerationModelDescriptor,
+    options?: GenerationOperationOptions,
   ): Promise<GenerationResolvedInput[]> {
     const values: GenerationResolvedInput[] = [];
+    const inputBytesByCategory = new Map<GenerationMediaCategory, number>();
+    let totalInputBytes = 0;
     for (const binding of task.inputs) {
-      const input = await this.artifacts.resolveInput(binding, task);
+      const input = await this.artifacts.resolveInput(binding, task, options);
       const role = descriptor.inputRoles.find((r) => r.role === binding.role);
       if (
         !role ||
@@ -270,15 +303,40 @@ export class GenerationService {
         !role.mimeTypes.includes(input.mimeType)
       )
         throw new DomainError('UNSUPPORTED_MEDIA_TYPE', '输入 Artifact 类型不匹配');
-      if (this.artifacts.fingerprint(input.bytes) !== input.contentHash)
-        throw new DomainError('ARTIFACT_INTEGRITY', '输入 Artifact 已改变');
+      if (
+        !Number.isSafeInteger(input.sizeBytes) ||
+        input.sizeBytes < 1 ||
+        !input.source ||
+        typeof input.source.open !== 'function' ||
+        typeof input.source.cancel !== 'function'
+      )
+        throw new DomainError('ARTIFACT_INTEGRITY', '输入 Artifact 流描述无效');
+      const mediaLimit = getGenerationMediaCeilingBytes(input.kind, input.mimeType, 'input');
+      if (mediaLimit === null)
+        throw new DomainError('UNSUPPORTED_MEDIA_TYPE', '输入 Artifact 媒体类型无效');
+      const category = generationMediaCategory(input.kind, input.mimeType);
+      if (!category) throw new DomainError('UNSUPPORTED_MEDIA_TYPE', '输入 Artifact 媒体类型无效');
+      const categoryInputBytes = (inputBytesByCategory.get(category) ?? 0) + input.sizeBytes;
+      if (
+        !Number.isSafeInteger(categoryInputBytes) ||
+        categoryInputBytes > Math.min(descriptor.limits.maxInputBytes, mediaLimit)
+      )
+        throw new DomainError('INPUT_TOO_LARGE', '输入 Artifact 超出大小限制');
+      inputBytesByCategory.set(category, categoryInputBytes);
+      totalInputBytes += input.sizeBytes;
+      if (
+        !Number.isSafeInteger(totalInputBytes) ||
+        totalInputBytes > descriptor.limits.maxInputBytes
+      )
+        throw new DomainError('INPUT_TOO_LARGE', '输入 Artifact 超出大小限制');
       values.push(input);
     }
-    if (values.reduce((sum, i) => sum + i.bytes.byteLength, 0) > descriptor.limits.maxInputBytes)
-      throw new DomainError('INPUT_TOO_LARGE', '输入 Artifact 超出大小限制');
     return values;
   }
-  private async advanceOnce(id: string): Promise<GenerationJob> {
+  private async advanceOnce(
+    id: string,
+    options?: GenerationOperationOptions,
+  ): Promise<GenerationJob> {
     let job = this.detail(id).job;
     if (terminal.has(job.state)) return job;
     const task = this.repository.getTask(job.generationTaskId);
@@ -286,6 +344,7 @@ export class GenerationService {
     if (!task || !descriptor)
       throw new DomainError('PERSISTENCE_INTEGRITY', '生成任务持久化事实缺失');
     try {
+      throwIfAborted(options?.signal);
       const identity = this.identities.requireGenerationIdentity(job.teammateId);
       if (
         identity.runtimeProfileId !== job.runtimeProfileId ||
@@ -294,7 +353,8 @@ export class GenerationService {
         throw new DomainError('INVALID_INPUT', '固定模型身份不匹配');
       await this.identities.validateDestination(task);
       if (job.state === 'PENDING' || job.state === 'SUBMITTING') {
-        const inputs = await this.inputs(task, descriptor);
+        const inputs = await this.inputs(task, descriptor, options);
+        throwIfAborted(options?.signal);
         if (job.state === 'PENDING') job = this.move(job, 'SUBMITTING');
         this.options.crash?.('SUBMITTING', job);
         let submission: GenerationSubmission;
@@ -309,9 +369,12 @@ export class GenerationService {
             parameters: task.parameters,
             inputs,
           });
+          throwIfAborted(options?.signal);
           this.options.crash?.('SUBMISSION_SENT', job);
         } catch (error) {
           if (error instanceof GenerationCrash) throw error;
+          if (options?.signal?.aborted)
+            return this.move(job, 'UNKNOWN', { errorCode: 'SUBMISSION_STATE_UNKNOWN' });
           return this.move(
             job,
             error instanceof DomainError && error.code === 'IDEMPOTENCY_CONFLICT'
@@ -333,6 +396,7 @@ export class GenerationService {
       if (!job.providerJobId)
         throw new DomainError('PERSISTENCE_INTEGRITY', 'Provider Job identity 缺失');
       const provider = await this.gateway.getJob(job.runtimeProfileId, job.providerJobId);
+      throwIfAborted(options?.signal);
       if (provider.providerJobId !== job.providerJobId)
         throw new DomainError('PERSISTENCE_INTEGRITY', 'Provider 返回了其他 Job');
       job = this.repository.observeProviderStatus(job.id, job.state, provider.status);
@@ -354,6 +418,26 @@ export class GenerationService {
         throw new DomainError('OUTPUT_MISSING', '生成输出缺失或重复');
       const registered: GenerationArtifact[] = [];
       for (const output of provider.outputs) {
+        throwIfAborted(options?.signal);
+        const mediaLimit = getGenerationMediaCeilingBytes(
+          task.expectedOutput.artifactKind,
+          output.mimeType,
+          'output',
+        );
+        if (
+          mediaLimit === null ||
+          !task.expectedOutput.mimeTypes.includes(output.mimeType) ||
+          !descriptor.outputTypes.includes(output.mimeType)
+        )
+          throw new DomainError('UNSUPPORTED_MEDIA_TYPE', 'Provider 输出媒体类型无效');
+        if (
+          !Number.isSafeInteger(output.sizeBytes) ||
+          output.sizeBytes < 1 ||
+          output.sizeBytes > Math.min(descriptor.limits.maxOutputBytes, mediaLimit)
+        )
+          throw new DomainError('OUTPUT_TOO_LARGE', '生成输出超出大小限制');
+        if (!isGenerationMetadataWithinLimit(output.metadata))
+          throw new DomainError('OUTPUT_METADATA_TOO_LARGE', '生成输出元数据超出大小限制');
         let artifact = this.repository.listArtifacts(job.id).find((a) => a.outputId === output.id);
         if (artifact) {
           if (
@@ -364,8 +448,16 @@ export class GenerationService {
             throw new DomainError('ARTIFACT_INTEGRITY', 'Provider 输出身份发生变化');
           await this.artifacts.verify(artifact, task);
         } else {
-          artifact = await this.artifacts.commit(job, task, descriptor, output, () =>
-            this.gateway.downloadOutput(job.runtimeProfileId, job.providerJobId!, output.id),
+          artifact = await this.artifacts.commit(
+            job,
+            task,
+            descriptor,
+            output,
+            (downloadOptions) =>
+              this.gateway.downloadOutput(job.runtimeProfileId, job.providerJobId!, output.id, {
+                signal: downloadOptions?.signal ?? options?.signal,
+              }),
+            options,
           );
           try {
             artifact = this.repository.registerOutput(job.id, artifact);
@@ -398,6 +490,16 @@ export class GenerationService {
       if (error instanceof GenerationCrash) throw error;
       const current = this.repository.getJob(id)!;
       if (terminal.has(current.state)) return current;
+      if (options?.signal?.aborted) {
+        if (current.state === 'SUBMITTING')
+          return this.move(current, 'UNKNOWN', { errorCode: 'SUBMISSION_STATE_UNKNOWN' });
+        if (
+          current.state === 'PENDING' ||
+          current.state === 'QUEUED' ||
+          current.state === 'RUNNING'
+        )
+          return this.move(current, 'CANCELLED', { errorCode: 'GENERATION_CANCELLED' });
+      }
       return this.move(current, 'FAILED', { errorCode: safeCode(error) });
     }
   }

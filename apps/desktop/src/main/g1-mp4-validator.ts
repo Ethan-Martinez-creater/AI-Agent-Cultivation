@@ -1,8 +1,10 @@
+import { GENERATION_MEDIA_POLICY } from '@cultivation/application/g1-media-policy';
 import { DomainError } from '@cultivation/shared';
 
-const MAX_BYTES = 16 * 1024 * 1024;
-const MAX_BOXES = 100_000;
-const MAX_TABLE_ENTRIES = 1_000_000;
+const MAX_FTYP_BYTES = GENERATION_MEDIA_POLICY.ioChunkBytes;
+const MAX_MOOV_BYTES = GENERATION_MEDIA_POLICY.maxMetadataBytes;
+const MAX_BOXES = GENERATION_MEDIA_POLICY.maxContainerRecords;
+const MAX_TABLE_ENTRIES = GENERATION_MEDIA_POLICY.maxContainerRecords;
 
 interface Box {
   type: string;
@@ -15,12 +17,16 @@ interface Box {
 interface ParseContext {
   bytes: Buffer;
   boxCount: number;
+  /** Absolute source length when `bytes` contains only bounded metadata boxes. */
+  fileLength?: number;
 }
 
-interface MediaRange {
+export interface Mp4MediaRange {
   start: number;
   end: number;
 }
+
+type MediaRange = Mp4MediaRange;
 
 interface SampleTable {
   sampleCount: number;
@@ -47,10 +53,6 @@ interface TrackFacts {
 
 function unsupported(message = 'MP4 container or metadata is unsupported'): never {
   throw new DomainError('UNSUPPORTED_MEDIA_TYPE', message);
-}
-
-function tooLarge(): never {
-  throw new DomainError('INPUT_TOO_LARGE', 'MP4 exceeds the 16 MiB validation limit');
 }
 
 function requireRange(bytes: Buffer, start: number, length: number, end = bytes.length): void {
@@ -806,7 +808,7 @@ function parseTrack(
     trackHeader.duration > movie.duration + 1
   )
     unsupported('MP4 tkhd duration disagrees with media timeline');
-  const ranges = mapChunks(table, mdats, context.bytes.length);
+  const ranges = mapChunks(table, mdats, context.fileLength ?? context.bytes.length);
   if (handler === 'vide') {
     if (
       !Number.isSafeInteger(trackHeader.width) ||
@@ -845,26 +847,58 @@ function parseTrack(
 }
 
 /**
- * Validates bounded, non-fragmented ISO BMFF structure and sample ranges.
- * It reports container metadata only; it does not decode or inspect media samples.
+ * Validates MP4 metadata retained by the streaming media validator. `ftyp` and `moov`
+ * must each contain exactly one complete top-level box; media ranges use absolute
+ * offsets in the original file, while the parsed metadata remains bounded in memory.
  */
-export function validateMp4(bytes: Buffer): Record<string, number | string | boolean | null> {
-  if (!Buffer.isBuffer(bytes)) unsupported('MP4 validator requires a Buffer');
-  if (bytes.length > MAX_BYTES) tooLarge();
-  if (bytes.length < 32) unsupported('MP4 file is too short');
+export function validateMp4Parts(
+  ftypBytes: Buffer,
+  moovBytes: Buffer,
+  mdats: Mp4MediaRange[],
+  fileLength: number,
+): Record<string, number | string | boolean | null> {
+  if (!Buffer.isBuffer(ftypBytes) || !Buffer.isBuffer(moovBytes))
+    unsupported('MP4 metadata boxes must be Buffers');
+  if (
+    !Number.isSafeInteger(fileLength) ||
+    fileLength < 32 ||
+    ftypBytes.length < 16 ||
+    ftypBytes.length > MAX_FTYP_BYTES ||
+    moovBytes.length < 8 ||
+    moovBytes.length > MAX_MOOV_BYTES
+  )
+    throw new DomainError('INPUT_TOO_LARGE', 'MP4 metadata exceeds its validation limit');
   try {
-    const context: ParseContext = { bytes, boxCount: 0 };
-    const top = boxList(context, 0, bytes.length);
-    checkTypes(top, ['ftyp', 'moov', 'mdat', 'free', 'skip', 'wide']);
-    const ftyp = only(top, 'ftyp')!;
-    const moov = only(top, 'moov')!;
-    if (top[0] !== ftyp) unsupported('MP4 ftyp must be the first top-level box');
-    const majorBrand = parseFileType(context, ftyp);
+    const ftypContext: ParseContext = { bytes: ftypBytes, boxCount: 0, fileLength };
+    const ftypBoxes = boxList(ftypContext, 0, ftypBytes.length);
+    checkTypes(ftypBoxes, ['ftyp']);
+    const ftyp = only(ftypBoxes, 'ftyp')!;
+    if (ftypBoxes[0] !== ftyp) unsupported('MP4 ftyp must be the first top-level box');
+    const majorBrand = parseFileType(ftypContext, ftyp);
     if (!['isom', 'iso2', 'mp41', 'mp42', 'avc1', 'M4V', 'M4A'].includes(majorBrand))
       unsupported('MP4 major brand is not supported');
-    const mdats = top
-      .filter((box) => box.type === 'mdat')
-      .map((box) => ({ start: box.payloadStart, end: box.end }));
+
+    const context: ParseContext = {
+      bytes: moovBytes,
+      boxCount: ftypContext.boxCount,
+      fileLength,
+    };
+    const moovBoxes = boxList(context, 0, moovBytes.length);
+    checkTypes(moovBoxes, ['moov']);
+    const moov = only(moovBoxes, 'moov')!;
+    let previousMdatEnd = -1;
+    for (const range of mdats) {
+      if (
+        !Number.isSafeInteger(range.start) ||
+        !Number.isSafeInteger(range.end) ||
+        range.start < 0 ||
+        range.end <= range.start ||
+        range.end > fileLength ||
+        range.start < previousMdatEnd
+      )
+        unsupported('MP4 media data ranges are invalid');
+      previousMdatEnd = range.end;
+    }
     const mdatBytes = mdats.reduce((sum, range) => sum + range.end - range.start, 0);
     if (!mdats.length || !mdatBytes) unsupported('MP4 requires nonempty mdat payload');
     const movieChildren = boxList(context, moov.payloadStart, moov.end, 1);
@@ -903,6 +937,37 @@ export function validateMp4(bytes: Buffer): Record<string, number | string | boo
       metadata.audioCodec = [...new Set(audios.map((track) => track.codec))].join(',');
     }
     return metadata;
+  } catch (error) {
+    if (error instanceof DomainError) throw error;
+    unsupported('MP4 box or sample table is malformed');
+  }
+}
+
+/**
+ * Validates bounded, non-fragmented ISO BMFF structure and sample ranges.
+ * It reports container metadata only; it does not decode or inspect media samples.
+ */
+export function validateMp4(bytes: Buffer): Record<string, number | string | boolean | null> {
+  if (!Buffer.isBuffer(bytes)) unsupported('MP4 validator requires a Buffer');
+  if (bytes.length < 32) unsupported('MP4 file is too short');
+  try {
+    const context: ParseContext = { bytes, boxCount: 0, fileLength: bytes.length };
+    const top = boxList(context, 0, bytes.length);
+    checkTypes(top, ['ftyp', 'moov', 'mdat', 'free', 'skip', 'wide']);
+    const ftyp = only(top, 'ftyp')!;
+    const moov = only(top, 'moov')!;
+    if (top[0] !== ftyp) unsupported('MP4 ftyp must be the first top-level box');
+    if (moov.size > MAX_MOOV_BYTES || ftyp.size > MAX_FTYP_BYTES)
+      throw new DomainError('INPUT_TOO_LARGE', 'MP4 metadata exceeds its validation limit');
+    const mdats = top
+      .filter((box) => box.type === 'mdat')
+      .map((box) => ({ start: box.payloadStart, end: box.end }));
+    return validateMp4Parts(
+      bytes.subarray(ftyp.start, ftyp.end),
+      bytes.subarray(moov.start, moov.end),
+      mdats,
+      bytes.length,
+    );
   } catch (error) {
     if (error instanceof DomainError) throw error;
     unsupported('MP4 box or sample table is malformed');

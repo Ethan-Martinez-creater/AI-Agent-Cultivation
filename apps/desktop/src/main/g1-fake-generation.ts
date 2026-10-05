@@ -5,12 +5,61 @@ import { DomainError } from '@cultivation/shared';
 import type {
   GenerationGateway,
   ProviderGenerationRequest,
+  GenerationBinarySource,
 } from '@cultivation/application/g1-generation';
 import type {
   GenerationModelDescriptor,
   GenerationSubmission,
   ProviderGenerationJob,
 } from '@cultivation/domain/g1-generation';
+
+/** Retains the original test adapter fingerprint without accumulating input bytes. */
+async function fingerprintRequest(request: ProviderGenerationRequest): Promise<string> {
+  const hash = createHash('sha256');
+  hash.update('{');
+  let firstField = true;
+  for (const key of Object.keys(request) as (keyof ProviderGenerationRequest)[]) {
+    if (key === 'fingerprint') continue;
+    if (!firstField) hash.update(',');
+    firstField = false;
+    hash.update(JSON.stringify(key) + ':');
+    if (key !== 'inputs') {
+      hash.update(JSON.stringify(request[key]));
+      continue;
+    }
+    hash.update('[');
+    let firstInput = true;
+    for (const input of request.inputs) {
+      if (!firstInput) hash.update(',');
+      firstInput = false;
+      const identity = JSON.stringify({
+        artifactId: input.artifactId,
+        role: input.role,
+        kind: input.kind,
+        mimeType: input.mimeType,
+        contentHash: input.contentHash,
+      });
+      hash.update(identity.slice(0, -1) + ',"bytes":[');
+      const content = createHash('sha256');
+      let size = 0;
+      let firstByte = true;
+      for await (const chunk of input.source.open()) {
+        content.update(chunk);
+        size += chunk.byteLength;
+        if (chunk.byteLength) {
+          if (!firstByte) hash.update(',');
+          firstByte = false;
+          hash.update(Array.from(chunk).join(','));
+        }
+      }
+      if (size !== input.sizeBytes || content.digest('hex') !== input.contentHash)
+        throw new DomainError('ARTIFACT_INTEGRITY', '上传 Artifact 与可信身份不一致');
+      hash.update(']}');
+    }
+    hash.update(']');
+  }
+  return hash.update('}').digest('hex');
+}
 
 /** Test-only adapter fixture. Its mapping survives Electron restart and never contains credentials. */
 export class FakeGenerationGateway implements GenerationGateway {
@@ -69,8 +118,8 @@ export class FakeGenerationGateway implements GenerationGateway {
       outputTypes: ['image/png'],
       limits: {
         maxInputFiles: 2,
-        maxInputBytes: 1024 * 1024,
-        maxOutputBytes: 1024 * 1024,
+        maxInputBytes: 32 * 1024 * 1024,
+        maxOutputBytes: 32 * 1024 * 1024,
         maxOutputs: 1,
       },
     };
@@ -79,15 +128,7 @@ export class FakeGenerationGateway implements GenerationGateway {
     runtimeId: string,
     request: ProviderGenerationRequest,
   ): Promise<GenerationSubmission> {
-    const fingerprint = createHash('sha256')
-      .update(
-        JSON.stringify({
-          ...request,
-          fingerprint: undefined,
-          inputs: request.inputs.map((input) => ({ ...input, bytes: Array.from(input.bytes) })),
-        }),
-      )
-      .digest('hex');
+    const fingerprint = await fingerprintRequest(request);
     const old = this.facts.entries[request.idempotencyKey];
     if (old) {
       if (old.fingerprint !== fingerprint || old.suppliedFingerprint !== request.fingerprint)
@@ -155,7 +196,8 @@ export class FakeGenerationGateway implements GenerationGateway {
     _runtimeId: string,
     providerJobId: string,
     outputId: string,
-  ): Promise<Uint8Array> {
+    options?: { signal?: AbortSignal },
+  ): Promise<GenerationBinarySource> {
     const entry = Object.values(this.facts.entries).find(
       (e) => e.job.providerJobId === providerJobId,
     );
@@ -163,7 +205,25 @@ export class FakeGenerationGateway implements GenerationGateway {
       throw new DomainError('OUTPUT_MISSING', '输出不存在');
     this.facts.downloads++;
     this.save();
-    return this.bytes.slice();
+    const bytes = this.bytes;
+    const controller = new AbortController();
+    return {
+      open: (signal?: AbortSignal) =>
+        (async function* () {
+          const active = AbortSignal.any([
+            controller.signal,
+            ...(options?.signal ? [options.signal] : []),
+            ...(signal ? [signal] : []),
+          ]);
+          for (let offset = 0; offset < bytes.byteLength; offset += 8) {
+            if (active.aborted) throw new DomainError('GENERATION_CANCELLED', '下载已取消');
+            yield bytes.subarray(offset, Math.min(bytes.byteLength, offset + 8));
+          }
+        })(),
+      cancel: () => {
+        controller.abort();
+      },
+    };
   }
   counters() {
     return {
@@ -188,7 +248,7 @@ export class UnconfiguredGenerationGateway implements GenerationGateway {
   async getJob(): Promise<ProviderGenerationJob> {
     throw new DomainError('GENERATION_ADAPTER_UNAVAILABLE', '尚未配置生成模型适配器');
   }
-  async downloadOutput(): Promise<Uint8Array> {
+  async downloadOutput(): Promise<GenerationBinarySource> {
     throw new DomainError('GENERATION_ADAPTER_UNAVAILABLE', '尚未配置生成模型适配器');
   }
 }

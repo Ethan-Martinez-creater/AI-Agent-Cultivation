@@ -16,7 +16,7 @@ GenerationTask freezes capability, required Features, prompt, trusted Artifact b
 
 ## Output and recovery
 
-Gateway bytes → Main staging → canonical boundary → media/size/metadata/hash validation → safe atomic commit → immutable Artifact registration → persisted output IDs → COMPLETED.
+Gateway binary source → Main streamed staging → canonical boundary → media/size/metadata/hash validation → safe atomic commit → immutable Artifact registration → persisted output IDs → COMPLETED.
 
 Provider completion is recorded independently of software completion. A provider-completed Job stays unfinished until the actual bytes pass validation and the exact Artifact manifest is durable. PNG validation includes bounded decompression and pixel row/filter structure; PCM WAV validates the media layout; MP4 validates bounded self-contained non-fragmented AVC/AAC container metadata, timelines, sample tables and ranges inside nonempty media payload. Header-only, truncated, unsupported or conflicting provider metadata fails closed. MP4 validation does not decode samples or claim playback quality.
 
@@ -54,10 +54,10 @@ The production bootstrap still installs the same three OFFICIAL v1 packages. Pac
 - Production has no generation adapter in G1. GENERATION templates can be configured, but verification/sealing requires an installed adapter; only explicit packaged/unit test mode loads FakeGenerationGateway. No real API is called.
 - Input resolution currently accepts registered Generation Artifacts. It does not import arbitrary paths or grant Workspace read authority.
 - Safe publication uses a same-volume hard link with no overwrite. A filesystem without the required atomic publication support fails closed.
-- Media and input/output byte counts are bounded (16 MiB global cap, at most 16 inputs / 8 outputs, tighter descriptor limits apply). The packaged fixture uses PNG; no codec execution or video generation Provider is added.
+- Media input/output byte counts use centralized category ceilings and tighter descriptor limits; at most 16 inputs / 8 outputs. The packaged fixture uses PNG; no codec execution or video generation Provider is added.
 - UNKNOWN stays terminal for automatic recovery. A changed request requires a new explicit Task, never an automatic replay of the uncertain one.
 
-## Verification
+## Initial G1 verification (before streaming correction)
 
 Final verification on Windows, 2026-10-05:
 
@@ -77,3 +77,40 @@ Test concurrency is bounded to four workers to avoid simultaneous SQLite fixture
 Packaged crash tests run sequentially. They terminate the actual Electron Main PID rather than Playwright's launcher wrapper and close the active application in a finalizer on test failure. This fixes the leftover test windows observed during the first recovery run.
 
 No dependency has been added. Real Provider integration and media adapters beyond the supported validated foundation formats remain G2/future work.
+
+## Final G1 corrective: bounded media I/O
+
+Corrective baseline: `9b6f8cbcc8056c8383d529a764a7370ae6518ab2`. No new migration; 0001–0027 and the three W2 frozen packages remain unchanged.
+
+`GenerationBinarySource` exposes `open(signal): AsyncIterable<Uint8Array>` and `cancel()`. `downloadOutput()` returns that controlled source, never a software destination or a whole-media byte array. `GenerationResolvedInput` carries Artifact identity, role, kind, MIME, hash, size and a Main-controlled source. Opening an input rechecks canonical identity, registered metadata/hash and the consumer's FILE_READ authority; a reference creates no permission. Input preflight accepts a cancellation signal.
+
+Main writes chunks directly into a run/output-scoped `.stage.partial`, enforces descriptor/application limits while receiving bytes, hashes incrementally, checks exact advertised size/hash, and validates media through a seekable file reader. Only a completely verified file obtains `.stage` identity. Source overflow, abort or failure cancels the source and leaves no registered Artifact. Provider completion alone remains insufficient.
+
+The versioned `GENERATION_MEDIA_POLICY` (`g1-media-v1`) is the unique safety configuration:
+
+| Category | Input ceiling | Output ceiling |
+| -------- | ------------- | -------------- |
+| Image    | 128 MiB       | 128 MiB        |
+| Audio    | 1 GiB         | 1 GiB          |
+| Video    | 4 GiB         | 4 GiB          |
+
+Descriptor aggregate input/output limits still apply. Main file I/O uses 64 KiB chunks; adapter chunks above 1 MiB are rejected. Container metadata is bounded to 8 MiB and 100,000 records/table entries. PNG decompression is streamed with a 256 MiB decoded-pixel ceiling; WAV validates headers/layout and skips PCM payload; MP4 seeks past `mdat` and loads only bounded container metadata. No complete-media Buffer allocation is used in production storage/validation. The only whole-file helper is explicitly restricted to Main's 16 KiB Workspace binding JSON.
+
+Partial staging is never treated as complete. Restart downloads the original Provider output again without creating another logical generation. Verified staging and committed outputs are checked and reused without download or Artifact duplication; Workspace staging is validated before final publication. UNKNOWN continues to perform zero automatic submissions. Existing idempotency keys, request fingerprints, state transitions and FILE_WRITE authority are preserved.
+
+Corrective evidence and final verification are recorded under `docs/evidence/g1-generation-foundation/streaming-corrective/`. Tests exercise a real 17 MiB Workspace WAV with bounded allocations and read/write permission checks, synthetic 32 MiB WAV/MP4 readers, descriptor limits above 16 MiB, size/hash failures, overflow cancellation, stalled-source cancellation, partial recovery, verified-stage reuse and corrupted Workspace staging rejection. No production Provider, G2/G3 or dependency is added.
+
+### Corrective final verification — Windows, 2026-10-05
+
+| Command                 | Result                                                                 |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `npm run test`          | PASS: 887 tests / 107 files                                            |
+| `npm run typecheck`     | PASS                                                                   |
+| `npm run lint`          | PASS                                                                   |
+| `npm run format:check`  | PASS                                                                   |
+| `npm run package`       | PASS: Windows x64 / Electron 44.4.3 / native SQLite                    |
+| `npm run smoke:package` | PASS: full Gate/R/W regression plus nine G1 process-exit/restart cases |
+
+The default test configuration now runs files serially. The initial four-worker run had two Windows disk-contention timeouts (R0 migration and G1 file recovery); serial verification passes without changing timeouts, assertions or test coverage. The default `npm run test` was run again and passes all 887 tests.
+
+Packaged partial-download facts: 8 bytes of 68 received, no complete stage, zero Artifacts before exit; restart finishes the original Provider Job with one logical submission, two total downloads (interrupted and successful), and one Artifact. Validated stage, committed file and registered Artifact boundaries have zero additional downloads. A second restart changes no counters/events. UNKNOWN remains zero automatic submission/download/query. The twelve screenshots and SQLite facts are committed in the corrective archive with all six logs; all three W2 release/version hashes still match the frozen baseline.

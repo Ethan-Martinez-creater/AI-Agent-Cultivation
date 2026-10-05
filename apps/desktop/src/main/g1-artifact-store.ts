@@ -3,8 +3,12 @@ import { constants as fsConstants } from 'node:fs';
 import { link, lstat, mkdir, open, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { DomainError } from '@cultivation/shared';
-import { inflateSync } from 'node:zlib';
-import { validateMp4 } from './g1-mp4-validator.js';
+import { GenerationCrash } from '@cultivation/application/g1-generation';
+import {
+  getGenerationMediaCeilingBytes,
+  GENERATION_MEDIA_POLICY as GENERATION_MEDIA_SAFETY_POLICY,
+} from '@cultivation/application/g1-media-policy';
+import { validateGenerationMedia, type GenerationMediaReader } from './g1-media-validator.js';
 import type {
   GenerationArtifact,
   GenerationJob,
@@ -16,15 +20,8 @@ import type {
   GenerationArtifactPort,
   GenerationRepository,
   GenerationResolvedInput,
+  GenerationBinarySource,
 } from '@cultivation/application/g1-generation';
-
-const MAX_STORE_BYTES = 16 * 1024 * 1024;
-const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-const CRC_TABLE = Uint32Array.from({ length: 256 }, (_, index) => {
-  let value = index;
-  for (let bit = 0; bit < 8; bit++) value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
-  return value >>> 0;
-});
 
 type Format = { mimeType: string; extension: string; container: string };
 const formats = new Map<string, Format>([
@@ -49,12 +46,11 @@ export interface GenerationArtifactStoreOptions {
     capability: 'FILE_READ' | 'FILE_WRITE',
     resource: string,
   ) => Promise<void>;
-  /** May lower the global 16 MiB cap for installations with tighter policies. */
+  /** May lower the application media ceiling for a stricter installation/test. */
   maxBytes?: number;
-  crash?: (point: 'STAGED' | 'COMMITTED', job: GenerationJob) => void;
+  crash?: (point: 'DOWNLOADING' | 'STAGED' | 'COMMITTED', job: GenerationJob) => void;
 }
 
-type ParsedContent = { format: Format; metadata: Record<string, number | string | boolean | null> };
 type StorePaths = { root: string; staging: string; files: string; bindings: string };
 
 function fail(code: string, message: string): never {
@@ -200,161 +196,6 @@ function matchesMime(value: string, format: Format): boolean {
   return formats.get(value.trim().toLowerCase())?.mimeType === format.mimeType;
 }
 
-function shaCrc(bytes: Uint8Array): number {
-  let crc = 0xffffffff;
-  for (const byte of bytes) crc = CRC_TABLE[(crc ^ byte) & 0xff]! ^ (crc >>> 8);
-  return (crc ^ 0xffffffff) >>> 0;
-}
-
-function parsePng(bytes: Buffer, format: Format): ParsedContent {
-  if (bytes.length < 45 || !bytes.subarray(0, 8).equals(PNG_SIGNATURE))
-    fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 文件头无效');
-  let cursor = 8;
-  let width = 0;
-  let height = 0;
-  let sawHeader = false;
-  let sawData = false;
-  let sawEnd = false;
-  let channels = 0;
-  const compressed: Buffer[] = [];
-  while (cursor + 12 <= bytes.length) {
-    const length = bytes.readUInt32BE(cursor);
-    const typeStart = cursor + 4;
-    const dataStart = cursor + 8;
-    if (length > bytes.length - cursor - 12) fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 数据块长度无效');
-    const end = dataStart + length;
-    const type = bytes.toString('ascii', typeStart, dataStart);
-    const expectedCrc = bytes.readUInt32BE(end);
-    if (shaCrc(bytes.subarray(typeStart, end)) !== expectedCrc)
-      fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 校验值无效');
-    if (!sawHeader) {
-      if (type !== 'IHDR' || length !== 13) fail('UNSUPPORTED_MEDIA_TYPE', 'PNG IHDR 无效');
-      width = bytes.readUInt32BE(dataStart);
-      height = bytes.readUInt32BE(dataStart + 4);
-      if (!width || !height || width > 32768 || height > 32768 || width * height > 268_435_456)
-        fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 尺寸无效');
-      const bitDepth = bytes[dataStart + 8];
-      const colorType = bytes[dataStart + 9];
-      channels = ({ 0: 1, 2: 3, 4: 2, 6: 4 } as Record<number, number>)[colorType!] ?? 0;
-      if (
-        bitDepth !== 8 ||
-        !channels ||
-        bytes[dataStart + 10] !== 0 ||
-        bytes[dataStart + 11] !== 0 ||
-        bytes[dataStart + 12] !== 0
-      )
-        fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 使用尚未支持的像素格式');
-      if (height * (width * channels + 1) > MAX_STORE_BYTES)
-        fail('INPUT_TOO_LARGE', 'PNG 解码像素超出限制');
-      sawHeader = true;
-    } else if (type === 'IHDR') {
-      fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 包含重复 IHDR');
-    }
-    if (type === 'IDAT') {
-      sawData = true;
-      compressed.push(bytes.subarray(dataStart, end));
-    }
-    cursor = end + 4;
-    if (type === 'IEND') {
-      if (length !== 0 || cursor !== bytes.length) fail('UNSUPPORTED_MEDIA_TYPE', 'PNG IEND 无效');
-      sawEnd = true;
-      break;
-    }
-  }
-  if (!sawHeader || !sawData || !sawEnd) fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 结构不完整');
-  const rowBytes = width * channels + 1;
-  try {
-    const pixels = inflateSync(Buffer.concat(compressed), { maxOutputLength: height * rowBytes });
-    if (
-      pixels.length !== height * rowBytes ||
-      Array.from({ length: height }, (_, row) => pixels[row * rowBytes]).some(
-        (filter) => filter === undefined || filter > 4,
-      )
-    )
-      fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 像素数据无效');
-  } catch {
-    fail('UNSUPPORTED_MEDIA_TYPE', 'PNG 压缩像素数据无效');
-  }
-  return { format, metadata: { container: 'png', width, height } };
-}
-
-function parseMp4(bytes: Buffer, format: Format): ParsedContent {
-  return { format, metadata: validateMp4(bytes) };
-}
-
-function parseWav(bytes: Buffer, format: Format): ParsedContent {
-  if (
-    bytes.length < 44 ||
-    bytes.toString('ascii', 0, 4) !== 'RIFF' ||
-    bytes.toString('ascii', 8, 12) !== 'WAVE'
-  )
-    fail('UNSUPPORTED_MEDIA_TYPE', 'WAV 文件头无效');
-  const riffEnd = bytes.readUInt32LE(4) + 8;
-  if (riffEnd > bytes.length || riffEnd < 12) fail('UNSUPPORTED_MEDIA_TYPE', 'WAV 长度无效');
-  let cursor = 12;
-  let channels = 0;
-  let sampleRate = 0;
-  let byteRate = 0;
-  let bitsPerSample = 0;
-  let dataBytes = 0;
-  while (cursor + 8 <= riffEnd) {
-    const name = bytes.toString('ascii', cursor, cursor + 4);
-    const size = bytes.readUInt32LE(cursor + 4);
-    const dataStart = cursor + 8;
-    if (size > riffEnd - dataStart) fail('UNSUPPORTED_MEDIA_TYPE', 'WAV 数据块长度无效');
-    if (name === 'fmt ') {
-      if (size < 16) fail('UNSUPPORTED_MEDIA_TYPE', 'WAV fmt 数据块无效');
-      const audioFormat = bytes.readUInt16LE(dataStart);
-      channels = bytes.readUInt16LE(dataStart + 2);
-      sampleRate = bytes.readUInt32LE(dataStart + 4);
-      byteRate = bytes.readUInt32LE(dataStart + 8);
-      const blockAlign = bytes.readUInt16LE(dataStart + 12);
-      bitsPerSample = bytes.readUInt16LE(dataStart + 14);
-      if (
-        ![1, 3].includes(audioFormat) ||
-        !channels ||
-        !sampleRate ||
-        !byteRate ||
-        !blockAlign ||
-        !bitsPerSample
-      )
-        fail('UNSUPPORTED_MEDIA_TYPE', 'WAV 音频格式无效');
-    } else if (name === 'data') {
-      dataBytes = size;
-    }
-    cursor = dataStart + size + (size & 1);
-  }
-  if (!channels || !sampleRate || !byteRate || !bitsPerSample || !dataBytes)
-    fail('UNSUPPORTED_MEDIA_TYPE', 'WAV 缺少可信音频元数据');
-  return {
-    format,
-    metadata: {
-      container: 'wav',
-      channels,
-      sampleRate,
-      bitsPerSample,
-      durationSeconds: Number((dataBytes / byteRate).toFixed(6)),
-    },
-  };
-}
-
-function parseContent(mimeType: string, bytes: Buffer): ParsedContent {
-  const format = formats.get(mimeType.trim().toLowerCase());
-  if (!format) fail('UNSUPPORTED_MEDIA_TYPE', '生成输出 MIME 类型不受支持');
-  if (bytes.length < 1 || bytes.length > MAX_STORE_BYTES)
-    fail('INPUT_TOO_LARGE', 'Artifact 超出 16 MiB 限制');
-  switch (format.container) {
-    case 'png':
-      return parsePng(bytes, format);
-    case 'mp4':
-      return parseMp4(bytes, format);
-    case 'wav':
-      return parseWav(bytes, format);
-    default:
-      return fail('UNSUPPORTED_MEDIA_TYPE', '生成输出 MIME 类型不受支持');
-  }
-}
-
 function validateProviderClaims(
   claims: GenerationOutputDescriptor['metadata'],
   metadata: Record<string, number | string | boolean | null>,
@@ -478,11 +319,13 @@ async function resolveSafeFile(
   return { target, exists: true };
 }
 
-async function readSafeFile(
+async function readSmallBindingJson(
   root: string,
   relativeValue: string,
   maxBytes: number,
 ): Promise<Buffer> {
+  // Whole-file reads are confined to the small Main-owned Workspace binding JSON.
+  if (maxBytes > 16 * 1024) fail('INPUT_TOO_LARGE', 'Binding JSON 超出读取限制');
   const resolved = await resolveSafeFile(root, relativeValue, false);
   if (!resolved.exists) fail('ARTIFACT_INTEGRITY', 'Artifact 文件不存在');
   const flags = fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0);
@@ -539,27 +382,136 @@ function sameMetadata(
   return canonicalJson(left) === canonicalJson(right);
 }
 
-/** Main-only immutable generation output store. No absolute storage path leaves this class. */
-export class GenerationArtifactStore implements GenerationArtifactPort {
-  private readonly maxBytes: number;
-
-  constructor(private readonly options: GenerationArtifactStoreOptions) {
-    this.maxBytes = options.maxBytes ?? MAX_STORE_BYTES;
-    if (
-      !Number.isSafeInteger(this.maxBytes) ||
-      this.maxBytes < 1 ||
-      this.maxBytes > MAX_STORE_BYTES
-    )
-      throw new RangeError('Generation artifact limit must be between 1 byte and 16 MiB');
-    if (!options.userData || !path.isAbsolute(options.userData))
-      throw new TypeError('GenerationArtifactStore requires Main userData');
+type FileFacts = {
+  sizeBytes: number;
+  contentHash: string;
+  metadata: Record<string, number | string | boolean | null>;
+};
+type SafeReader = GenerationMediaReader & {
+  assertUnchanged(): Promise<void>;
+  close(): Promise<void>;
+};
+function checkAbort(signal?: AbortSignal): void {
+  if (signal?.aborted) fail('GENERATION_CANCELLED', '媒体传输已取消');
+}
+async function openReader(
+  root: string,
+  key: string,
+  limit: number,
+  signal?: AbortSignal,
+): Promise<SafeReader> {
+  checkAbort(signal);
+  const resolved = await resolveSafeFile(root, key, false);
+  if (!resolved.exists) fail('ARTIFACT_INTEGRITY', 'Artifact 文件不存在');
+  const handle = await open(resolved.target, fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0));
+  try {
+    const before = await handle.stat();
+    const identity = await lstat(resolved.target);
+    if (!before.isFile() || identity.isSymbolicLink() || !sameFile(before, identity))
+      fail('WORKSPACE_PATH_ESCAPE', 'Artifact 文件身份发生变化');
+    if (!Number.isSafeInteger(before.size) || before.size < 1 || before.size > limit)
+      fail('INPUT_TOO_LARGE', 'Artifact 超出媒体安全限制');
+    let closed = false;
+    const read = async (offset: number, length: number): Promise<Buffer> => {
+      checkAbort(signal);
+      if (
+        closed ||
+        !Number.isSafeInteger(offset) ||
+        !Number.isSafeInteger(length) ||
+        offset < 0 ||
+        length < 0 ||
+        length > GENERATION_MEDIA_SAFETY_POLICY.ioChunkBytes ||
+        offset + length > before.size
+      )
+        fail('ARTIFACT_INTEGRITY', '媒体读取范围无效');
+      const bytes = Buffer.alloc(length);
+      let cursor = 0;
+      while (cursor < length) {
+        checkAbort(signal);
+        const result = await handle.read(bytes, cursor, length - cursor, offset + cursor);
+        if (!result.bytesRead) fail('ARTIFACT_INTEGRITY', 'Artifact 读取期间发生变化');
+        cursor += result.bytesRead;
+      }
+      return bytes;
+    };
+    return {
+      sizeBytes: before.size,
+      read,
+      async *chunks(offset = 0, length = before.size - offset) {
+        if (
+          !Number.isSafeInteger(offset) ||
+          !Number.isSafeInteger(length) ||
+          offset < 0 ||
+          length < 0 ||
+          offset + length > before.size
+        )
+          fail('ARTIFACT_INTEGRITY', '媒体读取范围无效');
+        const end = offset + length;
+        for (
+          let cursor = offset;
+          cursor < end;
+          cursor += GENERATION_MEDIA_SAFETY_POLICY.ioChunkBytes
+        )
+          yield await read(
+            cursor,
+            Math.min(GENERATION_MEDIA_SAFETY_POLICY.ioChunkBytes, end - cursor),
+          );
+      },
+      async assertUnchanged() {
+        const after = await handle.stat();
+        const current = await resolveSafeFile(root, key, false);
+        const afterPath = current.exists ? await lstat(current.target) : null;
+        if (
+          !current.exists ||
+          !samePath(current.target, resolved.target) ||
+          !afterPath ||
+          !sameFile(before, after) ||
+          !sameFile(after, afterPath) ||
+          after.size !== before.size ||
+          after.mtimeMs !== before.mtimeMs ||
+          after.ctimeMs !== before.ctimeMs
+        )
+          fail('ARTIFACT_INTEGRITY', 'Artifact 读取期间发生变化');
+      },
+      async close() {
+        if (!closed) {
+          closed = true;
+          await handle.close();
+        }
+      },
+    };
+  } catch (error) {
+    await handle.close();
+    throw error;
   }
-
+}
+async function fileFacts(reader: SafeReader, format: Format): Promise<FileFacts> {
+  const hash = createHash('sha256');
+  for await (const chunk of reader.chunks()) hash.update(chunk);
+  const metadata = await validateGenerationMedia(format.mimeType, reader);
+  await reader.assertUnchanged();
+  return { sizeBytes: reader.sizeBytes, contentHash: hash.digest('hex'), metadata };
+}
+/** Main-owned sources expose readable capabilities, never filesystem paths. */
+export class GenerationArtifactStore implements GenerationArtifactPort {
+  constructor(private readonly options: GenerationArtifactStoreOptions) {
+    if (
+      options.maxBytes !== undefined &&
+      (!Number.isSafeInteger(options.maxBytes) || options.maxBytes < 1)
+    )
+      throw new RangeError('Generation artifact safety override must be positive');
+    if (!options.userData || !path.isAbsolute(options.userData))
+      throw new TypeError('Main userData required');
+  }
+  private limit(mime: string, direction: 'input' | 'output'): number {
+    const ceiling = getGenerationMediaCeilingBytes('', mime, direction);
+    if (ceiling === null) fail('UNSUPPORTED_MEDIA_TYPE', '媒体安全类别无效');
+    return Math.min(ceiling, this.options.maxBytes ?? Number.MAX_SAFE_INTEGER);
+  }
   fingerprint(value: unknown): string {
     if (value instanceof Uint8Array) return digest(value);
     return digest(Buffer.from(canonicalJson(value), 'utf8'));
   }
-
   /** Snapshot a Main-verified Mission Workspace once and reject later root changes. */
   async validateDestination(task: GenerationTask): Promise<void> {
     this.validateTaskDestination(task);
@@ -574,7 +526,7 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
     const pathInfo = await resolveSafeFile(paths.root, bindingKey, false);
     const snapshot = JSON.stringify({ taskId: task.id, workspaceRoot: current });
     if (pathInfo.exists) {
-      const existing = await readSafeFile(paths.root, bindingKey, 16 * 1024);
+      const existing = await readSmallBindingJson(paths.root, bindingKey, 16 * 1024);
       const record = this.parseBinding(existing, task.id);
       if (!samePath(record.workspaceRoot, current))
         fail('WORKSPACE_CHANGED', 'Mission Workspace 根目录自任务首次绑定后发生变化');
@@ -584,12 +536,12 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
       await writeExclusive(pathInfo.target, Buffer.from(snapshot, 'utf8'));
     } catch (error) {
       if (errorCode(error) !== 'EEXIST') throw error;
-      const existing = await readSafeFile(paths.root, bindingKey, 16 * 1024);
+      const existing = await readSmallBindingJson(paths.root, bindingKey, 16 * 1024);
       const record = this.parseBinding(existing, task.id);
       if (!samePath(record.workspaceRoot, current))
         fail('WORKSPACE_CHANGED', 'Mission Workspace 根目录自任务首次绑定后发生变化');
     }
-    const written = await readSafeFile(paths.root, bindingKey, 16 * 1024);
+    const written = await readSmallBindingJson(paths.root, bindingKey, 16 * 1024);
     if (!samePath(this.parseBinding(written, task.id).workspaceRoot, current))
       fail('WORKSPACE_CHANGED', 'Mission Workspace 根目录绑定未能持久化');
   }
@@ -597,55 +549,86 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
   async resolveInput(
     binding: GenerationTask['inputs'][number],
     task: GenerationTask,
+    options?: { signal?: AbortSignal },
   ): Promise<GenerationResolvedInput> {
-    if (!binding || typeof binding.artifactId !== 'string' || !binding.artifactId.trim())
-      fail('ARTIFACT_INTEGRITY', '生成输入 Artifact identity 无效');
-    const artifact = this.findArtifact(binding.artifactId);
+    if (!binding || typeof binding.artifactId !== 'string')
+      fail('ARTIFACT_INTEGRITY', '输入 Artifact identity 无效');
+    const artifact = this.findArtifact(binding?.artifactId);
     if (!artifact || artifact.id !== binding.artifactId)
-      fail('ARTIFACT_INTEGRITY', '生成输入必须引用已登记的 generation_artifacts');
-    const source = this.sourceTask(artifact);
+      fail('ARTIFACT_INTEGRITY', '生成输入必须引用已登记 Artifact');
+    const sourceTask = this.sourceTask(artifact);
     const format = formats.get(artifact.mimeType.toLowerCase());
     if (!format || artifact.extension.toLowerCase() !== format.extension)
-      fail('UNSUPPORTED_MEDIA_TYPE', '输入 Artifact MIME 与扩展名不受支持');
+      fail('UNSUPPORTED_MEDIA_TYPE', '输入媒体类型无效');
     const key = safeRelativePath(artifact.storageKey).join('/');
-    const expectedKey = outputStorageKey(source, artifact.id, format.extension);
-    if (key !== expectedKey || artifact.id !== artifactId(artifact.jobId, artifact.outputId))
-      fail('ARTIFACT_INTEGRITY', '输入 Artifact 存储 identity 无效');
-    if (!['APP_ARTIFACT_STORE', 'MISSION_WORKSPACE'].includes(artifact.storageScope))
-      fail('ARTIFACT_INTEGRITY', '输入 Artifact 存储域无效');
-    const root = await this.rootForArtifact(source);
-    const resolved = await resolveSafeFile(root, key, false);
-    if (!resolved.exists) fail('ARTIFACT_INTEGRITY', '生成输入文件不存在');
-    if (artifact.storageScope === 'MISSION_WORKSPACE')
-      await this.options.authorize(
-        task,
-        'FILE_READ',
-        this.permissionResource(root, resolved.target),
-      );
-    // Permission must be granted before opening or hashing Workspace content.
-    const bytes = await readSafeFile(root, key, this.maxBytes);
-    const parsed = parseContent(format.mimeType, bytes);
-    this.verifyArtifactFacts(artifact, source, bytes, parsed);
+    if (
+      key !== outputStorageKey(sourceTask, artifact.id, format.extension) ||
+      artifact.id !== artifactId(artifact.jobId, artifact.outputId)
+    )
+      fail('ARTIFACT_INTEGRITY', '输入 Artifact identity 无效');
+    const prepare = async (signal?: AbortSignal) => {
+      const root = await this.rootForArtifact(sourceTask);
+      const resolved = await resolveSafeFile(root, key, false);
+      if (artifact.storageScope === 'MISSION_WORKSPACE')
+        await this.options.authorize(
+          task,
+          'FILE_READ',
+          this.permissionResource(root, resolved.target),
+        );
+      const reader = await openReader(root, key, this.limit(format.mimeType, 'input'), signal);
+      try {
+        this.verifyArtifactFacts(artifact, sourceTask, await fileFacts(reader, format));
+        return reader;
+      } catch (error) {
+        await reader.close();
+        throw error;
+      }
+    };
+    const checked = await prepare(options?.signal);
+    await checked.close();
+    const controller = new AbortController();
     return {
       artifactId: artifact.id,
       role: binding.role,
       kind: artifact.kind,
       mimeType: format.mimeType,
       contentHash: artifact.contentHash,
-      bytes: Uint8Array.from(bytes),
+      sizeBytes: artifact.sizeBytes,
+      source: {
+        open: (signal?: AbortSignal) => {
+          const active = signal ? AbortSignal.any([controller.signal, signal]) : controller.signal;
+          return (async function* () {
+            const reader = await prepare(active);
+            try {
+              const hash = createHash('sha256');
+              for await (const chunk of reader.chunks()) {
+                hash.update(chunk);
+                yield chunk;
+              }
+              await reader.assertUnchanged();
+              if (hash.digest('hex') !== artifact.contentHash)
+                fail('ARTIFACT_INTEGRITY', '上传输入内容发生变化');
+            } finally {
+              await reader.close();
+            }
+          })();
+        },
+        cancel: () => {
+          controller.abort();
+        },
+      },
     };
   }
-
   async commit(
     job: GenerationJob,
     task: GenerationTask,
     descriptor: GenerationModelDescriptor,
     output: GenerationOutputDescriptor,
-    download: () => Promise<Uint8Array>,
+    download: (options?: { signal?: AbortSignal }) => Promise<GenerationBinarySource>,
+    options?: { signal?: AbortSignal },
   ): Promise<GenerationArtifact> {
-    if (job.generationTaskId !== task.id)
-      fail('ARTIFACT_INTEGRITY', 'Job 与 GenerationTask 不匹配');
-    this.validateTaskDestination(task);
+    checkAbort(options?.signal);
+    if (job.generationTaskId !== task.id) fail('ARTIFACT_INTEGRITY', 'Job 与任务不匹配');
     await this.validateDestination(task);
     const format = this.outputFormat(task, descriptor, output);
     const id = artifactId(job.id, output.id);
@@ -662,28 +645,33 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
         'FILE_WRITE',
         this.permissionResource(root, target.target),
       );
-
     if (target.exists) {
-      const existing = await readSafeFile(root, key, this.maxBytes);
-      const parsed = this.validateOutputBytes(existing, task, descriptor, output, format);
+      const facts = await this.outputFacts(
+        root,
+        key,
+        task,
+        descriptor,
+        output,
+        format,
+        options?.signal,
+      );
       this.options.crash?.('COMMITTED', job);
-      return this.makeArtifact(job, task, output, id, format, key, existing, parsed.metadata);
+      return this.makeArtifact(job, task, output, id, format, key, facts);
     }
-
-    const privateStageKey = `staging/${hashName(job.id)}/${hashName(output.id)}${format.extension}.stage`;
-    const privateStagePath = await this.writeOrReuseStage(
-      paths,
-      privateStageKey,
-      task,
+    const stageKey =
+      'staging/' + hashName(job.id) + '/' + hashName(output.id) + format.extension + '.stage';
+    const stage = await this.writeOrReuseStage(
+      paths.root,
+      stageKey,
       descriptor,
       output,
       format,
       download,
+      options?.signal,
+      () => this.options.crash?.('DOWNLOADING', job),
     );
-    const stageBytes = await readSafeFile(paths.root, privateStageKey, this.maxBytes);
-    this.validateOutputBytes(stageBytes, task, descriptor, output, format);
+    await this.outputFacts(paths.root, stageKey, task, descriptor, output, format, options?.signal);
     this.options.crash?.('STAGED', job);
-
     const currentRoot =
       task.outputDestination.scope === 'APP_ARTIFACT_STORE'
         ? paths.root
@@ -695,76 +683,94 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
         'FILE_WRITE',
         this.permissionResource(currentRoot, final.target),
       );
-    let publishFrom = privateStagePath;
+    let publishFrom = stage;
     if (task.outputDestination.scope === 'MISSION_WORKSPACE') {
-      const workspaceStageKey = `.generation-artifact-staging/${hashName(task.id)}/${hashName(output.id)}${format.extension}.stage`;
-      publishFrom = await this.writeWorkspaceStage(
+      const stageLimit = this.limit(format.mimeType, 'output');
+      const workspaceStageKey =
+        '.generation-artifact-staging/' +
+        hashName(task.id) +
+        '/' +
+        hashName(output.id) +
+        format.extension +
+        '.stage';
+      publishFrom = await this.writeOrReuseStage(
         currentRoot,
         workspaceStageKey,
-        stageBytes,
+        descriptor,
+        output,
+        format,
+        async () => ({
+          open: (signal?: AbortSignal) =>
+            (async function* () {
+              const reader = await openReader(paths.root, stageKey, stageLimit, signal);
+              try {
+                for await (const chunk of reader.chunks()) yield chunk;
+                await reader.assertUnchanged();
+              } finally {
+                await reader.close();
+              }
+            })(),
+          cancel: () => undefined,
+        }),
+        options?.signal,
+      );
+      await this.outputFacts(
+        currentRoot,
+        workspaceStageKey,
         task,
         descriptor,
         output,
         format,
+        options?.signal,
       );
     }
     try {
       await link(publishFrom, final.target);
     } catch (error) {
-      if (errorCode(error) !== 'EEXIST')
-        fail('ARTIFACT_COMMIT_FAILED', 'Artifact 无法以原子 no-overwrite 方式提交');
+      if (errorCode(error) !== 'EEXIST') fail('ARTIFACT_COMMIT_FAILED', 'Artifact 无法原子提交');
     }
-    const committed = await resolveSafeFile(currentRoot, key, false);
-    if (!committed.exists) fail('ARTIFACT_COMMIT_FAILED', 'Artifact commit 未产生正式文件');
-    const committedBytes = await readSafeFile(currentRoot, key, this.maxBytes);
-    const committedFacts = this.validateOutputBytes(
-      committedBytes,
+    const facts = await this.outputFacts(
+      currentRoot,
+      key,
       task,
       descriptor,
       output,
       format,
+      options?.signal,
     );
     this.options.crash?.('COMMITTED', job);
-    return this.makeArtifact(
-      job,
-      task,
-      output,
-      id,
-      format,
-      key,
-      committedBytes,
-      committedFacts.metadata,
-    );
+    return this.makeArtifact(job, task, output, id, format, key, facts);
   }
-
   async verify(artifact: GenerationArtifact, task: GenerationTask): Promise<void> {
-    if (!artifact || artifact.storageScope !== task.outputDestination.scope)
-      fail('ARTIFACT_INTEGRITY', '已登记 Artifact 存储域与任务不一致');
     const source = this.sourceTask(artifact);
-    if (source.id !== task.id || artifact.id !== artifactId(artifact.jobId, artifact.outputId))
-      fail('ARTIFACT_INTEGRITY', '已登记 Artifact identity 与任务不一致');
+    if (
+      source.id !== task.id ||
+      artifact.id !== artifactId(artifact.jobId, artifact.outputId) ||
+      artifact.storageScope !== task.outputDestination.scope
+    )
+      fail('ARTIFACT_INTEGRITY', '已登记 Artifact identity 无效');
     await this.validateDestination(task);
     const format = formats.get(artifact.mimeType.toLowerCase());
-    if (!format || artifact.extension.toLowerCase() !== format.extension)
-      fail('UNSUPPORTED_MEDIA_TYPE', '已登记 Artifact MIME 与扩展名无效');
-    const expectedKey = outputStorageKey(task, artifact.id, format.extension);
+    if (!format || artifact.extension !== format.extension)
+      fail('UNSUPPORTED_MEDIA_TYPE', '已登记媒体类型无效');
     const key = safeRelativePath(artifact.storageKey).join('/');
-    if (key !== expectedKey) fail('ARTIFACT_INTEGRITY', '已登记 Artifact storageKey 无效');
+    if (key !== outputStorageKey(task, artifact.id, format.extension))
+      fail('ARTIFACT_INTEGRITY', 'Artifact 存储 identity 无效');
     const root = await this.rootForArtifact(task);
     const resolved = await resolveSafeFile(root, key, false);
-    if (!resolved.exists) fail('ARTIFACT_INTEGRITY', '已登记 Artifact 文件不存在');
     if (artifact.storageScope === 'MISSION_WORKSPACE')
-      // Same-task recovery verifies an output under its original FILE_WRITE grant.
       await this.options.authorize(
         task,
         'FILE_WRITE',
         this.permissionResource(root, resolved.target),
       );
-    const bytes = await readSafeFile(root, key, this.maxBytes);
-    const parsed = parseContent(format.mimeType, bytes);
-    this.verifyArtifactFacts(artifact, task, bytes, parsed);
+    const reader = await openReader(root, key, this.limit(format.mimeType, 'output'));
+    try {
+      this.verifyArtifactFacts(artifact, task, await fileFacts(reader, format));
+    } finally {
+      await reader.close();
+    }
   }
-
   private validateTaskDestination(task: GenerationTask): void {
     if (
       !task ||
@@ -811,7 +817,7 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
   private async boundWorkspaceRoot(task: GenerationTask, compareCurrent: boolean): Promise<string> {
     const paths = await this.storePaths();
     const key = `bindings/${safeTaskId(task.id)}.json`;
-    const bytes = await readSafeFile(paths.root, key, 16 * 1024);
+    const bytes = await readSmallBindingJson(paths.root, key, 16 * 1024);
     const record = this.parseBinding(bytes, task.id);
     const bound = await walkAbsoluteDirectory(record.workspaceRoot, false);
     if (!samePath(bound, record.workspaceRoot))
@@ -848,108 +854,186 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
       typeof output.id !== 'string' ||
       !output.id ||
       output.id.length > 256 ||
-      // eslint-disable-next-line no-control-regex -- Provider IDs must contain no control bytes.
+      // eslint-disable-next-line no-control-regex -- reject untrusted output identity control bytes
       /[\u0000-\u001f\u007f]/u.test(output.id) ||
       typeof output.mimeType !== 'string' ||
       typeof output.extension !== 'string'
     )
       fail('OUTPUT_MISSING', 'Provider output identity 无效');
-    const mimeType = output.mimeType.trim().toLowerCase();
-    const format = formats.get(mimeType);
+    const format = formats.get(output.mimeType.trim().toLowerCase());
     if (
       !format ||
       !descriptor.outputTypes.some((m) => matchesMime(m, format)) ||
-      !task.expectedOutput.mimeTypes.some((m) => matchesMime(m, format))
+      !task.expectedOutput.mimeTypes.some((m) => matchesMime(m, format)) ||
+      output.extension.toLowerCase() !== format.extension
     )
-      fail('UNSUPPORTED_MEDIA_TYPE', 'Provider 输出 MIME 类型不符合模型与任务契约');
-    if (output.extension.toLowerCase() !== format.extension)
-      fail('UNSUPPORTED_MEDIA_TYPE', 'Provider 输出扩展名与 MIME 类型不一致');
+      fail('UNSUPPORTED_MEDIA_TYPE', 'Provider 媒体类型与契约不一致');
     if (
       !Number.isSafeInteger(descriptor.limits.maxOutputBytes) ||
       descriptor.limits.maxOutputBytes < 1 ||
       !Number.isSafeInteger(output.sizeBytes) ||
       output.sizeBytes < 1 ||
-      output.sizeBytes > Math.min(this.maxBytes, descriptor.limits.maxOutputBytes)
+      output.sizeBytes >
+        Math.min(this.limit(format.mimeType, 'output'), descriptor.limits.maxOutputBytes)
     )
       fail('INPUT_TOO_LARGE', 'Provider 输出超过安全大小限制');
-    if (!safeHash(output.contentHash)) fail('ARTIFACT_INTEGRITY', 'Provider 输出 hash 格式无效');
+    if (!safeHash(output.contentHash)) fail('ARTIFACT_INTEGRITY', '输出 hash 无效');
     return format;
   }
-
-  private validateOutputBytes(
-    bytes: Buffer,
-    task: GenerationTask,
-    descriptor: GenerationModelDescriptor,
-    output: GenerationOutputDescriptor,
-    format: Format,
-  ): ParsedContent {
-    if (bytes.length !== output.sizeBytes || digest(bytes) !== output.contentHash.toLowerCase())
-      fail('ARTIFACT_INTEGRITY', 'Provider 输出 size/hash 与下载内容不一致');
-    const parsed = parseContent(format.mimeType, bytes);
-    validateProviderClaims(output.metadata, parsed.metadata);
-    if (
-      !task.expectedOutput.mimeTypes.some((m) => matchesMime(m, parsed.format)) ||
-      !descriptor.outputTypes.some((m) => matchesMime(m, parsed.format))
-    )
-      fail('UNSUPPORTED_MEDIA_TYPE', '文件内容 MIME 不符合生成输出契约');
-    return parsed;
-  }
-
-  private async writeOrReuseStage(
-    paths: StorePaths,
-    key: string,
-    task: GenerationTask,
-    descriptor: GenerationModelDescriptor,
-    output: GenerationOutputDescriptor,
-    format: Format,
-    download: () => Promise<Uint8Array>,
-  ): Promise<string> {
-    const existing = await resolveSafeFile(paths.root, key, true);
-    if (existing.exists) {
-      const bytes = await readSafeFile(paths.root, key, this.maxBytes);
-      this.validateOutputBytes(bytes, task, descriptor, output, format);
-      return existing.target;
-    }
-    const downloaded = await download();
-    if (!(downloaded instanceof Uint8Array) || downloaded.byteLength > this.maxBytes)
-      fail('INPUT_TOO_LARGE', 'Provider 下载内容超过安全大小限制');
-    const bytes = Buffer.from(downloaded);
-    this.validateOutputBytes(bytes, task, descriptor, output, format);
-    try {
-      await writeExclusive(existing.target, bytes);
-    } catch (error) {
-      if (errorCode(error) !== 'EEXIST') throw error;
-    }
-    const staged = await readSafeFile(paths.root, key, this.maxBytes);
-    this.validateOutputBytes(staged, task, descriptor, output, format);
-    return existing.target;
-  }
-
-  private async writeWorkspaceStage(
+  private async outputFacts(
     root: string,
     key: string,
-    bytes: Buffer,
     task: GenerationTask,
     descriptor: GenerationModelDescriptor,
     output: GenerationOutputDescriptor,
     format: Format,
+    signal?: AbortSignal,
+  ): Promise<FileFacts> {
+    const reader = await openReader(
+      root,
+      key,
+      Math.min(this.limit(format.mimeType, 'output'), descriptor.limits.maxOutputBytes),
+      signal,
+    );
+    try {
+      const facts = await fileFacts(reader, format);
+      if (
+        facts.sizeBytes !== output.sizeBytes ||
+        facts.contentHash !== output.contentHash.toLowerCase()
+      )
+        fail('ARTIFACT_INTEGRITY', 'Provider 输出 size/hash 与文件不一致');
+      validateProviderClaims(output.metadata, facts.metadata);
+      if (!task.expectedOutput.mimeTypes.some((m) => matchesMime(m, format)))
+        fail('UNSUPPORTED_MEDIA_TYPE', '输出 MIME 与任务不一致');
+      return facts;
+    } finally {
+      await reader.close();
+    }
+  }
+  private async writeOrReuseStage(
+    root: string,
+    key: string,
+    descriptor: GenerationModelDescriptor,
+    output: GenerationOutputDescriptor,
+    format: Format,
+    download: (options?: { signal?: AbortSignal }) => Promise<GenerationBinarySource>,
+    signal?: AbortSignal,
+    progress?: () => void,
   ): Promise<string> {
-    const existing = await resolveSafeFile(root, key, true);
-    if (existing.exists) {
-      const current = await readSafeFile(root, key, this.maxBytes);
-      this.validateOutputBytes(current, task, descriptor, output, format);
-      return existing.target;
+    const complete = await resolveSafeFile(root, key, true);
+    if (complete.exists) return complete.target; // caller verifies before trusting/reusing it
+    const partialKey = key + '.partial';
+    const partial = await resolveSafeFile(root, partialKey, true);
+    const handle = await open(
+      partial.target,
+      fsConstants.O_RDWR | fsConstants.O_CREAT | (fsConstants.O_NOFOLLOW ?? 0),
+      0o600,
+    );
+    const controller = new AbortController();
+    const active = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal;
+    let source: GenerationBinarySource | undefined;
+    let cancelled = false;
+    const cancelSource = () => {
+      if (cancelled || !source) return;
+      cancelled = true;
+      void Promise.resolve()
+        .then(() => source?.cancel())
+        .catch(() => undefined);
+    };
+    let count = 0;
+    const hash = createHash('sha256');
+    try {
+      const identity = await handle.stat();
+      const current = await lstat(partial.target);
+      if (
+        !identity.isFile() ||
+        identity.nlink !== 1 ||
+        current.isSymbolicLink() ||
+        !sameFile(identity, current)
+      )
+        fail('WORKSPACE_PATH_ESCAPE', 'Partial staging identity 无效');
+      await handle.truncate(0); // only Main-owned incomplete staging is reset; never a complete Artifact
+      checkAbort(active);
+      source = await download({ signal: active });
+      if (!source || typeof source.open !== 'function' || typeof source.cancel !== 'function')
+        fail('ARTIFACT_INTEGRITY', 'Provider 未返回受控 readable source');
+      active.addEventListener('abort', cancelSource, { once: true });
+      if (active.aborted) cancelSource();
+      const limit = Math.min(
+        this.limit(format.mimeType, 'output'),
+        descriptor.limits.maxOutputBytes,
+      );
+      for await (const chunk of source.open(active)) {
+        checkAbort(active);
+        if (
+          !(chunk instanceof Uint8Array) ||
+          chunk.byteLength < 1 ||
+          chunk.byteLength > GENERATION_MEDIA_SAFETY_POLICY.maxSourceChunkBytes ||
+          count + chunk.byteLength > limit
+        )
+          fail('INPUT_TOO_LARGE', '流式输出超过安全限制');
+        if (count + chunk.byteLength > output.sizeBytes)
+          fail('ARTIFACT_INTEGRITY', '流式输出超过声明大小');
+        for (let offset = 0; offset < chunk.byteLength; ) {
+          const bytes = chunk.subarray(
+            offset,
+            Math.min(chunk.byteLength, offset + GENERATION_MEDIA_SAFETY_POLICY.ioChunkBytes),
+          );
+          let written = 0;
+          while (written < bytes.byteLength) {
+            checkAbort(active);
+            const result = await handle.write(
+              bytes,
+              written,
+              bytes.byteLength - written,
+              count + written,
+            );
+            if (!result.bytesWritten) fail('ARTIFACT_COMMIT_FAILED', 'Staging 写入失败');
+            written += result.bytesWritten;
+          }
+          hash.update(bytes);
+          count += bytes.byteLength;
+          offset += bytes.byteLength;
+          progress?.();
+        }
+      }
+      checkAbort(active);
+      if (count !== output.sizeBytes || hash.digest('hex') !== output.contentHash.toLowerCase())
+        fail('ARTIFACT_INTEGRITY', '流式输出 size/hash 与声明不一致');
+      await handle.sync();
+      const afterPath = await resolveSafeFile(root, partialKey, false);
+      if (!afterPath.exists || !sameFile(await handle.stat(), await lstat(afterPath.target)))
+        fail('WORKSPACE_PATH_ESCAPE', 'Partial staging identity 发生变化');
+    } catch (error) {
+      controller.abort();
+      cancelSource();
+      if (signal?.aborted) fail('GENERATION_CANCELLED', '媒体传输已取消');
+      if (error instanceof DomainError || error instanceof GenerationCrash) throw error;
+      throw new GenerationCrash('媒体下载中断；保留原 Provider Job 与 partial staging');
+    } finally {
+      active.removeEventListener('abort', cancelSource);
+      await handle.close();
+    }
+    // Only fully validated files obtain the complete staging identity.
+    const reader = await openReader(
+      root,
+      partialKey,
+      this.limit(format.mimeType, 'output'),
+      signal,
+    );
+    try {
+      const facts = await fileFacts(reader, format);
+      validateProviderClaims(output.metadata, facts.metadata);
+    } finally {
+      await reader.close();
     }
     try {
-      await writeExclusive(existing.target, bytes);
+      await link(partial.target, complete.target);
     } catch (error) {
-      if (errorCode(error) !== 'EEXIST') throw error;
+      if (errorCode(error) !== 'EEXIST') fail('ARTIFACT_COMMIT_FAILED', '完整 staging 无法提交');
     }
-    const staged = await readSafeFile(root, key, this.maxBytes);
-    this.validateOutputBytes(staged, task, descriptor, output, format);
-    return existing.target;
+    return complete.target;
   }
-
   private findArtifact(id: string): GenerationArtifact | null {
     const direct = this.options.repository.getArtifact(id);
     if (direct?.id === id) return direct;
@@ -973,21 +1057,17 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
   private verifyArtifactFacts(
     artifact: GenerationArtifact,
     source: GenerationTask,
-    bytes: Buffer,
-    parsed: ParsedContent,
+    facts: FileFacts,
   ): void {
     if (
       artifact.kind !== source.expectedOutput.artifactKind ||
       artifact.storageScope !== source.outputDestination.scope ||
-      artifact.mimeType.toLowerCase() !== parsed.format.mimeType ||
-      artifact.extension.toLowerCase() !== parsed.format.extension ||
-      artifact.sizeBytes !== bytes.length ||
-      artifact.contentHash !== digest(bytes) ||
-      !sameMetadata(artifact.metadata, parsed.metadata)
+      artifact.sizeBytes !== facts.sizeBytes ||
+      artifact.contentHash !== facts.contentHash ||
+      !sameMetadata(artifact.metadata, facts.metadata)
     )
-      fail('ARTIFACT_INTEGRITY', '登记的 generation_artifacts 与文件内容不一致');
+      fail('ARTIFACT_INTEGRITY', '登记的 Artifact 与文件内容不一致');
   }
-
   private makeArtifact(
     job: GenerationJob,
     task: GenerationTask,
@@ -995,8 +1075,7 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
     id: string,
     format: Format,
     storageKey: string,
-    bytes: Buffer,
-    metadata: Record<string, number | string | boolean | null>,
+    facts: FileFacts,
   ): GenerationArtifact {
     return {
       id,
@@ -1005,9 +1084,9 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
       kind: task.expectedOutput.artifactKind,
       mimeType: format.mimeType,
       extension: format.extension,
-      sizeBytes: bytes.length,
-      contentHash: digest(bytes),
-      metadata,
+      sizeBytes: facts.sizeBytes,
+      contentHash: facts.contentHash,
+      metadata: facts.metadata,
       storageScope: task.outputDestination.scope,
       storageKey,
       createdAt: task.createdAt,

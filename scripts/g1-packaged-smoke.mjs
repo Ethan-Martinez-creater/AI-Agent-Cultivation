@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { once } from 'node:events';
 import Database from 'better-sqlite3';
@@ -132,6 +132,7 @@ try {
     'submission_sent',
     'submitted',
     'provider_completed',
+    'downloading',
     'staged',
     'committed',
     'registered',
@@ -154,6 +155,39 @@ try {
     const before = read(profile, (db) => db.prepare('SELECT * FROM generation_jobs').get());
     assert(before);
     const counterBefore = JSON.parse(readFileSync(join(profile, 'g1-fake-provider.json'), 'utf8'));
+    let partialFacts = null;
+    if (point === 'downloading') {
+      const providerOutput = Object.values(counterBefore.entries)[0].job.outputs[0];
+      const hashed = (value) => createHash('sha256').update(value).digest('hex');
+      const stage = join(
+        profile,
+        'generation-artifacts',
+        'staging',
+        hashed(before.id),
+        hashed(providerOutput.id) + '.png.stage',
+      );
+      partialFacts = {
+        partialBytes: statSync(stage + '.partial').size,
+        advertisedBytes: providerOutput.sizeBytes,
+        completeStageExists: existsSync(stage),
+        artifacts: read(
+          profile,
+          (db) => db.prepare('SELECT COUNT(*) AS n FROM generation_artifacts').get().n,
+        ),
+      };
+      assert(
+        partialFacts.partialBytes > 0 && partialFacts.partialBytes < partialFacts.advertisedBytes,
+      );
+      assert.equal(partialFacts.completeStageExists, false);
+      assert.equal(partialFacts.artifacts, 0);
+    }
+    const frozenDescriptor = read(profile, (db) =>
+      JSON.parse(
+        db.prepare('SELECT descriptor_json FROM generation_tasks LIMIT 1').get().descriptor_json,
+      ),
+    );
+    assert(frozenDescriptor.limits.maxInputBytes > 16 * 1024 * 1024);
+    assert(frozenDescriptor.limits.maxOutputBytes > 16 * 1024 * 1024);
     await crashProcess(live.app);
     live = await launch(profile, ['--gate1-fake-model', '--g1-fake-generation']);
     const recovered = await live.page.evaluate(
@@ -164,7 +198,7 @@ try {
     assert.equal(recovered.artifacts.length, 1);
     const after = JSON.parse(readFileSync(join(profile, 'g1-fake-provider.json'), 'utf8'));
     assert.equal(after.submissions, 1);
-    assert.equal(after.downloads, 1);
+    assert.equal(after.downloads, point === 'downloading' ? 2 : 1);
     if (['staged', 'committed', 'registered'].includes(point))
       assert.equal(after.downloads, counterBefore.downloads);
     await live.page.evaluate(() => {
@@ -184,6 +218,9 @@ try {
       state: recovered.job.state,
       submissions: after.submissions,
       downloads: after.downloads,
+      downloadsBeforeRestart: counterBefore.downloads,
+      descriptorLimits: frozenDescriptor.limits,
+      partialFacts,
       artifacts: artifactFacts,
     });
     const events = read(
@@ -351,7 +388,7 @@ try {
   }
   writeFileSync(join(evidence, 'facts.json'), JSON.stringify(facts, null, 2), 'utf8');
   console.log(
-    `G1_PACKAGED_SMOKE_OK crashes=A-F+commit idempotency=stable UNKNOWN=no-replay output=app+workspace permission=deny evidence=${evidence}`,
+    `G1_PACKAGED_SMOKE_OK crashes=A-F+partial+commit streaming=true descriptorsAbove16MiB=true partial=re-download-original verifiedStage=zero-redownload idempotency=stable UNKNOWN=no-replay output=app+workspace permission=deny evidence=${evidence}`,
   );
 } finally {
   if (live) await live.app.close().catch(() => undefined);

@@ -4,6 +4,8 @@ Baseline: `174df7968921234640beb7b5bdc0aded014533ab`. Evidence is generated offl
 
 ## Evidence map
 
+The final bounded-streaming corrective evidence is archived in [streaming-corrective](streaming-corrective/README.md). This directory's original logs/facts document the initial G1 acceptance; the corrective archive supersedes the original whole-byte download contract and adds the partial-download crash boundary.
+
 - `facts.json`: SQLite Job/Artifact facts, adapter counters, crash boundaries, fail-closed results, Workspace grants/denials and frozen official package hashes.
 - `artifact-store-output.png`: the actual first recovered APP_ARTIFACT_STORE output; SHA-256 matches `facts.json` (`5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15`).
 - `screenshots/`: packaged Runtime creation/detail, generation teammate presentation and recovered Generation Job result cards.

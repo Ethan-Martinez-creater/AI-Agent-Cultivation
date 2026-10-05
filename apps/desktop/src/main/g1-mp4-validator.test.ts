@@ -161,8 +161,4 @@ describe('G1 MP4 container metadata validator', () => {
     unsupportedCodec.write('hvcC', avcCType, 'ascii');
     expectDomainCode(() => validateMp4(unsupportedCodec), 'UNSUPPORTED_MEDIA_TYPE');
   });
-
-  it('uses the dedicated size error before parsing oversized data', () => {
-    expectDomainCode(() => validateMp4(Buffer.alloc(16 * 1024 * 1024 + 1)), 'INPUT_TOO_LARGE');
-  });
 });

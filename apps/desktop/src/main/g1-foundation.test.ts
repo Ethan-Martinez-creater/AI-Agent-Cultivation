@@ -170,6 +170,7 @@ describe('G1 durable execution and safe output foundation', () => {
     'SUBMISSION_SENT',
     'SUBMITTED',
     'PROVIDER_COMPLETED',
+    'DOWNLOADING',
     'STAGED',
     'COMMITTED',
     'REGISTERED',
@@ -197,7 +198,7 @@ describe('G1 durable execution and safe output foundation', () => {
       expect(recovered.job.state).toBe('COMPLETED');
       const after = (x.h.foundation.gateway as FakeGenerationGateway).counters();
       expect(after.submissions).toBe(1);
-      expect(after.downloads).toBe(1);
+      expect(after.downloads).toBe(point === 'DOWNLOADING' ? 2 : 1);
       if (['STAGED', 'COMMITTED', 'REGISTERED'].includes(point))
         expect(after.downloads).toBe(before.downloads);
       expect(recovered.artifacts.length).toBe(1);
