@@ -13,7 +13,7 @@ import {
 import type { GenerationChatEntryView } from '../ui-shared.js';
 
 function readSource(relativePath: string): string {
-  return readFileSync(new URL(relativePath, import.meta.url), 'utf8');
+  return readFileSync(new URL(relativePath, import.meta.url), 'utf8').replaceAll('\r\n', '\n');
 }
 
 describe('G2 Generation single chat UI contracts', () => {
