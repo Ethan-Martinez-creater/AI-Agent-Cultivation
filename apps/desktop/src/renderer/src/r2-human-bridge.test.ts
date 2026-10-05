@@ -51,7 +51,9 @@ describe('HumanBridgeRequestPresentation', () => {
     expect(primary).toContain('需要交付');
     expect(primary).toContain('视频成片');
     expect(primary).toContain('保存到哪里');
-    expect(primary).toContain('workflows/run-1/N12/output');
+    expect(primary).toContain('当前工作区内的指定交付目录');
+    expect(primary).not.toContain('workflows/run-1/N12/output');
+    expect(advanced).toContain('workflows/run-1/N12/output');
     expect(primary).toContain('验收重点');
     expect(primary).toContain('画面和音轨均可播放。');
     expect(primary).not.toContain('claimSafety');

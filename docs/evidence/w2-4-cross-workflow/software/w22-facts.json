@@ -1,0 +1,1552 @@
+{
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7",
+  "workspace": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7\\workspace",
+  "cases": [
+    {
+      "name": "bugfix",
+      "runId": "a090d605-696e-42db-8205-fed1d7b44f6f",
+      "state": "COMPLETED",
+      "implementers": [
+        "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+        "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+        "625bd132-5cd0-4b6d-aa79-2b01df63c3fb"
+      ],
+      "reviewers": ["d50f5b3e-b1c7-4790-9553-30939f41ee81", "d50f5b3e-b1c7-4790-9553-30939f41ee81"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        },
+        {
+          "stepId": "S10",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        },
+        {
+          "stepId": "S10",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [
+        {
+          "id": "2adce096-9126-4a15-aa44-528bbabf3ff2",
+          "workflowRunId": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "stepRunId": "05bc6d7b-f175-493c-b5ff-b215991d0e73",
+          "edgeId": "s04_revise",
+          "groupId": "software.plan_revision",
+          "traversalIndex": 1,
+          "reason": "REVISE",
+          "createdAt": "2026-10-05T01:48:26.058Z"
+        },
+        {
+          "id": "90d85832-79c0-4be8-9181-9b7d8b0eba2a",
+          "workflowRunId": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "stepRunId": "4070bb22-9182-4111-8fa5-348dfc26bd82",
+          "edgeId": "s07_revise",
+          "groupId": "software.fix_cycle",
+          "traversalIndex": 1,
+          "reason": "REVISE",
+          "createdAt": "2026-10-05T01:48:32.519Z"
+        },
+        {
+          "id": "dbc9517a-238c-4f48-8f1f-b5d3ae677d36",
+          "workflowRunId": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "stepRunId": "c993d3a0-5fd7-44bc-a6a3-0092884d883f",
+          "edgeId": "s09_revise",
+          "groupId": "software.fix_cycle",
+          "traversalIndex": 2,
+          "reason": "REVISE",
+          "createdAt": "2026-10-05T01:48:35.969Z"
+        }
+      ],
+      "validations": 21,
+      "journal": [
+        {
+          "id": "ccd60c0e-c0df-4ac6-a3bd-cd5f7344ce64",
+          "workflow_run_id": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "step_run_id": "86ce3621-2778-42f9-9c85-115b2489b044",
+          "operation_receipt_id": "10eb9782-6c27-44ac-9f48-975da6f070f1",
+          "attempt": 1,
+          "mission_id": "50814627-010f-4feb-a081-879bb441c7c1",
+          "mission_run_id": "0222ef13-a824-468b-bf44-2ddf0d128f84",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-f8b7e27d-5da6-42d7-911e-e925ea673ec6",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:main.js",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "main.js",
+          "before_hash": "c604a79064d3242742128d4d35c4a036e769cb6d4486a7bd5e4278fab34d76ee",
+          "expected_after_hash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+          "observed_after_hash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:27.752Z",
+          "updated_at": "2026-10-05T01:48:27.771Z"
+        },
+        {
+          "id": "d4bfba6f-4112-4433-83ec-bf2400aa12e7",
+          "workflow_run_id": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "step_run_id": "8432fb97-eb3e-4baf-91b0-9127051267a6",
+          "operation_receipt_id": "ce8c3733-d600-4169-8712-ba85c9050cf7",
+          "attempt": 1,
+          "mission_id": "e4e7bf62-2eb5-4604-8c61-3cc0d5f88783",
+          "mission_run_id": "afc0054a-2383-4e16-b0a1-fcf0a183ecc4",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-a8b26fda-55cd-42a0-b3f2-cc58d4f77b79",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:main.js",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "main.js",
+          "before_hash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+          "expected_after_hash": "a2098bd92b10bf8b816d24b7556b1ce8c49a879d130489065ef1051c17e042f6",
+          "observed_after_hash": "a2098bd92b10bf8b816d24b7556b1ce8c49a879d130489065ef1051c17e042f6",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:33.339Z",
+          "updated_at": "2026-10-05T01:48:33.356Z"
+        },
+        {
+          "id": "96117e45-6913-4dd9-9f50-78a6ba4d8bfe",
+          "workflow_run_id": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "step_run_id": "8ef279ad-6d4a-45e3-ae8f-5448a6fb6333",
+          "operation_receipt_id": "ae99def2-0348-492c-a744-630011284c29",
+          "attempt": 2,
+          "mission_id": "4e357c23-05a5-40f4-b02b-21b0e919718c",
+          "mission_run_id": "c8275c17-e844-48e9-b3a7-c9d11025da12",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-64668b01-af6b-42ec-b485-567d8742643a",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:main.js",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "main.js",
+          "before_hash": "a2098bd92b10bf8b816d24b7556b1ce8c49a879d130489065ef1051c17e042f6",
+          "expected_after_hash": "20c8da71fce28bad72ef25cc29cbd09aaa8314e2444dcccf0afa08d78e1ff5bf",
+          "observed_after_hash": "20c8da71fce28bad72ef25cc29cbd09aaa8314e2444dcccf0afa08d78e1ff5bf",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:36.591Z",
+          "updated_at": "2026-10-05T01:48:36.608Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-30208a44-b8e9-43c7-8a95-83e13fd27eef",
+          "workflow_run_id": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "step_run_id": "cdf23e11-6760-45ad-b6db-984d79bf03bf",
+          "attempt": 1,
+          "mission_id": "39030adb-9e03-40b3-b194-0a2bb045296d",
+          "mission_run_id": "79925dd4-9852-4658-906d-0a2c34e29a13",
+          "actor_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-30208a44-b8e9-43c7-8a95-83e13fd27eef",
+          "command_id": "verify-feature",
+          "tool_id": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 1,
+          "criterion_ids_json": "[\"AC-BUGFIX\"]",
+          "output_hash": "9913b66bb520dd259177934ca3d2f42b74809f2636f205fb5bd44cfa75b80545",
+          "created_at": "2026-10-05T01:48:31.771Z"
+        },
+        {
+          "id": "w22-6c5e5870-28b9-43d4-bcb5-87046a5ed9fb",
+          "workflow_run_id": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "step_run_id": "470d1d01-5a58-46dd-8271-ae9054adbcd4",
+          "attempt": 2,
+          "mission_id": "a1a1c008-9da7-43dd-bd3c-1519b581562e",
+          "mission_run_id": "ed9bec39-1d9c-4de9-b36c-301da85ef292",
+          "actor_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-6c5e5870-28b9-43d4-bcb5-87046a5ed9fb",
+          "command_id": "verify-feature",
+          "tool_id": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-BUGFIX\"]",
+          "output_hash": "4bcb89dec05e495ba2fa6576da993c64a417b841afa2dfce15bb0cf693c0dc29",
+          "created_at": "2026-10-05T01:48:34.506Z"
+        },
+        {
+          "id": "w22-71844632-a9d3-4567-900a-54962ac8b0e6",
+          "workflow_run_id": "a090d605-696e-42db-8205-fed1d7b44f6f",
+          "step_run_id": "f71a43f2-b651-479e-a9aa-dadec1ecee07",
+          "attempt": 3,
+          "mission_id": "504721b5-e69a-4fd7-a6fc-f5b8a8c9b21e",
+          "mission_run_id": "08506cfa-c108-458b-b8e8-96cdc892a213",
+          "actor_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-71844632-a9d3-4567-900a-54962ac8b0e6",
+          "command_id": "verify-feature",
+          "tool_id": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-BUGFIX\"]",
+          "output_hash": "4bcb89dec05e495ba2fa6576da993c64a417b841afa2dfce15bb0cf693c0dc29",
+          "created_at": "2026-10-05T01:48:37.712Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "main.js",
+            "beforeHash": "c604a79064d3242742128d4d35c4a036e769cb6d4486a7bd5e4278fab34d76ee",
+            "afterHash": "20c8da71fce28bad72ef25cc29cbd09aaa8314e2444dcccf0afa08d78e1ff5bf"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 3,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 3,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 2,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "migration",
+      "runId": "b10c5599-a3ba-4f86-a970-6516f21e3b1d",
+      "state": "COMPLETED",
+      "implementers": ["625bd132-5cd0-4b6d-aa79-2b01df63c3fb"],
+      "reviewers": ["d50f5b3e-b1c7-4790-9553-30939f41ee81"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [],
+      "validations": 11,
+      "journal": [
+        {
+          "id": "02582d3d-3cee-4deb-9fd9-7dee6a3912c7",
+          "workflow_run_id": "b10c5599-a3ba-4f86-a970-6516f21e3b1d",
+          "step_run_id": "df001b20-db0d-4f97-a3c4-53dea42e941c",
+          "operation_receipt_id": "945ba85f-65a2-4ffc-884d-2f51a595bd2c",
+          "attempt": 1,
+          "mission_id": "80b01a75-0241-44ce-9d9c-e48f12b2fd79",
+          "mission_run_id": "bf2fdd58-a39a-461f-a280-b4ff37b50817",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-877ece8d-b276-400a-9e30-da3b42ad5534",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:migrations/0001_feature.sql",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "migrations/0001_feature.sql",
+          "before_hash": null,
+          "expected_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "observed_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:42.528Z",
+          "updated_at": "2026-10-05T01:48:42.547Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-4a71f32f-6154-4243-b9fa-3b80df4ad9ec",
+          "workflow_run_id": "b10c5599-a3ba-4f86-a970-6516f21e3b1d",
+          "step_run_id": "387b42d1-d0f5-46fa-9c52-de1f117a9388",
+          "attempt": 1,
+          "mission_id": "b28f27fb-98ce-46b5-af4c-b3e3452d4fd4",
+          "mission_run_id": "324f401e-8ccd-487b-a891-cac12774f679",
+          "actor_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-4a71f32f-6154-4243-b9fa-3b80df4ad9ec",
+          "command_id": "verify-feature",
+          "tool_id": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-MIGRATION\"]",
+          "output_hash": "8d1d03262fc9e9c597513f8e489ea18489b2301c7ad3a608b1ecaba944de183d",
+          "created_at": "2026-10-05T01:48:43.131Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "migrations/0001_feature.sql",
+            "afterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "SKIPPED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "crossLayer",
+      "runId": "d1efbd2b-ae0e-4bfe-b7e5-aaaf8f15f63c",
+      "state": "COMPLETED",
+      "implementers": ["625bd132-5cd0-4b6d-aa79-2b01df63c3fb"],
+      "reviewers": ["d50f5b3e-b1c7-4790-9553-30939f41ee81"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [],
+      "validations": 11,
+      "journal": [
+        {
+          "id": "31b1408d-d1fd-4c96-b66e-66235537d971",
+          "workflow_run_id": "d1efbd2b-ae0e-4bfe-b7e5-aaaf8f15f63c",
+          "step_run_id": "0739cf7e-76e2-4c94-8b53-2c7284d9e4f2",
+          "operation_receipt_id": "f024733b-fa40-4428-bc7b-c9afd41eff71",
+          "attempt": 1,
+          "mission_id": "4e2655be-e3cd-4da9-8cf5-db52132dd4f5",
+          "mission_run_id": "df936c0e-7e96-474a-9065-f19f11a047a9",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-768c1493-d9f5-4c88-9beb-13f3db2887b7",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:renderer.ts",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "renderer.ts",
+          "before_hash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+          "expected_after_hash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637",
+          "observed_after_hash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:46.824Z",
+          "updated_at": "2026-10-05T01:48:46.839Z"
+        },
+        {
+          "id": "5c9a6616-5caf-4828-86c6-83b0579a0786",
+          "workflow_run_id": "d1efbd2b-ae0e-4bfe-b7e5-aaaf8f15f63c",
+          "step_run_id": "0739cf7e-76e2-4c94-8b53-2c7284d9e4f2",
+          "operation_receipt_id": "f024733b-fa40-4428-bc7b-c9afd41eff71",
+          "attempt": 1,
+          "mission_id": "4e2655be-e3cd-4da9-8cf5-db52132dd4f5",
+          "mission_run_id": "df936c0e-7e96-474a-9065-f19f11a047a9",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-7358cde7-b998-4289-97aa-46ac950d567c",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:ipc.ts",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "ipc.ts",
+          "before_hash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+          "expected_after_hash": "8b84dcafe3b12ae159c083432f4a570c220fbf7ceac0f84e6f45b8c6115fc223",
+          "observed_after_hash": "8b84dcafe3b12ae159c083432f4a570c220fbf7ceac0f84e6f45b8c6115fc223",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:47.144Z",
+          "updated_at": "2026-10-05T01:48:47.158Z"
+        },
+        {
+          "id": "41d6d6c5-517c-4c3a-80f1-2c5bd65b6c7b",
+          "workflow_run_id": "d1efbd2b-ae0e-4bfe-b7e5-aaaf8f15f63c",
+          "step_run_id": "0739cf7e-76e2-4c94-8b53-2c7284d9e4f2",
+          "operation_receipt_id": "f024733b-fa40-4428-bc7b-c9afd41eff71",
+          "attempt": 1,
+          "mission_id": "4e2655be-e3cd-4da9-8cf5-db52132dd4f5",
+          "mission_run_id": "df936c0e-7e96-474a-9065-f19f11a047a9",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-3121183f-e3e1-4842-99a1-7f4e4777901c",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:store.ts",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "store.ts",
+          "before_hash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+          "expected_after_hash": "5e131e6f0eb518e8ada2b6a33329d8b10c7944ae2eb9247f5db2e13279aa7ef2",
+          "observed_after_hash": "5e131e6f0eb518e8ada2b6a33329d8b10c7944ae2eb9247f5db2e13279aa7ef2",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:47.781Z",
+          "updated_at": "2026-10-05T01:48:47.794Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-24b91015-3b05-4dd7-8a04-5798d36cf877",
+          "workflow_run_id": "d1efbd2b-ae0e-4bfe-b7e5-aaaf8f15f63c",
+          "step_run_id": "33bfcc7a-ab48-462d-a455-790e5d93ad81",
+          "attempt": 1,
+          "mission_id": "c5e06d70-6641-4690-a778-f19560fd3cac",
+          "mission_run_id": "e5bf4cd1-c522-46f2-8d22-bdfe2375f4f3",
+          "actor_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-24b91015-3b05-4dd7-8a04-5798d36cf877",
+          "command_id": "verify-feature",
+          "tool_id": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-UI\",\"AC-IPC\",\"AC-PERSISTENCE\"]",
+          "output_hash": "607ef3063520c9a261bc724471839216d8f4b9e1b7bc8ce96c16782a37cbd280",
+          "created_at": "2026-10-05T01:48:48.454Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "ipc.ts",
+            "beforeHash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+            "afterHash": "8b84dcafe3b12ae159c083432f4a570c220fbf7ceac0f84e6f45b8c6115fc223"
+          },
+          {
+            "relativePath": "renderer.ts",
+            "beforeHash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+            "afterHash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637"
+          },
+          {
+            "relativePath": "store.ts",
+            "beforeHash": "e92c6b410b0b6df7491d3c8cdfd21371b39551930fabe5dfb66e0ddc40881562",
+            "afterHash": "5e131e6f0eb518e8ada2b6a33329d8b10c7944ae2eb9247f5db2e13279aa7ef2"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "SKIPPED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "mixed",
+      "runId": "535c023e-a300-4a0b-aa5a-e1c97d2b0bde",
+      "state": "COMPLETED",
+      "implementers": ["625bd132-5cd0-4b6d-aa79-2b01df63c3fb"],
+      "reviewers": ["d50f5b3e-b1c7-4790-9553-30939f41ee81"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [],
+      "validations": 11,
+      "journal": [
+        {
+          "id": "25abf3bc-f130-40b3-8e8f-d773b860961b",
+          "workflow_run_id": "535c023e-a300-4a0b-aa5a-e1c97d2b0bde",
+          "step_run_id": "a42d41aa-f611-49f7-a22c-bc7a8f02796e",
+          "operation_receipt_id": "0d6ab1dc-ba77-4857-b94f-6adf9fc97b7a",
+          "attempt": 1,
+          "mission_id": "ddb720ec-ad20-42b2-914d-03b3dcc742e6",
+          "mission_run_id": "046a7102-a5d7-4fae-8318-d67406ef9b72",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-39d93716-c505-4857-97b7-146ad9986a81",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:migrations/0001_feature.sql",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "migrations/0001_feature.sql",
+          "before_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "expected_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "observed_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:48:52.186Z",
+          "updated_at": "2026-10-05T01:48:52.206Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-1ffad151-7857-4e65-929e-74c63f21c1a7",
+          "workflow_run_id": "535c023e-a300-4a0b-aa5a-e1c97d2b0bde",
+          "step_run_id": "d831e1f7-0d0b-4d5c-b995-dadd4fe82dc9",
+          "attempt": 1,
+          "mission_id": "b87e97d1-b0b3-49aa-9eca-39e76d693a40",
+          "mission_run_id": "05374b6d-40bf-465c-a7ac-772ff8902ca5",
+          "actor_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-1ffad151-7857-4e65-929e-74c63f21c1a7",
+          "command_id": "verify-feature",
+          "tool_id": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-MIGRATION\"]",
+          "output_hash": "8d1d03262fc9e9c597513f8e489ea18489b2301c7ad3a608b1ecaba944de183d",
+          "created_at": "2026-10-05T01:48:52.805Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "migrations/0001_feature.sql",
+            "beforeHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+            "afterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "SKIPPED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "preCommit",
+      "runId": "1526dc99-95de-4c0d-b06c-238b524efafa",
+      "state": "COMPLETED",
+      "implementers": ["625bd132-5cd0-4b6d-aa79-2b01df63c3fb"],
+      "reviewers": ["d50f5b3e-b1c7-4790-9553-30939f41ee81"],
+      "approvals": [
+        {
+          "stepId": "S01",
+          "capability": "FILE_READ"
+        },
+        {
+          "stepId": "S05",
+          "capability": "FILE_WRITE"
+        },
+        {
+          "stepId": "S06",
+          "capability": "MCP_TOOL_EXECUTE"
+        }
+      ],
+      "traversals": [],
+      "validations": 11,
+      "journal": [
+        {
+          "id": "68ed13bb-d508-4dad-a7fb-edda8deacc37",
+          "workflow_run_id": "1526dc99-95de-4c0d-b06c-238b524efafa",
+          "step_run_id": "78122fc6-18d6-452c-b045-5556d469f04d",
+          "operation_receipt_id": "0c617cf8-6b5f-4ca5-9109-ac705fc7065d",
+          "attempt": 1,
+          "mission_id": "ef925876-2f64-4e6e-92a6-481390745376",
+          "mission_run_id": "30fe2cfa-d4b3-4be5-98ae-9f53bbde5b7d",
+          "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-3f48d313-c93e-4dea-aadb-5809bc5f3135",
+          "tool_id": "file.writeText",
+          "permission_resource": "file:b07bc34006089daa:migrations/0001_feature.sql",
+          "workspace_tag": "b07bc34006089daa",
+          "relative_path": "migrations/0001_feature.sql",
+          "before_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "expected_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "observed_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "state": "APPLIED",
+          "result_code": "OK",
+          "created_at": "2026-10-05T01:49:04.603Z",
+          "updated_at": "2026-10-05T01:49:04.625Z"
+        }
+      ],
+      "verificationFacts": [
+        {
+          "id": "w22-3bec66c5-e4ef-47ca-8ccc-7a441b80e38c",
+          "workflow_run_id": "1526dc99-95de-4c0d-b06c-238b524efafa",
+          "step_run_id": "9c387367-01e6-431c-b9cc-d5205e0d7965",
+          "attempt": 1,
+          "mission_id": "3be76d47-af3f-4d63-9ea6-1d39c3415086",
+          "mission_run_id": "dc8df90f-9b5e-4ff3-b290-4c29f34ee54c",
+          "actor_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+          "tool_call_id": "w22-3bec66c5-e4ef-47ca-8ccc-7a441b80e38c",
+          "command_id": "verify-feature",
+          "tool_id": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "command": "node verify.mjs",
+          "command_hash": "f7bf3947227ed8ebf3b58f894b090e9cf70e9452a2e28bbed1c00f74cec2b91e",
+          "exit_status": 0,
+          "criterion_ids_json": "[\"AC-MIGRATION\"]",
+          "output_hash": "8d1d03262fc9e9c597513f8e489ea18489b2301c7ad3a608b1ecaba944de183d",
+          "created_at": "2026-10-05T01:49:07.354Z"
+        }
+      ],
+      "finalChanges": {
+        "entries": [
+          {
+            "relativePath": "migrations/0001_feature.sql",
+            "beforeHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+            "afterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "stepId": "S01",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S02",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S03",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S04",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S05",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S06",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S07",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S08",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S09",
+          "attempt": 1,
+          "state": "COMPLETED"
+        },
+        {
+          "stepId": "S10",
+          "attempt": 1,
+          "state": "SKIPPED"
+        },
+        {
+          "stepId": "S11",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ]
+    }
+  ],
+  "mutationRestart": {
+    "receipt": {
+      "id": "10eb9782-6c27-44ac-9f48-975da6f070f1",
+      "state": "APPLIED"
+    },
+    "missionId": "50814627-010f-4feb-a081-879bb441c7c1",
+    "before": [
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      }
+    ],
+    "after": [
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      }
+    ],
+    "zeroReplay": true
+  },
+  "setup": {
+    "actors": [
+      {
+        "id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+        "name": "青岚",
+        "avatar": null,
+        "title": null,
+        "description": "",
+        "identityPrompt": "",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": "ac9389f0-fc44-4381-9314-a59cd4a13534",
+        "createdAt": "2026-10-05T01:48:20.151Z",
+        "updatedAt": "2026-10-05T01:48:20.151Z"
+      },
+      {
+        "id": "d50f5b3e-b1c7-4790-9553-30939f41ee81",
+        "name": "明衡",
+        "avatar": null,
+        "title": null,
+        "description": "",
+        "identityPrompt": "",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": "c9e8b312-556a-49b4-b2d9-6bd3a5856b75",
+        "createdAt": "2026-10-05T01:48:20.161Z",
+        "updatedAt": "2026-10-05T01:48:20.161Z"
+      }
+    ],
+    "serverId": "7e5c4264-e650-41ba-a841-da3f674de8af",
+    "toolId": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository"
+  },
+  "mixedVerification": {
+    "workflowRunId": "535c023e-a300-4a0b-aa5a-e1c97d2b0bde",
+    "stepRunId": "d831e1f7-0d0b-4d5c-b995-dadd4fe82dc9",
+    "missionRunId": "05374b6d-40bf-465c-a7ac-772ff8902ca5",
+    "requestId": "67c15fdf-34ed-4d4b-a5b6-36c871cbfbb8",
+    "commandFactCount": 1,
+    "merged": {
+      "executions": [
+        {
+          "commandId": "verify-feature",
+          "command": "node verify.mjs",
+          "toolId": "7e5c4264-e650-41ba-a841-da3f674de8af:verify_repository",
+          "toolExecutionId": "w22-1ffad151-7857-4e65-929e-74c63f21c1a7",
+          "exitStatus": 0,
+          "acceptanceCriteriaIds": ["AC-MIGRATION"],
+          "outputArtifactId": "w22-1ffad151-7857-4e65-929e-74c63f21c1a7",
+          "outputHash": "8d1d03262fc9e9c597513f8e489ea18489b2301c7ad3a608b1ecaba944de183d"
+        }
+      ],
+      "criteria": [
+        {
+          "criterionId": "AC-MIGRATION",
+          "status": "PASS",
+          "evidenceArtifactIds": ["w22-1ffad151-7857-4e65-929e-74c63f21c1a7"],
+          "executionIds": ["w22-1ffad151-7857-4e65-929e-74c63f21c1a7"]
+        },
+        {
+          "criterionId": "AC-MANUAL",
+          "status": "PASS",
+          "evidenceArtifactIds": ["7cfdbe08-0dfb-431d-a635-cb6320df1541"],
+          "executionIds": []
+        }
+      ],
+      "failures": []
+    },
+    "waitingRestartZeroReplay": true,
+    "acceptedRestartZeroReplay": true,
+    "before": [
+      {
+        "event_type": "external_work.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      },
+      {
+        "event_type": "workflow.verification.manual_requested",
+        "n": 1
+      }
+    ],
+    "afterAccept": [
+      {
+        "event_type": "external_work.accepted",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.created",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.in_progress",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.submitted",
+        "n": 1
+      },
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      },
+      {
+        "event_type": "workflow.verification.manual_requested",
+        "n": 1
+      }
+    ],
+    "after": [
+      {
+        "event_type": "external_work.accepted",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.continuation_received",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.created",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.in_progress",
+        "n": 1
+      },
+      {
+        "event_type": "external_work.submitted",
+        "n": 1
+      },
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.external_work_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      },
+      {
+        "event_type": "workflow.verification.manual_requested",
+        "n": 1
+      }
+    ],
+    "continuation": "CONSUMED"
+  },
+  "preparedMutationRestart": {
+    "receipt": {
+      "id": "0c617cf8-6b5f-4ca5-9109-ac705fc7065d",
+      "workflow_run_id": "1526dc99-95de-4c0d-b06c-238b524efafa",
+      "step_run_id": "78122fc6-18d6-452c-b045-5556d469f04d",
+      "attempt": 1,
+      "operation_key": "workflow:1526dc99-95de-4c0d-b06c-238b524efafa:78122fc6-18d6-452c-b045-5556d469f04d",
+      "effect_type": "WORKSPACE_MUTATION",
+      "state": "PREPARED",
+      "input_hash": "093cebfe0282faa4da36dd57e6978f995fe57f5dfa2ac754046c0e1e877c5685",
+      "manifest_json": "[]",
+      "output_artifact_ids_json": "[]",
+      "external_reference": null,
+      "created_at": "2026-10-05T01:49:04.194Z",
+      "updated_at": "2026-10-05T01:49:04.194Z"
+    },
+    "journal": [
+      {
+        "id": "68ed13bb-d508-4dad-a7fb-edda8deacc37",
+        "workflow_run_id": "1526dc99-95de-4c0d-b06c-238b524efafa",
+        "step_run_id": "78122fc6-18d6-452c-b045-5556d469f04d",
+        "operation_receipt_id": "0c617cf8-6b5f-4ca5-9109-ac705fc7065d",
+        "attempt": 1,
+        "mission_id": "ef925876-2f64-4e6e-92a6-481390745376",
+        "mission_run_id": "30fe2cfa-d4b3-4be5-98ae-9f53bbde5b7d",
+        "teammate_id": "625bd132-5cd0-4b6d-aa79-2b01df63c3fb",
+        "tool_call_id": "w22-3f48d313-c93e-4dea-aadb-5809bc5f3135",
+        "tool_id": "file.writeText",
+        "permission_resource": "file:b07bc34006089daa:migrations/0001_feature.sql",
+        "workspace_tag": "b07bc34006089daa",
+        "relative_path": "migrations/0001_feature.sql",
+        "before_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+        "expected_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+        "observed_after_hash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+        "state": "APPLIED",
+        "result_code": "OK",
+        "created_at": "2026-10-05T01:49:04.603Z",
+        "updated_at": "2026-10-05T01:49:04.625Z"
+      }
+    ],
+    "before": [
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      }
+    ],
+    "after": [
+      {
+        "event_type": "mission.approval_resumed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.completed",
+        "n": 1
+      },
+      {
+        "event_type": "mission.created",
+        "n": 1
+      },
+      {
+        "event_type": "mission.ready",
+        "n": 1
+      },
+      {
+        "event_type": "mission.run_started",
+        "n": 1
+      },
+      {
+        "event_type": "mission.waiting_approval",
+        "n": 1
+      },
+      {
+        "event_type": "model.call_completed",
+        "n": 2
+      },
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "routing.assigned",
+        "n": 1
+      },
+      {
+        "event_type": "run.completed",
+        "n": 1
+      },
+      {
+        "event_type": "run.started",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_decided",
+        "n": 1
+      },
+      {
+        "event_type": "tool.approval_requested",
+        "n": 1
+      },
+      {
+        "event_type": "tool.proposed",
+        "n": 1
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      },
+      {
+        "event_type": "usage.recorded",
+        "n": 2
+      }
+    ],
+    "noReplay": true
+  },
+  "restartIdempotent": {
+    "before": {
+      "calls": 141,
+      "mutations": 9,
+      "checkpoints": 122
+    },
+    "after": {
+      "calls": 141,
+      "mutations": 9,
+      "checkpoints": 122
+    }
+  },
+  "noPublish": 0
+}

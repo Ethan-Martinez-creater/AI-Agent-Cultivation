@@ -386,7 +386,7 @@ export function HumanBridgeRequestPresentation({
         </section>
         <section>
           <h3>保存到哪里</h3>
-          <p>{paths.join('、') || '当前工作区'}</p>
+          <p>{paths.length ? '当前工作区内的指定交付目录' : '当前工作区'}</p>
         </section>
         <section>
           <h3>验收重点</h3>
@@ -403,6 +403,18 @@ export function HumanBridgeRequestPresentation({
       </section>
       <details className="advanced-disclosure human-bridge-delivery-spec">
         <summary>完整交付规范 / 高级信息</summary>
+        {paths.length > 0 && (
+          <>
+            <h3>实际交付路径</h3>
+            <ul>
+              {paths.map((path) => (
+                <li key={path}>
+                  <code>{path}</code>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         <h3>完整任务说明、安全约束与合同</h3>
         <pre className="r2-prompt">{displayTaskText(request.prompt)}</pre>
         <h3>Artifact 标识与文件约束</h3>

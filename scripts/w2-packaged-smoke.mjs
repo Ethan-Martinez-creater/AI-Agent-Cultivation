@@ -61,7 +61,7 @@ async function kill(app) {
   execFileSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
   await closed;
   // Windows may finish releasing SQLite file handles just after process close.
-  const deadline = Date.now() + 5000;
+  const deadline = Date.now() + 30_000;
   for (;;) {
     let db;
     try {
@@ -349,7 +349,7 @@ try {
       .all(),
     traversals: db.prepare('SELECT * FROM workflow_revision_traversals').all(),
   }));
-  assert.equal(facts.persistence.migration, 25);
+  assert.equal(facts.persistence.migration, 26);
   assert.deepEqual(
     installSnapshot(),
     installed,

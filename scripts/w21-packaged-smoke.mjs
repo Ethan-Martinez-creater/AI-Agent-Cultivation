@@ -10,12 +10,19 @@ import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node
 import { pathToFileURL } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { navigateUi } from './ui-navigation.mjs';
+import {
+  acceptancePaths,
+  attachAcceptanceVisuals,
+  captureAcceptance,
+  isolatePreviousAcceptanceActors,
+} from './w24-shared-profile.mjs';
 
 const root = process.cwd();
 const nonce = randomUUID();
-const profile = join(root, '.test-data', `w21-packaged-${nonce}`);
-const workspace = join(profile, 'workspace');
-const evidence = join(profile, 'evidence');
+const { profile, workspace, evidence } = acceptancePaths(
+  'news',
+  join(root, '.test-data', `w21-packaged-${nonce}`),
+);
 const databasePath = join(profile, 'data', 'cultivation.sqlite');
 const executablePath = join(
   root,
@@ -75,6 +82,8 @@ const cases = [
     },
   },
 ];
+if (process.env.CULTIVATION_W24_PROFILE)
+  cases.push({ id: 'qaBudget', inputs: { ...cases[0].inputs, topicScope: 'AI 资讯质量复核' } });
 
 mkdirSync(workspace, { recursive: true });
 mkdirSync(evidence, { recursive: true });
@@ -166,6 +175,7 @@ async function launch(extraFlags = []) {
     if (text.includes('W21_OFFLINE_FIXTURE_FAILURE')) console.error(text.trim());
   });
   await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
+  await attachAcceptanceVisuals({ app, page }, evidence);
   return { app, page };
 }
 
@@ -435,8 +445,7 @@ async function acceptHumanBridge(live, workflow, step, requestId) {
     (id) =>
       window.cultivation.r2.accept({
         requestId: id,
-        publicResult:
-          'Deterministic AP-007 fixture files submitted through typed Human Bridge IPC.',
+        publicResult: '已提交新闻视频所需素材，请按交付要求验收。',
       }),
     requestId,
   );
@@ -503,8 +512,14 @@ async function driveRun(liveRef, serverId, runId, options = {}) {
     assert.notEqual(workflow.run.state, 'FAILED', `Workflow failed: ${workflow.run.id}`);
     assert.notEqual(workflow.run.state, 'CANCELLED', `Workflow cancelled: ${workflow.run.id}`);
     const current = activeStep(workflow);
+    if (workflow.traversals.length) {
+      await workflowUi(liveRef.current.page);
+      await captureAcceptance(liveRef.current, evidence, 'revision');
+    }
 
     if (workflow.run.waitReason === 'USER_CONFIRMATION') {
+      if (options.expectBudget && current?.errorCode === 'REVISION_BUDGET_EXHAUSTED')
+        return { workflow, fact };
       assert.equal(
         current?.stepId,
         'N14',
@@ -558,6 +573,8 @@ async function driveRun(liveRef, serverId, runId, options = {}) {
 
     const pending = await pendingApprovalForWorkflow(liveRef.current.page, workflow);
     if (pending) {
+      await workflowUi(liveRef.current.page);
+      await captureAcceptance(liveRef.current, evidence, 'approval');
       assert.equal(pending.approval.capability, 'MCP_TOOL_EXECUTE');
       assert.equal(pending.approval.actionPayload.source, 'MCP');
       assert.ok(String(pending.approval.actionPayload.toolId).includes(serverId));
@@ -704,6 +721,7 @@ const facts = {
   acceptanceCases: [],
 };
 try {
+  if (process.env.CULTIVATION_W24_PROFILE) await isolatePreviousAcceptanceActors(live.current);
   await live.current.app.evaluate(({ dialog }, folder) => {
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
   }, workspace);
@@ -714,21 +732,21 @@ try {
   const setup = await live.current.page.evaluate(async (requiredCapabilities) => {
     const api = window.cultivation;
     const provider = await api.providers.create({
-      name: 'W2.1 deterministic fixture provider',
+      name: '新闻制作模型服务',
       kind: 'OPENAI_COMPATIBLE',
       baseUrl: 'http://127.0.0.1:9999/v1',
     });
     const runtime = await api.runtimes.create({
-      name: 'W2.1 deterministic fixture runtime',
+      name: '新闻制作固定模型',
       providerId: provider.id,
       credentialId: null,
       modelId: 'w21-fixture-model',
     });
     const teammate = await api.teammates.create({
-      name: 'W2.1 deterministic workflow executor',
+      name: '青岚',
       avatar: null,
       title: null,
-      description: 'Test-only offline AP-007 workflow fixture',
+      description: '负责新闻研究、脚本与制作协调。',
       identityPrompt: 'Use the bounded deterministic fixture output for this test-only workflow.',
       behaviorPrompt: '',
       currentRuntimeProfileId: runtime.id,
@@ -780,9 +798,7 @@ try {
   facts.setup = await live.current.page.evaluate(
     async ({ dimensions }) => {
       const api = window.cultivation;
-      const teammate = (await api.teammates.list()).find(
-        (item) => item.name === 'W2.1 deterministic workflow executor',
-      );
+      const teammate = (await api.teammates.list()).find((item) => item.name === '青岚');
       if (!teammate) throw new Error('Fixture teammate is missing');
       const runtimeId = teammate.currentRuntimeProfileId;
       for (const dimension of dimensions.filter(
@@ -815,7 +831,7 @@ try {
   const server = await live.current.page.evaluate(
     ({ command, scriptPath, fixtureRoot, cwd }) =>
       window.cultivation.tools.saveMcpServer({
-        name: 'W2.1 deterministic stdio news fixture',
+        name: '新闻研究与制作工具',
         command,
         args: [scriptPath, '--fixture-root', fixtureRoot],
         envWhitelist: [],
@@ -890,6 +906,7 @@ try {
       restartAtN10: testCase.id === 'short',
       crashAfterN12Applied: testCase.id === 'weekly',
       uiActions: testCase.id === 'short',
+      expectBudget: testCase.id === 'qaBudget',
     };
     let result = await driveRun(live, server.id, runId, driveOptions);
     while (result.external) {
@@ -920,9 +937,39 @@ try {
       result = await driveRun(live, server.id, runId, { ...driveOptions, fact: result.fact });
     }
     let workflow = result.workflow;
+    if (testCase.id === 'qaBudget') {
+      const traversals = workflow.traversals.filter(
+        (item) => item.groupId === 'news.final_qa_revision',
+      );
+      assert.equal(traversals.length, 2);
+      assert.equal(new Set(traversals.map((item) => item.edgeId)).size, 2);
+      assert.equal(activeStep(workflow).errorCode, 'REVISION_BUDGET_EXHAUSTED');
+      await workflowUi(live.current.page);
+      await captureAcceptance(live.current, evidence, 'qa-budget-blocked');
+      const before = runEventSnapshot(runId);
+      await kill(live.current.app);
+      live.current = await launch();
+      equalSnapshots(runEventSnapshot(runId), before, 'exhausted revision cannot replay');
+      const after = await detail(live.current.page, runId);
+      assert.deepEqual(after.traversals, workflow.traversals);
+      facts.sharedQaBudget = {
+        runId,
+        traversals,
+        before,
+        after: runEventSnapshot(runId),
+        noReplay: true,
+      };
+      continue;
+    }
     assert.equal(workflow.run.waitReason, 'USER_CONFIRMATION');
     assert.equal(workflow.run.state, 'WAITING');
     if (testCase.id === 'short') {
+      const before = runEventSnapshot(runId);
+      await kill(live.current.app);
+      live.current = await launch();
+      equalSnapshots(runEventSnapshot(runId), before, 'final confirmation restart cannot replay');
+      assert.equal((await detail(live.current.page, runId)).run.waitReason, 'USER_CONFIRMATION');
+      facts.finalConfirmationRestart = { runId, before, after: runEventSnapshot(runId) };
       await workflowUi(live.current.page);
       await live.current.page
         .getByRole('button', { name: '确认交付，不发布', exact: true })

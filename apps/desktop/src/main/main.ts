@@ -849,6 +849,17 @@ if (!squirrelStartup)
       }
       if (
         process.argv.includes('--gate1-fake-model') &&
+        process.argv.includes('--w24-stop-before-artifact-commit')
+      ) {
+        const collect = workflowMissions.collectOutputs.bind(workflowMissions);
+        workflowMissions.collectOutputs = async (...args) => {
+          const snapshot = await collect(...args);
+          if (args[2]?.id === 'S05') await new Promise<void>(() => {});
+          return snapshot;
+        };
+      }
+      if (
+        process.argv.includes('--gate1-fake-model') &&
         process.argv.includes('--w2-stop-applied')
       ) {
         const verify = workflowMissions.verifyOperation.bind(workflowMissions);

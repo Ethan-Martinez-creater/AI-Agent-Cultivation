@@ -141,7 +141,7 @@ describe('R4 routing durable foundation', () => {
       });
       runMigrations(db, migrations);
       expect(db.prepare('SELECT count(*) AS count FROM schema_migrations').get()).toEqual({
-        count: 25,
+        count: 26,
       });
       expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
     } finally {

@@ -1139,7 +1139,7 @@ function experimentToolInput(
       item.kind === 'FILE',
   );
   const kind = caseKind(detail);
-  const datasetRelativePath = kind === 'DATASET' ? 'datasets/research-fixture.csv' : undefined;
+  const datasetRelativePath = kind === 'DATASET' ? 'datasets/research-dataset.csv' : undefined;
   if (kind === 'DATASET' && (!dataset || dataset.workspaceRelativePath !== datasetRelativePath))
     throw new Error(
       'W2.3 deterministic Dataset fixture only accepts its pre-provisioned bounded dataset ArtifactRef',

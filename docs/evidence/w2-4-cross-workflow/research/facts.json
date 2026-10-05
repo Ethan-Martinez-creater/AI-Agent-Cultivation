@@ -1,0 +1,2282 @@
+{
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7",
+  "workspace": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7\\workspace",
+  "cases": [
+    {
+      "id": "A-algorithm",
+      "workflowRunId": "c2a11303-3d60-4ef8-b6b3-7fe51157ddd9",
+      "state": "COMPLETED",
+      "mode": "COMPUTATIONAL",
+      "approvals": 2,
+      "experimentAttempts": [
+        {
+          "stepRunId": "b8b39a3c-975b-4359-a2d0-162611d7bc3f",
+          "missionRunId": "9d9c4f82-2b27-4899-9d5f-6706e320c1f9",
+          "attempt": 1,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "82441328-a54c-4e2d-b7dc-5ec1beef13b5",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/c2a11303-3d60-4ef8-b6b3-7fe51157ddd9/b8b39a3c-975b-4359-a2d0-162611d7bc3f/research/raw-result.json",
+            "workflows/c2a11303-3d60-4ef8-b6b3-7fe51157ddd9/b8b39a3c-975b-4359-a2d0-162611d7bc3f/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "2c6b0f8c8f00c624c9da53737a4f5cd87faa4fb2510d67dde75124009940437c",
+            "13b28e78aaddddc1f835db751832b5480307420fd11e31ae85b2860e99b8de79"
+          ]
+        }
+      ],
+      "experimentTraversals": [],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "15641a6f-8c22-4605-8ae5-2601e711c822",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        },
+        {
+          "reviewerId": "15641a6f-8c22-4605-8ae5-2601e711c822",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        },
+        {
+          "reviewerId": "15641a6f-8c22-4605-8ae5-2601e711c822",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        },
+        {
+          "reviewerId": "15641a6f-8c22-4605-8ae5-2601e711c822",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "6466faeb-5843-4244-aaae-97fb94cca0b7",
+            "82441328-a54c-4e2d-b7dc-5ec1beef13b5",
+            "dc94d7d4-df58-4832-bbd6-685a5c585def"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": null,
+      "computationalRestart": {
+        "receipt": {
+          "id": "bec7a863-ce1e-419d-9f86-006225bf42ea",
+          "state": "APPLIED"
+        },
+        "before": [
+          {
+            "event_type": "model.call_started",
+            "n": 2
+          },
+          {
+            "event_type": "tool.result",
+            "n": 1
+          }
+        ],
+        "after": [
+          {
+            "event_type": "model.call_started",
+            "n": 2
+          },
+          {
+            "event_type": "tool.result",
+            "n": 1
+          }
+        ],
+        "stepFiles": [
+          {
+            "path": "workflows/c2a11303-3d60-4ef8-b6b3-7fe51157ddd9/b8b39a3c-975b-4359-a2d0-162611d7bc3f/research/raw-result.json",
+            "contentHash": "2c6b0f8c8f00c624c9da53737a4f5cd87faa4fb2510d67dde75124009940437c"
+          },
+          {
+            "path": "workflows/c2a11303-3d60-4ef8-b6b3-7fe51157ddd9/b8b39a3c-975b-4359-a2d0-162611d7bc3f/research/experiment-log.txt",
+            "contentHash": "13b28e78aaddddc1f835db751832b5480307420fd11e31ae85b2860e99b8de79"
+          }
+        ],
+        "zeroReplay": true
+      },
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 1
+      },
+      "deliveryProjection": {
+        "items": [
+          {
+            "artifactId": "9d6cdb5d-fa81-44a8-8c5f-8b885a43801e",
+            "key": "research.brief",
+            "displayName": "研究摘要",
+            "attempt": 1,
+            "category": "brief"
+          },
+          {
+            "artifactId": "6466faeb-5843-4244-aaae-97fb94cca0b7",
+            "key": "research.evidence",
+            "displayName": "证据表",
+            "attempt": 1,
+            "category": "evidence_table"
+          },
+          {
+            "artifactId": "d4ff034e-0a93-414b-8491-6de397601372",
+            "key": "research.landscape",
+            "displayName": "研究版图",
+            "attempt": 1,
+            "category": "landscape"
+          },
+          {
+            "artifactId": "8b1b2cff-b653-432d-bfdc-8a3fa9ed7943",
+            "key": "research.hypotheses",
+            "displayName": "研究假设",
+            "attempt": 2,
+            "category": "hypotheses"
+          },
+          {
+            "artifactId": "1d38dba6-8710-40c9-99ae-9d7a3d5a7547",
+            "key": "research.review",
+            "displayName": "假设审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "7de020d5-13ce-47dc-b628-f69baa40d27d",
+            "key": "research.review",
+            "displayName": "假设审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "ccea7fc9-51bc-4964-8d3b-d0c1d50471d1",
+            "key": "research.experiment_plan",
+            "displayName": "实验计划",
+            "attempt": 1,
+            "category": "experiment_plan"
+          },
+          {
+            "artifactId": "82441328-a54c-4e2d-b7dc-5ec1beef13b5",
+            "key": "research.experiment_record",
+            "displayName": "实验记录（第 1 次尝试）",
+            "attempt": 1,
+            "category": "experiment_record",
+            "outcome": "COMPLETED"
+          },
+          {
+            "artifactId": "716e48d8-3b4e-4ced-9846-730b51657143",
+            "key": "research.analysis",
+            "displayName": "分析",
+            "attempt": 1,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "dc94d7d4-df58-4832-bbd6-685a5c585def",
+            "key": "research.analysis_results",
+            "displayName": "分析结果与可复现性信号",
+            "attempt": 1,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "897340b3-4bf0-43b9-aa55-8d99f45c6f4b",
+            "key": "research.review",
+            "displayName": "科学审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "f0463d5d-9e7c-4d40-a9ff-acb9132d3e83",
+            "key": "research.review",
+            "displayName": "科学审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "9aa0c89b-d432-472f-b14d-45cff46e0734",
+            "key": "research.revised_manuscript",
+            "displayName": "最终论文稿（修订版）",
+            "attempt": 1,
+            "category": "manuscript"
+          },
+          {
+            "artifactId": "6cd2898f-9a12-4101-a1cf-6dc2581c6cad",
+            "key": "research.final_package",
+            "displayName": "最终研究包",
+            "attempt": 1,
+            "category": "final_package"
+          }
+        ]
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "c2a11303-3d60-4ef8-b6b3-7fe51157ddd9:R08:1",
+            "metric": "observed metric",
+            "observation": "预设比较中未观察到预期改善；该结果已保留并纳入分析。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": []
+      }
+    },
+    {
+      "id": "B-dataset",
+      "workflowRunId": "248dc0f4-6820-46fe-8b53-ee5d61476a26",
+      "state": "COMPLETED",
+      "mode": "COMPUTATIONAL",
+      "approvals": 3,
+      "experimentAttempts": [
+        {
+          "stepRunId": "39e4aedd-4d3a-4c9b-b39e-b2cbc5c84e2a",
+          "missionRunId": "1b2c8ccc-de79-4249-be10-54b89e3018cf",
+          "attempt": 1,
+          "outcome": "FAILED",
+          "recordArtifactId": "c55cb715-d230-4a45-8565-4efc0f3c1aea",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/248dc0f4-6820-46fe-8b53-ee5d61476a26/39e4aedd-4d3a-4c9b-b39e-b2cbc5c84e2a/research/raw-result.json",
+            "workflows/248dc0f4-6820-46fe-8b53-ee5d61476a26/39e4aedd-4d3a-4c9b-b39e-b2cbc5c84e2a/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "2c04bf689b0773088e2cc7cdff2deaae46f72f75eec6eb12313b14490ad2b9d5",
+            "e13b52d25c3739bcd9de26c1c2d57bea2c882067519632ef3fb1469f11d59634"
+          ]
+        },
+        {
+          "stepRunId": "3cd47f2a-c7ac-43c3-898b-6fb62ca0b0ce",
+          "missionRunId": "072a569e-57c5-4d89-9aab-7a775a6f7156",
+          "attempt": 2,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "74d0e495-619c-4461-8901-08f060b518ef",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/248dc0f4-6820-46fe-8b53-ee5d61476a26/3cd47f2a-c7ac-43c3-898b-6fb62ca0b0ce/research/raw-result.json",
+            "workflows/248dc0f4-6820-46fe-8b53-ee5d61476a26/3cd47f2a-c7ac-43c3-898b-6fb62ca0b0ce/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "152d077cde60044d5fd8f4240fedd05ddb34a4e0923bce39775820b27a811920",
+            "2e2fee515f389c8fd1f05d06d192e1e11d4f5f66d2719ffc427280ed6b10631b"
+          ]
+        }
+      ],
+      "experimentTraversals": [
+        {
+          "id": "a9a3460b-db8a-464b-a720-e53d78dfc746",
+          "workflowRunId": "248dc0f4-6820-46fe-8b53-ee5d61476a26",
+          "stepRunId": "b3a30b82-f047-49ad-874d-3c87810daa21",
+          "edgeId": "r10_refine_experiment",
+          "groupId": "research.experiment_cycle",
+          "traversalIndex": 1,
+          "reason": "REFINE_EXPERIMENT",
+          "createdAt": "2026-10-05T01:49:37.077Z"
+        }
+      ],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        },
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        },
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        },
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "c7ffbe87-00c1-471a-815b-0e85f51e6402",
+            "c55cb715-d230-4a45-8565-4efc0f3c1aea",
+            "74d0e495-619c-4461-8901-08f060b518ef",
+            "7cfe4fa7-addb-48f9-8dd5-34f60deaeef2"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": null,
+      "computationalRestart": null,
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 2
+      },
+      "deliveryProjection": {
+        "items": [
+          {
+            "artifactId": "e5c1ec70-dd80-4ad7-9099-74bbfd9a1926",
+            "key": "research.brief",
+            "displayName": "研究摘要",
+            "attempt": 1,
+            "category": "brief"
+          },
+          {
+            "artifactId": "c7ffbe87-00c1-471a-815b-0e85f51e6402",
+            "key": "research.evidence",
+            "displayName": "证据表",
+            "attempt": 1,
+            "category": "evidence_table"
+          },
+          {
+            "artifactId": "4e085e88-95b5-4dc1-ac08-b15fac9ea6d6",
+            "key": "research.landscape",
+            "displayName": "研究版图",
+            "attempt": 1,
+            "category": "landscape"
+          },
+          {
+            "artifactId": "6d6fb5cd-32bd-48a9-aca5-e3f0c6d9b6ff",
+            "key": "research.hypotheses",
+            "displayName": "研究假设",
+            "attempt": 2,
+            "category": "hypotheses"
+          },
+          {
+            "artifactId": "2b70eb25-a43a-4274-a195-181a73ade9f8",
+            "key": "research.review",
+            "displayName": "假设审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "4b8dcef4-ae96-4dfb-bce4-1840db9a6804",
+            "key": "research.review",
+            "displayName": "假设审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "c876b1d3-0c31-49d7-9c1d-10c93bd16aee",
+            "key": "research.experiment_plan",
+            "displayName": "实验计划",
+            "attempt": 2,
+            "category": "experiment_plan"
+          },
+          {
+            "artifactId": "c55cb715-d230-4a45-8565-4efc0f3c1aea",
+            "key": "research.experiment_record",
+            "displayName": "实验记录（第 1 次尝试）",
+            "attempt": 1,
+            "category": "experiment_record",
+            "outcome": "FAILED"
+          },
+          {
+            "artifactId": "74d0e495-619c-4461-8901-08f060b518ef",
+            "key": "research.experiment_record",
+            "displayName": "实验记录（第 2 次尝试）",
+            "attempt": 2,
+            "category": "experiment_record",
+            "outcome": "COMPLETED"
+          },
+          {
+            "artifactId": "5893a1d3-ef1a-4074-8e93-6ad68fc28920",
+            "key": "research.analysis",
+            "displayName": "分析",
+            "attempt": 2,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "7cfe4fa7-addb-48f9-8dd5-34f60deaeef2",
+            "key": "research.analysis_results",
+            "displayName": "分析结果与可复现性信号",
+            "attempt": 2,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "07db0253-974d-4477-95c3-c9a63c09a2d2",
+            "key": "research.review",
+            "displayName": "科学审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "d961a7c0-6726-45c8-96ee-14e74c8c33ec",
+            "key": "research.review",
+            "displayName": "科学审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "e5fd871c-46d7-4a8d-b2ac-87a09005a746",
+            "key": "research.revised_manuscript",
+            "displayName": "最终论文稿（修订版）",
+            "attempt": 1,
+            "category": "manuscript"
+          },
+          {
+            "artifactId": "a6d27fed-aa52-4f6f-ac1a-64bb44f15aae",
+            "key": "research.final_package",
+            "displayName": "最终研究包",
+            "attempt": 1,
+            "category": "final_package"
+          }
+        ]
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "248dc0f4-6820-46fe-8b53-ee5d61476a26:R08:1",
+            "metric": "observed metric",
+            "observation": "预设比较中未观察到预期改善；该结果已保留并纳入分析。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          },
+          {
+            "attemptId": "248dc0f4-6820-46fe-8b53-ee5d61476a26:R08:2",
+            "metric": "observed metric",
+            "observation": "预设比较中未观察到预期改善；该结果已保留并纳入分析。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": [
+          {
+            "attemptId": "248dc0f4-6820-46fe-8b53-ee5d61476a26:R08:1",
+            "reason": "离线验收主动模拟首次数据实验测量失败；原始观察仍保留，不作为成功实验结论。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C-external-human-bridge",
+      "workflowRunId": "bfd8cc49-9f00-4a26-9d5c-2eded5ef378f",
+      "state": "COMPLETED",
+      "mode": "HUMAN_OR_EXTERNAL",
+      "approvals": 1,
+      "experimentAttempts": [
+        {
+          "stepRunId": "ff04c0c5-c2da-4a57-981a-0cdf1f30c876",
+          "missionRunId": "ec97e235-7764-4fc1-9e81-bd6f1c1d747e",
+          "attempt": 1,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "4cdabe5d-ca78-4115-8ac3-f9c84856a2c3",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/bfd8cc49-9f00-4a26-9d5c-2eded5ef378f/ff04c0c5-c2da-4a57-981a-0cdf1f30c876/research/raw-result.json",
+            "workflows/bfd8cc49-9f00-4a26-9d5c-2eded5ef378f/ff04c0c5-c2da-4a57-981a-0cdf1f30c876/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "52b9146ec387ccb9e5fcb498c643cca7ff2d52fd4243e94167583620304e9113",
+            "fd94c5cb8d9b8c3d93af07464df7092b790e82e13fceeb4ddd13aa3f3b82de1f"
+          ]
+        }
+      ],
+      "experimentTraversals": [],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        },
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        },
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        },
+        {
+          "reviewerId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": false
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "66094d01-4749-42c3-9f07-48779c6c8cba",
+            "4cdabe5d-ca78-4115-8ac3-f9c84856a2c3",
+            "89915dab-58b9-40ce-a181-c5daf6a6869e"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": {
+        "requestId": "f135e25a-cf90-468f-bb82-9b637b3625f3",
+        "missionRunId": "ec97e235-7764-4fc1-9e81-bd6f1c1d747e",
+        "continuation": "CONSUMED",
+        "rawResult": {
+          "relativePath": "workflows/bfd8cc49-9f00-4a26-9d5c-2eded5ef378f/ff04c0c5-c2da-4a57-981a-0cdf1f30c876/research/raw-result.json",
+          "contentHash": "52b9146ec387ccb9e5fcb498c643cca7ff2d52fd4243e94167583620304e9113"
+        },
+        "experimentLog": {
+          "relativePath": "workflows/bfd8cc49-9f00-4a26-9d5c-2eded5ef378f/ff04c0c5-c2da-4a57-981a-0cdf1f30c876/research/experiment-log.txt",
+          "contentHash": "fd94c5cb8d9b8c3d93af07464df7092b790e82e13fceeb4ddd13aa3f3b82de1f"
+        },
+        "noModelOrToolReplay": true
+      },
+      "computationalRestart": null,
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 1
+      },
+      "deliveryProjection": {
+        "items": [
+          {
+            "artifactId": "4ad4eb8f-3669-4e6b-b856-8e9df1ee87af",
+            "key": "research.brief",
+            "displayName": "研究摘要",
+            "attempt": 1,
+            "category": "brief"
+          },
+          {
+            "artifactId": "66094d01-4749-42c3-9f07-48779c6c8cba",
+            "key": "research.evidence",
+            "displayName": "证据表",
+            "attempt": 1,
+            "category": "evidence_table"
+          },
+          {
+            "artifactId": "593219c0-b0ec-4be2-add1-40544bd0dddf",
+            "key": "research.landscape",
+            "displayName": "研究版图",
+            "attempt": 1,
+            "category": "landscape"
+          },
+          {
+            "artifactId": "13b71d39-a294-45cf-ae45-6b8f8e486fd7",
+            "key": "research.hypotheses",
+            "displayName": "研究假设",
+            "attempt": 2,
+            "category": "hypotheses"
+          },
+          {
+            "artifactId": "3e2ae24a-1309-47ae-9e96-cd004c42a1b2",
+            "key": "research.review",
+            "displayName": "假设审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "411940dc-dbe6-423f-b706-e69de2d707d7",
+            "key": "research.review",
+            "displayName": "假设审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "cd48fa92-6535-4428-919b-8b688754c351",
+            "key": "research.experiment_plan",
+            "displayName": "实验计划",
+            "attempt": 1,
+            "category": "experiment_plan"
+          },
+          {
+            "artifactId": "4cdabe5d-ca78-4115-8ac3-f9c84856a2c3",
+            "key": "research.experiment_record",
+            "displayName": "实验记录（第 1 次尝试）",
+            "attempt": 1,
+            "category": "experiment_record",
+            "outcome": "COMPLETED"
+          },
+          {
+            "artifactId": "f06b1048-d483-4dd8-957e-ff11838d0ba0",
+            "key": "research.analysis",
+            "displayName": "分析",
+            "attempt": 1,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "89915dab-58b9-40ce-a181-c5daf6a6869e",
+            "key": "research.analysis_results",
+            "displayName": "分析结果与可复现性信号",
+            "attempt": 1,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "81d907c7-ac5f-4994-b32c-c50b4d21cd7b",
+            "key": "research.review",
+            "displayName": "科学审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "12a83739-5f63-4bf1-8472-f8079a26953c",
+            "key": "research.review",
+            "displayName": "科学审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "80f09f15-d593-47ca-a1f0-8d248063f2c8",
+            "key": "research.revised_manuscript",
+            "displayName": "最终论文稿（修订版）",
+            "attempt": 1,
+            "category": "manuscript"
+          },
+          {
+            "artifactId": "aea17985-a0fc-4ce2-a6cf-a8e90e49da46",
+            "key": "research.final_package",
+            "displayName": "最终研究包",
+            "attempt": 1,
+            "category": "final_package"
+          }
+        ]
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "bfd8cc49-9f00-4a26-9d5c-2eded5ef378f:R08:1",
+            "metric": "observed metric",
+            "observation": "人工观察仅为离线模拟补充，不扩大实验结论。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": []
+      }
+    },
+    {
+      "id": "D-mixed-human-bridge",
+      "workflowRunId": "69dfff02-dc98-4595-87fc-60b8deae9a23",
+      "state": "COMPLETED",
+      "mode": "MIXED",
+      "approvals": 2,
+      "experimentAttempts": [
+        {
+          "stepRunId": "c64a425c-2825-474d-8c7e-dae3f8db744a",
+          "missionRunId": "ebf825a9-9147-4cfd-89ab-c7f5de1240a6",
+          "attempt": 1,
+          "outcome": "COMPLETED",
+          "recordArtifactId": "a0505d0d-f014-43c3-b0d6-02043afe26ba",
+          "errorCode": "",
+          "rawPaths": [
+            "workflows/69dfff02-dc98-4595-87fc-60b8deae9a23/c64a425c-2825-474d-8c7e-dae3f8db744a/research/raw-result.json",
+            "workflows/69dfff02-dc98-4595-87fc-60b8deae9a23/c64a425c-2825-474d-8c7e-dae3f8db744a/research/experiment-log.txt"
+          ],
+          "rawHashes": [
+            "ae5bf664f7c883f11bb9859dbc2836444a493ec38ae78ea66ffc25da4f79c200",
+            "b6db4ddfd1378ed59a70eed5af99fa560884671be96db74a35b0f1464589e324"
+          ]
+        }
+      ],
+      "experimentTraversals": [],
+      "sourceArtifactIds": [
+        "source-1f09c68ccc061282668964f26def86693a8cddb65a833d8daa50eb7685c5519f",
+        "source-23cc641e445c5ef9da0e9d0be26a178099cee3b395bb5bc56649efdadea2a634"
+      ],
+      "reviewIndependence": [
+        {
+          "reviewerId": "dfb7df05-baf6-4e41-88ae-f949bdeb72b4",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        },
+        {
+          "reviewerId": "dfb7df05-baf6-4e41-88ae-f949bdeb72b4",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        },
+        {
+          "reviewerId": "dfb7df05-baf6-4e41-88ae-f949bdeb72b4",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        },
+        {
+          "reviewerId": "dfb7df05-baf6-4e41-88ae-f949bdeb72b4",
+          "authorIds": ["e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"],
+          "independent": true
+        }
+      ],
+      "claims": [
+        {
+          "claimId": "claim-observed-result",
+          "claim": "本次实验观察到的结果仅适用于记录的样本与运行条件。",
+          "classification": "EVIDENCE",
+          "artifactIds": [
+            "b0dede94-10f2-45b6-ba8a-899032b76100",
+            "a0505d0d-f014-43c3-b0d6-02043afe26ba",
+            "2614e0e7-d353-4764-be05-b869b4281d80"
+          ],
+          "note": "该结论限定于本 Run 的来源、实验记录与分析 Artifact。"
+        }
+      ],
+      "continuation": {
+        "requestId": "708d1fab-f123-49e2-a3e5-e421733ba182",
+        "missionRunId": "ebf825a9-9147-4cfd-89ab-c7f5de1240a6",
+        "continuation": "CONSUMED",
+        "rawResult": {
+          "relativePath": "workflows/69dfff02-dc98-4595-87fc-60b8deae9a23/c64a425c-2825-474d-8c7e-dae3f8db744a/research/raw-result.json",
+          "contentHash": "ae5bf664f7c883f11bb9859dbc2836444a493ec38ae78ea66ffc25da4f79c200"
+        },
+        "experimentLog": {
+          "relativePath": "workflows/69dfff02-dc98-4595-87fc-60b8deae9a23/c64a425c-2825-474d-8c7e-dae3f8db744a/research/experiment-log.txt",
+          "contentHash": "b6db4ddfd1378ed59a70eed5af99fa560884671be96db74a35b0f1464589e324"
+        },
+        "noModelOrToolReplay": true
+      },
+      "computationalRestart": null,
+      "finalPackage": {
+        "submissionStatus": "NOT_SUBMITTED",
+        "conclusionStatus": "NOT_SCIENTIFICALLY_CONFIRMED",
+        "attemptCount": 1
+      },
+      "deliveryProjection": {
+        "items": [
+          {
+            "artifactId": "d249f3cc-a393-4b0b-86b2-287f67cc78d3",
+            "key": "research.brief",
+            "displayName": "研究摘要",
+            "attempt": 1,
+            "category": "brief"
+          },
+          {
+            "artifactId": "b0dede94-10f2-45b6-ba8a-899032b76100",
+            "key": "research.evidence",
+            "displayName": "证据表",
+            "attempt": 1,
+            "category": "evidence_table"
+          },
+          {
+            "artifactId": "1fad6cbc-ed1a-45c7-b0d6-4bc1558c3c0e",
+            "key": "research.landscape",
+            "displayName": "研究版图",
+            "attempt": 1,
+            "category": "landscape"
+          },
+          {
+            "artifactId": "60d2bc18-f094-42be-a399-a29c0a5f77f9",
+            "key": "research.hypotheses",
+            "displayName": "研究假设",
+            "attempt": 2,
+            "category": "hypotheses"
+          },
+          {
+            "artifactId": "2012d2ec-5efc-4bb2-9371-f72c3aacd476",
+            "key": "research.review",
+            "displayName": "假设审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "dc6ef144-47ba-4f88-a543-29cbc168d9d3",
+            "key": "research.review",
+            "displayName": "假设审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "f0f2efb5-1aa2-4609-9f18-20eeb93f76a2",
+            "key": "research.experiment_plan",
+            "displayName": "实验计划",
+            "attempt": 1,
+            "category": "experiment_plan"
+          },
+          {
+            "artifactId": "a0505d0d-f014-43c3-b0d6-02043afe26ba",
+            "key": "research.experiment_record",
+            "displayName": "实验记录（第 1 次尝试）",
+            "attempt": 1,
+            "category": "experiment_record",
+            "outcome": "COMPLETED"
+          },
+          {
+            "artifactId": "5c5934ec-7f2a-44d8-bda5-fd4cd2e34c10",
+            "key": "research.analysis",
+            "displayName": "分析",
+            "attempt": 1,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "2614e0e7-d353-4764-be05-b869b4281d80",
+            "key": "research.analysis_results",
+            "displayName": "分析结果与可复现性信号",
+            "attempt": 1,
+            "category": "analysis"
+          },
+          {
+            "artifactId": "a422bc2e-c6a1-4cb7-9163-0b06b619d147",
+            "key": "research.review",
+            "displayName": "科学审查（第 1 次审查）",
+            "attempt": 1,
+            "category": "scientific_review",
+            "outcome": "REVISE"
+          },
+          {
+            "artifactId": "2f3b10db-407a-44ce-bb96-15203dc87fbf",
+            "key": "research.review",
+            "displayName": "科学审查（第 2 次审查）",
+            "attempt": 2,
+            "category": "scientific_review",
+            "outcome": "PASS"
+          },
+          {
+            "artifactId": "5b10c612-6e1a-4e19-8121-2f16092f9c51",
+            "key": "research.revised_manuscript",
+            "displayName": "最终论文稿（修订版）",
+            "attempt": 1,
+            "category": "manuscript"
+          },
+          {
+            "artifactId": "05cb32b6-a3cc-4816-b2c2-67a6a5175747",
+            "key": "research.final_package",
+            "displayName": "最终研究包",
+            "attempt": 1,
+            "category": "final_package"
+          }
+        ]
+      },
+      "analysisRetention": {
+        "negativeResults": [
+          {
+            "attemptId": "69dfff02-dc98-4595-87fc-60b8deae9a23:R08:1",
+            "metric": "observed metric",
+            "observation": "人工观察仅为离线模拟补充，不扩大实验结论。",
+            "interpretation": "未观察到预期改善；该结果保留，不作为支持性证据。"
+          }
+        ],
+        "failedRuns": []
+      }
+    }
+  ],
+  "computationalRestart": {
+    "receipt": {
+      "id": "bec7a863-ce1e-419d-9f86-006225bf42ea",
+      "state": "APPLIED"
+    },
+    "before": [
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      }
+    ],
+    "after": [
+      {
+        "event_type": "model.call_started",
+        "n": 2
+      },
+      {
+        "event_type": "tool.result",
+        "n": 1
+      }
+    ],
+    "stepFiles": [
+      {
+        "path": "workflows/c2a11303-3d60-4ef8-b6b3-7fe51157ddd9/b8b39a3c-975b-4359-a2d0-162611d7bc3f/research/raw-result.json",
+        "contentHash": "2c6b0f8c8f00c624c9da53737a4f5cd87faa4fb2510d67dde75124009940437c"
+      },
+      {
+        "path": "workflows/c2a11303-3d60-4ef8-b6b3-7fe51157ddd9/b8b39a3c-975b-4359-a2d0-162611d7bc3f/research/experiment-log.txt",
+        "contentHash": "13b28e78aaddddc1f835db751832b5480307420fd11e31ae85b2860e99b8de79"
+      }
+    ],
+    "zeroReplay": true
+  },
+  "mixedContinuationRestart": {
+    "requestId": "708d1fab-f123-49e2-a3e5-e421733ba182",
+    "missionRunId": "ebf825a9-9147-4cfd-89ab-c7f5de1240a6",
+    "continuation": "CONSUMED",
+    "rawResult": {
+      "relativePath": "workflows/69dfff02-dc98-4595-87fc-60b8deae9a23/c64a425c-2825-474d-8c7e-dae3f8db744a/research/raw-result.json",
+      "contentHash": "ae5bf664f7c883f11bb9859dbc2836444a493ec38ae78ea66ffc25da4f79c200"
+    },
+    "experimentLog": {
+      "relativePath": "workflows/69dfff02-dc98-4595-87fc-60b8deae9a23/c64a425c-2825-474d-8c7e-dae3f8db744a/research/experiment-log.txt",
+      "contentHash": "b6db4ddfd1378ed59a70eed5af99fa560884671be96db74a35b0f1464589e324"
+    },
+    "noModelOrToolReplay": true
+  },
+  "noPublication": true,
+  "setup": {
+    "serverId": "d7349556-d393-4012-8937-4f3692255218",
+    "sourceToolId": "d7349556-d393-4012-8937-4f3692255218:research_sources",
+    "experimentToolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+    "dimensions": ["GENERAL_REASONING", "TOOL_USE", "LONG_CONTEXT_REASONING", "CODING"]
+  },
+  "actors": [
+    {
+      "id": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+      "name": "青岚"
+    },
+    {
+      "id": "15641a6f-8c22-4605-8ae5-2601e711c822",
+      "name": "明衡"
+    },
+    {
+      "id": "dfb7df05-baf6-4e41-88ae-f949bdeb72b4",
+      "name": "知微"
+    }
+  ],
+  "importPermissionBoundary": {
+    "before": 42,
+    "after": 42,
+    "noGrant": true
+  },
+  "inputRefValidation": {
+    "nonexistent": true,
+    "spoofedKind": true,
+    "spoofedHash": true,
+    "changedBeforeCreate": true,
+    "reversedDateRange": true,
+    "noRejectedRunWrites": true
+  },
+  "datasetInput": {
+    "workflowRunId": "248dc0f4-6820-46fe-8b53-ee5d61476a26",
+    "snapshot": {
+      "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d",
+      "id": "input-a428f744-eb29-4f97-8505-69b9480bb076",
+      "kind": "FILE",
+      "name": "research-dataset.csv"
+    },
+    "binding": {
+      "artifact_id": "input-a428f744-eb29-4f97-8505-69b9480bb076",
+      "kind": "FILE",
+      "content_hash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+    },
+    "permissionGrant": false,
+    "R07R08BoundToImportedArtifact": true,
+    "durableExperimentInputChain": [
+      {
+        "stepRunId": "39e4aedd-4d3a-4c9b-b39e-b2cbc5c84e2a",
+        "missionRunId": "1b2c8ccc-de79-4249-be10-54b89e3018cf",
+        "actorId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+        "eventId": "933b5815-e0aa-4de9-9402-d035cb0c9052",
+        "toolCallId": "w23-3d9947c6-0170-4cbd-9d61-41d96a26b4ff",
+        "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+        "outputHash": "98ea60a04dc0e824e6c8dcd34f5252dc4a168618da84535cae20b44e5cb2dc0f",
+        "inputArtifacts": [
+          {
+            "id": "input-a428f744-eb29-4f97-8505-69b9480bb076",
+            "kind": "FILE",
+            "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+          }
+        ],
+        "artifactId": "c55cb715-d230-4a45-8565-4efc0f3c1aea",
+        "validationReceipt": {
+          "id": "51602f89-1d60-446d-a225-5eeebba7f8e7",
+          "stepRunId": "39e4aedd-4d3a-4c9b-b39e-b2cbc5c84e2a",
+          "artifactId": "c55cb715-d230-4a45-8565-4efc0f3c1aea",
+          "contractId": "research.experiment_record",
+          "contractVersion": "1",
+          "validatorVersion": "w2-deterministic-v1",
+          "contentHash": "1940861218edc520cf9d8030dc2fb68b30e5de238663800757b3a0154b2cd879",
+          "valid": true,
+          "errors": [],
+          "createdAt": "2026-10-05T01:49:36.672Z"
+        }
+      },
+      {
+        "stepRunId": "3cd47f2a-c7ac-43c3-898b-6fb62ca0b0ce",
+        "missionRunId": "072a569e-57c5-4d89-9aab-7a775a6f7156",
+        "actorId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+        "eventId": "f7858161-c6da-4ee0-82aa-1a2dfdaf2db1",
+        "toolCallId": "w23-2ff731ff-4391-4a4e-8c6b-48a46d813509",
+        "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+        "outputHash": "41c8157873add15548b138274cb44dcda70bdbd942ecdf5d6a304bf5cb592903",
+        "inputArtifacts": [
+          {
+            "id": "input-a428f744-eb29-4f97-8505-69b9480bb076",
+            "kind": "FILE",
+            "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+          }
+        ],
+        "artifactId": "74d0e495-619c-4461-8901-08f060b518ef",
+        "validationReceipt": {
+          "id": "a7685515-4769-4960-bd58-7c31f1ce0e23",
+          "stepRunId": "3cd47f2a-c7ac-43c3-898b-6fb62ca0b0ce",
+          "artifactId": "74d0e495-619c-4461-8901-08f060b518ef",
+          "contractId": "research.experiment_record",
+          "contractVersion": "1",
+          "validatorVersion": "w2-deterministic-v1",
+          "contentHash": "9096d3344f4b8d9a655d0da990aabe805c9dacefbd806aa0030120fd145ed729",
+          "valid": true,
+          "errors": [],
+          "createdAt": "2026-10-05T01:49:39.344Z"
+        }
+      }
+    ],
+    "durableInputFactsRestartSafe": true
+  },
+  "sharedCycleLimit": {
+    "runId": "e4764d32-5e4e-4b6b-b8ff-2aa3ab363057",
+    "state": "WAITING",
+    "errorCode": "DECISION_BLOCKED",
+    "traversals": [
+      {
+        "id": "b8281014-18bc-4348-91ed-d810752f24c2",
+        "workflowRunId": "e4764d32-5e4e-4b6b-b8ff-2aa3ab363057",
+        "stepRunId": "465b49ff-6394-435b-8b03-68e19d3e2393",
+        "edgeId": "r10_refine_experiment",
+        "groupId": "research.experiment_cycle",
+        "traversalIndex": 1,
+        "reason": "REFINE_EXPERIMENT",
+        "createdAt": "2026-10-05T01:50:22.135Z"
+      },
+      {
+        "id": "b84fca9b-b154-4bd7-9f94-24d780047aca",
+        "workflowRunId": "e4764d32-5e4e-4b6b-b8ff-2aa3ab363057",
+        "stepRunId": "7bcaf55f-c2b0-4987-a341-a0c6c0820f98",
+        "edgeId": "r10_refine_hypothesis",
+        "groupId": "research.experiment_cycle",
+        "traversalIndex": 2,
+        "reason": "REFINE_HYPOTHESIS",
+        "createdAt": "2026-10-05T01:50:24.629Z"
+      }
+    ]
+  },
+  "adversarialExperimentInputs": [
+    {
+      "fault": "missing",
+      "workflowRunId": "a283af36-a0a7-49bc-a38b-eac36137899d",
+      "stepRunId": "4ca429e0-8748-4545-8a09-95ffbb70f506",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0,
+      "frozenInput": {
+        "id": "input-203057bf-3741-4934-bedd-37a86ef63f22",
+        "kind": "FILE",
+        "name": "research-dataset.csv",
+        "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+      },
+      "events": [
+        {
+          "type": "mission.created",
+          "payload": {
+            "mode": "SOLO",
+            "state": "DRAFT",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"
+          }
+        },
+        {
+          "type": "routing.assigned",
+          "payload": {
+            "receiptId": "a9d508a1-c2c8-4512-9de3-220480e75fcc",
+            "assignmentId": "a9d508a1-c2c8-4512-9de3-220480e75fcc",
+            "kind": "SOLO",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "memberTeammateIds": [],
+            "policyVersion": "r4-controlled-routing-v1",
+            "requiredCapabilities": ["GENERAL_REASONING", "TOOL_USE"]
+          }
+        },
+        {
+          "type": "mission.ready",
+          "payload": {
+            "from": "DRAFT",
+            "to": "READY"
+          }
+        },
+        {
+          "type": "mission.run_started",
+          "payload": {
+            "from": "READY",
+            "to": "RUNNING",
+            "runId": "193b83f1-872b-4348-bb31-0c1c15a5744d",
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "run.started",
+          "payload": {
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 1
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "985b3508-f85f-4d9f-a2e6-a573fe671de4",
+            "runId": "193b83f1-872b-4348-bb31-0c1c15a5744d",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": 7272,
+            "outputTokens": 1,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_completed",
+          "payload": {
+            "step": 1,
+            "proposedToolCalls": 1
+          }
+        },
+        {
+          "type": "tool.proposed",
+          "payload": {
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            },
+            "step": 1
+          }
+        },
+        {
+          "type": "tool.approval_requested",
+          "payload": {
+            "approvalId": "53c39e3d-0613-4661-8870-da51bb198427",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            }
+          }
+        },
+        {
+          "type": "mission.waiting_approval",
+          "payload": {
+            "from": "RUNNING",
+            "to": "WAITING_APPROVAL",
+            "runId": "193b83f1-872b-4348-bb31-0c1c15a5744d",
+            "approvalId": "53c39e3d-0613-4661-8870-da51bb198427"
+          }
+        },
+        {
+          "type": "tool.approval_decided",
+          "payload": {
+            "approvalId": "53c39e3d-0613-4661-8870-da51bb198427",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "decision": "ALLOW_MISSION"
+          }
+        },
+        {
+          "type": "mission.approval_resumed",
+          "payload": {
+            "from": "WAITING_APPROVAL",
+            "to": "RUNNING",
+            "runId": "193b83f1-872b-4348-bb31-0c1c15a5744d",
+            "approvalId": "53c39e3d-0613-4661-8870-da51bb198427"
+          }
+        },
+        {
+          "type": "tool.result",
+          "payload": {
+            "toolCallId": "w23-ae62fe0e-38e5-408a-bc55-8883c92197fe",
+            "outputHash": "450954e75d988c18f87bd9cfd51ee1a0402b38f50983e3f6a58d74cfdf9824e4",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "resource": "mcp:d7349556-d393-4012-8937-4f3692255218:9a3402a49fe164da:run_experiment",
+            "approvalId": "53c39e3d-0613-4661-8870-da51bb198427",
+            "success": false,
+            "code": "TOOL_EXECUTION_EVIDENCE_FAILED",
+            "inputSummary": {
+              "bytes": 976
+            },
+            "outputSummary": {
+              "bytes": 37
+            }
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 2
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "e6f1dd40-4aba-4c03-a894-00e6c822a705",
+            "runId": "193b83f1-872b-4348-bb31-0c1c15a5744d",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": null,
+            "outputTokens": null,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_failed",
+          "payload": {
+            "attempt": 1,
+            "errorCode": "MODEL_CALL_FAILED"
+          }
+        },
+        {
+          "type": "mission.failed",
+          "payload": {
+            "from": "RUNNING",
+            "to": "FAILED",
+            "runId": "193b83f1-872b-4348-bb31-0c1c15a5744d",
+            "reason": "MODEL_CALL_FAILED"
+          }
+        }
+      ]
+    },
+    {
+      "fault": "forged",
+      "workflowRunId": "8552f3fb-651e-4a8d-b954-22b71599b520",
+      "stepRunId": "c4b63760-ccca-4a78-9654-68ae2ff135f7",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0,
+      "frozenInput": {
+        "id": "input-f37c6231-545a-4d9a-bb25-9a86e010b88d",
+        "kind": "FILE",
+        "name": "research-dataset.csv",
+        "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+      },
+      "events": [
+        {
+          "type": "mission.created",
+          "payload": {
+            "mode": "SOLO",
+            "state": "DRAFT",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"
+          }
+        },
+        {
+          "type": "routing.assigned",
+          "payload": {
+            "receiptId": "aa6345c2-1866-44f7-a9e7-0af50a6f900e",
+            "assignmentId": "aa6345c2-1866-44f7-a9e7-0af50a6f900e",
+            "kind": "SOLO",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "memberTeammateIds": [],
+            "policyVersion": "r4-controlled-routing-v1",
+            "requiredCapabilities": ["GENERAL_REASONING", "TOOL_USE"]
+          }
+        },
+        {
+          "type": "mission.ready",
+          "payload": {
+            "from": "DRAFT",
+            "to": "READY"
+          }
+        },
+        {
+          "type": "mission.run_started",
+          "payload": {
+            "from": "READY",
+            "to": "RUNNING",
+            "runId": "385a4605-5334-464a-89ed-4bfa10aa78d9",
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "run.started",
+          "payload": {
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 1
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "cdf1018c-70ee-4aa1-99ea-0c86283330bf",
+            "runId": "385a4605-5334-464a-89ed-4bfa10aa78d9",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": 7272,
+            "outputTokens": 1,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_completed",
+          "payload": {
+            "step": 1,
+            "proposedToolCalls": 1
+          }
+        },
+        {
+          "type": "tool.proposed",
+          "payload": {
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            },
+            "step": 1
+          }
+        },
+        {
+          "type": "tool.approval_requested",
+          "payload": {
+            "approvalId": "cb4a0f72-0b84-4ddc-8e15-7e1897b14793",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            }
+          }
+        },
+        {
+          "type": "mission.waiting_approval",
+          "payload": {
+            "from": "RUNNING",
+            "to": "WAITING_APPROVAL",
+            "runId": "385a4605-5334-464a-89ed-4bfa10aa78d9",
+            "approvalId": "cb4a0f72-0b84-4ddc-8e15-7e1897b14793"
+          }
+        },
+        {
+          "type": "tool.approval_decided",
+          "payload": {
+            "approvalId": "cb4a0f72-0b84-4ddc-8e15-7e1897b14793",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "decision": "ALLOW_MISSION"
+          }
+        },
+        {
+          "type": "mission.approval_resumed",
+          "payload": {
+            "from": "WAITING_APPROVAL",
+            "to": "RUNNING",
+            "runId": "385a4605-5334-464a-89ed-4bfa10aa78d9",
+            "approvalId": "cb4a0f72-0b84-4ddc-8e15-7e1897b14793"
+          }
+        },
+        {
+          "type": "tool.result",
+          "payload": {
+            "toolCallId": "w23-fe941957-3f3b-4a6d-bbfb-7f22d4b0b7e5",
+            "outputHash": "450954e75d988c18f87bd9cfd51ee1a0402b38f50983e3f6a58d74cfdf9824e4",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "resource": "mcp:d7349556-d393-4012-8937-4f3692255218:5a3b5a2853a88ed8:run_experiment",
+            "approvalId": "cb4a0f72-0b84-4ddc-8e15-7e1897b14793",
+            "success": false,
+            "code": "TOOL_EXECUTION_EVIDENCE_FAILED",
+            "inputSummary": {
+              "bytes": 976
+            },
+            "outputSummary": {
+              "bytes": 37
+            }
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 2
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "f59eb972-55ce-49fe-b1ea-3de315f30979",
+            "runId": "385a4605-5334-464a-89ed-4bfa10aa78d9",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": null,
+            "outputTokens": null,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_failed",
+          "payload": {
+            "attempt": 1,
+            "errorCode": "MODEL_CALL_FAILED"
+          }
+        },
+        {
+          "type": "mission.failed",
+          "payload": {
+            "from": "RUNNING",
+            "to": "FAILED",
+            "runId": "385a4605-5334-464a-89ed-4bfa10aa78d9",
+            "reason": "MODEL_CALL_FAILED"
+          }
+        }
+      ]
+    },
+    {
+      "fault": "foreign",
+      "workflowRunId": "d397f8ec-8c6e-4f30-9649-645982aedba9",
+      "stepRunId": "b27fdc88-7982-4d75-b076-d29ca7fab0e3",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0,
+      "frozenInput": {
+        "id": "input-aa127d66-8b98-4cce-920d-a65003098488",
+        "kind": "FILE",
+        "name": "research-dataset.csv",
+        "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+      },
+      "events": [
+        {
+          "type": "mission.created",
+          "payload": {
+            "mode": "SOLO",
+            "state": "DRAFT",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"
+          }
+        },
+        {
+          "type": "routing.assigned",
+          "payload": {
+            "receiptId": "50097845-b6b5-49c6-a580-929aa89c4b4d",
+            "assignmentId": "50097845-b6b5-49c6-a580-929aa89c4b4d",
+            "kind": "SOLO",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "memberTeammateIds": [],
+            "policyVersion": "r4-controlled-routing-v1",
+            "requiredCapabilities": ["GENERAL_REASONING", "TOOL_USE"]
+          }
+        },
+        {
+          "type": "mission.ready",
+          "payload": {
+            "from": "DRAFT",
+            "to": "READY"
+          }
+        },
+        {
+          "type": "mission.run_started",
+          "payload": {
+            "from": "READY",
+            "to": "RUNNING",
+            "runId": "1627f2ad-a009-41b2-a5b3-299b1c1d2a24",
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "run.started",
+          "payload": {
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 1
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "849fde42-8b1c-46c0-a6fc-eacb359948de",
+            "runId": "1627f2ad-a009-41b2-a5b3-299b1c1d2a24",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": 7272,
+            "outputTokens": 1,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_completed",
+          "payload": {
+            "step": 1,
+            "proposedToolCalls": 1
+          }
+        },
+        {
+          "type": "tool.proposed",
+          "payload": {
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            },
+            "step": 1
+          }
+        },
+        {
+          "type": "tool.approval_requested",
+          "payload": {
+            "approvalId": "bb025ba2-bd8c-4f8a-ab19-9fd5bc9f699e",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            }
+          }
+        },
+        {
+          "type": "mission.waiting_approval",
+          "payload": {
+            "from": "RUNNING",
+            "to": "WAITING_APPROVAL",
+            "runId": "1627f2ad-a009-41b2-a5b3-299b1c1d2a24",
+            "approvalId": "bb025ba2-bd8c-4f8a-ab19-9fd5bc9f699e"
+          }
+        },
+        {
+          "type": "tool.approval_decided",
+          "payload": {
+            "approvalId": "bb025ba2-bd8c-4f8a-ab19-9fd5bc9f699e",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "decision": "ALLOW_MISSION"
+          }
+        },
+        {
+          "type": "mission.approval_resumed",
+          "payload": {
+            "from": "WAITING_APPROVAL",
+            "to": "RUNNING",
+            "runId": "1627f2ad-a009-41b2-a5b3-299b1c1d2a24",
+            "approvalId": "bb025ba2-bd8c-4f8a-ab19-9fd5bc9f699e"
+          }
+        },
+        {
+          "type": "tool.result",
+          "payload": {
+            "toolCallId": "w23-89a9d83d-0d64-4c6f-a68f-48a5a3eedacf",
+            "outputHash": "450954e75d988c18f87bd9cfd51ee1a0402b38f50983e3f6a58d74cfdf9824e4",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "resource": "mcp:d7349556-d393-4012-8937-4f3692255218:675a55325086b242:run_experiment",
+            "approvalId": "bb025ba2-bd8c-4f8a-ab19-9fd5bc9f699e",
+            "success": false,
+            "code": "TOOL_EXECUTION_EVIDENCE_FAILED",
+            "inputSummary": {
+              "bytes": 976
+            },
+            "outputSummary": {
+              "bytes": 37
+            }
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 2
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "efb24b66-c49c-4e0d-a741-6c8dbd6bdc46",
+            "runId": "1627f2ad-a009-41b2-a5b3-299b1c1d2a24",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": null,
+            "outputTokens": null,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_failed",
+          "payload": {
+            "attempt": 1,
+            "errorCode": "MODEL_CALL_FAILED"
+          }
+        },
+        {
+          "type": "mission.failed",
+          "payload": {
+            "from": "RUNNING",
+            "to": "FAILED",
+            "runId": "1627f2ad-a009-41b2-a5b3-299b1c1d2a24",
+            "reason": "MODEL_CALL_FAILED"
+          }
+        }
+      ]
+    },
+    {
+      "fault": "changed-before",
+      "workflowRunId": "f0805f0e-7f95-4bdf-be84-252f42922fef",
+      "stepRunId": "4f3db37d-4f87-4eb1-8c70-a2797599b050",
+      "errorCode": "RESEARCH_INPUT_CHANGED",
+      "acceptedArtifacts": 0,
+      "frozenInput": {
+        "id": "input-bc19458a-3529-41cb-afe7-fde4f22516d5",
+        "kind": "FILE",
+        "name": "research-dataset.csv",
+        "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+      },
+      "events": []
+    },
+    {
+      "fault": "deleted-before",
+      "workflowRunId": "8a68355e-1d4b-41e8-9503-22bf30ecdbbc",
+      "stepRunId": "2bf43e7a-b967-4b67-916c-8fad8cc3bff7",
+      "errorCode": "RESEARCH_INPUT_CHANGED",
+      "acceptedArtifacts": 0,
+      "frozenInput": {
+        "id": "input-6031fcc3-828d-4404-8aab-efef5c73e73f",
+        "kind": "FILE",
+        "name": "research-dataset.csv",
+        "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+      },
+      "events": []
+    },
+    {
+      "fault": "changed-after",
+      "workflowRunId": "06e3d40a-f29b-4bd0-8617-4133bb20e663",
+      "stepRunId": "c19f5559-02c5-4728-8756-ae9768413942",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0,
+      "frozenInput": {
+        "id": "input-caf33f4e-fea5-40c0-b67e-85c3cce6ca32",
+        "kind": "FILE",
+        "name": "research-dataset.csv",
+        "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+      },
+      "events": [
+        {
+          "type": "mission.created",
+          "payload": {
+            "mode": "SOLO",
+            "state": "DRAFT",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"
+          }
+        },
+        {
+          "type": "routing.assigned",
+          "payload": {
+            "receiptId": "a8ba13c5-080e-4685-b8e0-2416c78becea",
+            "assignmentId": "a8ba13c5-080e-4685-b8e0-2416c78becea",
+            "kind": "SOLO",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "memberTeammateIds": [],
+            "policyVersion": "r4-controlled-routing-v1",
+            "requiredCapabilities": ["GENERAL_REASONING", "TOOL_USE"]
+          }
+        },
+        {
+          "type": "mission.ready",
+          "payload": {
+            "from": "DRAFT",
+            "to": "READY"
+          }
+        },
+        {
+          "type": "mission.run_started",
+          "payload": {
+            "from": "READY",
+            "to": "RUNNING",
+            "runId": "8285c778-c6b8-4fdb-9811-0d091c8aa5d7",
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "run.started",
+          "payload": {
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 1
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "bd4d889c-8a56-4f26-8347-a3f607c079e6",
+            "runId": "8285c778-c6b8-4fdb-9811-0d091c8aa5d7",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": 7272,
+            "outputTokens": 1,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_completed",
+          "payload": {
+            "step": 1,
+            "proposedToolCalls": 1
+          }
+        },
+        {
+          "type": "tool.proposed",
+          "payload": {
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            },
+            "step": 1
+          }
+        },
+        {
+          "type": "tool.approval_requested",
+          "payload": {
+            "approvalId": "7ccbcd00-7665-4031-89b0-a134f1e9c2fd",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            }
+          }
+        },
+        {
+          "type": "mission.waiting_approval",
+          "payload": {
+            "from": "RUNNING",
+            "to": "WAITING_APPROVAL",
+            "runId": "8285c778-c6b8-4fdb-9811-0d091c8aa5d7",
+            "approvalId": "7ccbcd00-7665-4031-89b0-a134f1e9c2fd"
+          }
+        },
+        {
+          "type": "tool.approval_decided",
+          "payload": {
+            "approvalId": "7ccbcd00-7665-4031-89b0-a134f1e9c2fd",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "decision": "ALLOW_MISSION"
+          }
+        },
+        {
+          "type": "mission.approval_resumed",
+          "payload": {
+            "from": "WAITING_APPROVAL",
+            "to": "RUNNING",
+            "runId": "8285c778-c6b8-4fdb-9811-0d091c8aa5d7",
+            "approvalId": "7ccbcd00-7665-4031-89b0-a134f1e9c2fd"
+          }
+        },
+        {
+          "type": "tool.result",
+          "payload": {
+            "toolCallId": "w23-5482303a-66d8-4702-9bd4-ff795afa2916",
+            "outputHash": "450954e75d988c18f87bd9cfd51ee1a0402b38f50983e3f6a58d74cfdf9824e4",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "resource": "mcp:d7349556-d393-4012-8937-4f3692255218:dae37f38be982af8:run_experiment",
+            "approvalId": "7ccbcd00-7665-4031-89b0-a134f1e9c2fd",
+            "success": false,
+            "code": "TOOL_EXECUTION_EVIDENCE_FAILED",
+            "inputSummary": {
+              "bytes": 976
+            },
+            "outputSummary": {
+              "bytes": 37
+            }
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 2
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "0b5a88f9-e3be-41f1-b37a-b448ca9069e2",
+            "runId": "8285c778-c6b8-4fdb-9811-0d091c8aa5d7",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": null,
+            "outputTokens": null,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_failed",
+          "payload": {
+            "attempt": 1,
+            "errorCode": "MODEL_CALL_FAILED"
+          }
+        },
+        {
+          "type": "mission.failed",
+          "payload": {
+            "from": "RUNNING",
+            "to": "FAILED",
+            "runId": "8285c778-c6b8-4fdb-9811-0d091c8aa5d7",
+            "reason": "MODEL_CALL_FAILED"
+          }
+        }
+      ]
+    },
+    {
+      "fault": "deleted-after",
+      "workflowRunId": "c2e3b858-e16d-4b0c-a4b2-2e2e42ee2216",
+      "stepRunId": "4b028382-ba9c-486e-bc6f-77e0ffed1f38",
+      "errorCode": "OPERATION_UNKNOWN",
+      "operationState": "UNKNOWN",
+      "acceptedArtifacts": 0,
+      "frozenInput": {
+        "id": "input-befa5595-e047-49c1-80fb-74f2abc0be3b",
+        "kind": "FILE",
+        "name": "research-dataset.csv",
+        "contentHash": "243aa397752f5480d0c6cad1cbdd5aaaa672ff40a2b477018231999462e0b14d"
+      },
+      "events": [
+        {
+          "type": "mission.created",
+          "payload": {
+            "mode": "SOLO",
+            "state": "DRAFT",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641"
+          }
+        },
+        {
+          "type": "routing.assigned",
+          "payload": {
+            "receiptId": "fafa3f8e-ba45-4aef-9b8e-cd2569691d84",
+            "assignmentId": "fafa3f8e-ba45-4aef-9b8e-cd2569691d84",
+            "kind": "SOLO",
+            "coordinatorTeammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "memberTeammateIds": [],
+            "policyVersion": "r4-controlled-routing-v1",
+            "requiredCapabilities": ["GENERAL_REASONING", "TOOL_USE"]
+          }
+        },
+        {
+          "type": "mission.ready",
+          "payload": {
+            "from": "DRAFT",
+            "to": "READY"
+          }
+        },
+        {
+          "type": "mission.run_started",
+          "payload": {
+            "from": "READY",
+            "to": "RUNNING",
+            "runId": "7b10247a-325a-4ac7-9f3d-d2d1cea9e27c",
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "run.started",
+          "payload": {
+            "attempt": 1,
+            "retry": false
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 1
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "ee4e08a4-052f-46ae-8afc-f21369398538",
+            "runId": "7b10247a-325a-4ac7-9f3d-d2d1cea9e27c",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": 7272,
+            "outputTokens": 1,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_completed",
+          "payload": {
+            "step": 1,
+            "proposedToolCalls": 1
+          }
+        },
+        {
+          "type": "tool.proposed",
+          "payload": {
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            },
+            "step": 1
+          }
+        },
+        {
+          "type": "tool.approval_requested",
+          "payload": {
+            "approvalId": "84dcef36-6c33-4ec5-b0d2-e25474e75370",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "inputSummary": {
+              "keys": [
+                "workflowRunId",
+                "stepRunId",
+                "attempt",
+                "attemptNumber",
+                "operationKey",
+                "planArtifactId",
+                "mode",
+                "method",
+                "datasetRelativePath",
+                "datasetArtifactId",
+                "datasetContentHash",
+                "rawResultPath",
+                "experimentLogPath"
+              ],
+              "bytes": 893
+            }
+          }
+        },
+        {
+          "type": "mission.waiting_approval",
+          "payload": {
+            "from": "RUNNING",
+            "to": "WAITING_APPROVAL",
+            "runId": "7b10247a-325a-4ac7-9f3d-d2d1cea9e27c",
+            "approvalId": "84dcef36-6c33-4ec5-b0d2-e25474e75370"
+          }
+        },
+        {
+          "type": "tool.approval_decided",
+          "payload": {
+            "approvalId": "84dcef36-6c33-4ec5-b0d2-e25474e75370",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "decision": "ALLOW_MISSION"
+          }
+        },
+        {
+          "type": "mission.approval_resumed",
+          "payload": {
+            "from": "WAITING_APPROVAL",
+            "to": "RUNNING",
+            "runId": "7b10247a-325a-4ac7-9f3d-d2d1cea9e27c",
+            "approvalId": "84dcef36-6c33-4ec5-b0d2-e25474e75370"
+          }
+        },
+        {
+          "type": "tool.result",
+          "payload": {
+            "toolCallId": "w23-9629b9af-aa39-432e-b4d8-c0dd8b50e0ff",
+            "outputHash": "450954e75d988c18f87bd9cfd51ee1a0402b38f50983e3f6a58d74cfdf9824e4",
+            "toolId": "d7349556-d393-4012-8937-4f3692255218:run_experiment",
+            "source": "MCP",
+            "capability": "MCP_TOOL_EXECUTE",
+            "resource": "mcp:d7349556-d393-4012-8937-4f3692255218:a70972435156b141:run_experiment",
+            "approvalId": "84dcef36-6c33-4ec5-b0d2-e25474e75370",
+            "success": false,
+            "code": "TOOL_EXECUTION_EVIDENCE_FAILED",
+            "inputSummary": {
+              "bytes": 976
+            },
+            "outputSummary": {
+              "bytes": 37
+            }
+          }
+        },
+        {
+          "type": "model.call_started",
+          "payload": {
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "step": 2
+          }
+        },
+        {
+          "type": "usage.recorded",
+          "payload": {
+            "usageId": "d46e4638-3671-4a42-bab0-21ad3451921b",
+            "runId": "7b10247a-325a-4ac7-9f3d-d2d1cea9e27c",
+            "teammateId": "e3d3a8a3-9a3e-4d9f-8fc8-f9e4e098c641",
+            "runtimeProfileId": "432e12d1-0620-4618-8744-4b26ea76fa2f",
+            "providerId": "254ceb16-88dd-43d2-ae7e-4370f9ed45e6",
+            "modelId": "research-fixture-a",
+            "inputTokens": null,
+            "outputTokens": null,
+            "cachedInputTokens": null,
+            "reasoningTokens": null
+          }
+        },
+        {
+          "type": "model.call_failed",
+          "payload": {
+            "attempt": 1,
+            "errorCode": "MODEL_CALL_FAILED"
+          }
+        },
+        {
+          "type": "mission.failed",
+          "payload": {
+            "from": "RUNNING",
+            "to": "FAILED",
+            "runId": "7b10247a-325a-4ac7-9f3d-d2d1cea9e27c",
+            "reason": "MODEL_CALL_FAILED"
+          }
+        }
+      ]
+    }
+  ],
+  "unknownExternalAction": {
+    "workflowRunId": "b8980662-3503-4439-b8f2-1639bff4d085",
+    "stepRunId": "8feb234a-0903-4128-a08b-271ba9b762cf",
+    "missionRunId": "0e732113-4ac0-428f-9246-5f926527a3ee",
+    "requestId": "d9b5a4a5-aed9-441a-b109-4578c5c0e592",
+    "receiptId": "c292ded9-34b2-48f0-a7c5-58aaceb8a69f",
+    "state": "UNKNOWN",
+    "waitReason": "USER_CONFIRMATION",
+    "noModelOrToolReplay": true
+  },
+  "restartIdempotent": {
+    "before": {
+      "calls": 328,
+      "tools": 65,
+      "continuations": 9
+    },
+    "after": {
+      "calls": 328,
+      "tools": 65,
+      "continuations": 9
+    }
+  },
+  "noAutomaticPublication": true
+}

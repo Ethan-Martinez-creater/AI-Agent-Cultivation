@@ -1,0 +1,6 @@
+
+> ai-agent-cultivation@0.0.1 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!

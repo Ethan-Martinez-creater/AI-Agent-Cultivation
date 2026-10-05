@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-05",
+  "tests": 817,
+  "testFiles": 98,
+  "migration": 26,
+  "commands": {
+    "npm run test": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run typecheck": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run lint": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run format:check": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run package": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run smoke:package": {
+      "result": "PASS",
+      "exitCode": 0
+    }
+  },
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7",
+  "frozenPackages": 3,
+  "runCounts": {
+    "official.ai-news-video": 4,
+    "official.software-feature": 5,
+    "official.research": 13
+  },
+  "screenshotCount": 132,
+  "finalProductionRestart": {
+    "before": {
+      "mission_events": 3356,
+      "workflow_artifacts": 400,
+      "workflow_checkpoints": 287,
+      "workflow_decisions": 278,
+      "workflow_revision_traversals": 26,
+      "workflow_step_operation_receipts": 272,
+      "workflow_step_operation_audit": 810,
+      "workflow_run_output_validations": 12
+    },
+    "after": {
+      "mission_events": 3356,
+      "workflow_artifacts": 400,
+      "workflow_checkpoints": 287,
+      "workflow_decisions": 278,
+      "workflow_revision_traversals": 26,
+      "workflow_step_operation_receipts": 272,
+      "workflow_step_operation_audit": 810,
+      "workflow_run_output_validations": 12
+    },
+    "noReplay": true
+  }
+}

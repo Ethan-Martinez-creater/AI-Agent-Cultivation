@@ -7,11 +7,18 @@ import { setTimeout as delay } from 'node:timers/promises';
 import Database from 'better-sqlite3';
 import { _electron as electron } from 'playwright-core';
 import { navigateUi } from './ui-navigation.mjs';
+import {
+  acceptancePaths,
+  attachAcceptanceVisuals,
+  captureAcceptance,
+  isolatePreviousAcceptanceActors,
+} from './w24-shared-profile.mjs';
 
 const root = process.cwd();
-const profile = join(root, '.test-data', `w22-packaged-${randomUUID()}`);
-const workspace = join(profile, 'workspace');
-const evidence = join(profile, 'evidence');
+const { profile, workspace, evidence } = acceptancePaths(
+  'software',
+  join(root, '.test-data', `w22-packaged-${randomUUID()}`),
+);
 mkdirSync(evidence, { recursive: true });
 mkdirSync(join(workspace, 'migrations'), { recursive: true });
 const databasePath = join(profile, 'data', 'cultivation.sqlite');
@@ -47,6 +54,13 @@ const cases = [
     test: "assert.match(readFileSync('migrations/0001_feature.sql','utf8'),/feature_records/);",
   },
 ];
+if (process.env.CULTIVATION_W24_PROFILE)
+  cases.push({
+    name: 'preCommit',
+    objective: '数据库 migration 修改后的恢复验收',
+    paths: ['migrations/0001_feature.sql'],
+    test: "assert.match(readFileSync('migrations/0001_feature.sql','utf8'),/feature_records/);",
+  });
 writeFileSync(
   join(workspace, 'package.json'),
   JSON.stringify({
@@ -67,7 +81,7 @@ function read(fn) {
     db.close();
   }
 }
-async function launch(hook = false, manualHook = false) {
+async function launch(hook = false, manualHook = false, preCommitHook = false) {
   const app = await electron.launch({
     executablePath,
     args: [
@@ -76,12 +90,14 @@ async function launch(hook = false, manualHook = false) {
       '--w22-fake-software',
       ...(hook ? ['--w2-stop-applied'] : []),
       ...(manualHook ? ['--w22-stop-manual-continuation'] : []),
+      ...(preCommitHook ? ['--w24-stop-before-artifact-commit'] : []),
     ],
     env: { ...process.env, CULTIVATION_USER_DATA_DIR: profile, W22_WORKSPACE_ROOT: workspace },
     timeout: 30_000,
   });
   const page = await app.firstWindow();
   await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
+  await attachAcceptanceVisuals({ app, page }, evidence);
   return { app, page };
 }
 async function kill(app) {
@@ -169,6 +185,7 @@ async function createUi(page, inputs) {
 let live = await launch(true);
 const facts = { profile, workspace, cases: [], mutationRestart: null };
 try {
+  if (process.env.CULTIVATION_W24_PROFILE) await isolatePreviousAcceptanceActors(live);
   await live.app.evaluate(({ dialog }, folder) => {
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
   }, workspace);
@@ -250,6 +267,10 @@ try {
   );
   facts.setup = setup;
   for (const testCase of cases) {
+    if (testCase.name === 'preCommit') {
+      await live.app.close();
+      live = await launch(false, false, true);
+    }
     writeFileSync(
       join(workspace, 'verify.mjs'),
       `import assert from 'node:assert/strict';\nimport { readFileSync } from 'node:fs';\n${testCase.test}\nconsole.log('验收通过');\n`,
@@ -281,6 +302,10 @@ try {
     for (let iteration = 0; iteration < 180; iteration++) {
       const workflow = await detail(live.page, runId);
       const current = active(workflow);
+      if (workflow.traversals.length) {
+        await workflowUi(live.page);
+        await captureAcceptance(live, evidence, 'revision');
+      }
       if (workflow.run.state === 'COMPLETED') {
         completed = workflow;
         break;
@@ -415,6 +440,59 @@ try {
       }
       if (current?.errorCode)
         throw new Error(`W22 ${testCase.name} ${current.stepId}: ${current.errorCode}`);
+      if (
+        testCase.name === 'preCommit' &&
+        current?.stepId === 'S05' &&
+        !recovered &&
+        read((db) =>
+          db
+            .prepare("SELECT 1 FROM missions WHERE id=? AND state='COMPLETED'")
+            .get(current.missionId),
+        )
+      ) {
+        await live.page.evaluate((id) => {
+          void window.cultivation.workflows.advance(id);
+        }, runId);
+        const receipt = await poll(
+          (db) =>
+            db
+              .prepare(
+                "SELECT * FROM workflow_step_operation_receipts WHERE step_run_id=? AND state='PREPARED'",
+              )
+              .get(current.id),
+          'PREPARED receipt after mutation',
+        );
+        const journal = read((db) =>
+          db
+            .prepare(
+              'SELECT * FROM workflow_workspace_mutation_journal WHERE operation_receipt_id=?',
+            )
+            .all(receipt.id),
+        );
+        assert.ok(journal.length && journal.every((entry) => entry.state === 'APPLIED'));
+        const before = counts(current.missionId);
+        const beforeHash = createHash('sha256')
+          .update(readFileSync(join(workspace, 'migrations/0001_feature.sql')))
+          .digest('hex');
+        await kill(live.app);
+        live = await launch();
+        assert.deepEqual(counts(current.missionId), before);
+        assert.equal(
+          createHash('sha256')
+            .update(readFileSync(join(workspace, 'migrations/0001_feature.sql')))
+            .digest('hex'),
+          beforeHash,
+        );
+        facts.preparedMutationRestart = {
+          receipt,
+          journal,
+          before,
+          after: counts(current.missionId),
+          noReplay: true,
+        };
+        recovered = true;
+        continue;
+      }
       let pending;
       for (const step of [...workflow.steps].reverse()) {
         if (!step.missionId) continue;
@@ -429,6 +507,8 @@ try {
         }
       }
       if (pending) {
+        await workflowUi(live.page);
+        await captureAcceptance(live, evidence, 'approval');
         approvals.push({ stepId: pending.step.stepId, capability: pending.approval.capability });
         await live.page.evaluate(
           (id) =>

@@ -575,7 +575,7 @@ describe('research MCP stdio fixture', () => {
     const workspace = join(process.cwd(), '.test-data', `w23-mcp-${randomUUID()}`);
     mkdirSync(join(workspace, 'datasets'), { recursive: true });
     writeFileSync(
-      join(workspace, 'datasets', 'research-fixture.csv'),
+      join(workspace, 'datasets', 'research-dataset.csv'),
       'group,value\nbaseline,11\nbaseline,12\ncandidate,13\ncandidate,14\n',
       'utf8',
     );
@@ -588,9 +588,9 @@ describe('research MCP stdio fixture', () => {
       operationKey: 'workflow:workflow-1:step-r08-1',
       mode: 'COMPUTATIONAL',
       method: 'Calculate bounded group means.',
-      datasetRelativePath: 'datasets/research-fixture.csv',
+      datasetRelativePath: 'datasets/research-dataset.csv',
       datasetArtifactId: 'input-unit-dataset',
-      datasetContentHash: sha256(readFileSync(join(workspace, 'datasets', 'research-fixture.csv'))),
+      datasetContentHash: sha256(readFileSync(join(workspace, 'datasets', 'research-dataset.csv'))),
       rawResultPath: 'workflows/workflow-1/step-r08-1/research/raw-result.json',
       experimentLogPath: 'workflows/workflow-1/step-r08-1/research/experiment-log.txt',
     };

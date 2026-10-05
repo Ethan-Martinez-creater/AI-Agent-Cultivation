@@ -348,6 +348,14 @@ export class NewsWorkflowFixtureGateway extends FakeModelGateway {
       inputArtifactIds,
       ...(step.stepId === 'N10' ? { outputPathPrefix } : {}),
       ...(media ? { outputMedia: media } : {}),
+      ...(step.stepId === 'N13' && workflowInputs.topicScope === 'AI 资讯质量复核'
+        ? {
+            reviewVerdict: 'REVISE' as const,
+            revisionCode: (['ASSEMBLY', 'ASSETS', 'STORYBOARD'] as const)[
+              Math.min(step.attempt - 1, 2)
+            ],
+          }
+        : {}),
       ...(step.stepId === 'N13' &&
       step.attempt === 1 &&
       workflowInputs.targetDurationSeconds === 300

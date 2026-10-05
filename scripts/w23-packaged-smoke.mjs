@@ -8,12 +8,19 @@ import { setTimeout as delay } from 'node:timers/promises';
 import Database from 'better-sqlite3';
 import { _electron as electron } from 'playwright-core';
 import { navigateUi } from './ui-navigation.mjs';
+import {
+  acceptancePaths,
+  attachAcceptanceVisuals,
+  captureAcceptance,
+  isolatePreviousAcceptanceActors,
+} from './w24-shared-profile.mjs';
 
 const root = process.cwd();
-const profile = join(root, '.test-data', `w23-packaged-${randomUUID()}`);
-const workspace = join(profile, 'workspace');
-const evidence = join(profile, 'evidence');
-const datasetPath = 'datasets/research-fixture.csv';
+const { profile, workspace, evidence } = acceptancePaths(
+  'research',
+  join(root, '.test-data', `w23-packaged-${randomUUID()}`),
+);
+const datasetPath = 'datasets/research-dataset.csv';
 const databasePath = join(profile, 'data', 'cultivation.sqlite');
 const executablePath = join(
   root,
@@ -120,6 +127,7 @@ async function launch(extraFlags = []) {
     if (text.includes('W23_OFFLINE_FIXTURE_FAILURE')) console.error(text.trim());
   });
   await page.getByRole('heading', { name: '首页', exact: true }).waitFor();
+  await attachAcceptanceVisuals({ app, page }, evidence);
   return { app, page };
 }
 async function kill(app) {
@@ -308,7 +316,7 @@ async function createThroughRenderer(page, testCase, app) {
     assert.equal(ref.contentHash, hash(readFileSync(join(workspace, datasetPath))));
     assert.equal(binding.artifact_id, ref.id);
     assert.equal(binding.content_hash, ref.contentHash);
-    assert.equal(ref.name, 'research-fixture.csv');
+    assert.equal(ref.name, 'research-dataset.csv');
     assert.ok(snapshot.existingSources[0].id.startsWith('source-'));
     assert.equal(snapshot.existingSources[0].kind, 'EXTERNAL_REFERENCE');
     assert.ok(
@@ -381,6 +389,7 @@ const facts = {
   noPublication: true,
 };
 try {
+  if (process.env.CULTIVATION_W24_PROFILE) await isolatePreviousAcceptanceActors(live);
   await live.app.evaluate(({ dialog }, folder) => {
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
   }, workspace);
@@ -453,6 +462,10 @@ try {
     for (let iteration = 0; iteration < 280; iteration++) {
       let workflow = await detail(live.page, runId);
       const current = active(workflow);
+      if (workflow.traversals.length) {
+        await workflowUi(live.page);
+        await captureAcceptance(live, evidence, 'revision');
+      }
       if (workflow.run.state === 'COMPLETED') {
         completed = workflow;
         break;
@@ -511,6 +524,8 @@ try {
         }
       }
       if (pendingApproval) {
+        await workflowUi(live.page);
+        await captureAcceptance(live, evidence, 'approval');
         approvals++;
         await live.page.evaluate(
           (id) =>

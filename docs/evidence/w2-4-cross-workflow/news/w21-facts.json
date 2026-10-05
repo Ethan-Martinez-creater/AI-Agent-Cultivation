@@ -1,0 +1,1439 @@
+{
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7",
+  "workspace": {
+    "rootPath": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7\\workspace"
+  },
+  "acceptanceCases": [
+    {
+      "id": "short",
+      "input": {
+        "topicScope": "人工智能芯片行业动态",
+        "timeRange": {
+          "from": "2026-09-25T00:00:00.000Z",
+          "to": "2026-10-02T00:00:00.000Z"
+        },
+        "language": "zh-CN",
+        "targetPlatform": "YOUTUBE_SHORTS",
+        "targetDurationSeconds": 60,
+        "targetStoryCount": {
+          "min": 1,
+          "max": 1
+        },
+        "narrationMode": "AUTO"
+      },
+      "runId": "4fe10416-73d3-42e6-8596-19d536fd626c",
+      "state": "COMPLETED",
+      "waitReasonBeforeConfirmation": "USER_CONFIRMATION",
+      "steps": [
+        {
+          "id": "N01",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N02",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N03",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N04",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N05",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N06",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N07",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N08",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N09",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N10",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N11",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N12",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N13",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N14",
+          "state": "COMPLETED",
+          "attempt": 1
+        }
+      ],
+      "artifactKeys": [
+        "news.candidates",
+        "news.story_clusters",
+        "news.source_packets",
+        "news.verification_report",
+        "news.verification_review",
+        "news.verified_claims",
+        "news.editorial_plan",
+        "news.beat_map",
+        "news.script",
+        "news.script_claim_map",
+        "news.script_review",
+        "news.asset_manifest",
+        "news.storyboard",
+        "news.assets",
+        "news.asset_registry",
+        "news.voiceover",
+        "news.voice_timing",
+        "news.render_manifest",
+        "news.video.draft",
+        "news.production_summary",
+        "news.qa_review",
+        "news.qa_report"
+      ],
+      "validationCount": 22,
+      "permissionApprovals": [
+        {
+          "approvalId": "cf448d02-a72b-4998-9a29-2d59d6a159ca",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+          "stepId": "N01"
+        },
+        {
+          "approvalId": "8631f5e9-d967-46a8-9bb8-2c40b7bc4b5a",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+          "stepId": "N03"
+        },
+        {
+          "approvalId": "cc00dcc8-8577-41b7-9f00-d031d3fd478e",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:voiceover",
+          "stepId": "N11"
+        },
+        {
+          "approvalId": "264b4ec7-ce3c-4134-8b03-3cd1aef62a43",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video",
+          "stepId": "N12"
+        }
+      ],
+      "humanBridge": [
+        {
+          "requestId": "5e3a7381-6d64-43fc-bc86-cbd4445d18fd",
+          "stepId": "N10",
+          "targets": [
+            {
+              "targetArtifactId": "news.asset_registry",
+              "relativePath": "workflows/4fe10416-73d3-42e6-8596-19d536fd626c/027fe88b-7cf5-4610-8362-057950f33e1f/assets/asset_registry.json"
+            },
+            {
+              "targetArtifactId": "news.assets.1",
+              "relativePath": "workflows/4fe10416-73d3-42e6-8596-19d536fd626c/027fe88b-7cf5-4610-8362-057950f33e1f/assets/asset-1.png"
+            }
+          ],
+          "fileHashes": [
+            {
+              "relativePath": "workflows/4fe10416-73d3-42e6-8596-19d536fd626c/027fe88b-7cf5-4610-8362-057950f33e1f/assets/asset_registry.json",
+              "sha256": "b377fa99900cb9c3861914ff0a8a88910ee5e766427cc1bd53095a8a29c39c23"
+            },
+            {
+              "relativePath": "workflows/4fe10416-73d3-42e6-8596-19d536fd626c/027fe88b-7cf5-4610-8362-057950f33e1f/assets/asset-1.png",
+              "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            }
+          ],
+          "outputKeys": ["news.asset_registry", "news.assets"]
+        }
+      ],
+      "restarts": [
+        {
+          "point": "N10_EXTERNAL_WAIT",
+          "eventCountsBefore": {
+            "external_work.created": 1,
+            "mission.approval_resumed": 2,
+            "mission.completed": 9,
+            "mission.created": 10,
+            "mission.ready": 10,
+            "mission.run_started": 10,
+            "mission.waiting_approval": 2,
+            "model.call_completed": 11,
+            "model.call_started": 11,
+            "routing.assigned": 10,
+            "run.completed": 9,
+            "run.started": 10,
+            "tool.approval_decided": 2,
+            "tool.approval_requested": 2,
+            "tool.proposed": 2,
+            "tool.result": 2,
+            "usage.recorded": 11
+          },
+          "eventCountsAfter": {
+            "external_work.created": 1,
+            "mission.approval_resumed": 2,
+            "mission.completed": 9,
+            "mission.created": 10,
+            "mission.ready": 10,
+            "mission.run_started": 10,
+            "mission.waiting_approval": 2,
+            "model.call_completed": 11,
+            "model.call_started": 11,
+            "routing.assigned": 10,
+            "run.completed": 9,
+            "run.started": 10,
+            "tool.approval_decided": 2,
+            "tool.approval_requested": 2,
+            "tool.proposed": 2,
+            "tool.result": 2,
+            "usage.recorded": 11
+          }
+        }
+      ],
+      "eventCounts": {
+        "external_work.accepted": 1,
+        "external_work.continuation_received": 1,
+        "external_work.created": 1,
+        "external_work.in_progress": 1,
+        "external_work.submitted": 1,
+        "mission.approval_resumed": 4,
+        "mission.completed": 13,
+        "mission.created": 13,
+        "mission.external_work_resumed": 1,
+        "mission.ready": 13,
+        "mission.run_started": 13,
+        "mission.waiting_approval": 4,
+        "model.call_completed": 16,
+        "model.call_started": 16,
+        "routing.assigned": 13,
+        "run.completed": 13,
+        "run.started": 13,
+        "tool.approval_decided": 4,
+        "tool.approval_requested": 4,
+        "tool.proposed": 4,
+        "tool.result": 4,
+        "usage.recorded": 16
+      },
+      "confirmedByTypedIpc": true,
+      "createdAdvancedConfirmedThroughUi": true,
+      "toolExecutions": [
+        {
+          "step_id": "N11",
+          "event_type": "tool.result",
+          "payload_json": "{\"toolCallId\":\"w21-53130157-52e3-413e-a05b-1a52bc9923a9\",\"outputHash\":\"ca8179d1b10547801528585b04aa0fcae8dec75e0de47019647e1c4735b84514\",\"toolId\":\"232fe7e0-6500-475d-b30a-51b3712cb82d:voiceover\",\"source\":\"MCP\",\"capability\":\"MCP_TOOL_EXECUTE\",\"resource\":\"mcp:232fe7e0-6500-475d-b30a-51b3712cb82d:c0ee7d3d53d4fcf5:voiceover\",\"approvalId\":\"cc00dcc8-8577-41b7-9f00-d031d3fd478e\",\"success\":true,\"code\":\"OK\",\"inputSummary\":{\"bytes\":511},\"outputSummary\":{\"bytes\":314},\"artifactFiles\":[{\"path\":\"workflows/4fe10416-73d3-42e6-8596-19d536fd626c/c6837700-c94f-40ec-9051-eef4d2be7fa3/output/voice.wav\",\"contentHash\":\"3f257e52584f47ddc010e44d9602511a4900e970d4046cd92f171f03f597cf1b\"}]}",
+          "executor_kind": "MODEL_RUNTIME"
+        },
+        {
+          "step_id": "N12",
+          "event_type": "tool.result",
+          "payload_json": "{\"toolCallId\":\"w21-77c3755e-a1e8-4d48-882f-5320b6e578e1\",\"outputHash\":\"05e8dd4f4889299cb5dff30f42439be08c7c218dc4a57b4dff4f31a9effa1826\",\"toolId\":\"232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video\",\"source\":\"MCP\",\"capability\":\"MCP_TOOL_EXECUTE\",\"resource\":\"mcp:232fe7e0-6500-475d-b30a-51b3712cb82d:c0ee7d3d53d4fcf5:assemble_video\",\"approvalId\":\"264b4ec7-ce3c-4134-8b03-3cd1aef62a43\",\"success\":true,\"code\":\"OK\",\"inputSummary\":{\"bytes\":541},\"outputSummary\":{\"bytes\":337},\"artifactFiles\":[{\"path\":\"workflows/4fe10416-73d3-42e6-8596-19d536fd626c/1efca4ad-c9a2-4de9-b668-c0c68dae881b/output/draft.mp4\",\"contentHash\":\"2a5bd06ad7c20340cf361f87bc7648d9c2b1272052003bca28b9ae926a304432\"}]}",
+          "executor_kind": "MODEL_RUNTIME"
+        }
+      ],
+      "integrity": {
+        "deduplicated": true,
+        "scriptClaimsTraceSources": true,
+        "unverifiedScriptClaims": 0,
+        "videoPath": "workflows/4fe10416-73d3-42e6-8596-19d536fd626c/1efca4ad-c9a2-4de9-b668-c0c68dae881b/output/draft.mp4",
+        "videoHash": "2a5bd06ad7c20340cf361f87bc7648d9c2b1272052003bca28b9ae926a304432",
+        "videoBytes": 135131,
+        "revisionTraversals": []
+      }
+    },
+    {
+      "id": "weekly",
+      "input": {
+        "topicScope": "人工智能产品与研究周报",
+        "timeRange": {
+          "from": "2026-09-25T00:00:00.000Z",
+          "to": "2026-10-02T00:00:00.000Z"
+        },
+        "language": "zh-CN",
+        "targetPlatform": "YOUTUBE_LONG",
+        "targetDurationSeconds": 300,
+        "targetStoryCount": {
+          "min": 3,
+          "max": 5
+        },
+        "narrationMode": "MODEL_OR_TOOL"
+      },
+      "runId": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+      "state": "COMPLETED",
+      "waitReasonBeforeConfirmation": "USER_CONFIRMATION",
+      "steps": [
+        {
+          "id": "N01",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N02",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N03",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N04",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N05",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N06",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N07",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N08",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N09",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N10",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N11",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N12",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N12",
+          "state": "COMPLETED",
+          "attempt": 2
+        },
+        {
+          "id": "N13",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N13",
+          "state": "COMPLETED",
+          "attempt": 2
+        },
+        {
+          "id": "N14",
+          "state": "COMPLETED",
+          "attempt": 1
+        }
+      ],
+      "artifactKeys": [
+        "news.candidates",
+        "news.story_clusters",
+        "news.source_packets",
+        "news.verified_claims",
+        "news.verification_review",
+        "news.verification_report",
+        "news.editorial_plan",
+        "news.beat_map",
+        "news.script_claim_map",
+        "news.script",
+        "news.script_review",
+        "news.asset_manifest",
+        "news.storyboard",
+        "news.asset_registry",
+        "news.assets",
+        "news.voiceover",
+        "news.voice_timing",
+        "news.video.draft",
+        "news.render_manifest",
+        "news.production_summary",
+        "news.qa_review",
+        "news.qa_report",
+        "news.render_manifest",
+        "news.video.draft",
+        "news.production_summary",
+        "news.qa_review",
+        "news.qa_report"
+      ],
+      "validationCount": 27,
+      "permissionApprovals": [
+        {
+          "approvalId": "efaea6e3-6a89-4706-8684-8d65d7059e44",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+          "stepId": "N01"
+        },
+        {
+          "approvalId": "5c604616-7771-48b8-9f39-bec7e4ecc7ec",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+          "stepId": "N03"
+        },
+        {
+          "approvalId": "b0679b00-811b-47a9-9d7e-101a61d5345b",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:voiceover",
+          "stepId": "N11"
+        },
+        {
+          "approvalId": "948e4db6-3e29-4e19-ae1e-e9a303238042",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video",
+          "stepId": "N12"
+        },
+        {
+          "approvalId": "b142a1d4-060b-4ab0-93ae-46fc8c55fcdb",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video",
+          "stepId": "N12"
+        }
+      ],
+      "humanBridge": [
+        {
+          "requestId": "246723dc-8236-42f9-a3bc-4e7964008508",
+          "stepId": "N10",
+          "targets": [
+            {
+              "targetArtifactId": "news.asset_registry",
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset_registry.json"
+            },
+            {
+              "targetArtifactId": "news.assets.1",
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset-1.png"
+            },
+            {
+              "targetArtifactId": "news.assets.2",
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset-2.png"
+            },
+            {
+              "targetArtifactId": "news.assets.3",
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset-3.png"
+            }
+          ],
+          "fileHashes": [
+            {
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset_registry.json",
+              "sha256": "841344506646f432ccb42d29f6f1a3d5173421777d8f98f236bf1f8d693d5dd5"
+            },
+            {
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset-1.png",
+              "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            },
+            {
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset-2.png",
+              "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            },
+            {
+              "relativePath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/90cadeab-819c-4e81-8c3d-33ba8ec54bc5/assets/asset-3.png",
+              "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            }
+          ],
+          "outputKeys": ["news.asset_registry", "news.assets"]
+        }
+      ],
+      "restarts": [
+        {
+          "point": "N12_APPLIED",
+          "receiptId": "01281023-7346-4257-96a0-f9c060ea4299",
+          "eventCountsBefore": {
+            "mission.approval_resumed": 1,
+            "mission.completed": 1,
+            "mission.created": 1,
+            "mission.ready": 1,
+            "mission.run_started": 1,
+            "mission.waiting_approval": 1,
+            "model.call_completed": 2,
+            "model.call_started": 2,
+            "routing.assigned": 1,
+            "run.completed": 1,
+            "run.started": 1,
+            "tool.approval_decided": 1,
+            "tool.approval_requested": 1,
+            "tool.proposed": 1,
+            "tool.result": 1,
+            "usage.recorded": 2
+          },
+          "eventCountsAfter": {
+            "mission.approval_resumed": 1,
+            "mission.completed": 1,
+            "mission.created": 1,
+            "mission.ready": 1,
+            "mission.run_started": 1,
+            "mission.waiting_approval": 1,
+            "model.call_completed": 2,
+            "model.call_started": 2,
+            "routing.assigned": 1,
+            "run.completed": 1,
+            "run.started": 1,
+            "tool.approval_decided": 1,
+            "tool.approval_requested": 1,
+            "tool.proposed": 1,
+            "tool.result": 1,
+            "usage.recorded": 2
+          },
+          "recoveredRunState": "WAITING"
+        }
+      ],
+      "eventCounts": {
+        "external_work.accepted": 1,
+        "external_work.continuation_received": 1,
+        "external_work.created": 1,
+        "external_work.in_progress": 1,
+        "external_work.submitted": 1,
+        "mission.approval_resumed": 5,
+        "mission.completed": 15,
+        "mission.created": 15,
+        "mission.external_work_resumed": 1,
+        "mission.ready": 15,
+        "mission.run_started": 15,
+        "mission.waiting_approval": 5,
+        "model.call_completed": 19,
+        "model.call_started": 19,
+        "routing.assigned": 15,
+        "run.completed": 15,
+        "run.started": 15,
+        "tool.approval_decided": 5,
+        "tool.approval_requested": 5,
+        "tool.proposed": 5,
+        "tool.result": 5,
+        "usage.recorded": 19
+      },
+      "confirmedByTypedIpc": true,
+      "createdAdvancedConfirmedThroughUi": false,
+      "toolExecutions": [
+        {
+          "step_id": "N11",
+          "event_type": "tool.result",
+          "payload_json": "{\"toolCallId\":\"w21-9c384888-38e6-4b08-8b7d-9737d666d1b7\",\"outputHash\":\"ebcd21a91b9afbf30f5807fb72ad93143faea19dc1d688eb062f3d970117adc2\",\"toolId\":\"232fe7e0-6500-475d-b30a-51b3712cb82d:voiceover\",\"source\":\"MCP\",\"capability\":\"MCP_TOOL_EXECUTE\",\"resource\":\"mcp:232fe7e0-6500-475d-b30a-51b3712cb82d:c0ee7d3d53d4fcf5:voiceover\",\"approvalId\":\"b0679b00-811b-47a9-9d7e-101a61d5345b\",\"success\":true,\"code\":\"OK\",\"inputSummary\":{\"bytes\":515},\"outputSummary\":{\"bytes\":314},\"artifactFiles\":[{\"path\":\"workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/0ddad7b0-fc4d-4c34-acdf-62f468568397/output/voice.wav\",\"contentHash\":\"4166147ac6263fbbb0d20a1b18a0e63e55ef6c2ec8eb63af016311e028df0af0\"}]}",
+          "executor_kind": "MODEL_RUNTIME"
+        },
+        {
+          "step_id": "N12",
+          "event_type": "tool.result",
+          "payload_json": "{\"toolCallId\":\"w21-30a84650-8ecd-4212-8526-48be04e56e93\",\"outputHash\":\"cc94259ff0a350d1619348848fbeeec964637c1e00a4f57dbcf2fe2307e680ba\",\"toolId\":\"232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video\",\"source\":\"MCP\",\"capability\":\"MCP_TOOL_EXECUTE\",\"resource\":\"mcp:232fe7e0-6500-475d-b30a-51b3712cb82d:c0ee7d3d53d4fcf5:assemble_video\",\"approvalId\":\"948e4db6-3e29-4e19-ae1e-e9a303238042\",\"success\":true,\"code\":\"OK\",\"inputSummary\":{\"bytes\":546},\"outputSummary\":{\"bytes\":337},\"artifactFiles\":[{\"path\":\"workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/102138cd-06db-4c68-af06-b65b9c444990/output/draft.mp4\",\"contentHash\":\"13281e3775c9694883ee6f58187c6286586f7a54ec7c00bc123cf7f7f3961b7b\"}]}",
+          "executor_kind": "MODEL_RUNTIME"
+        },
+        {
+          "step_id": "N12",
+          "event_type": "tool.result",
+          "payload_json": "{\"toolCallId\":\"w21-95bb840e-e67f-4544-80b1-1e8c353814af\",\"outputHash\":\"c90ab7c146a87bf44f08aed7e75be2576c5e0efb32dd341a7e942295b41656d6\",\"toolId\":\"232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video\",\"source\":\"MCP\",\"capability\":\"MCP_TOOL_EXECUTE\",\"resource\":\"mcp:232fe7e0-6500-475d-b30a-51b3712cb82d:c0ee7d3d53d4fcf5:assemble_video\",\"approvalId\":\"b142a1d4-060b-4ab0-93ae-46fc8c55fcdb\",\"success\":true,\"code\":\"OK\",\"inputSummary\":{\"bytes\":546},\"outputSummary\":{\"bytes\":337},\"artifactFiles\":[{\"path\":\"workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/60e367f0-7397-4c4b-82e7-0dc0eceaf433/output/draft.mp4\",\"contentHash\":\"13281e3775c9694883ee6f58187c6286586f7a54ec7c00bc123cf7f7f3961b7b\"}]}",
+          "executor_kind": "MODEL_RUNTIME"
+        }
+      ],
+      "integrity": {
+        "deduplicated": true,
+        "scriptClaimsTraceSources": true,
+        "unverifiedScriptClaims": 0,
+        "videoPath": "workflows/47379ad6-897e-4a82-b2c5-5648142c7c87/60e367f0-7397-4c4b-82e7-0dc0eceaf433/output/draft.mp4",
+        "videoHash": "13281e3775c9694883ee6f58187c6286586f7a54ec7c00bc123cf7f7f3961b7b",
+        "videoBytes": 633690,
+        "revisionTraversals": [
+          {
+            "id": "259a07b1-83ed-4fbd-af14-d33e3e8c0bd1",
+            "workflowRunId": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+            "stepRunId": "83173586-8ef4-4568-aa89-6069bc2beb18",
+            "edgeId": "n13_assembly",
+            "groupId": "news.final_qa_revision",
+            "traversalIndex": 1,
+            "reason": "ASSEMBLY",
+            "createdAt": "2026-10-05T01:47:48.522Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "productExplainer",
+      "input": {
+        "topicScope": "某一产品在明确时间范围内发布的新功能说明",
+        "timeRange": {
+          "from": "2026-09-01T00:00:00.000Z",
+          "to": "2026-10-02T00:00:00.000Z"
+        },
+        "language": "zh-CN",
+        "targetPlatform": "GENERIC",
+        "targetDurationSeconds": 180,
+        "targetStoryCount": {
+          "min": 1,
+          "max": 1
+        },
+        "narrationMode": "HUMAN"
+      },
+      "runId": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+      "state": "COMPLETED",
+      "waitReasonBeforeConfirmation": "USER_CONFIRMATION",
+      "steps": [
+        {
+          "id": "N01",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N02",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N03",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N04",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N05",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N06",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N07",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N08",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N09",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N10",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N11",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N12",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N13",
+          "state": "COMPLETED",
+          "attempt": 1
+        },
+        {
+          "id": "N14",
+          "state": "COMPLETED",
+          "attempt": 1
+        }
+      ],
+      "artifactKeys": [
+        "news.candidates",
+        "news.story_clusters",
+        "news.source_packets",
+        "news.verification_report",
+        "news.verified_claims",
+        "news.verification_review",
+        "news.editorial_plan",
+        "news.beat_map",
+        "news.script_claim_map",
+        "news.script",
+        "news.script_review",
+        "news.asset_manifest",
+        "news.storyboard",
+        "news.asset_registry",
+        "news.assets",
+        "news.voiceover",
+        "news.voice_timing",
+        "news.production_summary",
+        "news.render_manifest",
+        "news.video.draft",
+        "news.qa_report",
+        "news.qa_review"
+      ],
+      "validationCount": 22,
+      "permissionApprovals": [
+        {
+          "approvalId": "b460732d-b46f-4a34-84d4-872d355e8db4",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+          "stepId": "N01"
+        },
+        {
+          "approvalId": "1b40e25f-c43f-4592-b8e5-101fe3911691",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+          "stepId": "N03"
+        },
+        {
+          "approvalId": "6dddfa3c-192b-4a79-a5e9-27e1a6228902",
+          "capability": "MCP_TOOL_EXECUTE",
+          "toolId": "232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video",
+          "stepId": "N12"
+        }
+      ],
+      "humanBridge": [
+        {
+          "requestId": "62e7e859-8869-4ff9-b7b3-5cf91645e8f3",
+          "stepId": "N10",
+          "targets": [
+            {
+              "targetArtifactId": "news.asset_registry",
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/c799235b-bdeb-43eb-b817-6df8ca8adc37/assets/asset_registry.json"
+            },
+            {
+              "targetArtifactId": "news.assets.1",
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/c799235b-bdeb-43eb-b817-6df8ca8adc37/assets/asset-1.png"
+            }
+          ],
+          "fileHashes": [
+            {
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/c799235b-bdeb-43eb-b817-6df8ca8adc37/assets/asset_registry.json",
+              "sha256": "2d0f3a1e0e29b5f9abb31731664227e6e55decd24f2b2312215a02c899d63e91"
+            },
+            {
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/c799235b-bdeb-43eb-b817-6df8ca8adc37/assets/asset-1.png",
+              "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            }
+          ],
+          "outputKeys": ["news.asset_registry", "news.assets"]
+        },
+        {
+          "requestId": "fd152c0d-0355-402e-9591-c84aeea85058",
+          "stepId": "N11",
+          "targets": [
+            {
+              "targetArtifactId": "news.voiceover",
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/28db6ae9-d19c-46a6-a9ce-985999353a76/output/voice.wav"
+            },
+            {
+              "targetArtifactId": "news.voice_timing",
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/28db6ae9-d19c-46a6-a9ce-985999353a76/output/voice_timing.json"
+            }
+          ],
+          "fileHashes": [
+            {
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/28db6ae9-d19c-46a6-a9ce-985999353a76/output/voice.wav",
+              "sha256": "1325721de4cfd86d3952320054dac50d25b45d79789e53a89d563dc4d676e210"
+            },
+            {
+              "relativePath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/28db6ae9-d19c-46a6-a9ce-985999353a76/output/voice_timing.json",
+              "sha256": "396821f88baf13da4e68383244bc27b7b4efa866c09cba4afd072b086028b77e"
+            }
+          ],
+          "outputKeys": ["news.voice_timing", "news.voiceover"]
+        }
+      ],
+      "restarts": [],
+      "eventCounts": {
+        "external_work.accepted": 2,
+        "external_work.continuation_received": 2,
+        "external_work.created": 2,
+        "external_work.in_progress": 2,
+        "external_work.submitted": 2,
+        "mission.approval_resumed": 3,
+        "mission.completed": 13,
+        "mission.created": 13,
+        "mission.external_work_resumed": 2,
+        "mission.ready": 13,
+        "mission.run_started": 13,
+        "mission.waiting_approval": 3,
+        "model.call_completed": 14,
+        "model.call_started": 14,
+        "routing.assigned": 13,
+        "run.completed": 13,
+        "run.started": 13,
+        "tool.approval_decided": 3,
+        "tool.approval_requested": 3,
+        "tool.proposed": 3,
+        "tool.result": 3,
+        "usage.recorded": 14
+      },
+      "confirmedByTypedIpc": true,
+      "createdAdvancedConfirmedThroughUi": false,
+      "toolExecutions": [
+        {
+          "step_id": "N12",
+          "event_type": "tool.result",
+          "payload_json": "{\"toolCallId\":\"w21-9fa8b30e-f832-45fc-92c4-751fcd085ab4\",\"outputHash\":\"de60c441a58ad76c74afebe3941955d1e71efc4d40d7379f97681c9228ffc8c8\",\"toolId\":\"232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video\",\"source\":\"MCP\",\"capability\":\"MCP_TOOL_EXECUTE\",\"resource\":\"mcp:232fe7e0-6500-475d-b30a-51b3712cb82d:c0ee7d3d53d4fcf5:assemble_video\",\"approvalId\":\"6dddfa3c-192b-4a79-a5e9-27e1a6228902\",\"success\":true,\"code\":\"OK\",\"inputSummary\":{\"bytes\":576},\"outputSummary\":{\"bytes\":337},\"artifactFiles\":[{\"path\":\"workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/89eaf9ba-f230-4c96-8b1d-2766f7552692/output/draft.mp4\",\"contentHash\":\"602303fd92a11de893f79d0ae31295946959a30c0c730168650674f9945d0050\"}]}",
+          "executor_kind": "MODEL_RUNTIME"
+        }
+      ],
+      "integrity": {
+        "deduplicated": true,
+        "scriptClaimsTraceSources": true,
+        "unverifiedScriptClaims": 0,
+        "videoPath": "workflows/25d0b366-2586-467b-b0a3-c87ba6329a8f/89eaf9ba-f230-4c96-8b1d-2766f7552692/output/draft.mp4",
+        "videoHash": "602303fd92a11de893f79d0ae31295946959a30c0c730168650674f9945d0050",
+        "videoBytes": 382675,
+        "revisionTraversals": []
+      }
+    }
+  ],
+  "setup": {
+    "teammate": {
+      "id": "ce5e0db6-9f0a-4083-8d50-0691ac77b1a7",
+      "name": "青岚",
+      "avatar": null,
+      "title": null,
+      "description": "负责新闻研究、脚本与制作协调。",
+      "identityPrompt": "Use the bounded deterministic fixture output for this test-only workflow.",
+      "behaviorPrompt": "",
+      "status": "ACTIVE",
+      "realm": "QI_REFINING",
+      "currentRuntimeProfileId": "e084700f-a296-4822-a1b4-22e3c8fd9f17",
+      "executorKind": "MODEL_RUNTIME",
+      "routingPolicy": "NORMAL",
+      "systemKind": null,
+      "createdAt": "2026-10-05T01:47:05.346Z",
+      "updatedAt": "2026-10-05T01:47:05.346Z"
+    },
+    "humanBridgeTeammateId": "system-human-bridge",
+    "capabilities": [
+      "GENERAL_REASONING",
+      "TOOL_USE",
+      "LONG_CONTEXT_REASONING",
+      "VISUAL_UNDERSTANDING",
+      "SPEECH_GENERATION",
+      "VIDEO_EDITING"
+    ],
+    "provider": {
+      "id": "492061db-eded-4660-9ac2-e53946b35980",
+      "name": "新闻制作模型服务",
+      "kind": "OPENAI_COMPATIBLE",
+      "baseUrl": "http://127.0.0.1:9999/v1",
+      "enabled": true,
+      "createdAt": "2026-10-05T01:47:05.342Z",
+      "updatedAt": "2026-10-05T01:47:05.342Z"
+    },
+    "runtime": {
+      "id": "e8ffae87-ebee-45be-b760-8b2e0e964dc9",
+      "name": "新闻制作固定模型",
+      "providerId": "492061db-eded-4660-9ac2-e53946b35980",
+      "credentialId": null,
+      "modelId": "w21-fixture-model",
+      "parameters": {},
+      "capabilityOverrides": {},
+      "createdAt": "2026-10-05T01:47:05.344Z",
+      "updatedAt": "2026-10-05T01:47:05.344Z"
+    }
+  },
+  "requiredCapabilities": [
+    "GENERAL_REASONING",
+    "TOOL_USE",
+    "LONG_CONTEXT_REASONING",
+    "VISUAL_UNDERSTANDING",
+    "SPEECH_GENERATION",
+    "VIDEO_EDITING"
+  ],
+  "mcpServer": {
+    "id": "232fe7e0-6500-475d-b30a-51b3712cb82d",
+    "name": "新闻研究与制作工具",
+    "command": "D:\\node16\\node.exe",
+    "args": [
+      "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\scripts\\fixtures\\news-mcp-fixture.mjs",
+      "--fixture-root",
+      "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\scripts\\fixtures\\news-media"
+    ],
+    "envWhitelist": [],
+    "cwd": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7\\workspace"
+  },
+  "localPurposeBinding": [
+    {
+      "tool_id": "232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video",
+      "purpose": "VIDEO_ASSEMBLY"
+    },
+    {
+      "tool_id": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+      "purpose": "RESEARCH"
+    },
+    {
+      "tool_id": "232fe7e0-6500-475d-b30a-51b3712cb82d:voiceover",
+      "purpose": "VOICEOVER"
+    }
+  ],
+  "mcpTools": [
+    {
+      "id": "232fe7e0-6500-475d-b30a-51b3712cb82d:research_news",
+      "name": "mcp.232fe7e0-6500-475d-b30a-51b3712cb82d.research_news"
+    },
+    {
+      "id": "232fe7e0-6500-475d-b30a-51b3712cb82d:assemble_video",
+      "name": "mcp.232fe7e0-6500-475d-b30a-51b3712cb82d.assemble_video"
+    },
+    {
+      "id": "232fe7e0-6500-475d-b30a-51b3712cb82d:voiceover",
+      "name": "mcp.232fe7e0-6500-475d-b30a-51b3712cb82d.voiceover"
+    }
+  ],
+  "humanBridgePresentation": {
+    "actionableBrief": true,
+    "fullContractCollapsed": true
+  },
+  "finalConfirmationRestart": {
+    "runId": "4fe10416-73d3-42e6-8596-19d536fd626c",
+    "before": {
+      "external_work.accepted": 1,
+      "external_work.continuation_received": 1,
+      "external_work.created": 1,
+      "external_work.in_progress": 1,
+      "external_work.submitted": 1,
+      "mission.approval_resumed": 4,
+      "mission.completed": 13,
+      "mission.created": 13,
+      "mission.external_work_resumed": 1,
+      "mission.ready": 13,
+      "mission.run_started": 13,
+      "mission.waiting_approval": 4,
+      "model.call_completed": 16,
+      "model.call_started": 16,
+      "routing.assigned": 13,
+      "run.completed": 13,
+      "run.started": 13,
+      "tool.approval_decided": 4,
+      "tool.approval_requested": 4,
+      "tool.proposed": 4,
+      "tool.result": 4,
+      "usage.recorded": 16
+    },
+    "after": {
+      "external_work.accepted": 1,
+      "external_work.continuation_received": 1,
+      "external_work.created": 1,
+      "external_work.in_progress": 1,
+      "external_work.submitted": 1,
+      "mission.approval_resumed": 4,
+      "mission.completed": 13,
+      "mission.created": 13,
+      "mission.external_work_resumed": 1,
+      "mission.ready": 13,
+      "mission.run_started": 13,
+      "mission.waiting_approval": 4,
+      "model.call_completed": 16,
+      "model.call_started": 16,
+      "routing.assigned": 13,
+      "run.completed": 13,
+      "run.started": 13,
+      "tool.approval_decided": 4,
+      "tool.approval_requested": 4,
+      "tool.proposed": 4,
+      "tool.result": 4,
+      "usage.recorded": 16
+    }
+  },
+  "sharedQaBudget": {
+    "runId": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+    "traversals": [
+      {
+        "id": "18063b6a-ccca-4f0d-8572-6e6b6ddd42ef",
+        "workflowRunId": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "stepRunId": "7c0890fc-6373-40f3-8343-1eb8bb05fe61",
+        "edgeId": "n13_assembly",
+        "groupId": "news.final_qa_revision",
+        "traversalIndex": 1,
+        "reason": "ASSEMBLY",
+        "createdAt": "2026-10-05T01:48:07.177Z"
+      },
+      {
+        "id": "82a1d418-e673-4880-b953-298318ba4aea",
+        "workflowRunId": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "stepRunId": "6b183b0d-0c92-48f5-91be-a273d4a9d9c6",
+        "edgeId": "n13_assets",
+        "groupId": "news.final_qa_revision",
+        "traversalIndex": 2,
+        "reason": "ASSETS",
+        "createdAt": "2026-10-05T01:48:08.506Z"
+      }
+    ],
+    "before": {
+      "external_work.accepted": 2,
+      "external_work.continuation_received": 2,
+      "external_work.created": 2,
+      "external_work.in_progress": 2,
+      "external_work.submitted": 2,
+      "mission.approval_resumed": 7,
+      "mission.completed": 19,
+      "mission.created": 19,
+      "mission.external_work_resumed": 2,
+      "mission.ready": 19,
+      "mission.run_started": 19,
+      "mission.waiting_approval": 7,
+      "model.call_completed": 24,
+      "model.call_started": 24,
+      "routing.assigned": 19,
+      "run.completed": 19,
+      "run.started": 19,
+      "tool.approval_decided": 7,
+      "tool.approval_requested": 7,
+      "tool.proposed": 7,
+      "tool.result": 7,
+      "usage.recorded": 24
+    },
+    "after": {
+      "external_work.accepted": 2,
+      "external_work.continuation_received": 2,
+      "external_work.created": 2,
+      "external_work.in_progress": 2,
+      "external_work.submitted": 2,
+      "mission.approval_resumed": 7,
+      "mission.completed": 19,
+      "mission.created": 19,
+      "mission.external_work_resumed": 2,
+      "mission.ready": 19,
+      "mission.run_started": 19,
+      "mission.waiting_approval": 7,
+      "model.call_completed": 24,
+      "model.call_started": 24,
+      "routing.assigned": 19,
+      "run.completed": 19,
+      "run.started": 19,
+      "tool.approval_decided": 7,
+      "tool.approval_requested": 7,
+      "tool.proposed": 7,
+      "tool.result": 7,
+      "usage.recorded": 24
+    },
+    "noReplay": true
+  },
+  "socialPublishing": {
+    "definitions": [],
+    "publishActions": 0
+  },
+  "persistence": {
+    "migration": 26,
+    "workflowRuns": [
+      {
+        "id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "state": "COMPLETED",
+        "definition_id": "official.ai-news-video"
+      },
+      {
+        "id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "state": "COMPLETED",
+        "definition_id": "official.ai-news-video"
+      },
+      {
+        "id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "state": "COMPLETED",
+        "definition_id": "official.ai-news-video"
+      },
+      {
+        "id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "state": "WAITING",
+        "definition_id": "official.ai-news-video"
+      }
+    ],
+    "operationReceipts": [
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "2d297637-3fd0-4a1a-8f91-6e22502120a5",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:2d297637-3fd0-4a1a-8f91-6e22502120a5",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "d8b03f48-b7b8-4f1d-984e-5df46bc522a7",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:d8b03f48-b7b8-4f1d-984e-5df46bc522a7",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "380c1799-e3b4-41a8-8eb1-a1465f95a5e5",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:380c1799-e3b4-41a8-8eb1-a1465f95a5e5",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "0f858f5c-a67e-43aa-8119-3e61d73921c6",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:0f858f5c-a67e-43aa-8119-3e61d73921c6",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "8c8e3e66-b510-441e-ad25-002c2aa1b0fa",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:8c8e3e66-b510-441e-ad25-002c2aa1b0fa",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "73b3833d-a5bb-48e8-a2d1-15837bdfabc6",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:73b3833d-a5bb-48e8-a2d1-15837bdfabc6",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "b8b5c64b-05e5-4cca-b204-89e6d0e25e2f",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:b8b5c64b-05e5-4cca-b204-89e6d0e25e2f",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "966ea2fe-1f5d-4adf-82c2-3be2dd8d2ebd",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:966ea2fe-1f5d-4adf-82c2-3be2dd8d2ebd",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "b7df9f20-7508-442b-aa49-0568d683f977",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:b7df9f20-7508-442b-aa49-0568d683f977",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "027fe88b-7cf5-4610-8362-057950f33e1f",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:027fe88b-7cf5-4610-8362-057950f33e1f",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "c6837700-c94f-40ec-9051-eef4d2be7fa3",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:c6837700-c94f-40ec-9051-eef4d2be7fa3",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "1efca4ad-c9a2-4de9-b668-c0c68dae881b",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:1efca4ad-c9a2-4de9-b668-c0c68dae881b",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+        "step_run_id": "ec6bbe54-bf3a-47c4-8a25-e247cbad08c3",
+        "operation_key": "workflow:4fe10416-73d3-42e6-8596-19d536fd626c:ec6bbe54-bf3a-47c4-8a25-e247cbad08c3",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "892c3fa2-0027-4439-8a3f-fd513b1871f9",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:892c3fa2-0027-4439-8a3f-fd513b1871f9",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "dac9e538-625d-45fd-a663-15a62de0ddc9",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:dac9e538-625d-45fd-a663-15a62de0ddc9",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "b4312493-1246-4779-8e23-8eef434c3be9",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:b4312493-1246-4779-8e23-8eef434c3be9",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "e9e3a383-154e-462b-b83d-15b613c8b49e",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:e9e3a383-154e-462b-b83d-15b613c8b49e",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "1a61336a-d740-4531-95ad-aab9931cd0ca",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:1a61336a-d740-4531-95ad-aab9931cd0ca",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "e8f27838-0ff1-4176-95cf-de43569cc57d",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:e8f27838-0ff1-4176-95cf-de43569cc57d",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "44cbd4d4-a9a1-4d8a-ace0-862fd5bc17cf",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:44cbd4d4-a9a1-4d8a-ace0-862fd5bc17cf",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "11ae2159-1fe1-4d4f-ad51-d9b36032898c",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:11ae2159-1fe1-4d4f-ad51-d9b36032898c",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "c30935aa-6383-473e-8c12-83f7db242b6d",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:c30935aa-6383-473e-8c12-83f7db242b6d",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "90cadeab-819c-4e81-8c3d-33ba8ec54bc5",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:90cadeab-819c-4e81-8c3d-33ba8ec54bc5",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "0ddad7b0-fc4d-4c34-acdf-62f468568397",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:0ddad7b0-fc4d-4c34-acdf-62f468568397",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "102138cd-06db-4c68-af06-b65b9c444990",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:102138cd-06db-4c68-af06-b65b9c444990",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "83173586-8ef4-4568-aa89-6069bc2beb18",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:83173586-8ef4-4568-aa89-6069bc2beb18",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "60e367f0-7397-4c4b-82e7-0dc0eceaf433",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:60e367f0-7397-4c4b-82e7-0dc0eceaf433",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+        "step_run_id": "988116ee-567a-4d23-b112-d50025aa5657",
+        "operation_key": "workflow:47379ad6-897e-4a82-b2c5-5648142c7c87:988116ee-567a-4d23-b112-d50025aa5657",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "7561fb25-c8d4-41f2-8d75-c973521ed57b",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:7561fb25-c8d4-41f2-8d75-c973521ed57b",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "56e5ec00-d2bf-4922-a6f0-1411b657dedd",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:56e5ec00-d2bf-4922-a6f0-1411b657dedd",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "637a9834-95f0-442b-8f8a-2ca53423031d",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:637a9834-95f0-442b-8f8a-2ca53423031d",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "122d8935-f1f0-47d9-9721-f7d4331d4ad5",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:122d8935-f1f0-47d9-9721-f7d4331d4ad5",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "627140c5-c41a-4090-91eb-c747b5686751",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:627140c5-c41a-4090-91eb-c747b5686751",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "3d087c94-8d31-4e54-a1fb-d7adcd54100c",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:3d087c94-8d31-4e54-a1fb-d7adcd54100c",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "7b256eba-4900-4aa5-9784-3113f43c0286",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:7b256eba-4900-4aa5-9784-3113f43c0286",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "9c3f9bd3-4bd1-4f68-94b4-5b1d1973b5a1",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:9c3f9bd3-4bd1-4f68-94b4-5b1d1973b5a1",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "7b2ed194-2e8b-4cbb-8641-ff6875ab6677",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:7b2ed194-2e8b-4cbb-8641-ff6875ab6677",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "c799235b-bdeb-43eb-b817-6df8ca8adc37",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:c799235b-bdeb-43eb-b817-6df8ca8adc37",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "28db6ae9-d19c-46a6-a9ce-985999353a76",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:28db6ae9-d19c-46a6-a9ce-985999353a76",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "89eaf9ba-f230-4c96-8b1d-2766f7552692",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:89eaf9ba-f230-4c96-8b1d-2766f7552692",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+        "step_run_id": "abff5642-e5ef-4a6d-8c93-38c557861322",
+        "operation_key": "workflow:25d0b366-2586-467b-b0a3-c87ba6329a8f:abff5642-e5ef-4a6d-8c93-38c557861322",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "c2589cf8-8f03-473c-9e15-ac7a5f6e8205",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:c2589cf8-8f03-473c-9e15-ac7a5f6e8205",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "17eeaee3-f40b-4032-98fa-61c950ee59a4",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:17eeaee3-f40b-4032-98fa-61c950ee59a4",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "55c8e337-1b0c-4eb6-86ae-fd8cd8c5cb65",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:55c8e337-1b0c-4eb6-86ae-fd8cd8c5cb65",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "2a64e3d2-d7d3-4128-b1f6-e92ef880d623",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:2a64e3d2-d7d3-4128-b1f6-e92ef880d623",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "a7b762be-9568-40e4-a150-99ccaee00279",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:a7b762be-9568-40e4-a150-99ccaee00279",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "2ef7ce4b-16dd-4531-9995-0007c0dad783",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:2ef7ce4b-16dd-4531-9995-0007c0dad783",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "16ca35ec-7f48-43a1-8230-2d6b17033b28",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:16ca35ec-7f48-43a1-8230-2d6b17033b28",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "90565f32-0bc8-4905-b71f-eaadd7568e0c",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:90565f32-0bc8-4905-b71f-eaadd7568e0c",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "0996e365-d208-4af2-91ac-ae53aa3abd9c",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:0996e365-d208-4af2-91ac-ae53aa3abd9c",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "dc5d4008-1a29-4277-a3bb-e83ea8cc9752",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:dc5d4008-1a29-4277-a3bb-e83ea8cc9752",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "aab454d6-33e2-43db-8211-cdc107fe24c6",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:aab454d6-33e2-43db-8211-cdc107fe24c6",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "8f16365e-9601-4c8b-8d46-d2f0d2924bec",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:8f16365e-9601-4c8b-8d46-d2f0d2924bec",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "7c0890fc-6373-40f3-8343-1eb8bb05fe61",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:7c0890fc-6373-40f3-8343-1eb8bb05fe61",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "48746eeb-d5c2-4573-92d8-11570aba5cfa",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:48746eeb-d5c2-4573-92d8-11570aba5cfa",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "6b183b0d-0c92-48f5-91be-a273d4a9d9c6",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:6b183b0d-0c92-48f5-91be-a273d4a9d9c6",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "49c14c45-5523-49d9-8e0e-82e0cac62cf8",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:49c14c45-5523-49d9-8e0e-82e0cac62cf8",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "5161c438-3a0b-4843-87ae-a7b7810046f8",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:5161c438-3a0b-4843-87ae-a7b7810046f8",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "9928ac6c-6e3d-4cdf-8be0-c01ba632cb2d",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:9928ac6c-6e3d-4cdf-8be0-c01ba632cb2d",
+        "state": "VERIFIED"
+      },
+      {
+        "workflow_run_id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+        "step_run_id": "246dd4cb-58fa-4d91-ad9a-52c209c6bc0f",
+        "operation_key": "workflow:720f14e0-882b-450c-bd7a-e2ffdcd72b42:246dd4cb-58fa-4d91-ad9a-52c209c6bc0f",
+        "state": "VERIFIED"
+      }
+    ],
+    "researchEvidenceEvents": []
+  }
+}

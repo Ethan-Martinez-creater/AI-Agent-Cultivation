@@ -1,0 +1,931 @@
+{
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7",
+  "logicalWindowWidths": [1440, 1180, 900],
+  "capture": "Real Windows Electron BrowserWindow; physical pixels reflect OS scaling",
+  "screenshots": [
+    {
+      "file": "visual/official.ai-news-video-advanced-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "1a429af8de1b1e3348de0c3e8fce25e51ef2e3f340b1b8383496ec342e0c6ad8"
+    },
+    {
+      "file": "visual/official.ai-news-video-advanced-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "244f005c05c6f931b2801358d63c4f61a27cf4e1f03e991db19017461ba3257e"
+    },
+    {
+      "file": "visual/official.ai-news-video-advanced-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "aa9db61e2a34d0816341de27fed645c5c68ba0d8b249d8c65e76fe1732964e18"
+    },
+    {
+      "file": "visual/official.ai-news-video-delivery-history-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "5b7ea6d0f892c190df9f6dd63ff9e8b004643a154d88b7ed5f6febe1df6540f4"
+    },
+    {
+      "file": "visual/official.ai-news-video-delivery-history-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "87c2fce45003f963e0a8cdf0a220118fb057bbee680fb4bad2e6a9ea065a7309"
+    },
+    {
+      "file": "visual/official.ai-news-video-delivery-history-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "fb6dba3a32297d88ff7f6fc0f1b19a134ee151d840ce700c7ae28ac6627a74b2"
+    },
+    {
+      "file": "visual/official.research-advanced-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "4c960023f0fbc0a3cff15f3e8bc3dd4bb6b158db9957042d869f7d592c01cfed"
+    },
+    {
+      "file": "visual/official.research-advanced-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "2f1e1dcc3d0d68460d840b83b184604e433eb9f67fe4d9dd071a0615352e5e3d"
+    },
+    {
+      "file": "visual/official.research-advanced-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "df37d1061f231a6a6897052a3b3fc4dbfad1c93b39e6500f7eb0b4c8c71541bd"
+    },
+    {
+      "file": "visual/official.research-delivery-history-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "54fb1ef2533321c7f55f16fe3b0155621204dc9830ab647efce9abbfc3c35660"
+    },
+    {
+      "file": "visual/official.research-delivery-history-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "2eee1ae724e0c57284fcbed9b32bcdd40be097b69ca52925f88a2607ee4f37b2"
+    },
+    {
+      "file": "visual/official.research-delivery-history-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "30c0b0b2867474eef0c8803e7a14282acffe2b455f68557bfec81db66883f299"
+    },
+    {
+      "file": "visual/official.software-feature-advanced-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "0dc5aaee722e74ad28cc2bfdebd272002be0f647e3a84e28006be82db0fc5c28"
+    },
+    {
+      "file": "visual/official.software-feature-advanced-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "c6e28112c54e0944497d2a1188d053af46be0163dd5eb8e5ac093711af639ab6"
+    },
+    {
+      "file": "visual/official.software-feature-advanced-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "ab48a8186bd7e7bbf4ab1a960fa2c5e5cbf2c97eba73ee089094a5100943ae2a"
+    },
+    {
+      "file": "visual/official.software-feature-delivery-history-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "2bb08656c73355234a4f9cfe941a951b64eaa93bf91e5788c3c0a176ea46cc5e"
+    },
+    {
+      "file": "visual/official.software-feature-delivery-history-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "4deabe3b1b084e3e38b79111227fa81379be0b337cdcadaeae64f693afac3891"
+    },
+    {
+      "file": "visual/official.software-feature-delivery-history-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "020d7881b42239ce25626756d20a3375ad5b70e31dc7641ddc7a5a799fb9ed15"
+    },
+    {
+      "file": "news/visual/01-w21-human-bridge-waiting-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "9815b7dab78b9c6e584a0a54c2aec73efc7719b71c0c0fe67f24fc8e1a01bc6a"
+    },
+    {
+      "file": "news/visual/01-w21-human-bridge-waiting-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "97490bef997e10b5629e5d2887ae8ff11e264894589a146fce71b50b08b895db"
+    },
+    {
+      "file": "news/visual/01-w21-human-bridge-waiting-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "8f90763c68d6aed975e6dada9682d76ccec5c97f6215c48077331ab289def04d"
+    },
+    {
+      "file": "news/visual/02-w21-completed-workflow-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "1214a409798f645cf7e6bd6cf71880efb2dfa684004f71f86200906ec6f6c746"
+    },
+    {
+      "file": "news/visual/02-w21-completed-workflow-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "f395753427989a8a662e5218d17943d0e7e124f55f66d99367e2351d26650a87"
+    },
+    {
+      "file": "news/visual/02-w21-completed-workflow-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "20335797f13e98369da2094e8f7cf6e9a28f2896c68f95624a2a462b54500f01"
+    },
+    {
+      "file": "news/visual/03-w21-ui-create-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "ee4271e9c61570731948567402540349270d414f810d16dabe3ddb76bbf0e64f"
+    },
+    {
+      "file": "news/visual/03-w21-ui-create-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "eb5197fdc99555e61e65f90d6dd3cead5d7e0871d26b17d2238723fb4246d88e"
+    },
+    {
+      "file": "news/visual/03-w21-ui-create-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "d9fab2f20489eb411f20c251824b24987187a55e68e533a281756fcb2143e93f"
+    },
+    {
+      "file": "news/visual/04-w21-local-tool-purpose-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "2eccd0eb68c29010517b38b99ff49e1ddea9bea7aeec4b1c74e4567ea48c81e4"
+    },
+    {
+      "file": "news/visual/04-w21-local-tool-purpose-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "e5198fc76822e37d3c64389ca45292415f929bcf1f28f10717dbef2a0ad324cf"
+    },
+    {
+      "file": "news/visual/04-w21-local-tool-purpose-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "27d0217545422c878f74b7cf12ae06cec0328aafe653191e2b8d34a08379df0b"
+    },
+    {
+      "file": "news/visual/05-w21-ui-template-inputs-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "24d6bfb86749ad10e3b42aeeab4a37dd4a6a90bc1f0342dd4039d6f64dda2c9e"
+    },
+    {
+      "file": "news/visual/05-w21-ui-template-inputs-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "8301a01907b1e1ca41baae18845632c184a165984bc8bfd75f1602a1a4373ea0"
+    },
+    {
+      "file": "news/visual/05-w21-ui-template-inputs-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "3e9dc1c04ae779d7a35e980e8eb4de3110dbea83357d0fccf94094fe4fc3f67b"
+    },
+    {
+      "file": "news/visual/06-w21-human-bridge-acceptance-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "3a5b245fcc79f1cacc4d6c1f28a5bdc64a85124c62e59f0c42cf2fae34f22eff"
+    },
+    {
+      "file": "news/visual/06-w21-human-bridge-acceptance-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "43a41ccb2f91e02a7e2ca55677ee394366748a58418db7351b8746062926b472"
+    },
+    {
+      "file": "news/visual/06-w21-human-bridge-acceptance-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "6e2665627e7761a835dcb0edc482bcbeec16c1ecdb318daefeb18fb3d25fd6e4"
+    },
+    {
+      "file": "news/visual/approval-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "10c995bd39a9b69b2682a426f8019f7221fe410774ed789012bde8b21e7cb6a8"
+    },
+    {
+      "file": "news/visual/approval-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "06d06230c661a883e9f8c58ebf8086dd961c7191575b852a96caac20422d2d0d"
+    },
+    {
+      "file": "news/visual/approval-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "fa9f7c7488ccbb39d999cc58050cf02fd384d9ddaf5fcc210b5eb9749fce8ef0"
+    },
+    {
+      "file": "news/visual/qa-budget-blocked-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "179aacf785a020cea755646672d34b7199ca5aad2b6a345bbebc02b1be91a125"
+    },
+    {
+      "file": "news/visual/qa-budget-blocked-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "c6cc3562324bdc03cc835027756539ce33c8339e35019e01ca3cb6f675ebb5c3"
+    },
+    {
+      "file": "news/visual/qa-budget-blocked-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "0bafedc8ac3d55a159a0f8f5b7718a801200fe5a8d959eb2157803a0025605f5"
+    },
+    {
+      "file": "news/visual/revision-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "157747bf07064a48b766f9ef28350282bdd9d18f48f8345944841a1e17c4778c"
+    },
+    {
+      "file": "news/visual/revision-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "ab140889ab2fc183eac9e329f89e08122d46352457beccc1be8fc0eb2d689b8f"
+    },
+    {
+      "file": "news/visual/revision-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "838c477e65b8d8fc658bff77d01b4e32e1512255d3056721011dcfa7b9eb0305"
+    },
+    {
+      "file": "software/visual/01-software-inputs-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "5086ddbe92a8ffeedc3f9c2b0ecddce00d8879f5bef4e444d39d26446fc1b52c"
+    },
+    {
+      "file": "software/visual/01-software-inputs-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "c974163286f6d2e5addd712f118f2ca93b862e1800a76b3b5381c9f48ca545bd"
+    },
+    {
+      "file": "software/visual/01-software-inputs-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "46719d58706dcee9937dff41abd547747f06d2a2c153d1c43c4208f44e8abe2d"
+    },
+    {
+      "file": "software/visual/02-bugfix-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "da789b4e476beeef6559f9f539cfd93d3f8d794cc5d7ef917ff7dc60c81b1811"
+    },
+    {
+      "file": "software/visual/02-bugfix-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "e37afa37a5154cb4bc10d62ba1d40e6c79dbc6563462a098b0d16c14d9e86b41"
+    },
+    {
+      "file": "software/visual/02-bugfix-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "484f39ac6cfb30365b137b96c02b24ba9dbeae2bffed61981590a30225fa4627"
+    },
+    {
+      "file": "software/visual/02-crossLayer-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "ab038cb21ddeb2b625bf92c42fa27e196c57cf25c478e3a659057c336410e872"
+    },
+    {
+      "file": "software/visual/02-crossLayer-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "65bea75fc9b47a3294c41f08644a96a104cd6272061a17fa7f1d11ccebc2445a"
+    },
+    {
+      "file": "software/visual/02-crossLayer-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "b86cd00bc4c4f421edb7d6dd2bfe7f8a66c0731582cc8bc925d9acda38661085"
+    },
+    {
+      "file": "software/visual/02-migration-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "f5a8aa2162301e00ac9d1bbf7324fcebf9ea0b27d0155dc512ec8b13a51d37d2"
+    },
+    {
+      "file": "software/visual/02-migration-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "1b5598e117cbedce4b4e20b40e82d3e4ca58991e877727a725b68c8cc680c22c"
+    },
+    {
+      "file": "software/visual/02-migration-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "c1a22605b26da67befa5f93a241b4a2b5f72afa4c404e1e755e31868d70c9233"
+    },
+    {
+      "file": "software/visual/02-mixed-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "90174b7e6835552a278c2f7237b71ebd3556c5f29e8b482d24e3816e69739a0e"
+    },
+    {
+      "file": "software/visual/02-mixed-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "b382bd4ddf39687e168c9af87980adac5a2c658fb4f722b8c14168f0e9e7f0b2"
+    },
+    {
+      "file": "software/visual/02-mixed-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "5e79e8ca1a8e57bac4f89b447e94933cbacb91d5b8dd4143cd48f99b341b8e48"
+    },
+    {
+      "file": "software/visual/02-preCommit-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "d4550c3e009b3c7eacd32d2ad1861709173591342163348d6d339fbe7aa674c3"
+    },
+    {
+      "file": "software/visual/02-preCommit-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "1f92fbde03372be81adea84f5638d7949fd3bc91406a218290505a5c2d99cc10"
+    },
+    {
+      "file": "software/visual/02-preCommit-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "2747f18ada75650e8ffaec88f062db5ad7a48c379724a1ce79c234608175c36d"
+    },
+    {
+      "file": "software/visual/03-tool-scope-selection-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "4217bc16cf32ee885249ee0c03f519d806f809a2f73ec3792e9b1a9bf9b33b57"
+    },
+    {
+      "file": "software/visual/03-tool-scope-selection-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "e376576b4cac7074cd940557683959f5334e404d240a7abe6d160e0f43b3f62b"
+    },
+    {
+      "file": "software/visual/03-tool-scope-selection-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "fd5370e02d41ac3b5fde98dffcfbb560edd023f990e023c42121d1b023b13817"
+    },
+    {
+      "file": "software/visual/04-mixed-command-human-verification-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "106edd5f5f19050aedc9d686b2a417a3bfa3caf892dbd954c0135eb260baa4ce"
+    },
+    {
+      "file": "software/visual/04-mixed-command-human-verification-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "c64a9d67eddfac5915798e8251f95495b5da1058ea3a00d8d0b794ff302583a9"
+    },
+    {
+      "file": "software/visual/04-mixed-command-human-verification-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "ad077eabb21d9aed5b72187dddc895d7951751b05c78ddb5500c2292e002a94f"
+    },
+    {
+      "file": "software/visual/approval-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "d3a6e61851893bb3b74db60f7410cbe6f793e1b60910f9f299d3dd041c9f3f17"
+    },
+    {
+      "file": "software/visual/approval-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "20a79f9693dadd837057999bee19564b2a118590237438323ef5349166253de1"
+    },
+    {
+      "file": "software/visual/approval-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "2180a6a9b553bda33c8263450ffb7eb55e0194a774f063d7cf88330b4a789ae7"
+    },
+    {
+      "file": "software/visual/revision-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "3ab07a36eef6d926a1f7d899dd8203034400723967b00ede66b8d0b7bff3e32b"
+    },
+    {
+      "file": "software/visual/revision-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "affa08b4b3fa3813d9ba0fe623e75c0b13c02ceeb1102a523ef220f47705c359"
+    },
+    {
+      "file": "software/visual/revision-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "a8877449745e1721c1639f52bf84974c05664aa3cd187e05132a2194ef1fccd2"
+    },
+    {
+      "file": "research/visual/A-algorithm-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "89194db7b2e51d86ed3f550ccb6d837f9eb00f56b9db52da75f6c8957c9767fd"
+    },
+    {
+      "file": "research/visual/A-algorithm-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "245fb0063e691a190b62ba7a2964ada3e4357fd0fcc59fff94706487eefe5a1e"
+    },
+    {
+      "file": "research/visual/A-algorithm-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "bd17849ca4d5b2023b5a9ec4b99b0bf6b72f9fba3c23818f9bf0bfeba3bcf487"
+    },
+    {
+      "file": "research/visual/A-algorithm-create-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "5a4950e5f489fe6afc5b83fe1523279c1daa4ab284e32c25079f78ff3d0b819b"
+    },
+    {
+      "file": "research/visual/A-algorithm-create-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "d9eb4184b6e251ae2b869589c03d39a718b8fe819977ae5e15c0894628777df7"
+    },
+    {
+      "file": "research/visual/A-algorithm-create-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "a1d8470ffec698f0f5cffefb5e0011d784855015dae19d51ecb75a80e66d95fb"
+    },
+    {
+      "file": "research/visual/approval-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "38497824dcef21762a59a8afe7c129c58c16d4cbd11db5e4be2eac7657958e1f"
+    },
+    {
+      "file": "research/visual/approval-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "fdb044ad0912a3f48a7d688854cef52b73392d26b732057a0fe9419814e77a03"
+    },
+    {
+      "file": "research/visual/approval-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "6c6a4ebcc79ab465890bb7c5220898cb62e7cadbefad31de42091f51d787f520"
+    },
+    {
+      "file": "research/visual/B-complete-research-delivery-projection-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "96f8316cd1e36a9ebe831796ce2ad068fb68b89154cde3abc22f3e4cef0c112f"
+    },
+    {
+      "file": "research/visual/B-complete-research-delivery-projection-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "abbfaf4e2d7f78741295510f473bdc2214092583ac1fbefe54fb8d16654c3df8"
+    },
+    {
+      "file": "research/visual/B-complete-research-delivery-projection-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "d86f4c88625a15051afd3f5ed80fb7857e258f6060e2cdf4b726b6314a5262d8"
+    },
+    {
+      "file": "research/visual/B-dataset-artifact-selected-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "734675042a3161a33e3d257463f46fb784bd33032929e77b9488d451e19a7916"
+    },
+    {
+      "file": "research/visual/B-dataset-artifact-selected-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "fa2f7a6c2acf20c356cd64bfdc9616c5b61ebdb23502170d098ce4a82450edea"
+    },
+    {
+      "file": "research/visual/B-dataset-artifact-selected-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "ef80d42214020223fd665e0cd90b32f9f13408b257ec3a0e975d8528d18dd4f5"
+    },
+    {
+      "file": "research/visual/B-dataset-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "9b0753724fb556d4e610662d85ed9888da6503b132cde6c2e1f54e8745e46956"
+    },
+    {
+      "file": "research/visual/B-dataset-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "d1edd1dd1409a0a4d031a0c2b890f894fdf2b02e3b8738f6401ecd4ef0adf2e1"
+    },
+    {
+      "file": "research/visual/B-dataset-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "d86f4c88625a15051afd3f5ed80fb7857e258f6060e2cdf4b726b6314a5262d8"
+    },
+    {
+      "file": "research/visual/B-dataset-create-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "b9000fb35ba410b727035d30465be6721668b453da5ba387674c01ad5629d5a8"
+    },
+    {
+      "file": "research/visual/B-dataset-create-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "a8bc21fdc37c4cd4f8a8247905d1d18ab27b3e3afbd7aa311cf0a8bc47a2ae1c"
+    },
+    {
+      "file": "research/visual/B-dataset-create-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "0c539999790c81a0fcafa334dc2c5a68be2ae48d86276a9cb3a3033bc2ab54a6"
+    },
+    {
+      "file": "research/visual/B-literature-date-range-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "b74dc744f7a82601a88d267947fc78be6b5ef989e33e94732a985f00207914e1"
+    },
+    {
+      "file": "research/visual/B-literature-date-range-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "0b265437ffebd418488486ccd403c7e0cd0504f3cd129d7bb50f73c23f64faf0"
+    },
+    {
+      "file": "research/visual/B-literature-date-range-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "f035ab42e36a2feda70c0cfc1fa7d9709d7c557faf8bdab7803650fafae6509f"
+    },
+    {
+      "file": "research/visual/B-reversed-literature-range-rejected-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "81305d8b974698a7847441c01fae3d87efaaaa7f399b9816662e9c31e02b23e4"
+    },
+    {
+      "file": "research/visual/B-reversed-literature-range-rejected-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "994a51a4fee3f8f9584cc6a3745d207134469e18ee84c87b1836b515e1dee4a2"
+    },
+    {
+      "file": "research/visual/B-reversed-literature-range-rejected-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "5e76508756dcd47aa09d890e8ed9ca436fee610b86e4f27f8f8713f713beb379"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "88c9f92efc9ab31240225facf7f39b31d11ec4ba8f97921e9589255a6737733c"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "6ad8c33d9c35a423a20f388b6a6d08b4726354467f5eb1f236d450118cc13d0d"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "37a49a5884600396cf215c94944ef5620d9d94e5ebd24e8c804785e5ec37a72e"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-create-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "33428c32152b0bdd86068b2f5e626bf863c93dde97eeeeae425c90a6b224d321"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-create-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "79a6aa89ba0a1061c3033251ece3a15eaf80f77618bc5c67da99f23411963ba5"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-create-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "83bd9a34ae7e59b7b8232e416b0bb37e0d213251b79ce33a86cf49aa20f8bc84"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-human-bridge-pending-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "95d493b6de014c769d06de30d9099f864634b714c70fc6b237ec2899d62b9dba"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-human-bridge-pending-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "4ccf5e41ffe6ab2db83f0153b5b1dea32ae62710fbd5a3eafe8049b5f2f951d2"
+    },
+    {
+      "file": "research/visual/C-external-human-bridge-human-bridge-pending-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "b06cd0564051059d58df989242d394ff70d2b58d53c82f5a2cccd879b8941cf5"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-completed-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "64668c114b1bfe4f8e2be9a28ab50ba330f32b6183fbc7492fd0af23c44f10d7"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-completed-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "9216f4a2138f1e02ad11343f4d461804643c4e65a2fb89f79865b7ab46671b99"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-completed-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "5088817868a760d91f5072a9685e5f49de6aad5b4ab0e0b557a5b58b1a9bab29"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-create-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "cde33ac579f74c3f3c44971c34a19e9b5ec1bd9389ea4be9cee47969d75385a5"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-create-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "b3834ddc1deac345e4e81693c2c68dd7e470d48599ac870b6103478e5c4807ca"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-create-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "9bd5578f61baf8cab5963289059ba06dfc8b89d490dd6e6dc4e4dd9de4b9bcd0"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-human-bridge-pending-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "4833c861ae15b61ac649121df0340105a6e5264897c3de43dc6024f1bbe0b146"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-human-bridge-pending-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "6d8c488fd9afa033ba71d267b593421e92c4bd3bfbed25e50a675a0f829e7cc4"
+    },
+    {
+      "file": "research/visual/D-mixed-human-bridge-human-bridge-pending-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "c3e3a4b5f8c8569ae34e5156ae15ae2c7c4f11292f3d3d5264bc3726d1347b3f"
+    },
+    {
+      "file": "research/visual/E-unknown-external-action-create-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "a1df2f63d74e7d8d8d0bc7427d5fba8874371bcf9c6a1d2aecf76e94414f6717"
+    },
+    {
+      "file": "research/visual/E-unknown-external-action-create-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "4b0f5d1b8b2ab16414d19158256855ad36d12d747228c307d8337bf3f1de42a3"
+    },
+    {
+      "file": "research/visual/E-unknown-external-action-create-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "aacd604b278bc447d5f59bcd1d1795dc84d75c62c64fe90fa495ac426389b33b"
+    },
+    {
+      "file": "research/visual/F-shared-cycle-limit-create-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "7b396d55cca275754bcba58de2467278df215a177af1023afc5463b95d77325c"
+    },
+    {
+      "file": "research/visual/F-shared-cycle-limit-create-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "5198bb2e2c8edf699b3bed6213fd1efd151d5036f49b82d82488e827bc3cf491"
+    },
+    {
+      "file": "research/visual/F-shared-cycle-limit-create-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "dc01edb7bd083bc86b691e6730a31445d497927a06b7cbc3fc087f04d1c8ffbe"
+    },
+    {
+      "file": "research/visual/F-shared-cycle-limit-waiting-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "3e2cd6780de8f059ac29918e28502e5d2656d60f776f03203adb1c47e77d749d"
+    },
+    {
+      "file": "research/visual/F-shared-cycle-limit-waiting-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "7b3e10f1e1f45a033017ffb202e1c26fde17ca3ce9a0288f8ed0a1ba73114126"
+    },
+    {
+      "file": "research/visual/F-shared-cycle-limit-waiting-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "125adeb81b208006dd6d5425309393e56d2bd07a7eb42cec1c1bc26881caa209"
+    },
+    {
+      "file": "research/visual/revision-1180.png",
+      "windowWidth": 1180,
+      "pixelWidth": 1478,
+      "pixelHeight": 1030,
+      "sha256": "f6dfa48cfd2146551eea7bf45311b6d76a582f98c69eccf6106ba734dedb6396"
+    },
+    {
+      "file": "research/visual/revision-1440.png",
+      "windowWidth": 1440,
+      "pixelWidth": 1803,
+      "pixelHeight": 1030,
+      "sha256": "5adc665addb6ebd25d22d40a4f1bd96f0f3767c8ab3ebe59703fa3eb3cc3ccb0"
+    },
+    {
+      "file": "research/visual/revision-900.png",
+      "windowWidth": 900,
+      "pixelWidth": 1130,
+      "pixelHeight": 1030,
+      "sha256": "a1944ebba419ff7c91464349905ff3d3729c07b0a9cadd3e1ef0611138e2d67c"
+    }
+  ]
+}

@@ -1,0 +1,1017 @@
+{
+  "profile": "E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-32f742a1-c8d2-4213-b624-4afe85dadbb7",
+  "emptyDatabaseBeforeFirstLaunch": true,
+  "initial": {
+    "migrations": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26
+    ],
+    "releases": [
+      {
+        "definition_id": "official.ai-news-video",
+        "version": 1,
+        "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd",
+        "released_at": "2026-10-02T00:00:00.000Z"
+      },
+      {
+        "definition_id": "official.research",
+        "version": 1,
+        "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+        "released_at": "2026-10-04T00:00:00.000Z"
+      },
+      {
+        "definition_id": "official.software-feature",
+        "version": 1,
+        "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d",
+        "released_at": "2026-10-03T00:00:00.000Z"
+      }
+    ],
+    "runs": 0
+  },
+  "releases": [
+    {
+      "definitionId": "official.ai-news-video",
+      "version": 1,
+      "manifestHash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd",
+      "contentHash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "contractCount": 20,
+      "contractManifest": [
+        {
+          "contractId": "ai-news.candidate-stories",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.story-clusters",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.source-packets",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.review-result",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.verification-report",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.verified-claims",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.editorial-plan",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.beat-map",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.script-claim-map",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.script",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.storyboard",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.asset-manifest",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.asset-registry",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.assets-directory",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.voiceover",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.voice-timing",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.video-draft",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.render-manifest",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.production-summary",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "ai-news.qa-report",
+          "contractVersion": "1"
+        }
+      ],
+      "revisionManifest": {
+        "groups": [
+          {
+            "id": "news.script_revision",
+            "maxTotalTraversals": 2,
+            "onExhausted": "WAITING_USER"
+          },
+          {
+            "id": "news.final_qa_revision",
+            "maxTotalTraversals": 2,
+            "onExhausted": "WAITING_USER"
+          }
+        ],
+        "edges": [
+          {
+            "edgeId": "n08_revise",
+            "groupId": "news.script_revision",
+            "maxTraversals": 2
+          },
+          {
+            "edgeId": "n13_storyboard",
+            "groupId": "news.final_qa_revision",
+            "maxTraversals": 2,
+            "revisionCode": "STORYBOARD"
+          },
+          {
+            "edgeId": "n13_assets",
+            "groupId": "news.final_qa_revision",
+            "maxTraversals": 2,
+            "revisionCode": "ASSETS"
+          },
+          {
+            "edgeId": "n13_assembly",
+            "groupId": "news.final_qa_revision",
+            "maxTraversals": 2,
+            "revisionCode": "ASSEMBLY"
+          }
+        ]
+      },
+      "sideEffectManifest": [
+        {
+          "stepId": "N01",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N02",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N03",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N04",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N05",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N06",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N07",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N08",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N09",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N10",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["assets"]
+        },
+        {
+          "stepId": "N11",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["output/voice.wav"]
+        },
+        {
+          "stepId": "N12",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["output/draft.mp4"]
+        },
+        {
+          "stepId": "N13",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "N14",
+          "effectType": "NONE",
+          "paths": []
+        }
+      ],
+      "revisionGroups": [
+        {
+          "id": "news.script_revision",
+          "maxTotalTraversals": 2,
+          "onExhausted": "WAITING_USER"
+        },
+        {
+          "id": "news.final_qa_revision",
+          "maxTotalTraversals": 2,
+          "onExhausted": "WAITING_USER"
+        }
+      ],
+      "sideEffects": [
+        {
+          "stepId": "N10",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["assets"]
+        },
+        {
+          "stepId": "N11",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["output/voice.wav"]
+        },
+        {
+          "stepId": "N12",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["output/draft.mp4"]
+        }
+      ],
+      "validationPolicy": "news-integrity-v1",
+      "referenceBasis": [
+        {
+          "title": "Reuters Journalistic Standards and Values",
+          "organizationOrCommunity": "Reuters News Agency",
+          "referenceType": "INDUSTRY_PRACTICE",
+          "uri": "https://reutersagency.com/about/standards-values/",
+          "retrievedAt": "2026-10-02T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Accuracy takes precedence over speed; source claims should be checked and cross-checked.",
+            "Source identity and attribution must remain explicit; do not report a rumor as established fact.",
+            "Visuals should not be altered in ways that change what they represent."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "Reuters CMS, paid content products, and publication systems"
+          ],
+          "rationale": "These editorial principles map to N01–N04 provenance and verification, N07 claim-linked script, N10 asset rights/provenance, and N13 factual/visual QA."
+        },
+        {
+          "title": "Editorial Guidelines, Section 3: Accuracy",
+          "organizationOrCommunity": "BBC",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://downloads.bbc.co.uk/guidelines/editorialguidelines/pdfs/bbc-editorial-guidelines-section-3-accuracy.pdf",
+          "retrievedAt": "2026-10-02T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Use first-hand sources where practical, corroborate claims, and record uncertainty instead of filling gaps.",
+            "Check figures with caveats and context; distinguish unverified material through attribution.",
+            "Treat internet and user-provided material as evidence that still needs authenticity checks."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "BBC editorial escalation hierarchy and broadcaster-specific compliance processes"
+          ],
+          "rationale": "The principles become source tiers and explicit claim states at N03–N04, eligibility checks before N05–N07, and deterministic claim trace checks on script and final QA."
+        },
+        {
+          "title": "PROV-DM: The PROV Data Model",
+          "organizationOrCommunity": "W3C",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://www.w3.org/TR/prov-dm/",
+          "retrievedAt": "2026-10-02T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Represent outputs as entities generated by activities and preserve explicit derivation links to inputs.",
+            "Retain attribution and identifiers so a downstream artifact can be traced to the evidence used to create it."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "A general-purpose RDF/PROV graph store and unconstrained provenance vocabulary"
+          ],
+          "rationale": "The native Workflow stores immutable Artifact identity, content hashes, inputArtifactIds, step bindings, and a bounded claim/source map rather than relying on accumulated chat context."
+        },
+        {
+          "title": "ffprobe Documentation",
+          "organizationOrCommunity": "FFmpeg project",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://ffmpeg.org/ffprobe-all.html",
+          "retrievedAt": "2026-10-02T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Container, stream, codec, dimensions, and duration are measured from the produced media file.",
+            "Machine-readable probe output is evidence for technical validation, not a model assertion."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "Bundling or invoking FFmpeg as an implicit application capability; any renderer remains explicitly supplied via Tool/MCP or Human Bridge"
+          ],
+          "rationale": "N12 records a render manifest and file hash; N13/Main performs deterministic inspection of the actual bounded file before accepting a QA claim."
+        }
+      ],
+      "designRationale": "N01–N14 turn editorial research, claim-level verification, selection, script review, storyboard/assets, voice, file assembly, QA, and explicit final approval into version-fixed artifact handoffs. Providers and external research/production tools are not part of this package identity. No upload is performed.",
+      "breakingChanges": "Initial v1 release; none"
+    },
+    {
+      "definitionId": "official.software-feature",
+      "version": 1,
+      "manifestHash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d",
+      "contentHash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a",
+      "contractCount": 10,
+      "contractManifest": [
+        {
+          "contractId": "software.repo_context",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.spec",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.acceptance",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.plan",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.plan_scope",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.review",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.changes",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.tests",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.fix",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "software.delivery",
+          "contractVersion": "1"
+        }
+      ],
+      "revisionManifest": {
+        "groups": [
+          {
+            "id": "software.plan_revision",
+            "maxTotalTraversals": 2,
+            "onExhausted": "WAITING_USER"
+          },
+          {
+            "id": "software.fix_cycle",
+            "maxTotalTraversals": 3,
+            "onExhausted": "WAITING_USER"
+          }
+        ],
+        "edges": [
+          {
+            "edgeId": "s04_revise",
+            "groupId": "software.plan_revision",
+            "maxTraversals": 2
+          },
+          {
+            "edgeId": "s07_revise",
+            "groupId": "software.fix_cycle",
+            "maxTraversals": 3
+          },
+          {
+            "edgeId": "s09_revise",
+            "groupId": "software.fix_cycle",
+            "maxTraversals": 3
+          }
+        ]
+      },
+      "sideEffectManifest": [
+        {
+          "stepId": "S01",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S02",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S03",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S04",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S05",
+          "effectType": "WORKSPACE_MUTATION",
+          "paths": [],
+          "pathMode": "DYNAMIC"
+        },
+        {
+          "stepId": "S06",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S07",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S08",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S09",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "S10",
+          "effectType": "WORKSPACE_MUTATION",
+          "paths": [],
+          "pathMode": "DYNAMIC"
+        },
+        {
+          "stepId": "S11",
+          "effectType": "NONE",
+          "paths": []
+        }
+      ],
+      "revisionGroups": [
+        {
+          "id": "software.plan_revision",
+          "maxTotalTraversals": 2,
+          "onExhausted": "WAITING_USER"
+        },
+        {
+          "id": "software.fix_cycle",
+          "maxTotalTraversals": 3,
+          "onExhausted": "WAITING_USER"
+        }
+      ],
+      "sideEffects": [
+        {
+          "stepId": "S05",
+          "effectType": "WORKSPACE_MUTATION",
+          "paths": [],
+          "pathMode": "DYNAMIC"
+        },
+        {
+          "stepId": "S10",
+          "effectType": "WORKSPACE_MUTATION",
+          "paths": [],
+          "pathMode": "DYNAMIC"
+        }
+      ],
+      "validationPolicy": "software-integrity-v1",
+      "referenceBasis": [
+        {
+          "title": "ISO/IEC/IEEE 29148:2018 — Requirements Engineering",
+          "organizationOrCommunity": "ISO/IEC/IEEE",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://www.iso.org/standard/72089.html",
+          "retrievedAt": "2026-10-03T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Capture stakeholder needs as clear, complete, consistent, verifiable requirements.",
+            "Keep requirements-related work products structured so their contents can be reviewed and traced."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "A mandatory organization-specific requirements database, lifecycle model, or document template."
+          ],
+          "rationale": "S02 turns the bounded user objective into a feature specification and explicit acceptance criteria; S03 and S06 keep plan and verification evidence linked by stable criterion IDs."
+        },
+        {
+          "title": "NIST SP 800-218 — Secure Software Development Framework (SSDF) v1.1",
+          "organizationOrCommunity": "NIST",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://csrc.nist.gov/pubs/sp/800/218/final",
+          "retrievedAt": "2026-10-03T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Integrate security practices into each project lifecycle instead of treating security as a final check.",
+            "Protect software and development environments, produce well-secured software, and address identified vulnerabilities."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "Vendor-specific CI services, source hosting, code assistants, or release systems.",
+            "Organization-wide SSDF implementation obligations beyond the scope of one local feature run."
+          ],
+          "rationale": "S01 records security and permission risks, S03 plans their treatment, S05 confines edits to the Workspace and approved plan scope, S06 records executable verification, and S08 independently reviews security and regressions."
+        },
+        {
+          "title": "NASA Software Engineering Handbook: SWE-034 Acceptance Criteria",
+          "organizationOrCommunity": "NASA Office of the Chief Engineer",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://swehb.nasa.gov/spaces/7150/pages/16450634/SWE-034%2B-%2BAcceptance%2BCriteria",
+          "retrievedAt": "2026-10-03T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Define acceptance conditions before implementation so the delivering team and user can judge completion against agreed evidence.",
+            "Document verification results used for acceptance rather than relying on an unsubstantiated completion claim."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "NASA mission-class tailoring, agency review boards, and mandatory NASA project artifacts."
+          ],
+          "rationale": "S02 freezes measurable criteria, S06 attaches command and evidence references to each criterion, and S07 derives its branch from verified execution facts."
+        },
+        {
+          "title": "NASA Software Engineering Handbook: SWE-067 Verify Implementation",
+          "organizationOrCommunity": "NASA Office of the Chief Engineer",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://swehb.nasa.gov/spaces/SWEHBVB/pages/32604539/SWE-067%2B-%2BVerify%2BImplementation",
+          "retrievedAt": "2026-10-03T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Trace implementation verification to requirements and evaluate whether code includes the requirements completely and correctly.",
+            "Preserve evidence that links requirements, implementation, and verification."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "NASA-specific software classes, project assurance offices, and agency-only review gates."
+          ],
+          "rationale": "The software.acceptance, software.changes, and software.tests artifacts preserve criterion-to-change-to-execution links; S07 rejects an unverified PASS."
+        },
+        {
+          "title": "NIST SP 800-218 — Vulnerability Response and Continuous Improvement Practices",
+          "organizationOrCommunity": "NIST",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://csrc.nist.gov/pubs/sp/800/218/final",
+          "retrievedAt": "2026-10-03T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Review, prioritize, and address discovered issues with evidence and bounded follow-up work.",
+            "Re-verify changes after fixes and keep the actions traceable to the findings they address."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "A particular vulnerability-tracking product, remote issue tracker, or automated deployment pipeline."
+          ],
+          "rationale": "S08 records independent findings, S09 selects only PASS/REVISE/FAIL, and S10 shares the bounded software.fix_cycle budget with verification-driven fixes before S06 reruns."
+        }
+      ],
+      "designRationale": "S01-S11 deliver a workspace-scoped development lifecycle. Dynamic mutation facts come only from trusted ToolRuntime and operation receipts. Verification decisions are policy-derived from durable execution evidence; code review must use an independent executor or wait for the user/Human Bridge. All revisions are bounded and no source hosting, publishing, deployment, or release action is performed.",
+      "breakingChanges": "Initial v1 release; none"
+    },
+    {
+      "definitionId": "official.research",
+      "version": 1,
+      "manifestHash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+      "contentHash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "contractCount": 21,
+      "contractManifest": [
+        {
+          "contractId": "research.brief",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.literature",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.evidence",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.screening",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.landscape",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.gaps",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.hypotheses",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.experiment_plan",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.experiment_record",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.analysis",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.analysis_results",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.manuscript",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.claim-evidence-map",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.review",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.revised-manuscript",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.revision-response",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.raw-result",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.experiment-log",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.source-packet",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.figures",
+          "contractVersion": "1"
+        },
+        {
+          "contractId": "research.final-package",
+          "contractVersion": "1"
+        }
+      ],
+      "revisionManifest": {
+        "groups": [
+          {
+            "id": "research.hypothesis_revision",
+            "maxTotalTraversals": 2,
+            "onExhausted": "WAITING_USER"
+          },
+          {
+            "id": "research.experiment_cycle",
+            "maxTotalTraversals": 2,
+            "onExhausted": "WAITING_USER"
+          },
+          {
+            "id": "research.manuscript_revision",
+            "maxTotalTraversals": 2,
+            "onExhausted": "WAITING_USER"
+          }
+        ],
+        "edges": [
+          {
+            "edgeId": "r06_revise",
+            "groupId": "research.hypothesis_revision",
+            "maxTraversals": 2
+          },
+          {
+            "edgeId": "r10_refine_experiment",
+            "groupId": "research.experiment_cycle",
+            "maxTraversals": 2
+          },
+          {
+            "edgeId": "r10_refine_hypothesis",
+            "groupId": "research.experiment_cycle",
+            "maxTraversals": 2
+          },
+          {
+            "edgeId": "r12_revise",
+            "groupId": "research.manuscript_revision",
+            "maxTraversals": 2
+          }
+        ]
+      },
+      "sideEffectManifest": [
+        {
+          "stepId": "R01",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R02",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R03",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R04",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R05",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R06",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R07",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R08",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["research/raw-result.json", "research/experiment-log.txt"]
+        },
+        {
+          "stepId": "R09",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R10",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R11",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R12",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R13",
+          "effectType": "NONE",
+          "paths": []
+        },
+        {
+          "stepId": "R14",
+          "effectType": "NONE",
+          "paths": []
+        }
+      ],
+      "revisionGroups": [
+        {
+          "id": "research.hypothesis_revision",
+          "maxTotalTraversals": 2,
+          "onExhausted": "WAITING_USER"
+        },
+        {
+          "id": "research.experiment_cycle",
+          "maxTotalTraversals": 2,
+          "onExhausted": "WAITING_USER"
+        },
+        {
+          "id": "research.manuscript_revision",
+          "maxTotalTraversals": 2,
+          "onExhausted": "WAITING_USER"
+        }
+      ],
+      "sideEffects": [
+        {
+          "stepId": "R08",
+          "effectType": "FILE_OUTPUT",
+          "paths": ["research/raw-result.json", "research/experiment-log.txt"]
+        }
+      ],
+      "validationPolicy": "research-integrity-v1",
+      "referenceBasis": [
+        {
+          "title": "The PRISMA 2020 statement: an updated guideline for reporting systematic reviews",
+          "organizationOrCommunity": "The BMJ",
+          "referenceType": "STANDARD_OR_GUIDE",
+          "uri": "https://www.bmj.com/content/372/bmj.n71",
+          "retrievedAt": "2026-10-04T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "State the review question and eligibility scope before screening sources.",
+            "Keep source discovery, inclusion/exclusion decisions, and reasons visible and traceable.",
+            "Report the methods used to synthesize evidence and the limitations of that evidence."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "The Workflow does not claim PRISMA compliance or implement the full systematic-review checklist, registration, or flow-reporting standard."
+          ],
+          "rationale": "R01 freezes the question and scope; R02 records discoverable source provenance; R03 records every screening decision and reason; R09/R11 retain synthesis methods and limitations.",
+          "notes": "Principles are adapted as traceability guidance, not as a systematic-review certification."
+        },
+        {
+          "title": "Cochrane Handbook for Systematic Reviews of Interventions, Chapter 5: Collecting data",
+          "organizationOrCommunity": "Cochrane",
+          "referenceType": "ACADEMIC_METHOD",
+          "uri": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-05",
+          "retrievedAt": "2026-10-04T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Plan the data fields to collect and retain source-linked extraction.",
+            "Keep study methods, populations, metrics, results, and limitations available for later synthesis.",
+            "Make extraction structured and sufficiently unambiguous to support checking and future access."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "No intervention-specific risk-of-bias instrument, meta-analysis workflow, or systematic-review certification is embedded."
+          ],
+          "rationale": "R03 stores source-linked claims with methods, populations/datasets, metrics, results, and limitations; R09 retains those fields alongside uncertainty and negative results."
+        },
+        {
+          "title": "Reproducibility and Replicability in Science",
+          "organizationOrCommunity": "National Academies of Sciences, Engineering, and Medicine",
+          "referenceType": "ACADEMIC_METHOD",
+          "uri": "https://www.nationalacademies.org/projects/DBASSE-BBCSS-17-03/publication/25303",
+          "retrievedAt": "2026-10-04T00:00:00.000Z",
+          "adoptedPrinciples": [
+            "Preserve enough detail about procedures, data, analysis, and context to support independent checking.",
+            "Distinguish reproducing computational results from repeating a study with new data or conditions.",
+            "Represent uncertainty and failed replication as meaningful scientific outcomes rather than silently removing them."
+          ],
+          "intentionallyExcludedMechanisms": [
+            "No claim that one local Workflow run independently validates or replicates a scientific result.",
+            "No mandatory laboratory protocol, discipline-specific method, or external registration service."
+          ],
+          "rationale": "R07 records procedure and resources; R08 creates separate immutable per-attempt raw artifacts and operation receipts; R09 and R14 retain every attempt and its reproducibility context."
+        }
+      ],
+      "designRationale": "R01-R14 implement an artifact-first research process whose factual sources and claims are tied to durable Source Artifact provenance; experiment mode and side-effect semantics come from frozen Run inputs and trusted Main policy. All revisions use declared bounded groups. Model recommendations cannot create steps or artifact authority. Computation, Human Bridge work, and mixed execution retain separate durable receipts and raw result lineage. The Workflow packages uncertainty, negative findings, failures, and review history; it does not certify scientific truth or submit work.",
+      "breakingChanges": "Initial v1 release; none"
+    }
+  ],
+  "runCounts": {
+    "official.ai-news-video": 4,
+    "official.software-feature": 5,
+    "official.research": 13
+  },
+  "runs": [
+    {
+      "id": "4fe10416-73d3-42e6-8596-19d536fd626c",
+      "definitionId": "official.ai-news-video",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "47379ad6-897e-4a82-b2c5-5648142c7c87",
+      "definitionId": "official.ai-news-video",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "25d0b366-2586-467b-b0a3-c87ba6329a8f",
+      "definitionId": "official.ai-news-video",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "720f14e0-882b-450c-bd7a-e2ffdcd72b42",
+      "definitionId": "official.ai-news-video",
+      "state": "WAITING"
+    },
+    {
+      "id": "a090d605-696e-42db-8205-fed1d7b44f6f",
+      "definitionId": "official.software-feature",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "b10c5599-a3ba-4f86-a970-6516f21e3b1d",
+      "definitionId": "official.software-feature",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "d1efbd2b-ae0e-4bfe-b7e5-aaaf8f15f63c",
+      "definitionId": "official.software-feature",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "535c023e-a300-4a0b-aa5a-e1c97d2b0bde",
+      "definitionId": "official.software-feature",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "1526dc99-95de-4c0d-b06c-238b524efafa",
+      "definitionId": "official.software-feature",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "c2a11303-3d60-4ef8-b6b3-7fe51157ddd9",
+      "definitionId": "official.research",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "248dc0f4-6820-46fe-8b53-ee5d61476a26",
+      "definitionId": "official.research",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "bfd8cc49-9f00-4a26-9d5c-2eded5ef378f",
+      "definitionId": "official.research",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "69dfff02-dc98-4595-87fc-60b8deae9a23",
+      "definitionId": "official.research",
+      "state": "COMPLETED"
+    },
+    {
+      "id": "e4764d32-5e4e-4b6b-b8ff-2aa3ab363057",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "a283af36-a0a7-49bc-a38b-eac36137899d",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "8552f3fb-651e-4a8d-b954-22b71599b520",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "d397f8ec-8c6e-4f30-9649-645982aedba9",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "f0805f0e-7f95-4bdf-be84-252f42922fef",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "8a68355e-1d4b-41e8-9503-22bf30ecdbbc",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "06e3d40a-f29b-4bd0-8617-4133bb20e663",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "c2e3b858-e16d-4b0c-a4b2-2e2e42ee2216",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    },
+    {
+      "id": "b8980662-3503-4439-b8f2-1639bff4d085",
+      "definitionId": "official.research",
+      "state": "WAITING"
+    }
+  ],
+  "assertions": [
+    "frozen release/version/contract hashes",
+    "same-run artifact lineage/hash/receipt",
+    "present optional outputs validated",
+    "checkpointed completed steps",
+    "declared decisions and edge/group budgets",
+    "all completed side-effect receipts VERIFIED including mixed external actions",
+    "final machine validation matches current latest-attempt output state hash",
+    "bound routing receipt matches actual Mission coordinator and mode",
+    "dynamic mutation manifest exactly matches journal path set and latest hashes",
+    "foreign keys and SQLite integrity",
+    "usage mission/run attribution"
+  ],
+  "finalProductionRestart": {
+    "before": {
+      "mission_events": 3356,
+      "workflow_artifacts": 400,
+      "workflow_checkpoints": 287,
+      "workflow_decisions": 278,
+      "workflow_revision_traversals": 26,
+      "workflow_step_operation_receipts": 272,
+      "workflow_step_operation_audit": 810,
+      "workflow_run_output_validations": 12
+    },
+    "after": {
+      "mission_events": 3356,
+      "workflow_artifacts": 400,
+      "workflow_checkpoints": 287,
+      "workflow_decisions": 278,
+      "workflow_revision_traversals": 26,
+      "workflow_step_operation_receipts": 272,
+      "workflow_step_operation_audit": 810,
+      "workflow_run_output_validations": 12
+    },
+    "noReplay": true
+  },
+  "stageEvidence": {
+    "news": "news/w21-facts.json",
+    "software": "software/w22-facts.json",
+    "research": "research/facts.json"
+  }
+}

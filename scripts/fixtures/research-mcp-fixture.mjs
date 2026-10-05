@@ -135,7 +135,7 @@ function writeOutput(relativePath, bytes) {
 }
 
 function readDataset(relativePath) {
-  if (relativePath !== 'datasets/research-fixture.csv')
+  if (relativePath !== 'datasets/research-dataset.csv')
     throw new Error('Dataset fixture only reads the pre-provisioned acceptance dataset');
   const path = checkedWorkspacePath(relativePath);
   const canonicalPath = realpathSync(path);
@@ -356,7 +356,7 @@ const tools = [
         operationKey: { type: 'string', minLength: 1, maxLength: 256 },
         mode: { type: 'string', enum: ['COMPUTATIONAL', 'MIXED'] },
         method: { type: 'string', minLength: 1, maxLength: 2000 },
-        datasetRelativePath: { type: 'string', enum: ['datasets/research-fixture.csv'] },
+        datasetRelativePath: { type: 'string', enum: ['datasets/research-dataset.csv'] },
         datasetArtifactId: { type: 'string', minLength: 1, maxLength: 128 },
         datasetContentHash: { type: 'string', minLength: 64, maxLength: 64 },
         rawResultPath: { type: 'string', minLength: 1, maxLength: 512 },
