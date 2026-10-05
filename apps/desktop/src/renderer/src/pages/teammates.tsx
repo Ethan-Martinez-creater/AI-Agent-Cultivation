@@ -60,13 +60,14 @@ export function TeammatesPage() {
     setLoading(true);
     setError('');
     try {
-      const [teammateRows, runtimeRows] = await Promise.all([
+      const [teammateRows, runtimeRows, providerRows] = await Promise.all([
         window.cultivation.teammates.list(),
         window.cultivation.runtimes.list(),
+        window.cultivation.providers.list().catch(() => []),
       ]);
       setTeammates(teammateRows);
       setRuntimes(runtimeRows);
-      void window.cultivation.providers.list().then(setProviders, () => setProviders([]));
+      setProviders(providerRows);
       setSelectedId((current) =>
         teammateRows.some((item) => item.id === current)
           ? current
@@ -94,6 +95,15 @@ export function TeammatesPage() {
         runtime.id === teammate.currentRuntimeProfileId &&
         runtime.executionProtocol === 'GENERATION',
     );
+  const isGenerationHttp = (teammate: TeammateView) => {
+    const runtime = runtimes.find((item) => item.id === teammate.currentRuntimeProfileId);
+    return (
+      runtime?.executionProtocol === 'GENERATION' &&
+      providers.some(
+        (provider) => provider.id === runtime.providerId && provider.kind === 'GENERATION_HTTP',
+      )
+    );
+  };
   const selectedRuntime = selected?.currentRuntimeProfileId
     ? runtimes.find((runtime) => runtime.id === selected.currentRuntimeProfileId)
     : undefined;
@@ -294,7 +304,7 @@ export function TeammatesPage() {
                       <span className="teammate-roster-human" aria-label="本尊，可接收委托">
                         <Icon name="HumanBridge" size={15} />
                       </span>
-                    ) : isGeneration(teammate) ? (
+                    ) : isGeneration(teammate) && !isGenerationHttp(teammate) ? (
                       <span className="product-status neutral">生成模型</span>
                     ) : (
                       <AvailabilityBadge
@@ -354,7 +364,7 @@ export function TeammatesPage() {
                     </span>
                   ) : selected.status === 'ARCHIVED' ? (
                     <span className="teammate-archived-status">已归档</span>
-                  ) : isGeneration(selected) ? (
+                  ) : isGeneration(selected) && !isGenerationHttp(selected) ? (
                     <span className="product-status neutral">生成模型</span>
                   ) : (
                     <AvailabilityBadge
@@ -373,7 +383,9 @@ export function TeammatesPage() {
                     >
                       <Icon name="HumanBridge" size={16} /> 查看本尊待办
                     </button>
-                  ) : selected.status === 'ACTIVE' && isGeneration(selected) ? (
+                  ) : selected.status === 'ACTIVE' &&
+                    isGeneration(selected) &&
+                    !isGenerationHttp(selected) ? (
                     <button
                       className="button primary"
                       type="button"
@@ -393,19 +405,24 @@ export function TeammatesPage() {
                         type="button"
                         onClick={() => navigate('/chat/' + encodeURIComponent(selected.id))}
                       >
-                        <Icon name="Chat" size={16} /> 开始对话
+                        <Icon name="Chat" size={16} />
+                        {isGenerationHttp(selected) ? '开始生成对话' : '开始对话'}
                       </button>
-                      <button
-                        className="button secondary"
-                        type="button"
-                        onClick={() =>
-                          navigate(
-                            '/missions?teammateId=' + encodeURIComponent(selected.id) + '&create=1',
-                          )
-                        }
-                      >
-                        <Icon name="Mission" size={16} /> 发起历练
-                      </button>
+                      {!isGenerationHttp(selected) && (
+                        <button
+                          className="button secondary"
+                          type="button"
+                          onClick={() =>
+                            navigate(
+                              '/missions?teammateId=' +
+                                encodeURIComponent(selected.id) +
+                                '&create=1',
+                            )
+                          }
+                        >
+                          <Icon name="Mission" size={16} /> 发起历练
+                        </button>
+                      )}
                     </>
                   ) : null}
                   <details className="teammate-more-menu">

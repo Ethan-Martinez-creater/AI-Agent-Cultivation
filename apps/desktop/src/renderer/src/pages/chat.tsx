@@ -96,10 +96,21 @@ export function ChatPage() {
       window.cultivation.teammates.list(),
       window.cultivation.chat.listConversations(teammateId),
       window.cultivation.runtimes.list(),
+      window.cultivation.providers.list().catch(() => []),
     ])
-      .then(([teammates, rows, runtimeRows]) => {
+      .then(([teammates, rows, runtimeRows, providerRows]) => {
         if (cancelled) return;
         const found = teammates.find((item) => item.id === teammateId) ?? null;
+        const runtime = found?.currentRuntimeProfileId
+          ? runtimeRows.find((item) => item.id === found.currentRuntimeProfileId)
+          : undefined;
+        const provider = runtime
+          ? providerRows.find((item) => item.id === runtime.providerId)
+          : undefined;
+        if (runtime?.executionProtocol === 'GENERATION' && provider?.kind === 'GENERATION_HTTP') {
+          navigate(`/generation-chat/${encodeURIComponent(teammateId)}`, { replace: true });
+          return;
+        }
         setTeammate(found);
         setRuntimes(runtimeRows);
         setConversations(rows);
@@ -138,7 +149,7 @@ export function ChatPage() {
     return () => {
       cancelled = true;
     };
-  }, [teammateId]);
+  }, [navigate, teammateId]);
 
   useEffect(() => {
     const unsubscribe = window.cultivation.chat.onEvent((event) => {

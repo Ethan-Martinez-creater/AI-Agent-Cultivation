@@ -473,6 +473,7 @@ export function ProvidersPanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const endpointRequired = kind === 'OPENAI_COMPATIBLE' || kind === 'GENERATION_HTTP';
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setBusy(true);
@@ -483,6 +484,7 @@ export function ProvidersPanel({
         name: name.trim(),
         kind,
         ...(baseUrl.trim() ? { baseUrl: baseUrl.trim() } : {}),
+        ...(kind === 'GENERATION_HTTP' ? { adapterId: 'H3' } : {}),
       });
       setName('');
       setBaseUrl('');
@@ -578,10 +580,10 @@ export function ProvidersPanel({
             </select>
           </label>
           <label className="field">
-            <span>服务地址 {kind === 'OPENAI_COMPATIBLE' ? '（必填）' : '（选填）'}</span>
+            <span>服务地址 {endpointRequired ? '（必填）' : '（选填）'}</span>
             <input
               type="url"
-              required={kind === 'OPENAI_COMPATIBLE'}
+              required={endpointRequired}
               value={baseUrl}
               onChange={(event) => setBaseUrl(event.target.value)}
             />
@@ -779,6 +781,8 @@ export function RuntimesPanel({
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const selectedCredentials = credentials.filter((item) => item.providerId === form.providerId);
+  const selectedProvider = providers.find((item) => item.id === form.providerId);
+  const generationHttp = selectedProvider?.kind === 'GENERATION_HTTP';
   const sealedTeammates = (runtimeProfileId: string) =>
     teammates.filter((teammate) => teammate.currentRuntimeProfileId === runtimeProfileId);
   const isSealed = (runtimeProfileId: string) => sealedTeammates(runtimeProfileId).length > 0;
@@ -804,6 +808,13 @@ export function RuntimesPanel({
     event.preventDefault();
     if (form.id && isSealed(form.id)) {
       setError('这项模型配置已固定给道友，无法修改。');
+      return;
+    }
+    if (
+      generationHttp &&
+      (form.executionProtocol !== 'GENERATION' || form.modelId.trim() !== 'minimax-h3')
+    ) {
+      setError('Generation HTTP 需要 GENERATION 协议，并明确配置 minimax-h3。');
       return;
     }
     setBusy(true);
@@ -885,7 +896,8 @@ export function RuntimesPanel({
                       </StatusBadge>
                       {isRuntimeSealed &&
                         activeBinding &&
-                        runtime.executionProtocol !== 'GENERATION' && (
+                        (runtime.executionProtocol !== 'GENERATION' ||
+                          provider?.kind === 'GENERATION_HTTP') && (
                           <AvailabilityBadge
                             teammateId={activeBinding.id}
                             teammateStatus={activeBinding.status}
@@ -947,15 +959,24 @@ export function RuntimesPanel({
                       )}
                       {runtime.executionProtocol === 'GENERATION' && (
                         <div className="button-row compact object-row-actions">
-                          <Link
-                            className="button secondary"
-                            to={{
-                              pathname: '/generation',
-                              search: `?runtimeProfileId=${encodeURIComponent(runtime.id)}`,
-                            }}
-                          >
-                            打开生成任务
-                          </Link>
+                          {provider?.kind === 'GENERATION_HTTP' && activeBinding ? (
+                            <Link
+                              className="button secondary"
+                              to={`/chat/${encodeURIComponent(activeBinding.id)}`}
+                            >
+                              打开生成对话
+                            </Link>
+                          ) : provider?.kind !== 'GENERATION_HTTP' ? (
+                            <Link
+                              className="button secondary"
+                              to={{
+                                pathname: '/generation',
+                                search: `?runtimeProfileId=${encodeURIComponent(runtime.id)}`,
+                              }}
+                            >
+                              打开生成任务
+                            </Link>
+                          ) : null}
                         </div>
                       )}
                     </>
@@ -970,17 +991,18 @@ export function RuntimesPanel({
                         <Button variant="secondary" onClick={() => beginEdit(runtime)}>
                           编辑配置
                         </Button>
-                        {runtime.executionProtocol === 'GENERATION' && (
-                          <Link
-                            className="button secondary"
-                            to={{
-                              pathname: '/generation',
-                              search: `?runtimeProfileId=${encodeURIComponent(runtime.id)}`,
-                            }}
-                          >
-                            打开生成任务
-                          </Link>
-                        )}
+                        {runtime.executionProtocol === 'GENERATION' &&
+                          provider?.kind !== 'GENERATION_HTTP' && (
+                            <Link
+                              className="button secondary"
+                              to={{
+                                pathname: '/generation',
+                                search: `?runtimeProfileId=${encodeURIComponent(runtime.id)}`,
+                              }}
+                            >
+                              打开生成任务
+                            </Link>
+                          )}
                         <Button
                           variant="ghost"
                           disabled={testingId === runtime.id}
@@ -1020,7 +1042,17 @@ export function RuntimesPanel({
             <select
               required
               value={form.providerId}
-              onChange={(event) => update({ providerId: event.target.value, credentialId: '' })}
+              onChange={(event) => {
+                const providerId = event.target.value;
+                const nextProvider = providers.find((item) => item.id === providerId);
+                update({
+                  providerId,
+                  credentialId: '',
+                  ...(nextProvider?.kind === 'GENERATION_HTTP'
+                    ? { executionProtocol: 'GENERATION' }
+                    : {}),
+                });
+              }}
             >
               <option value="">选择服务商</option>
               {providers.map((provider) => (
@@ -1053,12 +1085,13 @@ export function RuntimesPanel({
               value={form.modelId}
               onChange={(event) => update({ modelId: event.target.value })}
             />
+            {generationHttp && <small>请明确输入 minimax-h3；连接检测会核对服务端模型身份。</small>}
           </label>
           <label className="field">
             <span>模型类型</span>
             <select
               required
-              disabled={busy || Boolean(form.id)}
+              disabled={busy || Boolean(form.id) || generationHttp}
               value={form.executionProtocol}
               onChange={(event) =>
                 update({
@@ -1069,6 +1102,7 @@ export function RuntimesPanel({
               <option value="LANGUAGE">文本模型</option>
               <option value="GENERATION">生成模型</option>
             </select>
+            {generationHttp && <small>此服务商只支持 GENERATION 协议。</small>}
           </label>
           {error && <InlineMessage tone="error">{error}</InlineMessage>}
           <div className="button-row">

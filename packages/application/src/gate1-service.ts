@@ -101,6 +101,7 @@ function sameRuntimeIdentity(
     right !== null &&
     left.providerId === right.providerId &&
     left.providerKind === right.providerKind &&
+    (left.adapterId ?? null) === (right.adapterId ?? null) &&
     left.baseUrl === right.baseUrl &&
     left.modelId === right.modelId &&
     (left.executionProtocol ?? 'LANGUAGE') === (right.executionProtocol ?? 'LANGUAGE') &&
@@ -129,12 +130,19 @@ export class Gate1Service {
   createProvider(input: {
     name: string;
     kind: ProviderKind;
+    adapterId?: string | null;
     baseUrl?: string | null;
   }): ProviderConfig {
     const baseUrl = input.baseUrl?.trim() || null;
-    if (input.kind === 'OPENAI_COMPATIBLE' && !baseUrl) {
+    if ((input.kind === 'OPENAI_COMPATIBLE' || input.kind === 'GENERATION_HTTP') && !baseUrl) {
       throw new DomainError('INVALID_INPUT', 'OpenAI-Compatible 服务需要 Base URL');
     }
+    if (
+      input.kind === 'GENERATION_HTTP'
+        ? !/^[A-Z][A-Z0-9_-]{0,79}$/.test(input.adapterId ?? '')
+        : !!input.adapterId
+    )
+      throw new DomainError('INVALID_INPUT', '请选择受支持的生成服务适配器');
     if (baseUrl) {
       try {
         const parsed = new URL(baseUrl);
@@ -156,6 +164,7 @@ export class Gate1Service {
       id: id(),
       name: required(input.name, 'Provider 名称'),
       kind: input.kind,
+      adapterId: input.adapterId ?? null,
       baseUrl,
       enabled: true,
       createdAt: timestamp,
@@ -216,7 +225,7 @@ export class Gate1Service {
       if (!credential || credential.providerId !== providerId) {
         throw new DomainError('INVALID_INPUT', '凭证与 Provider 不匹配');
       }
-    } else if (provider.kind !== 'OPENAI_COMPATIBLE') {
+    } else if (!['OPENAI_COMPATIBLE', 'GENERATION_HTTP'].includes(provider.kind)) {
       throw new DomainError('INVALID_INPUT', '此 Provider 需要凭证');
     }
   }
@@ -229,6 +238,11 @@ export class Gate1Service {
     executionProtocol?: ExecutionProtocol;
   }): RuntimeProfile {
     this.validateRuntimeBinding(input.providerId, input.credentialId);
+    if (
+      this.store.getProvider(input.providerId)?.kind === 'GENERATION_HTTP' &&
+      input.executionProtocol !== 'GENERATION'
+    )
+      throw new DomainError('INVALID_INPUT', '生成服务需要生成模型执行协议');
     const timestamp = now();
     const runtime: RuntimeProfile = {
       id: id(),
@@ -272,6 +286,11 @@ export class Gate1Service {
       }
     }
     this.validateRuntimeBinding(input.providerId, input.credentialId);
+    if (
+      this.store.getProvider(input.providerId)?.kind === 'GENERATION_HTTP' &&
+      previous.executionProtocol !== 'GENERATION'
+    )
+      throw new DomainError('INVALID_INPUT', '生成服务需要生成模型执行协议');
     const runtime: RuntimeProfile = {
       ...previous,
       name: required(input.name, '运行配置名称'),
@@ -288,6 +307,7 @@ export class Gate1Service {
   /** Called only from Main's model resolver; never register it as an IPC method. */
   async resolveRuntime(id: string): Promise<{
     kind: ProviderKind;
+    adapterId: string | null;
     baseUrl: string | null;
     modelId: string;
     executionProtocol: ExecutionProtocol;
@@ -304,6 +324,7 @@ export class Gate1Service {
     }
     return {
       kind: provider.kind,
+      adapterId: provider.adapterId ?? null,
       baseUrl: provider.baseUrl,
       modelId: runtime.modelId,
       executionProtocol: runtime.executionProtocol ?? 'LANGUAGE',

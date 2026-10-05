@@ -22,6 +22,7 @@ interface ModelBindingRow {
   teammate_id: string;
   runtime_profile_id: string;
   provider_kind: DomainProviderKind;
+  adapter_id: string | null;
   endpoint: string | null;
   model_id: string;
   execution_protocol: ExecutionProtocol;
@@ -43,6 +44,7 @@ interface RuntimeProviderRow {
   created_at: string;
   updated_at: string;
   provider_kind: DomainProviderKind;
+  adapter_id: string | null;
   endpoint: string | null;
   provider_enabled: number;
   provider_updated_at: string;
@@ -67,6 +69,13 @@ interface ModelBenchmarkRow {
 /** Persistence operations for sealed R3.1 teammate/model identities. */
 export class R31BindingRepository {
   constructor(private readonly db: Database.Database) {}
+  private adapterSql(): string {
+    return (this.db.pragma('table_info(providers)') as Array<{ name: string }>).some(
+      (c) => c.name === 'adapter_id',
+    )
+      ? 'p.adapter_id'
+      : 'NULL';
+  }
 
   /**
    * Atomically gives a newly created teammate a private Runtime clone and seals
@@ -97,7 +106,7 @@ export class R31BindingRepository {
       }
       const source = this.db
         .prepare(
-          `SELECT rp.*, p.kind AS provider_kind, p.base_url AS endpoint,
+          `SELECT rp.*, p.kind AS provider_kind, ${this.adapterSql()} AS adapter_id, p.base_url AS endpoint,
                   p.enabled AS provider_enabled, p.updated_at AS provider_updated_at,
                   pc.updated_at AS credential_updated_at
            FROM runtime_profiles AS rp
@@ -124,7 +133,10 @@ export class R31BindingRepository {
       if (source.model_id.trim().length === 0) {
         throw new Error('Model ID is required before a ModelBinding can be sealed');
       }
-      if (source.credential_id === null && source.provider_kind !== 'OPENAI_COMPATIBLE') {
+      if (
+        source.credential_id === null &&
+        !['OPENAI_COMPATIBLE', 'GENERATION_HTTP'].includes(source.provider_kind)
+      ) {
         throw new Error('This Provider requires a Credential before a ModelBinding can be sealed');
       }
       if (source.credential_id !== null) {
@@ -189,6 +201,7 @@ export class R31BindingRepository {
         teammateId: teammate.id,
         runtimeProfileId,
         providerKind: source.provider_kind,
+        adapterId: source.adapter_id,
         endpoint: source.endpoint,
         modelId: source.model_id,
         executionProtocol: source.execution_protocol,
@@ -212,7 +225,7 @@ export class R31BindingRepository {
   getRuntimeIdentitySnapshot(runtimeProfileId: string): RuntimeIdentitySnapshot | null {
     const row = this.db
       .prepare(
-        `SELECT rp.*, p.kind AS provider_kind, p.base_url AS endpoint,
+        `SELECT rp.*, p.kind AS provider_kind, ${this.adapterSql()} AS adapter_id, p.base_url AS endpoint,
                 p.enabled AS provider_enabled, p.updated_at AS provider_updated_at,
                 pc.updated_at AS credential_updated_at
          FROM runtime_profiles AS rp
@@ -236,7 +249,7 @@ export class R31BindingRepository {
   hasValidModelBinding(teammateId: string): boolean {
     const row = this.db
       .prepare(
-        `SELECT b.*, p.kind AS actual_provider_kind, p.base_url AS provider_endpoint,
+        `SELECT b.*, p.kind AS actual_provider_kind, ${this.adapterSql()} AS actual_adapter_id, p.base_url AS provider_endpoint,
                 p.enabled AS provider_enabled, rp.provider_id, rp.model_id AS runtime_model_id,
                 rp.execution_protocol AS runtime_execution_protocol,
                 rp.credential_id AS runtime_credential_id, c.provider_id AS credential_provider_id,
@@ -252,6 +265,7 @@ export class R31BindingRepository {
       | (ModelBindingRow & {
           provider_endpoint: string | null;
           actual_provider_kind: string;
+          actual_adapter_id: string | null;
           provider_enabled: number;
           provider_id: string;
           runtime_model_id: string;
@@ -270,6 +284,9 @@ export class R31BindingRepository {
       row.system_kind === null &&
       row.current_runtime_profile_id === row.runtime_profile_id &&
       row.actual_provider_kind === row.provider_kind &&
+      row.actual_adapter_id === row.adapter_id &&
+      (row.provider_kind !== 'GENERATION_HTTP' ||
+        (row.adapter_id === 'H3' && row.execution_protocol === 'GENERATION')) &&
       isSupportedProviderKind(row.provider_kind) &&
       row.provider_enabled === 1 &&
       row.provider_endpoint === row.endpoint &&
@@ -277,7 +294,8 @@ export class R31BindingRepository {
       row.runtime_execution_protocol === row.execution_protocol &&
       row.runtime_credential_id === row.credential_id &&
       (row.credential_id === null || row.credential_provider_id === row.provider_id) &&
-      (row.credential_id !== null || row.provider_kind === 'OPENAI_COMPATIBLE') &&
+      (row.credential_id !== null ||
+        ['OPENAI_COMPATIBLE', 'GENERATION_HTTP'].includes(row.provider_kind)) &&
       row.model_id.trim().length > 0 &&
       ((row.verification_source === 'LIVE_TEST' && isValidTimestamp(row.verified_at)) ||
         (row.verification_source === 'LEGACY_STRUCTURAL' && row.verified_at === null)) &&
@@ -295,7 +313,10 @@ export class R31BindingRepository {
     if (!previous) {
       throw new Error(`Teammate ${teammateId} does not have a sealed ModelBinding`);
     }
-    if (credentialId === null && previous.providerKind !== 'OPENAI_COMPATIBLE') {
+    if (
+      credentialId === null &&
+      !['OPENAI_COMPATIBLE', 'GENERATION_HTTP'].includes(previous.providerKind)
+    ) {
       throw new Error('This Provider requires a Credential');
     }
     const result = this.db
@@ -313,9 +334,9 @@ export class R31BindingRepository {
     this.db
       .prepare(
         `INSERT INTO teammate_model_bindings
-          (teammate_id, runtime_profile_id, provider_kind, endpoint, model_id, execution_protocol,
+          (teammate_id, runtime_profile_id, provider_kind, adapter_id, endpoint, model_id, execution_protocol,
            credential_id, verified_at, verification_source, sealed_at)
-         VALUES (@teammateId, @runtimeProfileId, @providerKind, @endpoint, @modelId, @executionProtocol,
+         VALUES (@teammateId, @runtimeProfileId, @providerKind, @adapterId, @endpoint, @modelId, @executionProtocol,
            @credentialId, @verifiedAt, @verificationSource, @sealedAt)`,
       )
       .run(binding);
@@ -359,6 +380,7 @@ function runtimeIdentityFromRow(row: RuntimeProviderRow): RuntimeIdentitySnapsho
   return {
     providerId: row.provider_id,
     providerKind: row.provider_kind,
+    adapterId: row.adapter_id,
     baseUrl: row.endpoint,
     modelId: row.model_id,
     executionProtocol: row.execution_protocol,
@@ -376,6 +398,7 @@ function sameRuntimeIdentity(
   return (
     left.providerId === right.providerId &&
     left.providerKind === right.providerKind &&
+    (left.adapterId ?? null) === (right.adapterId ?? null) &&
     left.baseUrl === right.baseUrl &&
     left.modelId === right.modelId &&
     (left.executionProtocol ?? 'LANGUAGE') === (right.executionProtocol ?? 'LANGUAGE') &&
@@ -391,6 +414,7 @@ function mapModelBinding(row: ModelBindingRow): TeammateModelBindingRecord {
     teammateId: row.teammate_id,
     runtimeProfileId: row.runtime_profile_id,
     providerKind: row.provider_kind,
+    adapterId: row.adapter_id,
     endpoint: row.endpoint,
     modelId: row.model_id,
     executionProtocol: row.execution_protocol,
@@ -402,7 +426,14 @@ function mapModelBinding(row: ModelBindingRow): TeammateModelBindingRecord {
 }
 
 function isSupportedProviderKind(value: string): value is DomainProviderKind {
-  return ['OPENAI', 'ANTHROPIC', 'GOOGLE', 'DEEPSEEK', 'OPENAI_COMPATIBLE'].includes(value);
+  return [
+    'OPENAI',
+    'ANTHROPIC',
+    'GOOGLE',
+    'DEEPSEEK',
+    'OPENAI_COMPATIBLE',
+    'GENERATION_HTTP',
+  ].includes(value);
 }
 
 function isValidTimestamp(value: string | null): boolean {
@@ -410,7 +441,7 @@ function isValidTimestamp(value: string | null): boolean {
 }
 
 function isValidEndpoint(endpoint: string | null, providerKind: DomainProviderKind): boolean {
-  if (endpoint === null) return providerKind !== 'OPENAI_COMPATIBLE';
+  if (endpoint === null) return !['OPENAI_COMPATIBLE', 'GENERATION_HTTP'].includes(providerKind);
   try {
     const url = new URL(endpoint);
     const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);

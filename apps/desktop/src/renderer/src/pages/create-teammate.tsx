@@ -76,6 +76,10 @@ export function CreateTeammatePanel({
   const [notice, setNotice] = useState('');
 
   const providerKey = providerKind + '|' + endpoint.trim();
+  const requiresEndpoint =
+    providerKind === 'OPENAI_COMPATIBLE' || providerKind === 'GENERATION_HTTP';
+  const optionalCredential =
+    providerKind === 'OPENAI_COMPATIBLE' || providerKind === 'GENERATION_HTTP';
   const templates = templatesLoaded ? reusableRuntimeTemplates(runtimes, teammates) : [];
   const selectedRuntime = templates.find((item) => item.id === selectedRuntimeId);
   const draftRuntime = runtimes.find((item) => item.id === draftRuntimeId);
@@ -172,7 +176,10 @@ export function CreateTeammatePanel({
   const ensureProvider = async () => {
     if (createdProviderId && createdProviderKey === providerKey) return createdProviderId;
     const knownProvider = providers.find(
-      (item) => item.kind === providerKind && item.baseUrl === (endpoint.trim() || null),
+      (item) =>
+        item.kind === providerKind &&
+        item.baseUrl === (endpoint.trim() || null) &&
+        (providerKind !== 'GENERATION_HTTP' || item.adapterId === 'H3'),
     );
     if (knownProvider) {
       setCreatedProviderId(knownProvider.id);
@@ -183,6 +190,7 @@ export function CreateTeammatePanel({
       name: kindLabel(providerKind),
       kind: providerKind,
       baseUrl: endpoint.trim() || undefined,
+      ...(providerKind === 'GENERATION_HTTP' ? { adapterId: 'H3' } : {}),
     });
     setProviders((current) => [...current.filter((item) => item.id !== created.id), created]);
     setCreatedProviderId(created.id);
@@ -223,18 +231,21 @@ export function CreateTeammatePanel({
       setError('请选择一个已配置模型。');
       return;
     }
-    if (
-      mode === 'new' &&
-      (!modelId.trim() || (!endpoint.trim() && providerKind === 'OPENAI_COMPATIBLE'))
-    ) {
+    if (mode === 'new' && (!modelId.trim() || (requiresEndpoint && !endpoint.trim()))) {
       setError(
-        providerKind === 'OPENAI_COMPATIBLE'
-          ? '请填写 Endpoint 和 Model ID。'
-          : '请填写 Model ID。',
+        providerKind === 'GENERATION_HTTP'
+          ? '请填写 Generation Endpoint，并明确输入 minimax-h3。'
+          : providerKind === 'OPENAI_COMPATIBLE'
+            ? '请填写 Endpoint 和 Model ID。'
+            : '请填写 Model ID。',
       );
       return;
     }
-    if (mode === 'new' && providerKind !== 'OPENAI_COMPATIBLE' && !importedCredentialId) {
+    if (mode === 'new' && providerKind === 'GENERATION_HTTP' && modelId.trim() !== 'minimax-h3') {
+      setError('Generation HTTP 固定使用 minimax-h3，请明确配置此 Model ID 后测试。');
+      return;
+    }
+    if (mode === 'new' && !optionalCredential && !importedCredentialId) {
       setError('请先复制 API Key，再通过安全导入完成凭据配置。');
       return;
     }
@@ -522,7 +533,11 @@ export function CreateTeammatePanel({
                     disabled={busy}
                     value={providerKind}
                     onChange={(event) => {
-                      setProviderKind(event.target.value as ProviderKind);
+                      const nextKind = event.target.value as ProviderKind;
+                      setProviderKind(nextKind);
+                      setExecutionProtocol(
+                        nextKind === 'GENERATION_HTTP' ? 'GENERATION' : 'LANGUAGE',
+                      );
                       setCreatedCredentialId('');
                       setCreatedCredentialKey('');
                       invalidateTest();
@@ -536,9 +551,10 @@ export function CreateTeammatePanel({
                   </select>
                 </label>
                 <label className="field">
-                  <span>Endpoint（兼容服务需要）</span>
+                  <span>Endpoint {requiresEndpoint ? '（必填）' : '（选填）'}</span>
                   <input
                     type="url"
+                    required={requiresEndpoint}
                     disabled={busy}
                     maxLength={2048}
                     value={endpoint}
@@ -562,11 +578,14 @@ export function CreateTeammatePanel({
                       invalidateTest();
                     }}
                   />
+                  {providerKind === 'GENERATION_HTTP' && (
+                    <small>请明确输入 minimax-h3；连接检测会核对服务端的生成模型身份。</small>
+                  )}
                 </label>
                 <label className="field">
                   <span>执行协议</span>
                   <select
-                    disabled={busy || Boolean(draftRuntimeId)}
+                    disabled={busy || Boolean(draftRuntimeId) || providerKind === 'GENERATION_HTTP'}
                     value={executionProtocol}
                     onChange={(event) => {
                       setExecutionProtocol(event.target.value as 'LANGUAGE' | 'GENERATION');
@@ -576,18 +595,22 @@ export function CreateTeammatePanel({
                     <option value="LANGUAGE">文本模型（普通聊天与路由）</option>
                     <option value="GENERATION">生成模型（图片、视频、音乐、语音）</option>
                   </select>
-                  <small>运行配置创建后执行协议固定；如需更改，请从设置中新建运行配置。</small>
+                  {providerKind !== 'GENERATION_HTTP' && (
+                    <small>运行配置创建后执行协议固定；如需更改，请从设置中新建运行配置。</small>
+                  )}
                 </label>
                 <div className="create-key-import">
                   <div>
                     <strong>
                       <Icon name="Credential" size={16} /> API Key
-                      {providerKind === 'OPENAI_COMPATIBLE' ? '（可选）' : '（必填）'}
+                      {optionalCredential ? '（可选）' : '（必填）'}
                     </strong>
                     <p>
-                      {providerKind === 'OPENAI_COMPATIBLE'
-                        ? '无需密钥可直接测试连接。若服务要求密钥，可从剪贴板安全导入。'
-                        : '先复制 API Key，再点击导入。密钥会加密保存在本机，导入后清空剪贴板。'}
+                      {providerKind === 'GENERATION_HTTP'
+                        ? '服务支持无密钥连接；如配置要求密钥，可从剪贴板安全导入。'
+                        : providerKind === 'OPENAI_COMPATIBLE'
+                          ? '无需密钥可直接测试连接。若服务要求密钥，可从剪贴板安全导入。'
+                          : '先复制 API Key，再点击导入。密钥会加密保存在本机，导入后清空剪贴板。'}
                     </p>
                     {createdCredentialId && createdCredentialKey === providerKey ? (
                       <span className="create-key-status" role="status">
@@ -603,7 +626,8 @@ export function CreateTeammatePanel({
                     disabled={
                       busy ||
                       !modelId.trim() ||
-                      (providerKind === 'OPENAI_COMPATIBLE' && !endpoint.trim())
+                      (requiresEndpoint && !endpoint.trim()) ||
+                      (providerKind === 'GENERATION_HTTP' && modelId.trim() !== 'minimax-h3')
                     }
                     onClick={() => void importApiKey()}
                   >

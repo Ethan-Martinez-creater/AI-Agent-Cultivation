@@ -519,7 +519,7 @@ try {
   await createPanel.getByRole('button', { name: '添加新模型', exact: true }).click();
   await createPanel.getByLabel('Provider 类型').selectOption('OPENAI_COMPATIBLE');
   await createPanel
-    .getByLabel('Endpoint（兼容服务需要）', { exact: true })
+    .getByLabel('Endpoint （必填）', { exact: true })
     .fill('http://127.0.0.1:9998/v1');
   await createPanel.getByLabel('Model ID', { exact: true }).fill('r33-new-model-smoke');
   const smokeApiKey = 'r33-packaged-smoke-only-fake-key';
@@ -600,7 +600,7 @@ try {
     false,
   );
   await createPanel
-    .getByLabel('Endpoint（兼容服务需要）', { exact: true })
+    .getByLabel('Endpoint （必填）', { exact: true })
     .fill('http://127.0.0.1:9997/v1');
   assert.equal(
     await createPanel.getByRole('button', { name: '测试连接', exact: true }).isEnabled(),

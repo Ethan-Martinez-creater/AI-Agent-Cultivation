@@ -3,6 +3,13 @@ import type { GenerationArtifact, GenerationJob } from '@cultivation/domain/g1-g
 import type { z } from 'zod';
 import type { generationCreateInput } from '../main/g1-ipc.js';
 import type {
+  GenerationChatDetail,
+  GenerationChatReference,
+  GenerationChatSend,
+} from '../main/g2-chat.js';
+import type { GenerationAttachment } from '../main/g2-media-store.js';
+import type { GenerationModelDescriptor } from '@cultivation/domain/g1-generation';
+import type {
   Conversation,
   CredentialSummary,
   ExecutionProtocol,
@@ -78,6 +85,7 @@ export type ChatStreamEvent =
 export interface ProviderInput {
   name: string;
   kind: ProviderKind;
+  adapterId?: string | null;
   baseUrl?: string | null;
 }
 export interface RuntimeInput {
@@ -169,6 +177,17 @@ export interface R3ShadowObservationView {
 }
 
 export interface CultivationBridge {
+  generationChat: {
+    listConversations(teammateId: string): Promise<Conversation[]>;
+    createConversation(input: { teammateId: string; title?: string }): Promise<Conversation>;
+    detail(input: GenerationChatReference): Promise<GenerationChatDetail>;
+    refresh(input: GenerationChatReference): Promise<GenerationChatDetail>;
+    send(input: GenerationChatSend): Promise<GenerationChatDetail>;
+    descriptor(teammateId: string): Promise<GenerationModelDescriptor>;
+    listAttachments(): Promise<GenerationAttachment[]>;
+    importAttachment(): Promise<GenerationAttachment | null>;
+    artifactUrl(id: string): Promise<string>;
+  };
   generation: {
     list(): Promise<GenerationJob[]>;
     detail(id: string): Promise<{ job: GenerationJob; artifacts: GenerationArtifact[] }>;
@@ -465,6 +484,17 @@ export interface CultivationBridge {
 }
 
 const bridge: CultivationBridge = {
+  generationChat: {
+    listConversations: (id) => ipcRenderer.invoke('generationChat:listConversations', id),
+    createConversation: (input) => ipcRenderer.invoke('generationChat:createConversation', input),
+    detail: (input) => ipcRenderer.invoke('generationChat:detail', input),
+    refresh: (input) => ipcRenderer.invoke('generationChat:refresh', input),
+    send: (input) => ipcRenderer.invoke('generationChat:send', input),
+    descriptor: (id) => ipcRenderer.invoke('generationChat:descriptor', id),
+    listAttachments: () => ipcRenderer.invoke('generationChat:listAttachments'),
+    importAttachment: () => ipcRenderer.invoke('generationChat:importAttachment'),
+    artifactUrl: (id) => ipcRenderer.invoke('generationChat:artifactUrl', id),
+  },
   generation: {
     list: () => ipcRenderer.invoke('generation:list'),
     detail: (id) => ipcRenderer.invoke('generation:detail', id),

@@ -6,7 +6,7 @@ import type { Gate1Service } from '@cultivation/application/gate1-service';
 
 export function registerAvailabilityIpc(
   validSender: (event: IpcMainInvokeEvent) => boolean,
-  availability: AvailabilityService,
+  availability: Pick<AvailabilityService, 'get' | 'recheck' | 'prepare'>,
   teammates: Pick<Gate1Service, 'listTeammates'>,
 ): void {
   const id = z.string().min(1).max(128);

@@ -1,0 +1,1 @@
+G2_PACKAGED_SMOKE_OK screenshots=1440_and_900 productionAdapter=H3_HTTP offlineFixture=true evidence=docs\evidence\g2-h3-integration\4fa8ca3a-248e-4442-9506-da1738c9e091

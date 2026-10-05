@@ -29,6 +29,7 @@ import w23InputArtifactsSql from '../../../migrations/0024_w23_input_artifacts.s
 import w23UncertainPreparedEffectSql from '../../../migrations/0025_w23_uncertain_prepared_effect.sql?raw';
 import w24DynamicManifestIntegritySql from '../../../migrations/0026_w24_dynamic_manifest_integrity.sql?raw';
 import g1GenerationFoundationSql from '../../../migrations/0027_g1_generation_foundation.sql?raw';
+import g2GenerationHttpSql from '../../../migrations/0028_g2_generation_http.sql?raw';
 export { ResearchInputArtifactRepository } from './w23-input-artifacts.js';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
@@ -128,14 +129,21 @@ export const migrations: readonly Migration[] = [
   { version: 25, name: 'w23_uncertain_prepared_effect', sql: w23UncertainPreparedEffectSql },
   { version: 26, name: 'w24_dynamic_manifest_integrity', sql: w24DynamicManifestIntegritySql },
   { version: 27, name: 'g1_generation_foundation', sql: g1GenerationFoundationSql },
+  {
+    version: 28,
+    name: 'g2_generation_http',
+    sql: g2GenerationHttpSql,
+    requiresForeignKeysOff: true,
+  },
 ];
 
-export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
+export type ProviderKind = import('@cultivation/domain').ProviderKind;
 
 export interface ProviderConfig {
   id: string;
   name: string;
   kind: ProviderKind;
+  adapterId?: string | null;
   baseUrl: string | null;
   enabled: boolean;
   createdAt: string;
@@ -227,6 +235,7 @@ interface ProviderRow {
   id: string;
   name: string;
   kind: ProviderKind;
+  adapter_id: string | null;
   base_url: string | null;
   enabled: number;
   created_at: string;
@@ -318,15 +327,32 @@ export class Gate1SqliteRepository {
   }
 
   saveProvider(value: ProviderConfig): void {
+    // Historical upgrade fixtures may seed facts before migration 0028 is applied.
+    if (
+      !(this.db.pragma('table_info(providers)') as Array<{ name: string }>).some(
+        (c) => c.name === 'adapter_id',
+      )
+    ) {
+      if (value.adapterId || value.kind === 'GENERATION_HTTP')
+        throw new Error('Generation adapter migration required');
+      this.db
+        .prepare(
+          `INSERT INTO providers(id,name,kind,base_url,enabled,created_at,updated_at)
+        VALUES(@id,@name,@kind,@baseUrl,@enabled,@createdAt,@updatedAt)
+        ON CONFLICT(id) DO UPDATE SET name=excluded.name,kind=excluded.kind,base_url=excluded.base_url,enabled=excluded.enabled,updated_at=excluded.updated_at`,
+        )
+        .run({ ...value, enabled: value.enabled ? 1 : 0 });
+      return;
+    }
     this.db
       .prepare(
-        `INSERT INTO providers (id, name, kind, base_url, enabled, created_at, updated_at)
-         VALUES (@id, @name, @kind, @baseUrl, @enabled, @createdAt, @updatedAt)
+        `INSERT INTO providers (id, name, kind, adapter_id, base_url, enabled, created_at, updated_at)
+         VALUES (@id, @name, @kind, @adapterId, @baseUrl, @enabled, @createdAt, @updatedAt)
          ON CONFLICT(id) DO UPDATE SET
-           name=excluded.name, kind=excluded.kind, base_url=excluded.base_url,
+           name=excluded.name, kind=excluded.kind, adapter_id=excluded.adapter_id, base_url=excluded.base_url,
            enabled=excluded.enabled, updated_at=excluded.updated_at`,
       )
-      .run({ ...value, enabled: value.enabled ? 1 : 0 });
+      .run({ ...value, adapterId: value.adapterId ?? null, enabled: value.enabled ? 1 : 0 });
   }
 
   getProvider(id: string): ProviderConfig | null {
@@ -620,6 +646,7 @@ function mapProvider(row: ProviderRow): ProviderConfig {
     id: row.id,
     name: row.name,
     kind: row.kind,
+    adapterId: row.adapter_id ?? null,
     baseUrl: row.base_url,
     enabled: row.enabled === 1,
     createdAt: row.created_at,

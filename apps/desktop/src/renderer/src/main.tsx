@@ -21,6 +21,7 @@ import { WorkflowsPage } from './pages/workflows.js';
 import { SettingsPage } from './pages/settings.js';
 import { TeammatesPage } from './pages/teammates.js';
 import { ChatPage } from './pages/chat.js';
+import { GenerationChatPage } from './pages/generation-chat.js';
 import { MemoryPage } from './pages/memory.js';
 import { SkillsPage } from './pages/skills.js';
 import { UsagePage } from './pages/usage.js';
@@ -32,13 +33,14 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const activePath = location.pathname.startsWith('/chat')
-    ? '/teammates'
-    : ['/external-work', '/workflows'].includes(location.pathname)
-      ? '/missions'
-      : ['/tools', '/skills', '/usage', '/generation'].includes(location.pathname)
-        ? '/settings'
-        : location.pathname;
+  const activePath =
+    location.pathname.startsWith('/chat') || location.pathname.startsWith('/generation-chat')
+      ? '/teammates'
+      : ['/external-work', '/workflows'].includes(location.pathname)
+        ? '/missions'
+        : ['/tools', '/skills', '/usage', '/generation'].includes(location.pathname)
+          ? '/settings'
+          : location.pathname;
   const [version, setVersion] = useState('…');
   const [health, setHealth] = useState('检查中');
   const [bridgeReady, setBridgeReady] = useState(true);
@@ -71,7 +73,14 @@ function App() {
           version={version}
           health={health}
         />
-        <main className={location.pathname.startsWith('/chat/') ? 'main-chat' : ''}>
+        <main
+          className={
+            location.pathname.startsWith('/chat/') ||
+            location.pathname.startsWith('/generation-chat/')
+              ? 'main-chat'
+              : ''
+          }
+        >
           {['/skills', '/tools', '/usage'].includes(location.pathname) && (
             <nav className="context-navigation" aria-label="设置导航">
               <Link to="/settings">
@@ -103,6 +112,7 @@ function App() {
             <Route path="/generation" element={<GenerationPage />} />
             <Route path="/teammates" element={<TeammatesPage />} />
             <Route path="/chat/:teammateId" element={<ChatPage />} />
+            <Route path="/generation-chat/:teammateId" element={<GenerationChatPage />} />
             <Route path="/usage" element={<UsagePage />} />
             <Route path="/parties" element={<PartiesPage />} />
             <Route path="/missions" element={<MissionPage />} />

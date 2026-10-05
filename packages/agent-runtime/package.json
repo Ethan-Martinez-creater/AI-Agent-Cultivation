@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./typesafe-decision-gateway": "./src/typesafe-decision-gateway.ts"
+    "./typesafe-decision-gateway": "./src/typesafe-decision-gateway.ts",
+    "./h3-generation-gateway": "./src/h3-generation-gateway.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "3.0.122",

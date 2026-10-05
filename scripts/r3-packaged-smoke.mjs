@@ -157,7 +157,7 @@ try {
     );
     assert.equal(
       db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get().version,
-      27,
+      28,
     );
   } finally {
     db.close();

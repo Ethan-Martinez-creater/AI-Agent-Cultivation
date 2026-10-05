@@ -89,7 +89,7 @@ describe('Gate 4 persistence', () => {
     const { db, gate4 } = setup();
     expect(migrations.map(({ version }) => version)).toEqual([
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-      27,
+      27, 28,
     ]);
     expect(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([
       { version: 1 },
@@ -119,6 +119,7 @@ describe('Gate 4 persistence', () => {
       { version: 25 },
       { version: 26 },
       { version: 27 },
+      { version: 28 },
     ]);
     expect(gate4.getWorkspaceRoot()).toBeNull();
     gate4.setWorkspaceRoot('E:/workspace/project');

@@ -1,0 +1,134 @@
+{
+  "runId": "305e09ad-4ac2-4df8-8ecd-03706cfe5dc0",
+  "package": {
+    "fakeGenerationFlag": false,
+    "executable": "out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe"
+  },
+  "screenshots": [
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\plain-prompt-running-1440x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\plain-prompt-running-900x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\plain-prompt-before-play-1440x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\plain-prompt-before-play-900x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\plain-prompt-video-ready-1440x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\plain-prompt-video-ready-900x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\first-frame-job-running-1440x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\first-frame-job-running-900x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\recovered-first-frame-video-1440x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\recovered-first-frame-video-900x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\unknown-submission-1440x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\unknown-submission-900x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\offline-unavailable-no-reroute-1440x900.png",
+    "docs\\evidence\\g2-h3-integration\\305e09ad-4ac2-4df8-8ecd-03706cfe5dc0\\offline-unavailable-no-reroute-900x900.png"
+  ],
+  "scenarios": {
+    "identity": {
+      "seededThroughTypedIpc": true,
+      "sealedAdapter": "H3"
+    },
+    "plainPrompt": {
+      "jobId": "c74dfc6e-9237-4899-beba-6116cbd263e0",
+      "state": "COMPLETED",
+      "artifactCount": 1,
+      "videoReadyState": 4,
+      "heldThenReleased": true
+    },
+    "downloadRecovery": {
+      "jobIdBeforeRestart": "fba68fb1-ca83-4fa8-af65-4641f0a6cd80",
+      "stateBeforeRestart": "RUNNING",
+      "mainProcessPidKilled": 21376,
+      "interruptedDownloadCount": 1
+    },
+    "nativePickerFirstFrame": {
+      "pickerInvokedThroughRenderer": true,
+      "importedMimeType": "image/png",
+      "selectedRole": "FIRST_FRAME",
+      "providerUploadCount": 1,
+      "providerSubmissionMediaRole": "first_frame",
+      "jobId": "fba68fb1-ca83-4fa8-af65-4641f0a6cd80",
+      "state": "COMPLETED",
+      "artifactCount": 1,
+      "videoReadyState": 4,
+      "rendererArtifactUrlIsOpaque": true
+    },
+    "unknownSubmission": {
+      "jobId": "a8f56ba2-7d2e-466f-9e07-f9b975f6d2f1",
+      "state": "UNKNOWN",
+      "initialSubmissionCount": 3,
+      "artifactCount": 0
+    },
+    "unknownRestart": {
+      "jobId": "a8f56ba2-7d2e-466f-9e07-f9b975f6d2f1",
+      "state": "UNKNOWN",
+      "automaticSubmissions": 0,
+      "automaticStatusQueries": 0,
+      "automaticDownloads": 0
+    },
+    "offlineUnavailable": {
+      "availability": "UNAVAILABLE",
+      "newMessages": 0,
+      "newJobs": 0,
+      "providerSubmissions": 0,
+      "reroutes": 0
+    }
+  },
+  "failure": null,
+  "mediaDiagnostics": [
+    {
+      "src": "cultivation-media://artifact/4ddb9097-f9bf-4d26-9370-0907ee270cc7",
+      "currentSrc": "cultivation-media://artifact/4ddb9097-f9bf-4d26-9370-0907ee270cc7",
+      "readyState": 4,
+      "networkState": 1,
+      "error": null
+    },
+    {
+      "src": "cultivation-media://artifact/a2dfe8fd-9db0-4279-a3e9-856d6fead7fe",
+      "currentSrc": "cultivation-media://artifact/a2dfe8fd-9db0-4279-a3e9-856d6fead7fe",
+      "readyState": 4,
+      "networkState": 1,
+      "error": null
+    }
+  ],
+  "database": {
+    "sealedAdapterIdentity": {
+      "providerKind": "GENERATION_HTTP",
+      "providerAdapterId": "H3",
+      "executionProtocol": "GENERATION",
+      "modelId": "minimax-h3",
+      "credentialless": true,
+      "endpointMatchesFixture": true
+    },
+    "userOnlyMessages": 3,
+    "generationJobs": [
+      {
+        "id": "c74dfc6e-9237-4899-beba-6116cbd263e0",
+        "state": "COMPLETED",
+        "errorCode": null,
+        "artifactCount": 1
+      },
+      {
+        "id": "fba68fb1-ca83-4fa8-af65-4641f0a6cd80",
+        "state": "COMPLETED",
+        "errorCode": null,
+        "artifactCount": 1
+      },
+      {
+        "id": "a8f56ba2-7d2e-466f-9e07-f9b975f6d2f1",
+        "state": "UNKNOWN",
+        "errorCode": "SUBMISSION_STATE_UNKNOWN",
+        "artifactCount": 0
+      }
+    ],
+    "totalArtifacts": 2,
+    "unknownSubmissionDurablyRetained": true,
+    "finalAvailability": "UNAVAILABLE"
+  },
+  "fixture": {
+    "uploads": 1,
+    "submissions": 3,
+    "downloads": 3,
+    "statusQueries": 5,
+    "healthChecks": 24,
+    "models": 23,
+    "unknownSubmissionPhase": "UNKNOWN"
+  }
+}

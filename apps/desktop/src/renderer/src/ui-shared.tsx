@@ -2,9 +2,22 @@ import React from 'react';
 import type { BenchmarkInput, CultivationBridge as PreloadBridge } from '../../preload/preload.js';
 import type { CapabilityDimension, ModelCapabilityBenchmark } from '@cultivation/domain';
 import type { R1CapabilityProfile } from '@cultivation/application/r1-capability-service';
+import type { Conversation, Message } from '@cultivation/domain';
+import type {
+  GenerationArtifact,
+  GenerationInputBinding,
+  GenerationJob,
+  GenerationModelDescriptor,
+} from '@cultivation/domain/g1-generation';
 import { type HumanBridgeApprovalInput, type R2UiApi } from './r2-human-bridge.js';
 
-export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
+export type ProviderKind =
+  | 'OPENAI'
+  | 'ANTHROPIC'
+  | 'GOOGLE'
+  | 'DEEPSEEK'
+  | 'OPENAI_COMPATIBLE'
+  | 'GENERATION_HTTP';
 
 export type TeammateStatus = 'ACTIVE' | 'ARCHIVED';
 
@@ -15,6 +28,7 @@ export interface ProviderView {
   name: string;
   kind: ProviderKind;
   baseUrl: string | null;
+  adapterId?: string | null;
 }
 
 export interface CredentialView {
@@ -349,12 +363,57 @@ export interface ChatEvent {
   code?: 'MODEL_UNAVAILABLE';
 }
 
+export type GenerationArtifactView = Omit<GenerationArtifact, 'storageKey'>;
+
+export interface GenerationAttachmentView {
+  id: string;
+  kind: string;
+  mimeType: string;
+  contentHash: string;
+  sizeBytes: number;
+  name: string;
+}
+
+export interface GenerationChatEntryView {
+  message: Message;
+  job: GenerationJob | null;
+  artifacts: GenerationArtifactView[];
+  inputs: GenerationInputBinding[];
+  parameters: Record<string, unknown>;
+  preparationErrorCode: string | null;
+}
+
+export interface GenerationChatDetailView {
+  conversation: Conversation;
+  entries: GenerationChatEntryView[];
+  descriptor: GenerationModelDescriptor | null;
+}
+
+export interface GenerationChatBridge {
+  listConversations(teammateId: string): Promise<Conversation[]>;
+  createConversation(input: { teammateId: string; title?: string }): Promise<Conversation>;
+  detail(input: { teammateId: string; conversationId: string }): Promise<GenerationChatDetailView>;
+  send(input: {
+    teammateId: string;
+    conversationId: string;
+    prompt: string;
+    inputs: GenerationInputBinding[];
+    parameters: Record<string, unknown>;
+  }): Promise<GenerationChatDetailView>;
+  descriptor(teammateId: string): Promise<GenerationModelDescriptor>;
+  listAttachments(): Promise<GenerationAttachmentView[]>;
+  importAttachment(): Promise<GenerationAttachmentView | null>;
+  artifactUrl(id: string): Promise<string>;
+  refresh(input: { teammateId: string; conversationId: string }): Promise<GenerationChatDetailView>;
+}
+
 export interface CultivationBridge {
   generation: PreloadBridge['generation'];
   routing: PreloadBridge['routing'];
   desktop: PreloadBridge['desktop'];
   avatars: PreloadBridge['avatars'];
   availability: PreloadBridge['availability'];
+  generationChat: GenerationChatBridge;
   app: { getVersion(): Promise<string> };
   health: { ping(): Promise<{ status: string; database: string }> };
   r3: PreloadBridge['r3'];
@@ -386,7 +445,12 @@ export interface CultivationBridge {
   };
   providers: {
     list(): Promise<ProviderView[]>;
-    create(input: { name: string; kind: ProviderKind; baseUrl?: string }): Promise<ProviderView>;
+    create(input: {
+      name: string;
+      kind: ProviderKind;
+      baseUrl?: string;
+      adapterId?: string;
+    }): Promise<ProviderView>;
   };
   credentials: {
     list(providerId?: string): Promise<CredentialView[]>;
@@ -569,6 +633,7 @@ export const providerKinds: { value: ProviderKind; label: string }[] = [
   { value: 'GOOGLE', label: 'Google' },
   { value: 'DEEPSEEK', label: 'DeepSeek' },
   { value: 'OPENAI_COMPATIBLE', label: 'OpenAI Compatible' },
+  { value: 'GENERATION_HTTP', label: '通用生成服务（HTTP）' },
 ];
 
 export const memoryTypes: { value: MemoryType; label: string }[] = [

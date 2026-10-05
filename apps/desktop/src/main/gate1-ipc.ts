@@ -9,7 +9,15 @@ const idSchema = z.string().min(1).max(128);
 const providerInput = z
   .object({
     name: z.string().min(1).max(120),
-    kind: z.enum(['OPENAI', 'ANTHROPIC', 'GOOGLE', 'DEEPSEEK', 'OPENAI_COMPATIBLE']),
+    kind: z.enum([
+      'OPENAI',
+      'ANTHROPIC',
+      'GOOGLE',
+      'DEEPSEEK',
+      'OPENAI_COMPATIBLE',
+      'GENERATION_HTTP',
+    ]),
+    adapterId: z.enum(['H3']).nullable().optional(),
     baseUrl: z.string().max(2048).nullable().optional(),
   })
   .strict();

@@ -1,0 +1,14 @@
+const Module = require('node:module');
+const originalLoad = Module._load;
+Module._load = function (request, parent, isMain) {
+  const loaded = originalLoad.apply(this, arguments);
+  if (request !== 'fast-glob' || !parent?.filename.replaceAll('\\', '/').endsWith('/@electron-forge/core/dist/api/package.js')) return loaded;
+  return new Proxy(loaded, {
+    apply(target, receiver, args) {
+      const normalize = pattern => typeof pattern === 'string' && /^[A-Za-z]:\\/.test(pattern) ? pattern.replaceAll('\\', '/') : pattern;
+      const patterns = Array.isArray(args[0]) ? args[0].map(normalize) : normalize(args[0]);
+      if (JSON.stringify(patterns) !== JSON.stringify(args[0])) process.stderr.write('[G2_BUILD_GLOB_COMPAT] normalized Forge temporary app scan path\n');
+      return Reflect.apply(target, receiver, [patterns, ...args.slice(1)]);
+    }
+  });
+};

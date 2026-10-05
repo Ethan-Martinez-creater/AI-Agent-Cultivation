@@ -16,7 +16,7 @@ export function newModelCredentialId(
   providerKey: string,
 ): string | null {
   const credentialId = importedProviderKey === providerKey ? importedId || null : null;
-  if (!credentialId && kind !== 'OPENAI_COMPATIBLE') {
+  if (!credentialId && kind !== 'OPENAI_COMPATIBLE' && kind !== 'GENERATION_HTTP') {
     throw new Error('请先复制 API Key，再通过安全导入完成凭据配置。');
   }
   return credentialId;
@@ -28,5 +28,7 @@ export function canTestNewModel(
   modelId: string,
   credentialId: string | null,
 ): boolean {
-  return Boolean(modelId.trim() && (kind === 'OPENAI_COMPATIBLE' ? endpoint.trim() : credentialId));
+  if (kind === 'GENERATION_HTTP' && modelId.trim() !== 'minimax-h3') return false;
+  const endpointRequired = kind === 'OPENAI_COMPATIBLE' || kind === 'GENERATION_HTTP';
+  return Boolean(modelId.trim() && (endpointRequired ? endpoint.trim() : credentialId));
 }

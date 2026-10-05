@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import { DomainError } from '@cultivation/shared';
 import {
   databasePath,
   Gate1SqliteRepository,
@@ -109,6 +110,9 @@ import { researchWorkflowValidationPolicy } from './w23-validation-policy.js';
 import { researchMixedExperimentBoundary } from './w23-mixed-experiment.js';
 import { researchFailureContext } from './w23-artifact-context.js';
 import { generationFoundation } from './g1-foundation.js';
+import { h3GenerationFoundation } from './g2-foundation.js';
+import { registerGenerationChatIpc } from './g2-ipc.js';
+import { generationPreview } from './g2-preview.js';
 import { seedGenerationWorkspaceFixture } from './g1-fixture.js';
 import { registerGenerationIpc } from './g1-ipc.js';
 import type { GenerationService } from '@cultivation/application/g1-generation';
@@ -152,6 +156,7 @@ function createWindow(
   workflows: WorkflowService,
   researchInputs: ResearchInputArtifactService,
   generation: GenerationService,
+  g2: ReturnType<typeof h3GenerationFoundation> | null,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -178,8 +183,8 @@ function createWindow(
   const rendererFile = join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`);
   const allowedFilePath = new URL(pathToFileURL(rendererFile).href).pathname;
   const csp = devUrl
-    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; frame-src 'none'; base-uri 'none'"
-    : "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'";
+    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' cultivation-media:; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; frame-src 'none'; base-uri 'none'"
+    : "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' cultivation-media:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'";
   window.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({ responseHeaders: { ...details.responseHeaders, 'Content-Security-Policy': [csp] } });
   });
@@ -235,8 +240,19 @@ function createWindow(
       if (
         service.listRuntimeProfiles().find((row) => row.id === runtimeProfileId)
           ?.executionProtocol === 'GENERATION'
-      )
+      ) {
+        const owner = service
+          .listTeammates()
+          .find((t) => t.currentRuntimeProfileId === runtimeProfileId);
+        if (g2 && owner) {
+          const state = await g2.availability.recheck(owner.id);
+          return {
+            ok: state.status === 'AVAILABLE',
+            message: state.status === 'AVAILABLE' ? '模型可用' : '模型不可用，请重新检测',
+          };
+        }
         return service.testConnection(runtimeProfileId);
+      }
       const teammate = service
         .listTeammates()
         .find(
@@ -262,7 +278,10 @@ function createWindow(
           .listRuntimeProfiles()
           .find((row) => row.id === teammate.currentRuntimeProfileId);
         if (runtime?.credentialId !== credentialId) continue;
-        const state = availability.get(teammate.id);
+        const state =
+          runtime?.executionProtocol === 'GENERATION' && g2
+            ? g2.availability.get(teammate.id)
+            : availability.get(teammate.id);
         if (state) notifyAvailability(state);
       }
     },
@@ -283,13 +302,53 @@ function createWindow(
       : partyMissions.resumeExternalWork(continuation),
   );
   registerR3Ipc(validSender, r3Config, r3Store);
-  registerAvailabilityIpc(validSender, availability, service);
+  const displayedAvailability = {
+    get: (id: string) => {
+      const t = service.listTeammates().find((t) => t.id === id);
+      const runtime = service
+        .listRuntimeProfiles()
+        .find((r) => r.id === t?.currentRuntimeProfileId);
+      return runtime?.executionProtocol === 'GENERATION' && g2
+        ? g2.availability.get(id)
+        : availability.get(id);
+    },
+    recheck: (id: string) => {
+      const t = service.listTeammates().find((t) => t.id === id);
+      const runtime = service
+        .listRuntimeProfiles()
+        .find((r) => r.id === t?.currentRuntimeProfileId);
+      return runtime?.executionProtocol === 'GENERATION' && g2
+        ? g2.availability.recheck(id)
+        : availability.recheck(id);
+    },
+    prepare: (input: Parameters<AvailabilityService['prepare']>[0]) => {
+      const runtime = service.listRuntimeProfiles().find((r) => r.id === input.runtimeProfileId);
+      return runtime?.executionProtocol === 'GENERATION' && g2
+        ? g2.availability.prepare(input)
+        : availability.prepare(input);
+    },
+  };
+  registerAvailabilityIpc(validSender, displayedAvailability, service);
   registerRoutingIpc(validSender, routing, routingStore, r3Config, (mission) =>
     r3Observer.observeMission(mission),
   );
   registerWorkflowIpc(validSender, workflows);
   registerResearchInputIpc(window, validSender, researchInputs);
   registerGenerationIpc(validSender, generation);
+  if (g2)
+    registerGenerationChatIpc(
+      window,
+      validSender,
+      g2.chat,
+      g2.media,
+      generationPreview(
+        window.webContents.session,
+        g2.repository,
+        g2.artifacts,
+        allowedUrl ?? 'file://',
+      ),
+      g2.listAttachments,
+    );
 
   if (devUrl) void window.loadURL(devUrl);
   else void window.loadFile(rendererFile);
@@ -462,14 +521,23 @@ if (!squirrelStartup)
                   : process.argv.includes('--w1-fake-workflow')
                     ? new WorkflowFixtureGateway()
                     : new FakeModelGateway()
-          : new AiSdkModelGateway((runtimeProfileId) => service.resolveRuntime(runtimeProfileId));
+          : new AiSdkModelGateway(async (runtimeProfileId) => {
+              const resolved = await service.resolveRuntime(runtimeProfileId);
+              if (resolved.kind === 'GENERATION_HTTP')
+                throw new DomainError('INVALID_INPUT', '生成服务不能执行文本对话');
+              return { ...resolved, kind: resolved.kind };
+            });
       const availability = new AvailabilityService(
         new R32AvailabilityRepository(db),
         store,
         process.argv.includes('--gate1-fake-model')
           ? { probe: async () => ({ kind: 'SUCCESS' as const, code: 'PROBE_SUCCEEDED' }) }
           : new AiSdkModelAvailabilityProbe((runtimeProfileId) =>
-              service.resolveRuntime(runtimeProfileId),
+              service.resolveRuntime(runtimeProfileId).then((r) => {
+                if (r.kind === 'GENERATION_HTTP')
+                  throw new DomainError('INVALID_INPUT', '生成服务不能使用文本检测');
+                return { ...r, kind: r.kind };
+              }),
             ),
         { onChanged: notifyAvailability },
       );
@@ -531,16 +599,30 @@ if (!squirrelStartup)
       const mcpHost = new McpHost();
       const tools = new Gate4ToolsService(gate4Store, registry, mcpHost);
       await tools.initialize();
-      const generation = generationFoundation({
-        db,
-        userData: app.getPath('userData'),
-        store,
-        missions: gate3Store,
-        tools: gate4Store,
-        permission: permissionEngine,
-        testOnly: process.argv.includes('--g1-fake-generation'),
-      });
-      await generation.service.recover();
+      const g2 = process.argv.includes('--g1-fake-generation')
+        ? null
+        : h3GenerationFoundation({
+            db,
+            userData: app.getPath('userData'),
+            store,
+            missions: gate3Store,
+            tools: gate4Store,
+            permission: permissionEngine,
+            secrets: secretStore,
+            onAvailabilityChanged: { onChanged: notifyAvailability },
+          });
+      const generation =
+        g2 ??
+        generationFoundation({
+          db,
+          userData: app.getPath('userData'),
+          store,
+          missions: gate3Store,
+          tools: gate4Store,
+          permission: permissionEngine,
+          testOnly: process.argv.includes('--g1-fake-generation'),
+        });
+      if (!g2) await generation.service.recover();
       if (
         process.argv.includes('--g1-fake-generation') &&
         process.argv.includes('--g1-workspace-fixture') &&
@@ -958,7 +1040,29 @@ if (!squirrelStartup)
         workflows,
         researchInputs,
         generation.service,
+        g2,
       );
+      if (g2) {
+        let polling = false;
+        const queryPending = async () => {
+          if (polling) return;
+          polling = true;
+          try {
+            for (const job of g2.repository.listRecoverableJobs()) {
+              try {
+                await g2.service.advance(job.id);
+              } catch {
+                /* Preserve durable state; no automatic resubmission for UNKNOWN. */
+              }
+            }
+          } finally {
+            polling = false;
+          }
+        };
+        void queryPending();
+        const timer = setInterval(() => void queryPending(), 10000);
+        app.once('before-quit', () => clearInterval(timer));
+      }
       externalWork.subscribeCreated((created) => {
         try {
           if (!Notification.isSupported()) return;
@@ -1000,6 +1104,7 @@ if (!squirrelStartup)
             workflows,
             researchInputs,
             generation.service,
+            g2,
           );
       });
     })

@@ -8,13 +8,21 @@ export type Realm = 'QI_REFINING' | 'FOUNDATION' | 'CORE' | 'NASCENT_SOUL';
 export type ExecutorKind = 'MODEL_RUNTIME' | 'USER_BRIDGE';
 export type RoutingPolicy = 'NORMAL' | 'FALLBACK_ONLY' | 'MANUAL_ONLY';
 export type SystemKind = 'HUMAN_BRIDGE';
-export type ProviderKind = 'OPENAI' | 'ANTHROPIC' | 'GOOGLE' | 'DEEPSEEK' | 'OPENAI_COMPATIBLE';
+export type ProviderKind =
+  | 'OPENAI'
+  | 'ANTHROPIC'
+  | 'GOOGLE'
+  | 'DEEPSEEK'
+  | 'OPENAI_COMPATIBLE'
+  | 'GENERATION_HTTP';
 /** Fixed execution identity for an ordinary MODEL_RUNTIME teammate. */
 export type ExecutionProtocol = 'LANGUAGE' | 'GENERATION';
 export interface ProviderConfig {
   id: Id;
   name: string;
   kind: ProviderKind;
+  /** Trusted adapter dispatch identity; no SDK or deployment types. */
+  adapterId?: string | null;
   baseUrl: string | null;
   enabled: boolean;
   createdAt: IsoDateTime;
@@ -62,6 +70,7 @@ export interface RuntimeProfile {
 
 /** Immutable provider/model identity captured before live connection verification. */
 export interface RuntimeIdentitySnapshot {
+  adapterId?: string | null;
   providerId: Id;
   providerKind: ProviderKind;
   baseUrl: string | null;
@@ -76,6 +85,7 @@ export interface RuntimeIdentitySnapshot {
 
 /** Sealed provider/model identity for one MODEL_RUNTIME teammate. Credentials may rotate. */
 export interface TeammateModelBinding {
+  adapterId?: string | null;
   teammateId: Id;
   runtimeProfileId: Id;
   providerKind: ProviderKind;

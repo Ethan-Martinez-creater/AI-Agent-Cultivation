@@ -2,6 +2,7 @@ import type {
   AvailabilityOutcomeKind,
   CapabilityDimension,
   CredentialSummary,
+  ExecutionProtocol,
   ModelAvailabilityProjection,
   ModelAvailabilityStatus,
   ProviderConfig,
@@ -43,6 +44,8 @@ export interface AvailabilityIdentityStore {
 export interface AvailabilityServiceOptions {
   now?: () => string;
   onChanged?: (projection: ModelAvailabilityProjection) => void;
+  /** Defaults to LANGUAGE to preserve existing R3.2 behavior. */
+  executionProtocol?: ExecutionProtocol;
 }
 
 export interface PrepareModelResult {
@@ -74,6 +77,7 @@ export class ModelUnavailableError extends DomainError {
 export class AvailabilityService {
   private readonly now: () => string;
   private readonly onChanged?: (projection: ModelAvailabilityProjection) => void;
+  private readonly executionProtocol: ExecutionProtocol;
   private readonly inFlightProbes = new Map<string, Promise<ModelAvailabilityProjection>>();
 
   constructor(
@@ -84,6 +88,7 @@ export class AvailabilityService {
   ) {
     this.now = options.now ?? (() => new Date().toISOString());
     this.onChanged = options.onChanged;
+    this.executionProtocol = options.executionProtocol ?? 'LANGUAGE';
   }
 
   /** Returns null for Human Bridge or an identity without a model binding. */
@@ -187,7 +192,11 @@ export class AvailabilityService {
     identityRevision?: string | null;
   }): Promise<ModelAvailabilityProjection> {
     const identity = this.inspectIdentity(input.teammateId, input.runtimeProfileId, true);
-    if (!identity.binding || identity.reason === 'RUNTIME_MISMATCH') {
+    if (
+      !identity.binding ||
+      identity.reason === 'RUNTIME_MISMATCH' ||
+      identity.reason === 'EXECUTION_PROTOCOL_UNSUPPORTED'
+    ) {
       throw new DomainError('INVALID_MODEL_IDENTITY', '道友模型绑定已变化，无法记录可用性结果');
     }
     if (
@@ -245,6 +254,8 @@ export class AvailabilityService {
       bindingRuntime: binding.runtimeProfileId,
       bindingProvider: binding.providerKind,
       bindingEndpoint: binding.endpoint,
+      bindingAdapter:
+        (binding as TeammateModelBinding & { adapterId?: string | null }).adapterId ?? null,
       bindingModel: binding.modelId,
       bindingCredential: binding.credentialId,
       bindingSealedAt: binding.sealedAt,
@@ -252,6 +263,8 @@ export class AvailabilityService {
       providerId: provider.id,
       providerKind: provider.kind,
       providerEndpoint: provider.baseUrl,
+      providerAdapter:
+        (provider as ProviderConfig & { adapterId?: string | null }).adapterId ?? null,
       providerEnabled: provider.enabled,
       providerUpdatedAt: provider.updatedAt,
       credentialId: credential?.id ?? null,
@@ -267,7 +280,18 @@ export class AvailabilityService {
     return !!(
       teammate?.executorKind === 'MODEL_RUNTIME' &&
       teammate.currentRuntimeProfileId === runtimeProfileId &&
-      binding?.runtimeProfileId === runtimeProfileId
+      binding?.runtimeProfileId === runtimeProfileId &&
+      (binding.executionProtocol ?? 'LANGUAGE') === this.executionProtocol &&
+      (this.identities.getRuntimeProfile(runtimeProfileId)?.executionProtocol ?? 'LANGUAGE') ===
+        this.executionProtocol &&
+      ((this.executionProtocol !== 'GENERATION' ||
+        ((binding as TeammateModelBinding & { adapterId?: string | null }).adapterId ?? null) ===
+          (
+            this.identities.getProvider(
+              this.identities.getRuntimeProfile(runtimeProfileId)?.providerId ?? '',
+            ) as (ProviderConfig & { adapterId?: string | null }) | null
+          )?.adapterId) ??
+        null)
     );
   }
 
@@ -363,6 +387,9 @@ export class AvailabilityService {
       !provider ||
       binding.providerKind !== provider.kind ||
       binding.endpoint !== provider.baseUrl ||
+      (this.executionProtocol === 'GENERATION' &&
+        ((binding as TeammateModelBinding & { adapterId?: string | null }).adapterId ?? null) !==
+          ((provider as ProviderConfig & { adapterId?: string | null }).adapterId ?? null)) ||
       binding.modelId !== runtime.modelId ||
       binding.credentialId !== runtime.credentialId ||
       (binding.executionProtocol ?? 'LANGUAGE') !== (runtime.executionProtocol ?? 'LANGUAGE') ||
@@ -370,13 +397,16 @@ export class AvailabilityService {
     ) {
       return { binding, reason: 'PROVIDER_INVALID' };
     }
-    if ((runtime.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE') {
+    if ((runtime.executionProtocol ?? 'LANGUAGE') !== this.executionProtocol) {
       return { binding, reason: 'EXECUTION_PROTOCOL_UNSUPPORTED', teammate, runtime, provider };
     }
     if (!provider.enabled)
       return { binding, reason: 'PROVIDER_DISABLED', teammate, runtime, provider };
+    const generationHttpAllowsNoCredential =
+      this.executionProtocol === 'GENERATION' && String(provider.kind) === 'GENERATION_HTTP';
     const credentialRequired =
-      runtime.credentialId !== null || provider.kind !== 'OPENAI_COMPATIBLE';
+      runtime.credentialId !== null ||
+      (provider.kind !== 'OPENAI_COMPATIBLE' && !generationHttpAllowsNoCredential);
     if (
       (credentialRequired && (!credential || credential.providerId !== provider.id)) ||
       !validProviderUrl(provider)
@@ -703,7 +733,8 @@ function cloneProjection(value: ModelAvailabilityProjection): ModelAvailabilityP
 }
 
 function validProviderUrl(provider: ProviderConfig): boolean {
-  if (!provider.baseUrl) return provider.kind !== 'OPENAI_COMPATIBLE';
+  if (!provider.baseUrl)
+    return provider.kind !== 'OPENAI_COMPATIBLE' && String(provider.kind) !== 'GENERATION_HTTP';
   try {
     const parsed = new URL(provider.baseUrl);
     return (
