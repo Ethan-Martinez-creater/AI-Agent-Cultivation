@@ -1,0 +1,16 @@
+command: npm run test
+
+> ai-agent-cultivation@0.0.1 test
+> vitest run
+
+
+ RUN  v5.0.1 E:/Graduate_work_folder/Agent_develop/Project/AI Agent Cultivation/.tmp/g2-verify
+
+
+ Test Files  115 passed (115)
+      Tests  952 passed (952)
+   Start at  09:32:50
+   Duration  161.66s (tests 87%, import 9%, transform 3%, worker 1%)
+
+    Isolate  115 workers spawned · ~218ms startup each (spawn + environment, per file)
+             at least ~24.86s faster with isolate: false — reuses workers across files instead of one per file

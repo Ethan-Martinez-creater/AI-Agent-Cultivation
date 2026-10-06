@@ -1,0 +1,47 @@
+{
+  "baseline": "09527e3282a113b7207e59036840f1345511ab6e",
+  "verifiedCheckout": "b232bf8",
+  "workingTree": "clean detached checkout at each command start and after six commands",
+  "testFiles": 115,
+  "tests": 952,
+  "migration": 29,
+  "liveIntegration": "BLOCKED / NOT RUN",
+  "newDependencies": [],
+  "commands": [
+    {
+      "command": "npm run test",
+      "exitCode": 0,
+      "log": "validation/test.txt"
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "log": "validation/typecheck.txt"
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "log": "validation/lint.txt"
+    },
+    {
+      "command": "npm run format:check",
+      "exitCode": 0,
+      "log": "validation/format.txt"
+    },
+    {
+      "command": "npm run package",
+      "exitCode": 0,
+      "log": "validation/package.txt"
+    },
+    {
+      "command": "npm run smoke:package",
+      "exitCode": 0,
+      "log": "validation/smoke-package.txt"
+    }
+  ],
+  "temporaryNodeOptions": false,
+  "extraCommandFlags": [],
+  "storage": "Project-local TEMP/cache/build home; existing Electron headers and ZIP reused",
+  "packagedCorrectiveProfile": "g2-corrective-8c80392e-15e6-4867-a3b7-d1bae8ae34ef",
+  "packagedBaselineProfile": "g2-packaged-d1184dbe-69ea-43e2-99cd-3a750e62b2dd"
+}

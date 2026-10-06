@@ -7,7 +7,7 @@
 软件契约采用 Generative Model Execution Spec v0.2 第 15–16 节。部署侧计划仅作联调参考，真实 Endpoint 由部署侧提供，代码不猜测或内置部署地址。
 
 - `GENERATION_HTTP` + bounded `adapterId` 为 Provider identity；当前 trusted Main dispatch 提供 `H3`。普通道友仍为 `MODEL_RUNTIME`，固定 Runtime 的 `executionProtocol=GENERATION`；没有新增 executor kind。
-- `H3GenerationGateway` 仅位于 agent-runtime，沿用冻结的 G1 `GenerationGateway`。Main 解析 sealed identity、解密 Credential 并提供受控媒体 source。Domain/Application 不使用 H3 SDK、GPU 或部署节点类型。
+- `H3GenerationGateway` 仅位于 agent-runtime，复用 G1 的 streaming Gateway、Job lifecycle 和存储链；本轮进一步明确 Provider-neutral submission outcome。Main 解析 sealed identity、解密 Credential 并提供受控媒体 source。Domain/Application 不使用 H3 SDK、GPU 或部署节点类型。
 - `/health` + `/v1/models` 验证服务与模型 identity；异步链为 `/v1/files` → `/v1/videos` → job status → output binary。请求字段采用正式 HTTP contract，Feature 是本地 deterministic eligibility，不添加未经约定的 HTTP 字段。
 - Descriptor 对 capability、feature、role、duration、MP4 output 与 optional parameter schema 严格校验；未知、不一致或不安全描述 fail closed。参数来自用户控件或公开 Adapter 默认值，未使用隐藏 LLM 推断。
 - Submit 固定 `Idempotency-Key=GenerationTask.id`；持久化 request fingerprint、exact request body、upload file identity 和提交 phase。同 key 不同 fingerprint 拒绝；无法确认提交结果进入 UNKNOWN，重启不自动 POST。
@@ -37,7 +37,7 @@
 
 Generation Availability 使用独立 health/descriptor probe，复用 R3.2 projection/policy；不使用 LANGUAGE ping。真实调用成功/失败更新同一个 sealed Teammate projection；offline 明确 UNAVAILABLE，显式选择不改派。Human Bridge 没有模型 Availability，Benchmark/Evidence 不受影响。
 
-## 验收
+## 主体验收历史（以本轮 corrective 原命令结果为准）
 
 自动验收离线，通过实际 H3-compatible HTTP fixture 驱动生产 Adapter，而非将 FakeGenerationGateway 作为正式 Provider。
 
@@ -66,7 +66,7 @@ Generation Availability 使用独立 health/descriptor probe，复用 R3.2 proje
 
 **BLOCKED / NOT RUN**：部署侧尚未提供真实 Endpoint/访问凭据。未连接真实 GPU，也未将 fixture 视频称为真实模型输出。部署侧提供 Endpoint 后，通过创建道友/高级模型设置配置生成服务，Credential 如需使用仍由 Main 剪贴板安全导入；真实 health/models、prompt、FIRST_FRAME、restart poll 和 GPU 幂等计数需要单独联调。
 
-### 本机验证环境
+### 主体历史验证环境（已被本轮正式配置替代）
 
 Windows 文件 I/O 使少量冻结的 G1 测试超过 Vitest 默认 5 秒；最终全量命令使用 `npm run test -- --testTimeout=15000`，没有跳过测试、修改断言或调整正式软件的请求超时策略。
 
@@ -74,6 +74,63 @@ Windows 文件 I/O 使少量冻结的 G1 测试超过 Vitest 默认 5 秒；最�
 
 Prettier 先遍历再应用 ignore；本轮 `format:check` 使用额外 negative glob 显式排除已忽略的缓存、临时数据和输出目录，源码检查范围不变。
 
+## G2 corrective repair
+
+修复基线：`09527e3282a113b7207e59036840f1345511ab6e`。以下为本轮最终有效验收；上文带额外参数和临时 preload 的历史验证不作为本轮通过依据。
+
+### Durable chat preparation
+
+已持久化的 user message、inputs 和 parameters 是唯一准备意图。启动只扫描一次未绑定且无确定性准备失败的 entry，复用现有 GenerationService 创建原逻辑 Job；自动 Chat refresh 不重复执行准备。进程内按 messageId 合并并发准备，SQL 同时拒绝重复 Job，失败的创建事务不会留下多余 Task。消息及输入快照不变，确定性准备错误不可清空或改写，COMPLETED/UNKNOWN 不创建替代 Job。
+
+追加 `0029_g2_submission_continuation.sql`：保留现有 adapter submission facts，增加 REJECTED terminal mapping、chat preparation terminal guard 和一条消息最多一个 submission 的数据库防线。0001–0028 未修改。
+
+### Definitive rejection 与 uncertainty
+
+Provider-neutral `GenerationSubmission` 现在明确区分 SUBMITTED / REJECTED / UNKNOWN。REJECTED 使软件 Job 进入 FAILED，保留稳定 errorCode；不确定提交保持 UNKNOWN。拒绝 key 的 durable mapping 不会重新 POST，同一 key 的不同 request 仍拒绝，新的重试必须创建新 GenerationTask。
+
+软件规格 v0.2 §15–16 的原始 error envelope 本身不证明“没有创建 Job”。本轮增加可选的严格响应扩展 `error.accepted:false`，要求同时具备支持的稳定错误码、bounded message 和 boolean retryable，且没有接受/Job identity 矛盾。缺少该证明、格式不完整、网络中断或响应丢失时继续 UNKNOWN。`retryable:true` 只表示新任务可能可重试，不能复用已拒绝 key。此扩展需要部署侧显式支持；未假设现有真实部署已经实现它。
+
+AUTH_FAILED、MODEL_NOT_FOUND、INVALID_INPUT、UNSUPPORTED_FEATURE、UNSUPPORTED_INPUT_ROLE、MODEL_DURATION_LIMIT、QUEUE_FULL、IDEMPOTENCY_CONFLICT 均有确定性覆盖，另覆盖缺失/矛盾 acceptance、durable rejection replay、UNKNOWN zero replay。
+
+### Product presentation 与标准构建
+
+Generation Chat 主层使用“状态待确认 / 服务繁忙 / 认证失败 / 参数不受支持 / 时长超过模型限制”等文案。errorCode、provider status、软件/Provider Job ID 仅在默认折叠的技术详情显示；SSR 与 packaged UI 同时验证该边界。
+
+Vitest 的 15 秒 testTimeout 固化在仓库配置。format:check 用 Git 枚举 tracked/non-ignored 文件，并继续按原 `.prettierignore` 和 Prettier public API 检查，避免缓存遍历；Windows CRLF 使用 endOfLine:auto。Forge 7.11.2 的兼容 runner 仅规范化 package API 的 Windows absolute `.bin` cleanup glob，有独立测试和版本校验，标准 package 自动调用，不依赖 NODE_OPTIONS。正式 packager 配置保留 Vite bundle/native-only whitelist，关闭会绕过 ignore 的 dependency pruner，并保留 native addon headers。
+
+验证使用项目内干净 detached checkout；TEMP 位于该 checkout 之外、仍在项目内，避免 Packager 的 source→自身子目录复制问题。已有 Electron ZIP/headers 只读复用，临时 build home/cache 在项目内。
+
+### 最终六项原命令
+
+所有命令在干净 detached checkout 中执行，无额外 CLI flags、无 NODE_OPTIONS preload。最终 packaged smoke 完成后该 checkout 的 `git status --porcelain` 为空；自动生成证据进入 ignored `.test-data`。代码验证完成后只归档证据和更新本状态文档。
+
+| 原命令                  | 结果                                                         | 归档日志                                                                                   |
+| ----------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `npm run test`          | PASS：115 files / 952 tests                                  | [test.txt](../evidence/g2-h3-integration/corrective/validation/test.txt)                   |
+| `npm run typecheck`     | PASS                                                         | [typecheck.txt](../evidence/g2-h3-integration/corrective/validation/typecheck.txt)         |
+| `npm run lint`          | PASS                                                         | [lint.txt](../evidence/g2-h3-integration/corrective/validation/lint.txt)                   |
+| `npm run format:check`  | PASS                                                         | [format.txt](../evidence/g2-h3-integration/corrective/validation/format.txt)               |
+| `npm run package`       | PASS：Windows x64，native rebuild 1/1                        | [package.txt](../evidence/g2-h3-integration/corrective/validation/package.txt)             |
+| `npm run smoke:package` | PASS：Gate 0–6、R0–R4、UI、W1/W2.0–W2.4、G1/G2 及 corrective | [smoke-package.txt](../evidence/g2-h3-integration/corrective/validation/smoke-package.txt) |
+
+### Crash / outcome / UI 证据
+
+真实 Windows package 使用生产 H3 adapter + 离线 HTTP fixture，按顺序打开和关闭测试进程。Main 的测试专用 fault hook 在 ENTRY_COMMITTED / JOB_CREATED 精确终止进程；正常 production bootstrap 不启用该 hook。
+
+| 场景                                     | 持久化事实与重启结果                                                                       |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Message/entry 已提交，Job 创建前退出     | crash 时 job_id=null、无 Job/POST；恢复后 1 Job / 1 POST / 1 Artifact，第二次重启稳定      |
+| Job 创建后、send 返回前退出              | 原 PENDING Job 绑定不变；恢复原 Job，1 POST / 1 Artifact，第二次重启稳定                   |
+| 确定性 preparation validation failure    | entry 保留 INVALID_INPUT，无 Job/Artifact；重启不反复准备或 POST                           |
+| 明确 AUTH_FAILED / QUEUE_FULL 拒绝       | durable REJECTED、软件 FAILED、0 Artifact；重启 0 额外 POST，retryable=true 不放宽 key     |
+| 缺少 non-acceptance proof 的 AUTH_FAILED | durable UNKNOWN、软件 UNKNOWN、0 Artifact；重启 0 额外 POST                                |
+| Archived/unavailable pending preparation | application regression：0 probe / 0 Job；启动恢复不会阻断其他已有 Job 的恢复               |
+| 普通 UNKNOWN / FAILED Chat               | 1440/900 共 6 张截图；主层为中文错误，technical details 默认折叠；展开后可检查 code/Job ID |
+
+直接 SQLite/HTTP counter 证据见 [packaged/facts.json](../evidence/g2-h3-integration/corrective/packaged/facts.json)。原 G2 prompt/首帧/video playback/断线/UNKNOWN/offline 场景再通过，14 张截图及 facts 归档于 `corrective/baseline/`。最终标准 smoke 同时验证 G1 crash A–F、partial download、verified staging、commit recovery、streaming 和 Workspace permission。
+
+三个 W2 frozen release/definition hash 在本轮 clean production database 中再次匹配，重启持久化事实未新增；见 [frozen-hashes.json](../evidence/g2-h3-integration/corrective/frozen-hashes.json)。证据索引见 [corrective/README.md](../evidence/g2-h3-integration/corrective/README.md)。Live Integration 仍为 **BLOCKED / NOT RUN**；未提供部署 Endpoint，不将 HTTP fixture 称为 live evidence。
+
 ## 保持与未实现
 
-G1 contract/state machine、0001–0027、三个 W2 frozen v1 packages、LANGUAGE Chat、R4/Permission/Memory/Human Bridge/Party authority 均保持。未将 Generation 接入 Workflow/Party；未实现 G3、R5/W3、自动多段视频、部署安装、GPU控制或新的 Agent 能力。无新增依赖。
+G1 streaming/state machine、0001–0028、三个 W2 frozen v1 packages、LANGUAGE Chat、R4/Permission/Memory/Human Bridge/Party authority 均保持。未将 Generation 接入 Workflow/Party；未实现 G3、R5/W3、自动多段视频、部署安装、GPU控制或新的 Agent 能力。无新增依赖。

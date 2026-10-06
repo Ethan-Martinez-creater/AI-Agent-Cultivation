@@ -1,0 +1,4 @@
+command: npm run lint
+
+> ai-agent-cultivation@0.0.1 lint
+> eslint .
