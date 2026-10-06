@@ -1,5 +1,6 @@
 import type { MemoryRecord, Skill, Teammate } from '@cultivation/domain';
 import type { TeammateSkillAssignment } from './skill-service.js';
+import { SKILL_ROUTING_POLICY } from './r5-1-skill-routing.js';
 
 export interface ConversationPromptMessage {
   role: 'user' | 'assistant';
@@ -12,6 +13,8 @@ export interface PromptComposerInput {
   /** Already relevance-ranked candidates; ownership and status are rechecked here. */
   relevantMemories: readonly MemoryRecord[];
   skills: readonly Skill[];
+  /** R5.1 selected IDs are only a subset hint, never assignment or permission authority. */
+  selectedSkillIds?: readonly string[];
   skillAssignments: readonly Pick<TeammateSkillAssignment, 'teammateId' | 'skillId' | 'enabled'>[];
   conversationContext: readonly ConversationPromptMessage[];
   /** Enables USER-scoped memories only when the caller supplies the current user id. */
@@ -85,13 +88,21 @@ function effectiveLimits(input: PromptComposerInput): PromptComposerLimits {
     ),
     maxSkillItems: boundedInteger(
       requested?.maxSkillItems,
-      DEFAULT_LIMITS.maxSkillItems,
-      HARD_LIMITS.maxSkillItems,
+      input.selectedSkillIds === undefined
+        ? DEFAULT_LIMITS.maxSkillItems
+        : SKILL_ROUTING_POLICY.maxSelectedSkills,
+      input.selectedSkillIds === undefined
+        ? HARD_LIMITS.maxSkillItems
+        : SKILL_ROUTING_POLICY.maxSelectedSkills,
     ),
     maxSkillCharacters: boundedInteger(
       requested?.maxSkillCharacters,
-      DEFAULT_LIMITS.maxSkillCharacters,
-      HARD_LIMITS.maxSkillCharacters,
+      input.selectedSkillIds === undefined
+        ? DEFAULT_LIMITS.maxSkillCharacters
+        : SKILL_ROUTING_POLICY.maxSkillCharacters,
+      input.selectedSkillIds === undefined
+        ? HARD_LIMITS.maxSkillCharacters
+        : SKILL_ROUTING_POLICY.maxSkillCharacters,
     ),
     maxConversationMessages: boundedInteger(
       requested?.maxConversationMessages,
@@ -180,6 +191,7 @@ function memorySection(input: PromptComposerInput, limits: PromptComposerLimits)
 }
 
 function skillSection(input: PromptComposerInput, limits: PromptComposerLimits): string {
+  if (limits.maxSkillItems === 0 || limits.maxSkillCharacters === 0) return '';
   const activeSkills = new Map(
     input.skills.filter((skill) => skill.status === 'ACTIVE').map((skill) => [skill.id, skill]),
   );
@@ -192,7 +204,17 @@ function skillSection(input: PromptComposerInput, limits: PromptComposerLimits):
     tags: string[];
     text: string;
   }> = [];
-  for (const assignment of input.skillAssignments) {
+  const selectedIds =
+    input.selectedSkillIds === undefined
+      ? null
+      : [...new Set(input.selectedSkillIds)].slice(0, SKILL_ROUTING_POLICY.maxSelectedSkills);
+  const assignments =
+    selectedIds === null
+      ? input.skillAssignments
+      : selectedIds.flatMap((id) =>
+          input.skillAssignments.filter((assignment) => assignment.skillId === id),
+        );
+  for (const assignment of assignments) {
     if (
       assignment.teammateId !== input.teammate.id ||
       !assignment.enabled ||

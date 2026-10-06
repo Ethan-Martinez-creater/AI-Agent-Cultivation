@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { SkillRoutingService } from './r5-1-skill-routing.js';
 import type {
   ApprovalRequest,
   AuditEvent,
@@ -608,6 +609,91 @@ function synthesisInput(gateway: RecordingGateway): {
 }
 
 describe('Gate5CollaborationService', () => {
+  it('routes Coordinator and Participant Skills independently without changing their runtimes or structured LANGUAGE contract', async () => {
+    const fixture = setup();
+    const skills: Skill[] = ['a', 'b'].flatMap((owner) =>
+      Array.from({ length: 5 }, (_, index) => ({
+        id: `${owner}-r51-${index}`,
+        name: `${owner} guidance ${index}`,
+        description: 'Analysis',
+        instructions: `GATE5_${owner.toUpperCase()}_SKILL PRIVATE_INSTRUCTIONS_SENTINEL_${owner}_${index}`,
+        version: '1',
+        tags: ['analysis'],
+        status: 'ACTIVE' as const,
+        createdAt: at,
+        updatedAt: at,
+      })),
+    );
+    const candidateSets: string[][] = [];
+    fixture.service.attachSkillRouting(
+      new SkillRoutingService(
+        {
+          getSkill: async (id) => skills.find((skill) => skill.id === id) ?? null,
+          listAssignmentsForTeammate: async (id) =>
+            skills
+              .filter((skill) => skill.id.startsWith(`${id}-`))
+              .map((skill) => ({ teammateId: id, skillId: skill.id, enabled: true })),
+        },
+        async () => ({
+          evaluate: async (request) => {
+            candidateSets.push(request.inputSummary.candidateIds);
+            expect(JSON.stringify(request)).not.toMatch(/PRIVATE_INSTRUCTIONS|GATE5_[AB]_MEMORY/);
+            return {
+              answers: {
+                skills: request.inputSummary.candidateIds
+                  .slice(0, 3)
+                  .map((skillId) => ({ skillId, score: 0.9 })),
+              },
+              confidence: {},
+              selectedAction: null,
+            };
+          },
+        }),
+      ),
+    );
+    fixture.service.attachMultimodalExecution({
+      execute: (mission, run, task, resume) =>
+        fixture.service.executeLanguageParticipant(
+          mission,
+          run,
+          { ...task, structuredOutcome: true },
+          resume,
+        ),
+      consume: () => undefined,
+      detail: () => null,
+      candidateMetadata: async () => [],
+    });
+    const id = fixture.create();
+    const waiting = await fixture.service.start(id);
+    const done = await fixture.service.resolveCollaboration({
+      requestId: waiting.collaborations[0]!.id,
+      decision: 'APPROVED',
+    });
+    expect(done.mission.state).toBe('COMPLETED');
+    expect(
+      candidateSets.every(
+        (ids) => ids.length === 5 && new Set(ids.map((skillId) => skillId.slice(0, 1))).size === 1,
+      ),
+    ).toBe(true);
+    for (const request of fixture.gateway.requests) {
+      const system = request.messages.find((message) => message.role === 'system')?.content ?? '';
+      const owner = request.teammateId;
+      expect(system).toContain(`PRIVATE_INSTRUCTIONS_SENTINEL_${owner}`);
+      expect(system).not.toContain(`PRIVATE_INSTRUCTIONS_SENTINEL_${owner === 'a' ? 'b' : 'a'}`);
+      const section = /\[ACTIVE SKILLS[^\n]*\]\n([^\n]*)/.exec(system);
+      expect(JSON.parse(section![1]!) as unknown[]).toHaveLength(3);
+      expect(request.runtimeProfileId).toBe(`runtime-${owner}`);
+    }
+    expect(
+      fixture.gateway.requests.find((request) => request.teammateId === 'b')
+        ?.participantOutcomeContract,
+    ).toBe('g3-v1');
+    expect(
+      done.usage.some(
+        (usage) => usage.teammateId === 'b' && usage.runtimeProfileId === 'runtime-b',
+      ),
+    ).toBe(true);
+  });
   it('keeps scoped Memory retrieval on the original task while sending bounded Artifact data to the participant', async () => {
     const fixture = setup();
     fixture.service.attachMultimodalExecution({

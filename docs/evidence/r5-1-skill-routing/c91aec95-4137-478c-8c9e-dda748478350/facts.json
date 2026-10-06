@@ -1,0 +1,884 @@
+{
+  "verifiedAt": "2026-10-06T13:29:47.510Z",
+  "schemaVersion": 30,
+  "production": {
+    "officialWorkflowHashes": {
+      "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    },
+    "normalLaunch": true,
+    "r3": {
+      "mode": "SHADOW",
+      "enabled": false,
+      "observations": 0
+    },
+    "database": {
+      "migrations": [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30
+      ],
+      "skillSelectionEvents": 0,
+      "skillSelectionAudits": 0
+    }
+  },
+  "fixture": {
+    "screenshots": ["mission-skill-selection-1440.png"],
+    "flags": ["--gate1-fake-model", "--r5-1-fixture", "--r4-fake-routing", "--w1-fake-workflow"],
+    "officialWorkflowHashes": {
+      "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    },
+    "routingOptIn": {
+      "cloudEnabledDuringJev": true,
+      "cloudEnabledAfterFallback": false,
+      "keySource": "SAFE_STORAGE"
+    },
+    "r3Shadow": {
+      "mode": "SHADOW",
+      "enabled": false,
+      "observations": 0
+    },
+    "actors": [
+      {
+        "role": "A",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "executionProtocol": "LANGUAGE",
+        "enabledActiveSkillIds": [
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a"
+        ],
+        "selectedGroups": {
+          "free": [
+            "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+            "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+            "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+          ],
+          "workflow": [
+            "21ac3df8-3d8e-43c9-8192-63564486c17f",
+            "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+            "acee4852-dda1-47f3-8b78-14d82a34015a"
+          ]
+        },
+        "excludedSkillIds": {
+          "disabled": "dc2b065c-6cab-4966-8fd2-c7fd4c1687ba",
+          "archived": "6dbce46f-70ca-493c-974a-a9c0d4ca1e7b",
+          "unassigned": "8e320b97-57cf-4ee4-b3ef-1bf0e8e38264"
+        }
+      },
+      {
+        "role": "B",
+        "teammateId": "724eb1f2-a581-4280-bc6f-43c21ad78312",
+        "runtimeProfileId": "a9cb7092-2e6f-4e6f-bfad-85e24b1c8a12",
+        "executionProtocol": "LANGUAGE",
+        "enabledActiveSkillIds": [
+          "f3fd06f7-b953-45cd-8d61-df37ff76cee1",
+          "c524fe8b-8bdc-411f-ae19-51fafa229f3a",
+          "5dbfd6eb-b8f6-4ab2-a089-f96239a50aaa",
+          "2c2c39eb-ca3a-46c3-a933-37ed38143acb",
+          "f3af2e0e-63f9-41e1-a7b9-41cfcb1a4104",
+          "ca1c9746-54a1-4d29-b44d-85f4cbcfe99f"
+        ],
+        "selectedGroups": {
+          "free": [
+            "f3fd06f7-b953-45cd-8d61-df37ff76cee1",
+            "c524fe8b-8bdc-411f-ae19-51fafa229f3a",
+            "5dbfd6eb-b8f6-4ab2-a089-f96239a50aaa"
+          ],
+          "workflow": [
+            "2c2c39eb-ca3a-46c3-a933-37ed38143acb",
+            "f3af2e0e-63f9-41e1-a7b9-41cfcb1a4104",
+            "ca1c9746-54a1-4d29-b44d-85f4cbcfe99f"
+          ]
+        },
+        "excludedSkillIds": {
+          "disabled": "cdb58aae-8696-442f-9e31-89003e8f9c3a",
+          "archived": "aa12d7a3-38ac-415b-99c4-eee8368a3049",
+          "unassigned": "3cbfb0bd-1755-4a0e-be2f-88a9f6ed3c64"
+        }
+      }
+    ],
+    "missions": {
+      "free": "f101c156-8529-4b22-940e-79ab59da8762",
+      "party": "de5b29db-9f4e-4d36-8f3f-89f9ae4ceb9b",
+      "workflow": "668b0e74-31e3-4285-af5d-c0cfe5500243",
+      "workflowRun": "4367c714-c0e8-433b-a7dc-3004f166a15c",
+      "ioWorkflowRun": "174e0392-0024-49e8-a4dc-9af74b3a900f",
+      "fallback": "613c562b-e649-4e61-8917-5c4a6e386119"
+    },
+    "workflowReview": {
+      "stepId": "review",
+      "missionId": "668b0e74-31e3-4285-af5d-c0cfe5500243",
+      "inputArtifactCount": 1,
+      "expectedSelectedSkillIds": [
+        "21ac3df8-3d8e-43c9-8192-63564486c17f",
+        "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+        "acee4852-dda1-47f3-8b78-14d82a34015a"
+      ]
+    },
+    "fallback": {
+      "mode": "DETERMINISTIC_FALLBACK",
+      "selectedSkillIds": [
+        "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+        "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+        "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+      ],
+      "actualModelCall": true
+    },
+    "completion": {
+      "free": "COMPLETED",
+      "party": "COMPLETED",
+      "workflow": "COMPLETED",
+      "inputWorkflow": "COMPLETED",
+      "fallback": "COMPLETED"
+    },
+    "database": {
+      "migrations": [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30
+      ],
+      "durableSelectionEvents": 9,
+      "durableSelectionAudits": 9,
+      "languageRuntimes": [
+        "a9cb7092-2e6f-4e6f-bfad-85e24b1c8a12",
+        "df46f6fa-c028-46cf-a615-44843d287874"
+      ]
+    },
+    "durableSelections": [
+      {
+        "missionId": "f101c156-8529-4b22-940e-79ab59da8762",
+        "runId": "f451b454-270f-41e5-8461-b8ab45a1cc18",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "JEV",
+        "inputHash": "3ae19636156aa173b924328f20cd157d84702ddfd6a18c6d15dd9bbf90cd5b42",
+        "candidateIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "scores": [
+          {
+            "skillId": "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+            "score": 1
+          },
+          {
+            "skillId": "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+            "score": 0.8571
+          },
+          {
+            "skillId": "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "de5b29db-9f4e-4d36-8f3f-89f9ae4ceb9b",
+        "runId": "551f89af-fcf0-485a-89d0-d15d9e20c6e2",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "JEV",
+        "inputHash": "d26b6a3a80d1ccf70d378cd7fbbb180428999e188010b35bb7d4e82aecc6744e",
+        "candidateIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "scores": [
+          {
+            "skillId": "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+            "score": 1
+          },
+          {
+            "skillId": "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+            "score": 0.8571
+          },
+          {
+            "skillId": "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "de5b29db-9f4e-4d36-8f3f-89f9ae4ceb9b",
+        "runId": "551f89af-fcf0-485a-89d0-d15d9e20c6e2",
+        "teammateId": "724eb1f2-a581-4280-bc6f-43c21ad78312",
+        "mode": "JEV",
+        "inputHash": "f0a6cf53ef12577116b2d0b140706c9183ae2b95016b96a910b841b5375de68d",
+        "candidateIds": [
+          "5dbfd6eb-b8f6-4ab2-a089-f96239a50aaa",
+          "c524fe8b-8bdc-411f-ae19-51fafa229f3a",
+          "f3fd06f7-b953-45cd-8d61-df37ff76cee1",
+          "ca1c9746-54a1-4d29-b44d-85f4cbcfe99f",
+          "2c2c39eb-ca3a-46c3-a933-37ed38143acb",
+          "f3af2e0e-63f9-41e1-a7b9-41cfcb1a4104"
+        ],
+        "selectedSkillIds": [
+          "5dbfd6eb-b8f6-4ab2-a089-f96239a50aaa",
+          "c524fe8b-8bdc-411f-ae19-51fafa229f3a",
+          "f3fd06f7-b953-45cd-8d61-df37ff76cee1"
+        ],
+        "scores": [
+          {
+            "skillId": "5dbfd6eb-b8f6-4ab2-a089-f96239a50aaa",
+            "score": 1
+          },
+          {
+            "skillId": "c524fe8b-8bdc-411f-ae19-51fafa229f3a",
+            "score": 0.8571
+          },
+          {
+            "skillId": "f3fd06f7-b953-45cd-8d61-df37ff76cee1",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "de5b29db-9f4e-4d36-8f3f-89f9ae4ceb9b",
+        "runId": "551f89af-fcf0-485a-89d0-d15d9e20c6e2",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "JEV",
+        "inputHash": "1b94f6d86e7a4913b1cc1973a8a5de0c566d27f1971e999a4925944ee0d24489",
+        "candidateIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "scores": [
+          {
+            "skillId": "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+            "score": 1
+          },
+          {
+            "skillId": "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+            "score": 0.8571
+          },
+          {
+            "skillId": "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "f449d629-faba-450f-a0d0-5768cca36f23",
+        "runId": "123d33d1-b15d-4f61-8e5b-86768ad473a1",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "JEV",
+        "inputHash": "f3ce94e25ad67b91aa4ae4464c4f9aabdd41a3bed691350c9781468379065775",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a"
+        ],
+        "scores": [
+          {
+            "skillId": "21ac3df8-3d8e-43c9-8192-63564486c17f",
+            "score": 1
+          },
+          {
+            "skillId": "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+            "score": 0.8571
+          },
+          {
+            "skillId": "acee4852-dda1-47f3-8b78-14d82a34015a",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "668b0e74-31e3-4285-af5d-c0cfe5500243",
+        "runId": "ba732296-d4c0-4896-8cc8-aab9da0e74af",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "JEV",
+        "inputHash": "6a4f5c8a9faabf604ef7469ef814185f14253e2f8065e6aad2a1c4836ac333a7",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a"
+        ],
+        "scores": [
+          {
+            "skillId": "21ac3df8-3d8e-43c9-8192-63564486c17f",
+            "score": 1
+          },
+          {
+            "skillId": "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+            "score": 0.8571
+          },
+          {
+            "skillId": "acee4852-dda1-47f3-8b78-14d82a34015a",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "44b00583-d762-4200-9ff1-93c23cd7835e",
+        "runId": "910ba237-2b69-4dea-bec6-b3271c3b5ef5",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "JEV",
+        "inputHash": "d386e36d0e4b0f52e5870e05e3e51b9192ea08cb21424690775a74273f3d3acb",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "scores": [
+          {
+            "skillId": "21ac3df8-3d8e-43c9-8192-63564486c17f",
+            "score": 1
+          },
+          {
+            "skillId": "acee4852-dda1-47f3-8b78-14d82a34015a",
+            "score": 0.8571
+          },
+          {
+            "skillId": "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "621f6caf-9fde-46fd-b57b-6343aae666ab",
+        "runId": "4fb8ca0e-4c59-4130-9011-d592b19b8dfe",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "JEV",
+        "inputHash": "6e030fdb683ff7fe3278c6708b6410bb942f5ff5bdf626f27c276cb48afcd438",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "scores": [
+          {
+            "skillId": "21ac3df8-3d8e-43c9-8192-63564486c17f",
+            "score": 1
+          },
+          {
+            "skillId": "acee4852-dda1-47f3-8b78-14d82a34015a",
+            "score": 0.8571
+          },
+          {
+            "skillId": "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+            "score": 0.7143
+          }
+        ]
+      },
+      {
+        "missionId": "613c562b-e649-4e61-8917-5c4a6e386119",
+        "runId": "ee5c4a87-f2a0-46df-bf40-2a929f8d9200",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "mode": "DETERMINISTIC_FALLBACK",
+        "inputHash": "97c88a3c733211023e647266a85c851d38f25c102a878f4c6108dc976c64c1ee",
+        "candidateIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "scores": [
+          {
+            "skillId": "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+            "score": 0.4127
+          },
+          {
+            "skillId": "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+            "score": 0.3492
+          },
+          {
+            "skillId": "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+            "score": 0.3333
+          },
+          {
+            "skillId": "acee4852-dda1-47f3-8b78-14d82a34015a",
+            "score": 0.254
+          },
+          {
+            "skillId": "21ac3df8-3d8e-43c9-8192-63564486c17f",
+            "score": 0.2063
+          },
+          {
+            "skillId": "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+            "score": 0.2063
+          }
+        ]
+      }
+    ],
+    "decisions": [
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "3ae19636156aa173b924328f20cd157d84702ddfd6a18c6d15dd9bbf90cd5b42",
+        "candidateIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": ["objective", "phase", "publicState"],
+          "objectiveHash": "cf4c502e127c9da7a0dddbcda3116016da363b61a098ef3da40b6fe7f3a68bf1",
+          "phase": "SOLO",
+          "publicState": "RUNNING"
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      },
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "d26b6a3a80d1ccf70d378cd7fbbb180428999e188010b35bb7d4e82aecc6744e",
+        "candidateIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": ["objective", "phase", "publicState"],
+          "objectiveHash": "0a8eb24926b16ca9193d677f6338688fc7eb1285c4b073f85ad0f75632ce7899",
+          "phase": "COLLABORATION_PROPOSAL",
+          "publicState": "RUNNING"
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      },
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "f0a6cf53ef12577116b2d0b140706c9183ae2b95016b96a910b841b5375de68d",
+        "candidateIds": [
+          "5dbfd6eb-b8f6-4ab2-a089-f96239a50aaa",
+          "c524fe8b-8bdc-411f-ae19-51fafa229f3a",
+          "f3fd06f7-b953-45cd-8d61-df37ff76cee1",
+          "ca1c9746-54a1-4d29-b44d-85f4cbcfe99f",
+          "2c2c39eb-ca3a-46c3-a933-37ed38143acb",
+          "f3af2e0e-63f9-41e1-a7b9-41cfcb1a4104"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": ["objective", "phase", "publicState"],
+          "objectiveHash": "6be63b63e3df5d9138b4ae28c58767850cdec8f783ad8cd59f53bd3548f5219b",
+          "phase": "PARTICIPANT",
+          "publicState": "RUNNING"
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      },
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "1b94f6d86e7a4913b1cc1973a8a5de0c566d27f1971e999a4925944ee0d24489",
+        "candidateIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": ["objective", "phase", "publicState"],
+          "objectiveHash": "0a8eb24926b16ca9193d677f6338688fc7eb1285c4b073f85ad0f75632ce7899",
+          "phase": "SYNTHESIS",
+          "publicState": "RUNNING"
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      },
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "f3ce94e25ad67b91aa4ae4464c4f9aabdd41a3bed691350c9781468379065775",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": [
+            "objective",
+            "phase",
+            "stepType",
+            "requiredCapabilities",
+            "expectedOutputContract",
+            "publicState"
+          ],
+          "objectiveHash": "0fd8b243972fb1fa84dcd09afaba99f3c3427e0d49f9cb80d93603a4c00dd6a6",
+          "phase": "SOLO",
+          "stepType": "TASK",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "publicState": "RUNNING",
+          "expectedOutputContract": [
+            {
+              "keyHash": "7743ce348d9284d677a185f33295b92266cc435a5b5f775029b300066d26693a",
+              "kind": "JSON",
+              "contractIdHash": "58e6e5ff3f2c1ad3c07f550ae97e926d844c598b0a40531ddf1f06ed30fcebdb",
+              "contractVersion": "1"
+            }
+          ]
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      },
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "6a4f5c8a9faabf604ef7469ef814185f14253e2f8065e6aad2a1c4836ac333a7",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": [
+            "objective",
+            "phase",
+            "stepType",
+            "requiredCapabilities",
+            "inputArtifactSummaries",
+            "expectedOutputContract",
+            "publicState"
+          ],
+          "objectiveHash": "76b17f6e59ac1965a46a24bf332441fa6bede8a61c230f85bfd74ddee3b142fc",
+          "phase": "SOLO",
+          "stepType": "REVIEW",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "publicState": "RUNNING",
+          "inputArtifactSummaries": [
+            {
+              "id": "9471915e-fd73-4e00-83f6-7a0f2a517bba",
+              "kind": "JSON",
+              "nameHash": "7743ce348d9284d677a185f33295b92266cc435a5b5f775029b300066d26693a",
+              "fields": ["id", "kind", "name"]
+            }
+          ],
+          "expectedOutputContract": [
+            {
+              "keyHash": "c97ace4c8fef2cee8fa0f3c9f52aab18dbd4f42438afe362ffb8f75ce4c04b84",
+              "kind": "JSON",
+              "contractIdHash": "99f5d42aaa09459042e07b5cebee2e2bf83911705ab13cdb2bb791ac244aed9c",
+              "contractVersion": "1"
+            }
+          ]
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      },
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "d386e36d0e4b0f52e5870e05e3e51b9192ea08cb21424690775a74273f3d3acb",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": [
+            "objective",
+            "phase",
+            "stepType",
+            "requiredCapabilities",
+            "expectedOutputContract",
+            "publicState"
+          ],
+          "objectiveHash": "4f3cf3e0743591e47a813b9de24c8ec23e3176ecdb95b6d4c68364cbb3631ba3",
+          "phase": "SOLO",
+          "stepType": "TASK",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "publicState": "RUNNING",
+          "expectedOutputContract": [
+            {
+              "keyHash": "b4af39d5b65a14849e885a9d65f0efe4f4e689989689c28c16cfcb3a6e78db5a",
+              "kind": "JSON",
+              "contractIdHash": "5adc370ac923c502b6bf1a1e603680e11df8ca48541fc4f5dc07a0d859b2656c",
+              "contractVersion": "1"
+            }
+          ]
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      },
+      {
+        "type": "SKILL_RELEVANCE",
+        "questionVersion": "r5-1-skill-relevance-question-v1",
+        "stateHash": "6e030fdb683ff7fe3278c6708b6410bb942f5ff5bdf626f27c276cb48afcd438",
+        "candidateIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66",
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5"
+        ],
+        "contextKeys": ["candidates", "context"],
+        "contextFacts": {
+          "fields": [
+            "objective",
+            "phase",
+            "stepType",
+            "requiredCapabilities",
+            "expectedOutputContract",
+            "publicState"
+          ],
+          "objectiveHash": "683ea94732ca497a42629d424df5a518b54c423961f615033362fe520d8878c6",
+          "phase": "SOLO",
+          "stepType": "TASK",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "publicState": "RUNNING",
+          "expectedOutputContract": [
+            {
+              "keyHash": "0ebb429fa86d481c2630fac53db1c91cffed5d4d41d1021c179444eb67e7ee0b",
+              "kind": "JSON",
+              "contractIdHash": "540b6fb007f3c94a6e4fc50cc82a32fc5256ecb2a5c96ec55326967f062f0494",
+              "contractVersion": "1"
+            }
+          ]
+        },
+        "historyLeak": false,
+        "containsInstructionMarker": false
+      }
+    ],
+    "modelCalls": [
+      {
+        "missionId": "f101c156-8529-4b22-940e-79ab59da8762",
+        "runId": "f451b454-270f-41e5-8461-b8ab45a1cc18",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "SOLO",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "instructionCharacters": 500,
+        "skillSectionCharacters": 1504,
+        "structuredOutcomeContract": null,
+        "selectionHash": "3ae19636156aa173b924328f20cd157d84702ddfd6a18c6d15dd9bbf90cd5b42"
+      },
+      {
+        "missionId": "de5b29db-9f4e-4d36-8f3f-89f9ae4ceb9b",
+        "runId": "551f89af-fcf0-485a-89d0-d15d9e20c6e2",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "COLLABORATION_PROPOSAL",
+        "method": "proposeCollaboration",
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "instructionCharacters": 500,
+        "skillSectionCharacters": 1504,
+        "structuredOutcomeContract": null,
+        "selectionHash": "d26b6a3a80d1ccf70d378cd7fbbb180428999e188010b35bb7d4e82aecc6744e"
+      },
+      {
+        "missionId": "de5b29db-9f4e-4d36-8f3f-89f9ae4ceb9b",
+        "runId": "551f89af-fcf0-485a-89d0-d15d9e20c6e2",
+        "teammateId": "724eb1f2-a581-4280-bc6f-43c21ad78312",
+        "runtimeProfileId": "a9cb7092-2e6f-4e6f-bfad-85e24b1c8a12",
+        "phase": "PARTICIPANT",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "5dbfd6eb-b8f6-4ab2-a089-f96239a50aaa",
+          "c524fe8b-8bdc-411f-ae19-51fafa229f3a",
+          "f3fd06f7-b953-45cd-8d61-df37ff76cee1"
+        ],
+        "instructionCharacters": 500,
+        "skillSectionCharacters": 1504,
+        "structuredOutcomeContract": "g3-v1",
+        "selectionHash": "f0a6cf53ef12577116b2d0b140706c9183ae2b95016b96a910b841b5375de68d"
+      },
+      {
+        "missionId": "de5b29db-9f4e-4d36-8f3f-89f9ae4ceb9b",
+        "runId": "551f89af-fcf0-485a-89d0-d15d9e20c6e2",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "SYNTHESIS",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "instructionCharacters": 500,
+        "skillSectionCharacters": 1504,
+        "structuredOutcomeContract": null,
+        "selectionHash": "1b94f6d86e7a4913b1cc1973a8a5de0c566d27f1971e999a4925944ee0d24489"
+      },
+      {
+        "missionId": "f449d629-faba-450f-a0d0-5768cca36f23",
+        "runId": "123d33d1-b15d-4f61-8e5b-86768ad473a1",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "SOLO",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a"
+        ],
+        "instructionCharacters": 528,
+        "skillSectionCharacters": 1676,
+        "structuredOutcomeContract": null,
+        "selectionHash": "f3ce94e25ad67b91aa4ae4464c4f9aabdd41a3bed691350c9781468379065775"
+      },
+      {
+        "missionId": "668b0e74-31e3-4285-af5d-c0cfe5500243",
+        "runId": "ba732296-d4c0-4896-8cc8-aab9da0e74af",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "SOLO",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5",
+          "acee4852-dda1-47f3-8b78-14d82a34015a"
+        ],
+        "instructionCharacters": 528,
+        "skillSectionCharacters": 1676,
+        "structuredOutcomeContract": null,
+        "selectionHash": "6a4f5c8a9faabf604ef7469ef814185f14253e2f8065e6aad2a1c4836ac333a7"
+      },
+      {
+        "missionId": "44b00583-d762-4200-9ff1-93c23cd7835e",
+        "runId": "910ba237-2b69-4dea-bec6-b3271c3b5ef5",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "SOLO",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "instructionCharacters": 528,
+        "skillSectionCharacters": 1676,
+        "structuredOutcomeContract": null,
+        "selectionHash": "d386e36d0e4b0f52e5870e05e3e51b9192ea08cb21424690775a74273f3d3acb"
+      },
+      {
+        "missionId": "621f6caf-9fde-46fd-b57b-6343aae666ab",
+        "runId": "4fb8ca0e-4c59-4130-9011-d592b19b8dfe",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "SOLO",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "21ac3df8-3d8e-43c9-8192-63564486c17f",
+          "acee4852-dda1-47f3-8b78-14d82a34015a",
+          "96e8209c-75cd-42db-bfe2-678edc9c39a5"
+        ],
+        "instructionCharacters": 528,
+        "skillSectionCharacters": 1676,
+        "structuredOutcomeContract": null,
+        "selectionHash": "6e030fdb683ff7fe3278c6708b6410bb942f5ff5bdf626f27c276cb48afcd438"
+      },
+      {
+        "missionId": "613c562b-e649-4e61-8917-5c4a6e386119",
+        "runId": "ee5c4a87-f2a0-46df-bf40-2a929f8d9200",
+        "teammateId": "7ca823cd-eb2f-4d7b-9e0a-b63ab01619fa",
+        "runtimeProfileId": "df46f6fa-c028-46cf-a615-44843d287874",
+        "phase": "SOLO",
+        "method": "generateWithTools",
+        "selectedSkillIds": [
+          "f540f0a4-19f5-4721-871b-76ab3aa20f86",
+          "f6b37ff8-4470-4023-8271-8ac5125f22f5",
+          "b9bf4a9d-e13d-4b2c-aa71-9d611bf4ed66"
+        ],
+        "instructionCharacters": 500,
+        "skillSectionCharacters": 1504,
+        "structuredOutcomeContract": null,
+        "selectionHash": "97c88a3c733211023e647266a85c851d38f25c102a878f4c6108dc976c64c1ee"
+      }
+    ]
+  }
+}

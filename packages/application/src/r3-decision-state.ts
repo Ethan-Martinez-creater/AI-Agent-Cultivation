@@ -5,7 +5,7 @@ import type {
   MissionMode,
   ModelAvailabilityStatus,
 } from '@cultivation/domain';
-import type { DecisionQuestion, DecisionRequest, DecisionType } from './r0-decision.js';
+import type { DecisionQuestion, DecisionRequest, ShadowDecisionType } from './r0-decision.js';
 import { CAPABILITY_DIMENSIONS } from './r1-capability-scoring.js';
 
 export const R3_DECISION_STATE_VERSION = 'r3-decision-state-v2-availability';
@@ -231,7 +231,7 @@ export class DecisionStateBuilder {
   }
 
   private createRequest(
-    decisionType: DecisionType,
+    decisionType: ShadowDecisionType,
     state: Record<string, unknown>,
     questions: Record<string, DecisionQuestion>,
     inputSummary: DecisionRequest['inputSummary'],

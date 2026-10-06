@@ -38,6 +38,7 @@ import type {
 } from './index.js';
 import type { ChatPromptContext, Gate1Store } from './gate1-service.js';
 import { PromptComposer } from './prompt-composer.js';
+import type { SkillRoutingPort, SkillRoutingContext } from './r5-1-skill-routing.js';
 import type { PermissionEngine } from './permission-engine.js';
 import {
   ToolRuntime,
@@ -418,6 +419,15 @@ function skillIdsInPromptSection(section: string): string[] {
  * final visible answer is stored on its own MissionRun.
  */
 export class Gate3MissionService {
+  private skillRouting: SkillRoutingPort | null = null;
+  private skillRoutingContext: ((missionId: string) => SkillRoutingContext | null) | null = null;
+  attachSkillRouting(
+    port: SkillRoutingPort,
+    loadContext?: (missionId: string) => SkillRoutingContext | null,
+  ): void {
+    this.skillRouting = port;
+    this.skillRoutingContext = loadContext ?? null;
+  }
   private readonly completionBoundaries = new Map<string, MissionCompletionBoundary>();
   attachCompletionBoundary(
     boundary: MissionCompletionBoundary,
@@ -1540,6 +1550,25 @@ export class Gate3MissionService {
     ) {
       return;
     }
+    const selection = this.skillRouting
+      ? await this.skillRouting.select(teammate.id, {
+          objective: mission.objective,
+          phase: 'SOLO',
+          ...(this.skillRoutingContext?.(mission.id) ?? {}),
+          publicState: mission.state,
+        })
+      : null;
+    if (!this.isRunActive(mission, run)) return;
+    if (selection)
+      this.store.transaction(() => {
+        this.appendEvent(mission, run.id, 'skill.selection', 'TEAMMATE', teammate.id, {
+          ...selection.receipt,
+        });
+        this.appendAudit(mission, 'skill.selection', 'TEAMMATE', teammate.id, {
+          runId: run.id,
+          ...selection.receipt,
+        });
+      });
     const composition = this.composer.compose({
       platformPolicy: PLATFORM_POLICY,
       teammate,
@@ -1549,8 +1578,9 @@ export class Gate3MissionService {
           memory.ownerId === teammate.id &&
           memory.status === 'ACTIVE',
       ),
-      skills: context.skills,
-      skillAssignments: context.skillAssignments.filter(
+      skills: selection?.skills ?? context.skills,
+      ...(selection ? { selectedSkillIds: selection.selectedSkillIds } : {}),
+      skillAssignments: (selection?.skillAssignments ?? context.skillAssignments).filter(
         (assignment) => assignment.teammateId === teammate.id,
       ),
       conversationContext: [{ role: 'user', content: mission.objective }],

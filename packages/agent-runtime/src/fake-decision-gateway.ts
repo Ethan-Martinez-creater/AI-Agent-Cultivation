@@ -4,6 +4,8 @@ import type {
   DecisionResult,
 } from '@cultivation/application/r0-decision';
 
+const skillIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,89}$/;
+
 /** Fixed, local fixture responses. An absent fixture produces an inert advisory result. */
 export class FakeDecisionGateway implements DecisionGateway {
   readonly #fixtures: ReadonlyMap<string, DecisionResult>;
@@ -30,6 +32,40 @@ export class FakeDecisionGateway implements DecisionGateway {
     const questions = extended.questions;
     if (!questions || Object.keys(questions).length === 0) {
       return { answers: {}, confidence: {}, selectedAction: null };
+    }
+
+    if ((request.decisionType as string) === 'SKILL_RELEVANCE') {
+      const candidateIds = request.inputSummary?.candidateIds;
+      const expectedQuestionKeys = Array.isArray(candidateIds)
+        ? candidateIds.map((id) => `skill.${id}`).sort()
+        : [];
+      const actualQuestionKeys = Object.keys(questions).sort();
+      if (
+        !Array.isArray(candidateIds) ||
+        candidateIds.length < 1 ||
+        candidateIds.length > 24 ||
+        candidateIds.some((id) => typeof id !== 'string' || !skillIdPattern.test(id)) ||
+        new Set(candidateIds).size !== candidateIds.length ||
+        actualQuestionKeys.length !== expectedQuestionKeys.length ||
+        actualQuestionKeys.some((key, index) => key !== expectedQuestionKeys[index]) ||
+        Object.values(questions).some(
+          (question) => question.type !== 'noul' || Object.hasOwn(question, 'criteria'),
+        )
+      ) {
+        return { answers: {}, confidence: {}, selectedAction: null };
+      }
+      const skills = candidateIds
+        .map((skillId, index) => ({
+          skillId,
+          score: 1 - index / (candidateIds.length + 1),
+        }))
+        .sort(
+          (left, right) =>
+            right.score - left.score ||
+            (left.skillId < right.skillId ? -1 : left.skillId > right.skillId ? 1 : 0),
+        )
+        .slice(0, 3);
+      return { answers: { skills }, confidence: {}, selectedAction: null };
     }
 
     const answers: Record<string, unknown> = {};

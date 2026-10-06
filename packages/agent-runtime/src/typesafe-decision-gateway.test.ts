@@ -82,6 +82,53 @@ const taskQuestions = (): TypeSafeDecisionRequest['questions'] => {
   return questions;
 };
 
+const skillCandidates = [
+  { id: 'skill-zeta', name: 'Zeta', description: 'A bounded summary.', tags: ['research'] },
+  { id: 'skill-alpha', name: 'Alpha', description: 'Another bounded summary.', tags: ['writing'] },
+  { id: 'skill-beta', name: 'Beta', description: 'A third bounded summary.', tags: [] },
+  {
+    id: 'skill-gamma',
+    name: 'Gamma',
+    description: 'A fourth bounded summary.',
+    tags: ['analysis'],
+  },
+  { id: 'skill-delta', name: 'Delta', description: 'A fifth bounded summary.', tags: ['planning'] },
+];
+
+const skillRelevanceRequest = (candidates = skillCandidates): TypeSafeDecisionRequest => {
+  const questions = Object.fromEntries(
+    candidates.map((candidate) => [
+      `skill.${candidate.id}`,
+      {
+        type: 'noul' as const,
+        instructions: 'Estimate relevance from the bounded task context and Skill metadata.',
+      },
+    ]),
+  ) as TypeSafeDecisionRequest['questions'];
+  return {
+    ...baseRequest('SKILL_RELEVANCE' as DecisionType, questions),
+    inputSummary: {
+      taskSummary: 'Compare a few enabled Skills for a bounded coding task.',
+      candidateIds: candidates.map((candidate) => candidate.id),
+    },
+    state: {
+      context: { objective: 'Compare a few enabled Skills for a bounded coding task.' },
+      candidates,
+    },
+  };
+};
+
+const skillRelevanceResponse = (scores: Record<string, number>): unknown => ({
+  model: TYPESAFE_DECISION_MODEL,
+  answers: Object.fromEntries(
+    Object.entries(scores).map(([skillId, score]) => [
+      `skill.${skillId}`,
+      { type: 'noul', noul: score },
+    ]),
+  ),
+  usage: { input_tokens: 97, output_tokens: 12 },
+});
+
 describe('TypeSafeDecisionGateway', () => {
   afterEach(() => vi.restoreAllMocks());
 
@@ -200,6 +247,150 @@ describe('TypeSafeDecisionGateway', () => {
     expect(collaboration.selectedAction).toBe('YES');
     expect(review.answers).toEqual({ review: 'UNCERTAIN' });
     expect(review.selectedAction).toBe('UNCERTAIN');
+  });
+
+  it('normalizes Skill relevance scores to at most three candidate IDs in stable rank order', async () => {
+    let requestInit: RequestInit | undefined;
+    const fetch: Fetch = async (_input, init) => {
+      requestInit = init;
+      return jsonResponse(
+        skillRelevanceResponse({
+          'skill-zeta': 0.91,
+          'skill-alpha': 0.3,
+          'skill-beta': 0.91,
+          'skill-gamma': 0.82,
+          'skill-delta': 0.2,
+        }),
+      );
+    };
+    const gateway = new TypeSafeDecisionGateway({ apiKey, fetch, timeoutMs: 500 });
+    const request = skillRelevanceRequest();
+    const result = await gateway.evaluate(request);
+    const sent = JSON.parse(String(requestInit?.body)) as {
+      model: string;
+      state: Record<string, unknown>;
+      questions: Record<string, { type: string; criteria?: unknown }>;
+    };
+
+    expect(sent.model).toBe(TYPESAFE_DECISION_MODEL);
+    expect(sent.state).toEqual(request.state);
+    expect(sent.questions).toEqual(request.questions);
+    expect(Object.keys(sent.questions).sort()).toEqual(
+      skillCandidates.map((candidate) => `skill.${candidate.id}`).sort(),
+    );
+    expect(Object.values(sent.questions).every((question) => question.type === 'noul')).toBe(true);
+    expect(Object.values(sent.questions).every((question) => !('criteria' in question))).toBe(true);
+    expect(JSON.stringify(sent.state).toLowerCase()).not.toContain('instructions');
+    expect(result).toMatchObject({
+      provider: 'TYPESAFE',
+      model: TYPESAFE_DECISION_MODEL,
+      errorCode: null,
+      inputTokens: 97,
+      outputTokens: 12,
+      confidence: {},
+      selectedAction: null,
+      answers: {
+        skills: [
+          { skillId: 'skill-beta', score: 0.91 },
+          { skillId: 'skill-zeta', score: 0.91 },
+          { skillId: 'skill-gamma', score: 0.82 },
+        ],
+      },
+    });
+  });
+
+  it('rejects Skill relevance requests with mismatched IDs or named criteria before transport', async () => {
+    let calls = 0;
+    const fetch: Fetch = async () => {
+      calls += 1;
+      return jsonResponse(skillRelevanceResponse({ 'skill-zeta': 0.9 }));
+    };
+    const gateway = new TypeSafeDecisionGateway({ apiKey, fetch });
+    const base = skillRelevanceRequest([skillCandidates[0]!]);
+    const mismatchedIds = {
+      ...base,
+      inputSummary: { ...base.inputSummary, candidateIds: ['skill-other'] },
+    };
+    const namedCriteria = {
+      ...base,
+      questions: {
+        [`skill.${skillCandidates[0]!.id}`]: {
+          type: 'noul' as const,
+          instructions: 'Estimate relevance.',
+          criteria: { true: 'Relevant' },
+        },
+      },
+    };
+    const skillInstructions = {
+      ...base,
+      state: {
+        ...base.state,
+        candidates: [{ ...skillCandidates[0]!, instructions: 'Private Skill instructions.' }],
+      },
+    };
+    const privateMemory = {
+      ...base,
+      state: {
+        ...base.state,
+        context: { taskSummary: 'Bounded task summary', privateMemory: 'Private note.' },
+      },
+    };
+    const unknownContext = {
+      ...base,
+      state: { ...base.state, context: { objective: 'Review', privatePrompt: 'Never send this.' } },
+    };
+    const unknownState = { ...base, state: { ...base.state, hidden: 'Never send this.' } };
+    const tooManyCandidates = skillRelevanceRequest(
+      Array.from({ length: 25 }, (_, index) => ({
+        id: `skill-${index}`,
+        name: `Skill ${index}`,
+        description: 'Bounded metadata.',
+        tags: [],
+      })),
+    );
+
+    expect((await gateway.evaluate(mismatchedIds)).errorCode).toBe('INVALID_REQUEST');
+    expect((await gateway.evaluate(namedCriteria)).errorCode).toBe('INVALID_REQUEST');
+    expect((await gateway.evaluate(skillInstructions)).errorCode).toBe('INVALID_REQUEST');
+    expect((await gateway.evaluate(privateMemory)).errorCode).toBe('INVALID_REQUEST');
+    expect((await gateway.evaluate(unknownContext)).errorCode).toBe('INVALID_REQUEST');
+    expect((await gateway.evaluate(unknownState)).errorCode).toBe('INVALID_REQUEST');
+    expect((await gateway.evaluate(tooManyCandidates)).errorCode).toBe('INVALID_REQUEST');
+    expect(calls).toBe(0);
+  });
+
+  it('fails closed on missing, extra, or non-Noul Skill relevance answers', async () => {
+    const request = skillRelevanceRequest(skillCandidates.slice(0, 2));
+    const validAnswers = {
+      'skill.skill-zeta': { type: 'noul', noul: 0.7 },
+      'skill.skill-alpha': { type: 'noul', noul: 0.4 },
+    };
+    const invalidResponses = [
+      { ...validAnswers, 'skill.skill-alpha': undefined },
+      { ...validAnswers, 'skill.skill-extra': { type: 'noul', noul: 0.5 } },
+      {
+        ...validAnswers,
+        'skill.skill-alpha': {
+          type: 'choice',
+          choice: 'YES',
+          confidence: 1,
+          probabilities: { YES: 1, NO: 0 },
+        },
+      },
+    ];
+    for (const answers of invalidResponses) {
+      const fetch: Fetch = async () =>
+        jsonResponse({
+          model: TYPESAFE_DECISION_MODEL,
+          answers,
+          usage: { input_tokens: 20, output_tokens: 4 },
+        });
+      const gateway = new TypeSafeDecisionGateway({ apiKey, fetch });
+      const result = await gateway.evaluate(request);
+      expect(result.errorCode).toBe('SCHEMA_MISMATCH');
+      expect(result.answers).toEqual({});
+      expect(result.selectedAction).toBeNull();
+    }
   });
 
   it('fails open on malformed schema and on answer/question mismatches', async () => {

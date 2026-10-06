@@ -160,4 +160,42 @@ describe('FakeDecisionGateway', () => {
     expect(collaborationResult.selectedAction).toBe('NO');
     expect(reviewResult.selectedAction).toBe('NO');
   });
+
+  it('returns deterministic local top-three Skill relevance scores', async () => {
+    const candidates = ['skill-zeta', 'skill-alpha', 'skill-gamma', 'skill-beta', 'skill-delta'];
+    const skillRequest = {
+      ...request,
+      decisionType: 'SKILL_RELEVANCE',
+      inputSummary: {
+        taskSummary: 'A bounded public task summary',
+        candidateIds: candidates,
+      },
+      state: {
+        schemaVersion: 'r5-skill-relevance-v1',
+        decisionType: 'SKILL_RELEVANCE',
+        context: { taskSummary: 'A bounded public task summary' },
+        candidates: candidates.map((id) => ({ id, name: id, description: '', tags: [] })),
+      },
+      questions: Object.fromEntries(
+        candidates.map((id) => [
+          `skill.${id}`,
+          { type: 'noul' as const, instructions: 'Estimate relevance.' },
+        ]),
+      ),
+    } as DecisionRequest;
+
+    const result = await new FakeDecisionGateway().evaluate(skillRequest);
+
+    expect(result).toEqual({
+      answers: {
+        skills: [
+          { skillId: 'skill-zeta', score: 1 },
+          { skillId: 'skill-alpha', score: 5 / 6 },
+          { skillId: 'skill-gamma', score: 1 - 2 / 6 },
+        ],
+      },
+      confidence: {},
+      selectedAction: null,
+    });
+  });
 });

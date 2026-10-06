@@ -76,6 +76,53 @@ function assignment(
 }
 
 describe('PromptComposer', () => {
+  it('treats routed IDs as a bounded subset and rechecks ownership, status and enabled assignments', () => {
+    const composed = new PromptComposer().compose({
+      platformPolicy: 'Policy',
+      teammate,
+      relevantMemories: [],
+      conversationContext: [],
+      skills: [
+        skill('a'),
+        skill('b'),
+        skill('c'),
+        skill('d'),
+        skill('other'),
+        skill('archived', 'ARCHIVED'),
+        skill('disabled'),
+      ],
+      skillAssignments: [
+        assignment('a'),
+        assignment('b'),
+        assignment('c'),
+        assignment('d'),
+        assignment('other', 'teammate-b'),
+        assignment('archived'),
+        assignment('disabled', teammate.id, false),
+      ],
+      selectedSkillIds: ['other', 'archived', 'disabled', 'a', 'b', 'c', 'd'],
+      limits: { maxSkillItems: 20, maxSkillCharacters: 24000 },
+    });
+    expect(composed.sections.activeSkills).toBe('');
+  });
+  it('preserves selected relevance order and cannot exceed the routed item or character ceiling', () => {
+    const composed = new PromptComposer().compose({
+      platformPolicy: 'Policy',
+      teammate,
+      relevantMemories: [],
+      conversationContext: [],
+      skills: ['a', 'b', 'c', 'd'].map((id) => ({ ...skill(id), instructions: id.repeat(15000) })),
+      skillAssignments: ['a', 'b', 'c', 'd'].map((id) => assignment(id)),
+      selectedSkillIds: ['c', 'b', 'a', 'd'],
+      limits: { maxSkillItems: 20, maxSkillCharacters: 24000 },
+    });
+    const section = composed.sections.activeSkills;
+    expect(section.length).toBeLessThanOrEqual(6000);
+    const items = JSON.parse(section.slice(section.indexOf('\n') + 1)) as { id: string }[];
+    expect(items.length).toBeLessThanOrEqual(3);
+    expect(items[0]?.id).toBe('c');
+    expect(items.some((item) => item.id === 'd')).toBe(false);
+  });
   it('injects only this Teammate’s enabled assignments and ACTIVE Skills', () => {
     const composed = new PromptComposer().compose({
       platformPolicy: 'Keep user data private.',

@@ -31,6 +31,12 @@ import { Gate2MemoryService } from '@cultivation/application/gate2-memory-servic
 import { Gate2HybridMemoryService } from '@cultivation/application/gate2-hybrid-memory-service';
 import { SkillService, type SkillServiceStore } from '@cultivation/application/skill-service';
 import {
+  SkillRoutingService,
+  SKILL_ROUTING_POLICY,
+} from '@cultivation/application/r5-1-skill-routing';
+import { skillRoutingExecutionContext } from './r5-1-context.js';
+import { SkillRoutingFixtureObserver } from './r5-1-fixture-observer.js';
+import {
   AiSdkModelGateway,
   FakeModelGateway,
   FakeDecisionGateway,
@@ -574,8 +580,38 @@ if (!squirrelStartup)
       );
       // Both production and Fake adapters implement these ancillary ports; the
       // decorator preserves exactly the methods present on its wrapped adapter.
+      const skillRoutingFixture =
+        process.argv.includes('--gate1-fake-model') && process.argv.includes('--r5-1-fixture');
+      const skillRoutingObserver = skillRoutingFixture
+        ? new SkillRoutingFixtureObserver(
+            join(app.getPath('userData'), 'r5-1-execution-facts.json'),
+            (teammateId) => {
+              const started = db
+                .prepare(
+                  "SELECT mission_id, run_id, payload_json FROM mission_events WHERE event_type = 'model.call_started' AND actor_id = ? ORDER BY rowid DESC LIMIT 1",
+                )
+                .get(teammateId) as
+                | { mission_id: string; run_id: string; payload_json: string }
+                | undefined;
+              if (!started) return {};
+              const selection = db
+                .prepare(
+                  "SELECT payload_json FROM mission_events WHERE event_type = 'skill.selection' AND mission_id = ? AND run_id = ? AND actor_id = ? ORDER BY rowid DESC LIMIT 1",
+                )
+                .get(started.mission_id, started.run_id, teammateId) as
+                | { payload_json: string }
+                | undefined;
+              return {
+                missionId: started.mission_id,
+                runId: started.run_id,
+                phase: JSON.parse(started.payload_json).phase ?? 'SOLO',
+                selectionHash: selection ? JSON.parse(selection.payload_json).inputHash : null,
+              };
+            },
+          )
+        : null;
       const gateway = new AvailabilityAwareModelGateway(
-        rawGateway,
+        skillRoutingObserver?.modelGateway(rawGateway) ?? rawGateway,
         availability,
       ) as AvailabilityAwareModelGateway & MemoryCandidateExtractor & EmbeddingGateway;
       const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
@@ -604,6 +640,18 @@ if (!squirrelStartup)
       const skillService = new SkillService(skillStore, {
         now: () => new Date().toISOString(),
         newId: () => crypto.randomUUID(),
+      });
+      const skillRouting = new SkillRoutingService(skillStore, async () => {
+        // R5.1 has its own bounded request path. R3 remains SHADOW; its switch is not promoted.
+        if (!routingStore.config().cloudEnabled) return null;
+        const key = await r3Config.resolveKey();
+        if (!key) return null;
+        return skillRoutingFixture
+          ? skillRoutingObserver!.decisionGateway(new FakeDecisionGateway())
+          : new TypeSafeDecisionGateway({
+              apiKey: key,
+              timeoutMs: SKILL_ROUTING_POLICY.gatewayTimeoutMs,
+            });
       });
       const promptContext: ChatPromptContext = {
         load: async (teammateId, query) => ({
@@ -994,6 +1042,10 @@ if (!squirrelStartup)
           }
         },
       );
+      const loadSkillContext = (id: string) =>
+        skillRoutingExecutionContext(routingStore, workflowStore, id);
+      missions.attachSkillRouting(skillRouting, loadSkillContext);
+      partyMissions.attachSkillRouting(skillRouting, loadSkillContext);
       missions.attachArtifactContext((id) => [
         ...workflowArtifactContext(workflowStore, id),
         ...researchInputs.contextForMission(id),

@@ -30,6 +30,7 @@ export const MAX_TYPESAFE_TIMEOUT_MS = 30_000;
 export const MAX_TYPESAFE_STATE_BYTES = 24_000;
 export const MAX_TYPESAFE_QUESTIONS_BYTES = 24_000;
 export const MAX_TYPESAFE_REQUEST_BYTES = 48_000;
+export const MAX_TYPESAFE_SKILL_CANDIDATES = 24;
 
 type TypeSafeEntry =
   | string
@@ -117,6 +118,9 @@ const modelListSchema = z.array(
     .strict(),
 );
 
+const skillIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,89}$/;
+const skillCandidateKeys = new Set(['id', 'name', 'description', 'tags']);
+
 const stateSchema = z.record(z.string(), z.unknown());
 const instructionSchema = z.string().min(1).max(2_000);
 const criteriaValueSchema = z.string().max(500).nullable();
@@ -187,6 +191,137 @@ const isPlainJsonTree = (value: unknown, depth = 0): value is TypeSafeEntry => {
   );
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+
+const skillContextSchema = z
+  .object({
+    objective: z.string().max(600),
+    phase: z.string().max(48).optional(),
+    stepType: z.enum(['TASK', 'REVIEW', 'DECISION']).optional(),
+    requiredCapabilities: z.array(z.enum(capabilityDimensions)).max(8).optional(),
+    inputArtifactSummaries: z
+      .array(
+        z
+          .object({
+            id: z.string().min(1).max(64),
+            kind: z.string().min(1).max(32),
+            name: z.string().min(1).max(64),
+          })
+          .strict(),
+      )
+      .max(4)
+      .optional(),
+    expectedOutputContract: z
+      .array(
+        z
+          .object({
+            key: z.string().min(1).max(40),
+            kind: z.string().min(1).max(32),
+            contractId: z.string().max(48).optional(),
+            contractVersion: z.string().max(32).optional(),
+          })
+          .strict(),
+      )
+      .max(4)
+      .optional(),
+    publicState: z
+      .enum([
+        'DRAFT',
+        'READY',
+        'RUNNING',
+        'WAITING_APPROVAL',
+        'WAITING_COLLABORATION',
+        'WAITING_EXTERNAL_WORK',
+        'PAUSED',
+        'COMPLETED',
+        'FAILED',
+        'CANCELLED',
+        'INTERRUPTED',
+      ])
+      .optional(),
+  })
+  .strict();
+
+const containsInstructionKey = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(containsInstructionKey);
+  if (!isRecord(value)) return false;
+  return Object.entries(value).some(
+    ([key, child]) => /instruction/i.test(key) || containsInstructionKey(child),
+  );
+};
+
+/**
+ * Skill relevance is the only decision shape whose dynamic Noul keys encode
+ * candidate IDs. Bind those keys to the bounded metadata and summary IDs before
+ * sending the request so the provider cannot score an unlisted Skill.
+ */
+const skillCandidateIdsForRequest = (
+  request: DecisionRequest,
+  state: Record<string, unknown>,
+  questions: TypeSafeQuestionMap,
+): string[] | null => {
+  if (request.decisionType !== 'SKILL_RELEVANCE') return null;
+  if (
+    Object.keys(state).length !== 2 ||
+    !skillContextSchema.safeParse(state.context).success ||
+    !Array.isArray(state.candidates) ||
+    state.candidates.length < 1 ||
+    state.candidates.length > MAX_TYPESAFE_SKILL_CANDIDATES ||
+    containsInstructionKey(state)
+  ) {
+    return null;
+  }
+
+  const candidateIds: string[] = [];
+  for (const candidate of state.candidates) {
+    if (
+      !isRecord(candidate) ||
+      Object.keys(candidate).length !== skillCandidateKeys.size ||
+      Object.keys(candidate).some((key) => !skillCandidateKeys.has(key)) ||
+      typeof candidate.id !== 'string' ||
+      !skillIdPattern.test(candidate.id) ||
+      typeof candidate.name !== 'string' ||
+      candidate.name.length < 1 ||
+      candidate.name.length > 120 ||
+      typeof candidate.description !== 'string' ||
+      candidate.description.length > 1_000 ||
+      !Array.isArray(candidate.tags) ||
+      candidate.tags.length > 32 ||
+      candidate.tags.some((tag) => typeof tag !== 'string' || tag.length > 64)
+    ) {
+      return null;
+    }
+    candidateIds.push(candidate.id);
+  }
+  if (new Set(candidateIds).size !== candidateIds.length) return null;
+
+  const inputSummary = request.inputSummary as unknown;
+  if (!isRecord(inputSummary) || !Array.isArray(inputSummary.candidateIds)) return null;
+  if (
+    inputSummary.candidateIds.length !== candidateIds.length ||
+    inputSummary.candidateIds.some((id, index) => id !== candidateIds[index])
+  ) {
+    return null;
+  }
+
+  const expectedQuestionKeys = candidateIds.map((id) => `skill.${id}`).sort();
+  const actualQuestionKeys = Object.keys(questions).sort();
+  if (
+    actualQuestionKeys.length !== expectedQuestionKeys.length ||
+    actualQuestionKeys.some((key, index) => key !== expectedQuestionKeys[index])
+  ) {
+    return null;
+  }
+  for (const key of expectedQuestionKeys) {
+    const question = questions[key];
+    // Skill relevance uses numeric Noul questions only; named criteria would
+    // create an unnecessary provider-controlled choice surface.
+    if (!question || question.type !== 'noul' || Object.hasOwn(question, 'criteria')) return null;
+  }
+  return candidateIds;
+};
+
 const utf8Bytes = (value: string): number => new TextEncoder().encode(value).byteLength;
 
 const failedResult = (errorCode: DecisionErrorCode, latencyMs = 0): TypeSafeDecisionResult => ({
@@ -243,6 +378,28 @@ const validateNormalizedAnswers = (
     } else if (!answer || answer.type !== 'noul') {
       return null;
     }
+  }
+
+  if ((decisionType as string) === 'SKILL_RELEVANCE') {
+    const skills = Object.keys(questions)
+      .map((key) => {
+        const answer = answers[key];
+        if (!key.startsWith('skill.') || !answer || answer.type !== 'noul') return null;
+        return { skillId: key.slice('skill.'.length), score: answer.noul };
+      })
+      .filter((skill): skill is { skillId: string; score: number } => skill !== null)
+      .sort(
+        (left, right) =>
+          right.score - left.score ||
+          (left.skillId < right.skillId ? -1 : left.skillId > right.skillId ? 1 : 0),
+      )
+      .slice(0, 3);
+    if (skills.length === 0) return null;
+    return {
+      answers: { skills },
+      confidence: {},
+      selectedAction: null,
+    };
   }
 
   if (decisionType === 'TASK_CAPABILITY') {
@@ -337,6 +494,12 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
     const state = stateSchema.safeParse(extended.state);
     const questions = questionMapSchema.safeParse(extended.questions);
     if (!state.success || !questions.success || !isPlainJsonTree(state.data)) {
+      return failedResult('INVALID_REQUEST');
+    }
+    if (
+      request.decisionType === 'SKILL_RELEVANCE' &&
+      !skillCandidateIdsForRequest(request, state.data, questions.data)
+    ) {
       return failedResult('INVALID_REQUEST');
     }
 

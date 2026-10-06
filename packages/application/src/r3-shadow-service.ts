@@ -1,7 +1,12 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { DecisionReceipt } from '@cultivation/domain';
 import type { DecisionReceiptRepository } from './r0-repositories.js';
-import type { DecisionGateway, DecisionRequest, DecisionResult } from './r0-decision.js';
+import type {
+  DecisionGateway,
+  DecisionRequest,
+  DecisionResult,
+  ShadowDecisionType,
+} from './r0-decision.js';
 import { CAPABILITY_DIMENSIONS } from './r1-capability-scoring.js';
 import {
   DECISION_STATE_BUDGET,
@@ -368,6 +373,7 @@ function sanitizeValue(value: unknown, depth: number): unknown {
 }
 
 export function assertSafeRequest(request: DecisionRequest): void {
+  if (!isDecisionType(request.decisionType)) throw new Error('Unsupported shadow decision type.');
   if (!isRecord(request) || !isRecord(request.state) || !isRecord(request.questions)) {
     throw new Error('Invalid decision request.');
   }
@@ -649,7 +655,7 @@ function assertNoSecretText(value: unknown): void {
   }
 }
 
-function isDecisionType(value: unknown): value is DecisionRequest['decisionType'] {
+function isDecisionType(value: unknown): value is ShadowDecisionType {
   return ['TASK_CAPABILITY', 'TEAMMATE_FIT', 'COLLABORATION_NEED', 'REVIEW_NEED'].includes(
     String(value),
   );

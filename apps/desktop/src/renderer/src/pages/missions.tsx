@@ -56,6 +56,8 @@ function recentEventLabel(eventType: string): string {
     'model.call_started': '开始调用模型',
     'model.call_completed': '模型回复已完成',
     'model.call_failed': '模型调用失败',
+    'skill.selection': '选用功法',
+    'skill.used': '使用功法',
     'collaboration.proposed': '提出协作请求',
     'collaboration.approved': '协作已获批准',
     'collaboration.denied': '协作请求已拒绝',
@@ -167,6 +169,9 @@ function riskLabel(value: string): string {
 function missionEventSummary(event: MissionEventView): string[] {
   const payload = event.payloadJson;
   const summaries: string[] = [];
+  if (event.eventType === 'skill.selection' && Array.isArray(payload.selectedSkillIds)) {
+    summaries.push(`功法：${Math.min(payload.selectedSkillIds.length, 3)} 项`);
+  }
   const from = typeof payload.from === 'string' ? payload.from : null;
   const to = typeof payload.to === 'string' ? payload.to : null;
   if (from && to) summaries.push(`状态：${missionStateLabel(from)} → ${missionStateLabel(to)}`);

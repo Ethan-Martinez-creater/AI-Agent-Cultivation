@@ -26,6 +26,7 @@ import {
 } from './gate3-mission-service.js';
 import { PermissionEngine, type PermissionRuleStore } from './permission-engine.js';
 import { ToolRegistry, ToolRuntime } from './tool-runtime.js';
+import { SkillRoutingService } from './r5-1-skill-routing.js';
 
 const timestamp = '2026-09-26T00:00:00.000Z';
 
@@ -398,6 +399,97 @@ function activeMemory(id: string, ownerId: string, content: string): MemoryRecor
 }
 
 describe('Gate 3 Mission Runtime', () => {
+  it('executes SOLO with relevance-selected owned Skills and bounded audit facts', async () => {
+    const { store, permissionStore, gate1 } = fixture();
+    const skills: Skill[] = Array.from({ length: 6 }, (_, index) => ({
+      id: `selected-${index}`,
+      name: `Analysis ${index}`,
+      description: 'Analysis',
+      instructions: `PRIVATE_INSTRUCTIONS_SENTINEL_${index}`,
+      version: '1.0.0',
+      tags: ['analysis'],
+      status: 'ACTIVE',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }));
+    const assignments = skills.map((skill) => ({
+      teammateId: 'teammate-1',
+      skillId: skill.id,
+      enabled: true,
+    }));
+    let captured: ModelRequest | undefined;
+    const fake = new FakeModelGateway();
+    const gateway: ModelGateway = {
+      generate: async (request) => {
+        captured = request;
+        return fake.generate(request);
+      },
+      stream: fake.stream.bind(fake),
+      testConnection: fake.testConnection.bind(fake),
+    };
+    const service = new Gate3MissionService(
+      store,
+      gate1,
+      new PermissionEngine(permissionStore),
+      gateway,
+      {
+        load: async () => ({
+          relevantMemories: [
+            activeMemory('own', 'teammate-1', 'OWN_MEMORY_SENTINEL'),
+            activeMemory('other', 'teammate-2', 'PRIVATE_MEMORY_SENTINEL'),
+          ],
+          skills,
+          skillAssignments: assignments,
+        }),
+      },
+      new TestClock(),
+    );
+    service.attachSkillRouting(
+      new SkillRoutingService(
+        {
+          getSkill: async (id) => skills.find((skill) => skill.id === id) ?? null,
+          listAssignmentsForTeammate: async (id) =>
+            assignments.filter((assignment) => assignment.teammateId === id),
+        },
+        async () => ({
+          evaluate: async (request) => {
+            expect(JSON.stringify(request)).not.toMatch(
+              /PRIVATE_INSTRUCTIONS_SENTINEL|PRIVATE_MEMORY_SENTINEL|OWN_MEMORY_SENTINEL/,
+            );
+            return {
+              answers: { skills: [{ skillId: 'selected-4', score: 0.9 }] },
+              confidence: {},
+              selectedAction: null,
+            };
+          },
+        }),
+      ),
+    );
+    const mission = service.create({
+      title: 'Skill selection',
+      objective: 'Analyze evidence',
+      coordinatorTeammateId: 'teammate-1',
+    });
+    service.ready(mission.id);
+    const done = await service.start({ missionId: mission.id, approvalFixture: false });
+    expect(done.mission.state).toBe('COMPLETED');
+    const system = captured?.messages.find((message) => message.role === 'system')?.content ?? '';
+    expect(system).toContain('PRIVATE_INSTRUCTIONS_SENTINEL_4');
+    for (const index of [0, 1, 2, 3, 5])
+      expect(system).not.toContain(`PRIVATE_INSTRUCTIONS_SENTINEL_${index}`);
+    expect(system).toContain('OWN_MEMORY_SENTINEL');
+    expect(system).not.toContain('PRIVATE_MEMORY_SENTINEL');
+    const receipt = done.events.find((event) => event.eventType === 'skill.selection')!;
+    expect(receipt.actorId).toBe('teammate-1');
+    expect(receipt.payloadJson.selectedSkillIds).toEqual(['selected-4']);
+    expect(JSON.stringify(receipt)).not.toMatch(/PRIVATE_INSTRUCTIONS|Analyze evidence/);
+    expect(
+      done.events
+        .filter((event) => event.eventType === 'skill.used')
+        .map((event) => event.payloadJson.skillId),
+    ).toEqual(['selected-4']);
+    expect(permissionStore.rules).toEqual([]);
+  });
   it('executes a SOLO Mission and binds Usage to its run and runtime', async () => {
     const { service } = fixture();
     const created = service.create({

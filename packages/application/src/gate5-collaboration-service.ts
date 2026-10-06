@@ -36,6 +36,11 @@ import type {
 import { Gate5PartyService } from './gate5-party-service.js';
 import { PermissionEngine } from './permission-engine.js';
 import { PromptComposer } from './prompt-composer.js';
+import type {
+  SkillRoutingPort,
+  SkillRoutingContext,
+  SkillRoutingSelection,
+} from './r5-1-skill-routing.js';
 import { ToolRuntime, type ToolResult } from './tool-runtime.js';
 import type { R2ExternalWorkContinuationStore } from './r2-human-bridge-service.js';
 
@@ -589,6 +594,35 @@ function appendToolResult(messages: ModelMessage[], call: ModelToolCall, result:
 
 /** Party Mission orchestration. The SOLO service remains the owner of SOLO execution. */
 export class Gate5CollaborationService {
+  private skillRouting: SkillRoutingPort | null = null;
+  private skillRoutingContext: ((missionId: string) => SkillRoutingContext | null) | null = null;
+  attachSkillRouting(
+    port: SkillRoutingPort,
+    loadContext?: (missionId: string) => SkillRoutingContext | null,
+  ): void {
+    this.skillRouting = port;
+    this.skillRoutingContext = loadContext ?? null;
+  }
+  private async selectSkills(
+    mission: Mission,
+    run: MissionRunRecord,
+    teammateId: string,
+    phase: string,
+    objective: string,
+  ): Promise<SkillRoutingSelection | null> {
+    if (!this.skillRouting) return null;
+    const selection = await this.skillRouting.select(teammateId, {
+      objective,
+      phase,
+      ...(this.skillRoutingContext?.(mission.id) ?? {}),
+      publicState: mission.state,
+    });
+    if (this.active(mission, run))
+      this.record(mission, run.id, 'skill.selection', 'TEAMMATE', teammateId, {
+        ...selection.receipt,
+      });
+    return selection;
+  }
   private multimodal: MultimodalPartyExecution | null = null;
   attachMultimodalExecution(execution: MultimodalPartyExecution): void {
     this.multimodal = execution;
@@ -1544,6 +1578,14 @@ export class Gate5CollaborationService {
     } catch {
       /* optional context */
     }
+    const selection = await this.selectSkills(
+      mission,
+      run,
+      coordinator.id,
+      'COLLABORATION_PROPOSAL',
+      mission.objective,
+    );
+    if (!this.active(mission, run)) return;
     const composition = this.composer.compose({
       platformPolicy: POLICY,
       teammate: coordinator,
@@ -1553,8 +1595,9 @@ export class Gate5CollaborationService {
           memory.ownerId === coordinator.id &&
           memory.status === 'ACTIVE',
       ),
-      skills: data.skills,
-      skillAssignments: data.skillAssignments.filter(
+      skills: selection?.skills ?? data.skills,
+      ...(selection ? { selectedSkillIds: selection.selectedSkillIds } : {}),
+      skillAssignments: (selection?.skillAssignments ?? data.skillAssignments).filter(
         (assignment) => assignment.teammateId === coordinator.id,
       ),
       conversationContext: [{ role: 'user', content: mission.objective }],
@@ -2023,6 +2066,14 @@ export class Gate5CollaborationService {
     } catch {
       /* optional context */
     }
+    const selection = await this.selectSkills(
+      mission,
+      run,
+      teammate.id,
+      task.phase,
+      task.phase === 'PARTICIPANT' ? (task.memoryQuery ?? mission.objective) : mission.objective,
+    );
+    if (!this.active(mission, run)) return { kind: 'WAITING' };
     const composition = this.composer.compose({
       platformPolicy:
         POLICY +
@@ -2036,8 +2087,9 @@ export class Gate5CollaborationService {
           memory.ownerId === teammate.id &&
           memory.status === 'ACTIVE',
       ),
-      skills: data.skills,
-      skillAssignments: data.skillAssignments.filter(
+      skills: selection?.skills ?? data.skills,
+      ...(selection ? { selectedSkillIds: selection.selectedSkillIds } : {}),
+      skillAssignments: (selection?.skillAssignments ?? data.skillAssignments).filter(
         (assignment) => assignment.teammateId === teammate.id,
       ),
       conversationContext: [{ role: 'user', content: bounded(task.task, 24_000) }],
