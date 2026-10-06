@@ -34,11 +34,20 @@ export function h3GenerationFoundation(options: {
   secrets: SecretStore;
   onAvailabilityChanged?: Parameters<typeof createGenerationAvailabilityService>[4];
   chatCrash?: GenerationChatServiceOptions['crash'];
+  approveMediaAccess?: (
+    task: import('@cultivation/domain/g1-generation').GenerationTask,
+    capability: 'FILE_READ' | 'FILE_WRITE',
+    resource: string,
+  ) => boolean;
+  /** Trusted Main test composition only; never supplied by Renderer/IPC. */
+  gatewayDecorator?: (
+    gateway: import('@cultivation/application/g1-generation').GenerationGateway,
+  ) => import('@cultivation/application/g1-generation').GenerationGateway;
 }) {
   const { db, store } = options;
   const repository = new GenerationSqliteRepository(db);
   const media = new GenerationMediaStore(options.userData, db);
-  const raw = new H3GenerationGateway(
+  const h3 = new H3GenerationGateway(
     async (id: string) => {
       const runtime = store.getRuntimeProfile(id);
       const provider = runtime ? store.getProvider(runtime.providerId) : null;
@@ -63,6 +72,7 @@ export function h3GenerationFoundation(options: {
     new GenerationAdapterStateStore(db),
     media,
   );
+  const raw = options.gatewayDecorator?.(h3) ?? h3;
   const resolver = {
     resolveRuntime: (id: string) => {
       const teammate = store
@@ -95,7 +105,10 @@ export function h3GenerationFoundation(options: {
         capability,
         resource,
       });
-      if (result.decision !== 'ALLOW')
+      if (
+        result.decision !== 'ALLOW' &&
+        !(result.decision === 'ASK' && options.approveMediaAccess?.(task, capability, resource))
+      )
         throw new DomainError(
           result.decision === 'DENY' ? 'PERMISSION_DENIED' : 'APPROVAL_REQUIRED',
           '生成文件操作需要明确授权',

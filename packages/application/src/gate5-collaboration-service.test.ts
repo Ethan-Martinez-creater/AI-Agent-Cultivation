@@ -321,46 +321,50 @@ function setup(memberCount = 2) {
     memberTeammateIds: [...teammates.keys()],
   });
   const gateway = new RecordingGateway();
+  const contextQueries: Array<{ teammateId: string; query: string }> = [];
   const context: ChatPromptContext = {
-    load: async (teammateId) => ({
-      relevantMemories: [
-        {
-          id: `memory-${teammateId}`,
-          ownerType: 'TEAMMATE',
-          ownerId: teammateId,
-          memoryType: 'FACT',
-          content: `GATE5_${teammateId.toUpperCase()}_MEMORY`,
-          summary: `GATE5_${teammateId.toUpperCase()}_MEMORY`,
-          sourceType: 'MANUAL',
-          sourceId: null,
-          sourceConversationId: null,
-          sourceMessageId: null,
-          importance: 1,
-          confidence: 1,
-          status: 'ACTIVE',
-          createdAt: at,
-          updatedAt: at,
-          expiresAt: null,
-          confirmedAt: at,
-        } satisfies MemoryRecord,
-      ],
-      skills: [
-        {
-          id: `skill-${teammateId}`,
-          name: `Skill ${teammateId}`,
-          description: '',
-          instructions: `GATE5_${teammateId.toUpperCase()}_SKILL`,
-          version: '1',
-          tags: [],
-          status: 'ACTIVE',
-          createdAt: at,
-          updatedAt: at,
-        } satisfies Skill,
-      ],
-      skillAssignments: [
-        { teammateId, skillId: `skill-${teammateId}`, enabled: true } satisfies SkillAssignment,
-      ],
-    }),
+    load: async (teammateId, query) => {
+      contextQueries.push({ teammateId, query });
+      return {
+        relevantMemories: [
+          {
+            id: `memory-${teammateId}`,
+            ownerType: 'TEAMMATE',
+            ownerId: teammateId,
+            memoryType: 'FACT',
+            content: `GATE5_${teammateId.toUpperCase()}_MEMORY`,
+            summary: `GATE5_${teammateId.toUpperCase()}_MEMORY`,
+            sourceType: 'MANUAL',
+            sourceId: null,
+            sourceConversationId: null,
+            sourceMessageId: null,
+            importance: 1,
+            confidence: 1,
+            status: 'ACTIVE',
+            createdAt: at,
+            updatedAt: at,
+            expiresAt: null,
+            confirmedAt: at,
+          } satisfies MemoryRecord,
+        ],
+        skills: [
+          {
+            id: `skill-${teammateId}`,
+            name: `Skill ${teammateId}`,
+            description: '',
+            instructions: `GATE5_${teammateId.toUpperCase()}_SKILL`,
+            version: '1',
+            tags: [],
+            status: 'ACTIVE',
+            createdAt: at,
+            updatedAt: at,
+          } satisfies Skill,
+        ],
+        skillAssignments: [
+          { teammateId, skillId: `skill-${teammateId}`, enabled: true } satisfies SkillAssignment,
+        ],
+      };
+    },
   };
   const permissions = new PermissionEngine(store);
   const registry = new ToolRegistry();
@@ -402,7 +406,18 @@ function setup(memberCount = 2) {
     service.ready(mission.id);
     return mission.id;
   };
-  return { store, service, restart, gateway, party, parties, teammates, registry, create };
+  return {
+    store,
+    service,
+    restart,
+    gateway,
+    party,
+    parties,
+    teammates,
+    registry,
+    create,
+    contextQueries,
+  };
 }
 
 function useHumanBridgeMember(fixture: ReturnType<typeof setup>) {
@@ -593,6 +608,44 @@ function synthesisInput(gateway: RecordingGateway): {
 }
 
 describe('Gate5CollaborationService', () => {
+  it('keeps scoped Memory retrieval on the original task while sending bounded Artifact data to the participant', async () => {
+    const fixture = setup();
+    fixture.service.attachMultimodalExecution({
+      execute: (mission, run, task, resume) =>
+        fixture.service.executeLanguageParticipant(
+          mission,
+          run,
+          {
+            ...task,
+            memoryQuery: task.task,
+            task: task.task + '\nBounded public data: {"artifacts":[]}',
+          },
+          resume,
+        ),
+      consume: () => undefined,
+      detail: () => null,
+      candidateMetadata: async () => [],
+    });
+    const missionId = fixture.create();
+    const waiting = await fixture.service.start(missionId);
+    const request = waiting.collaborations[0]!;
+    await fixture.service.resolveCollaboration({ requestId: request.id, decision: 'APPROVED' });
+    expect(
+      fixture.contextQueries.find((value) => value.teammateId === request.targetTeammateId)?.query,
+    ).toBe(request.proposedTask);
+    expect(
+      fixture.gateway.requests.some(
+        (value) =>
+          value.teammateId === request.targetTeammateId &&
+          value.messages.some(
+            (message) =>
+              message.role === 'user' &&
+              typeof message.content === 'string' &&
+              message.content.includes('Bounded public data'),
+          ),
+      ),
+    ).toBe(true);
+  });
   it('keeps a denied target at zero model calls and resolves an invite only once', async () => {
     const { service, store, gateway, create } = setup();
     const id = create();

@@ -900,6 +900,17 @@ export class ExternalWorkService {
     return this.buildContinuation(request, 'ACCEPTED', request.publicResult);
   }
 
+  /** Main-only authoritative envelope; never accepts caller-supplied delivery facts. */
+  getFinalizedContinuation(requestId: string): ExternalWorkContinuation | null {
+    const request = this.store.getExternalWorkRequest(requiredId(requestId));
+    if (!request || !['ACCEPTED', 'REJECTED', 'CANCELLED'].includes(request.state)) return null;
+    return this.buildContinuation(
+      request,
+      request.state as ExternalWorkContinuation['outcome'],
+      request.publicResult,
+    );
+  }
+
   private buildContinuation(
     request: ExternalWorkRequestRecord,
     outcome: ExternalWorkContinuation['outcome'],

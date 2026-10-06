@@ -1,0 +1,508 @@
+{
+  "status": "PASS",
+  "baseline": "108a1154ad4a92f36e8ea60dd898f3bd0c6235bc",
+  "migration": "0030_g3_multimodal_collaboration.sql",
+  "primaryEvidence": "9582b922-c4e6-4869-94eb-a51a1de6228d/facts.json",
+  "humanEvidence": "human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/facts.json",
+  "liveIntegration": "BLOCKED / NOT RUN",
+  "tests": {
+    "files": 124,
+    "passed": 1012,
+    "failed": 0
+  },
+  "crashMatrix": [
+    {
+      "window": "A",
+      "point": "APPROVAL_COMMITTED",
+      "missionId": "b01b40c6-7415-4d7c-8f1d-ec554e88a27e",
+      "exitCode": 1,
+      "beforeJobs": 0,
+      "afterJobs": 1,
+      "artifacts": 1,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    },
+    {
+      "window": "B",
+      "point": "TASK_CREATED",
+      "missionId": "b89413d6-be03-4b70-b996-8b263f4cd6ca",
+      "exitCode": 1,
+      "beforeJobs": 0,
+      "afterJobs": 1,
+      "artifacts": 1,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    },
+    {
+      "window": "D",
+      "point": "GENERATION_COMPLETED",
+      "missionId": "e54044f4-7324-42b8-96ca-1729149f8519",
+      "exitCode": 1,
+      "beforeJobs": 1,
+      "afterJobs": 1,
+      "artifacts": 1,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    },
+    {
+      "window": "J",
+      "point": "OUTCOME_CREATED",
+      "missionId": "0218a72e-49ec-4518-a205-25045325c1f4",
+      "exitCode": 1,
+      "beforeJobs": 1,
+      "afterJobs": 1,
+      "artifacts": 1,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    },
+    {
+      "window": "E",
+      "point": "OUTCOME_CREATED",
+      "missionId": "91c5cda7-6820-4ff5-9959-f5065672fd7b",
+      "exitCode": 1,
+      "beforeJobs": 0,
+      "afterJobs": 2,
+      "artifacts": 2,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    },
+    {
+      "window": "FG",
+      "point": "DEPENDENCY_COMPLETED",
+      "missionId": "691611e3-ffc2-4475-a308-53c25435b2b0",
+      "exitCode": 1,
+      "beforeJobs": 1,
+      "afterJobs": 2,
+      "artifacts": 2,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    },
+    {
+      "window": "G",
+      "point": "DEPENDENCY_COMPLETED",
+      "missionId": "c5d03254-bdaf-49d3-9dec-1c2a2bc5fb12",
+      "exitCode": 1,
+      "beforeJobs": 1,
+      "afterJobs": 1,
+      "artifacts": 1,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    },
+    {
+      "window": "H",
+      "point": "CONTINUATION_CREATED",
+      "missionId": "7e3c8d52-339e-4073-bd8f-28feed690287",
+      "exitCode": 1,
+      "beforeJobs": 1,
+      "afterJobs": 2,
+      "artifacts": 0,
+      "duplicateJobs": 0,
+      "duplicateArtifacts": 0
+    }
+  ],
+  "windowC": {
+    "missionId": "b0243311-337e-47e3-8309-b9debbda41ae",
+    "requestId": "c5573b76-a10a-4e38-8811-44b9206ee3cf",
+    "mainProcessExit": {
+      "code": 1,
+      "signal": null
+    },
+    "generationJobIdBeforeRestart": "81673a72-8ee3-4045-87cc-55e749713c5f",
+    "generationJobIdAfterRestart": "81673a72-8ee3-4045-87cc-55e749713c5f",
+    "completedAfterRestart": true,
+    "duplicateGenerationJobs": 0,
+    "recoveredGenerationSubmissions": 1
+  },
+  "windowI": {
+    "missionId": "5f25d93a-38dc-41cc-aa2d-354fd615b9b2",
+    "initialRunId": "cb984ffb-3a6e-454f-a834-93b4b67a42a1",
+    "collaborationRequestId": "e721d032-026d-4e55-955b-aa81a7a55796",
+    "humanBridgeRequestId": "cc44d437-ceff-4d03-976c-53f6e2ae824d",
+    "crashPoint": "REVIEW_COMMITTED",
+    "mainProcessExit": {
+      "code": 1,
+      "signal": null
+    },
+    "acceptedFile": {
+      "relativePath": "g3-delivery/0a162540-38ce-43c9-8be8-b9bdd5e3e2f9/review-notes.txt",
+      "extension": ".txt",
+      "contentHash": "88b0419d00abecf661ca004ea606b16d003e8673e35af66fed26f8fd921b776c"
+    },
+    "publicResult": null,
+    "generationJobId": "e8df7513-145f-4dd2-813b-fa6079f50dea",
+    "imageArtifactId": "ecb3395f715e15f395223f844a6cfdd529dfde7da554d1b1bffb3c2e97b1a8c9",
+    "reviewRequestedEventCount": 1,
+    "reviewCompletedEventCount": 1,
+    "state": "COMPLETED",
+    "externalContinuation": "CONSUMED",
+    "synthesisCalls": 1,
+    "actualActors": {
+      "coordinatorTeammateId": "65059947-b473-4476-b598-413bc48e48a8",
+      "imageParticipantTeammateId": "20f7ee4c-6f25-4485-98b6-8cb7786900ff",
+      "humanBridgeTeammateId": "system-human-bridge"
+    }
+  },
+  "scenarios": {
+    "approvedH3": {
+      "missionId": "d73e4be0-2678-47ff-a3d2-f16005e932f7",
+      "requestId": "a6be596f-e4c2-43e5-87ee-2a21204935cf",
+      "missionState": "COMPLETED",
+      "requestState": "APPROVED",
+      "generationJobId": "8dab5b52-58d7-4f0d-aeed-5ee607e061fa",
+      "generationJobState": "COMPLETED",
+      "artifactId": "ece5636bfdc137ba47551572bba4ceaf2bcc6d183a889271b3ce685de0310922",
+      "artifactMimeType": "video/mp4",
+      "outcomeId": "1fc7fd4a-1df3-4b74-9d56-4108d8f117be",
+      "outcomeConsumed": true,
+      "coordinatorSynthesisArtifact": "FINAL",
+      "requestCount": 1,
+      "preview": {
+        "scheme": "cultivation-media://artifact",
+        "readyState": 4
+      }
+    },
+    "deniedTarget": {
+      "missionId": "8cf04512-6af1-4f58-80c3-a7e477489425",
+      "requestId": "6895e1ee-3997-4fd2-b3fe-605050abe02a",
+      "requestState": "DENIED",
+      "targetGenerationJobs": 0,
+      "targetExecutionTasks": 0
+    },
+    "imageParticipation": {
+      "missionId": "3cc3354e-7c64-4c58-81e2-16f2d4a94700",
+      "requestState": "APPROVED",
+      "generationJobId": "031277ce-5faf-49ec-a50e-e64bd2bb8a1d",
+      "artifactId": "cb9142dccfe4a8cf9fb8cd81730883edd9f58faec4d677643007066e314a19b0",
+      "artifactMimeType": "image/png",
+      "outcomeId": "a996cb14-2371-4130-b30a-387ea6425e92"
+    },
+    "musicParticipation": {
+      "missionId": "84496796-d6d2-4b5e-a018-6ebb7fb7dbf4",
+      "requestState": "APPROVED",
+      "generationJobId": "67470f49-8bb8-4e9b-bb29-b64e77166196",
+      "artifactId": "65d7d023087c0471ca62e1821711c949baa43a9f4eaccb9bb16f49c4ef4fd327",
+      "artifactMimeType": "audio/wav",
+      "outcomeId": "0a38dc73-6c77-4f75-b18b-bc13f1ac8a25"
+    },
+    "needsInputImageDependency": {
+      "missionId": "c3440edb-a240-49ca-bb2f-156499602cd1",
+      "missingInputOutcomeId": "54ad4dc9-4b2f-44d7-9858-8f86dc751b2d",
+      "dependencyRequestId": "6bf3060b-96cb-48a6-9f03-dfbaa93e2469",
+      "dependencyTeammateId": "8da33252-f979-4600-b99f-ad2846c31130",
+      "dependencyArtifactIds": ["62a1e1e90d20a4424d1e3eb280474ff9e3384799ab0882c52632cc332abc1dd8"],
+      "resumedH3JobId": "7b511b29-797b-4e41-ab06-7878d927064c",
+      "resumedH3InputArtifactIds": [
+        "62a1e1e90d20a4424d1e3eb280474ff9e3384799ab0882c52632cc332abc1dd8"
+      ],
+      "continuationConsumed": true
+    },
+    "testOnlyWorkflow": {
+      "definitionId": "test.g3-generation",
+      "definitionVersion": 1,
+      "workflowRunId": "d4f65ad3-57c8-4bc7-8539-8d6005e420d4",
+      "runState": "COMPLETED",
+      "stepRunId": "a5e2f5a4-d7d1-4ca3-9928-bb196f12eed6",
+      "stepMissionId": "c4af3672-abb3-4d32-a3a9-50ba661052d7",
+      "stepMissionRunId": "2378dd73-9b4e-4c10-a71e-9fee81053f03",
+      "generationJobId": "dd5db336-e17a-48ac-b02c-43ac3244ebd8",
+      "generatedArtifactId": "1e9d4aa17f1732b7b6cdff4b3ea46647e994ca6a1314be3acb4be8fc66de10e5",
+      "outputReferenceArtifactId": "1e9d4aa17f1732b7b6cdff4b3ea46647e994ca6a1314be3acb4be8fc66de10e5",
+      "outputValidationCount": 1,
+      "restart": {
+        "status": "PASS",
+        "runState": "COMPLETED",
+        "durableJobCount": 1,
+        "durableOutputCount": 1,
+        "fixtureProviderCountersUnchanged": true,
+        "h3HttpCountersUnchanged": true
+      }
+    },
+    "unknownSubmission": {
+      "missionId": "f294baa5-27df-4b49-b5bf-04442bc12de8",
+      "requestId": "a82f86c4-299f-4dd2-a107-4f952d37c738",
+      "generationJobId": "9687fdc5-5959-4416-8e2a-68fb6b1f5312",
+      "jobState": "UNKNOWN",
+      "attemptState": "UNKNOWN",
+      "participantOutcomeCount": 0,
+      "restart": {
+        "status": "PASS",
+        "extraJobs": 0,
+        "extraSubmissions": 0
+      }
+    },
+    "definitiveRetry": {
+      "missionId": "f50c39ff-d0d5-4f19-8350-6c147c97edcc",
+      "requestId": "577f0c83-e1ab-4d34-9b34-479e1af5db08",
+      "missionState": "COMPLETED",
+      "jobIds": ["1b5e685f-84e9-495b-b7d4-9d677eb87972", "a0c4dd9f-a516-4b83-8885-894d27d25c66"],
+      "idempotencyKeyDigests": [
+        "db63b0f8819a0f97f1ee6f2f2a16b6ef256be9af4faa951fd4308910f812e404",
+        "a770bf831a4980b888dc753c5e01a3d2d7ebb4710bba6fa18aaeda79cb3e4568"
+      ],
+      "jobStates": ["FAILED", "FAILED"],
+      "queueFullProofCount": 2,
+      "boundedRetries": 1
+    },
+    "jobBoundCrashRecovery": {
+      "missionId": "b0243311-337e-47e3-8309-b9debbda41ae",
+      "requestId": "c5573b76-a10a-4e38-8811-44b9206ee3cf",
+      "mainProcessExit": {
+        "code": 1,
+        "signal": null
+      },
+      "generationJobIdBeforeRestart": "81673a72-8ee3-4045-87cc-55e749713c5f",
+      "generationJobIdAfterRestart": "81673a72-8ee3-4045-87cc-55e749713c5f",
+      "completedAfterRestart": true,
+      "duplicateGenerationJobs": 0,
+      "recoveredGenerationSubmissions": 1
+    },
+    "crashMatrix": [
+      {
+        "window": "A",
+        "point": "APPROVAL_COMMITTED",
+        "missionId": "b01b40c6-7415-4d7c-8f1d-ec554e88a27e",
+        "exitCode": 1,
+        "beforeJobs": 0,
+        "afterJobs": 1,
+        "artifacts": 1,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      },
+      {
+        "window": "B",
+        "point": "TASK_CREATED",
+        "missionId": "b89413d6-be03-4b70-b996-8b263f4cd6ca",
+        "exitCode": 1,
+        "beforeJobs": 0,
+        "afterJobs": 1,
+        "artifacts": 1,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      },
+      {
+        "window": "D",
+        "point": "GENERATION_COMPLETED",
+        "missionId": "e54044f4-7324-42b8-96ca-1729149f8519",
+        "exitCode": 1,
+        "beforeJobs": 1,
+        "afterJobs": 1,
+        "artifacts": 1,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      },
+      {
+        "window": "J",
+        "point": "OUTCOME_CREATED",
+        "missionId": "0218a72e-49ec-4518-a205-25045325c1f4",
+        "exitCode": 1,
+        "beforeJobs": 1,
+        "afterJobs": 1,
+        "artifacts": 1,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      },
+      {
+        "window": "E",
+        "point": "OUTCOME_CREATED",
+        "missionId": "91c5cda7-6820-4ff5-9959-f5065672fd7b",
+        "exitCode": 1,
+        "beforeJobs": 0,
+        "afterJobs": 2,
+        "artifacts": 2,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      },
+      {
+        "window": "FG",
+        "point": "DEPENDENCY_COMPLETED",
+        "missionId": "691611e3-ffc2-4475-a308-53c25435b2b0",
+        "exitCode": 1,
+        "beforeJobs": 1,
+        "afterJobs": 2,
+        "artifacts": 2,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      },
+      {
+        "window": "G",
+        "point": "DEPENDENCY_COMPLETED",
+        "missionId": "c5d03254-bdaf-49d3-9dec-1c2a2bc5fb12",
+        "exitCode": 1,
+        "beforeJobs": 1,
+        "afterJobs": 1,
+        "artifacts": 1,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      },
+      {
+        "window": "H",
+        "point": "CONTINUATION_CREATED",
+        "missionId": "7e3c8d52-339e-4073-bd8f-28feed690287",
+        "exitCode": 1,
+        "beforeJobs": 1,
+        "afterJobs": 2,
+        "artifacts": 0,
+        "duplicateJobs": 0,
+        "duplicateArtifacts": 0
+      }
+    ]
+  },
+  "humanScenarios": {
+    "languageNeedsInput": {
+      "missionId": "344b429d-5f64-4b26-82fc-55df4e2c2e87",
+      "initialRunId": "a750a196-318c-469d-97ae-25f52bdbad8b",
+      "collaborationRequestId": "d8d255ac-1da5-44c9-b2e3-6acae9a26229",
+      "humanBridgeRequestId": "81e872d8-8aaa-4c66-b2d8-e8701359db98",
+      "acceptedFile": {
+        "relativePath": "g3-delivery/43c40f14-b7bb-4282-9b95-289ca14bb72a/human-reference.png",
+        "mimeType": "image/png",
+        "contentHash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15"
+      },
+      "fileReadApprovalId": "1b3061ad-c395-465c-b315-02ff7e9882da",
+      "structuredOutcomeId": "9fa20944-64d4-4f88-9f36-4dcb04b80644",
+      "structuredContinuationId": "af65a398-ca29-4a2d-8d6c-9c78d1d1dc5d",
+      "languageTasks": [
+        {
+          "id": "6920e4ab-f227-40b1-abd0-d0e42d9eb4e6",
+          "continuationRound": 0,
+          "parentTaskId": null
+        },
+        {
+          "id": "699a570b-f571-4e6f-af21-6b30c4d2e53c",
+          "continuationRound": 1,
+          "parentTaskId": "6920e4ab-f227-40b1-abd0-d0e42d9eb4e6"
+        }
+      ],
+      "state": "COMPLETED",
+      "externalContinuation": "CONSUMED",
+      "synthesisCalls": 1,
+      "actualActors": {
+        "coordinatorTeammateId": "65059947-b473-4476-b598-413bc48e48a8",
+        "languageParticipantTeammateId": "6ce834f9-6a1a-4041-a66a-21c674ed21df",
+        "humanBridgeTeammateId": "system-human-bridge"
+      }
+    },
+    "generationReview": {
+      "missionId": "5f25d93a-38dc-41cc-aa2d-354fd615b9b2",
+      "initialRunId": "cb984ffb-3a6e-454f-a834-93b4b67a42a1",
+      "collaborationRequestId": "e721d032-026d-4e55-955b-aa81a7a55796",
+      "humanBridgeRequestId": "cc44d437-ceff-4d03-976c-53f6e2ae824d",
+      "crashPoint": "REVIEW_COMMITTED",
+      "mainProcessExit": {
+        "code": 1,
+        "signal": null
+      },
+      "acceptedFile": {
+        "relativePath": "g3-delivery/0a162540-38ce-43c9-8be8-b9bdd5e3e2f9/review-notes.txt",
+        "extension": ".txt",
+        "contentHash": "88b0419d00abecf661ca004ea606b16d003e8673e35af66fed26f8fd921b776c"
+      },
+      "publicResult": null,
+      "generationJobId": "e8df7513-145f-4dd2-813b-fa6079f50dea",
+      "imageArtifactId": "ecb3395f715e15f395223f844a6cfdd529dfde7da554d1b1bffb3c2e97b1a8c9",
+      "reviewRequestedEventCount": 1,
+      "reviewCompletedEventCount": 1,
+      "state": "COMPLETED",
+      "externalContinuation": "CONSUMED",
+      "synthesisCalls": 1,
+      "actualActors": {
+        "coordinatorTeammateId": "65059947-b473-4476-b598-413bc48e48a8",
+        "imageParticipantTeammateId": "20f7ee4c-6f25-4485-98b6-8cb7786900ff",
+        "humanBridgeTeammateId": "system-human-bridge"
+      }
+    }
+  },
+  "screenshots": [
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/mission-approved-h3-1440x900.png",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/mission-approved-h3-1180x900.png",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/mission-approved-h3-900x900.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/h3-artifact-preview-1440x900.png",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/h3-artifact-preview-1180x900.png",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/h3-artifact-preview-900x900.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/party-h3-generation-1440x900.png",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/party-h3-generation-1180x900.png",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/9582b922-c4e6-4869-94eb-a51a1de6228d/party-h3-generation-900x900.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/waitingHB-language-input-1440x900.png",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/waitingHB-language-input-1180x900.png",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/waitingHB-language-input-900x900.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/review-human-bridge-waiting-1440x900.png",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/review-human-bridge-waiting-1180x900.png",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/review-human-bridge-waiting-900x900.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/final-human-review-synthesis-1440x900.png",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/final-human-review-synthesis-1180x900.png",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "file": "docs/evidence/g3-multimodal-collaboration/human-833daaf7-3550-44ec-94e5-2f1483e9cfc5/final-human-review-synthesis-900x900.png",
+      "width": 900,
+      "height": 900
+    }
+  ],
+  "regression": "Gate 0–6 / R0–R4 / W1–W2 / G1–G2 in exact npm run smoke:package"
+}

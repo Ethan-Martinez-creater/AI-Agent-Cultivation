@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu, Notification, safeStorage } from 'electron';
 import squirrelStartup from 'electron-squirrel-startup';
 import { join } from 'node:path';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { DomainError } from '@cultivation/shared';
@@ -116,6 +116,10 @@ import { generationPreview } from './g2-preview.js';
 import { seedGenerationWorkspaceFixture } from './g1-fixture.js';
 import { registerGenerationIpc } from './g1-ipc.js';
 import type { GenerationService } from '@cultivation/application/g1-generation';
+import { multimodalFoundation } from './g3-foundation.js';
+import { GenerationWorkflowMissionAdapter } from './g3-workflow-adapter.js';
+import { G3FixtureGenerationGateway } from './g3-fixture-generation.js';
+import { registerG3WorkflowFixture } from './g3-workflow-fixture.js';
 
 function notifyAvailability(value: ModelAvailabilityProjection): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -157,6 +161,7 @@ function createWindow(
   researchInputs: ResearchInputArtifactService,
   generation: GenerationService,
   g2: ReturnType<typeof h3GenerationFoundation> | null,
+  g3: ReturnType<typeof multimodalFoundation>,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -287,19 +292,35 @@ function createWindow(
     },
   );
   registerGate2Ipc(validSender, memoryService, skillService, hybridMemory);
-  registerGate3Ipc(validSender, missions, missionStore, partyMissions, parties, (mission) =>
-    r3Observer.observeMission(mission),
+  registerGate3Ipc(
+    validSender,
+    missions,
+    missionStore,
+    partyMissions,
+    parties,
+    (mission) => r3Observer.observeMission(mission),
+    (input) => g3.resolveApproval(input),
   );
   registerGate4Ipc(window, validSender, tools);
   registerGate6Ipc(validSender, experience);
   registerR1Ipc(validSender, capabilities);
-  registerR2Ipc(validSender, humanBridge, externalWork, partyMissions, tools, (continuation) =>
-    missionStore.getMission(continuation.missionId)?.mode === 'SOLO'
-      ? missions.resumeExternalWork({
-          ...continuation,
-          publicResult: continuation.publicResult ?? null,
-        })
-      : partyMissions.resumeExternalWork(continuation),
+  registerR2Ipc(
+    validSender,
+    humanBridge,
+    externalWork,
+    partyMissions,
+    tools,
+    async (continuation) =>
+      (await g3.resumeHuman({ ...continuation, publicResult: continuation.publicResult ?? null }))
+        ? missionStore.getMission(continuation.missionId)?.mode === 'SOLO'
+          ? missions.detail(continuation.missionId)
+          : partyMissions.detail(continuation.missionId)
+        : missionStore.getMission(continuation.missionId)?.mode === 'SOLO'
+          ? missions.resumeExternalWork({
+              ...continuation,
+              publicResult: continuation.publicResult ?? null,
+            })
+          : partyMissions.resumeExternalWork(continuation),
   );
   registerR3Ipc(validSender, r3Config, r3Store);
   const displayedAvailability = {
@@ -617,6 +638,29 @@ if (!squirrelStartup)
                       process.kill(process.pid, 'SIGKILL');
                   }
                 : undefined,
+            approveMediaAccess: (task, capability, resource) =>
+              g3?.approveMediaAccess(task, capability, resource) ?? false,
+            gatewayDecorator:
+              process.argv.includes('--g3-fixture') && process.argv.includes('--gate1-fake-model')
+                ? (raw) => {
+                    const file = join(app.getPath('userData'), 'g3-fixture-providers.json');
+                    return new G3FixtureGenerationGateway({
+                      testMode: true,
+                      h3Gateway: raw,
+                      modelIdForRuntime: (id) => store.getRuntimeProfile(id)?.modelId ?? '',
+                      statePort: {
+                        read: () =>
+                          existsSync(file)
+                            ? JSON.parse(readFileSync(file, 'utf8'))
+                            : {
+                                image: { submissions: 0, queries: 0, downloads: 0, entries: {} },
+                                music: { submissions: 0, queries: 0, downloads: 0, entries: {} },
+                              },
+                        write: (snapshot) => writeFileSync(file, JSON.stringify(snapshot), 'utf8'),
+                      },
+                    });
+                  }
+                : undefined,
           });
       const generation =
         g2 ??
@@ -628,6 +672,8 @@ if (!squirrelStartup)
           tools: gate4Store,
           permission: permissionEngine,
           testOnly: process.argv.includes('--g1-fake-generation'),
+          approveMediaAccess: (task, capability, resource) =>
+            g3?.approveMediaAccess(task, capability, resource) ?? false,
         });
       if (!g2) await generation.service.recover();
       if (
@@ -740,15 +786,22 @@ if (!squirrelStartup)
       missions.attachAssignmentGuard({
         hasAssignment: (id) => routingStore.getByMissionId(id) !== null,
       });
-      const resumeExternalWork = (
+      const resumeExternalWork = async (
         continuation: Parameters<Gate5CollaborationService['resumeExternalWork']>[0],
       ) =>
-        gate3Store.getMission(continuation.missionId)?.mode === 'SOLO'
-          ? missions.resumeExternalWork({
-              ...continuation,
-              publicResult: continuation.publicResult ?? null,
-            })
-          : partyMissions.resumeExternalWork(continuation);
+        (await g3?.resumeHuman({
+          ...continuation,
+          publicResult: continuation.publicResult ?? null,
+        }))
+          ? gate3Store.getMission(continuation.missionId)?.mode === 'SOLO'
+            ? missions.detail(continuation.missionId)
+            : partyMissions.detail(continuation.missionId)
+          : gate3Store.getMission(continuation.missionId)?.mode === 'SOLO'
+            ? missions.resumeExternalWork({
+                ...continuation,
+                publicResult: continuation.publicResult ?? null,
+              })
+            : partyMissions.resumeExternalWork(continuation);
       const routingDecision = new R4DecisionService({
         gateway: async () => {
           if (!routingStore.config().cloudEnabled) return null;
@@ -777,6 +830,29 @@ if (!squirrelStartup)
                 ]),
             ),
           semanticMetadata: (id) => {
+            const binding = store.getModelBinding(id);
+            if (binding?.executionProtocol === 'GENERATION') {
+              const teammate = store.getTeammate(id)!;
+              return {
+                id,
+                roleTitle: teammate.title ?? teammate.name,
+                capabilities: Object.fromEntries(
+                  capabilities.profile(id).dimensions.map((item) => [
+                    item.dimension,
+                    {
+                      status: !item.prior
+                        ? 'UNCONFIGURED'
+                        : item.prior.supported
+                          ? 'SUPPORTED'
+                          : 'UNSUPPORTED',
+                      score: item.prior?.normalizedScore ?? null,
+                    },
+                  ]),
+                ),
+                enabledSkills: [],
+                verifiedExperiences: [],
+              };
+            }
             const candidate = buildR3ShadowCandidates(id, {
               teammates: store,
               skills: gate2Store,
@@ -830,7 +906,12 @@ if (!squirrelStartup)
             }),
         },
         eligibility,
-        availability,
+        {
+          prepare: (request) =>
+            store.getModelBinding(request.teammateId)?.executionProtocol === 'GENERATION' && g2
+              ? g2.availability.prepare(request)
+              : availability.prepare(request),
+        },
         routingDecision,
       );
       const routing = new RoutingMissionService(
@@ -842,6 +923,50 @@ if (!squirrelStartup)
         parties,
         () => Boolean(tools.getWorkspace().rootPath),
       );
+      const g3 = multimodalFoundation({
+        db,
+        store,
+        missions: gate3Store,
+        parties: gate5Store,
+        partyExecution: partyMissions,
+        tools: gate4Store,
+        permission: permissionEngine,
+        planner: routingPlanner,
+        externalWork,
+        continuations: externalWorkContinuations,
+        generation,
+        media: g2?.media,
+        missionExecution: missions,
+        workflows: workflowStore,
+        provenRetryableRejection:
+          process.argv.includes('--g3-fixture') && process.argv.includes('--gate1-fake-model')
+            ? (job) => {
+                const file = join(app.getPath('userData'), 'g3-fixture-providers.json');
+                if (!existsSync(file)) return false;
+                const state = JSON.parse(readFileSync(file, 'utf8'));
+                return ['image', 'music'].some((kind) =>
+                  Object.values(state[kind]?.entries ?? {}).some((value) => {
+                    const fact = value as {
+                      runtimeProfileId: string;
+                      idempotencyKey: string;
+                      submission: { outcome: string; errorCode?: string };
+                    };
+                    return (
+                      fact.runtimeProfileId === job.runtimeProfileId &&
+                      fact.idempotencyKey === job.idempotencyKey &&
+                      fact.submission.outcome === 'REJECTED' &&
+                      fact.submission.errorCode === 'QUEUE_FULL'
+                    );
+                  }),
+                );
+              }
+            : undefined,
+        crash: process.argv.includes('--g3-fixture')
+          ? (point) => {
+              if (process.env.CULTIVATION_G3_CRASH === point) process.kill(process.pid, 'SIGKILL');
+            }
+          : undefined,
+      });
       const researchInputs = new ResearchInputArtifactService(
         new ResearchInputArtifactRepository(db),
         researchSources,
@@ -926,6 +1051,7 @@ if (!squirrelStartup)
       missions.attachCompletionBoundary(mixedResearch, 'research-experiment-v1');
       const pendingExternalWork = externalWork.listPendingContinuations();
       const protectedMissionIds = new Set(pendingExternalWork.map((item) => item.missionId));
+      for (const id of g3.protectedMissionIds()) protectedMissionIds.add(id);
       for (const continuation of pendingExternalWork) {
         try {
           await resumeExternalWork(continuation);
@@ -940,6 +1066,7 @@ if (!squirrelStartup)
         await resumeExternalWork(continuation);
       }
       experience.reconcileAll();
+      await g3.recover();
       const workflowMissions = new WorkflowMissionAdapter(
         routing,
         gate3Store,
@@ -1006,12 +1133,14 @@ if (!squirrelStartup)
       );
       const workflows = new WorkflowService(
         workflowStore,
-        workflowMissions,
+        new GenerationWorkflowMissionAdapter(workflowMissions, workflowStore, g3.workflowPort),
         undefined,
         workflowFoundation,
         workflowPolicies,
       );
       installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
+      if (process.argv.includes('--g3-fixture') && process.argv.includes('--gate1-fake-model'))
+        registerG3WorkflowFixture(workflows, true);
       if (
         process.argv.includes('--w1-fake-workflow') &&
         process.argv.includes('--gate1-fake-model')
@@ -1048,6 +1177,7 @@ if (!squirrelStartup)
         researchInputs,
         generation.service,
         g2,
+        g3,
       );
       if (g2) {
         let polling = false;
@@ -1063,6 +1193,7 @@ if (!squirrelStartup)
               }
             }
           } finally {
+            await g3!.recover();
             polling = false;
           }
         };
@@ -1112,6 +1243,7 @@ if (!squirrelStartup)
             researchInputs,
             generation.service,
             g2,
+            g3!,
           );
       });
     })

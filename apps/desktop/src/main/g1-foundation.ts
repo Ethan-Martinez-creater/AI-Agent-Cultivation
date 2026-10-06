@@ -24,6 +24,11 @@ export function generationFoundation(options: {
   permission: PermissionEngine;
   testOnly: boolean;
   crash?: (point: string) => void;
+  approveMediaAccess?: (
+    task: GenerationTask,
+    capability: 'FILE_READ' | 'FILE_WRITE',
+    resource: string,
+  ) => boolean;
 }) {
   const { store, missions, tools, permission } = options;
   const repository = new GenerationSqliteRepository(options.db);
@@ -51,7 +56,10 @@ export function generationFoundation(options: {
         capability,
         resource,
       });
-      if (decision.decision !== 'ALLOW')
+      if (
+        decision.decision !== 'ALLOW' &&
+        !(decision.decision === 'ASK' && options.approveMediaAccess?.(task, capability, resource))
+      )
         throw new DomainError(
           decision.decision === 'DENY' ? 'PERMISSION_DENIED' : 'APPROVAL_REQUIRED',
           '生成文件操作需要明确授权',

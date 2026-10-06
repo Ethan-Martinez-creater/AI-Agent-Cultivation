@@ -118,6 +118,10 @@ export function registerGate3Ipc(
   partyMissions: Gate5CollaborationService,
   parties: Gate5PartyService,
   afterMissionCreated?: (mission: Mission) => void | Promise<void>,
+  resolveExecutionApproval?: (input: {
+    approvalId: string;
+    decision: 'APPROVED' | 'DENIED' | 'ALLOW_MISSION';
+  }) => Promise<unknown | null>,
 ): void {
   const register = (
     channel: string,
@@ -227,6 +231,8 @@ export function registerGate3Ipc(
   });
   register('missions:resolveApproval', async (args) => {
     const input = one(approvalDecision, args);
+    const execution = await resolveExecutionApproval?.(input);
+    if (execution) return execution;
     if (isPartyApproval(input.approvalId)) return partyMissions.resolveToolApproval(input);
     return detailAfter(missions.resolveApproval(input));
   });

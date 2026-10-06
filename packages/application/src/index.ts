@@ -145,6 +145,8 @@ export interface ModelExternalWorkContext {
 }
 
 export interface ModelRequest {
+  /** Main-owned structured participant completion contract; ordinary Chat is unchanged. */
+  participantOutcomeContract?: 'g3-v1';
   runtimeProfileId: string;
   teammateId: string;
   messages: ModelMessage[];
@@ -182,6 +184,19 @@ export interface CollaborationProposal {
   reason: string;
   task: string;
   expectedBenefit: string;
+  /** Declarative generation requirements, validated by trusted execution preparation. */
+  generationRequirements?: {
+    capability: import('@cultivation/domain/g1-generation').GenerationCapability;
+    requiredFeatures: string[];
+    parameters: Record<string, unknown>;
+    inputRequirements?: Array<{
+      role: string;
+      artifactKinds: string[];
+      mimeTypes: string[];
+      required: boolean;
+    }>;
+    reviewCapability?: CapabilityDimension;
+  };
 }
 export interface CollaborationProposalRequest {
   runtimeProfileId: string;
@@ -190,6 +205,12 @@ export interface CollaborationProposalRequest {
   objective: string;
   eligibleTargetIds: string[];
   publicDraft: string | null;
+  /** Public sealed execution metadata; no Credentials, private Memory or Provider endpoints. */
+  eligibleExecutors?: Array<{
+    teammateId: string;
+    executionProtocol: 'LANGUAGE' | 'GENERATION' | 'USER_BRIDGE';
+    descriptor?: import('@cultivation/domain/g1-generation').GenerationModelDescriptor;
+  }>;
   /** Composed context for the requesting Teammate only; never another member's private context. */
   systemContext: string;
   /** Durable proposal-call start, invoked after availability preflight and before provider I/O. */

@@ -444,6 +444,14 @@ export class Gate3MissionService {
   private externalWorkContinuations: R2ExternalWorkContinuationStore | null = null;
   private humanBridgeAssignments: Gate3HumanBridgeAssignmentStore | null = null;
   private assignmentGuard: Gate3MissionAssignmentGuard | null = null;
+  private generationExecution: {
+    handles(missionId: string): boolean;
+    execute(mission: Mission, run: MissionRunRecord): Promise<void>;
+  } | null = null;
+
+  attachGenerationExecution(port: NonNullable<Gate3MissionService['generationExecution']>): void {
+    this.generationExecution = port;
+  }
 
   constructor(
     private readonly store: Gate3MissionStore,
@@ -1482,6 +1490,10 @@ export class Gate3MissionService {
     previousStepCount = 0,
     previousToolCallCount = 0,
   ): Promise<void> {
+    if (this.generationExecution?.handles(mission.id)) {
+      await this.generationExecution.execute(mission, run);
+      return;
+    }
     if (this.busy.has(mission.id)) throw new DomainError('MISSION_BUSY', 'Mission 正在执行');
     if (mission.state !== 'RUNNING' || run.status !== 'RUNNING') {
       throw new DomainError('MISSION_INVALID_STATE', '只有 RUNNING MissionRun 可以执行');

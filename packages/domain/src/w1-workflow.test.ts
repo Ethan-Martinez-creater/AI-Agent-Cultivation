@@ -344,4 +344,94 @@ describe('W1 workflow domain', () => {
       ),
     ).toThrow(DomainError);
   });
+
+  it('accepts a frozen provider-neutral Generation Step with a JSON ArtifactRef contract', () => {
+    const generationStep = step('task', {
+      routing: { requiredExecutionProtocol: 'GENERATION' },
+      outputs: [
+        {
+          key: 'media-ref',
+          kind: 'JSON',
+          required: true,
+          contractId: 'generation-artifact-ref',
+          contractVersion: '1',
+          maxSizeBytes: 32_000,
+          description: 'Trusted reference to registered generation media',
+          validator: {
+            type: 'JSON',
+            requiredKeys: ['type', 'artifact'],
+          },
+        },
+      ],
+      executionRequirements: {
+        generation: {
+          capability: 'IMAGE_GENERATION',
+          requiredFeatures: ['TEXT_TO_IMAGE'],
+          parameters: {},
+          expectedOutput: { artifactKind: 'IMAGE', mimeTypes: ['image/png'] },
+        },
+      },
+    });
+    expect(() =>
+      validateWorkflowVersion(version({ steps: [generationStep], edges: [] })),
+    ).not.toThrow();
+  });
+
+  it.each([
+    {
+      name: 'missing protocol hint',
+      mutate: (generationStep: WorkflowStepDefinition) => {
+        generationStep.routing = {};
+      },
+    },
+    {
+      name: 'unknown generation field',
+      mutate: (generationStep: WorkflowStepDefinition) => {
+        Object.assign(generationStep.executionRequirements!.generation!, { provider: 'local' });
+      },
+    },
+    {
+      name: 'capability and output mismatch',
+      mutate: (generationStep: WorkflowStepDefinition) => {
+        generationStep.executionRequirements!.generation!.expectedOutput.artifactKind = 'VIDEO';
+      },
+    },
+    {
+      name: 'missing required ArtifactRef contract key',
+      mutate: (generationStep: WorkflowStepDefinition) => {
+        generationStep.outputs[0]!.validator = { type: 'JSON', requiredKeys: ['type'] };
+      },
+    },
+  ])('rejects invalid Generation declaration: $name', ({ mutate }) => {
+    const generationStep = step('task', {
+      routing: { requiredExecutionProtocol: 'GENERATION' },
+      outputs: [
+        {
+          key: 'media-ref',
+          kind: 'JSON',
+          required: true,
+          contractId: 'generation-artifact-ref',
+          contractVersion: '1',
+          maxSizeBytes: 32_000,
+          description: 'Trusted reference to registered generation media',
+          validator: {
+            type: 'JSON',
+            requiredKeys: ['type', 'artifact'],
+          },
+        },
+      ],
+      executionRequirements: {
+        generation: {
+          capability: 'IMAGE_GENERATION',
+          requiredFeatures: ['TEXT_TO_IMAGE'],
+          parameters: {},
+          expectedOutput: { artifactKind: 'IMAGE', mimeTypes: ['image/png'] },
+        },
+      },
+    });
+    mutate(generationStep);
+    expect(() => validateWorkflowVersion(version({ steps: [generationStep], edges: [] }))).toThrow(
+      DomainError,
+    );
+  });
 });

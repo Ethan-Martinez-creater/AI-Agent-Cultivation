@@ -50,6 +50,9 @@ export interface GenerationTask {
   runId: string | null;
   workflowRunId: string | null;
   workflowStepRunId: string | null;
+  /** Trusted G3 execution provenance; absent on historical G1/G2 tasks. */
+  executionAttemptId?: string | null;
+  collaborationRequestId?: string | null;
   createdAt: string;
 }
 export type GenerationJobState =

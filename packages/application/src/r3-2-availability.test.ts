@@ -252,6 +252,19 @@ describe('R3.2 availability policy', () => {
     );
     expect(eligibility.eligible).toBe(false);
     expect(eligibility.reason).toBe('EXECUTION_PROTOCOL_UNSUPPORTED');
+    expect(
+      new RoutingEligibilityService(context.identity, context.service).evaluate('teammate-a', {
+        explicit: true,
+        allowGenerationParticipant: true,
+      }).eligible,
+    ).toBe(true);
+    expect(
+      new RoutingEligibilityService(context.identity, context.service).evaluate('teammate-a', {
+        explicit: true,
+        allowGenerationParticipant: true,
+        executionProtocol: 'LANGUAGE',
+      }).reason,
+    ).toBe('EXECUTION_PROTOCOL_UNSUPPORTED');
   });
 
   it('starts UNKNOWN, records ordinary success as AVAILABLE, and keeps only bounded recent outcomes', () => {

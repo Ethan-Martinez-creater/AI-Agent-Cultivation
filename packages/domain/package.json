@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./g1-generation": "./src/g1-generation.ts"
+    "./g1-generation": "./src/g1-generation.ts",
+    "./g3-execution": "./src/g3-execution.ts"
   },
   "dependencies": {
     "@cultivation/shared": "0.0.1"

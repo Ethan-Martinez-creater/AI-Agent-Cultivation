@@ -490,6 +490,13 @@ export class GenerationService {
       );
     } catch (error) {
       if (error instanceof GenerationCrash) throw error;
+      // G3 owns a durable approval continuation; preserve the existing Job, never re-submit it.
+      if (
+        task.executionAttemptId &&
+        error instanceof DomainError &&
+        error.code === 'APPROVAL_REQUIRED'
+      )
+        throw error;
       const current = this.repository.getJob(id)!;
       if (terminal.has(current.state)) return current;
       if (options?.signal?.aborted) {

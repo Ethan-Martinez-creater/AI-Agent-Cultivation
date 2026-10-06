@@ -399,7 +399,7 @@ describe('W1 SQLite persistence', () => {
     runMigrations(db, migrations.slice(1));
 
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 29,
+      version: 30,
     });
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     expect(

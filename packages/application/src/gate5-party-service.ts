@@ -222,9 +222,12 @@ export class Gate5PartyService {
     ) {
       throw new DomainError('INVALID_INPUT', 'Party 包含不可用或已归档的道友');
     }
-    if (!this.teammates.getRuntimeProfile(teammate.currentRuntimeProfileId)) {
+    const runtime = this.teammates.getRuntimeProfile(teammate.currentRuntimeProfileId);
+    if (!runtime) {
       throw new DomainError('INVALID_INPUT', 'Party 成员的运行配置不可用');
     }
+    if (role === 'COORDINATOR' && (runtime.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE')
+      throw new DomainError('INVALID_INPUT', '队伍协调道友必须使用文本模型');
     return teammate;
   }
 }

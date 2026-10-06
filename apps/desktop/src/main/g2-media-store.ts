@@ -191,7 +191,7 @@ export class GenerationMediaStore {
         }
       : null;
   }
-  async importSelectedFile(selected: string): Promise<GenerationAttachment> {
+  async importSelectedFile(selected: string, durableId?: string): Promise<GenerationAttachment> {
     // The caller obtains selected exclusively from Electron's explicit native picker.
     const stat = await lstat(selected);
     if (!stat.isFile() || stat.isSymbolicLink()) fail('INVALID_INPUT');
@@ -200,9 +200,29 @@ export class GenerationMediaStore {
     if (stat.size > (getGenerationMediaCeilingBytes('', format.mime, 'input') ?? 0))
       fail('INPUT_TOO_LARGE');
     const root = await this.directory('inputs');
-    const id = randomUUID();
+    if (durableId && !/^[a-z0-9-]{1,128}$/i.test(durableId)) fail('INVALID_INPUT');
+    const id = durableId ?? randomUUID();
+    const existing = this.get(id);
+    if (existing) {
+      const checked = await this.inspect(await realpath(selected), format.mime, 'input');
+      if (
+        existing.contentHash !== checked.contentHash ||
+        existing.sizeBytes !== checked.sizeBytes ||
+        existing.mimeType !== format.mime
+      )
+        fail('INPUT_CHANGED');
+      await this.resolveInput(existing.id, 'REFERENCE');
+      return {
+        id: existing.id,
+        kind: existing.kind,
+        mimeType: existing.mimeType,
+        contentHash: existing.contentHash,
+        sizeBytes: existing.sizeBytes,
+        name: existing.name,
+      };
+    }
     const key = `${id}${path.extname(selected).toLowerCase()}`;
-    const partial = path.join(root, `${id}.partial`);
+    const partial = path.join(root, `${id}-${randomUUID()}.partial`);
     const target = path.join(root, key);
     const input = await this.reader(await realpath(selected));
     const output = await open(partial, 'wx');
@@ -216,7 +236,17 @@ export class GenerationMediaStore {
     if (after.size !== stat.size || after.mtimeMs !== stat.mtimeMs || after.ino !== stat.ino)
       fail('INPUT_CHANGED');
     const checked = await this.inspect(partial, format.mime, 'input');
-    await link(partial, target);
+    try {
+      await link(partial, target);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST' || !durableId) throw error;
+      const committed = await this.inspect(target, format.mime, 'input');
+      if (
+        committed.contentHash !== checked.contentHash ||
+        committed.sizeBytes !== checked.sizeBytes
+      )
+        fail('INPUT_CHANGED');
+    }
     const name = path.basename(selected).slice(0, 200);
     this.db
       .prepare(

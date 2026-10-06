@@ -71,18 +71,66 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
   async proposeCollaboration(
     request: CollaborationProposalRequest,
   ): Promise<CollaborationProposalResult> {
-    const targetTeammateId = request.eligibleTargetIds[0];
+    const desired = request.objective.includes('__G3_IMAGE__')
+      ? 'IMAGE_GENERATION'
+      : request.objective.includes('__G3_MUSIC__')
+        ? 'MUSIC_GENERATION'
+        : null;
+    const targetTeammateId =
+      (desired
+        ? request.eligibleExecutors?.find(
+            (executor) => executor.descriptor?.outputCapability === desired,
+          )?.teammateId
+        : null) ?? request.eligibleTargetIds[0];
     if (!targetTeammateId) throw new Error('No eligible collaboration target');
     const task =
       request.mode === 'REVIEW'
         ? `MEMBER_TASK: Review this public draft for the Mission: ${request.publicDraft ?? ''}`
         : `MEMBER_TASK: Contribute to this Mission: ${request.objective}`;
+    const descriptor = request.eligibleExecutors?.find(
+      (executor) => executor.teammateId === targetTeammateId,
+    )?.descriptor;
     return {
       proposal: {
         targetTeammateId,
         reason: `Fake ${request.mode.toLowerCase()} fixture`,
         task: task.slice(0, 2_000),
         expectedBenefit: 'Independent teammate perspective',
+        ...(descriptor
+          ? {
+              generationRequirements: {
+                capability: descriptor.outputCapability,
+                requiredFeatures: request.objective.includes('__G3_REFERENCE__')
+                  ? [
+                      descriptor.featureTags.find((tag) =>
+                        tag.includes(descriptor.inputRoles[0]?.role ?? '\0'),
+                      ) ?? descriptor.featureTags[0]!,
+                    ]
+                  : descriptor.featureTags.slice(0, 1),
+                parameters: request.objective.includes('__G3_RETRY__')
+                  ? { fixtureScenario: 'QUEUE_FULL' }
+                  : request.objective.includes('__G3_UNKNOWN__')
+                    ? { fixtureScenario: 'UNKNOWN' }
+                    : {},
+                inputRequirements: request.objective.includes('__G3_REFERENCE__')
+                  ? descriptor.inputRoles.slice(0, 1).map((role) => ({
+                      role: role.role,
+                      artifactKinds: role.artifactKinds,
+                      mimeTypes: role.mimeTypes,
+                      required: true,
+                    }))
+                  : [],
+                ...(request.objective.includes('__G3_REVIEW__')
+                  ? {
+                      reviewCapability:
+                        descriptor.outputCapability === 'MUSIC_GENERATION'
+                          ? ('SPEECH_UNDERSTANDING' as const)
+                          : ('VISUAL_UNDERSTANDING' as const),
+                    }
+                  : {}),
+              },
+            }
+          : {}),
       },
       usage: {
         inputTokens: request.objective.length + (request.publicDraft?.length ?? 0),
@@ -112,44 +160,77 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
       throw new Error('Fake coordinator synthesis failure');
     }
     const text =
-      prompt.startsWith('SYNTHESIS:') && prompt.includes('__R2_EXTERNAL_INSPECT__')
-        ? JSON.stringify({
-            teammateId: request.teammateId,
-            runtimeProfileId: request.runtimeProfileId,
-            externalWorkContext: request.externalWorkContext ?? null,
-            userMessagesWithExternalResult: request.messages.filter(
-              (message) =>
-                message.role === 'user' && message.content.includes('UNTRUSTED_EXTERNAL_DATA'),
-            ).length,
-            toolMessagesWithExternalResult: request.messages.filter(
-              (message) =>
-                message.role === 'tool' &&
-                JSON.stringify(message.content).includes('UNTRUSTED_EXTERNAL_DATA'),
-            ).length,
-          })
-        : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE6_MEMBER_FAIL__')
-          ? '{"ok":false,"code":"FAKE_MEMBER_FAILURE"}'
-          : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE5_SCOPE_INSPECT__')
-            ? JSON.stringify({
-                teammateId: request.teammateId,
-                runtimeProfileId: request.runtimeProfileId,
-                aMemorySeen: systemText.includes('GATE5_A_MEMORY'),
-                bMemorySeen: systemText.includes('GATE5_B_MEMORY'),
-                aSkillSeen: systemText.includes('GATE5_A_SKILL'),
-                bSkillSeen: systemText.includes('GATE5_B_SKILL'),
-              })
-            : prompt.trim() === '__GATE2_PROMPT_INSPECT__'
-              ? request.messages
-                  .filter((message) => message.role === 'system')
-                  .map((message) => message.content)
-                  .join('\n')
-              : toolResults.length > 0
-                ? `FAKE_TOOL_RESULT:${JSON.stringify(toolResults)}`
-                : prompt.trim() === 'PING'
-                  ? 'PONG'
-                  : `FAKE: ${prompt}`;
+      prompt.startsWith('SYNTHESIS:') &&
+      (prompt.includes('artifactRefs') || prompt.includes('__G3_'))
+        ? '协作已完成。成果已保存，可在下方查看。'
+        : prompt.startsWith('SYNTHESIS:') && prompt.includes('__R2_EXTERNAL_INSPECT__')
+          ? JSON.stringify({
+              teammateId: request.teammateId,
+              runtimeProfileId: request.runtimeProfileId,
+              externalWorkContext: request.externalWorkContext ?? null,
+              userMessagesWithExternalResult: request.messages.filter(
+                (message) =>
+                  message.role === 'user' && message.content.includes('UNTRUSTED_EXTERNAL_DATA'),
+              ).length,
+              toolMessagesWithExternalResult: request.messages.filter(
+                (message) =>
+                  message.role === 'tool' &&
+                  JSON.stringify(message.content).includes('UNTRUSTED_EXTERNAL_DATA'),
+              ).length,
+            })
+          : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE6_MEMBER_FAIL__')
+            ? '{"ok":false,"code":"FAKE_MEMBER_FAILURE"}'
+            : prompt.startsWith('MEMBER_TASK:') && prompt.includes('__GATE5_SCOPE_INSPECT__')
+              ? JSON.stringify({
+                  teammateId: request.teammateId,
+                  runtimeProfileId: request.runtimeProfileId,
+                  aMemorySeen: systemText.includes('GATE5_A_MEMORY'),
+                  bMemorySeen: systemText.includes('GATE5_B_MEMORY'),
+                  aSkillSeen: systemText.includes('GATE5_A_SKILL'),
+                  bSkillSeen: systemText.includes('GATE5_B_SKILL'),
+                })
+              : prompt.trim() === '__GATE2_PROMPT_INSPECT__'
+                ? request.messages
+                    .filter((message) => message.role === 'system')
+                    .map((message) => message.content)
+                    .join('\n')
+                : toolResults.length > 0
+                  ? `FAKE_TOOL_RESULT:${JSON.stringify(toolResults)}`
+                  : prompt.trim() === 'PING'
+                    ? 'PONG'
+                    : `FAKE: ${prompt}`;
+    let structured: unknown = text.startsWith('{"ok":false,')
+      ? { kind: 'FAILED_TERMINAL', errorCode: JSON.parse(text).code, reason: '执行失败' }
+      : { kind: 'RESULT', publicResult: text.slice(0, 4000), artifactRefs: [] };
+    if (
+      request.participantOutcomeContract &&
+      !prompt.includes('依赖成果已验证') &&
+      !prompt.includes('素材已提供')
+    ) {
+      if (prompt.includes('__G3_NEEDS_CAPABILITY__') && !prompt.includes('生成结果已安全保存'))
+        structured = {
+          kind: 'NEEDS_CAPABILITY',
+          capability: 'IMAGE_GENERATION',
+          requiredFeatures: [],
+          requestedInputs: [],
+          reason: '需要一份可信图像素材继续任务',
+        };
+      else if (prompt.includes('__G3_NEEDS_INPUT__') && !prompt.includes('image/png'))
+        structured = {
+          kind: 'NEEDS_INPUT',
+          requirements: [
+            {
+              role: 'REFERENCE',
+              artifactKinds: ['IMAGE'],
+              mimeTypes: ['image/png'],
+              required: true,
+            },
+          ],
+          reason: '需要一份可信图像素材',
+        };
+    }
     return {
-      text,
+      text: request.participantOutcomeContract ? JSON.stringify(structured) : text,
       usage: {
         inputTokens: request.messages.reduce(
           (total, message) => total + contentCharacters(message.content),
@@ -250,7 +331,9 @@ export class FakeModelGateway implements ModelGateway, MemoryCandidateExtractor,
       const diagnostics = inspectTranscript(request.messages);
       const text = JSON.stringify(diagnostics);
       return {
-        text,
+        text: request.participantOutcomeContract
+          ? JSON.stringify({ kind: 'RESULT', publicResult: text, artifactRefs: [] })
+          : text,
         toolCalls: [],
         usage: {
           inputTokens: request.messages.reduce(

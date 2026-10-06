@@ -4,6 +4,7 @@ import { AvailabilityBadge } from '.././r3-2-availability.js';
 import { Avatar } from '../components/Avatar.js';
 import { Drawer } from '../components/Drawer.js';
 import { EmptyState } from '../components/EmptyState.js';
+import { G3Collaboration } from '../components/G3Collaboration.js';
 import { Section } from '../components/Section.js';
 import { StatusBadge } from '../components/StatusBadge.js';
 import './mission-party.css';
@@ -1539,6 +1540,17 @@ export function MissionPage() {
                       })}
                   </div>
                 </section>
+              )}
+
+              {detail.execution && (
+                <G3Collaboration
+                  execution={detail.execution}
+                  participants={detail.participants}
+                  teammates={teammates}
+                  onRefresh={() => {
+                    void runAction('协作进度已刷新。', async () => undefined);
+                  }}
+                />
               )}
 
               {pendingCollaborations.length > 0 && (

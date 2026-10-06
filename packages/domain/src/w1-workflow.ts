@@ -1,5 +1,6 @@
 import { DomainError } from '@cultivation/shared';
 import type { RoutingTaskContext } from './r4-routing.js';
+import type { GenerationCapability } from './g1-generation.js';
 import {
   EMPTY_WORKFLOW_INPUT_SCHEMA,
   validateWorkflowInputSchema,
@@ -67,6 +68,27 @@ export interface WorkflowInputBinding {
   outputKey: string;
   required: boolean;
 }
+export interface WorkflowGenerationInputRole {
+  inputKey: string;
+  role: string;
+}
+export interface WorkflowGenerationRequirement {
+  capability: GenerationCapability;
+  requiredFeatures: string[];
+  parameters: Record<string, unknown>;
+  expectedOutput: { artifactKind: 'IMAGE' | 'VIDEO' | 'AUDIO'; mimeTypes: string[] };
+  outputDestination?: {
+    scope: 'APP_ARTIFACT_STORE' | 'MISSION_WORKSPACE';
+    logicalPathHint?: string | null;
+  };
+  inputRoles?: WorkflowGenerationInputRole[];
+}
+export interface WorkflowExecutionRequirements {
+  toolPurpose?: 'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY';
+  independentReviewOfStepIds?: string[];
+  requiredToolScope?: boolean;
+  generation?: WorkflowGenerationRequirement;
+}
 export interface WorkflowStepDefinition {
   id: string;
   /** Optional frozen phase label, for example N01 or N02. */
@@ -74,7 +96,9 @@ export interface WorkflowStepDefinition {
   type: WorkflowStepType;
   title: string;
   objective: string;
-  routing: Omit<RoutingTaskContext, 'objective' | 'inputArtifactMetadata' | 'executionContext'>;
+  routing: Omit<RoutingTaskContext, 'objective' | 'inputArtifactMetadata' | 'executionContext'> & {
+    requiredExecutionProtocol?: 'LANGUAGE' | 'GENERATION';
+  };
   inputs: WorkflowInputBinding[];
   /** Selected frozen Workflow Input fields; absent means none. */
   workflowInputKeys?: string[];
@@ -84,11 +108,7 @@ export interface WorkflowStepDefinition {
   /** DECISION-only durable final user confirmation gate. */
   confirmationRequired?: boolean;
   /** Purpose-specific execution routing requirement resolved by the Main adapter. */
-  executionRequirements?: {
-    toolPurpose?: 'RESEARCH' | 'ASSET_COLLECTION' | 'VOICEOVER' | 'VIDEO_ASSEMBLY';
-    independentReviewOfStepIds?: string[];
-    requiredToolScope?: boolean;
-  };
+  executionRequirements?: WorkflowExecutionRequirements;
   /** Main adapter scopes declared paths to this Workflow Step attempt. */
   artifactPathScope?: 'RUN_ATTEMPT';
   maxAttempts: number;
@@ -381,6 +401,134 @@ export function workflowOutputProjectionMatches(
     JSON.stringify(semantic(output.validator)) === JSON.stringify(semantic(producer.validator))
   );
 }
+const generationCapabilities: GenerationCapability[] = [
+  'IMAGE_GENERATION',
+  'IMAGE_EDITING',
+  'VIDEO_GENERATION',
+  'SPEECH_GENERATION',
+  'MUSIC_GENERATION',
+];
+const generationReferenceKeys = ['type', 'artifact'];
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype;
+}
+function isJsonValue(value: unknown, seen = new WeakSet<object>(), depth = 0): boolean {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return true;
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (depth > 16 || typeof value !== 'object' || seen.has(value)) return false;
+  seen.add(value);
+  const valid = Array.isArray(value)
+    ? value.every((child) => isJsonValue(child, seen, depth + 1))
+    : isPlainRecord(value) &&
+      Object.values(value).every((child) => isJsonValue(child, seen, depth + 1));
+  seen.delete(value);
+  return valid;
+}
+function validGenerationRequirement(step: WorkflowStepDefinition): boolean {
+  const generation = step.executionRequirements?.generation;
+  if (!isPlainRecord(generation)) return false;
+  const allowed = [
+    'capability',
+    'requiredFeatures',
+    'parameters',
+    'expectedOutput',
+    'outputDestination',
+    'inputRoles',
+  ];
+  if (Object.keys(generation).some((key) => !allowed.includes(key))) return false;
+  if (
+    !generationCapabilities.includes(generation.capability as GenerationCapability) ||
+    !Array.isArray(generation.requiredFeatures) ||
+    generation.requiredFeatures.length > 24 ||
+    new Set(generation.requiredFeatures).size !== generation.requiredFeatures.length ||
+    generation.requiredFeatures.some(
+      (feature) => typeof feature !== 'string' || feature.length < 1 || feature.length > 80,
+    ) ||
+    !isPlainRecord(generation.parameters) ||
+    !isJsonValue(generation.parameters) ||
+    JSON.stringify(generation.parameters).length > 8_000
+  )
+    return false;
+
+  const expectedOutput = generation.expectedOutput;
+  if (
+    !isPlainRecord(expectedOutput) ||
+    Object.keys(expectedOutput).some((key) => !['artifactKind', 'mimeTypes'].includes(key)) ||
+    !['IMAGE', 'VIDEO', 'AUDIO'].includes(String(expectedOutput.artifactKind)) ||
+    !Array.isArray(expectedOutput.mimeTypes) ||
+    expectedOutput.mimeTypes.length < 1 ||
+    expectedOutput.mimeTypes.length > 12 ||
+    new Set(expectedOutput.mimeTypes).size !== expectedOutput.mimeTypes.length ||
+    expectedOutput.mimeTypes.some(
+      (mimeType) =>
+        typeof mimeType !== 'string' ||
+        mimeType.length > 160 ||
+        !/^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/.test(mimeType),
+    )
+  )
+    return false;
+  const expectedKind =
+    generation.capability === 'IMAGE_GENERATION' || generation.capability === 'IMAGE_EDITING'
+      ? 'IMAGE'
+      : generation.capability === 'VIDEO_GENERATION'
+        ? 'VIDEO'
+        : 'AUDIO';
+  if (expectedOutput.artifactKind !== expectedKind) return false;
+
+  if (generation.outputDestination !== undefined) {
+    const destination = generation.outputDestination;
+    if (
+      !isPlainRecord(destination) ||
+      Object.keys(destination).some((key) => !['scope', 'logicalPathHint'].includes(key)) ||
+      !['APP_ARTIFACT_STORE', 'MISSION_WORKSPACE'].includes(String(destination.scope))
+    )
+      return false;
+    if (
+      destination.logicalPathHint !== undefined &&
+      destination.logicalPathHint !== null &&
+      (typeof destination.logicalPathHint !== 'string' ||
+        destination.logicalPathHint.length > 512 ||
+        !/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(destination.logicalPathHint) ||
+        destination.logicalPathHint.split('/').some((part) => part === '.' || part === '..'))
+    )
+      return false;
+    if (
+      destination.scope === 'MISSION_WORKSPACE' &&
+      (typeof destination.logicalPathHint !== 'string' || !destination.logicalPathHint)
+    )
+      return false;
+  }
+
+  if (generation.inputRoles !== undefined) {
+    if (!Array.isArray(generation.inputRoles) || generation.inputRoles.length > 12) return false;
+    const mappedKeys = new Set<string>();
+    for (const mapping of generation.inputRoles) {
+      if (
+        !isPlainRecord(mapping) ||
+        Object.keys(mapping).some((key) => !['inputKey', 'role'].includes(key)) ||
+        typeof mapping.inputKey !== 'string' ||
+        !step.inputs.some((input) => input.key === mapping.inputKey) ||
+        mappedKeys.has(mapping.inputKey) ||
+        typeof mapping.role !== 'string' ||
+        mapping.role.length < 1 ||
+        mapping.role.length > 80
+      )
+        return false;
+      mappedKeys.add(mapping.inputKey);
+    }
+  }
+
+  const referenceOutput = step.outputs[0];
+  const referenceValidator = referenceOutput?.validator;
+  return (
+    step.type === 'TASK' &&
+    step.outputs.length === 1 &&
+    referenceOutput?.kind === 'JSON' &&
+    referenceOutput.required &&
+    referenceValidator?.type === 'JSON' &&
+    generationReferenceKeys.every((key) => referenceValidator.requiredKeys.includes(key))
+  );
+}
 export function validateWorkflowVersion(value: WorkflowVersion): void {
   const invalid = (message: string): never => {
     throw new DomainError('INVALID_INPUT', message);
@@ -483,7 +631,12 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
         Object.getPrototypeOf(s.executionRequirements) !== Object.prototype ||
         Object.keys(s.executionRequirements).some(
           (key) =>
-            !['toolPurpose', 'independentReviewOfStepIds', 'requiredToolScope'].includes(key),
+            ![
+              'toolPurpose',
+              'independentReviewOfStepIds',
+              'requiredToolScope',
+              'generation',
+            ].includes(key),
         ) ||
         (s.executionRequirements.toolPurpose !== undefined &&
           !['RESEARCH', 'ASSET_COLLECTION', 'VOICEOVER', 'VIDEO_ASSEMBLY'].includes(
@@ -500,6 +653,18 @@ export function validateWorkflowVersion(value: WorkflowVersion): void {
             ))))
     )
       invalid('Invalid Step execution requirement');
+    const requiredExecutionProtocol = s.routing.requiredExecutionProtocol;
+    if (
+      (requiredExecutionProtocol !== undefined &&
+        !['LANGUAGE', 'GENERATION'].includes(requiredExecutionProtocol)) ||
+      (requiredExecutionProtocol === 'GENERATION') !==
+        (s.executionRequirements?.generation !== undefined) ||
+      (s.executionRequirements?.generation !== undefined &&
+        (!validGenerationRequirement(s) ||
+          (s.routing.executionConstraint !== undefined &&
+            s.routing.executionConstraint !== 'SOLO')))
+    )
+      invalid('Generation requirements must declare one valid GENERATION execution Step');
     if (
       (s.effectPathMode !== undefined ||
         s.executionRequirements?.independentReviewOfStepIds ||

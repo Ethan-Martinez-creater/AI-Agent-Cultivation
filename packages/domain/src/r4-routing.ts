@@ -2,6 +2,8 @@ import type { CapabilityDimension, MissionMode, ModelAvailabilityStatus } from '
 
 /** An execution contract, independent of Mission and any future Workflow implementation. */
 export interface RoutingTaskContext {
+  /** Trusted execution preparation can route a generation participant; default remains LANGUAGE. */
+  requiredExecutionProtocol?: 'LANGUAGE' | 'GENERATION';
   objective: string;
   requiredCapabilities?: CapabilityDimension[];
   /** Hard execution kind; explicit model/bridge/Party permits only its matching kind or omission. */

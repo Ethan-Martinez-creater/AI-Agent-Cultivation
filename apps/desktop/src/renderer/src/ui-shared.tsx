@@ -350,6 +350,55 @@ export interface MissionDetailView {
   participants: MissionParticipantView[];
   collaborations: CollaborationRequestView[];
   artifacts: CollaborationArtifactView[];
+  execution?: MissionExecutionView;
+}
+
+export interface MissionExecutionTaskView {
+  id: string;
+  participantTeammateId: string;
+  role?: string;
+  description?: string;
+  retryNo?: number;
+  reviewPending?: boolean;
+}
+
+export interface MissionExecutionAttemptView {
+  id: string;
+  taskId: string;
+  attemptNo: number;
+  participantTeammateId?: string;
+  executionProtocol?: 'LANGUAGE' | 'GENERATION';
+  state: string;
+  generationJobId?: string;
+  errorCode?: string;
+  createdAt: string;
+}
+
+export interface MissionExecutionArtifactReferenceView {
+  id: string;
+  kind: string;
+  mimeType: string;
+  contentHash: string;
+  sizeBytes: number;
+}
+
+export interface MissionExecutionOutcomeView {
+  id: string;
+  attemptId: string;
+  participantTeammateId: string;
+  outcome: {
+    kind: string;
+    publicResult?: string | null;
+    artifactRefs: MissionExecutionArtifactReferenceView[];
+  };
+  consumedAt: string | null;
+}
+
+export interface MissionExecutionView {
+  tasks: MissionExecutionTaskView[];
+  attempts: MissionExecutionAttemptView[];
+  outcomes: MissionExecutionOutcomeView[];
+  artifacts: GenerationArtifactView[];
 }
 
 export interface ChatEvent {

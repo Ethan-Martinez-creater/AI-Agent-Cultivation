@@ -152,8 +152,14 @@ export class RoutingPlanner {
         return actionRequired('TASK_DEMAND_REQUIRES_CONFIRMATION');
     }
     const required = receipt.demand.filter((item) => item.required).map((item) => item.dimension);
-    const traceFor = (teammateId: string, explicitChoice = false): RoutingCandidateTrace => {
+    const traceFor = (
+      teammateId: string,
+      explicitChoice = false,
+      allowGenerationParticipant = false,
+    ): RoutingCandidateTrace => {
       const evaluated = this.eligibility.evaluate(teammateId, {
+        executionProtocol: context.requiredExecutionProtocol,
+        allowGenerationParticipant,
         requiredCapabilities: required,
         explicit: explicitChoice,
       });
@@ -202,6 +208,7 @@ export class RoutingPlanner {
     const prepare = async (
       trace: RoutingCandidateTrace,
       explicitChoice = false,
+      allowGenerationParticipant = false,
     ): Promise<boolean> => {
       if (!trace.eligible || !trace.runtimeProfileId) return false;
       trace.probed = true;
@@ -214,6 +221,8 @@ export class RoutingPlanner {
         });
       } catch {
         const refreshed = this.eligibility.evaluate(trace.teammateId, {
+          executionProtocol: context.requiredExecutionProtocol,
+          allowGenerationParticipant,
           requiredCapabilities: required,
           explicit: explicitChoice,
         });
@@ -225,6 +234,8 @@ export class RoutingPlanner {
       trace.availability = result.availability.status;
       // Re-evaluate after await: archive, Credential rotation or Provider disable cannot race assignment.
       const refreshed = this.eligibility.evaluate(trace.teammateId, {
+        executionProtocol: context.requiredExecutionProtocol,
+        allowGenerationParticipant,
         requiredCapabilities: required,
         explicit: explicitChoice,
       });
@@ -291,7 +302,13 @@ export class RoutingPlanner {
             (required.length && !this.store.humanBridgeSupports(memberId, required))
           )
             return actionRequired('EXPLICIT_PARTY_UNAVAILABLE');
-        } else if (!(await prepare(traceFor(memberId, true), true)))
+        } else if (
+          !(await prepare(
+            traceFor(memberId, true, memberId !== party.coordinatorTeammateId),
+            true,
+            memberId !== party.coordinatorTeammateId,
+          ))
+        )
           return actionRequired('EXPLICIT_PARTY_UNAVAILABLE');
       }
       return assigned({
@@ -479,6 +496,7 @@ export class RoutingPlanner {
   private assertContext(context: RoutingTaskContext): void {
     const fields = [
       'objective',
+      'requiredExecutionProtocol',
       'requiredCapabilities',
       'executionConstraint',
       'explicitTeammateId',
@@ -491,6 +509,11 @@ export class RoutingPlanner {
     ];
     if (Object.keys(context).some((field) => !fields.includes(field)))
       throw new DomainError('INVALID_INPUT', '任务上下文字段无效');
+    if (
+      context.requiredExecutionProtocol !== undefined &&
+      !['LANGUAGE', 'GENERATION'].includes(context.requiredExecutionProtocol)
+    )
+      throw new DomainError('INVALID_INPUT', '执行协议约束无效');
     if (
       !context.objective.trim() ||
       context.objective.length > 8000 ||

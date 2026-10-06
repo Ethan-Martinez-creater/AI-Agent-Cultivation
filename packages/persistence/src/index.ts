@@ -31,6 +31,8 @@ import w24DynamicManifestIntegritySql from '../../../migrations/0026_w24_dynamic
 import g1GenerationFoundationSql from '../../../migrations/0027_g1_generation_foundation.sql?raw';
 import g2GenerationHttpSql from '../../../migrations/0028_g2_generation_http.sql?raw';
 import g2SubmissionContinuationSql from '../../../migrations/0029_g2_submission_continuation.sql?raw';
+import g3MultimodalSql from '../../../migrations/0030_g3_multimodal_collaboration.sql?raw';
+export { G3SqliteRepository } from './g3-execution.js';
 export { ResearchInputArtifactRepository } from './w23-input-artifacts.js';
 import { R31BindingRepository } from './r3-1-binding.js';
 import type { SealedTeammateCreation, TeammateModelBindingRecord } from './r3-1-binding.js';
@@ -137,6 +139,7 @@ export const migrations: readonly Migration[] = [
     requiresForeignKeysOff: true,
   },
   { version: 29, name: 'g2_submission_continuation', sql: g2SubmissionContinuationSql },
+  { version: 30, name: 'g3_multimodal_collaboration', sql: g3MultimodalSql },
 ];
 
 export type ProviderKind = import('@cultivation/domain').ProviderKind;

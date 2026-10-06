@@ -10,7 +10,7 @@ import { StatusBadge } from '../components/StatusBadge.js';
 import './mission-party.css';
 import './product-pages.css';
 import { errorText, PageHeading } from '../ui-shared.js';
-import type { TeammateView, PartyType, PartyView } from '../ui-shared.js';
+import type { TeammateView, PartyType, PartyView, RuntimeProfileView } from '../ui-shared.js';
 
 type PartyForm = {
   name: string;
@@ -28,9 +28,19 @@ const blankPartyForm: PartyForm = {
   memberTeammateIds: [],
 };
 
+export function canCoordinateParty(
+  teammate: TeammateView,
+  runtimes: RuntimeProfileView[],
+): boolean {
+  if (teammate.status !== 'ACTIVE' || teammate.executorKind === 'USER_BRIDGE') return false;
+  const runtime = runtimes.find((item) => item.id === teammate.currentRuntimeProfileId);
+  return (runtime?.executionProtocol ?? 'LANGUAGE') !== 'GENERATION';
+}
+
 export function PartiesPage() {
   const [parties, setParties] = useState<PartyView[]>([]);
   const [teammates, setTeammates] = useState<TeammateView[]>([]);
+  const [runtimes, setRuntimes] = useState<RuntimeProfileView[]>([]);
   const [form, setForm] = useState<PartyForm>(blankPartyForm);
   const [editingId, setEditingId] = useState('');
   const [selectedPartyId, setSelectedPartyId] = useState('');
@@ -44,15 +54,24 @@ export function PartiesPage() {
   const navigate = useNavigate();
 
   const activeTeammates = teammates.filter((teammate) => teammate.status === 'ACTIVE');
+  const activeCoordinators = activeTeammates.filter((teammate) =>
+    canCoordinateParty(teammate, runtimes),
+  );
+  const isCoordinatorEligible = (teammateId: string) => {
+    const teammate = teammates.find((item) => item.id === teammateId);
+    return teammate ? canCoordinateParty(teammate, runtimes) : false;
+  };
   const displayTeammateName = (teammateId: string) =>
     teammates.find((teammate) => teammate.id === teammateId)?.name ?? '道友资料不可用';
   const refresh = async () => {
-    const [partyRows, teammateRows] = await Promise.all([
+    const [partyRows, teammateRows, runtimeRows] = await Promise.all([
       window.cultivation.parties.list(),
       window.cultivation.teammates.list(),
+      window.cultivation.runtimes.list(),
     ]);
     setParties(partyRows);
     setTeammates(teammateRows);
+    setRuntimes(runtimeRows);
     return partyRows;
   };
 
@@ -60,11 +79,16 @@ export function PartiesPage() {
     let cancelled = false;
     setLoading(true);
     setError('');
-    void Promise.all([window.cultivation.parties.list(), window.cultivation.teammates.list()])
-      .then(([partyRows, teammateRows]) => {
+    void Promise.all([
+      window.cultivation.parties.list(),
+      window.cultivation.teammates.list(),
+      window.cultivation.runtimes.list(),
+    ])
+      .then(([partyRows, teammateRows, runtimeRows]) => {
         if (cancelled) return;
         setParties(partyRows);
         setTeammates(teammateRows);
+        setRuntimes(runtimeRows);
         setSelectedPartyId((current) =>
           current && partyRows.some((party) => party.id === current)
             ? current
@@ -83,12 +107,13 @@ export function PartiesPage() {
   }, [loadAttempt]);
 
   const beginCreate = () => {
-    const initial = activeTeammates.slice(0, 2).map((teammate) => teammate.id);
-    const coordinatorTeammateId =
-      initial.find(
-        (id) =>
-          activeTeammates.find((teammate) => teammate.id === id)?.executorKind !== 'USER_BRIDGE',
-      ) ?? '';
+    const initial = [
+      ...(activeCoordinators[0] ? [activeCoordinators[0]] : []),
+      ...activeTeammates.filter((teammate) => teammate.id !== activeCoordinators[0]?.id),
+    ]
+      .slice(0, 2)
+      .map((teammate) => teammate.id);
+    const coordinatorTeammateId = initial.find(isCoordinatorEligible) ?? '';
     setForm({
       ...blankPartyForm,
       memberTeammateIds: initial,
@@ -107,11 +132,14 @@ export function PartiesPage() {
       .slice()
       .sort((left, right) => left.order - right.order)
       .map((member) => member.teammateId);
+    const coordinatorTeammateId = isCoordinatorEligible(party.coordinatorTeammateId)
+      ? party.coordinatorTeammateId
+      : (memberTeammateIds.find(isCoordinatorEligible) ?? '');
     setForm({
       name: party.name,
       description: party.description,
       type: party.type,
-      coordinatorTeammateId: party.coordinatorTeammateId,
+      coordinatorTeammateId,
       memberTeammateIds,
     });
     setEditingId(party.id);
@@ -126,11 +154,12 @@ export function PartiesPage() {
       const members = checked
         ? [...current.memberTeammateIds, teammateId]
         : current.memberTeammateIds.filter((id) => id !== teammateId);
-      const coordinatorTeammateId = checked
-        ? current.coordinatorTeammateId || teammateId
-        : current.coordinatorTeammateId === teammateId
-          ? (members[0] ?? '')
-          : current.coordinatorTeammateId;
+      const coordinatorTeammateId =
+        current.coordinatorTeammateId !== teammateId &&
+        members.includes(current.coordinatorTeammateId) &&
+        isCoordinatorEligible(current.coordinatorTeammateId)
+          ? current.coordinatorTeammateId
+          : (members.find(isCoordinatorEligible) ?? '');
       return { ...current, memberTeammateIds: members, coordinatorTeammateId };
     });
   };
@@ -144,8 +173,11 @@ export function PartiesPage() {
       setError('队伍必须包含 2–4 名当前可用的道友。');
       return;
     }
-    if (!selectedActive.includes(form.coordinatorTeammateId)) {
-      setError('协调道友必须属于队伍成员。');
+    if (
+      !selectedActive.includes(form.coordinatorTeammateId) ||
+      !isCoordinatorEligible(form.coordinatorTeammateId)
+    ) {
+      setError('协调道友必须是队伍中的文本协作成员。');
       return;
     }
     setBusy(true);
@@ -590,17 +622,11 @@ export function PartiesPage() {
                   }
                 >
                   <option value="">选择协调者</option>
-                  {form.memberTeammateIds
-                    .filter((id) =>
-                      activeTeammates.some(
-                        (teammate) => teammate.id === id && teammate.executorKind !== 'USER_BRIDGE',
-                      ),
-                    )
-                    .map((id) => (
-                      <option key={id} value={id}>
-                        {displayTeammateName(id)}
-                      </option>
-                    ))}
+                  {form.memberTeammateIds.filter(isCoordinatorEligible).map((id) => (
+                    <option key={id} value={id}>
+                      {displayTeammateName(id)}
+                    </option>
+                  ))}
                 </select>
               </label>
               {form.memberTeammateIds.length < 2 && <p className="form-hint">至少选择两位道友。</p>}
@@ -613,6 +639,7 @@ export function PartiesPage() {
                     form.memberTeammateIds.length < 2 ||
                     form.memberTeammateIds.length > 4 ||
                     !form.memberTeammateIds.includes(form.coordinatorTeammateId) ||
+                    !isCoordinatorEligible(form.coordinatorTeammateId) ||
                     form.memberTeammateIds.some(
                       (id) => !activeTeammates.some((teammate) => teammate.id === id),
                     )

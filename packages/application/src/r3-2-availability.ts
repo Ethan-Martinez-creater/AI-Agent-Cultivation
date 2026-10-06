@@ -421,6 +421,9 @@ export class AvailabilityService {
 }
 
 export interface RoutingEligibilityOptions {
+  executionProtocol?: ExecutionProtocol;
+  /** Fixed Party members may execute GENERATION; the Coordinator remains LANGUAGE. */
+  allowGenerationParticipant?: boolean;
   requiredCapabilities?: CapabilityDimension[];
   explicit?: boolean;
 }
@@ -487,7 +490,14 @@ export class RoutingEligibilityService {
     ) {
       return failure('BINDING_INVALID');
     }
-    if ((runtime.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE') {
+    if (
+      (runtime.executionProtocol ?? 'LANGUAGE') !== (options.executionProtocol ?? 'LANGUAGE') &&
+      !(
+        options.allowGenerationParticipant &&
+        options.executionProtocol === undefined &&
+        runtime.executionProtocol === 'GENERATION'
+      )
+    ) {
       return failure('EXECUTION_PROTOCOL_UNSUPPORTED', { providerKind: provider.kind });
     }
     if (!provider.enabled) {
@@ -497,7 +507,8 @@ export class RoutingEligibilityService {
       });
     }
     const credentialRequired =
-      runtime.credentialId !== null || provider.kind !== 'OPENAI_COMPATIBLE';
+      runtime.credentialId !== null ||
+      !['OPENAI_COMPATIBLE', 'GENERATION_HTTP'].includes(provider.kind);
     if (
       (credentialRequired && (!credential || credential.providerId !== provider.id)) ||
       !validProviderUrl(provider)
