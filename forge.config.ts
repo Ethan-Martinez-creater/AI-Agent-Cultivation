@@ -9,6 +9,10 @@ const config: ForgeConfig = {
   packagerConfig: {
     name: 'AI Agent Cultivation',
     executableName: 'AI-Agent-Cultivation',
+    // Vite bundles JavaScript dependencies. Preserve the explicit native-only copy policy;
+    // Packager's default dependency pruner otherwise bypasses ignore for dependency roots.
+    prune: false,
+    derefSymlinks: true,
     asar: { unpack: '**/*.node' },
     extraResource: [resolve('node_modules/sqlite-vec-windows-x64/vec0.dll')],
     electronZipDir: process.env.CULTIVATION_ELECTRON_ZIP_DIR || undefined,
