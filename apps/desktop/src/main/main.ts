@@ -613,7 +613,8 @@ if (!squirrelStartup)
             chatCrash:
               process.env.CULTIVATION_G2_ACCEPTANCE === '1'
                 ? (point) => {
-                    if (process.env.CULTIVATION_G2_PREPARATION_CRASH === point) app.exit(81);
+                    if (process.env.CULTIVATION_G2_PREPARATION_CRASH === point)
+                      process.kill(process.pid, 'SIGKILL');
                   }
                 : undefined,
           });
