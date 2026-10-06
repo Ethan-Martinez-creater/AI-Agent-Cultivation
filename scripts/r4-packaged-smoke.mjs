@@ -553,7 +553,7 @@ async function main() {
     const schemaVersion = db
       .prepare('SELECT MAX(version) AS version FROM schema_migrations')
       .get().version;
-    assert.equal(schemaVersion, 28);
+    assert.equal(schemaVersion, 29);
     for (const receiptId of facts.decisionReceiptIds) {
       assert.equal(
         db.prepare('SELECT mode FROM routing_decision_receipts WHERE id=?').get(receiptId).mode,
