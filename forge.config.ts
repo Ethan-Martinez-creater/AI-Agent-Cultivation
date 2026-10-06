@@ -22,7 +22,8 @@ const config: ForgeConfig = {
       return !(
         normalized.startsWith('/.vite') ||
         normalized === '/node_modules' ||
-        normalized.startsWith('/node_modules/better-sqlite3')
+        normalized.startsWith('/node_modules/better-sqlite3') ||
+        normalized.startsWith('/node_modules/node-addon-api')
       );
     },
   },
