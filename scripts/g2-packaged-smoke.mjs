@@ -13,8 +13,7 @@ const root = process.cwd();
 const runId = randomUUID();
 const dataRoot = join(root, '.test-data', `g2-packaged-${runId}`);
 const profile = join(dataRoot, 'production-profile');
-const evidenceRoot = join(root, 'docs', 'evidence', 'g2-h3-integration');
-const evidence = join(evidenceRoot, runId);
+const evidence = join(dataRoot, 'evidence');
 const executablePath = join(
   root,
   'out',
