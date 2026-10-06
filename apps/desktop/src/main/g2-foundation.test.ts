@@ -234,6 +234,25 @@ describe('G2 trusted H3 Main integration', () => {
       await x.close();
     }
   });
+  it('keeps an archived pre-Job intent pending without crashing startup or probing', async () => {
+    const x = await harness();
+    try {
+      await expect(
+        chatWithCrash(x, 'ENTRY_COMMITTED').send(generationPrompt(x)),
+      ).rejects.toBeInstanceOf(GenerationCrash);
+      x.h.gate1.archiveTeammate(x.teammate.id);
+      x.restart();
+      const before = { ...x.http.facts };
+      await expect(x.h.generation.chat.recoverPreparations()).resolves.toBeUndefined();
+      expect(x.h.generation.service.list()).toHaveLength(0);
+      expect(
+        x.db.prepare('SELECT job_id,preparation_error_code FROM generation_chat_entries').get(),
+      ).toEqual({ job_id: null, preparation_error_code: null });
+      expect(x.http.facts).toEqual(before);
+    } finally {
+      await x.close();
+    }
+  });
   it('reuses the original bound Job when Main crashes before send returns', async () => {
     const x = await harness();
     try {

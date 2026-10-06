@@ -264,7 +264,7 @@ export class GenerationChatService {
       } catch (error) {
         // Stable validation failures are recorded by prepareEntry. Network and other uncertain
         // failures remain pending for a later startup or explicit recovery invocation.
-        if (error instanceof GenerationCrash) throw error;
+        if (error instanceof GenerationCrash && this.options.crash) throw error;
       }
     }
   }

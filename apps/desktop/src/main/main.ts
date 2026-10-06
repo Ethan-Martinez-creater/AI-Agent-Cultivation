@@ -1065,7 +1065,7 @@ if (!squirrelStartup)
             polling = false;
           }
         };
-        void g2.chat.recoverPreparations().then(queryPending);
+        void g2.chat.recoverPreparations().then(queryPending, queryPending);
         const timer = setInterval(() => void queryPending(), 10000);
         app.once('before-quit', () => clearInterval(timer));
       }
