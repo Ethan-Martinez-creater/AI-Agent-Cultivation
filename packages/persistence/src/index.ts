@@ -32,6 +32,7 @@ import g1GenerationFoundationSql from '../../../migrations/0027_g1_generation_fo
 import g2GenerationHttpSql from '../../../migrations/0028_g2_generation_http.sql?raw';
 import g2SubmissionContinuationSql from '../../../migrations/0029_g2_submission_continuation.sql?raw';
 import g3MultimodalSql from '../../../migrations/0030_g3_multimodal_collaboration.sql?raw';
+import w31WorkflowDraftsSql from '../../../migrations/0031_w31_workflow_drafts.sql?raw';
 export { G3SqliteRepository } from './g3-execution.js';
 export { ResearchInputArtifactRepository } from './w23-input-artifacts.js';
 import { R31BindingRepository } from './r3-1-binding.js';
@@ -47,6 +48,7 @@ export { R2ContinuationRepository } from './r2-continuation.js';
 export { R4RoutingRepository } from './r4-routing.js';
 export type { RoutingMissionAssignmentRecord, RoutingHumanBridgeDraft } from './r4-routing.js';
 export { W1WorkflowRepository } from './w1-workflow.js';
+export { W31WorkflowDraftRepository } from './w3-1-workflow-drafts.js';
 export { W2WorkflowRepository } from './w2-workflow.js';
 export { W22WorkspaceMutationRepository } from './w22-workspace-mutations.js';
 export { ResearchSourceRepository } from './w23-research-sources.js';
@@ -140,6 +142,7 @@ export const migrations: readonly Migration[] = [
   },
   { version: 29, name: 'g2_submission_continuation', sql: g2SubmissionContinuationSql },
   { version: 30, name: 'g3_multimodal_collaboration', sql: g3MultimodalSql },
+  { version: 31, name: 'w31_user_workflow_drafts', sql: w31WorkflowDraftsSql },
 ];
 
 export type ProviderKind = import('@cultivation/domain').ProviderKind;
