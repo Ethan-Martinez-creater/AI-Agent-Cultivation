@@ -1,0 +1,1042 @@
+{
+  "status": "PASS",
+  "originalCommand": "npm run smoke:package",
+  "g1": {
+    "crashes": [
+      {
+        "point": "created",
+        "beforeState": "PENDING",
+        "beforeProviderStatus": null,
+        "providerJobId": "generation-03aaaab7-acb8-4df0-89f6-130338359dbf",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 0,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "e3a610e340c78c46198339633320fdf13649355d920fb5953e959ba746ec2342",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "submitting",
+        "beforeState": "SUBMITTING",
+        "beforeProviderStatus": null,
+        "providerJobId": "generation-a3954441-97f0-4430-b7dd-5d8bebf4424d",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 0,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "da7e264ba903255a8b83fcc2d676d94965b623cefba25700dbf79944a4431d69",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "submission_sent",
+        "beforeState": "SUBMITTING",
+        "beforeProviderStatus": null,
+        "providerJobId": "generation-ccf5c3a0-1169-4290-ab71-edf780e5bd3e",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 0,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "61d476efdd0cc7f61591259da229ae6c23b55c2ae98a43bfd701cf3ad0d3c1e6",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "submitted",
+        "beforeState": "QUEUED",
+        "beforeProviderStatus": "QUEUED",
+        "providerJobId": "generation-19944534-3197-41b9-8bb0-f2612d67bbf2",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 0,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "464204ef5998d0844f730cf6eb015d82526fffe425665cdea532bec117077a05",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "provider_completed",
+        "beforeState": "QUEUED",
+        "beforeProviderStatus": "COMPLETED",
+        "providerJobId": "generation-14df09eb-af30-4e17-88f9-0b6a058ab0a8",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 0,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "e0442a4b3c92772cb0ab2bcb69815a8a6bbe44c0df6c9cb7d3621a5291ce6a43",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "downloading",
+        "beforeState": "QUEUED",
+        "beforeProviderStatus": "COMPLETED",
+        "providerJobId": "generation-8d548059-dcfd-4a60-8b3d-38cb01b2f2e0",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 2,
+        "downloadsBeforeRestart": 1,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": {
+          "partialBytes": 8,
+          "advertisedBytes": 68,
+          "completeStageExists": false,
+          "artifacts": 0
+        },
+        "artifacts": [
+          {
+            "id": "33c9ac0f70bb7d75f47c420e64711e7278c7629cefdce9aae0250ea243bdec4c",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "staged",
+        "beforeState": "QUEUED",
+        "beforeProviderStatus": "COMPLETED",
+        "providerJobId": "generation-32390142-5ecc-48d8-876f-98d37eeeb2ed",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 1,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "e6acee995d996fee71bfd824746f24d6357e9887679a09ce40c2d7be60d8f384",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "committed",
+        "beforeState": "QUEUED",
+        "beforeProviderStatus": "COMPLETED",
+        "providerJobId": "generation-01394f2c-19bf-4bfd-ba96-ac1450b24986",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 1,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "bf243950eb07e2d0d3a18eddb6e030462d72b56648ca2e44ba6f8474e72e9345",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      },
+      {
+        "point": "registered",
+        "beforeState": "QUEUED",
+        "beforeProviderStatus": "COMPLETED",
+        "providerJobId": "generation-24a81496-8b04-428f-87f7-7b4b7d9dbc7a",
+        "state": "COMPLETED",
+        "submissions": 1,
+        "downloads": 1,
+        "downloadsBeforeRestart": 1,
+        "descriptorLimits": {
+          "maxInputBytes": 33554432,
+          "maxInputFiles": 2,
+          "maxOutputBytes": 33554432,
+          "maxOutputs": 1
+        },
+        "partialFacts": null,
+        "artifacts": [
+          {
+            "id": "236f0a31440641e6a84c0eec5ee6f1d302f0d6e65186b758da2f236fcbf5f1a3",
+            "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "storage_scope": "APP_ARTIFACT_STORE"
+          }
+        ]
+      }
+    ],
+    "failClosed": [
+      {
+        "scenario": "UNKNOWN",
+        "state": "UNKNOWN",
+        "errorCode": "SUBMISSION_STATE_UNKNOWN"
+      },
+      {
+        "scenario": "INVALID_MIME",
+        "state": "FAILED",
+        "errorCode": "UNSUPPORTED_MEDIA_TYPE"
+      },
+      {
+        "scenario": "INVALID_HASH",
+        "state": "FAILED",
+        "errorCode": "ARTIFACT_INTEGRITY"
+      },
+      {
+        "scenario": "MISSING",
+        "state": "FAILED",
+        "errorCode": "OUTPUT_MISSING"
+      }
+    ],
+    "production": {
+      "migration": 30,
+      "jobs": 0
+    },
+    "workspace": [
+      {
+        "deny": false,
+        "state": "COMPLETED",
+        "errorCode": null,
+        "artifacts": [
+          {
+            "id": "3d644090b8c8994ba654320e6a6c03e20e9d3ba459d94656375a967d65e8909f",
+            "hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+            "scope": "MISSION_WORKSPACE"
+          }
+        ]
+      },
+      {
+        "deny": true,
+        "state": "FAILED",
+        "errorCode": "PERMISSION_DENIED",
+        "artifacts": []
+      }
+    ],
+    "frozenHashes": [
+      {
+        "definition_id": "official.ai-news-video",
+        "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd",
+        "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153"
+      },
+      {
+        "definition_id": "official.research",
+        "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+        "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7"
+      },
+      {
+        "definition_id": "official.software-feature",
+        "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d",
+        "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+      }
+    ],
+    "runtimeUi": {
+      "id": "2b9a5275-0daa-4372-9f2b-16c5110477cf",
+      "executionProtocol": "GENERATION",
+      "generationEntry": true
+    },
+    "unknownRestart": {
+      "state": "UNKNOWN",
+      "automaticSubmissions": 0,
+      "automaticDownloads": 0,
+      "automaticQueries": 0
+    }
+  },
+  "g2": {
+    "status": "PASS",
+    "database": {
+      "sealedAdapterIdentity": {
+        "providerKind": "GENERATION_HTTP",
+        "providerAdapterId": "H3",
+        "executionProtocol": "GENERATION",
+        "modelId": "minimax-h3",
+        "credentialless": true,
+        "endpointMatchesFixture": true
+      },
+      "userOnlyMessages": 3,
+      "generationJobs": [
+        {
+          "id": "76975c4b-a65a-4142-9649-e9e3862830c6",
+          "state": "COMPLETED",
+          "errorCode": null,
+          "artifactCount": 1
+        },
+        {
+          "id": "4d1e0a6c-8737-4cf4-a675-d8a21dd9a3cf",
+          "state": "COMPLETED",
+          "errorCode": null,
+          "artifactCount": 1
+        },
+        {
+          "id": "7e2bcab3-0a3f-4750-8389-9e1872ba6838",
+          "state": "UNKNOWN",
+          "errorCode": "SUBMISSION_STATE_UNKNOWN",
+          "artifactCount": 0
+        }
+      ],
+      "totalArtifacts": 2,
+      "unknownSubmissionDurablyRetained": true,
+      "finalAvailability": "UNAVAILABLE"
+    },
+    "fixture": {
+      "uploads": 1,
+      "submissions": 3,
+      "downloads": 3,
+      "statusQueries": 5,
+      "healthChecks": 24,
+      "models": 23,
+      "unknownSubmissionPhase": "UNKNOWN"
+    },
+    "liveIntegration": "BLOCKED / NOT RUN"
+  },
+  "g2Corrective": {
+    "status": "PASS",
+    "scenarios": {
+      "ENTRY_COMMITTED": {
+        "crashed": {
+          "entries": [
+            {
+              "message_id": "22774726-5282-4a3f-9822-0ffa4a90bf0a",
+              "job_id": null,
+              "preparation_error_code": null
+            }
+          ],
+          "jobs": [],
+          "adapter": [],
+          "artifacts": 0
+        },
+        "recovered": {
+          "entries": [
+            {
+              "message_id": "22774726-5282-4a3f-9822-0ffa4a90bf0a",
+              "job_id": "80b2de9d-797a-4bb2-831e-8723a2fe2b76",
+              "preparation_error_code": null
+            }
+          ],
+          "jobs": [
+            {
+              "id": "80b2de9d-797a-4bb2-831e-8723a2fe2b76",
+              "state": "COMPLETED",
+              "error_code": null
+            }
+          ],
+          "adapter": [
+            {
+              "runtimeId": "89bbfe2c-15bc-43e7-8504-87be5b117be5",
+              "key": "07088fff-8b92-4e04-af5a-d65dba61a235",
+              "requestFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+              "semanticFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+              "uploadedFiles": [],
+              "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"一段平静湖面的视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+              "phase": "SUBMITTED",
+              "providerJobId": "job_1",
+              "errorCode": null
+            }
+          ],
+          "artifacts": 1
+        },
+        "posts": 1,
+        "restartStable": true
+      },
+      "JOB_CREATED": {
+        "crashed": {
+          "entries": [
+            {
+              "message_id": "f1e82692-21a0-4a75-91eb-a8ee2efe2cb1",
+              "job_id": "04de51eb-4488-4ba0-8f4c-2e44d7462f4f",
+              "preparation_error_code": null
+            }
+          ],
+          "jobs": [
+            {
+              "id": "04de51eb-4488-4ba0-8f4c-2e44d7462f4f",
+              "state": "PENDING",
+              "error_code": null
+            }
+          ],
+          "adapter": [],
+          "artifacts": 0
+        },
+        "recovered": {
+          "entries": [
+            {
+              "message_id": "f1e82692-21a0-4a75-91eb-a8ee2efe2cb1",
+              "job_id": "04de51eb-4488-4ba0-8f4c-2e44d7462f4f",
+              "preparation_error_code": null
+            }
+          ],
+          "jobs": [
+            {
+              "id": "04de51eb-4488-4ba0-8f4c-2e44d7462f4f",
+              "state": "COMPLETED",
+              "error_code": null
+            }
+          ],
+          "adapter": [
+            {
+              "runtimeId": "6ee53b5f-aee1-4f75-99e8-c164f8ea94be",
+              "key": "b91f22f2-c680-4d37-988c-f03190ffa40e",
+              "requestFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+              "semanticFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+              "uploadedFiles": [],
+              "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"一段平静湖面的视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+              "phase": "SUBMITTED",
+              "providerJobId": "job_2",
+              "errorCode": null
+            }
+          ],
+          "artifacts": 1
+        },
+        "posts": 1,
+        "restartStable": true
+      },
+      "preparationFailure": {
+        "entries": [
+          {
+            "message_id": "df61e428-4701-4af9-a0de-95c23cf56e09",
+            "job_id": null,
+            "preparation_error_code": "INVALID_INPUT"
+          }
+        ],
+        "jobs": [],
+        "adapter": [],
+        "artifacts": 0
+      },
+      "AUTH_FAILED-FAILED": {
+        "entries": [
+          {
+            "message_id": "4b59ab2d-9cfd-40b9-9b15-195bf1db7491",
+            "job_id": "5fa42faa-ea44-413e-a560-82d7712d0165",
+            "preparation_error_code": null
+          }
+        ],
+        "jobs": [
+          {
+            "id": "5fa42faa-ea44-413e-a560-82d7712d0165",
+            "state": "FAILED",
+            "error_code": "AUTH_FAILED"
+          }
+        ],
+        "adapter": [
+          {
+            "runtimeId": "c8b4f93d-d5e7-4574-b68a-77be138601d8",
+            "key": "8e8daa50-5701-466b-99f9-2536cf2fe3d1",
+            "requestFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+            "semanticFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+            "uploadedFiles": [],
+            "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"生成一段自然风景视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+            "phase": "REJECTED",
+            "providerJobId": null,
+            "errorCode": "AUTH_FAILED"
+          }
+        ],
+        "artifacts": 0,
+        "posts": 1,
+        "zeroReplay": true,
+        "productErrorMapping": true
+      },
+      "QUEUE_FULL-FAILED": {
+        "entries": [
+          {
+            "message_id": "991059a0-acf5-4dcd-a728-f38874b91d14",
+            "job_id": "074eb002-9b68-4f24-ae4a-8ea0761b5157",
+            "preparation_error_code": null
+          }
+        ],
+        "jobs": [
+          {
+            "id": "074eb002-9b68-4f24-ae4a-8ea0761b5157",
+            "state": "FAILED",
+            "error_code": "QUEUE_FULL"
+          }
+        ],
+        "adapter": [
+          {
+            "runtimeId": "4c3b27e4-1fe2-4d72-bfd0-3fad0caf17c0",
+            "key": "9c78e538-ca46-4217-b380-db7bed901e64",
+            "requestFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+            "semanticFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+            "uploadedFiles": [],
+            "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"生成一段自然风景视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+            "phase": "REJECTED",
+            "providerJobId": null,
+            "errorCode": "QUEUE_FULL"
+          }
+        ],
+        "artifacts": 0,
+        "posts": 1,
+        "zeroReplay": true,
+        "productErrorMapping": true
+      },
+      "AUTH_FAILED-UNKNOWN": {
+        "entries": [
+          {
+            "message_id": "2356799a-c955-45f0-b801-4c61ebe05c73",
+            "job_id": "f1d48318-e07a-4982-861d-e27762143d1e",
+            "preparation_error_code": null
+          }
+        ],
+        "jobs": [
+          {
+            "id": "f1d48318-e07a-4982-861d-e27762143d1e",
+            "state": "UNKNOWN",
+            "error_code": "SUBMISSION_STATE_UNKNOWN"
+          }
+        ],
+        "adapter": [
+          {
+            "runtimeId": "a59fe11f-37f3-4d68-8c53-27800b9f5271",
+            "key": "428ab42f-9ab8-4767-8ece-0914be91a5bf",
+            "requestFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+            "semanticFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+            "uploadedFiles": [],
+            "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"生成一段自然风景视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+            "phase": "UNKNOWN",
+            "providerJobId": null,
+            "errorCode": null
+          }
+        ],
+        "artifacts": 0,
+        "posts": 1,
+        "zeroReplay": true,
+        "productErrorMapping": true
+      }
+    },
+    "liveIntegration": "BLOCKED / NOT RUN"
+  },
+  "g3": {
+    "status": "PASS",
+    "runId": "2cbc5a83-6e8a-4bb5-af22-60ad7e8e7364",
+    "scenarios": {
+      "approvedH3": {
+        "missionId": "783193c8-9204-4829-9afb-428e3a8fc3c0",
+        "requestId": "d853c96d-58bc-4108-90a3-3b17a7dd958a",
+        "missionState": "COMPLETED",
+        "requestState": "APPROVED",
+        "generationJobId": "e4778eb5-123e-47bd-b6b8-53b318406358",
+        "generationJobState": "COMPLETED",
+        "artifactId": "f03580d52cdba6fe849e83be2975b2f479579413f3c4af6c50ba5bc5d6a62e98",
+        "artifactMimeType": "video/mp4",
+        "outcomeId": "adb15d8d-a00b-4175-9981-4345f3d22f5b",
+        "outcomeConsumed": true,
+        "coordinatorSynthesisArtifact": "FINAL",
+        "requestCount": 1,
+        "preview": {
+          "scheme": "cultivation-media://artifact",
+          "readyState": 4
+        }
+      },
+      "deniedTarget": {
+        "missionId": "7aae4215-633e-4b86-ae22-877fa4b52cd4",
+        "requestId": "38ca657d-304b-478d-986c-a379a5098791",
+        "requestState": "DENIED",
+        "targetGenerationJobs": 0,
+        "targetExecutionTasks": 0
+      },
+      "imageParticipation": {
+        "missionId": "827237a9-361e-4f20-b5e7-4ff387ce782d",
+        "requestState": "APPROVED",
+        "generationJobId": "0e844c74-7198-4cab-9581-f0c6b425b99d",
+        "artifactId": "430cda22102ea1f8761148773ad657238e64f90ec488a1728f08475bf993d27a",
+        "artifactMimeType": "image/png",
+        "outcomeId": "fa5ad178-7e37-4b49-8cf1-c1771ce62926"
+      },
+      "musicParticipation": {
+        "missionId": "72e180bb-5f46-4182-a773-e4ffa79b6024",
+        "requestState": "APPROVED",
+        "generationJobId": "2a7dff14-033f-4675-b290-75c284437b38",
+        "artifactId": "dc2585a5d9fb276c7998aa1a01d9f3fb0a49471a277b8755b537f8b30f0207b0",
+        "artifactMimeType": "audio/wav",
+        "outcomeId": "f25631a1-3e6b-4c02-a477-bf77c2ae27f5"
+      },
+      "needsInputImageDependency": {
+        "missionId": "79b2cff1-35e2-41a3-823b-6221694c213e",
+        "missingInputOutcomeId": "555e563b-dbd3-4d6d-844b-8838c445bc5d",
+        "dependencyRequestId": "34b73ecd-0f48-46d5-8b70-bd160453e233",
+        "dependencyTeammateId": "2f4a742a-6001-4872-8e6d-8d050fc51d05",
+        "dependencyArtifactIds": [
+          "73c38e8748f0d89b93285ce263dca4070f74c703be6c1093ef7dfae39da41494"
+        ],
+        "resumedH3JobId": "07b847b8-cb8f-4e82-b1b9-90e5dedd8946",
+        "resumedH3InputArtifactIds": [
+          "73c38e8748f0d89b93285ce263dca4070f74c703be6c1093ef7dfae39da41494"
+        ],
+        "continuationConsumed": true
+      },
+      "testOnlyWorkflow": {
+        "definitionId": "test.g3-generation",
+        "definitionVersion": 1,
+        "workflowRunId": "9329b3ed-fe6f-427c-a55a-5aae6671a0ec",
+        "runState": "COMPLETED",
+        "stepRunId": "e2a2f04b-2889-46f9-9176-67407e5f9929",
+        "stepMissionId": "bc5b6c18-1c3f-4491-8412-76e61193bab0",
+        "stepMissionRunId": "dca8070b-c1e2-4707-9d7a-c37cbfc81164",
+        "generationJobId": "84395db2-44c2-4ca0-a8d9-4614e8b71d4c",
+        "generatedArtifactId": "33a7c541922962425fae8d0797fadbf3d44949fa0afb8d8caecd6e6e0a123bc0",
+        "outputReferenceArtifactId": "33a7c541922962425fae8d0797fadbf3d44949fa0afb8d8caecd6e6e0a123bc0",
+        "outputValidationCount": 1,
+        "restart": {
+          "status": "PASS",
+          "runState": "COMPLETED",
+          "durableJobCount": 1,
+          "durableOutputCount": 1,
+          "fixtureProviderCountersUnchanged": true,
+          "h3HttpCountersUnchanged": true
+        }
+      },
+      "unknownSubmission": {
+        "missionId": "b4e48ec7-2968-4d7d-86ad-af247ca08487",
+        "requestId": "4f2824a6-03ba-456c-8170-3316e21263ce",
+        "generationJobId": "6677fbfa-92cc-4fa8-978d-dd50b6a0b8ad",
+        "jobState": "UNKNOWN",
+        "attemptState": "UNKNOWN",
+        "participantOutcomeCount": 0,
+        "restart": {
+          "status": "PASS",
+          "extraJobs": 0,
+          "extraSubmissions": 0
+        }
+      },
+      "definitiveRetry": {
+        "missionId": "8813bf81-43b4-49c2-83a7-86f272225153",
+        "requestId": "448bba95-3904-4cb8-ae6c-ba8b6168a80f",
+        "missionState": "COMPLETED",
+        "jobIds": ["43f5fc75-ed1e-4451-b4a6-febd866dbf49", "4e5d3260-4766-4301-a3da-20ac22350835"],
+        "idempotencyKeyDigests": [
+          "bea98f2b4b6d8b3d38330acf7ae3f59a70db7702b12dedf99ba80176709214d3",
+          "46e54cd30dc6011722cf2835ad122909dcf79578483ad038237f7a3443b96823"
+        ],
+        "jobStates": ["FAILED", "FAILED"],
+        "queueFullProofCount": 2,
+        "boundedRetries": 1
+      },
+      "jobBoundCrashRecovery": {
+        "missionId": "1989b3b7-0b00-4d6c-97fa-ddcf304015ca",
+        "requestId": "948f0ab0-4585-46c1-9018-915ac81dd187",
+        "mainProcessExit": {
+          "code": 1,
+          "signal": null
+        },
+        "generationJobIdBeforeRestart": "b6c45edc-a8a9-4422-9475-ed8fe5d7f5d6",
+        "generationJobIdAfterRestart": "b6c45edc-a8a9-4422-9475-ed8fe5d7f5d6",
+        "completedAfterRestart": true,
+        "duplicateGenerationJobs": 0,
+        "recoveredGenerationSubmissions": 1
+      },
+      "crashMatrix": [
+        {
+          "window": "A",
+          "point": "APPROVAL_COMMITTED",
+          "missionId": "653e033e-12c3-4faf-a3ac-ca87cd02ed42",
+          "exitCode": 1,
+          "beforeJobs": 0,
+          "afterJobs": 1,
+          "artifacts": 1,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        },
+        {
+          "window": "B",
+          "point": "TASK_CREATED",
+          "missionId": "28c4d6bd-b900-4c74-920a-248c8863bfe3",
+          "exitCode": 1,
+          "beforeJobs": 0,
+          "afterJobs": 1,
+          "artifacts": 1,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        },
+        {
+          "window": "D",
+          "point": "GENERATION_COMPLETED",
+          "missionId": "67edb914-d920-4f7f-8801-0ab251ba11cf",
+          "exitCode": 1,
+          "beforeJobs": 1,
+          "afterJobs": 1,
+          "artifacts": 1,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        },
+        {
+          "window": "J",
+          "point": "OUTCOME_CREATED",
+          "missionId": "4ebe36c7-8f11-4adc-87a8-bfd4690c2ea6",
+          "exitCode": 1,
+          "beforeJobs": 1,
+          "afterJobs": 1,
+          "artifacts": 1,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        },
+        {
+          "window": "E",
+          "point": "OUTCOME_CREATED",
+          "missionId": "c4a53e3d-4d32-4bca-b73e-44bb21321579",
+          "exitCode": 1,
+          "beforeJobs": 0,
+          "afterJobs": 2,
+          "artifacts": 2,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        },
+        {
+          "window": "FG",
+          "point": "DEPENDENCY_COMPLETED",
+          "missionId": "8c10f486-41a0-4cc0-8e97-4a566b46c779",
+          "exitCode": 1,
+          "beforeJobs": 1,
+          "afterJobs": 2,
+          "artifacts": 2,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        },
+        {
+          "window": "G",
+          "point": "DEPENDENCY_COMPLETED",
+          "missionId": "7e2ef7c5-0168-48d8-8afa-33a6914174a0",
+          "exitCode": 1,
+          "beforeJobs": 1,
+          "afterJobs": 1,
+          "artifacts": 1,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        },
+        {
+          "window": "H",
+          "point": "CONTINUATION_CREATED",
+          "missionId": "b4023ee6-8735-46e1-9dca-5d4d6de3293f",
+          "exitCode": 1,
+          "beforeJobs": 1,
+          "afterJobs": 2,
+          "artifacts": 0,
+          "duplicateJobs": 0,
+          "duplicateArtifacts": 0
+        }
+      ]
+    },
+    "fixtures": {
+      "testOnlyWorkflows": [
+        {
+          "definitionId": "test.g3-generation",
+          "category": "TEST_ONLY",
+          "version": 1,
+          "stepCount": 1
+        }
+      ],
+      "h3Http": {
+        "type": "local-offline-H3-production-HTTP-adapter-fixture",
+        "submissions": 4,
+        "postAttempts": 4,
+        "uploads": 1,
+        "downloads": 4,
+        "statusQueries": 4,
+        "healthChecks": 24,
+        "models": 24,
+        "idempotencyKeyDigests": [
+          "17c1dfbacd3dcb0077a8f78886adfebbc2508135b8aba323350aa556c4e950f0",
+          "7082d489cc80342a27ada76855a778b0b70a81c8172491c842aabcd5ca2d08cc"
+        ],
+        "requestModels": ["minimax-h3", "minimax-h3"]
+      },
+      "providerNeutralGeneration": {
+        "image": {
+          "submissions": 16,
+          "queries": 22,
+          "downloads": 11,
+          "entries": [
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "98898f02aa4d055a35dcb33718fa554a5c978799a0c6fd150f7a3b400100bf50",
+              "requestFingerprint": "699eb9fe99c4e747ac3678d3ef29aadae950d6d66ea2c44c2b58b7a5d1987f33",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-e2c41a8222349b143ea04522",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "9f69e5065a1f4acd5633a6918e9baa1a117cb65a0ef1110b5dad8b3224e81066",
+              "requestFingerprint": "2acdb8e59946b405924f3da487bd19ee1fa5f713b615dddf6bd22c2cc0f964e7",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-8b0679350e1d864121db8e8d",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "282ca4fc2144fc79b3536459244a6294482997d1ffbc33280dc1f10e7cae307f",
+              "requestFingerprint": "d35d01531f909a77bced54778145989941d467959e2d99941349e17e4b36e20f",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-c49977a97d3fd5ed7b9403d8",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "17c1d1e518b5525e2d1098a2e934244c35218e7c288736cc7077af38bbf10a25",
+              "requestFingerprint": "67acdfcff9a41d4bf6ecc10bbd3b2871c6d082fcd8dd5f419f8a6d1644776cd2",
+              "submissionOutcome": "UNKNOWN",
+              "providerJobId": null,
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "bea98f2b4b6d8b3d38330acf7ae3f59a70db7702b12dedf99ba80176709214d3",
+              "requestFingerprint": "831db69053ec0ca9c06dbda3d0770f7163ad29c0987e6bb42102e66eea59aeca",
+              "submissionOutcome": "REJECTED",
+              "providerJobId": null,
+              "errorCode": "QUEUE_FULL"
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "46e54cd30dc6011722cf2835ad122909dcf79578483ad038237f7a3443b96823",
+              "requestFingerprint": "831db69053ec0ca9c06dbda3d0770f7163ad29c0987e6bb42102e66eea59aeca",
+              "submissionOutcome": "REJECTED",
+              "providerJobId": null,
+              "errorCode": "QUEUE_FULL"
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "177a06b1cb1b667b93823f151182f84a66ba40770eddb9ab6cf06e2edbd9eac0",
+              "requestFingerprint": "f2ce5f1359841bd970e09f7e26d0e23c7f4feda09b50c3bda579dd3f7c3276a0",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-287ba60eeca9ad2bbfaf540a",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "5dd921484566313140403ee6428fcd402c6e75da54623c9a9e3039c5311cca45",
+              "requestFingerprint": "0325916fe1403255d7b9317611ef2ecac0b0339f5c67dfe6641e41f6e187f42b",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-49688109813c9bc177ea151a",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "597cdb1e93b1dd5848dfbb786a8d676b37e88d11a8f0250d313c3e2e1b918a16",
+              "requestFingerprint": "0325916fe1403255d7b9317611ef2ecac0b0339f5c67dfe6641e41f6e187f42b",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-8da251d6bc86fa229b9ffbb5",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "648e159e3030c001e66c989fdf2d0c471068a9e7eec0b3d1b1643120b5a03ee3",
+              "requestFingerprint": "0325916fe1403255d7b9317611ef2ecac0b0339f5c67dfe6641e41f6e187f42b",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-81ac4d227ea75bff2546b57b",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "5630024a74ec6bc51e3fba76f322f6075e69fa9febdbc9b861da14afb722174d",
+              "requestFingerprint": "0325916fe1403255d7b9317611ef2ecac0b0339f5c67dfe6641e41f6e187f42b",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-016c2ccf6e1f8276db3031ec",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "3acddf9fc215500b82a4a3a549bb4f1010e3f13488983959ce1d4703c640ca66",
+              "requestFingerprint": "2acdb8e59946b405924f3da487bd19ee1fa5f713b615dddf6bd22c2cc0f964e7",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-39dd327566232dc538f4c20b",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "38269c5480f04f9fd182871a620bcb043a9d2abd36906d9fd526d3d9b265edb4",
+              "requestFingerprint": "2acdb8e59946b405924f3da487bd19ee1fa5f713b615dddf6bd22c2cc0f964e7",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-d442c8e0d30490fad3c38cfd",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "8c8046df6cbe10282daa8fa99fec8cc4ecc621244077a0cefb6b1c6e6faa2b1f",
+              "requestFingerprint": "7832753a14ac4a4dff59bc576a71ebb82a1d9c071fad7680e35e256c00156719",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-image-a0ce18e22368485a42059821",
+              "errorCode": null
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "36616013f7bfb0f78c5eee0575f476079180ab3f8122efe0b3f4533df3a68242",
+              "requestFingerprint": "bd704ffc319ba1f9a5d2217ccc529ee3554791afaec697f20d84a75d028f1d2e",
+              "submissionOutcome": "REJECTED",
+              "providerJobId": null,
+              "errorCode": "QUEUE_FULL"
+            },
+            {
+              "runtimeProfileId": "b386664f-7e5e-4794-bd0a-1263bdf7d3fe",
+              "idempotencyKeyDigest": "a02fc707931e0efeef162fe880562e84be973f4794547632558e4830e21fa0b5",
+              "requestFingerprint": "bd704ffc319ba1f9a5d2217ccc529ee3554791afaec697f20d84a75d028f1d2e",
+              "submissionOutcome": "REJECTED",
+              "providerJobId": null,
+              "errorCode": "QUEUE_FULL"
+            }
+          ]
+        },
+        "music": {
+          "submissions": 1,
+          "queries": 2,
+          "downloads": 1,
+          "entries": [
+            {
+              "runtimeProfileId": "c249af86-89e8-4a77-b0d8-d93e3aca3b9c",
+              "idempotencyKeyDigest": "02e50bbb04a7877f7464ba8f278f581d681e9924c8daa5c2d51f534be0a4fcdc",
+              "requestFingerprint": "ea165ad4b81b090a187bf521f7c7ae179bc7d80e60c80f565bf1a0f5f08d07c6",
+              "submissionOutcome": "SUBMITTED",
+              "providerJobId": "g3-fixture-music-c8f5dd97247326293c1000f7",
+              "errorCode": null
+            }
+          ]
+        }
+      }
+    },
+    "liveEndpoint": {
+      "status": "BLOCKED",
+      "reason": "No live generation endpoint was provided; this run uses the local H3 HTTP fixture."
+    }
+  },
+  "g3HumanBridge": {
+    "status": "PASS",
+    "runId": "308bae7c-af39-4a6e-bcd3-4111c653edd7",
+    "scenarios": {
+      "languageNeedsInput": {
+        "missionId": "fddb3616-df99-4d2c-bde0-31c5c733ab1a",
+        "initialRunId": "53e47cb1-2e1c-45cc-bf4d-5d47cbf4570b",
+        "collaborationRequestId": "7dc9191c-8af9-48e5-89ac-5ad54b6033a7",
+        "humanBridgeRequestId": "1c6e8661-ad61-446c-b237-bbced767a330",
+        "acceptedFile": {
+          "relativePath": "g3-delivery/555f6fe2-45de-45a1-8547-dab4f417fc10/human-reference.png",
+          "mimeType": "image/png",
+          "contentHash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15"
+        },
+        "fileReadApprovalId": "4a510c10-a6dc-4019-9f79-3092654127af",
+        "structuredOutcomeId": "acba4c87-65de-413a-b71c-04763be1a5d2",
+        "structuredContinuationId": "51af9ede-dd31-48d8-9bbc-1fc24d227d0b",
+        "languageTasks": [
+          {
+            "id": "b4352a52-b17f-4949-b8eb-889202255d94",
+            "continuationRound": 0,
+            "parentTaskId": null
+          },
+          {
+            "id": "85394fd6-b88a-4d59-9e53-f150949f2f4c",
+            "continuationRound": 1,
+            "parentTaskId": "b4352a52-b17f-4949-b8eb-889202255d94"
+          }
+        ],
+        "state": "COMPLETED",
+        "externalContinuation": "CONSUMED",
+        "synthesisCalls": 1,
+        "actualActors": {
+          "coordinatorTeammateId": "c314dca7-f374-4163-90b5-89dfd9435996",
+          "languageParticipantTeammateId": "3bf6a87a-1d2d-49d6-bc13-cb30dd66701e",
+          "humanBridgeTeammateId": "system-human-bridge"
+        }
+      },
+      "generationReview": {
+        "missionId": "17fc9818-88c8-49f8-b70e-db12bd4dbbc8",
+        "initialRunId": "c770b723-555c-417c-aedd-ccb543c4f847",
+        "collaborationRequestId": "aa48be73-4a8c-4097-82c5-1d24dfc87b34",
+        "humanBridgeRequestId": "43ec3559-2bc5-49d5-8835-d426964d45a3",
+        "crashPoint": "REVIEW_COMMITTED",
+        "mainProcessExit": {
+          "code": 1,
+          "signal": null
+        },
+        "acceptedFile": {
+          "relativePath": "g3-delivery/9c0cae6c-25cf-42ad-99e8-4372b9f58121/review-notes.txt",
+          "extension": ".txt",
+          "contentHash": "88b0419d00abecf661ca004ea606b16d003e8673e35af66fed26f8fd921b776c"
+        },
+        "generationJobId": "7c9e5631-3639-43fa-a883-5586478e021b",
+        "imageArtifactId": "cf850a8686c9bcb5fbba902e75a0736ecbdcdb54844a9c8c459fb3cd768846cc",
+        "reviewRequestedEventCount": 1,
+        "reviewCompletedEventCount": 1,
+        "state": "COMPLETED",
+        "externalContinuation": "CONSUMED",
+        "synthesisCalls": 1,
+        "actualActors": {
+          "coordinatorTeammateId": "c314dca7-f374-4163-90b5-89dfd9435996",
+          "imageParticipantTeammateId": "1a276c2a-be99-40ad-85c6-61e8759341e6",
+          "humanBridgeTeammateId": "system-human-bridge"
+        }
+      }
+    }
+  },
+  "languageOnlySkillScope": {
+    "status": "PASS",
+    "rows": [
+      {
+        "executionProtocol": "LANGUAGE",
+        "eventType": "model.call_started",
+        "count": 33
+      },
+      {
+        "executionProtocol": "LANGUAGE",
+        "eventType": "skill.selection",
+        "count": 33
+      }
+    ],
+    "generationSkillSelections": 0,
+    "generationSkillInjections": 0
+  }
+}

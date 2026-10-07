@@ -3,10 +3,11 @@ import type {
   DecisionRequest,
   DecisionResult,
 } from '@cultivation/application/r0-decision';
+import { validateMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
 
 const skillIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,89}$/;
 
-/** Fixed, local fixture responses. An absent fixture produces an inert advisory result. */
+/** Local deterministic fixture gateway; evaluation never performs external calls. */
 export class FakeDecisionGateway implements DecisionGateway {
   readonly #fixtures: ReadonlyMap<string, DecisionResult>;
 
@@ -19,6 +20,33 @@ export class FakeDecisionGateway implements DecisionGateway {
   }
 
   async evaluate(request: DecisionRequest): Promise<DecisionResult> {
+    if ((request.decisionType as string) === 'MEMORY_EXTRACTION_NEED') {
+      try {
+        if (!validateMemoryPreGateRequest(request)) {
+          return {
+            answers: {},
+            confidence: {},
+            selectedAction: null,
+            errorCode: 'INVALID_REQUEST',
+          };
+        }
+        const state = request.state as {
+          evidence: { semanticSignals: { durableStatement: boolean } };
+        };
+        const decision = state.evidence.semanticSignals.durableStatement
+          ? 'RUN_EXTRACTION'
+          : 'SKIP_EXTRACTION';
+        return {
+          answers: { extraction: decision },
+          confidence: { extraction: 1 },
+          selectedAction: null,
+          errorCode: null,
+        };
+      } catch {
+        return { answers: {}, confidence: {}, selectedAction: null, errorCode: 'INVALID_REQUEST' };
+      }
+    }
+
     const fixture = this.#fixtures.get(FakeDecisionGateway.key(request));
     if (fixture) return structuredClone(fixture);
 

@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "source": "Actual R5.2 packaged production SQLite release/version facts compared with approved R5.1 baseline",
+  "executionEvidence": "docs\\evidence\\r5-2-memory-pre-gate\\d3225ed9-f640-49aa-b005-e9974cefe430\\facts.json",
+  "releases": [
+    {
+      "definitionId": "official.ai-news-video",
+      "version": 1,
+      "manifestHash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd",
+      "contentHash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153"
+    },
+    {
+      "definitionId": "official.research",
+      "version": 1,
+      "manifestHash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+      "contentHash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7"
+    },
+    {
+      "definitionId": "official.software-feature",
+      "version": 1,
+      "manifestHash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d",
+      "contentHash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { makeMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
 import type { DecisionRequest, DecisionResult } from '@cultivation/application/r0-decision';
 import { FakeDecisionGateway } from './fake-decision-gateway.js';
 
@@ -44,6 +45,21 @@ const request = {
     ]),
   ),
 } as DecisionRequest;
+
+const memoryPreGateRequest = (durableStatement: boolean) =>
+  makeMemoryPreGateRequest({
+    ownerId: 'teammate-a',
+    sourceId: 'message-a',
+    sourceType: 'CHAT_MESSAGE',
+    trigger: 'HARNESS',
+    messageRole: 'user',
+    evidenceCharacters: 84,
+    semanticSignals: {
+      durableStatement,
+      questionOnly: false,
+      codeOrStructured: false,
+    },
+  });
 
 describe('FakeDecisionGateway', () => {
   it('creates safe deterministic answers without calling a remote decision service', async () => {
@@ -196,6 +212,43 @@ describe('FakeDecisionGateway', () => {
       },
       confidence: {},
       selectedAction: null,
+    });
+  });
+
+  it('uses only validated metadata facts for deterministic Memory Pre-Gate RUN and SKIP fixtures', async () => {
+    const gateway = new FakeDecisionGateway();
+    const runRequest = memoryPreGateRequest(true);
+    const skipRequest = memoryPreGateRequest(false);
+
+    expect(JSON.stringify(runRequest.state)).not.toMatch(
+      /memory.?content|conversation.?history|instructions/i,
+    );
+    expect(await gateway.evaluate(runRequest)).toEqual({
+      answers: { extraction: 'RUN_EXTRACTION' },
+      confidence: { extraction: 1 },
+      selectedAction: null,
+      errorCode: null,
+    });
+    expect(await gateway.evaluate(skipRequest)).toEqual({
+      answers: { extraction: 'SKIP_EXTRACTION' },
+      confidence: { extraction: 1 },
+      selectedAction: null,
+      errorCode: null,
+    });
+  });
+
+  it('rejects a Memory Pre-Gate request that does not pass shared policy validation', async () => {
+    const valid = memoryPreGateRequest(true);
+    const forged = {
+      ...valid,
+      state: { ...valid.state, privateMemory: 'must not enter a decision request' },
+    };
+    const result = await new FakeDecisionGateway().evaluate(forged);
+    expect(result).toEqual({
+      answers: {},
+      confidence: {},
+      selectedAction: null,
+      errorCode: 'INVALID_REQUEST',
     });
   });
 });

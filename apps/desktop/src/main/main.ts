@@ -37,6 +37,12 @@ import {
 import { skillRoutingExecutionContext } from './r5-1-context.js';
 import { SkillRoutingFixtureObserver } from './r5-1-fixture-observer.js';
 import {
+  MemoryPreGateService,
+  MEMORY_PRE_GATE_POLICY,
+} from '@cultivation/application/r5-2-memory-pre-gate';
+import { MemoryPreGateFixtureObserver } from './r5-2-fixture-observer.js';
+import { memoryExecutionPreGateContext } from './r5-2-context.js';
+import {
   AiSdkModelGateway,
   FakeModelGateway,
   FakeDecisionGateway,
@@ -610,11 +616,63 @@ if (!squirrelStartup)
             },
           )
         : null;
+      const memoryPreGateFixture =
+        process.argv.includes('--gate1-fake-model') && process.argv.includes('--r5-2-fixture');
+      const memoryPreGateObserver = memoryPreGateFixture
+        ? new MemoryPreGateFixtureObserver(
+            join(app.getPath('userData'), 'r5-2-execution-facts.json'),
+          )
+        : null;
+      const observedGateway = skillRoutingObserver?.modelGateway(rawGateway) ?? rawGateway;
       const gateway = new AvailabilityAwareModelGateway(
-        skillRoutingObserver?.modelGateway(rawGateway) ?? rawGateway,
+        memoryPreGateObserver?.modelGateway(observedGateway) ?? observedGateway,
         availability,
       ) as AvailabilityAwareModelGateway & MemoryCandidateExtractor & EmbeddingGateway;
       const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
+      const memoryPreGate = new MemoryPreGateService(async () => {
+        if (!routingStore.config().cloudEnabled) return null;
+        const key = await r3Config.resolveKey();
+        if (!key) return null;
+        return memoryPreGateFixture
+          ? memoryPreGateObserver!.decisionGateway(new FakeDecisionGateway())
+          : new TypeSafeDecisionGateway({
+              apiKey: key,
+              timeoutMs: MEMORY_PRE_GATE_POLICY.gatewayTimeoutMs,
+            });
+      });
+      memoryService.attachMemoryPreGate(memoryPreGate, memoryPreGateObserver?.record);
+      // Main-only, explicitly test-only compatibility seam. Never a Renderer IPC
+      // and never an automatic Mission/Workflow extraction trigger.
+      if (memoryPreGateFixture)
+        Object.defineProperty(app, 'r52AcceptanceGate', {
+          value: async (input: {
+            missionId: string;
+            runId: string;
+            ownerId: string;
+            sourceId: string;
+          }) => {
+            const context = memoryExecutionPreGateContext(
+              gate3Store,
+              {
+                getTeammate: (id) => store.getTeammate(id),
+                getRuntimeProfile: (id) => store.getRuntimeProfile(id),
+                getModelBinding: (id) => store.getModelBinding(id),
+                hasValidModelBinding: (id) => store.hasValidModelBinding(id),
+                listCollaborationArtifacts: (missionId, runId) =>
+                  gate5Store.listCollaborationArtifacts(missionId, runId),
+              },
+              workflowStore,
+              input,
+            );
+            const receipt = await memoryPreGate.evaluate(context);
+            memoryPreGateObserver!.record({
+              ...receipt,
+              extractorInvoked: false,
+              candidateCount: 0,
+            });
+            return receipt;
+          },
+        });
       const hybridMemory = new Gate2HybridMemoryService(store, memoryService, vectorStore, gateway);
       const skillStore: SkillServiceStore = {
         getSkill: async (id) => gate2Store.getSkill(id),

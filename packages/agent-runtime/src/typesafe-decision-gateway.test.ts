@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { makeMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
 import type { DecisionType } from '@cultivation/application/r0-decision';
 import type { Fetch } from '@typesafe-ai/sdk';
 import {
+  MAX_TYPESAFE_MEMORY_PRE_GATE_RESPONSE_BYTES,
   TypeSafeDecisionGateway,
   TYPESAFE_DECISION_MODEL,
   type TypeSafeDecisionRequest,
@@ -129,8 +131,131 @@ const skillRelevanceResponse = (scores: Record<string, number>): unknown => ({
   usage: { input_tokens: 97, output_tokens: 12 },
 });
 
+const memoryPreGateRequest = () =>
+  makeMemoryPreGateRequest({
+    ownerId: 'teammate-a',
+    sourceId: 'message-a',
+    sourceType: 'CHAT_MESSAGE',
+    trigger: 'HARNESS',
+    messageRole: 'user',
+    evidenceCharacters: 84,
+    semanticSignals: {
+      durableStatement: true,
+      questionOnly: false,
+      codeOrStructured: false,
+    },
+  });
+
+const memoryPreGateResponse = (choice: 'RUN_EXTRACTION' | 'SKIP_EXTRACTION'): unknown => ({
+  model: TYPESAFE_DECISION_MODEL,
+  answers: {
+    extraction: {
+      type: 'choice',
+      choice,
+      confidence: 0.83,
+      probabilities: {
+        RUN_EXTRACTION: choice === 'RUN_EXTRACTION' ? 0.83 : 0.17,
+        SKIP_EXTRACTION: choice === 'SKIP_EXTRACTION' ? 0.83 : 0.17,
+      },
+    },
+  },
+  usage: { input_tokens: 35, output_tokens: 4 },
+});
+
 describe('TypeSafeDecisionGateway', () => {
   afterEach(() => vi.restoreAllMocks());
+
+  it.each(['RUN_EXTRACTION', 'SKIP_EXTRACTION'] as const)(
+    'normalizes the bounded Memory Pre-Gate choice %s',
+    async (choice) => {
+      let sentBody: unknown;
+      const fetch: Fetch = async (_input, init) => {
+        sentBody = JSON.parse(String(init?.body));
+        return jsonResponse(memoryPreGateResponse(choice));
+      };
+      const request = memoryPreGateRequest();
+      const result = await new TypeSafeDecisionGateway({ apiKey, fetch }).evaluate(request);
+
+      expect(sentBody).toMatchObject({
+        model: TYPESAFE_DECISION_MODEL,
+        state: request.state,
+        questions: request.questions,
+      });
+      const wireBody = sentBody as { state: Record<string, unknown> };
+      expect(Object.keys(wireBody.state).sort()).toEqual(
+        ['evidence', 'messageRole', 'sourceType', 'trigger'].sort(),
+      );
+      expect(result).toMatchObject({
+        provider: 'TYPESAFE',
+        model: TYPESAFE_DECISION_MODEL,
+        errorCode: null,
+        answers: { extraction: choice },
+        confidence: { extraction: 0.83 },
+        selectedAction: null,
+      });
+      expect(result.choiceProbabilities).toBeUndefined();
+    },
+  );
+
+  it('rejects a Memory Pre-Gate request that fails shared validation before transport', async () => {
+    let calls = 0;
+    const fetch: Fetch = async () => {
+      calls += 1;
+      return jsonResponse(memoryPreGateResponse('RUN_EXTRACTION'));
+    };
+    const gateway = new TypeSafeDecisionGateway({ apiKey, fetch });
+    const valid = memoryPreGateRequest();
+    const invalidRequests = [
+      { ...valid, stateHash: '0'.repeat(64) },
+      { ...valid, questionVersion: 'unrecognized-version' },
+      {
+        ...valid,
+        questions: {
+          ...valid.questions,
+          hidden: { type: 'noul' as const, instructions: 'Not an allowed question.' },
+        },
+      },
+    ];
+
+    for (const request of invalidRequests) {
+      expect((await gateway.evaluate(request)).errorCode).toBe('INVALID_REQUEST');
+    }
+    expect(calls).toBe(0);
+  });
+
+  it('fails closed on oversized, unknown-field, extra-answer, and illegal Memory Pre-Gate responses', async () => {
+    const valid = memoryPreGateResponse('RUN_EXTRACTION') as {
+      model: string;
+      answers: Record<string, unknown>;
+      usage: { input_tokens: number; output_tokens: number };
+    };
+    const answer = valid.answers.extraction as Record<string, unknown>;
+    const invalidResponses = [
+      { ...valid, unexpected: 'provider detail' },
+      { ...valid, answers: { ...valid.answers, extra: answer } },
+      {
+        ...valid,
+        answers: {
+          extraction: { ...answer, choice: 'WRITE_MEMORY' },
+        },
+      },
+      { ...valid, oversizedProviderData: 'x'.repeat(2_100) },
+    ];
+    expect(
+      new TextEncoder().encode(JSON.stringify(invalidResponses[3])).byteLength,
+    ).toBeGreaterThan(MAX_TYPESAFE_MEMORY_PRE_GATE_RESPONSE_BYTES);
+
+    for (const response of invalidResponses) {
+      const fetch: Fetch = async () => jsonResponse(response);
+      const result = await new TypeSafeDecisionGateway({ apiKey, fetch }).evaluate(
+        memoryPreGateRequest(),
+      );
+      expect(result.errorCode).toBe('SCHEMA_MISMATCH');
+      expect(result.answers).toEqual({});
+      expect(result.confidence).toEqual({});
+      expect(result.selectedAction).toBeNull();
+    }
+  });
 
   it('pins the model and sends only the bounded state/questions with bearer auth', async () => {
     let requestUrl = '';

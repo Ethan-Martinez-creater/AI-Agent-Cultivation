@@ -19,6 +19,10 @@ import type {
   DecisionResult,
   DecisionType,
 } from '@cultivation/application/r0-decision';
+import {
+  MEMORY_PRE_GATE_POLICY,
+  validateMemoryPreGateRequest,
+} from '@cultivation/application/r5-2-memory-pre-gate';
 import { z } from 'zod';
 
 /** The production shadow model is pinned so receipts remain comparable over time. */
@@ -31,6 +35,7 @@ export const MAX_TYPESAFE_STATE_BYTES = 24_000;
 export const MAX_TYPESAFE_QUESTIONS_BYTES = 24_000;
 export const MAX_TYPESAFE_REQUEST_BYTES = 48_000;
 export const MAX_TYPESAFE_SKILL_CANDIDATES = 24;
+export const MAX_TYPESAFE_MEMORY_PRE_GATE_RESPONSE_BYTES = MEMORY_PRE_GATE_POLICY.maxResponseBytes;
 
 type TypeSafeEntry =
   | string
@@ -100,6 +105,34 @@ const responseSchema = z
   .object({
     model: z.string().min(1).max(128),
     answers: z.record(z.string(), safeAnswerSchema),
+    usage: z
+      .object({
+        input_tokens: z.number().int().nonnegative(),
+        output_tokens: z.number().int().nonnegative(),
+      })
+      .strict(),
+  })
+  .strict();
+const memoryPreGateResponseSchema = z
+  .object({
+    model: z.string().min(1).max(128),
+    answers: z
+      .object({
+        extraction: z
+          .object({
+            type: z.literal('choice'),
+            choice: z.enum(['RUN_EXTRACTION', 'SKIP_EXTRACTION']),
+            confidence: boundedProbability,
+            probabilities: z
+              .object({
+                RUN_EXTRACTION: boundedProbability,
+                SKIP_EXTRACTION: boundedProbability,
+              })
+              .strict(),
+          })
+          .strict(),
+      })
+      .strict(),
     usage: z
       .object({
         input_tokens: z.number().int().nonnegative(),
@@ -336,6 +369,17 @@ const failedResult = (errorCode: DecisionErrorCode, latencyMs = 0): TypeSafeDeci
   selectedAction: null,
 });
 
+const isMemoryPreGateDecision = (decisionType: DecisionType): boolean =>
+  (decisionType as string) === 'MEMORY_EXTRACTION_NEED';
+
+const hasValidMemoryPreGateRequest = (request: DecisionRequest): boolean => {
+  try {
+    return validateMemoryPreGateRequest(request);
+  } catch {
+    return false;
+  }
+};
+
 const errorCodeFor = (error: unknown): TypeSafeDecisionErrorCode => {
   if (error instanceof APITimeoutError) return 'TIMEOUT';
   if (
@@ -491,9 +535,13 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
   async evaluate(request: DecisionRequest): Promise<TypeSafeDecisionResult> {
     const startedAt = Date.now();
     const extended = request as TypeSafeDecisionRequest;
+    const memoryPreGate = isMemoryPreGateDecision(request.decisionType);
     const state = stateSchema.safeParse(extended.state);
     const questions = questionMapSchema.safeParse(extended.questions);
     if (!state.success || !questions.success || !isPlainJsonTree(state.data)) {
+      return failedResult('INVALID_REQUEST');
+    }
+    if (memoryPreGate && !hasValidMemoryPreGateRequest(request)) {
       return failedResult('INVALID_REQUEST');
     }
     if (
@@ -526,6 +574,48 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
         },
         { timeout: this.#timeoutMs, retry: { maxRetries: 0 } },
       );
+      if (memoryPreGate) {
+        let serializedResponse: string | undefined;
+        try {
+          serializedResponse = JSON.stringify(response);
+        } catch {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+        if (
+          serializedResponse === undefined ||
+          utf8Bytes(serializedResponse) > MAX_TYPESAFE_MEMORY_PRE_GATE_RESPONSE_BYTES
+        ) {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+
+        const parsedMemoryResponse = memoryPreGateResponseSchema.safeParse(response);
+        const extractionQuestion = questions.data.extraction;
+        if (
+          !parsedMemoryResponse.success ||
+          parsedMemoryResponse.data.model !== TYPESAFE_DECISION_MODEL ||
+          Object.keys(questions.data).length !== 1 ||
+          !extractionQuestion ||
+          extractionQuestion.type !== 'choice' ||
+          Object.keys(extractionQuestion.criteria).length !== 2 ||
+          !Object.hasOwn(extractionQuestion.criteria, 'RUN_EXTRACTION') ||
+          !Object.hasOwn(extractionQuestion.criteria, 'SKIP_EXTRACTION')
+        ) {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+        const extraction = parsedMemoryResponse.data.answers.extraction;
+        return {
+          provider: TYPESAFE_DECISION_PROVIDER,
+          model: parsedMemoryResponse.data.model,
+          inputTokens: parsedMemoryResponse.data.usage.input_tokens,
+          outputTokens: parsedMemoryResponse.data.usage.output_tokens,
+          latencyMs: Date.now() - startedAt,
+          errorCode: null,
+          answers: { extraction: extraction.choice },
+          confidence: { extraction: extraction.confidence },
+          selectedAction: null,
+        };
+      }
+
       const parsed = responseSchema.safeParse(response);
       if (!parsed.success) return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
       const normalized = validateNormalizedAnswers(

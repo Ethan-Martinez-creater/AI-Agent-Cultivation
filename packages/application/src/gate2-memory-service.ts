@@ -8,6 +8,11 @@ import type {
 import { DomainError } from '@cultivation/shared';
 import type { MemoryCandidateExtractor, ModelUsage } from './index.js';
 import type { Gate1Store } from './gate1-service.js';
+import {
+  MemoryPreGateService,
+  buildMemoryEvidenceFacts,
+  type MemoryPreGateReceipt,
+} from './r5-2-memory-pre-gate.js';
 
 export type Gate2MemoryRecord = MemoryRecord & {
   sourceConversationId: string | null;
@@ -35,6 +40,18 @@ export interface MemoryEdit {
   importance: number;
 }
 
+/** Normal SKIP is an empty compatible candidate list, never a provider failure. */
+export interface MemoryProposalResult {
+  candidates: Gate2MemoryRecord[];
+  gate: MemoryPreGateReceipt & { extractorInvoked: boolean; candidateCount: number };
+}
+
+export interface MemoryMessageSource {
+  teammateId: string;
+  conversationId: string;
+  messageId: string;
+}
+
 const now = (): string => new Date().toISOString();
 const id = (): string => crypto.randomUUID();
 
@@ -55,10 +72,28 @@ function importance(value: number): number {
 
 /** Memory transitions are explicit user actions; model output can only create PROPOSED rows. */
 export class Gate2MemoryService {
+  private preGate: Pick<MemoryPreGateService, 'evaluate'> = new MemoryPreGateService(
+    async () => null,
+  );
+  private observeProposal: ((result: MemoryProposalResult['gate']) => void) | null = null;
+
+  attachMemoryPreGate(
+    gate: Pick<MemoryPreGateService, 'evaluate'>,
+    observe?: (result: MemoryProposalResult['gate']) => void,
+  ): void {
+    this.preGate = gate;
+    this.observeProposal = observe ?? null;
+  }
   constructor(
     private readonly gate1: Pick<
       Gate1Store,
-      'getTeammate' | 'getRuntimeProfile' | 'getConversation' | 'listMessages' | 'saveUsage'
+      | 'getTeammate'
+      | 'getRuntimeProfile'
+      | 'getConversation'
+      | 'listMessages'
+      | 'saveUsage'
+      | 'getModelBinding'
+      | 'hasValidModelBinding'
     >,
     private readonly memories: Gate2MemoryStore,
     private readonly extractor: MemoryCandidateExtractor,
@@ -211,11 +246,7 @@ export class Gate2MemoryService {
     };
   }
 
-  async proposeFromMessage(input: {
-    teammateId: string;
-    conversationId: string;
-    messageId: string;
-  }): Promise<Gate2MemoryRecord[]> {
+  private validatedMessageSource(input: MemoryMessageSource) {
     const teammate = this.gate1.getTeammate(input.teammateId);
     if (!teammate || teammate.status !== 'ACTIVE') {
       throw new DomainError('NOT_FOUND', '可用道友不存在');
@@ -227,7 +258,19 @@ export class Gate2MemoryService {
     const message = this.gate1
       .listMessages(input.teammateId, input.conversationId)
       .find((item) => item.id === input.messageId);
-    if (!message || message.missionId !== null) {
+    if (
+      !message ||
+      message.missionId !== null ||
+      message.conversationId !== conversation.id ||
+      !(
+        (message.role === 'USER' &&
+          message.actorType === 'USER' &&
+          message.actorId === 'local-user') ||
+        (message.role === 'ASSISTANT' &&
+          message.actorType === 'TEAMMATE' &&
+          message.actorId === teammate.id)
+      )
+    ) {
       throw new DomainError('NOT_FOUND', '对话证据不存在');
     }
     if (!teammate.currentRuntimeProfileId) {
@@ -235,20 +278,69 @@ export class Gate2MemoryService {
     }
     const runtime = this.gate1.getRuntimeProfile(teammate.currentRuntimeProfileId);
     if (!runtime) throw new DomainError('NOT_FOUND', '运行配置不存在');
+    const binding = this.gate1.getModelBinding(teammate.id);
+    if (
+      teammate.executorKind !== 'MODEL_RUNTIME' ||
+      (runtime.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE' ||
+      !binding ||
+      binding.runtimeProfileId !== runtime.id ||
+      (binding.executionProtocol ?? 'LANGUAGE') !== 'LANGUAGE' ||
+      !this.gate1.hasValidModelBinding(teammate.id)
+    ) {
+      throw new DomainError('INVALID_INPUT', '只有文本模型道友可从对话提取记忆候选');
+    }
+    return { teammate, conversation, message, runtime };
+  }
+
+  /** Existing typed IPC and UI retain their array result and empty-state semantics. */
+  async proposeFromMessage(input: MemoryMessageSource): Promise<Gate2MemoryRecord[]> {
+    return (await this.proposeFromMessageWithGate(input)).candidates;
+  }
+
+  /** Trusted application seam; the Renderer cannot supply a gate, owner, or decision. */
+  async proposeFromMessageWithGate(input: MemoryMessageSource): Promise<MemoryProposalResult> {
+    const { teammate, conversation, message, runtime } = this.validatedMessageSource(input);
+    // Copy the immutable local evidence before any asynchronous decision call.
+    const evidence = message.content;
+    const receipt = await this.preGate.evaluate({
+      ownerId: teammate.id,
+      sourceId: message.id,
+      sourceType: 'CHAT_MESSAGE',
+      trigger: 'USER_EXPLICIT',
+      messageRole: message.role === 'USER' ? 'user' : 'assistant',
+      ...buildMemoryEvidenceFacts(evidence),
+    });
+    const recheck = () => {
+      const fresh = this.validatedMessageSource(input);
+      if (fresh.runtime.id !== runtime.id || fresh.message.content !== evidence) {
+        throw new DomainError('INVALID_INPUT', '证据或运行身份已变化，请重新提取');
+      }
+    };
+    recheck();
+    const finish = (candidates: Gate2MemoryRecord[], extractorInvoked: boolean) => {
+      const result: MemoryProposalResult = {
+        candidates,
+        gate: { ...receipt, extractorInvoked, candidateCount: candidates.length },
+      };
+      this.observeProposal?.(result.gate);
+      return result;
+    };
+    if (receipt.decision === 'SKIP_EXTRACTION') return finish([], false);
     let extracted;
     try {
       extracted = await this.extractor.extractCandidates({
         teammateId: teammate.id,
         runtimeProfileId: runtime.id,
-        evidence: message.content,
+        evidence,
       });
     } catch {
       this.gate1.saveUsage(this.usage(teammate.id, runtime, null));
       throw new DomainError('MODEL_CALL_FAILED', '记忆候选提取失败；对话已正常保存');
     }
     this.gate1.saveUsage(this.usage(teammate.id, runtime, extracted.usage));
+    recheck();
     const timestamp = now();
-    return extracted.candidates.slice(0, 3).map((candidate) => {
+    const candidates = extracted.candidates.slice(0, 3).map((candidate) => {
       const record: Gate2MemoryRecord = {
         id: id(),
         ownerType: 'TEAMMATE',
@@ -271,5 +363,6 @@ export class Gate2MemoryService {
       this.memories.saveMemory(record);
       return record;
     });
+    return finish(candidates, true);
   }
 }

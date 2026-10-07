@@ -1,0 +1,323 @@
+{
+  "baseline": "27700ab42d4d781153f5c48c0b2c54df2a44d629",
+  "status": "PASS",
+  "migrations": "No new migration; 0001-0030 unchanged",
+  "dependencies": "No new dependency",
+  "tests": {
+    "files": 130,
+    "passed": 1093
+  },
+  "commands": [
+    {
+      "command": "npm run test",
+      "status": "PASS",
+      "log": "validation/test.txt"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "PASS",
+      "log": "validation/typecheck.txt"
+    },
+    {
+      "command": "npm run lint",
+      "status": "PASS",
+      "log": "validation/lint.txt"
+    },
+    {
+      "command": "npm run format:check",
+      "status": "PASS",
+      "log": "validation/format-check.txt"
+    },
+    {
+      "command": "npm run package",
+      "status": "PASS",
+      "log": "validation/package.txt"
+    },
+    {
+      "command": "npm run smoke:package",
+      "status": "PASS",
+      "log": "validation/smoke-package.txt"
+    }
+  ],
+  "executionEvidence": "d3225ed9-f640-49aa-b005-e9974cefe430\\facts.json",
+  "jev": {
+    "live": "NOT RUN (offline acceptance)",
+    "fixture": "Explicit deterministic Fake, not live API evidence",
+    "fallback": "USER_EXPLICIT RUN; HARNESS SKIP"
+  },
+  "extractorCalls": 2,
+  "receipts": [
+    {
+      "decision": "RUN_EXTRACTION",
+      "mode": "JEV",
+      "sourceType": "CHAT_MESSAGE",
+      "trigger": "USER_EXPLICIT",
+      "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+      "questionVersion": "r5-2-memory-extraction-need-question-v1",
+      "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+      "sourceId": "08dc7a1a-6bc7-4d92-82fd-0fd1a425f2f6",
+      "confidence": 1,
+      "reason": "JEV_DECISION",
+      "errorCode": null,
+      "stateHash": "7e24c8818c5adf2aee70014c2a4808517b3e5804c52148aa13728e2436b32de7",
+      "extractorInvoked": true,
+      "candidateCount": 1
+    },
+    {
+      "decision": "SKIP_EXTRACTION",
+      "mode": "JEV",
+      "sourceType": "CHAT_MESSAGE",
+      "trigger": "USER_EXPLICIT",
+      "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+      "questionVersion": "r5-2-memory-extraction-need-question-v1",
+      "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+      "sourceId": "b759db06-e1b5-4d75-90c3-4e7997740e8f",
+      "confidence": 1,
+      "reason": "JEV_DECISION",
+      "errorCode": null,
+      "stateHash": "e76d17f3776c727a96774b635a8ab8409834527aabff5ef3980f6122e356080a",
+      "extractorInvoked": false,
+      "candidateCount": 0
+    },
+    {
+      "decision": "SKIP_EXTRACTION",
+      "mode": "JEV",
+      "sourceType": "MISSION_RESULT",
+      "trigger": "HARNESS",
+      "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+      "questionVersion": "r5-2-memory-extraction-need-question-v1",
+      "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+      "sourceId": "1cc5d8bf-6f7b-4e6e-b601-7c6b767ea855",
+      "confidence": 1,
+      "reason": "JEV_DECISION",
+      "errorCode": null,
+      "stateHash": "a6cdd5972c085bd0b8c5319e9f3b8a045bfd6e706ccd1492c773bae63b2304a6",
+      "extractorInvoked": false,
+      "candidateCount": 0
+    },
+    {
+      "decision": "SKIP_EXTRACTION",
+      "mode": "JEV",
+      "sourceType": "MISSION_RESULT",
+      "trigger": "HARNESS",
+      "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+      "questionVersion": "r5-2-memory-extraction-need-question-v1",
+      "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+      "sourceId": "f3dcd435-f70f-4b51-8e50-3de3a534e557",
+      "confidence": 1,
+      "reason": "JEV_DECISION",
+      "errorCode": null,
+      "stateHash": "671ebdf6dc764334bbd875aa988b9085d8a05dc82d8100c5709cefefab3a0e5d",
+      "extractorInvoked": false,
+      "candidateCount": 0
+    },
+    {
+      "decision": "SKIP_EXTRACTION",
+      "mode": "JEV",
+      "sourceType": "WORKFLOW_STEP_RESULT",
+      "trigger": "HARNESS",
+      "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+      "questionVersion": "r5-2-memory-extraction-need-question-v1",
+      "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+      "sourceId": "1a4b3271-9e9d-43b2-9284-7e9ab24b440b",
+      "confidence": 1,
+      "reason": "JEV_DECISION",
+      "errorCode": null,
+      "stateHash": "de612b612722fb753aae07ab78e1509b1832a57cc28f7b1ca8c9b2c7a48dc175",
+      "extractorInvoked": false,
+      "candidateCount": 0
+    },
+    {
+      "decision": "SKIP_EXTRACTION",
+      "mode": "JEV",
+      "sourceType": "MISSION_RESULT",
+      "trigger": "HARNESS",
+      "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+      "questionVersion": "r5-2-memory-extraction-need-question-v1",
+      "ownerId": "e9b5b351-3343-4ecf-bbec-cddc1c829109",
+      "sourceId": "9a04321d-acb5-4d71-bd88-b6261753957c",
+      "confidence": 1,
+      "reason": "JEV_DECISION",
+      "errorCode": null,
+      "stateHash": "9838cd436ae823a100ed6faf44aa336f85d9b252b431ccf119e96fe25e4e62b0",
+      "extractorInvoked": false,
+      "candidateCount": 0
+    },
+    {
+      "decision": "RUN_EXTRACTION",
+      "mode": "DETERMINISTIC_FALLBACK",
+      "sourceType": "CHAT_MESSAGE",
+      "trigger": "USER_EXPLICIT",
+      "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+      "questionVersion": "r5-2-memory-extraction-need-question-v1",
+      "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+      "sourceId": "ac270529-09b2-4f2c-aa3f-ce80902c200c",
+      "confidence": null,
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "stateHash": "ac45db4ce0151a9e829d9c97cce446965bfa4073ce128b7d680ddc6f64d233ad",
+      "extractorInvoked": true,
+      "candidateCount": 1
+    }
+  ],
+  "ownerIsolation": {
+    "teammateBListedCandidateA": false,
+    "teammateBCouldForgeChatOwner": false,
+    "teammateBCouldAcceptCandidateA": false,
+    "teammateBCouldRejectCandidateA": false
+  },
+  "compatibility": {
+    "sources": [
+      {
+        "kind": "FREE_SOLO_MISSION",
+        "missionId": "f9988ad9-c273-4843-9780-68f3c9e5de67",
+        "runId": "1cc5d8bf-6f7b-4e6e-b601-7c6b767ea855",
+        "sourceId": "1cc5d8bf-6f7b-4e6e-b601-7c6b767ea855",
+        "receipt": {
+          "decision": "SKIP_EXTRACTION",
+          "mode": "JEV",
+          "sourceType": "MISSION_RESULT",
+          "trigger": "HARNESS",
+          "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+          "questionVersion": "r5-2-memory-extraction-need-question-v1",
+          "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+          "sourceId": "1cc5d8bf-6f7b-4e6e-b601-7c6b767ea855",
+          "confidence": 1,
+          "reason": "JEV_DECISION",
+          "errorCode": null,
+          "stateHash": "a6cdd5972c085bd0b8c5319e9f3b8a045bfd6e706ccd1492c773bae63b2304a6"
+        }
+      },
+      {
+        "kind": "PARTY_COLLABORATION_ARTIFACT",
+        "missionId": "f5664028-682e-4f66-a981-65d3258298aa",
+        "runId": "de21e547-349a-4b40-8908-e8dde66bc2b7",
+        "sourceId": "f3dcd435-f70f-4b51-8e50-3de3a534e557",
+        "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+        "artifactKind": "FINAL",
+        "receipt": {
+          "decision": "SKIP_EXTRACTION",
+          "mode": "JEV",
+          "sourceType": "MISSION_RESULT",
+          "trigger": "HARNESS",
+          "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+          "questionVersion": "r5-2-memory-extraction-need-question-v1",
+          "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+          "sourceId": "f3dcd435-f70f-4b51-8e50-3de3a534e557",
+          "confidence": 1,
+          "reason": "JEV_DECISION",
+          "errorCode": null,
+          "stateHash": "671ebdf6dc764334bbd875aa988b9085d8a05dc82d8100c5709cefefab3a0e5d"
+        }
+      },
+      {
+        "kind": "PARTY_PARTICIPANT_ARTIFACT",
+        "missionId": "f5664028-682e-4f66-a981-65d3258298aa",
+        "runId": "de21e547-349a-4b40-8908-e8dde66bc2b7",
+        "sourceId": "9a04321d-acb5-4d71-bd88-b6261753957c",
+        "ownerId": "e9b5b351-3343-4ecf-bbec-cddc1c829109",
+        "artifactKind": "MEMBER_RESULT",
+        "receipt": {
+          "decision": "SKIP_EXTRACTION",
+          "mode": "JEV",
+          "sourceType": "MISSION_RESULT",
+          "trigger": "HARNESS",
+          "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+          "questionVersion": "r5-2-memory-extraction-need-question-v1",
+          "ownerId": "e9b5b351-3343-4ecf-bbec-cddc1c829109",
+          "sourceId": "9a04321d-acb5-4d71-bd88-b6261753957c",
+          "confidence": 1,
+          "reason": "JEV_DECISION",
+          "errorCode": null,
+          "stateHash": "9838cd436ae823a100ed6faf44aa336f85d9b252b431ccf119e96fe25e4e62b0"
+        }
+      },
+      {
+        "kind": "WORKFLOW_VALIDATED_STEP_ARTIFACT",
+        "workflowRunId": "784491a6-4bb2-4b84-bb47-c2301b4b03e9",
+        "stepRunId": "d5cc94ce-5074-43e7-87d5-8d3da079ad3d",
+        "missionId": "db907c37-2c54-466e-822e-9a58be657c0a",
+        "runId": "ccac4de7-2af3-4110-a461-7a28d9ee3d47",
+        "sourceId": "1a4b3271-9e9d-43b2-9284-7e9ab24b440b",
+        "artifactKind": "JSON",
+        "contentHash": "ff3aee9f4d2046e80016ea3e78e21588e0985f8c1f7d6693b2019ba62166ac4f",
+        "receipt": {
+          "decision": "SKIP_EXTRACTION",
+          "mode": "JEV",
+          "sourceType": "WORKFLOW_STEP_RESULT",
+          "trigger": "HARNESS",
+          "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+          "questionVersion": "r5-2-memory-extraction-need-question-v1",
+          "ownerId": "d842f732-3dfb-441a-bc17-d69ffec2d3a5",
+          "sourceId": "1a4b3271-9e9d-43b2-9284-7e9ab24b440b",
+          "confidence": 1,
+          "reason": "JEV_DECISION",
+          "errorCode": null,
+          "stateHash": "de612b612722fb753aae07ab78e1509b1832a57cc28f7b1ca8c9b2c7a48dc175"
+        }
+      }
+    ],
+    "invalidInputsRejected": {
+      "forgedOwner": true,
+      "unrelatedSource": true,
+      "wrongRun": true
+    },
+    "extractorCallsBefore": 1,
+    "extractorCallsAfter": 2,
+    "memoryRowsBefore": 1,
+    "memoryRowsAfter": 2,
+    "extractorInvoked": false,
+    "memoryRowsCreated": 0
+  },
+  "production": {
+    "normalLaunch": true,
+    "mainAcceptanceGate": false,
+    "rendererAcceptanceIpc": false,
+    "fixtureEvidenceFile": false,
+    "officialWorkflowHashes": {
+      "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    },
+    "database": {
+      "migrations": [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30
+      ],
+      "r52EvidenceRows": 0
+    }
+  },
+  "regressionMarkers": [
+    "GATE1_PACKAGED_SMOKE_OK navigation=9 ipc=ok native_sqlite=ok secret=encrypted chat=streamed sealed_binding=ok fixed_model=ok usage=ok",
+    "GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried fixed_binding=ok",
+    "R0_PACKAGED_SMOKE_OK migration=30 teammate_defaults=ok foreign_keys=ok",
+    "GATE3_PACKAGED_SMOKE_OK solo=ok scope=memory_skill_permission mission_allow_over_global_ask=ok usage=mission_run approval=once restart=waiting_paused_interrupted retry=new_attempt audit=append_only",
+    "GATE4_PACKAGED_SMOKE_OK workspace=chosen builtin_file_tools=approval_and_scope exact_star_grant=no_expansion untrusted_file_mcp_results=tool_role deny=non_mutating restart=same_run mcp=discovery_execution_permission env_whitelist=ok usage_event_audit=mission_run_attributed",
+    "GATE5_PACKAGED_SMOKE_OK party=2 persistent_teammates consultation=initiative_invite deny=target_model_calls_zero_and_sqlite_artifacts_zero approve=member_uses_own_runtime_memory_skill coordinator_synthesis=final_artifact usage_audit=actor_attributed",
+    "GATE6_PACKAGED_SMOKE_OK experience=actor_run_source_provenance denied_target=zero participant_failed_run_completed=ok participant_completed_run_failed=ok review=ok delegation=ok sealed_binding=stable restart=ledger_idempotent",
+    "R1_PACKAGED_SMOKE_OK benchmark_only=ok unsupported_distinct=ok private_runtime_binding=sealed rating_ipc_removed=ok no_evidence_writes=ok",
+    "R2_PACKAGED_SMOKE_OK human_bridge=bootstrapped notification=safe waiting_restart=ok same_run=ok artifact=validated synthesis=untrusted usage=zero model_call=zero experience=ok fixed_capability=one continuation=consumed",
+    "R3_PACKAGED_SMOKE_OK shadow=4 receipts=4 credential=encrypted mission_unchanged=ok",
+    "R3_1_CRASH_PACKAGED_SMOKE_OK pending_restart_same_run=ok synthesis_once=ok continuation_consumed=ok consuming_started_interrupted=ok no_auto_replay=ok accepted_artifact_retained=ok",
+    "R3_2_SDK_PACKAGED_SMOKE_OK metadata=real_http stream=real_sdk solo=real_sdk auth_failure=unavailable no_reroute=ok recovery=ok",
+    "R3_2_PACKAGED_SMOKE_OK unknown=ok probe=ok solo=ok party=ok actor_identity=ok bridge_excluded=ok restart=ok explicit_unavailable=blocked_no_usage recovery=ok",
+    "R3_3_UI_PACKAGED_SMOKE_OK screenshots=35 creation=unbound-templates,keyless-sealed chat=streaming,long-content,copy,unavailable memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900",
+    "R4_PACKAGED_SMOKE_OK constraints=hard_conflicts_zero_side_effects explicit_human_bridge=ui_zero_probe_same_run routing_optin=independent auto_solo=90 auto_party=AD_HOC human_bridge_fallback=durable_same_run explicit_unavailable=no_substitution unmet_capability=blocked shadow=unchanged",
+    "W1_PACKAGED_SMOKE_OK evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w1-packaged-168a5135-37e1-4675-8640-984b74dcf3a5\\evidence migration=30 routing=existing mission=existing lineage=verified recovery=no_silent_replay",
+    "W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news+software+research-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-8f047630-f9d3-423b-9a18-17f9b7e9bcf0\\evidence",
+    "UI_PRODUCT_SYSTEM_PACKAGED_OK screenshots=83 sizes=1440,1180,900 profile=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\ui-product-system-ba61d28b-a1c1-4d10-9d4e-c004ea939048",
+    "W21_PACKAGED_SMOKE_OK cases=3 steps=14 permission=normal-mcp-approval humanBridge=typed-ipc restarts=N10-wait+N12-applied zeroReplay=true socialPublish=0 evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-ab558055-c964-45e2-8748-5ec770cb8551\\evidence\\news",
+    "W22_PACKAGED_SMOKE_OK cases=4 mixedVerification=true independentReview=true dynamicMutation=true crashZeroReplay=true noPublish=true evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-ab558055-c964-45e2-8748-5ec770cb8551\\evidence\\software",
+    "W24_PACKAGED_SMOKE_OK cleanProfile=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-ab558055-c964-45e2-8748-5ec770cb8551 migration=30 official=3 sharedDatabase=true frozenHashes=true finalProductionRestartZeroReplay=true evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-ab558055-c964-45e2-8748-5ec770cb8551\\evidence",
+    "G1_PACKAGED_SMOKE_OK crashes=A-F+partial+commit streaming=true descriptorsAbove16MiB=true partial=re-download-original verifiedStage=zero-redownload idempotency=stable UNKNOWN=no-replay output=app+workspace permission=deny evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\g1-packaged-5c3a7c3e-ef1a-4515-864e-a5d6146d0aac\\evidence",
+    "G2_PACKAGED_SMOKE_OK screenshots=1440_and_900 productionAdapter=H3_HTTP offlineFixture=true evidence=.test-data\\g2-packaged-d48ed052-f713-4134-be80-0fd562fab2dc\\evidence",
+    "G2_CORRECTIVE_PACKAGED_SMOKE_OK evidence=.test-data\\g2-corrective-9d795aca-226d-4c7a-9c23-f275080f3f99 preJobRecovery=once rejected=FAILED uncertain=UNKNOWN",
+    "G3_PACKAGED_SMOKE_PASS localH3Fixture=true liveEndpoint=BLOCKED screenshots=1440_1180_900 evidence=docs\\evidence\\g3-multimodal-collaboration\\2cbc5a83-6e8a-4bb5-af22-60ad7e8e7364",
+    "G3_HUMAN_PACKAGED_SMOKE_PASS needs_input=language-structured,file_read=exact-review=accepted-empty-summary=no-restart screenshots=1440_1180_900 evidence=docs\\evidence\\g3-multimodal-collaboration\\human-308bae7c-af39-4a6e-bcd3-4111c653edd7",
+    "R5_1_PACKAGED_SMOKE_OK production=normal_fixture_free fixture=explicit_top3=1-3 party=own_actor_skills workflow=bounded_step_context fallback=deterministic_real_model_call migration=30 shadow=off evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\r5-1-skill-routing\\61bd2f30-68ba-4ca3-a35d-4709b1b098c0\\facts.json",
+    "R5_2_PACKAGED_SMOKE_OK production=normal_fixture_free chat=jev_run_skip fallback=deterministic party=owner_scoped workflow=validated_artifact no_auto_extraction=true evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\r5-2-memory-pre-gate\\d3225ed9-f640-49aa-b005-e9974cefe430\\facts.json"
+  ],
+  "frozenHashes": "frozen-hashes.json",
+  "generationRegression": "generation-regression.json",
+  "skillRegression": "skill-regression.json"
+}

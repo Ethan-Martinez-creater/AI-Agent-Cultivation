@@ -21,6 +21,8 @@ function fixture(failQuery = false) {
   const gate1 = {
     getTeammate: (id: string) => ({ id, status: 'ACTIVE' }) as Teammate,
     getRuntimeProfile: (id: string) => (id === runtime.id ? runtime : null),
+    getModelBinding: () => null,
+    hasValidModelBinding: () => false,
     getProvider: (id: string) => (id === provider.id ? provider : null),
     getConversation: () => null,
     listMessages: () => [],

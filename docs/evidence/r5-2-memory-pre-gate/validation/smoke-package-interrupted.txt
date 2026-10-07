@@ -1,0 +1,39 @@
+
+> ai-agent-cultivation@0.0.1 smoke:package
+> node scripts/smoke-packaged.mjs
+
+GATE1_PACKAGED_SMOKE_OK navigation=9 ipc=ok native_sqlite=ok secret=encrypted chat=streamed sealed_binding=ok fixed_model=ok usage=ok
+GATE2_PACKAGED_SMOKE_OK memory_scope=ok review=accept_reject skill_assignment=ok prompt_scope=ok sqlite_vec=loaded_and_queried fixed_binding=ok
+R0_PACKAGED_SMOKE_OK migration=30 teammate_defaults=ok foreign_keys=ok
+GATE3_PACKAGED_SMOKE_OK solo=ok scope=memory_skill_permission mission_allow_over_global_ask=ok usage=mission_run approval=once restart=waiting_paused_interrupted retry=new_attempt audit=append_only
+GATE4_PACKAGED_SMOKE_OK workspace=chosen builtin_file_tools=approval_and_scope exact_star_grant=no_expansion untrusted_file_mcp_results=tool_role deny=non_mutating restart=same_run mcp=discovery_execution_permission env_whitelist=ok usage_event_audit=mission_run_attributed
+GATE5_PACKAGED_SMOKE_OK party=2 persistent_teammates consultation=initiative_invite deny=target_model_calls_zero_and_sqlite_artifacts_zero approve=member_uses_own_runtime_memory_skill coordinator_synthesis=final_artifact usage_audit=actor_attributed
+GATE6_PACKAGED_SMOKE_OK experience=actor_run_source_provenance denied_target=zero participant_failed_run_completed=ok participant_completed_run_failed=ok review=ok delegation=ok sealed_binding=stable restart=ledger_idempotent
+R1_PACKAGED_SMOKE_OK benchmark_only=ok unsupported_distinct=ok private_runtime_binding=sealed rating_ipc_removed=ok no_evidence_writes=ok
+R2_PACKAGED_SMOKE_OK human_bridge=bootstrapped notification=safe waiting_restart=ok same_run=ok artifact=validated synthesis=untrusted usage=zero model_call=zero experience=ok fixed_capability=one continuation=consumed
+R3_PACKAGED_SMOKE_OK shadow=4 receipts=4 credential=encrypted mission_unchanged=ok
+R3_PACKAGED_FALLBACK_OK provider_error=4 receipts=0 mission_unchanged=ok
+R3_1_CRASH_PACKAGED_SMOKE_OK pending_restart_same_run=ok synthesis_once=ok continuation_consumed=ok consuming_started_interrupted=ok no_auto_replay=ok accepted_artifact_retained=ok
+R3_2_SDK_PACKAGED_SMOKE_OK metadata=real_http stream=real_sdk solo=real_sdk auth_failure=unavailable no_reroute=ok recovery=ok
+R3_2_PACKAGED_SMOKE_OK unknown=ok probe=ok solo=ok party=ok actor_identity=ok bridge_excluded=ok restart=ok explicit_unavailable=blocked_no_usage recovery=ok
+R3_3_UI_PACKAGED_SMOKE_OK screenshots=35 creation=unbound-templates,keyless-sealed chat=streaming,long-content,copy,unavailable memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900
+R3_3_UI_EVIDENCE_DIR E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r3-3-ui-32703f50-bd7b-49cc-aa4b-c8ee58c00eec
+R3_3_UI_EVIDENCE_MANIFEST E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r3-3-ui-32703f50-bd7b-49cc-aa4b-c8ee58c00eec\evidence-manifest.json
+R4_PACKAGED_EVIDENCE E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\r4-packaged-30f601db-d39a-449b-861d-bfece6b5538e\r4-evidence.json
+R4_PACKAGED_SMOKE_OK constraints=hard_conflicts_zero_side_effects explicit_human_bridge=ui_zero_probe_same_run routing_optin=independent auto_solo=90 auto_party=AD_HOC human_bridge_fallback=durable_same_run explicit_unavailable=no_substitution unmet_capability=blocked shadow=unchanged
+W1_PACKAGED_SMOKE_OK evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w1-packaged-37e52846-25de-47c7-bdce-b809e0e652d4\evidence migration=30 routing=existing mission=existing lineage=verified recovery=no_silent_replay
+W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news+software+research-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w2-packaged-aace1891-eb50-4f29-9052-08b6aed115f5\evidence
+UI_PRODUCT_SYSTEM_PACKAGED_OK screenshots=83 sizes=1440,1180,900 profile=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\ui-product-system-25149fa9-60bb-4e64-b302-f16d47106c2d
+W21_PACKAGED_SMOKE_OK cases=3 steps=14 permission=normal-mcp-approval humanBridge=typed-ipc restarts=N10-wait+N12-applied zeroReplay=true socialPublish=0 evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w24-clean-packaged-f342f1ec-b711-4970-bd3f-d96f8a037085\evidence\news
+W22_PACKAGED_SMOKE_OK cases=4 mixedVerification=true independentReview=true dynamicMutation=true crashZeroReplay=true noPublish=true evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\.test-data\w24-clean-packaged-f342f1ec-b711-4970-bd3f-d96f8a037085\evidence\software
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Target page, context or browser has been closed
+    at detail (E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\scripts\w23-packaged-smoke.mjs:139:35)
+    at E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\scripts\w23-packaged-smoke.mjs:1168:23 {
+  log: []
+}
+
+Node.js v24.15.0

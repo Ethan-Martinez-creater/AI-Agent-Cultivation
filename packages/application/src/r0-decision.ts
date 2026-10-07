@@ -4,10 +4,14 @@ export type DecisionType =
   | 'TEAMMATE_FIT'
   | 'COLLABORATION_NEED'
   | 'REVIEW_NEED'
-  | 'SKILL_RELEVANCE';
+  | 'SKILL_RELEVANCE'
+  | 'MEMORY_EXTRACTION_NEED';
 
 /** R3 remains a separate, shadow-only consumer of the original four decisions. */
-export type ShadowDecisionType = Exclude<DecisionType, 'SKILL_RELEVANCE'>;
+export type ShadowDecisionType = Exclude<
+  DecisionType,
+  'SKILL_RELEVANCE' | 'MEMORY_EXTRACTION_NEED'
+>;
 
 export interface DecisionQuestion {
   type: 'noul' | 'choice';
