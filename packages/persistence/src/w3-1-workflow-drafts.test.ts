@@ -9,11 +9,13 @@ import {
   parseWorkflowDraftContent,
   type WorkflowDraft,
   type WorkflowDraftContent,
-  type WorkflowVersion,
 } from '@cultivation/domain';
 import { WorkflowEditorService, WorkflowService } from '@cultivation/application';
 import type { WorkflowMissionPort } from '../../application/src/w1-workflow-ports.js';
-import { installOfficialBuiltinWorkflows } from '../../../apps/desktop/src/main/w2-builtin-installation.js';
+import {
+  installOfficialBuiltinWorkflows,
+  OFFICIAL_BUILTIN_WORKFLOW_PACKAGES,
+} from '../../../apps/desktop/src/main/w2-builtin-installation.js';
 import {
   migrations,
   runMigrations,
@@ -119,6 +121,84 @@ function workflowServices(db: Database.Database) {
 }
 
 describe('W3.1 Workflow Draft persistence', () => {
+  it('safely copies and publishes each of the three official packages under new USER identities', () => {
+    const db = new Database(':memory:');
+    db.pragma('foreign_keys = ON');
+    runMigrations(db, migrations);
+    const services = workflowServices(db);
+    try {
+      installOfficialBuiltinWorkflows(services.workflowStore, services.foundation);
+      expect(OFFICIAL_BUILTIN_WORKFLOW_PACKAGES).toHaveLength(3);
+
+      for (const officialPackage of OFFICIAL_BUILTIN_WORKFLOW_PACKAGES) {
+        const official = officialPackage.version;
+        const original = services.workflowStore.getVersion(
+          official.definition.id,
+          official.version,
+        );
+        expect(original).toEqual(official);
+        const originalContentHash = db
+          .prepare(
+            `SELECT content_hash FROM workflow_versions
+             WHERE definition_id = ? AND version = ?`,
+          )
+          .get(official.definition.id, official.version);
+        const originalReleaseHash = db
+          .prepare(
+            `SELECT manifest_hash FROM workflow_builtin_releases
+             WHERE definition_id = ? AND version = ?`,
+          )
+          .get(official.definition.id, official.version);
+
+        const draft = services.editor.copyVersion({
+          definitionId: official.definition.id,
+          version: official.version,
+        });
+        expect(draft.definitionId).not.toBe(official.definition.id);
+        expect(draft.definitionId).toMatch(/^user\./);
+        expect(draft.baseVersion).toBeNull();
+        expect(draft.revision).toBe(1);
+
+        const published = services.editor.publishDraft({
+          id: draft.id,
+          expectedRevision: draft.revision,
+        });
+        expect(published.definition).toMatchObject({
+          id: draft.definitionId,
+          source: 'USER',
+        });
+        expect(published.version).toBe(1);
+        expect(published.steps.every((step) => step.effectType === 'NONE')).toBe(true);
+        expect(published.validationPolicy).toBeUndefined();
+        expect(published.releaseMetadata).toBeUndefined();
+
+        expect(services.workflowStore.getVersion(official.definition.id, official.version)).toEqual(
+          original,
+        );
+        expect(
+          db
+            .prepare(
+              `SELECT content_hash FROM workflow_versions
+               WHERE definition_id = ? AND version = ?`,
+            )
+            .get(official.definition.id, official.version),
+        ).toEqual(originalContentHash);
+        expect(
+          db
+            .prepare(
+              `SELECT manifest_hash FROM workflow_builtin_releases
+               WHERE definition_id = ? AND version = ?`,
+            )
+            .get(official.definition.id, official.version),
+        ).toEqual(originalReleaseHash);
+      }
+
+      expect(db.pragma('foreign_key_check')).toEqual([]);
+    } finally {
+      db.close();
+    }
+  });
+
   it('upgrades 0030 to 0031, preserves official hashes and existing Run pins, and restores Draft/version facts', () => {
     const path = join(process.cwd(), `.w31-draft-${randomUUID()}.sqlite`);
     let db: Database.Database | null = null;

@@ -153,7 +153,7 @@ describe('W3.1 Workflow Editor service', () => {
   });
 
   it('rejects a stale Draft save and will not publish an older base over the current head', () => {
-    const { editor } = harness();
+    const { editor, repo } = harness();
     const draft = editor.createDraft();
     const prepared = setObjective(editor, draft, 'Prepare the result.');
     const changed = structuredClone(prepared.content);
