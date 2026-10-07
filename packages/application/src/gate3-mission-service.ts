@@ -41,6 +41,11 @@ import { PromptComposer } from './prompt-composer.js';
 import type { SkillRoutingPort, SkillRoutingContext } from './r5-1-skill-routing.js';
 import type { PermissionEngine } from './permission-engine.js';
 import {
+  ToolShortlistService,
+  type ToolShortlistContext,
+  type ToolShortlistResult,
+} from './r5-4-tool-shortlist.js';
+import {
   ToolRuntime,
   type ToolCall,
   type ToolDispatch,
@@ -449,6 +454,16 @@ export class Gate3MissionService {
   private readonly composer = new PromptComposer();
   private readonly externalWorkContinuationsInFlight = new Set<string>();
   private toolRuntime: ToolRuntime | null = null;
+  private toolShortlist: ToolShortlistService | null = null;
+  private toolShortlistContext: ((context: ToolShortlistContext) => ToolShortlistContext) | null =
+    null;
+  attachToolShortlist(
+    service: ToolShortlistService,
+    context?: (context: ToolShortlistContext) => ToolShortlistContext,
+  ): void {
+    this.toolShortlist = service;
+    this.toolShortlistContext = context ?? null;
+  }
   private pendingTools: PendingMissionToolStore | null = null;
   private externalWork: Gate3ExternalWorkService | null = null;
   private externalWorkContinuations: R2ExternalWorkContinuationStore | null = null;
@@ -474,6 +489,7 @@ export class Gate3MissionService {
 
   attachTools(runtime: ToolRuntime, pending: PendingMissionToolStore): void {
     this.toolRuntime = runtime;
+    this.toolShortlist ??= new ToolShortlistService(runtime.registry, async () => null);
     this.pendingTools = pending;
   }
 
@@ -841,7 +857,12 @@ export class Gate3MissionService {
     ) {
       throw new DomainError('PERSISTENCE_INVALID', 'Approval 与 Tool Call 不匹配');
     }
-    let stored: { callId: string; input: unknown; priorMessages: ModelMessage[] };
+    let stored: {
+      callId: string;
+      input: unknown;
+      priorMessages: ModelMessage[];
+      offeredFingerprint?: string;
+    };
     try {
       if (Buffer.byteLength(pending.inputJson) > MAX_PENDING_TOOL_CONTEXT_BYTES) throw new Error();
       const parsed = JSON.parse(pending.inputJson) as unknown;
@@ -852,7 +873,15 @@ export class Gate3MissionService {
         callId: parsed.callId,
         input: parsed.input,
         priorMessages: parsePersistedToolTranscript(parsed.priorTranscript),
+        ...(parsed.offeredFingerprint !== undefined
+          ? { offeredFingerprint: String(parsed.offeredFingerprint) }
+          : {}),
       };
+      if (
+        stored.offeredFingerprint !== undefined &&
+        !/^[a-f0-9]{64}$/.test(stored.offeredFingerprint)
+      )
+        throw new Error();
     } catch {
       throw new DomainError('PERSISTENCE_INVALID', 'Tool Call 数据无效');
     }
@@ -871,7 +900,24 @@ export class Gate3MissionService {
     } catch {
       currentResource = null;
     }
+    const baseContext: ToolShortlistContext = {
+      missionId: mission.id,
+      runId: run.id,
+      teammateId: mission.coordinatorTeammateId,
+      phase: 'SOLO',
+      objective: mission.objective,
+    };
+    const pendingOfferValid =
+      !stored.offeredFingerprint ||
+      Boolean(
+        this.toolShortlist?.checkPendingTool(
+          pending.toolId,
+          stored.offeredFingerprint,
+          this.toolShortlistContext?.(baseContext) ?? baseContext,
+        ).ok,
+      );
     const descriptorMatches =
+      pendingOfferValid &&
       tool?.descriptor.source === pending.source &&
       tool.descriptor.capability === pending.capability &&
       currentResource === resource;
@@ -1715,6 +1761,20 @@ export class Gate3MissionService {
     try {
       while (steps < MAX_TOOL_STEPS) {
         if (!this.isRunActive(mission, run)) return;
+        const baseToolContext: ToolShortlistContext = {
+          missionId: mission.id,
+          runId: run.id,
+          teammateId,
+          phase: 'SOLO',
+          objective: mission.objective,
+        };
+        const toolContext = this.toolShortlistContext?.(baseToolContext) ?? baseToolContext;
+        const offered = await this.toolShortlist!.select(toolContext);
+        if (!this.isRunActive(mission, run)) return;
+        this.appendEvent(mission, run.id, 'tool.selection', 'TEAMMATE', teammateId, {
+          ...offered.receipt,
+        });
+        this.appendAudit(mission, 'tool.selection', 'TEAMMATE', teammateId, { ...offered.receipt });
         try {
           await this.gateway.prepare?.({ teammateId, runtimeProfileId: runtime.id });
         } catch (error) {
@@ -1758,7 +1818,7 @@ export class Gate3MissionService {
             teammateId,
             runtimeProfileId: runtime.id,
             messages,
-            tools: this.toolRuntime.registry.list(),
+            tools: offered.tools,
             ...(this.gateway.handlesCallStart ? { onCallStarted: callStarted } : {}),
           });
         } catch (error) {
@@ -1863,7 +1923,17 @@ export class Gate3MissionService {
           : { ...proposed, id: `invalid-tool-call-${steps}-${toolCalls}` };
         const call: ToolCall = { id: proposed.id, toolId: proposed.toolId, input: proposed.input };
         let dispatch: ToolDispatch;
-        if (!validCallId) {
+        const offeredCheck = this.toolShortlist!.checkOfferedTool(
+          call.toolId,
+          offered,
+          toolContext,
+        );
+        this.appendEvent(mission, run.id, 'tool.offer_checked', 'TEAMMATE', teammateId, {
+          toolId: call.toolId.slice(0, 128),
+          offered: offeredCheck.ok,
+          code: offeredCheck.code,
+        });
+        if (!validCallId || !offeredCheck.ok) {
           const descriptor = this.toolRuntime.registry.get(call.toolId)?.descriptor;
           const trace: ToolTrace = {
             toolId: call.toolId,
@@ -1873,7 +1943,11 @@ export class Gate3MissionService {
             sideEffect: descriptor?.sideEffect ?? null,
             resource: null,
             inputSummary: { keys: [], bytes: 0 },
-            outputSummary: { ok: false, code: 'INVALID_TOOL_CALL_ID', bytes: 0 },
+            outputSummary: {
+              ok: false,
+              code: validCallId ? offeredCheck.code! : 'INVALID_TOOL_CALL_ID',
+              bytes: 0,
+            },
           };
           dispatch = {
             kind: 'RESULT',
@@ -1882,8 +1956,8 @@ export class Gate3MissionService {
               toolCallId: transcriptCall.id,
               toolId: call.toolId,
               ok: false,
-              code: 'INVALID_TOOL_CALL_ID',
-              content: 'Tool call ID was invalid or duplicated; the tool was not executed.',
+              code: validCallId ? offeredCheck.code! : 'INVALID_TOOL_CALL_ID',
+              content: 'Tool was not offered or changed; the call was not executed.',
             },
           };
         } else {
@@ -1935,7 +2009,16 @@ export class Gate3MissionService {
           });
         });
         if (dispatch.kind === 'APPROVAL') {
-          this.requestToolApproval(mission, run, call, dispatch, steps, toolCalls, messages);
+          this.requestToolApproval(
+            mission,
+            run,
+            call,
+            dispatch,
+            steps,
+            toolCalls,
+            messages,
+            offered,
+          );
           return;
         }
         this.recordToolResult(
@@ -1966,6 +2049,7 @@ export class Gate3MissionService {
     steps: number,
     toolCalls: number,
     messages: ModelRequest['messages'],
+    offered: ToolShortlistResult,
   ): void {
     if (
       !this.pendingTools ||
@@ -2009,6 +2093,7 @@ export class Gate3MissionService {
           callId: call.id,
           input: call.input,
           priorTranscript: priorToolTranscript(messages),
+          offeredFingerprint: offered.fingerprints[call.toolId],
         }),
         stepCount: steps,
         toolCallCount: toolCalls,

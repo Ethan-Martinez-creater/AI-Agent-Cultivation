@@ -24,6 +24,7 @@
     "./r5-1-skill-routing": "./src/r5-1-skill-routing.ts",
     "./r5-2-memory-pre-gate": "./src/r5-2-memory-pre-gate.ts",
     "./r5-3-memory-rerank": "./src/r5-3-memory-rerank.ts",
+    "./r5-4-tool-shortlist": "./src/r5-4-tool-shortlist.ts",
     "./r0-repositories": "./src/r0-repositories.ts",
     "./r1-benchmark-prior": "./src/r1-benchmark-prior.ts",
     "./r1-benchmark-source-catalog": "./src/r1-benchmark-source-catalog.ts",

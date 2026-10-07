@@ -22,7 +22,10 @@ describe('McpHost', () => {
   it('discovers normalized tools and executes discovered tool calls', async () => {
     const host = makeHost();
     const config = serverConfig();
+    expect(host.isToolReady(config.id, 'fixture-server:echo')).toBe(false);
     const tools = await host.discover(config);
+    expect(host.isToolReady(config.id, 'fixture-server:echo')).toBe(true);
+    expect(host.isToolReady(config.id, 'unregistered')).toBe(false);
 
     expect(tools.map((tool) => tool.toolName)).toContain('echo');
     expect(tools.find((tool) => tool.toolName === 'echo')).toMatchObject({
@@ -88,6 +91,9 @@ describe('McpHost', () => {
     await expect(
       crashDuringCallHost.execute(crashDuringCallConfig.id, 'crash', { message: 'trigger crash' }),
     ).rejects.toMatchObject({ code: 'MCP_SERVER_CRASHED' });
+    expect(crashDuringCallHost.isToolReady(crashDuringCallConfig.id, 'fixture-server:echo')).toBe(
+      false,
+    );
 
     const timedConnectHost = makeHost({ connectTimeoutMs: 120 });
     await expect(

@@ -1,0 +1,172 @@
+{
+  "status": "PASS",
+  "packaged": {
+    "missionId": "e6a24bd1-d942-40d1-a48c-72d7c2495209",
+    "proposedId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+    "excludedFromOfferedIds": true,
+    "errorCode": "TOOL_NOT_OFFERED",
+    "receipt": {
+      "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "phase": "SOLO",
+      "eligibleCount": 16,
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "candidateCount": 16,
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "offeredCount": 8,
+      "offeredIds": [
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "file.list",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+      ],
+      "mode": "JEV",
+      "reason": "JEV_RERANKED",
+      "stateBytes": 5723,
+      "requestBytes": 14463,
+      "responseBytes": 1226,
+      "stateHash": "8d1278585eebde21e06ab0d66ddbde5d86fccbe454be80a38d41f68daa3dbcc2",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "questionVersion": "r5-4-tool-relevance-question-v1",
+      "fingerprints": {
+        "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+        "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+        "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+        "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+      },
+      "scores": [
+        {
+          "toolId": "file.list",
+          "score": 0.3148
+        },
+        {
+          "toolId": "file.readText",
+          "score": 0.515
+        },
+        {
+          "toolId": "file.writeText",
+          "score": 0.4113
+        },
+        {
+          "toolId": "file.createDirectory",
+          "score": 0.3208
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "score": 0.2045
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "score": 0.2045
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "score": 0.2045
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+          "score": 0.1
+        }
+      ]
+    },
+    "approvalCount": 0,
+    "successfulToolResults": 0
+  },
+  "spyEvidence": {
+    "file": "packages/application/src/r5-4-tool-execution.test.ts",
+    "cases": [
+      "SOLO registered but unoffered",
+      "Party registered but unoffered",
+      "offered descriptor changed during model await",
+      "approval fingerprint changed after restart"
+    ],
+    "dispatch": 0,
+    "permission": 0,
+    "guard": 0,
+    "execution": 0,
+    "approval": 0
+  },
+  "freshRecheck": {
+    "file": "packages/application/src/r5-4-tool-shortlist.test.ts",
+    "cases": [
+      "Jev await unregister",
+      "authority-field mutation",
+      "invalid-response fallback changed/new descriptor removal",
+      "actual offer/context identity",
+      "pending fingerprint recheck without new decision"
+    ]
+  }
+}

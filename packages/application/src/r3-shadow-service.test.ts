@@ -53,23 +53,25 @@ function completeTaskAnswer() {
 }
 
 describe('ShadowDecisionService', () => {
-  it.each(['SKILL_RELEVANCE', 'MEMORY_EXTRACTION_NEED', 'MEMORY_RELEVANCE'] as const)(
-    'does not promote %s into the R3 SHADOW plane',
-    async (decisionType) => {
-      const { service, gateway, receipts } = setup({
-        answers: {},
-        confidence: {},
-        selectedAction: null,
-      });
-      const result = await service.evaluate(
-        { ...taskRequest(), decisionType },
-        { actualAction: 'unchanged' },
-      );
-      expect(result).toMatchObject({ status: 'FALLBACK', fallbackCode: 'INVALID_REQUEST' });
-      expect(gateway.calls).toBe(0);
-      expect(receipts).toEqual([]);
-    },
-  );
+  it.each([
+    'SKILL_RELEVANCE',
+    'MEMORY_EXTRACTION_NEED',
+    'MEMORY_RELEVANCE',
+    'TOOL_RELEVANCE',
+  ] as const)('does not promote %s into the R3 SHADOW plane', async (decisionType) => {
+    const { service, gateway, receipts } = setup({
+      answers: {},
+      confidence: {},
+      selectedAction: null,
+    });
+    const result = await service.evaluate(
+      { ...taskRequest(), decisionType },
+      { actualAction: 'unchanged' },
+    );
+    expect(result).toMatchObject({ status: 'FALLBACK', fallbackCode: 'INVALID_REQUEST' });
+    expect(gateway.calls).toBe(0);
+    expect(receipts).toEqual([]);
+  });
   it('accepts only bounded availability signals and stays strictly SHADOW', async () => {
     const { service, gateway } = setup({
       answers: { teammate: 'a' },

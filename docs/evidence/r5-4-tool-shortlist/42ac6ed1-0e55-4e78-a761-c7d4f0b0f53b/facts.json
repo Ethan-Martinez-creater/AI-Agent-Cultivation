@@ -1,0 +1,5869 @@
+{
+  "verifiedAt": "2026-10-07T09:45:52.794Z",
+  "schemaVersion": 30,
+  "production": {
+    "normalLaunch": true,
+    "fixtureObserverFile": false,
+    "officialWorkflowHashes": {
+      "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    },
+    "migrations": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      27, 28, 29, 30
+    ]
+  },
+  "fixture": {
+    "flags": [
+      "--gate1-fake-model",
+      "--r5-4-fixture",
+      "--r4-fake-routing",
+      "--w1-fake-workflow",
+      "--r5-1-fixture"
+    ],
+    "officialWorkflowHashes": {
+      "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    },
+    "officialHashesUnchanged": true,
+    "actors": {
+      "a": {
+        "role": "A",
+        "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+        "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+        "executionProtocol": "LANGUAGE"
+      },
+      "b": {
+        "role": "B",
+        "teammateId": "12e1c1d0-97ff-484c-9215-54c19fb6acad",
+        "runtimeProfileId": "4d7a18bf-a231-4e79-bedb-8ffc8860f334",
+        "executionProtocol": "LANGUAGE"
+      }
+    },
+    "tools": {
+      "builtinIds": ["file.createDirectory", "file.list", "file.readText", "file.writeText"],
+      "stableRegistryOrder": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "mcpServerId": "3bb09b25-f54b-4637-a844-957c4113c257",
+      "read": "file.readText",
+      "write": "file.writeText",
+      "researchRead": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+      "excluded": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+      "registryDescriptorCount": 16
+    },
+    "readApprovalRestart": {
+      "missionId": "6c302995-dad9-4b42-800c-336007f64938",
+      "approvalId": "8f3142fb-a2f0-4d01-89c3-48a0faa34325",
+      "runId": "a225873a-4d9d-46c1-be6c-63dbcb536fa4",
+      "stateBeforeRestart": "WAITING_APPROVAL",
+      "offeredIds": [
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "file.list",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+      ],
+      "receipt": {
+        "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+        "phase": "SOLO",
+        "eligibleCount": 16,
+        "eligibleIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "candidateCount": 16,
+        "candidateIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "offeredCount": 8,
+        "offeredIds": [
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "file.list",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+        ],
+        "mode": "JEV",
+        "reason": "JEV_RERANKED",
+        "stateBytes": 5716,
+        "requestBytes": 14456,
+        "responseBytes": 1223,
+        "stateHash": "62e35b4fd2aac3b2cc31cb56489177f0cc34a670e29b98e4c057c95ccc4e7575",
+        "policyVersion": "r5-4-tool-shortlist-policy-v1",
+        "questionVersion": "r5-4-tool-relevance-question-v1",
+        "fingerprints": {
+          "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+          "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+          "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+          "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+        },
+        "scores": [
+          {
+            "toolId": "file.list",
+            "score": 0.3773
+          },
+          {
+            "toolId": "file.readText",
+            "score": 0.64
+          },
+          {
+            "toolId": "file.writeText",
+            "score": 0.505
+          },
+          {
+            "toolId": "file.createDirectory",
+            "score": 0.3833
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "score": 0.2357
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "score": 0.2357
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "score": 0.2357
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+            "score": 0.1
+          }
+        ]
+      },
+      "proposedId": "file.readText",
+      "stateAfterRestart": "WAITING_APPROVAL",
+      "stateAfterApproval": "COMPLETED",
+      "approvalRecovered": true,
+      "runIdPreserved": true,
+      "exactReadExecutions": 1,
+      "readOutputVerified": true
+    },
+    "permissionDeny": {
+      "missionId": "d64a807b-608f-4b53-ba7d-1a593ecf5a10",
+      "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "runId": "9b5947da-0cfb-439c-8c0f-b74faece52cf",
+      "scopedRule": "MISSION",
+      "exactResourceMatch": true,
+      "offeredIds": [
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "file.list",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+      ],
+      "receipt": {
+        "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+        "phase": "SOLO",
+        "eligibleCount": 16,
+        "eligibleIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "candidateCount": 16,
+        "candidateIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "offeredCount": 8,
+        "offeredIds": [
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "file.list",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+        ],
+        "mode": "JEV",
+        "reason": "JEV_RERANKED",
+        "stateBytes": 5714,
+        "requestBytes": 14454,
+        "responseBytes": 1223,
+        "stateHash": "f822e7e4bd36728360f3eb54491b2faa2807e5273cecf6ed7b9cdbb78a466668",
+        "policyVersion": "r5-4-tool-shortlist-policy-v1",
+        "questionVersion": "r5-4-tool-relevance-question-v1",
+        "fingerprints": {
+          "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+          "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+          "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+          "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+        },
+        "scores": [
+          {
+            "toolId": "file.list",
+            "score": 0.3773
+          },
+          {
+            "toolId": "file.readText",
+            "score": 0.64
+          },
+          {
+            "toolId": "file.writeText",
+            "score": 0.505
+          },
+          {
+            "toolId": "file.createDirectory",
+            "score": 0.3833
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "score": 0.2357
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "score": 0.2357
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "score": 0.2357
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+            "score": 0.1
+          }
+        ]
+      },
+      "code": "PERMISSION_DENIED",
+      "toolResultCount": 1,
+      "approvalCount": 0
+    },
+    "writeApproval": {
+      "denied": {
+        "missionId": "f480611f-af5a-4067-b49d-80bf6b011693",
+        "approvalId": "34635647-3e3a-4de6-b1ea-040f25f2b313",
+        "toolResults": 1,
+        "outputAbsent": true,
+        "deniedCode": "PERMISSION_DENIED",
+        "receipt": {
+          "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "phase": "SOLO",
+          "eligibleCount": 16,
+          "eligibleIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateCount": 16,
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "offeredCount": 8,
+          "offeredIds": [
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "file.readText",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+          ],
+          "mode": "JEV",
+          "reason": "JEV_RERANKED",
+          "stateBytes": 5720,
+          "requestBytes": 14460,
+          "responseBytes": 1178,
+          "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "fingerprints": {
+            "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+            "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+            "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+            "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render": "5e520e7aa7263eb642954950c2b4b9ad665b8e336c6ae281f6a122dd35ae3366",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup": "26d63d38f7ed1bf8a70e23efcd46d7c4aa3ea99847c77be4dd3e0c1c0e734714"
+          },
+          "scores": [
+            {
+              "toolId": "file.list",
+              "score": 0.3773
+            },
+            {
+              "toolId": "file.readText",
+              "score": 0.37
+            },
+            {
+              "toolId": "file.writeText",
+              "score": 0.505
+            },
+            {
+              "toolId": "file.createDirectory",
+              "score": 0.3833
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+              "score": 0.1
+            }
+          ]
+        }
+      },
+      "approved": {
+        "missionId": "28deb9b4-ea3c-4975-b64b-62fca83f499e",
+        "approvalId": "2e81d1cb-bc7b-4c5d-a304-86649d6c3b0d",
+        "offeredIds": [
+          "file.writeText",
+          "file.createDirectory",
+          "file.list",
+          "file.readText",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+        ],
+        "receipt": {
+          "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "phase": "SOLO",
+          "eligibleCount": 16,
+          "eligibleIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateCount": 16,
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "offeredCount": 8,
+          "offeredIds": [
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "file.readText",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+          ],
+          "mode": "JEV",
+          "reason": "JEV_RERANKED",
+          "stateBytes": 5720,
+          "requestBytes": 14460,
+          "responseBytes": 1178,
+          "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "fingerprints": {
+            "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+            "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+            "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+            "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render": "5e520e7aa7263eb642954950c2b4b9ad665b8e336c6ae281f6a122dd35ae3366",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup": "26d63d38f7ed1bf8a70e23efcd46d7c4aa3ea99847c77be4dd3e0c1c0e734714"
+          },
+          "scores": [
+            {
+              "toolId": "file.list",
+              "score": 0.3773
+            },
+            {
+              "toolId": "file.readText",
+              "score": 0.37
+            },
+            {
+              "toolId": "file.writeText",
+              "score": 0.505
+            },
+            {
+              "toolId": "file.createDirectory",
+              "score": 0.3833
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+              "score": 0.1
+            },
+            {
+              "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+              "score": 0.1
+            }
+          ]
+        },
+        "toolResults": 1,
+        "outputMatches": true
+      }
+    },
+    "notOffered": {
+      "missionId": "e6a24bd1-d942-40d1-a48c-72d7c2495209",
+      "proposedId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+      "excludedFromOfferedIds": true,
+      "errorCode": "TOOL_NOT_OFFERED",
+      "receipt": {
+        "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+        "phase": "SOLO",
+        "eligibleCount": 16,
+        "eligibleIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "candidateCount": 16,
+        "candidateIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "offeredCount": 8,
+        "offeredIds": [
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "file.list",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+        ],
+        "mode": "JEV",
+        "reason": "JEV_RERANKED",
+        "stateBytes": 5723,
+        "requestBytes": 14463,
+        "responseBytes": 1226,
+        "stateHash": "8d1278585eebde21e06ab0d66ddbde5d86fccbe454be80a38d41f68daa3dbcc2",
+        "policyVersion": "r5-4-tool-shortlist-policy-v1",
+        "questionVersion": "r5-4-tool-relevance-question-v1",
+        "fingerprints": {
+          "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+          "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+          "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+          "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+        },
+        "scores": [
+          {
+            "toolId": "file.list",
+            "score": 0.3148
+          },
+          {
+            "toolId": "file.readText",
+            "score": 0.515
+          },
+          {
+            "toolId": "file.writeText",
+            "score": 0.4113
+          },
+          {
+            "toolId": "file.createDirectory",
+            "score": 0.3208
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "score": 0.2045
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "score": 0.2045
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "score": 0.2045
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+            "score": 0.1
+          }
+        ]
+      },
+      "approvalCount": 0,
+      "successfulToolResults": 0
+    },
+    "mcpApproval": {
+      "missionId": "3369dafa-b5e6-4d8f-8c40-10f23d87ebc2",
+      "approvalId": "4edf0235-f5eb-4a8a-b735-11a2eb8e004e",
+      "serverId": "3bb09b25-f54b-4637-a844-957c4113c257",
+      "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+      "offeredIds": [
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "receipt": {
+        "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+        "phase": "SOLO",
+        "eligibleCount": 16,
+        "eligibleIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "candidateCount": 16,
+        "candidateIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "offeredCount": 8,
+        "offeredIds": [
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "mode": "JEV",
+        "reason": "JEV_RERANKED",
+        "stateBytes": 5724,
+        "requestBytes": 14464,
+        "responseBytes": 1350,
+        "stateHash": "0f1ff13afb90dc58c704ee18eaa661e10c2ce5ebc9c42d17956121ac7c8d536a",
+        "policyVersion": "r5-4-tool-shortlist-policy-v1",
+        "questionVersion": "r5-4-tool-relevance-question-v1",
+        "fingerprints": {
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search": "0e4dd8def534f3e6bd4fb66e167e53faf3af3616f1601e25fbb099a6fa7c244f",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export": "bb3126c088fd12f964680d850a99c82c607db0b20a7b514f35dd1f338eb62369",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot": "ed94c0988f6f9413344065e0d7072b33ca6edb465485e936e35fd58bcabbc394",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe": "488be7152dfefd023c3681b251f3c4741fa1f7346b2fb507154227de1468d436",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup": "26d63d38f7ed1bf8a70e23efcd46d7c4aa3ea99847c77be4dd3e0c1c0e734714",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded": "15267660534aef35d8ed42b4da01f93a24b1083481795b9d08e1a4bf6975925c"
+        },
+        "scores": [
+          {
+            "toolId": "file.list",
+            "score": 0.1
+          },
+          {
+            "toolId": "file.readText",
+            "score": 0.2171
+          },
+          {
+            "toolId": "file.writeText",
+            "score": 0.1
+          },
+          {
+            "toolId": "file.createDirectory",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "score": 0.5714
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "score": 0.2165
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "score": 0.2187
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "score": 0.2208
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "score": 0.2196
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "score": 0.2196
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "score": 0.2196
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "score": 0.3357
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+            "score": 0.2187
+          }
+        ]
+      },
+      "resultCount": 1,
+      "source": "MCP",
+      "approved": true
+    },
+    "partyActorIsolation": {
+      "missionId": "3f567604-edf3-45a2-9d20-ab9fa7cd2eef",
+      "runId": "1b5b870c-6d1e-4955-b088-1b2f74d88694",
+      "partyId": "0cc30f94-69e3-4dbf-9388-18dabb1f5d05",
+      "coordinatorApprovalId": "00dd18d1-aa46-4ea2-afb1-1704a1c6cff6",
+      "participantApprovalId": "df22f9df-9f52-4a48-9944-2b36d0a0508a",
+      "coordinatorTeammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "participantTeammateId": "12e1c1d0-97ff-484c-9215-54c19fb6acad",
+      "exactResourceMatched": true,
+      "participantAskedSeparately": true,
+      "coordinatorReceipt": {
+        "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+        "phase": "COORDINATOR",
+        "eligibleCount": 16,
+        "eligibleIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "candidateCount": 16,
+        "candidateIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "offeredCount": 8,
+        "offeredIds": [
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "file.list",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+        ],
+        "mode": "JEV",
+        "reason": "JEV_RERANKED",
+        "stateBytes": 5724,
+        "requestBytes": 14464,
+        "responseBytes": 1253,
+        "stateHash": "7d10c300492c83b3180bbdb238199ec6e8e8fa377e2fd5e710b987f39c8cfeb3",
+        "policyVersion": "r5-4-tool-shortlist-policy-v1",
+        "questionVersion": "r5-4-tool-relevance-question-v1",
+        "fingerprints": {
+          "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+          "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+          "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+          "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+        },
+        "scores": [
+          {
+            "toolId": "file.list",
+            "score": 0.3416
+          },
+          {
+            "toolId": "file.readText",
+            "score": 0.5686
+          },
+          {
+            "toolId": "file.writeText",
+            "score": 0.4514
+          },
+          {
+            "toolId": "file.createDirectory",
+            "score": 0.3476
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+            "score": 0.1
+          }
+        ]
+      },
+      "participantReceipt": {
+        "actorId": "12e1c1d0-97ff-484c-9215-54c19fb6acad",
+        "phase": "PARTICIPANT",
+        "eligibleCount": 16,
+        "eligibleIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "candidateCount": 16,
+        "candidateIds": [
+          "file.list",
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+        ],
+        "offeredCount": 8,
+        "offeredIds": [
+          "file.readText",
+          "file.writeText",
+          "file.createDirectory",
+          "file.list",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+        ],
+        "mode": "JEV",
+        "reason": "JEV_RERANKED",
+        "stateBytes": 5724,
+        "requestBytes": 14464,
+        "responseBytes": 1253,
+        "stateHash": "7f3e851ad2a6430db338215a07df8c38e2b71e20389f95d355c05ee154f54ed3",
+        "policyVersion": "r5-4-tool-shortlist-policy-v1",
+        "questionVersion": "r5-4-tool-relevance-question-v1",
+        "fingerprints": {
+          "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+          "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+          "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+          "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+          "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+          "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+          "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+          "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+        },
+        "scores": [
+          {
+            "toolId": "file.list",
+            "score": 0.3416
+          },
+          {
+            "toolId": "file.readText",
+            "score": 0.5686
+          },
+          {
+            "toolId": "file.writeText",
+            "score": 0.4514
+          },
+          {
+            "toolId": "file.createDirectory",
+            "score": 0.3476
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "score": 0.1
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "score": 0.2179
+          },
+          {
+            "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+            "score": 0.1
+          }
+        ]
+      },
+      "participantResultCount": 1,
+      "finalState": "COMPLETED"
+    },
+    "workflowHardEligibility": {
+      "workflowRunId": "65bf7517-4d31-409a-af34-713769e2109b",
+      "stepRunId": "004e39f9-77c0-44e8-bb1a-91a6f6c367a2",
+      "missionId": "bf7dcb14-4172-4973-bdd1-87e38bb07cc9",
+      "missionRunId": "fbac06ae-f928-45de-93ed-e077c013f08c",
+      "actorTeammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+      "offeredIds": ["file.readText"],
+      "receipt": {
+        "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+        "phase": "SOLO",
+        "eligibleCount": 1,
+        "eligibleIds": ["file.readText"],
+        "candidateCount": 1,
+        "candidateIds": ["file.readText"],
+        "offeredCount": 1,
+        "offeredIds": ["file.readText"],
+        "mode": "JEV",
+        "reason": "JEV_RERANKED",
+        "stateBytes": 724,
+        "requestBytes": 1606,
+        "responseBytes": 132,
+        "stateHash": "628e546de3a8191b6647a37c2096ca25bc7b084b7cf914f4e0b4d193dc537bad",
+        "policyVersion": "r5-4-tool-shortlist-policy-v1",
+        "questionVersion": "r5-4-tool-relevance-question-v1",
+        "fingerprints": {
+          "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d"
+        },
+        "scores": [
+          {
+            "toolId": "file.readText",
+            "score": 0.5686
+          }
+        ]
+      },
+      "resultCount": 1,
+      "state": "COMPLETED",
+      "stepState": "COMPLETED",
+      "currentMissionRunBound": true
+    },
+    "cloudOffFallback": {
+      "missionId": "a060b93f-3edd-4080-9a50-9c73e3381406",
+      "approvalId": "728e2d50-745f-4a37-a46f-0e561f5bbcf9",
+      "offeredIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "expectedRegistryOrder": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "selectionCount": 1,
+      "selectionMode": "DETERMINISTIC_FALLBACK",
+      "selectionReason": "GATEWAY_UNAVAILABLE",
+      "decisionCountUnchanged": true,
+      "resultCount": 1,
+      "finalState": "COMPLETED"
+    },
+    "observer": {
+      "decisions": [
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "62e35b4fd2aac3b2cc31cb56489177f0cc34a670e29b98e4c057c95ccc4e7575",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5716,
+          "requestBytes": 14456,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "73f9b925dd13b7585cb1741de911303b33a27cedfac31c3d794c2a042d2b47c8",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1223
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "62e35b4fd2aac3b2cc31cb56489177f0cc34a670e29b98e4c057c95ccc4e7575",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5716,
+          "requestBytes": 14456,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "73f9b925dd13b7585cb1741de911303b33a27cedfac31c3d794c2a042d2b47c8",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1223
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "f822e7e4bd36728360f3eb54491b2faa2807e5273cecf6ed7b9cdbb78a466668",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5714,
+          "requestBytes": 14454,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "50314d1f8f874e017fd6ab0a58852995e63e3bfa77afeaafda545b1b8e7af1bd",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1223
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "f822e7e4bd36728360f3eb54491b2faa2807e5273cecf6ed7b9cdbb78a466668",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5714,
+          "requestBytes": 14454,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "50314d1f8f874e017fd6ab0a58852995e63e3bfa77afeaafda545b1b8e7af1bd",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1223
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5720,
+          "requestBytes": 14460,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "b707e6e90f3e71fef0cc5cf1cda12b2fddc03c65c0f2f6aac3b8e91094f8ddc1",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1178
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5720,
+          "requestBytes": 14460,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "b707e6e90f3e71fef0cc5cf1cda12b2fddc03c65c0f2f6aac3b8e91094f8ddc1",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1178
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5720,
+          "requestBytes": 14460,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "b707e6e90f3e71fef0cc5cf1cda12b2fddc03c65c0f2f6aac3b8e91094f8ddc1",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1178
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5720,
+          "requestBytes": 14460,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "b707e6e90f3e71fef0cc5cf1cda12b2fddc03c65c0f2f6aac3b8e91094f8ddc1",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1178
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "8d1278585eebde21e06ab0d66ddbde5d86fccbe454be80a38d41f68daa3dbcc2",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5723,
+          "requestBytes": 14463,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "4be5374ba237cd57d8fe9187e1f273e121c2038683c6f1440d9dd7f521625d2e",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1226
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "8d1278585eebde21e06ab0d66ddbde5d86fccbe454be80a38d41f68daa3dbcc2",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5723,
+          "requestBytes": 14463,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "4be5374ba237cd57d8fe9187e1f273e121c2038683c6f1440d9dd7f521625d2e",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1226
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "0f1ff13afb90dc58c704ee18eaa661e10c2ce5ebc9c42d17956121ac7c8d536a",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5724,
+          "requestBytes": 14464,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "2f065e95381be1d891828e30309863f93ea96db6602f53f04f3db4da04d604e9",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1350
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "0f1ff13afb90dc58c704ee18eaa661e10c2ce5ebc9c42d17956121ac7c8d536a",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5724,
+          "requestBytes": 14464,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "2f065e95381be1d891828e30309863f93ea96db6602f53f04f3db4da04d604e9",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1350
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "7d10c300492c83b3180bbdb238199ec6e8e8fa377e2fd5e710b987f39c8cfeb3",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5724,
+          "requestBytes": 14464,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "07168c889b5dc3c9fe13517b602dec6485386b65b5b587a763ac81a46d486cab",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1253
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "7d10c300492c83b3180bbdb238199ec6e8e8fa377e2fd5e710b987f39c8cfeb3",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5724,
+          "requestBytes": 14464,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "07168c889b5dc3c9fe13517b602dec6485386b65b5b587a763ac81a46d486cab",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1253
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "7f3e851ad2a6430db338215a07df8c38e2b71e20389f95d355c05ee154f54ed3",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5724,
+          "requestBytes": 14464,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "86b8ac4406f3d87bbb5d48411d40dc15e84f023991331c17a993e677522633d3",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1253
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "7f3e851ad2a6430db338215a07df8c38e2b71e20389f95d355c05ee154f54ed3",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5724,
+          "requestBytes": 14464,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "86b8ac4406f3d87bbb5d48411d40dc15e84f023991331c17a993e677522633d3",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1253
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "2810d0c73c2eaf7461933916cbebef741cf0b86a1da9ea4f6618d322c1d38a9a",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5722,
+          "requestBytes": 14462,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "117a0a5af7bbcef7f08461086ddb7274398b12e44a1659e96a60dda7e0c403be",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1253
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "2810d0c73c2eaf7461933916cbebef741cf0b86a1da9ea4f6618d322c1d38a9a",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 5722,
+          "requestBytes": 14462,
+          "questionKeys": [
+            "tool.0",
+            "tool.1",
+            "tool.2",
+            "tool.3",
+            "tool.4",
+            "tool.5",
+            "tool.6",
+            "tool.7",
+            "tool.8",
+            "tool.9",
+            "tool.10",
+            "tool.11",
+            "tool.12",
+            "tool.13",
+            "tool.14",
+            "tool.15"
+          ],
+          "candidateIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ],
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "117a0a5af7bbcef7f08461086ddb7274398b12e44a1659e96a60dda7e0c403be",
+          "forbiddenDataSeen": false,
+          "responseBytes": 1253
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "628e546de3a8191b6647a37c2096ca25bc7b084b7cf914f4e0b4d193dc537bad",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 724,
+          "requestBytes": 1606,
+          "questionKeys": ["tool.0"],
+          "candidateIds": ["file.readText"],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "efb95cb7a70746240f8b85b99e990321f7209df2038e34063671d2c64c68b624",
+          "forbiddenDataSeen": false,
+          "responseBytes": 132
+        },
+        {
+          "decisionType": "TOOL_RELEVANCE",
+          "stateHash": "628e546de3a8191b6647a37c2096ca25bc7b084b7cf914f4e0b4d193dc537bad",
+          "policyVersion": "r5-4-tool-shortlist-policy-v1",
+          "questionVersion": "r5-4-tool-relevance-question-v1",
+          "stateFields": ["context", "candidates"],
+          "stateBytes": 724,
+          "requestBytes": 1606,
+          "questionKeys": ["tool.0"],
+          "candidateIds": ["file.readText"],
+          "candidateFields": [
+            [
+              "id",
+              "source",
+              "name",
+              "description",
+              "capability",
+              "riskLevel",
+              "sideEffect",
+              "workflowPurposes",
+              "inputShape"
+            ]
+          ],
+          "contextHash": "efb95cb7a70746240f8b85b99e990321f7209df2038e34063671d2c64c68b624",
+          "forbiddenDataSeen": false,
+          "responseBytes": 132
+        }
+      ],
+      "modelCalls": [
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": ["file.readText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": ["file.readText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "file.readText",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+          ],
+          "proposedIds": ["file.writeText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "file.readText",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "file.readText",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+          ],
+          "proposedIds": ["file.writeText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "file.readText",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": ["3bb09b25-f54b-4637-a844-957c4113c257:excluded"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "proposedIds": ["3bb09b25-f54b-4637-a844-957c4113c257:research_read"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": ["file.readText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "12e1c1d0-97ff-484c-9215-54c19fb6acad",
+          "runtimeProfileId": "4d7a18bf-a231-4e79-bedb-8ffc8860f334",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": ["file.readText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "12e1c1d0-97ff-484c-9215-54c19fb6acad",
+          "runtimeProfileId": "4d7a18bf-a231-4e79-bedb-8ffc8860f334",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": ["file.readText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "file.list",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": ["file.readText"],
+          "proposedIds": ["file.readText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": ["file.readText"],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "proposedIds": ["file.readText"],
+          "method": "generateWithTools"
+        },
+        {
+          "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+          "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+          "offeredIds": [
+            "file.list",
+            "file.readText",
+            "file.writeText",
+            "file.createDirectory",
+            "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+            "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+            "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+            "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+            "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+            "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+            "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+            "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+            "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+            "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+          ],
+          "proposedIds": [],
+          "method": "generateWithTools"
+        }
+      ]
+    },
+    "mcpServer": {
+      "id": "3bb09b25-f54b-4637-a844-957c4113c257",
+      "enabled": 1
+    },
+    "migrations": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      27, 28, 29, 30
+    ],
+    "privacyScreenshots": [
+      {
+        "name": "routing-tool-shortlist-privacy-1440.png",
+        "layoutFile": "routing-tool-shortlist-privacy-1440-layout.json",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "name": "routing-tool-shortlist-privacy-1180.png",
+        "layoutFile": "routing-tool-shortlist-privacy-1180-layout.json",
+        "width": 1180,
+        "height": 900
+      },
+      {
+        "name": "routing-tool-shortlist-privacy-900.png",
+        "layoutFile": "routing-tool-shortlist-privacy-900-layout.json",
+        "width": 900,
+        "height": 900
+      }
+    ]
+  }
+}

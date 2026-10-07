@@ -1,0 +1,16 @@
+
+> ai-agent-cultivation@0.0.1 test
+> vitest run
+
+
+ RUN  v5.0.1 E:/Graduate_work_folder/Agent_develop/Project/AI Agent Cultivation
+
+
+ Test Files  137 passed (137)
+      Tests  1222 passed (1222)
+   Start at  14:00:38
+   Duration  268.68s (tests 87%, import 9%, transform 3%)
+
+    Isolate  137 workers spawned · ~261ms startup each (spawn + environment, per file)
+             at least ~35.44s faster with isolate: false — reuses workers across files instead of one per file
+

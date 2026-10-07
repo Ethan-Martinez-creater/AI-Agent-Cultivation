@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "workflowRunId": "65bf7517-4d31-409a-af34-713769e2109b",
+  "stepRunId": "004e39f9-77c0-44e8-bb1a-91a6f6c367a2",
+  "missionId": "bf7dcb14-4172-4973-bdd1-87e38bb07cc9",
+  "missionRunId": "fbac06ae-f928-45de-93ed-e077c013f08c",
+  "actorTeammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+  "runtimeProfileId": "5a2880b6-5495-46d2-861e-e72e2af69ffa",
+  "offeredIds": ["file.readText"],
+  "receipt": {
+    "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+    "phase": "SOLO",
+    "eligibleCount": 1,
+    "eligibleIds": ["file.readText"],
+    "candidateCount": 1,
+    "candidateIds": ["file.readText"],
+    "offeredCount": 1,
+    "offeredIds": ["file.readText"],
+    "mode": "JEV",
+    "reason": "JEV_RERANKED",
+    "stateBytes": 724,
+    "requestBytes": 1606,
+    "responseBytes": 132,
+    "stateHash": "628e546de3a8191b6647a37c2096ca25bc7b084b7cf914f4e0b4d193dc537bad",
+    "policyVersion": "r5-4-tool-shortlist-policy-v1",
+    "questionVersion": "r5-4-tool-relevance-question-v1",
+    "fingerprints": {
+      "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d"
+    },
+    "scores": [
+      {
+        "toolId": "file.readText",
+        "score": 0.5686
+      }
+    ]
+  },
+  "resultCount": 1,
+  "state": "COMPLETED",
+  "stepState": "COMPLETED",
+  "currentMissionRunBound": true,
+  "guard": "Original ToolRuntime Permission then WorkflowToolGuard; packaged before approval guard=0, after approval durable workflow.fixture_toolguard.checked=1",
+  "readOnlyEligibilityTest": "apps/desktop/src/main/w22-workspace-mutations.test.ts"
+}

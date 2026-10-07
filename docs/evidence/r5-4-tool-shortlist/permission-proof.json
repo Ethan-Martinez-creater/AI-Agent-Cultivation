@@ -1,0 +1,780 @@
+{
+  "status": "PASS",
+  "fileReadDeny": {
+    "missionId": "d64a807b-608f-4b53-ba7d-1a593ecf5a10",
+    "teammateId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+    "runId": "9b5947da-0cfb-439c-8c0f-b74faece52cf",
+    "scopedRule": "MISSION",
+    "exactResourceMatch": true,
+    "offeredIds": [
+      "file.readText",
+      "file.writeText",
+      "file.createDirectory",
+      "file.list",
+      "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+      "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+      "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+      "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+    ],
+    "receipt": {
+      "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "phase": "SOLO",
+      "eligibleCount": 16,
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "candidateCount": 16,
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "offeredCount": 8,
+      "offeredIds": [
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "file.list",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+      ],
+      "mode": "JEV",
+      "reason": "JEV_RERANKED",
+      "stateBytes": 5714,
+      "requestBytes": 14454,
+      "responseBytes": 1223,
+      "stateHash": "f822e7e4bd36728360f3eb54491b2faa2807e5273cecf6ed7b9cdbb78a466668",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "questionVersion": "r5-4-tool-relevance-question-v1",
+      "fingerprints": {
+        "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+        "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+        "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+        "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+      },
+      "scores": [
+        {
+          "toolId": "file.list",
+          "score": 0.3773
+        },
+        {
+          "toolId": "file.readText",
+          "score": 0.64
+        },
+        {
+          "toolId": "file.writeText",
+          "score": 0.505
+        },
+        {
+          "toolId": "file.createDirectory",
+          "score": 0.3833
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "score": 0.2357
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "score": 0.2357
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "score": 0.2357
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+          "score": 0.1
+        }
+      ]
+    },
+    "code": "PERMISSION_DENIED",
+    "toolResultCount": 1,
+    "approvalCount": 0
+  },
+  "fileWriteUserDeny": {
+    "missionId": "f480611f-af5a-4067-b49d-80bf6b011693",
+    "approvalId": "34635647-3e3a-4de6-b1ea-040f25f2b313",
+    "toolResults": 1,
+    "outputAbsent": true,
+    "deniedCode": "PERMISSION_DENIED",
+    "receipt": {
+      "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "phase": "SOLO",
+      "eligibleCount": 16,
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "candidateCount": 16,
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "offeredCount": 8,
+      "offeredIds": [
+        "file.writeText",
+        "file.createDirectory",
+        "file.list",
+        "file.readText",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+      ],
+      "mode": "JEV",
+      "reason": "JEV_RERANKED",
+      "stateBytes": 5720,
+      "requestBytes": 14460,
+      "responseBytes": 1178,
+      "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "questionVersion": "r5-4-tool-relevance-question-v1",
+      "fingerprints": {
+        "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+        "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+        "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+        "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render": "5e520e7aa7263eb642954950c2b4b9ad665b8e336c6ae281f6a122dd35ae3366",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup": "26d63d38f7ed1bf8a70e23efcd46d7c4aa3ea99847c77be4dd3e0c1c0e734714"
+      },
+      "scores": [
+        {
+          "toolId": "file.list",
+          "score": 0.3773
+        },
+        {
+          "toolId": "file.readText",
+          "score": 0.37
+        },
+        {
+          "toolId": "file.writeText",
+          "score": 0.505
+        },
+        {
+          "toolId": "file.createDirectory",
+          "score": 0.3833
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+          "score": 0.1
+        }
+      ]
+    }
+  },
+  "fileWriteApproved": {
+    "missionId": "28deb9b4-ea3c-4975-b64b-62fca83f499e",
+    "approvalId": "2e81d1cb-bc7b-4c5d-a304-86649d6c3b0d",
+    "offeredIds": [
+      "file.writeText",
+      "file.createDirectory",
+      "file.list",
+      "file.readText",
+      "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+      "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+      "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+      "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+    ],
+    "receipt": {
+      "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "phase": "SOLO",
+      "eligibleCount": 16,
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "candidateCount": 16,
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "offeredCount": 8,
+      "offeredIds": [
+        "file.writeText",
+        "file.createDirectory",
+        "file.list",
+        "file.readText",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup"
+      ],
+      "mode": "JEV",
+      "reason": "JEV_RERANKED",
+      "stateBytes": 5720,
+      "requestBytes": 14460,
+      "responseBytes": 1178,
+      "stateHash": "95c7636ea39d8a38b1a7a4fd8028ea13f87a6a03d477f07139ec4c5fe1c15c3b",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "questionVersion": "r5-4-tool-relevance-question-v1",
+      "fingerprints": {
+        "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+        "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+        "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+        "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render": "5e520e7aa7263eb642954950c2b4b9ad665b8e336c6ae281f6a122dd35ae3366",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup": "26d63d38f7ed1bf8a70e23efcd46d7c4aa3ea99847c77be4dd3e0c1c0e734714"
+      },
+      "scores": [
+        {
+          "toolId": "file.list",
+          "score": 0.3773
+        },
+        {
+          "toolId": "file.readText",
+          "score": 0.37
+        },
+        {
+          "toolId": "file.writeText",
+          "score": 0.505
+        },
+        {
+          "toolId": "file.createDirectory",
+          "score": 0.3833
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+          "score": 0.1
+        }
+      ]
+    },
+    "toolResults": 1,
+    "outputMatches": true
+  },
+  "askRestart": {
+    "missionId": "6c302995-dad9-4b42-800c-336007f64938",
+    "approvalId": "8f3142fb-a2f0-4d01-89c3-48a0faa34325",
+    "runId": "a225873a-4d9d-46c1-be6c-63dbcb536fa4",
+    "stateBeforeRestart": "WAITING_APPROVAL",
+    "offeredIds": [
+      "file.readText",
+      "file.writeText",
+      "file.createDirectory",
+      "file.list",
+      "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+      "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+      "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+      "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+    ],
+    "receipt": {
+      "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "phase": "SOLO",
+      "eligibleCount": 16,
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "candidateCount": 16,
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "offeredCount": 8,
+      "offeredIds": [
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "file.list",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search"
+      ],
+      "mode": "JEV",
+      "reason": "JEV_RERANKED",
+      "stateBytes": 5716,
+      "requestBytes": 14456,
+      "responseBytes": 1223,
+      "stateHash": "62e35b4fd2aac3b2cc31cb56489177f0cc34a670e29b98e4c057c95ccc4e7575",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "questionVersion": "r5-4-tool-relevance-question-v1",
+      "fingerprints": {
+        "file.readText": "d91b015742c3fd8fba1bd30adcb3424b88b4c0f9fd01803243ed18352137271d",
+        "file.writeText": "5fb2e11883db5af845999a661901f1059b99283a87e6a8a25d141fb95308498e",
+        "file.createDirectory": "a732ac3104f24a1b9d1b5fe8207103038529b03f6e69152a7c3b3ff3d7e31922",
+        "file.list": "bd9da018e7b840eaaee80639945234923cf8d402cc8507c7ba01ddc585875ce0",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline": "074b6c04ebd1ffbfe3743e54aec1fd0005d8270bbbf477c24bf09940a8e1fbdf",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search": "ffc4766aedf1cfb70cb1fb10fffe4786827399e887af1747e0ff8c9016a1dcb7"
+      },
+      "scores": [
+        {
+          "toolId": "file.list",
+          "score": 0.3773
+        },
+        {
+          "toolId": "file.readText",
+          "score": 0.64
+        },
+        {
+          "toolId": "file.writeText",
+          "score": 0.505
+        },
+        {
+          "toolId": "file.createDirectory",
+          "score": 0.3833
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "score": 0.2357
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "score": 0.2357
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "score": 0.2357
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+          "score": 0.1
+        }
+      ]
+    },
+    "proposedId": "file.readText",
+    "stateAfterRestart": "WAITING_APPROVAL",
+    "stateAfterApproval": "COMPLETED",
+    "approvalRecovered": true,
+    "runIdPreserved": true,
+    "exactReadExecutions": 1,
+    "readOutputVerified": true
+  },
+  "mcpApproval": {
+    "missionId": "3369dafa-b5e6-4d8f-8c40-10f23d87ebc2",
+    "approvalId": "4edf0235-f5eb-4a8a-b735-11a2eb8e004e",
+    "serverId": "3bb09b25-f54b-4637-a844-957c4113c257",
+    "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+    "offeredIds": [
+      "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+      "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+      "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+      "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+      "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+      "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+      "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+      "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+    ],
+    "receipt": {
+      "actorId": "37a051ef-7c14-43fe-8ae7-243e39aab509",
+      "phase": "SOLO",
+      "eligibleCount": 16,
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "candidateCount": 16,
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "offeredCount": 8,
+      "offeredIds": [
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+      ],
+      "mode": "JEV",
+      "reason": "JEV_RERANKED",
+      "stateBytes": 5724,
+      "requestBytes": 14464,
+      "responseBytes": 1350,
+      "stateHash": "0f1ff13afb90dc58c704ee18eaa661e10c2ce5ebc9c42d17956121ac7c8d536a",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "questionVersion": "r5-4-tool-relevance-question-v1",
+      "fingerprints": {
+        "3bb09b25-f54b-4637-a844-957c4113c257:research_read": "a9d95bcb4ac00e1a1be31329b0a83d798166b178ad30248b9baff56bfeeb4e05",
+        "3bb09b25-f54b-4637-a844-957c4113c257:table_query": "ebe4afee779eabe017556ef050ddd6308ae88a56acf0b69e91e2012a69492189",
+        "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search": "0e4dd8def534f3e6bd4fb66e167e53faf3af3616f1601e25fbb099a6fa7c244f",
+        "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export": "bb3126c088fd12f964680d850a99c82c607db0b20a7b514f35dd1f338eb62369",
+        "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot": "ed94c0988f6f9413344065e0d7072b33ca6edb465485e936e35fd58bcabbc394",
+        "3bb09b25-f54b-4637-a844-957c4113c257:image_describe": "488be7152dfefd023c3681b251f3c4741fa1f7346b2fb507154227de1468d436",
+        "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup": "26d63d38f7ed1bf8a70e23efcd46d7c4aa3ea99847c77be4dd3e0c1c0e734714",
+        "3bb09b25-f54b-4637-a844-957c4113c257:excluded": "15267660534aef35d8ed42b4da01f93a24b1083481795b9d08e1a4bf6975925c"
+      },
+      "scores": [
+        {
+          "toolId": "file.list",
+          "score": 0.1
+        },
+        {
+          "toolId": "file.readText",
+          "score": 0.2171
+        },
+        {
+          "toolId": "file.writeText",
+          "score": 0.1
+        },
+        {
+          "toolId": "file.createDirectory",
+          "score": 0.1
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+          "score": 0.5714
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+          "score": 0.2165
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+          "score": 0.2179
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+          "score": 0.2187
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+          "score": 0.2208
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+          "score": 0.2196
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+          "score": 0.2196
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+          "score": 0.2179
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+          "score": 0.2179
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+          "score": 0.2196
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+          "score": 0.3357
+        },
+        {
+          "toolId": "3bb09b25-f54b-4637-a844-957c4113c257:excluded",
+          "score": 0.2187
+        }
+      ]
+    },
+    "resultCount": 1,
+    "source": "MCP",
+    "approved": true
+  },
+  "deterministicAdversarial": {
+    "test": "packages/application/src/r5-4-tool-execution.test.ts",
+    "capabilities": ["FILE_READ", "FILE_WRITE", "MCP_TOOL_EXECUTE", "EXECUTE_COMMAND"],
+    "denyExecution": 0,
+    "invalidSchemaPermission": 0,
+    "workflowGuardDenySideEffect": 0
+  }
+}

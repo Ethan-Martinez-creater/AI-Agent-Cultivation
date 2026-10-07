@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "source": "docs\\evidence\\r5-4-tool-shortlist\\42ac6ed1-0e55-4e78-a761-c7d4f0b0f53b\\facts.json",
+  "missionId": "a060b93f-3edd-4080-9a50-9c73e3381406",
+  "approvalId": "728e2d50-745f-4a37-a46f-0e561f5bbcf9",
+  "offeredIds": [
+    "file.list",
+    "file.readText",
+    "file.writeText",
+    "file.createDirectory",
+    "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+    "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+    "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+    "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+    "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+    "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+    "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+    "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+    "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+    "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+    "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+    "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+  ],
+  "expectedRegistryOrder": [
+    "file.list",
+    "file.readText",
+    "file.writeText",
+    "file.createDirectory",
+    "3bb09b25-f54b-4637-a844-957c4113c257:research_read",
+    "3bb09b25-f54b-4637-a844-957c4113c257:asset_search",
+    "3bb09b25-f54b-4637-a844-957c4113c257:voice_render",
+    "3bb09b25-f54b-4637-a844-957c4113c257:weather_lookup",
+    "3bb09b25-f54b-4637-a844-957c4113c257:calendar_search",
+    "3bb09b25-f54b-4637-a844-957c4113c257:diagram_export",
+    "3bb09b25-f54b-4637-a844-957c4113c257:web_snapshot",
+    "3bb09b25-f54b-4637-a844-957c4113c257:contact_lookup",
+    "3bb09b25-f54b-4637-a844-957c4113c257:pdf_outline",
+    "3bb09b25-f54b-4637-a844-957c4113c257:image_describe",
+    "3bb09b25-f54b-4637-a844-957c4113c257:table_query",
+    "3bb09b25-f54b-4637-a844-957c4113c257:excluded"
+  ],
+  "selectionCount": 1,
+  "selectionMode": "DETERMINISTIC_FALLBACK",
+  "selectionReason": "GATEWAY_UNAVAILABLE",
+  "decisionCountUnchanged": true,
+  "resultCount": 1,
+  "finalState": "COMPLETED",
+  "beyondCandidateBudget": {
+    "test": "packages/application/src/r5-4-tool-shortlist.test.ts",
+    "behavior": "All 25 eligible tools retained in registry order; gateway zero calls; no first-24 truncation"
+  }
+}

@@ -28,6 +28,10 @@ import {
   validateMemoryRerankRequest,
 } from '@cultivation/application/r5-3-memory-rerank';
 import { z } from 'zod';
+import {
+  TOOL_SHORTLIST_POLICY,
+  validateToolShortlistRequest,
+} from '@cultivation/application/r5-4-tool-shortlist';
 
 /** The production shadow model is pinned so receipts remain comparable over time. */
 export const TYPESAFE_DECISION_MODEL = 'jev-1.13.0';
@@ -409,6 +413,7 @@ const validateNormalizedAnswers = (
   decisionType: DecisionType,
   questions: TypeSafeQuestionMap,
   answers: Record<string, z.infer<typeof safeAnswerSchema>>,
+  toolCandidateIds: readonly string[] = [],
 ): {
   answers: Record<string, unknown>;
   confidence: Record<string, number>;
@@ -474,6 +479,16 @@ const validateNormalizedAnswers = (
       );
     if (memories.length === 0) return null;
     return { answers: { memories }, confidence: {}, selectedAction: null };
+  }
+
+  if (decisionType === 'TOOL_RELEVANCE') {
+    if (toolCandidateIds.length !== Object.keys(questions).length) return null;
+    const tools = toolCandidateIds.map((toolId, index) => {
+      const answer = answers[`tool.${index}`];
+      return answer?.type === 'noul' ? { toolId, score: answer.noul } : null;
+    });
+    if (tools.some((tool) => tool === null)) return null;
+    return { answers: { tools }, confidence: {}, selectedAction: null };
   }
 
   if (decisionType === 'TASK_CAPABILITY') {
@@ -567,7 +582,12 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
     const extended = request as TypeSafeDecisionRequest;
     const memoryPreGate = isMemoryPreGateDecision(request.decisionType);
     const memoryRerank = request.decisionType === 'MEMORY_RELEVANCE';
-    const timeoutMs = memoryRerank ? MEMORY_RERANK_POLICY.gatewayTimeoutMs : this.#timeoutMs;
+    const toolShortlist = request.decisionType === 'TOOL_RELEVANCE';
+    const timeoutMs = toolShortlist
+      ? TOOL_SHORTLIST_POLICY.gatewayTimeoutMs
+      : memoryRerank
+        ? MEMORY_RERANK_POLICY.gatewayTimeoutMs
+        : this.#timeoutMs;
     const state = stateSchema.safeParse(extended.state);
     const questions = questionMapSchema.safeParse(extended.questions);
     if (!state.success || !questions.success) {
@@ -575,7 +595,9 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
     }
     // R5.3 has its own exact state validator because its allowlisted `memoryType`
     // key is intentionally forbidden by the generic unsafe-state guard.
-    if (memoryRerank) {
+    if (toolShortlist) {
+      if (!validateToolShortlistRequest(request)) return failedResult('INVALID_REQUEST');
+    } else if (memoryRerank) {
       if (!hasValidMemoryRerankRequest(request)) return failedResult('INVALID_REQUEST');
     } else if (!isPlainJsonTree(state.data)) {
       return failedResult('INVALID_REQUEST');
@@ -613,7 +635,7 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
         },
         { timeout: timeoutMs, retry: { maxRetries: 0 } },
       );
-      if (memoryRerank) {
+      if (memoryRerank || toolShortlist) {
         let serializedResponse: string | undefined;
         try {
           serializedResponse = JSON.stringify(response);
@@ -622,7 +644,10 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
         }
         if (
           serializedResponse === undefined ||
-          utf8Bytes(serializedResponse) > MAX_TYPESAFE_MEMORY_RERANK_RESPONSE_BYTES
+          utf8Bytes(serializedResponse) >
+            (toolShortlist
+              ? TOOL_SHORTLIST_POLICY.maxResponseBytes
+              : MAX_TYPESAFE_MEMORY_RERANK_RESPONSE_BYTES)
         ) {
           return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
         }
@@ -638,6 +663,7 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
           request.decisionType,
           questions.data,
           parsedMemoryResponse.data.answers,
+          toolShortlist ? (state.data.candidates as Array<{ id: string }>).map(({ id }) => id) : [],
         );
         if (!normalized) return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
         return {

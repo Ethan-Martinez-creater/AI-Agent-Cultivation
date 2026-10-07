@@ -1,0 +1,2 @@
+R5_4_PACKAGED_EVIDENCE E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\docs\evidence\r5-4-tool-shortlist\e6a99c1d-d75f-458e-9ff2-6123a4bbe31e\facts.json
+R5_4_PACKAGED_SMOKE_OK production=fixture_free approval_restart=same_run write_deny=unwritten not_offered=blocked mcp=approved party=actor_isolated workflow=hard_eligible cloud_off=deterministic_fallback privacy_widths=1440,1180,900 evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\docs\evidence\r5-4-tool-shortlist\e6a99c1d-d75f-458e-9ff2-6123a4bbe31e\facts.json

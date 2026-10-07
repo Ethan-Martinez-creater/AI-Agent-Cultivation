@@ -1,0 +1,3603 @@
+{
+  "status": "PASS",
+  "source": "docs\\evidence\\r5-3-memory-rerank\\0971329e-bb7b-4da5-9430-0a19c5421429\\facts.json",
+  "facts": {
+    "verifiedAt": "2026-10-07T09:45:42.266Z",
+    "schemaVersion": 30,
+    "privacyScreenshots": [
+      {
+        "name": "routing-privacy-1440.png",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "name": "routing-privacy-1180.png",
+        "width": 1180,
+        "height": 900
+      },
+      {
+        "name": "routing-privacy-900.png",
+        "width": 900,
+        "height": 900
+      }
+    ],
+    "liveJev": {
+      "status": "NOT RUN",
+      "gateway": "explicit FakeDecisionGateway fixture"
+    },
+    "production": {
+      "normalLaunch": true,
+      "r53MainAcceptanceRetrieve": false,
+      "rendererAcceptanceRetrieve": false,
+      "fixtureEvidenceFile": false,
+      "officialWorkflowHashes": {
+        "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+        "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+        "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+      },
+      "migrations": [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30
+      ]
+    },
+    "fixture": {
+      "flags": [
+        "--gate1-fake-model",
+        "--r5-3-fixture",
+        "--r5-2-fixture",
+        "--r5-1-fixture",
+        "--r4-fake-routing",
+        "--w1-fake-workflow"
+      ],
+      "officialWorkflowHashes": {
+        "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+        "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+        "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+      },
+      "officialHashesUnchanged": true,
+      "actors": {
+        "a": {
+          "role": "A",
+          "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+          "executionProtocol": "LANGUAGE"
+        },
+        "b": {
+          "role": "B",
+          "teammateId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+          "runtimeProfileId": "03aa2755-32bb-45ff-a6c6-4d6ab2e6054d",
+          "executionProtocol": "LANGUAGE"
+        }
+      },
+      "memoryIds": {
+        "aLexicalHeavy": {
+          "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE"
+        },
+        "aSummaryRelevant": {
+          "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE"
+        },
+        "aVectorHeavy": {
+          "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE"
+        },
+        "aIrrelevant": {
+          "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE"
+        },
+        "aSoloMission": {
+          "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE"
+        },
+        "aPartyCoordinator": {
+          "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE"
+        },
+        "aWorkflowStep": {
+          "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE"
+        },
+        "bCrossOwner": {
+          "id": "3ff0aa2c-97f5-4831-80bb-2f6f43656a11",
+          "ownerId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+          "status": "ACTIVE"
+        },
+        "bPartyParticipant": {
+          "id": "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+          "ownerId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+          "status": "ACTIVE"
+        },
+        "excludedProposed": {
+          "id": "b5b741a6-8e1c-4186-99c3-4801f29ce1a8",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "PROPOSED"
+        },
+        "excludedArchived": {
+          "id": "ea225365-273b-4133-960c-c0d34d7573d5",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ARCHIVED"
+        },
+        "excludedExpired": {
+          "id": "e24077af-ecba-4e96-b11a-9006ee6a814b",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "ACTIVE_EXPIRED"
+        },
+        "excludedRejected": {
+          "id": "5ae75077-bcf2-43b1-8689-77c55ff09107",
+          "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "status": "REJECTED"
+        }
+      },
+      "embedding": {
+        "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+        "vectorExtensionAvailable": true,
+        "actorAReindexed": true,
+        "actorBReindexed": true
+      },
+      "deterministicBaseline": {
+        "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+        "baselineIds": [
+          "809b1c06-b9a1-40f9-a306-2d643674acaa",
+          "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+          "898859af-2c6d-4cf7-857d-8ec110d632a2",
+          "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+          "21a768a3-e1a1-4731-a57a-0b169face146",
+          "c2826aab-4185-4484-9ec6-785e6aef4931",
+          "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+        ],
+        "orderedIds": [
+          "809b1c06-b9a1-40f9-a306-2d643674acaa",
+          "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+          "898859af-2c6d-4cf7-857d-8ec110d632a2",
+          "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+          "21a768a3-e1a1-4731-a57a-0b169face146",
+          "c2826aab-4185-4484-9ec6-785e6aef4931",
+          "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+        ],
+        "candidateIds": [
+          "809b1c06-b9a1-40f9-a306-2d643674acaa",
+          "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+          "898859af-2c6d-4cf7-857d-8ec110d632a2",
+          "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+          "21a768a3-e1a1-4731-a57a-0b169face146",
+          "c2826aab-4185-4484-9ec6-785e6aef4931",
+          "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+        ],
+        "selectedIds": [
+          "809b1c06-b9a1-40f9-a306-2d643674acaa",
+          "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+          "898859af-2c6d-4cf7-857d-8ec110d632a2",
+          "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+          "21a768a3-e1a1-4731-a57a-0b169face146",
+          "c2826aab-4185-4484-9ec6-785e6aef4931"
+        ],
+        "mode": "DETERMINISTIC_FALLBACK",
+        "reason": "GATEWAY_UNAVAILABLE",
+        "errorCode": "PROVIDER_UNAVAILABLE",
+        "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+        "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+        "policyVersion": "r5-3-memory-rerank-policy-v1",
+        "questionVersion": "r5-3-memory-relevance-question-v1",
+        "scores": [],
+        "candidateTextFacts": [
+          {
+            "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+            "source": "SUMMARY",
+            "characters": 60,
+            "utf8Bytes": 60,
+            "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+          },
+          {
+            "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+            "source": "SUMMARY",
+            "characters": 43,
+            "utf8Bytes": 43,
+            "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+          },
+          {
+            "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+            "source": "SUMMARY",
+            "characters": 35,
+            "utf8Bytes": 35,
+            "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+          },
+          {
+            "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+            "source": "SUMMARY",
+            "characters": 63,
+            "utf8Bytes": 63,
+            "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+          },
+          {
+            "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+            "source": "SUMMARY",
+            "characters": 51,
+            "utf8Bytes": 51,
+            "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+          },
+          {
+            "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+            "source": "SUMMARY",
+            "characters": 62,
+            "utf8Bytes": 62,
+            "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+          },
+          {
+            "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+            "source": "SUMMARY",
+            "characters": 38,
+            "utf8Bytes": 38,
+            "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+          }
+        ]
+      },
+      "fallback": {
+        "cloudEnabled": false,
+        "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+        "deterministicBaselineIds": [
+          "809b1c06-b9a1-40f9-a306-2d643674acaa",
+          "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+          "898859af-2c6d-4cf7-857d-8ec110d632a2",
+          "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+          "21a768a3-e1a1-4731-a57a-0b169face146",
+          "c2826aab-4185-4484-9ec6-785e6aef4931",
+          "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+        ],
+        "actualFallback": {
+          "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+          "baselineIds": [
+            "809b1c06-b9a1-40f9-a306-2d643674acaa",
+            "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+            "898859af-2c6d-4cf7-857d-8ec110d632a2",
+            "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+            "21a768a3-e1a1-4731-a57a-0b169face146",
+            "c2826aab-4185-4484-9ec6-785e6aef4931",
+            "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+          ],
+          "orderedIds": [
+            "809b1c06-b9a1-40f9-a306-2d643674acaa",
+            "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+            "898859af-2c6d-4cf7-857d-8ec110d632a2",
+            "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+            "21a768a3-e1a1-4731-a57a-0b169face146",
+            "c2826aab-4185-4484-9ec6-785e6aef4931",
+            "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+          ],
+          "candidateIds": [
+            "809b1c06-b9a1-40f9-a306-2d643674acaa",
+            "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+            "898859af-2c6d-4cf7-857d-8ec110d632a2",
+            "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+            "21a768a3-e1a1-4731-a57a-0b169face146",
+            "c2826aab-4185-4484-9ec6-785e6aef4931",
+            "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+          ],
+          "selectedIds": [
+            "809b1c06-b9a1-40f9-a306-2d643674acaa",
+            "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+            "898859af-2c6d-4cf7-857d-8ec110d632a2",
+            "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+            "21a768a3-e1a1-4731-a57a-0b169face146",
+            "c2826aab-4185-4484-9ec6-785e6aef4931"
+          ],
+          "mode": "DETERMINISTIC_FALLBACK",
+          "reason": "GATEWAY_UNAVAILABLE",
+          "errorCode": "PROVIDER_UNAVAILABLE",
+          "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+          "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+          "policyVersion": "r5-3-memory-rerank-policy-v1",
+          "questionVersion": "r5-3-memory-relevance-question-v1",
+          "scores": [],
+          "candidateTextFacts": [
+            {
+              "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "source": "SUMMARY",
+              "characters": 60,
+              "utf8Bytes": 60,
+              "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+            },
+            {
+              "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "source": "SUMMARY",
+              "characters": 43,
+              "utf8Bytes": 43,
+              "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+            },
+            {
+              "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "source": "SUMMARY",
+              "characters": 35,
+              "utf8Bytes": 35,
+              "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+            },
+            {
+              "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "source": "SUMMARY",
+              "characters": 63,
+              "utf8Bytes": 63,
+              "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+            },
+            {
+              "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+              "source": "SUMMARY",
+              "characters": 51,
+              "utf8Bytes": 51,
+              "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+            },
+            {
+              "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "source": "SUMMARY",
+              "characters": 62,
+              "utf8Bytes": 62,
+              "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+            },
+            {
+              "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "source": "SUMMARY",
+              "characters": 38,
+              "utf8Bytes": 38,
+              "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+            }
+          ]
+        },
+        "jevDecisionCallsBefore": 0,
+        "jevDecisionCallsAfter": 0,
+        "promptMemoryIds": [
+          "809b1c06-b9a1-40f9-a306-2d643674acaa",
+          "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+          "898859af-2c6d-4cf7-857d-8ec110d632a2",
+          "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+          "21a768a3-e1a1-4731-a57a-0b169face146"
+        ],
+        "completed": true
+      },
+      "chat": {
+        "fallback": {
+          "userMessageId": "8a7ade65-9bc2-4a05-a2b5-96a30ae64d35",
+          "assistantMessageId": "c9551dcc-9ef8-4f5d-b994-d4b7a4561c67",
+          "receipt": {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "mode": "DETERMINISTIC_FALLBACK",
+            "reason": "GATEWAY_UNAVAILABLE",
+            "errorCode": "PROVIDER_UNAVAILABLE",
+            "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+            "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [],
+            "candidateTextFacts": [
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          }
+        },
+        "rerank": {
+          "userMessageId": "fe239dee-28b8-4a9b-b289-873f79eb6f3c",
+          "assistantMessageId": "0919ddca-5efd-4957-a373-59d3ef2229d4",
+          "receipt": {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+            "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.66
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          "requestBytes": 4343,
+          "stateBytes": 966,
+          "candidateCount": 7,
+          "promptMemoryIds": [
+            "898859af-2c6d-4cf7-857d-8ec110d632a2",
+            "809b1c06-b9a1-40f9-a306-2d643674acaa",
+            "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+            "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+            "21a768a3-e1a1-4731-a57a-0b169face146"
+          ],
+          "completionCharacters": 31
+        },
+        "vectorOnlyProbe": {
+          "ftsOnlyCandidateIds": ["809b1c06-b9a1-40f9-a306-2d643674acaa"],
+          "hybridCandidateIds": [
+            "809b1c06-b9a1-40f9-a306-2d643674acaa",
+            "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+            "898859af-2c6d-4cf7-857d-8ec110d632a2",
+            "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+            "21a768a3-e1a1-4731-a57a-0b169face146",
+            "c2826aab-4185-4484-9ec6-785e6aef4931",
+            "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+          ],
+          "vectorOnlyId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+        }
+      },
+      "solo": {
+        "missionId": "2c2fb0fe-ef81-47df-9cc1-55940a085b76",
+        "state": "COMPLETED",
+        "retrievals": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "orderedIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "candidateIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "selectedIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "dfef4afad9cce22248661fc3c2e4c7d4f91fc88142347ea5fabeb6ed241688b3",
+            "stateHash": "dcd962c6f3e4d49059114c1916f47c3dca447c6be8cb3395d09488c823f057b1",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.55
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.2429
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              }
+            ]
+          }
+        ],
+        "modelCalls": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          }
+        ],
+        "completed": true
+      },
+      "party": {
+        "missionId": "0e4b5283-ed01-4c16-b892-92baeddd6050",
+        "state": "COMPLETED",
+        "participants": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "role": "COORDINATOR"
+          },
+          {
+            "teammateId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+            "role": "MEMBER"
+          }
+        ],
+        "coordinatorReceipts": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateHash": "abd4e22a6a9638b713032066f3ce378f84d62a9e17bb8c43696bf75cf8420cfd",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.4415
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.3156
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateHash": "4be55176a9103c30ed855f0f65c1ba1fa2d795586b2d5b96900dbcadab4c45d0",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.4415
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.3156
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          }
+        ],
+        "participantReceipts": [
+          {
+            "teammateId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+            "baselineIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "orderedIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "candidateIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "selectedIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateHash": "d62d1faa160a637d649879a178d35fc50139f24ee3aafd707a7fd566ee789fb1",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+                "score": 0.4415
+              },
+              {
+                "memoryId": "3ff0aa2c-97f5-4831-80bb-2f6f43656a11",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+                "source": "SUMMARY",
+                "characters": 61,
+                "utf8Bytes": 61,
+                "textHash": "ae65a62020079e8c22052b958a1a9b15cf5db24845a6259cd01b54f32c170733"
+              },
+              {
+                "memoryId": "3ff0aa2c-97f5-4831-80bb-2f6f43656a11",
+                "source": "SUMMARY",
+                "characters": 25,
+                "utf8Bytes": 25,
+                "textHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c"
+              }
+            ]
+          }
+        ],
+        "modelCalls": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "proposeCollaboration",
+            "finalPromptMemoryIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+            "runtimeProfileId": "03aa2755-32bb-45ff-a6c6-4d6ab2e6054d",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "memoryOwners": [
+              "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+              "5d9c40d6-3978-4e7b-8237-a80ed68ee80e"
+            ],
+            "memorySectionCharacters": 323
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          }
+        ],
+        "crossOwnerMemoryIdsAbsent": true
+      },
+      "workflow": {
+        "workflowRunId": "95164699-49c1-405e-8686-15f2492dcc25",
+        "stepRunId": "30e4a03f-8950-4004-b5d1-a69ffbe58f8f",
+        "missionId": "f60db489-2e53-4f1a-93c1-495d57ff98e5",
+        "actorId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+        "workflowRunChangedOwner": false,
+        "state": "COMPLETED",
+        "retrievals": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "459d96e9dd36246cecc9b126fb0fb2ac3a230f0a53ffd13a03620544f314afcf",
+            "stateHash": "488748c202df3a3c6c367f45e7342f0bbf02101143559ba837f3b378c65cf588",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.2561
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.139
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "076f36bd7b69bf06f4d9db18084659180fb2173d02e18d05add1fd71e1f994bc",
+            "stateHash": "dbd8e90b1d3496e7ce6e0f50d29f06ffc89750bc162392caa4b46190b4d657ad",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.2659
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1332
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "22c7301c74b00e14e4bddd4b21d5c503d8e5cbfb190f34e22c9100caa5cdc410",
+            "stateHash": "9beda1f553d3dc3f378f6e83aa0304835fc04660ed2cde0126c7805900a88b44",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.2583
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1396
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          }
+        ],
+        "modelCalls": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          }
+        ],
+        "workflowHistorySent": false
+      },
+      "observer": {
+        "decisions": [
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 966,
+            "requestBytes": 4343,
+            "questionKeys": [
+              "memory.809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "memory.10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "memory.898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "memory.5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "memory.21a768a3-e1a1-4731-a57a-0b169face146",
+              "memory.c2826aab-4185-4484-9ec6-785e6aef4931",
+              "memory.31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidates": [
+              {
+                "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 60,
+                "textBytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 43,
+                "textBytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PREFERENCE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 35,
+                "textBytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 63,
+                "textBytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 51,
+                "textBytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 62,
+                "textBytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 38,
+                "textBytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ],
+            "historyLeak": false
+          },
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "dcd962c6f3e4d49059114c1916f47c3dca447c6be8cb3395d09488c823f057b1",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "dfef4afad9cce22248661fc3c2e4c7d4f91fc88142347ea5fabeb6ed241688b3",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 1051,
+            "requestBytes": 4428,
+            "questionKeys": [
+              "memory.c2826aab-4185-4484-9ec6-785e6aef4931",
+              "memory.21a768a3-e1a1-4731-a57a-0b169face146",
+              "memory.898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "memory.809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "memory.5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "memory.31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "memory.10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "candidates": [
+              {
+                "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 62,
+                "textBytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 51,
+                "textBytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PREFERENCE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 35,
+                "textBytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 60,
+                "textBytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 63,
+                "textBytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 38,
+                "textBytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              },
+              {
+                "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 43,
+                "textBytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              }
+            ],
+            "historyLeak": false
+          },
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "abd4e22a6a9638b713032066f3ce378f84d62a9e17bb8c43696bf75cf8420cfd",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 1058,
+            "requestBytes": 4435,
+            "questionKeys": [
+              "memory.898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "memory.809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "memory.21a768a3-e1a1-4731-a57a-0b169face146",
+              "memory.c2826aab-4185-4484-9ec6-785e6aef4931",
+              "memory.5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "memory.10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "memory.31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidates": [
+              {
+                "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PREFERENCE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 35,
+                "textBytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 60,
+                "textBytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 51,
+                "textBytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 62,
+                "textBytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 63,
+                "textBytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 43,
+                "textBytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 38,
+                "textBytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ],
+            "historyLeak": false
+          },
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "d62d1faa160a637d649879a178d35fc50139f24ee3aafd707a7fd566ee789fb1",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 389,
+            "requestBytes": 1611,
+            "questionKeys": [
+              "memory.efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "memory.3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "candidates": [
+              {
+                "id": "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+                "ownerId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 61,
+                "textBytes": 61,
+                "textHash": "ae65a62020079e8c22052b958a1a9b15cf5db24845a6259cd01b54f32c170733"
+              },
+              {
+                "id": "3ff0aa2c-97f5-4831-80bb-2f6f43656a11",
+                "ownerId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 25,
+                "textBytes": 25,
+                "textHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c"
+              }
+            ],
+            "historyLeak": false
+          },
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "4be55176a9103c30ed855f0f65c1ba1fa2d795586b2d5b96900dbcadab4c45d0",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 1058,
+            "requestBytes": 4435,
+            "questionKeys": [
+              "memory.21a768a3-e1a1-4731-a57a-0b169face146",
+              "memory.898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "memory.809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "memory.c2826aab-4185-4484-9ec6-785e6aef4931",
+              "memory.5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "memory.10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "memory.31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidates": [
+              {
+                "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 51,
+                "textBytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PREFERENCE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 35,
+                "textBytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 60,
+                "textBytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 62,
+                "textBytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 63,
+                "textBytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 43,
+                "textBytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 38,
+                "textBytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ],
+            "historyLeak": false
+          },
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "488748c202df3a3c6c367f45e7342f0bbf02101143559ba837f3b378c65cf588",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "459d96e9dd36246cecc9b126fb0fb2ac3a230f0a53ffd13a03620544f314afcf",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 1291,
+            "requestBytes": 4668,
+            "questionKeys": [
+              "memory.21a768a3-e1a1-4731-a57a-0b169face146",
+              "memory.c2826aab-4185-4484-9ec6-785e6aef4931",
+              "memory.5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "memory.809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "memory.898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "memory.10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "memory.31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidates": [
+              {
+                "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 51,
+                "textBytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 62,
+                "textBytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 63,
+                "textBytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 60,
+                "textBytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PREFERENCE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 35,
+                "textBytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 43,
+                "textBytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 38,
+                "textBytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ],
+            "historyLeak": false
+          },
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "dbd8e90b1d3496e7ce6e0f50d29f06ffc89750bc162392caa4b46190b4d657ad",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "076f36bd7b69bf06f4d9db18084659180fb2173d02e18d05add1fd71e1f994bc",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 1594,
+            "requestBytes": 4971,
+            "questionKeys": [
+              "memory.21a768a3-e1a1-4731-a57a-0b169face146",
+              "memory.898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "memory.809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "memory.5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "memory.c2826aab-4185-4484-9ec6-785e6aef4931",
+              "memory.10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "memory.31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidates": [
+              {
+                "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 51,
+                "textBytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PREFERENCE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 35,
+                "textBytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 60,
+                "textBytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 63,
+                "textBytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 62,
+                "textBytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 43,
+                "textBytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 38,
+                "textBytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ],
+            "historyLeak": false
+          },
+          {
+            "decisionType": "MEMORY_RELEVANCE",
+            "stateHash": "9beda1f553d3dc3f378f6e83aa0304835fc04660ed2cde0126c7805900a88b44",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "queryHash": "22c7301c74b00e14e4bddd4b21d5c503d8e5cbfb190f34e22c9100caa5cdc410",
+            "stateFields": ["query", "candidates"],
+            "stateBytes": 1301,
+            "requestBytes": 4678,
+            "questionKeys": [
+              "memory.21a768a3-e1a1-4731-a57a-0b169face146",
+              "memory.5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "memory.809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "memory.898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "memory.c2826aab-4185-4484-9ec6-785e6aef4931",
+              "memory.10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "memory.31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidates": [
+              {
+                "id": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 51,
+                "textBytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "id": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PROCEDURE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 63,
+                "textBytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "id": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 60,
+                "textBytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "id": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "PREFERENCE",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 35,
+                "textBytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "id": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 62,
+                "textBytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "id": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "OBSERVATION",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 43,
+                "textBytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "id": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "ownerId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+                "memoryType": "FACT",
+                "fields": ["id", "memoryType", "text"],
+                "textCharacters": 38,
+                "textBytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ],
+            "historyLeak": false
+          }
+        ],
+        "retrievals": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": ["809b1c06-b9a1-40f9-a306-2d643674acaa"],
+            "orderedIds": ["809b1c06-b9a1-40f9-a306-2d643674acaa"],
+            "candidateIds": ["809b1c06-b9a1-40f9-a306-2d643674acaa"],
+            "selectedIds": ["809b1c06-b9a1-40f9-a306-2d643674acaa"],
+            "mode": "DETERMINISTIC_FALLBACK",
+            "reason": "GATEWAY_UNAVAILABLE",
+            "errorCode": "PROVIDER_UNAVAILABLE",
+            "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+            "stateHash": "39c06712e191903f0f9e9c4399facdb6cf03c6af191a243a3697782057ca6cfb",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [],
+            "candidateTextFacts": [
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "mode": "DETERMINISTIC_FALLBACK",
+            "reason": "GATEWAY_UNAVAILABLE",
+            "errorCode": "PROVIDER_UNAVAILABLE",
+            "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+            "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [],
+            "candidateTextFacts": [
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "mode": "DETERMINISTIC_FALLBACK",
+            "reason": "GATEWAY_UNAVAILABLE",
+            "errorCode": "PROVIDER_UNAVAILABLE",
+            "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+            "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [],
+            "candidateTextFacts": [
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c",
+            "stateHash": "de7f02e8ee73f9c1aa84920c0ca4e16c8019b811816594b682382824a960099d",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.66
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "orderedIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "candidateIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "selectedIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "dfef4afad9cce22248661fc3c2e4c7d4f91fc88142347ea5fabeb6ed241688b3",
+            "stateHash": "dcd962c6f3e4d49059114c1916f47c3dca447c6be8cb3395d09488c823f057b1",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.55
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.2429
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateHash": "abd4e22a6a9638b713032066f3ce378f84d62a9e17bb8c43696bf75cf8420cfd",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.4415
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.3156
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+            "baselineIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "orderedIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "candidateIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "selectedIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateHash": "d62d1faa160a637d649879a178d35fc50139f24ee3aafd707a7fd566ee789fb1",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+                "score": 0.4415
+              },
+              {
+                "memoryId": "3ff0aa2c-97f5-4831-80bb-2f6f43656a11",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+                "source": "SUMMARY",
+                "characters": 61,
+                "utf8Bytes": 61,
+                "textHash": "ae65a62020079e8c22052b958a1a9b15cf5db24845a6259cd01b54f32c170733"
+              },
+              {
+                "memoryId": "3ff0aa2c-97f5-4831-80bb-2f6f43656a11",
+                "source": "SUMMARY",
+                "characters": 25,
+                "utf8Bytes": 25,
+                "textHash": "9fd8e315d97e366d35189135878dd5b62cb2f57829d82497fac4493f161fbb1c"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "db52c8158a1b3838ba7ba595adb86b8d3d8146c6a1d68a6c5658cd557ba00adb",
+            "stateHash": "4be55176a9103c30ed855f0f65c1ba1fa2d795586b2d5b96900dbcadab4c45d0",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.4415
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.3156
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.1
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "459d96e9dd36246cecc9b126fb0fb2ac3a230f0a53ffd13a03620544f314afcf",
+            "stateHash": "488748c202df3a3c6c367f45e7342f0bbf02101143559ba837f3b378c65cf588",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.2561
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.139
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "076f36bd7b69bf06f4d9db18084659180fb2173d02e18d05add1fd71e1f994bc",
+            "stateHash": "dbd8e90b1d3496e7ce6e0f50d29f06ffc89750bc162392caa4b46190b4d657ad",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.2659
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1332
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "baselineIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "orderedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "candidateIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "31b30349-4576-4cfb-b62f-ad7f7ac3d856"
+            ],
+            "selectedIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893"
+            ],
+            "mode": "JEV",
+            "reason": "JEV_RERANKED",
+            "errorCode": null,
+            "queryHash": "22c7301c74b00e14e4bddd4b21d5c503d8e5cbfb190f34e22c9100caa5cdc410",
+            "stateHash": "9beda1f553d3dc3f378f6e83aa0304835fc04660ed2cde0126c7805900a88b44",
+            "policyVersion": "r5-3-memory-rerank-policy-v1",
+            "questionVersion": "r5-3-memory-relevance-question-v1",
+            "scores": [
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "score": 0.2583
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "score": 0.1396
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "score": 0.1
+              },
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "score": 0.1
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "score": 0.1
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "score": 0.1
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "score": 0.1
+              }
+            ],
+            "candidateTextFacts": [
+              {
+                "memoryId": "21a768a3-e1a1-4731-a57a-0b169face146",
+                "source": "SUMMARY",
+                "characters": 51,
+                "utf8Bytes": 51,
+                "textHash": "4c361c01dc73a49776bd3e59ff3f675ef5c6e88b576c53231862e88abc9d95bc"
+              },
+              {
+                "memoryId": "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+                "source": "SUMMARY",
+                "characters": 63,
+                "utf8Bytes": 63,
+                "textHash": "1020c98811370840f6c84eeb2a23ffda8d68259346734a7206f7f31dbc3a4612"
+              },
+              {
+                "memoryId": "809b1c06-b9a1-40f9-a306-2d643674acaa",
+                "source": "SUMMARY",
+                "characters": 60,
+                "utf8Bytes": 60,
+                "textHash": "d4e8edd19083f840117bdeca2e7a1a4975dc8790ddfabb7baaaf4cac3e106e1d"
+              },
+              {
+                "memoryId": "898859af-2c6d-4cf7-857d-8ec110d632a2",
+                "source": "SUMMARY",
+                "characters": 35,
+                "utf8Bytes": 35,
+                "textHash": "488cdde9fdef3eda53458d7d9da475f828a8c6d9cd13b351623bd7b56654799c"
+              },
+              {
+                "memoryId": "c2826aab-4185-4484-9ec6-785e6aef4931",
+                "source": "SUMMARY",
+                "characters": 62,
+                "utf8Bytes": 62,
+                "textHash": "1d07ca2d57f2a51a775be096468ba376b6d1933a2e00a36343bc843b27907b75"
+              },
+              {
+                "memoryId": "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+                "source": "SUMMARY",
+                "characters": 43,
+                "utf8Bytes": 43,
+                "textHash": "74a8c5faf88c4106b01ebfed5c91cdcf78f6a472e6ec6166dde3565970ef24c7"
+              },
+              {
+                "memoryId": "31b30349-4576-4cfb-b62f-ad7f7ac3d856",
+                "source": "SUMMARY",
+                "characters": 38,
+                "utf8Bytes": 38,
+                "textHash": "fd8034e27a80802d8b6272ef9952bff5fddd1dc33a98397685a41953bc4454ca"
+              }
+            ]
+          }
+        ],
+        "modelCalls": [
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "stream",
+            "finalPromptMemoryIds": [
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 715
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "stream",
+            "finalPromptMemoryIds": [
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "21a768a3-e1a1-4731-a57a-0b169face146"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 715
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "proposeCollaboration",
+            "finalPromptMemoryIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+            "runtimeProfileId": "03aa2755-32bb-45ff-a6c6-4d6ab2e6054d",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed",
+              "3ff0aa2c-97f5-4831-80bb-2f6f43656a11"
+            ],
+            "memoryOwners": [
+              "5d9c40d6-3978-4e7b-8237-a80ed68ee80e",
+              "5d9c40d6-3978-4e7b-8237-a80ed68ee80e"
+            ],
+            "memorySectionCharacters": 323
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "c2826aab-4185-4484-9ec6-785e6aef4931",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          },
+          {
+            "teammateId": "d800842c-7935-4b41-bb07-fcf4916f26bd",
+            "runtimeProfileId": "6e091a92-1426-4c57-959a-b840bad17f9c",
+            "method": "generateWithTools",
+            "finalPromptMemoryIds": [
+              "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54",
+              "809b1c06-b9a1-40f9-a306-2d643674acaa",
+              "21a768a3-e1a1-4731-a57a-0b169face146",
+              "898859af-2c6d-4cf7-857d-8ec110d632a2",
+              "c2826aab-4185-4484-9ec6-785e6aef4931"
+            ],
+            "memoryOwners": [
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd",
+              "d800842c-7935-4b41-bb07-fcf4916f26bd"
+            ],
+            "memorySectionCharacters": 734
+          }
+        ],
+        "extractorCalls": 0
+      },
+      "database": {
+        "memoryRows": 13,
+        "seededRows": 13,
+        "statuses": {
+          "10ee2ec3-b0ca-4c01-9af3-11ca02ad2893": "ACTIVE",
+          "21a768a3-e1a1-4731-a57a-0b169face146": "ACTIVE",
+          "31b30349-4576-4cfb-b62f-ad7f7ac3d856": "ACTIVE",
+          "3ff0aa2c-97f5-4831-80bb-2f6f43656a11": "ACTIVE",
+          "5503bf1f-efdf-45d8-8c22-b4b84fb3aa54": "ACTIVE",
+          "5ae75077-bcf2-43b1-8689-77c55ff09107": "REJECTED",
+          "809b1c06-b9a1-40f9-a306-2d643674acaa": "ACTIVE",
+          "898859af-2c6d-4cf7-857d-8ec110d632a2": "ACTIVE",
+          "b5b741a6-8e1c-4186-99c3-4801f29ce1a8": "PROPOSED",
+          "c2826aab-4185-4484-9ec6-785e6aef4931": "ACTIVE",
+          "e24077af-ecba-4e96-b11a-9006ee6a814b": "ACTIVE",
+          "ea225365-273b-4133-960c-c0d34d7573d5": "ARCHIVED",
+          "efbf187b-66c4-46c4-a4e3-3dc23ff0d4ed": "ACTIVE"
+        },
+        "expiredIds": ["e24077af-ecba-4e96-b11a-9006ee6a814b"],
+        "migrations": [
+          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+          26, 27, 28, 29, 30
+        ],
+        "memoryCountBeforeRetrieval": 13,
+        "memoryCountAfterRetrieval": 13,
+        "memoryRowsUnchanged": true,
+        "extractorCalls": 0
+      },
+      "migrations": [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30
+      ]
+    }
+  }
+}

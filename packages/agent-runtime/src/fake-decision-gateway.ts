@@ -5,6 +5,7 @@ import type {
 } from '@cultivation/application/r0-decision';
 import { validateMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
 import { validateMemoryRerankRequest } from '@cultivation/application/r5-3-memory-rerank';
+import { validateToolShortlistRequest } from '@cultivation/application/r5-4-tool-shortlist';
 
 const skillIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,89}$/;
 
@@ -37,6 +38,35 @@ export class FakeDecisionGateway implements DecisionGateway {
   }
 
   async evaluate(request: DecisionRequest): Promise<DecisionResult> {
+    if (request.decisionType === 'TOOL_RELEVANCE') {
+      try {
+        if (!validateToolShortlistRequest(request))
+          return {
+            answers: {},
+            confidence: {},
+            selectedAction: null,
+            errorCode: 'INVALID_REQUEST',
+          };
+        const state = request.state as {
+          context: { objective: string };
+          candidates: Array<{ id: string; name: string; description: string }>;
+        };
+        const terms = semanticTerms(state.context.objective);
+        return {
+          answers: {
+            tools: state.candidates.map((tool) => ({
+              toolId: tool.id,
+              score: memoryRelevanceScore(terms, `${tool.name} ${tool.description}`),
+            })),
+          },
+          confidence: {},
+          selectedAction: null,
+          errorCode: null,
+        };
+      } catch {
+        return { answers: {}, confidence: {}, selectedAction: null, errorCode: 'INVALID_REQUEST' };
+      }
+    }
     if ((request.decisionType as string) === 'MEMORY_EXTRACTION_NEED') {
       try {
         if (!validateMemoryPreGateRequest(request)) {

@@ -1,0 +1,7 @@
+
+> ai-agent-cultivation@0.0.1 format:check
+> node scripts/format-check.mjs
+
+Prettier found formatting issues in 2 file(s):
+  docs/evidence/r5-4-tool-shortlist/6e08aa71-cf54-4769-96cb-e102bef93379/facts.json
+  docs/evidence/r5-4-tool-shortlist/e6a99c1d-d75f-458e-9ff2-6123a4bbe31e/facts.json

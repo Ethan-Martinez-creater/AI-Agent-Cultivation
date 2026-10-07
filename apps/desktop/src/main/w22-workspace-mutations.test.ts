@@ -99,10 +99,20 @@ async function fixture(decision = 'ALLOW', state = 'RUNNING') {
     input: { path: 'src/feature.ts', content: 'after' },
   };
   const context = { missionId: 'mission', runId: 'run', teammateId: 'actor' };
-  return { root, parent, runtime, call, context, rows, journal, tag };
+  return { root, parent, runtime, call, context, rows, journal, tag, guard };
 }
 
 describe('software ToolRuntime dynamic Workspace boundary', () => {
+  it('shortlist eligibility reads frozen scope without preparing a mutation or binding a Run', async () => {
+    const f = await fixture();
+    const write = f.runtime.registry.list()[0]!;
+    const unrelated = { ...write, id: 'file.unscoped' };
+    expect(f.guard.eligibleDescriptors(f.context, [write, unrelated])).toEqual([write]);
+    expect(f.guard.eligibleDescriptors({ ...f.context, runId: 'other-run' }, [write])).toEqual([]);
+    expect(f.rows).toEqual([]);
+    expect(f.journal.prepareMutation).not.toHaveBeenCalled();
+    expect(await readFile(join(f.root, 'src/feature.ts'), 'utf8')).toBe('before');
+  });
   it('persists PREPARED before actual writing and records exact before/after hashes', async () => {
     const f = await fixture();
     expect(await f.runtime.dispatch(f.call, f.context)).toMatchObject({

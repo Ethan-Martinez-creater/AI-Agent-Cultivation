@@ -47,6 +47,16 @@ import {
   MEMORY_RERANK_POLICY,
 } from '@cultivation/application/r5-3-memory-rerank';
 import { MemoryRerankFixtureObserver } from './r5-3-fixture-observer.js';
+import { resolveToolShortlistCloudGateway } from './r5-4-cloud-gateway.js';
+import {
+  ToolShortlistService,
+  TOOL_SHORTLIST_POLICY,
+  type ToolShortlistContext,
+} from '@cultivation/application/r5-4-tool-shortlist';
+import {
+  ToolShortlistFixtureObserver,
+  registerToolShortlistWorkflowFixture,
+} from './r5-4-fixture-observer.js';
 import {
   AiSdkModelGateway,
   FakeModelGateway,
@@ -639,8 +649,18 @@ if (!squirrelStartup)
         : null;
       const memoryObservedGateway =
         memoryPreGateObserver?.modelGateway(observedGateway) ?? observedGateway;
+      const toolShortlistFixture =
+        process.argv.includes('--gate1-fake-model') && process.argv.includes('--r5-4-fixture');
+      const toolShortlistObserver = toolShortlistFixture
+        ? new ToolShortlistFixtureObserver(
+            join(app.getPath('userData'), 'r5-4-execution-facts.json'),
+            () => registry.list(),
+          )
+        : null;
+      const rerankObservedGateway =
+        memoryRerankObserver?.modelGateway(memoryObservedGateway) ?? memoryObservedGateway;
       const gateway = new AvailabilityAwareModelGateway(
-        memoryRerankObserver?.modelGateway(memoryObservedGateway) ?? memoryObservedGateway,
+        toolShortlistObserver?.modelGateway(rerankObservedGateway) ?? rerankObservedGateway,
         availability,
       ) as AvailabilityAwareModelGateway & MemoryCandidateExtractor & EmbeddingGateway;
       const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
@@ -909,7 +929,34 @@ if (!squirrelStartup)
         () => tools.getWorkspace().rootPath,
         (detail) => softwareToolScope(detail),
       );
-      const toolRuntime = new ToolRuntime(registry, permissionEngine, workflowToolGuard);
+      const toolRuntime = new ToolRuntime(registry, permissionEngine, {
+        before: async (...args) => {
+          if (toolShortlistFixture) {
+            const [call, context] = args;
+            const step = workflowStore.findStepByMissionId(context.missionId);
+            if (
+              step &&
+              workflowStore.detail(step.workflowRunId)?.version.definition.id ===
+                'r54-fixture-tools'
+            ) {
+              if (call.toolId !== 'file.readText')
+                throw new Error('Fixture Workflow Tool scope denied');
+              gate3Store.appendMissionEvent({
+                id: crypto.randomUUID(),
+                missionId: context.missionId,
+                runId: context.runId,
+                eventType: 'r54.workflow_guard.checked',
+                actorType: 'TEAMMATE',
+                actorId: context.teammateId,
+                payloadJson: { toolId: call.toolId },
+                createdAt: new Date().toISOString(),
+              });
+            }
+          }
+          return workflowToolGuard.before(...args);
+        },
+        after: (...args) => workflowToolGuard.after(...args),
+      });
       missions.attachTools(toolRuntime, gate4Store);
       const parties = new Gate5PartyService(gate5Store, store);
       const r3Observer = new R3ShadowMissionObserver(
@@ -936,6 +983,80 @@ if (!squirrelStartup)
         toolRuntime,
       );
       partyMissions.attachExternalWork(externalWork, externalWorkContinuations);
+      const toolShortlistContext = (context: ToolShortlistContext): ToolShortlistContext => {
+        const metadata = skillRoutingExecutionContext(
+          routingStore,
+          workflowStore,
+          context.missionId,
+        );
+        if (!metadata) return context;
+        return {
+          ...context,
+          objective: metadata.objective,
+          workflow: {
+            stepType: metadata.stepType,
+            requiredCapabilities: metadata.requiredCapabilities?.slice(
+              0,
+              TOOL_SHORTLIST_POLICY.maxWorkflowItems,
+            ),
+            inputArtifactSummaries: metadata.inputArtifactSummaries
+              ?.slice(0, TOOL_SHORTLIST_POLICY.maxArtifactItems)
+              .map((artifact) => ({ artifactType: artifact.kind, purpose: artifact.name })),
+            expectedOutputContract: metadata.expectedOutputContract?.length
+              ? {
+                  artifactType: metadata.expectedOutputContract
+                    .map((output) => output.kind)
+                    .join(', '),
+                  purpose: metadata.expectedOutputContract.map((output) => output.key).join(', '),
+                }
+              : null,
+          },
+        };
+      };
+      const toolShortlist = new ToolShortlistService(
+        registry,
+        async () => {
+          if (process.argv.includes('--gate1-fake-model') && !toolShortlistFixture) return null;
+          return resolveToolShortlistCloudGateway({
+            enabled: () => routingStore.config().cloudEnabled,
+            resolveKey: () => r3Config.resolveKey(),
+            create: (key) =>
+              toolShortlistFixture
+                ? toolShortlistObserver!.decisionGateway(new FakeDecisionGateway())
+                : new TypeSafeDecisionGateway({
+                    apiKey: key,
+                    timeoutMs: TOOL_SHORTLIST_POLICY.gatewayTimeoutMs,
+                  }),
+          });
+        },
+        (context, descriptors) => {
+          const run = gate3Store.getRun(context.runId);
+          if (
+            !run ||
+            run.status !== 'RUNNING' ||
+            run.missionId !== context.missionId ||
+            gate3Store.listRuns(context.missionId).at(-1)?.id !== context.runId ||
+            !languageMemoryOwner(context.teammateId)
+          )
+            return [];
+          const eligible = workflowToolGuard.eligibleDescriptors(
+            context,
+            tools.currentlyUsable(descriptors),
+          );
+          if (toolShortlistFixture) {
+            const step = workflowStore.findStepByMissionId(context.missionId);
+            if (
+              step &&
+              workflowStore.detail(step.workflowRunId)?.version.definition.id ===
+                'r54-fixture-tools'
+            )
+              return eligible.filter((tool) => tool.id === 'file.readText');
+          }
+          return eligible;
+        },
+      );
+      missions.attachToolShortlist(toolShortlist, toolShortlistContext);
+      partyMissions.attachToolShortlist(toolShortlist, toolShortlistContext);
       missions.attachHumanBridgeExecution(externalWork, externalWorkContinuations, {
         getByMissionId: (id) => {
           const assignment = routingStore.getByMissionId(id);
@@ -1304,6 +1425,7 @@ if (!squirrelStartup)
         workflowPolicies,
       );
       installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
+      if (toolShortlistFixture) registerToolShortlistWorkflowFixture(workflows);
       if (process.argv.includes('--g3-fixture') && process.argv.includes('--gate1-fake-model'))
         registerG3WorkflowFixture(workflows, true);
       if (

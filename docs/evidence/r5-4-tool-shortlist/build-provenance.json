@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "buildCommand": "npm run package",
+  "buildDirectory": ".tmp/g3-verify",
+  "reason": "Existing physical project-local dependency tree isolates Node test and Electron native ABI; entire approved baseline plus current build sources copied, no machine preload",
+  "runtimeInputsCompared": 275,
+  "runtimeSourceManifestHash": "c5f422ae1a241c1aa085abfd780f61d7ae0cf85c6a47e929c333af63f8150447",
+  "manifestAlgorithm": "SHA256 of sorted relative-path + NUL + SHA256(file bytes) + LF records; application/runtime/assets/migrations/config, excludes unit tests",
+  "rootAndBuildSourcesIdentical": true,
+  "appAsarBytes": 39952993,
+  "appAsarSha256": "9f5a7d8911d6305298dbce87dd1b8142d35e42651662bde524d6ebfef66f0243",
+  "NODE_OPTIONS": null,
+  "temporaryPaths": "Project-local .tmp/r54-package-temp and .tmp/r54-smoke-temp",
+  "sourceOnlyTests": "Unit tests and external smoke scripts do not enter application bundle"
+}

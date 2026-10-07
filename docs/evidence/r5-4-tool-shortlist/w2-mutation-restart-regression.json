@@ -1,0 +1,387 @@
+{
+  "status": "PASS",
+  "source": ".test-data\\w24-clean-packaged-00549462-c6a1-43c2-a81c-9f2a75c6d49e\\evidence",
+  "software": {
+    "mutationRestart": {
+      "receipt": {
+        "id": "603dab61-40cc-440f-a772-4185743d019e",
+        "state": "APPLIED"
+      },
+      "missionId": "661afccb-83ed-4c51-8b49-97e5c7b9099f",
+      "before": [
+        {
+          "event_type": "mission.approval_resumed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.completed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.created",
+          "n": 1
+        },
+        {
+          "event_type": "mission.ready",
+          "n": 1
+        },
+        {
+          "event_type": "mission.run_started",
+          "n": 1
+        },
+        {
+          "event_type": "mission.waiting_approval",
+          "n": 1
+        },
+        {
+          "event_type": "model.call_completed",
+          "n": 2
+        },
+        {
+          "event_type": "model.call_started",
+          "n": 2
+        },
+        {
+          "event_type": "routing.assigned",
+          "n": 1
+        },
+        {
+          "event_type": "run.completed",
+          "n": 1
+        },
+        {
+          "event_type": "run.started",
+          "n": 1
+        },
+        {
+          "event_type": "skill.selection",
+          "n": 2
+        },
+        {
+          "event_type": "tool.approval_decided",
+          "n": 1
+        },
+        {
+          "event_type": "tool.approval_requested",
+          "n": 1
+        },
+        {
+          "event_type": "tool.offer_checked",
+          "n": 1
+        },
+        {
+          "event_type": "tool.proposed",
+          "n": 1
+        },
+        {
+          "event_type": "tool.result",
+          "n": 1
+        },
+        {
+          "event_type": "tool.selection",
+          "n": 2
+        },
+        {
+          "event_type": "usage.recorded",
+          "n": 2
+        }
+      ],
+      "after": [
+        {
+          "event_type": "mission.approval_resumed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.completed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.created",
+          "n": 1
+        },
+        {
+          "event_type": "mission.ready",
+          "n": 1
+        },
+        {
+          "event_type": "mission.run_started",
+          "n": 1
+        },
+        {
+          "event_type": "mission.waiting_approval",
+          "n": 1
+        },
+        {
+          "event_type": "model.call_completed",
+          "n": 2
+        },
+        {
+          "event_type": "model.call_started",
+          "n": 2
+        },
+        {
+          "event_type": "routing.assigned",
+          "n": 1
+        },
+        {
+          "event_type": "run.completed",
+          "n": 1
+        },
+        {
+          "event_type": "run.started",
+          "n": 1
+        },
+        {
+          "event_type": "skill.selection",
+          "n": 2
+        },
+        {
+          "event_type": "tool.approval_decided",
+          "n": 1
+        },
+        {
+          "event_type": "tool.approval_requested",
+          "n": 1
+        },
+        {
+          "event_type": "tool.offer_checked",
+          "n": 1
+        },
+        {
+          "event_type": "tool.proposed",
+          "n": 1
+        },
+        {
+          "event_type": "tool.result",
+          "n": 1
+        },
+        {
+          "event_type": "tool.selection",
+          "n": 2
+        },
+        {
+          "event_type": "usage.recorded",
+          "n": 2
+        }
+      ],
+      "zeroReplay": true
+    },
+    "preparedMutationRestart": {
+      "receipt": {
+        "id": "e11a1997-29a5-4eab-8429-ed82ce8728d6",
+        "state": "PREPARED"
+      },
+      "journal": [
+        {
+          "id": "f72d5824-99bb-4107-8781-832f080890d6",
+          "operationReceiptId": "e11a1997-29a5-4eab-8429-ed82ce8728d6",
+          "state": "APPLIED",
+          "beforeHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "expectedAfterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+          "observedAfterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664"
+        }
+      ],
+      "before": [
+        {
+          "event_type": "mission.approval_resumed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.completed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.created",
+          "n": 1
+        },
+        {
+          "event_type": "mission.ready",
+          "n": 1
+        },
+        {
+          "event_type": "mission.run_started",
+          "n": 1
+        },
+        {
+          "event_type": "mission.waiting_approval",
+          "n": 1
+        },
+        {
+          "event_type": "model.call_completed",
+          "n": 2
+        },
+        {
+          "event_type": "model.call_started",
+          "n": 2
+        },
+        {
+          "event_type": "routing.assigned",
+          "n": 1
+        },
+        {
+          "event_type": "run.completed",
+          "n": 1
+        },
+        {
+          "event_type": "run.started",
+          "n": 1
+        },
+        {
+          "event_type": "skill.selection",
+          "n": 2
+        },
+        {
+          "event_type": "tool.approval_decided",
+          "n": 1
+        },
+        {
+          "event_type": "tool.approval_requested",
+          "n": 1
+        },
+        {
+          "event_type": "tool.offer_checked",
+          "n": 1
+        },
+        {
+          "event_type": "tool.proposed",
+          "n": 1
+        },
+        {
+          "event_type": "tool.result",
+          "n": 1
+        },
+        {
+          "event_type": "tool.selection",
+          "n": 2
+        },
+        {
+          "event_type": "usage.recorded",
+          "n": 2
+        }
+      ],
+      "after": [
+        {
+          "event_type": "mission.approval_resumed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.completed",
+          "n": 1
+        },
+        {
+          "event_type": "mission.created",
+          "n": 1
+        },
+        {
+          "event_type": "mission.ready",
+          "n": 1
+        },
+        {
+          "event_type": "mission.run_started",
+          "n": 1
+        },
+        {
+          "event_type": "mission.waiting_approval",
+          "n": 1
+        },
+        {
+          "event_type": "model.call_completed",
+          "n": 2
+        },
+        {
+          "event_type": "model.call_started",
+          "n": 2
+        },
+        {
+          "event_type": "routing.assigned",
+          "n": 1
+        },
+        {
+          "event_type": "run.completed",
+          "n": 1
+        },
+        {
+          "event_type": "run.started",
+          "n": 1
+        },
+        {
+          "event_type": "skill.selection",
+          "n": 2
+        },
+        {
+          "event_type": "tool.approval_decided",
+          "n": 1
+        },
+        {
+          "event_type": "tool.approval_requested",
+          "n": 1
+        },
+        {
+          "event_type": "tool.offer_checked",
+          "n": 1
+        },
+        {
+          "event_type": "tool.proposed",
+          "n": 1
+        },
+        {
+          "event_type": "tool.result",
+          "n": 1
+        },
+        {
+          "event_type": "tool.selection",
+          "n": 2
+        },
+        {
+          "event_type": "usage.recorded",
+          "n": 2
+        }
+      ],
+      "noReplay": true
+    },
+    "restartIdempotent": {
+      "before": {
+        "calls": 141,
+        "mutations": 9,
+        "checkpoints": 122
+      },
+      "after": {
+        "calls": 141,
+        "mutations": 9,
+        "checkpoints": 122
+      }
+    },
+    "mixedVerification": {
+      "workflowRunId": "b3fb2260-0557-4c9c-8827-6952369d4046",
+      "commandFactCount": 1,
+      "waitingRestartZeroReplay": true,
+      "acceptedRestartZeroReplay": true,
+      "continuation": "CONSUMED"
+    },
+    "noPublish": 0
+  },
+  "finalProductionRestart": {
+    "before": {
+      "mission_events": 4077,
+      "workflow_artifacts": 400,
+      "workflow_checkpoints": 287,
+      "workflow_decisions": 278,
+      "workflow_revision_traversals": 26,
+      "workflow_step_operation_receipts": 272,
+      "workflow_step_operation_audit": 810,
+      "workflow_run_output_validations": 12
+    },
+    "after": {
+      "mission_events": 4077,
+      "workflow_artifacts": 400,
+      "workflow_checkpoints": 287,
+      "workflow_decisions": 278,
+      "workflow_revision_traversals": 26,
+      "workflow_step_operation_receipts": 272,
+      "workflow_step_operation_audit": 810,
+      "workflow_run_output_validations": 12
+    },
+    "noReplay": true
+  },
+  "foundation": "W2_PACKAGED_SMOKE_OK: APPLIED FILE/WORKSPACE recovery and EXTERNAL UNKNOWN zero replay; complete official news/software/research chain passed"
+}

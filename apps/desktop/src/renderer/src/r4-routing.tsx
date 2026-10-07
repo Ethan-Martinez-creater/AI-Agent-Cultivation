@@ -339,10 +339,12 @@ export function RoutingConfigPanel({
           启用后，Jev 云端只接收有界的任务摘要、候选道友身份、Benchmark
           能力档位、已启用功法元数据和可核验经历摘要。记忆重排还会发送当前道友的候选记忆摘要，
           摘要为空时使用脱敏后的有限摘录；关闭 Cloud 时不发送这些内容。
+          还可能发送当前任务中已确定可候选的工具名称、有限描述、来源、风险/副作用和能力元数据。
         </p>
         <p>
-          不发送 API Key 或其他凭据、完整私有记忆、完整文件、完整聊天记录、工具输出或 Tool
-          secret。Jev 不会获得审批权限，也不会覆盖用户明确指定的道友或队伍。
+          不发送 API Key 或其他凭据、完整私有记忆、完整文件、完整聊天记录、工具输出或 Tool secret 或
+          MCP env。工具推荐不授予 Permission。Jev
+          不会获得审批权限，也不会覆盖用户明确指定的道友或队伍。
         </p>
         <p className="form-hint">策略版本：{config.policyVersion}</p>
       </details>

@@ -87,6 +87,66 @@ export class WorkflowToolGuard implements ToolExecutionGuard {
     private readonly resolveSoftwareScope: ScopeResolver = () => null,
   ) {}
 
+  /** Descriptor-only projection of existing guard restrictions; no args, Permission or writes. */
+  eligibleDescriptors(
+    context: ToolContext,
+    descriptors: readonly ToolDescriptor[],
+  ): ToolDescriptor[] {
+    const step = this.workflows.findStepByMissionId(context.missionId);
+    if (!step) return [...descriptors];
+    const detail = this.workflows.detail(step.workflowRunId);
+    if (
+      !detail ||
+      step.missionId !== context.missionId ||
+      (step.missionRunId !== null && step.missionRunId !== context.runId) ||
+      !['RUNNING', 'WAITING'].includes(step.state)
+    )
+      return [];
+    if (detail.version.definition.source !== 'BUILTIN') return [...descriptors];
+    const definition = detail.version.steps.find((item) => item.id === step.stepId);
+    if (!definition) return [];
+    if (detail.version.validationPolicy === 'research-integrity-v1') {
+      const operation =
+        step.stepId === 'R08' ? this.journal.getOperation(detail.run.id, step.id) : null;
+      return descriptors.filter((descriptor) => {
+        if (
+          descriptor.source === 'MCP' &&
+          (!['R02', 'R08'].includes(step.stepId) ||
+            !descriptor.workflowPurposes?.includes('RESEARCH'))
+        )
+          return false;
+        if (step.stepId !== 'R08')
+          return descriptor.source !== 'BUILTIN' || descriptor.sideEffect === 'NONE';
+        return Boolean(
+          operation &&
+            operation.effectType === 'FILE_OUTPUT' &&
+            operation.state === 'PREPARED' &&
+            this.researchInputCheck &&
+            this.researchInputUncertain,
+        );
+      });
+    }
+    if (detail.version.validationPolicy !== SOFTWARE_POLICY) return [...descriptors];
+    const scope = this.resolveSoftwareScope(detail, step);
+    if (!scope) return [];
+    return descriptors.filter((descriptor) => {
+      if (!scope.allowedToolIds.includes(descriptor.id)) return false;
+      if (descriptor.source === 'MCP') return step.stepId === 'S06';
+      if (!['NONE', 'LOCAL_WRITE'].includes(descriptor.sideEffect)) return false;
+      if (descriptor.sideEffect === 'LOCAL_WRITE' && descriptor.id !== 'file.writeText')
+        return false;
+      if (descriptor.id !== 'file.writeText') return true;
+      const operation = this.journal.getOperation(detail.run.id, step.id);
+      return (
+        definition.effectType === 'WORKSPACE_MUTATION' &&
+        definition.effectPathMode === 'DYNAMIC' &&
+        operation?.state === 'PREPARED' &&
+        operation.effectType === 'WORKSPACE_MUTATION' &&
+        operation.attempt === step.attempt
+      );
+    });
+  }
+
   async before(
     call: ToolCall,
     context: ToolContext,

@@ -1,0 +1,19 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert.ok(decision.responseBytes <= 16_000)
+
+    at assertObserverPrivacy (file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/r5-4-packaged-smoke.mjs:397:12)
+    at file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/r5-4-packaged-smoke.mjs:680:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

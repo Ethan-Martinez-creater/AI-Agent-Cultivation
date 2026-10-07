@@ -42,6 +42,11 @@ import type {
   SkillRoutingSelection,
 } from './r5-1-skill-routing.js';
 import { ToolRuntime, type ToolResult } from './tool-runtime.js';
+import {
+  ToolShortlistService,
+  type ToolShortlistContext,
+  type ToolShortlistResult,
+} from './r5-4-tool-shortlist.js';
 import type { R2ExternalWorkContinuationStore } from './r2-human-bridge-service.js';
 
 export interface Gate5CollaborationStore {
@@ -640,6 +645,16 @@ export class Gate5CollaborationService {
   private readonly composer = new PromptComposer();
   private externalWork: Gate5ExternalWorkService | null = null;
   private externalWorkContinuations: R2ExternalWorkContinuationStore | null = null;
+  private toolShortlist: ToolShortlistService | null = null;
+  private toolShortlistContext: ((context: ToolShortlistContext) => ToolShortlistContext) | null =
+    null;
+  attachToolShortlist(
+    service: ToolShortlistService,
+    context?: (context: ToolShortlistContext) => ToolShortlistContext,
+  ): void {
+    this.toolShortlist = service;
+    this.toolShortlistContext = context ?? null;
+  }
 
   constructor(
     private readonly missionStore: Gate3MissionStore,
@@ -651,7 +666,10 @@ export class Gate5CollaborationService {
     private readonly context?: ChatPromptContext,
     private readonly tools?: ToolRuntime,
     private readonly clock: MissionClock = defaultClock,
-  ) {}
+  ) {
+    if (this.tools)
+      this.toolShortlist = new ToolShortlistService(this.tools.registry, async () => null);
+  }
 
   attachExternalWork(
     service: Gate5ExternalWorkService,
@@ -2161,6 +2179,20 @@ export class Gate5CollaborationService {
             this.recordSkillUses(mission, run, teammate.id, skillIds);
             modelStarted = true;
           });
+        const baseToolContext: ToolShortlistContext = {
+          missionId: mission.id,
+          runId: run.id,
+          teammateId: teammate.id,
+          phase: task.phase,
+          objective: mission.objective,
+        };
+        const toolContext = this.toolShortlistContext?.(baseToolContext) ?? baseToolContext;
+        const offered = this.tools ? await this.toolShortlist!.select(toolContext) : null;
+        if (!this.active(mission, run)) return { kind: 'WAITING' };
+        if (offered)
+          this.record(mission, run.id, 'tool.selection', 'TEAMMATE', teammate.id, {
+            ...offered.receipt,
+          });
         let response;
         try {
           if (!this.gateway.handlesCallStart) callStarted();
@@ -2176,7 +2208,7 @@ export class Gate5CollaborationService {
             this.tools && this.gateway.generateWithTools
               ? await this.gateway.generateWithTools({
                   ...modelRequest,
-                  tools: this.tools.registry.list(),
+                  tools: offered!.tools,
                 })
               : {
                   ...(await this.gateway.generate(modelRequest)),
@@ -2245,6 +2277,35 @@ export class Gate5CollaborationService {
             text: JSON.stringify({ ok: false, code: 'INVALID_TOOL_CALL_ID' }),
           };
         }
+        const offeredCheck = offered
+          ? this.toolShortlist!.checkOfferedTool(call.toolId, offered, toolContext)
+          : { ok: false, code: 'TOOL_NOT_OFFERED' };
+        this.record(mission, run.id, 'tool.offer_checked', 'TEAMMATE', teammate.id, {
+          toolId: call.toolId.slice(0, 128),
+          offered: offeredCheck.ok,
+          code: offeredCheck.code,
+        });
+        if (!offeredCheck.ok) {
+          const result: ToolResult = {
+            toolCallId: call.id,
+            toolId: call.toolId,
+            ok: false,
+            code: offeredCheck.code!,
+            content: 'Tool was not offered or changed; the call was not executed.',
+          };
+          this.recordTool(
+            mission,
+            run,
+            teammate.id,
+            result,
+            'UNKNOWN',
+            null,
+            null,
+            task.externalWorkContext?.requestId ?? null,
+          );
+          appendToolResult(messages, call, result);
+          continue;
+        }
         const dispatch = await this.tools!.dispatch(
           { id: call.id, toolId: call.toolId, input: call.input },
           {
@@ -2272,6 +2333,7 @@ export class Gate5CollaborationService {
             steps,
             toolCalls,
             dispatch.trace,
+            offered!,
           );
           return { kind: 'WAITING' };
         }
@@ -2314,6 +2376,7 @@ export class Gate5CollaborationService {
       riskLevel: ApprovalRequest['riskLevel'] | null;
       inputSummary: { keys: string[]; bytes: number };
     },
+    offered: ToolShortlistResult,
   ): void {
     if (
       !trace.capability ||
@@ -2347,6 +2410,7 @@ export class Gate5CollaborationService {
       task,
       call,
       messages: messages.filter((value) => value.role === 'assistant' || value.role === 'tool'),
+      offeredFingerprint: offered.fingerprints[call.toolId],
     });
     if (Buffer.byteLength(contextJson) > 3 * 1024 * 1024)
       throw new DomainError('INVALID_INPUT', 'Tool continuation 过大');
@@ -2401,7 +2465,12 @@ export class Gate5CollaborationService {
     ) {
       throw new DomainError('MISSION_INVALID_STATE', 'Tool Approval 所属 Run 无效');
     }
-    let saved: { task: ParticipantTask; call: ModelToolCall; messages: ModelMessage[] };
+    let saved: {
+      task: ParticipantTask;
+      call: ModelToolCall;
+      messages: ModelMessage[];
+      offeredFingerprint?: string;
+    };
     try {
       if (
         pending.stepCount > MAX_TOOL_STEPS ||
@@ -2458,7 +2527,15 @@ export class Gate5CollaborationService {
         },
         call: parsed.call as unknown as ModelToolCall,
         messages,
+        ...(parsed.offeredFingerprint !== undefined
+          ? { offeredFingerprint: String(parsed.offeredFingerprint) }
+          : {}),
       };
+      if (
+        saved.offeredFingerprint !== undefined &&
+        !/^[a-f0-9]{64}$/.test(saved.offeredFingerprint)
+      )
+        throw new Error();
     } catch {
       throw new DomainError('PERSISTENCE_INVALID', 'Tool continuation 数据无效');
     }
@@ -2477,7 +2554,24 @@ export class Gate5CollaborationService {
       currentResource = null;
     }
     const resource = approval.actionPayload.resource;
+    const baseToolContext: ToolShortlistContext = {
+      missionId: mission.id,
+      runId: run.id,
+      teammateId: pending.teammateId,
+      phase: saved.task.phase,
+      objective: mission.objective,
+    };
+    const pendingOfferValid =
+      !saved.offeredFingerprint ||
+      Boolean(
+        this.toolShortlist?.checkPendingTool(
+          saved.call.toolId,
+          saved.offeredFingerprint,
+          this.toolShortlistContext?.(baseToolContext) ?? baseToolContext,
+        ).ok,
+      );
     const sameTool =
+      pendingOfferValid &&
       registration !== null &&
       registration.descriptor.source === approval.actionPayload.source &&
       registration.descriptor.capability === approval.capability &&

@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "baseline": "98dd00c9676858335deea1555359d3beca940a31",
+  "tests": {
+    "files": 138,
+    "passed": 1225
+  },
+  "migration": null,
+  "newDependencies": [],
+  "command": "npm run smoke:package",
+  "evidence": "docs\\evidence\\r5-4-tool-shortlist\\42ac6ed1-0e55-4e78-a761-c7d4f0b0f53b\\facts.json",
+  "cases": {
+    "A": "SOLO 16 eligible -> 8 offered -> read completed",
+    "B": "Actual exact Mission Permission DENY, zero successful Tool execution",
+    "C": "ASK restart same Run/call, one read execution; write denied/approved",
+    "D": "Party A/B own runtime/shortlist/Permission; B asks despite A exact grant",
+    "E": "Workflow frozen eligibility -> file.readText -> Permission -> original Guard -> completed",
+    "F": "Cloud off: zero Jev calls, all 16 tools in exact registry order, completed",
+    "G": "Registered non-offered MCP -> TOOL_NOT_OFFERED; unit spies zero dispatch/Permission/Guard/execution"
+  },
+  "liveJev": "NOT RUN",
+  "privacyScreenshots": [
+    {
+      "name": "routing-tool-shortlist-privacy-1440.png",
+      "layoutFile": "routing-tool-shortlist-privacy-1440-layout.json",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "name": "routing-tool-shortlist-privacy-1180.png",
+      "layoutFile": "routing-tool-shortlist-privacy-1180-layout.json",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "name": "routing-tool-shortlist-privacy-900.png",
+      "layoutFile": "routing-tool-shortlist-privacy-900-layout.json",
+      "width": 900,
+      "height": 900
+    }
+  ],
+  "production": {
+    "normalLaunch": true,
+    "fixtureObserverFile": false,
+    "officialWorkflowHashes": {
+      "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    },
+    "migrations": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      27, 28, 29, 30
+    ]
+  }
+}

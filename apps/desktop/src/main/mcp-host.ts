@@ -112,6 +112,16 @@ export class McpHost {
     this.requestTimeoutMs = clampTimeout(options.requestTimeoutMs ?? 30_000);
   }
 
+  /** Local session fact only: never connects, discovers or probes a server. */
+  isToolReady(serverId: string, toolId: string): boolean {
+    const session = this.sessions.get(serverId);
+    return Boolean(
+      session &&
+        !session.closed &&
+        [...session.tools.values()].some(({ descriptor }) => descriptor.id === toolId),
+    );
+  }
+
   async discover(config: McpServerConfig): Promise<McpToolDescriptor[]> {
     validateConfig(config);
     if (!config.enabled) throw new McpHostError('MCP_SERVER_DISABLED');

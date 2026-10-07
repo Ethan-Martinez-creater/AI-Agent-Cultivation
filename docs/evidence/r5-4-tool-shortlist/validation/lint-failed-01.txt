@@ -1,0 +1,28 @@
+
+> ai-agent-cultivation@0.0.1 lint
+> eslint .
+
+
+E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\packages\application\src\r5-4-tool-execution.test.ts
+   16:29  error  'ModelRequest' is defined but never used  @typescript-eslint/no-unused-vars
+  309:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  312:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  314:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  323:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  326:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  330:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  336:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  386:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  398:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\scripts\fixtures\r5-4-mcp-server.mjs
+   67:14  error  'Buffer' is not defined  no-undef
+   71:12  error  'Buffer' is not defined  no-undef
+  136:37  error  'Buffer' is not defined  no-undef
+
+E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\scripts\r5-4-packaged-smoke.mjs
+  439:23  error  'document' is not defined  no-undef
+  646:3   error  Unnecessary catch clause   no-useless-catch
+
+✖ 15 problems (15 errors, 0 warnings)
+

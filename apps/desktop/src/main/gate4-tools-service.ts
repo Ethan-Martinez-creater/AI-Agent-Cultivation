@@ -72,6 +72,18 @@ export class Gate4ToolsService {
     return this.registry.list().filter((descriptor) => descriptor.source === 'BUILTIN');
   }
 
+  /** Read-only readiness filter for model offerings; execution still enters ToolRuntime. */
+  currentlyUsable(descriptors: readonly ToolDescriptor[]): ToolDescriptor[] {
+    return descriptors.filter(
+      (descriptor) =>
+        descriptor.source === 'BUILTIN' ||
+        [...this.registeredByServer.entries()].some(
+          ([serverId, ids]) =>
+            ids.includes(descriptor.id) && this.mcp.isToolReady(serverId, descriptor.id),
+        ),
+    );
+  }
+
   private restoreBuiltinPurposes(): void {
     for (const descriptor of this.registry.list().filter((tool) => tool.source === 'BUILTIN'))
       descriptor.workflowPurposes = this.store.getToolPurposes(descriptor.id);
