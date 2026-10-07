@@ -38,6 +38,11 @@ import type {
 } from './index.js';
 import type { ChatPromptContext, Gate1Store } from './gate1-service.js';
 import { PromptComposer } from './prompt-composer.js';
+import type {
+  CompletionAdvisoryContext,
+  CompletionAdvisoryPort,
+} from './r5-5-completion-advisory.js';
+import { assessCompletionCandidate, completionToolSummary } from './r5-5-completion-context.js';
 import type { SkillRoutingPort, SkillRoutingContext } from './r5-1-skill-routing.js';
 import type { PermissionEngine } from './permission-engine.js';
 import {
@@ -424,6 +429,70 @@ function skillIdsInPromptSection(section: string): string[] {
  * final visible answer is stored on its own MissionRun.
  */
 export class Gate3MissionService {
+  private completionAdvisory: CompletionAdvisoryPort | null = null;
+  private completionContext:
+    | ((context: CompletionAdvisoryContext) => CompletionAdvisoryContext)
+    | null = null;
+  attachCompletionAdvisory(
+    port: CompletionAdvisoryPort,
+    context?: (context: CompletionAdvisoryContext) => CompletionAdvisoryContext,
+  ): void {
+    this.completionAdvisory = port;
+    this.completionContext = context ?? null;
+  }
+
+  private async recordCompletionAdvisory(
+    mission: Mission,
+    run: MissionRunRecord,
+    text: string,
+  ): Promise<void> {
+    if (!this.completionAdvisory || !this.isRunActive(mission, run)) return;
+    const actor = this.gate1.getTeammate(mission.coordinatorTeammateId);
+    const runtime = actor?.currentRuntimeProfileId
+      ? this.gate1.getRuntimeProfile(actor.currentRuntimeProfileId)
+      : null;
+    if (
+      !actor ||
+      actor.executorKind !== 'MODEL_RUNTIME' ||
+      !runtime ||
+      runtime.executionProtocol === 'GENERATION'
+    )
+      return;
+    const context: CompletionAdvisoryContext = {
+      missionId: mission.id,
+      runId: run.id,
+      teammateId: actor.id,
+      phase: 'SOLO',
+      missionMode: mission.mode,
+      objective: mission.objective,
+      resultText: text,
+      resultType: 'TEXT',
+    };
+    // The advisory is never an input to completion, boundary, permission, or retry decisions.
+    const receipt = await assessCompletionCandidate(
+      this.completionAdvisory,
+      context,
+      (base) => {
+        const enriched = {
+          ...base,
+          toolUsage: completionToolSummary(
+            this.store.listMissionEvents(mission.id),
+            run.id,
+            actor.id,
+          ),
+        };
+        return this.completionContext?.(enriched) ?? enriched;
+      },
+      () => this.isRunActive(mission, run),
+    );
+    if (!this.isRunActive(mission, run)) return;
+    this.store.transaction(() => {
+      this.appendEvent(mission, run.id, 'completion.advisory', 'TEAMMATE', actor.id, {
+        ...receipt,
+      });
+      this.appendAudit(mission, 'completion.advisory', 'TEAMMATE', actor.id, { ...receipt });
+    });
+  }
   private skillRouting: SkillRoutingPort | null = null;
   private skillRoutingContext: ((missionId: string) => SkillRoutingContext | null) | null = null;
   attachSkillRouting(
@@ -1715,6 +1784,13 @@ export class Gate3MissionService {
 
     const output = response.text.slice(0, MAX_RESULT_LENGTH);
     const usage = this.usageRecord(mission, run, teammate.id, runtime, response.usage);
+    // Record the real model call before the optional bounded Cloud await/crash window.
+    this.store.transaction(() => {
+      this.store.saveUsage(usage);
+      this.appendUsageEvents(mission, run, teammate.id, runtime, usage);
+    });
+    await this.recordCompletionAdvisory(mission, run, response.text);
+    if (!this.isRunActive(mission, run)) return;
     const completedAt = this.clock.now();
     const completedRun: MissionRunRecord = {
       ...run,
@@ -1726,8 +1802,6 @@ export class Gate3MissionService {
     };
     const completedMission = this.transition(mission, 'COMPLETED', completedAt);
     this.store.transaction(() => {
-      this.store.saveUsage(usage);
-      this.appendUsageEvents(mission, run, teammate.id, runtime, usage);
       if (this.pauseForCompletionBoundary(mission, run)) return;
       this.finishRun(completedRun);
       if (!this.store.transitionMission(completedMission, mission.state)) {
@@ -1851,6 +1925,8 @@ export class Gate3MissionService {
         });
 
         if (response.toolCalls.length === 0) {
+          await this.recordCompletionAdvisory(mission, run, response.text);
+          if (!this.isRunActive(mission, run)) return;
           this.completeToolRun(mission, run, response.text);
           return;
         }

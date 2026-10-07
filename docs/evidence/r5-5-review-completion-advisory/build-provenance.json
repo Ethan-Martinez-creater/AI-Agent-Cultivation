@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "baseline": "main@c0f0ec5e8201f0c65eaec1462c002526fe4bddee",
+  "packageCommand": "npm run package",
+  "packageLog": {
+    "path": "docs/evidence/r5-5-review-completion-advisory/validation/package.txt",
+    "bytes": 1604,
+    "sha256": "bbe252c6f07eced409151abf2185a192ef0544fa841bb0dcf4978a997c35842c",
+    "command": "npm run package",
+    "status": "PASS",
+    "exitCode": 0
+  },
+  "rootHeadAtArchive": "c0f0ec5e8201f0c65eaec1462c002526fe4bddee",
+  "workingTreeDirtyAtArchive": true,
+  "executable": {
+    "path": "out/AI Agent Cultivation-win32-x64/AI-Agent-Cultivation.exe",
+    "bytes": 246236672,
+    "sha256": "0ef5bb1c6dafc36e6b69c552255996283dd38970c81d73e460cd1082d3966bbd"
+  },
+  "appAsar": {
+    "path": "out/AI Agent Cultivation-win32-x64/resources/app.asar",
+    "bytes": 39983032,
+    "sha256": "bc567e93beb83bbf9b349063499a4a4c62b1999ad641eb919dd59cfdd2779cb7"
+  },
+  "sourceInputCount": 280,
+  "sourceManifestSha256": "2a9d94919086aa48bd13f8cd1341e5fab21672be903d7e11f7d1a8558bb7c04f",
+  "sourceManifestAlgorithm": "SHA256 of sorted relative-path + NUL + SHA256(file) + LF records",
+  "sourceBundleEquivalence": "NOT_ASSERTED; app.asar and archive-time source manifest are recorded separately",
+  "isolatedRuntimeSourcesByteMatchRoot": true,
+  "isolatedBuildConfigsSemanticallyMatchRoot": true,
+  "buildConfigFormattingDifferences": [
+    {
+      "path": "tsconfig.base.json",
+      "rootHash": "be367eaa14da97e7fff5c652615f97e467416b62e0d0374d29032d071869de17",
+      "isolatedHash": "d35733b89d534e145ad68cf6708aabf343f4d96735e7b525699b098708386e93",
+      "difference": "CRLF/LF only; identical JSON and normalized UTF-8 text"
+    }
+  ],
+  "isolatedBuildRoot": ".tmp/g3-verify",
+  "dependencySectionsUnchangedFromBaseline": true,
+  "migrationPathsUnchangedFromBaseline": true,
+  "NODE_OPTIONS": null
+}

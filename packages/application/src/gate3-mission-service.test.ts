@@ -27,6 +27,7 @@ import {
 import { PermissionEngine, type PermissionRuleStore } from './permission-engine.js';
 import { ToolRegistry, ToolRuntime } from './tool-runtime.js';
 import { SkillRoutingService } from './r5-1-skill-routing.js';
+import { CompletionAdvisoryService } from './r5-5-completion-advisory.js';
 
 const timestamp = '2026-09-26T00:00:00.000Z';
 
@@ -231,6 +232,11 @@ class InMemoryPendingTools implements PendingMissionToolStore {
 }
 
 class RecordingFakeModelGateway extends FakeModelGateway {
+  readonly requests: ModelRequest[] = [];
+  override generate(request: ModelRequest) {
+    this.requests.push(request);
+    return super.generate(request);
+  }
   readonly toolRequests: ModelRequest[] = [];
 
   override generateWithTools(
@@ -399,6 +405,131 @@ function activeMemory(id: string, ownerId: string, content: string): MemoryRecor
 }
 
 describe('Gate 3 Mission Runtime', () => {
+  it('R5.5 metadata projection failure falls back without affecting the completed model result', async () => {
+    const { service, teammate, gateway } = fixture();
+    let decisions = 0;
+    service.attachCompletionAdvisory(
+      new CompletionAdvisoryService(async () => {
+        decisions += 1;
+        return null;
+      }),
+      () => {
+        throw new Error('PRIVATE_METADATA_ERROR');
+      },
+    );
+    const mission = service.create({
+      title: 'Metadata unavailable',
+      objective: 'Public summary',
+      coordinatorTeammateId: teammate.id,
+    });
+    service.ready(mission.id);
+    const detail = await service.start({ missionId: mission.id, approvalFixture: false });
+    expect(detail.mission.state).toBe('COMPLETED');
+    expect(decisions).toBe(0);
+    expect(gateway.requests).toHaveLength(1);
+    const event = detail.events.find((item) => item.eventType === 'completion.advisory')!;
+    expect(event.payloadJson.mode).toBe('DETERMINISTIC_FALLBACK');
+    expect(JSON.stringify(event)).not.toContain('PRIVATE_METADATA_ERROR');
+  });
+  it.each([
+    { needs_review: 'NO', objective_satisfied: 'YES', should_continue: 'NO' },
+    { needs_review: 'YES', objective_satisfied: 'NO', should_continue: 'YES' },
+    { needs_review: 'NO', objective_satisfied: 'YES', should_continue: 'YES' },
+  ] as const)(
+    'R5.5 advisory %j cannot change SOLO completion or create extra execution',
+    async (answers) => {
+      const { service, gateway, store, teammate } = fixture();
+      service.attachCompletionAdvisory(
+        new CompletionAdvisoryService(async () => ({
+          evaluate: async () => ({
+            answers,
+            confidence: { needs_review: 1, objective_satisfied: 1, should_continue: 1 },
+            selectedAction: null,
+            model: 'jev-1.13.0',
+          }),
+        })),
+      );
+      const mission = service.create({
+        title: 'Advisory',
+        objective: 'Complete this summary',
+        coordinatorTeammateId: teammate.id,
+      });
+      service.ready(mission.id);
+      const detail = await service.start({ missionId: mission.id, approvalFixture: false });
+      expect(detail.mission.state).toBe('COMPLETED');
+      expect(detail.runs[0]?.status).toBe('COMPLETED');
+      expect(gateway.requests).toHaveLength(1);
+      expect(detail.usage).toHaveLength(1);
+      expect(store.listMissions()).toHaveLength(1);
+      expect(detail.approvals).toHaveLength(0);
+      const events = detail.events.filter((event) => event.eventType === 'completion.advisory');
+      expect(events).toHaveLength(1);
+      expect(events[0]?.payloadJson.choices).toEqual(answers);
+      expect(events[0]?.actorId).toBe(teammate.id);
+      expect(JSON.stringify(events)).not.toContain('Complete this summary');
+      service.recoverInterrupted();
+      expect(gateway.requests).toHaveLength(1);
+    },
+  );
+
+  it('R5.5 late advisory cannot overwrite a user pause', async () => {
+    const { service, gateway, teammate } = fixture();
+    let release!: () => void;
+    let started!: () => void;
+    const reached = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const wait = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    service.attachCompletionAdvisory(
+      new CompletionAdvisoryService(async () => ({
+        evaluate: async () => {
+          started();
+          await wait;
+          return {
+            answers: { needs_review: 'NO', objective_satisfied: 'YES', should_continue: 'NO' },
+            confidence: { needs_review: 1, objective_satisfied: 1, should_continue: 1 },
+            selectedAction: null,
+            model: 'jev-1.13.0',
+          };
+        },
+      })),
+    );
+    const mission = service.create({
+      title: 'Pause',
+      objective: 'Public summary',
+      coordinatorTeammateId: teammate.id,
+    });
+    service.ready(mission.id);
+    const pending = service.start({ missionId: mission.id, approvalFixture: false });
+    await reached;
+    service.pause(mission.id);
+    release();
+    await pending;
+    expect(service.detail(mission.id).mission.state).toBe('PAUSED');
+    expect(gateway.requests).toHaveLength(1);
+  });
+
+  it('R5.5 unavailable decision gateway preserves baseline with bounded fallback receipt', async () => {
+    const { service, teammate } = fixture();
+    service.attachCompletionAdvisory(new CompletionAdvisoryService(async () => null));
+    const mission = service.create({
+      title: 'Offline',
+      objective: 'Public summary',
+      coordinatorTeammateId: teammate.id,
+    });
+    service.ready(mission.id);
+    const detail = await service.start({ missionId: mission.id, approvalFixture: false });
+    expect(detail.mission.state).toBe('COMPLETED');
+    const event = detail.events.find((item) => item.eventType === 'completion.advisory')!;
+    expect(event.payloadJson.mode).toBe('DETERMINISTIC_FALLBACK');
+    expect(event.payloadJson.choices).toEqual({
+      needs_review: 'UNCERTAIN',
+      objective_satisfied: 'UNCERTAIN',
+      should_continue: 'UNCERTAIN',
+    });
+  });
   it('executes SOLO with relevance-selected owned Skills and bounded audit facts', async () => {
     const { store, permissionStore, gate1 } = fixture();
     const skills: Skill[] = Array.from({ length: 6 }, (_, index) => ({

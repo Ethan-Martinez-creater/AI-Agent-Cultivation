@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Completion receipt byte counts are required
+    at safeBytes (file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/r5-5-packaged-smoke.mjs:271:12)
+    at normalizeAdvisoryFact (file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/r5-5-packaged-smoke.mjs:290:12)
+    at safeDecision (file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/r5-5-packaged-smoke.mjs:307:17)
+    at file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/r5-5-packaged-smoke.mjs:795:15 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

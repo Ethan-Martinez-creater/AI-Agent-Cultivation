@@ -1,0 +1,147 @@
+{
+  "status": "PASS",
+  "source": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "cases": [
+    {
+      "missionId": "22e194cf-7636-4198-80d0-3b27f8facbdf",
+      "runId": "df864be7-e4d3-4c7f-84c9-704875791087",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "missionState": "COMPLETED",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "approvalCount": 0,
+      "collaborationCount": 0,
+      "advisory": {
+        "type": "COMPLETION_ADVISORY",
+        "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+        "phase": "SOLO",
+        "missionId": "22e194cf-7636-4198-80d0-3b27f8facbdf",
+        "runId": "df864be7-e4d3-4c7f-84c9-704875791087",
+        "resultType": "TEXT",
+        "values": {
+          "needsReview": "NO",
+          "objectiveSatisfied": "YES",
+          "shouldContinue": "NO"
+        },
+        "disposition": "NO_ADVISORY",
+        "hashes": {
+          "objective": "decdbb13a56005bb54a9c14aa1ffa723da5b7eeb926c557eda873ead2c35e1e2",
+          "result": "fcb4b1e58f9fa3699d3b69f39f52935eb774c80d62f19206c4bd9ab10e9481e1",
+          "state": "cab6072078b26962adfe8a44b258d293869d8f961b66997f4a7aa160e59eb44d"
+        },
+        "bytes": {
+          "state": 651,
+          "request": 2879,
+          "response": 220
+        },
+        "forbiddenDataSeen": false
+      }
+    },
+    {
+      "missionId": "93d122b4-4530-46e0-8921-6ce038059326",
+      "runId": "0445bfac-56f9-4a64-b6af-f152f17f6973",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "missionState": "COMPLETED",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "approvalCount": 0,
+      "collaborationCount": 0,
+      "advisory": {
+        "type": "COMPLETION_ADVISORY",
+        "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+        "phase": "SOLO",
+        "missionId": "93d122b4-4530-46e0-8921-6ce038059326",
+        "runId": "0445bfac-56f9-4a64-b6af-f152f17f6973",
+        "resultType": "TEXT",
+        "values": {
+          "needsReview": "YES",
+          "objectiveSatisfied": "NO",
+          "shouldContinue": "YES"
+        },
+        "disposition": "MULTIPLE_CONCERNS",
+        "hashes": {
+          "objective": "a6ce17d5f6227b95782e9f37b70ff5b80c0e86bdb7f027645fad65443cc3f155",
+          "result": "0c4fab87a3d86b4bbebac0b7df9a550a1c804d4a7916721a34517f4cab046834",
+          "state": "bf12857ff3c280be1972a1b0bb2fd0783565757f334a532884bb23f23a7a9b67"
+        },
+        "bytes": {
+          "state": 646,
+          "request": 2874,
+          "response": 221
+        },
+        "forbiddenDataSeen": false
+      }
+    },
+    {
+      "missionId": "837db28d-69b3-431b-ac6f-3d2c522bca61",
+      "runId": "b6b2ff03-5fbd-4915-a328-c0dcb6d9ef6d",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "missionState": "COMPLETED",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "advisory": {
+        "type": "COMPLETION_ADVISORY",
+        "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+        "phase": "SOLO",
+        "missionId": "837db28d-69b3-431b-ac6f-3d2c522bca61",
+        "runId": "b6b2ff03-5fbd-4915-a328-c0dcb6d9ef6d",
+        "mode": "DETERMINISTIC_FALLBACK",
+        "values": {
+          "needsReview": "UNCERTAIN",
+          "objectiveSatisfied": "UNCERTAIN",
+          "shouldContinue": "UNCERTAIN"
+        },
+        "disposition": "NO_ADVISORY",
+        "hashes": {
+          "objective": "decdbb13a56005bb54a9c14aa1ffa723da5b7eeb926c557eda873ead2c35e1e2",
+          "result": "fcb4b1e58f9fa3699d3b69f39f52935eb774c80d62f19206c4bd9ab10e9481e1",
+          "state": "06b3f7573d9b317749f1c195df97c4993160a59e73df00ec320c08dcb415cf14"
+        },
+        "bytes": {
+          "state": 651,
+          "request": 2879,
+          "response": 0
+        },
+        "forbiddenDataSeen": false
+      }
+    },
+    {
+      "missionId": "fadadd91-367b-4daa-935d-3ddfbf9a0266",
+      "runId": "2593fab1-6913-462f-b8fd-2077af5112b8",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "missionState": "COMPLETED",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "advisory": {
+        "type": "COMPLETION_ADVISORY",
+        "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+        "phase": "SOLO",
+        "missionId": "fadadd91-367b-4daa-935d-3ddfbf9a0266",
+        "runId": "2593fab1-6913-462f-b8fd-2077af5112b8",
+        "resultType": "TEXT",
+        "values": {
+          "needsReview": "NO",
+          "objectiveSatisfied": "YES",
+          "shouldContinue": "YES"
+        },
+        "disposition": "MULTIPLE_CONCERNS",
+        "hashes": {
+          "objective": "4df6f7941a6cdd37b033167f7d56f18102a18e3de855fe0e4871eae259692e98",
+          "result": "42ca3733a45033cb7a91ae6dcd502feac49e1007ff06805215d69aa46f63ed20",
+          "state": "35d55254d686da61032c9c51ae6d4323bdc6720ca78d973c18b7f1ae3dc3d352"
+        },
+        "bytes": {
+          "state": 657,
+          "request": 2885,
+          "response": 221
+        },
+        "forbiddenDataSeen": false
+      }
+    }
+  ],
+  "asyncGuards": {
+    "test": "packages/application/src/r5-5-completion-advisory.test.ts",
+    "lateFactoryAfterTimeoutEvaluateCalls": 0,
+    "runInactiveDuringFactoryEvaluateCalls": 0
+  }
+}

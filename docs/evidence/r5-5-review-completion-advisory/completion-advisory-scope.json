@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "join": "mission_events.actor_id -> teammates.executor_kind -> runtime_profiles.execution_protocol via LEFT JOIN",
+  "r55Fixture": [
+    {
+      "executorKind": "MODEL_RUNTIME",
+      "runtimeProtocol": "LANGUAGE",
+      "phase": "COORDINATOR",
+      "mode": "JEV",
+      "count": 1
+    },
+    {
+      "executorKind": "MODEL_RUNTIME",
+      "runtimeProtocol": "LANGUAGE",
+      "phase": "PARTICIPANT",
+      "mode": "JEV",
+      "count": 1
+    },
+    {
+      "executorKind": "MODEL_RUNTIME",
+      "runtimeProtocol": "LANGUAGE",
+      "phase": "SOLO",
+      "mode": "DETERMINISTIC_FALLBACK",
+      "count": 1
+    },
+    {
+      "executorKind": "MODEL_RUNTIME",
+      "runtimeProtocol": "LANGUAGE",
+      "phase": "SOLO",
+      "mode": "JEV",
+      "count": 6
+    },
+    {
+      "executorKind": "MODEL_RUNTIME",
+      "runtimeProtocol": "LANGUAGE",
+      "phase": "SYNTHESIS",
+      "mode": "JEV",
+      "count": 1
+    }
+  ],
+  "priorG3": {
+    "source": "docs/evidence/g3-multimodal-collaboration/12011036-bd5b-4afd-874e-80de84c20049/facts.json",
+    "generationAdvisoryCount": 0,
+    "userBridgeAdvisoryCount": 0,
+    "languageRows": [
+      {
+        "executorKind": "MODEL_RUNTIME",
+        "runtimeProtocol": "LANGUAGE",
+        "phase": "PARTICIPANT",
+        "mode": "DETERMINISTIC_FALLBACK",
+        "count": 2
+      },
+      {
+        "executorKind": "MODEL_RUNTIME",
+        "runtimeProtocol": "LANGUAGE",
+        "phase": "SYNTHESIS",
+        "mode": "DETERMINISTIC_FALLBACK",
+        "count": 15
+      }
+    ],
+    "languageFallbackCount": 17
+  },
+  "priorHumanBridge": {
+    "source": "docs/evidence/g3-multimodal-collaboration/human-c6e9ccf3-32f5-41dc-adc9-6613b26b6bf0/facts.json",
+    "actualLanguageActors": [
+      {
+        "actorId": "db008762-d647-4b3c-b6ff-bd527e4bd1d1",
+        "executorKind": "MODEL_RUNTIME",
+        "runtimeProtocol": "LANGUAGE",
+        "phase": "PARTICIPANT",
+        "receiptActorId": "db008762-d647-4b3c-b6ff-bd527e4bd1d1",
+        "count": 2
+      },
+      {
+        "actorId": "ddc132e0-fdd6-4925-b538-23c74856398a",
+        "executorKind": "MODEL_RUNTIME",
+        "runtimeProtocol": "LANGUAGE",
+        "phase": "SYNTHESIS",
+        "receiptActorId": "ddc132e0-fdd6-4925-b538-23c74856398a",
+        "count": 1
+      }
+    ],
+    "coordinatorSynthesisCount": 1,
+    "executorKind": "MODEL_RUNTIME",
+    "runtimeProtocol": "LANGUAGE",
+    "phase": "SYNTHESIS",
+    "bridgeTargetAdvisoryCount": 0
+  }
+}

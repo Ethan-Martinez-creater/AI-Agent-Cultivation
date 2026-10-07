@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "source": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "eventCountsUnchanged": true,
+  "g3OutcomeHashUnchanged": true,
+  "decisionCountBefore": 9,
+  "decisionCountAfter": 9,
+  "advisoryCallCountBefore": 10,
+  "advisoryCallCountAfter": 10,
+  "repeatedAdvisory": false,
+  "repeatedModelCall": false,
+  "repeatedToolCall": false
+}

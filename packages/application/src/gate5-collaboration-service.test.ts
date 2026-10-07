@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SkillRoutingService } from './r5-1-skill-routing.js';
+import { CompletionAdvisoryService } from './r5-5-completion-advisory.js';
 import type {
   ApprovalRequest,
   AuditEvent,
@@ -397,10 +398,13 @@ function setup(memberCount = 2) {
       tools,
       { now: () => at, newId: () => `id-${++sequence}` },
     );
-  const create = (mode: 'CONSULTATION' | 'REVIEW' | 'DELEGATION' = 'CONSULTATION') => {
+  const create = (
+    mode: 'CONSULTATION' | 'REVIEW' | 'DELEGATION' = 'CONSULTATION',
+    objective = '__GATE5_SCOPE_INSPECT__',
+  ) => {
     const mission = service.create({
       title: 'Fixture',
-      objective: '__GATE5_SCOPE_INSPECT__',
+      objective,
       mode,
       partyId: party.id,
     });
@@ -609,6 +613,83 @@ function synthesisInput(gateway: RecordingGateway): {
 }
 
 describe('Gate5CollaborationService', () => {
+  it.each(['CONSULTATION', 'REVIEW', 'DELEGATION'] as const)(
+    'R5.5 %s respects actor/run attribution without changing approvals or execution count',
+    async (mode) => {
+      const fixture = setup();
+      const requests: import('./r0-decision.js').DecisionRequest[] = [];
+      fixture.service.attachCompletionAdvisory(
+        new CompletionAdvisoryService(async () => ({
+          evaluate: async (request) => {
+            requests.push(request);
+            return {
+              answers: { needs_review: 'YES', objective_satisfied: 'NO', should_continue: 'YES' },
+              confidence: { needs_review: 1, objective_satisfied: 1, should_continue: 1 },
+              selectedAction: null,
+              model: 'jev-1.13.0',
+            };
+          },
+        })),
+      );
+      fixture.service.attachMultimodalExecution({
+        execute: (mission, run, task, resume) =>
+          fixture.service.executeLanguageParticipant(mission, run, task, resume),
+        consume: () => undefined,
+        detail: () => null,
+        candidateMetadata: async () => [],
+      });
+      const id = fixture.create(mode, 'Produce a public summary');
+      const waiting = await fixture.service.start(id);
+      expect(waiting.mission.state).toBe('WAITING_COLLABORATION');
+      const done = await fixture.service.resolveCollaboration({
+        requestId: waiting.collaborations[0]!.id,
+        decision: 'APPROVED',
+      });
+      expect(done.mission.state).toBe('COMPLETED');
+      expect(done.collaborations).toHaveLength(1);
+      // Existing proposal is itself one separately attributed model call.
+      expect(done.usage).toHaveLength(fixture.gateway.requests.length + 1);
+      expect(fixture.gateway.requests).toHaveLength(mode === 'REVIEW' ? 3 : 2);
+      const events = done.events.filter((event) => event.eventType === 'completion.advisory');
+      expect(events).toHaveLength(fixture.gateway.requests.length);
+      expect(events.filter((event) => event.actorId === 'b')).toHaveLength(1);
+      expect(events.every((event) => event.runId === done.runs[0]!.id)).toBe(true);
+      expect(
+        requests.every(
+          (request) =>
+            !/GATE5_[AB]_MEMORY|GATE5_[AB]_SKILL|PRIVATE_INSTRUCTIONS/.test(
+              JSON.stringify(request),
+            ),
+        ),
+      ).toBe(true);
+      const participant = requests.find(
+        (request) => (request.state.context as Record<string, unknown>).actorId === 'b',
+      )!;
+      expect((participant.state.result as Record<string, unknown>).type).toBe('G3_OUTCOME');
+      expect(JSON.stringify(participant)).not.toContain('artifactRefs');
+    },
+  );
+
+  it('R5.5 denied target receives no advisory, model call, or artifact', async () => {
+    const fixture = setup();
+    fixture.service.attachCompletionAdvisory(new CompletionAdvisoryService(async () => null));
+    const id = fixture.create('REVIEW');
+    const waiting = await fixture.service.start(id);
+    const done = await fixture.service.resolveCollaboration({
+      requestId: waiting.collaborations[0]!.id,
+      decision: 'DENIED',
+    });
+    expect(done.mission.state).toBe('COMPLETED');
+    expect(fixture.gateway.requests.filter((request) => request.teammateId === 'b')).toHaveLength(
+      0,
+    );
+    expect(done.artifacts.filter((artifact) => artifact.teammateId === 'b')).toHaveLength(0);
+    expect(
+      done.events.filter(
+        (event) => event.eventType === 'completion.advisory' && event.actorId === 'b',
+      ),
+    ).toHaveLength(0);
+  });
   it('routes Coordinator and Participant Skills independently without changing their runtimes or structured LANGUAGE contract', async () => {
     const fixture = setup();
     const skills: Skill[] = ['a', 'b'].flatMap((owner) =>

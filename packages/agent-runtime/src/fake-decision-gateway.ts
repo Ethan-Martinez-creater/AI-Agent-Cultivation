@@ -6,6 +6,7 @@ import type {
 import { validateMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
 import { validateMemoryRerankRequest } from '@cultivation/application/r5-3-memory-rerank';
 import { validateToolShortlistRequest } from '@cultivation/application/r5-4-tool-shortlist';
+import { validateCompletionAdvisoryRequest } from '@cultivation/application/r5-5-completion-advisory';
 
 const skillIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,89}$/;
 
@@ -38,6 +39,19 @@ export class FakeDecisionGateway implements DecisionGateway {
   }
 
   async evaluate(request: DecisionRequest): Promise<DecisionResult> {
+    if (request.decisionType === 'COMPLETION_ADVISORY') {
+      if (!validateCompletionAdvisoryRequest(request))
+        return { answers: {}, confidence: {}, selectedAction: null, errorCode: 'INVALID_REQUEST' };
+      return (
+        this.#fixtures.get(FakeDecisionGateway.key(request)) ?? {
+          answers: { needs_review: 'NO', objective_satisfied: 'YES', should_continue: 'NO' },
+          confidence: { needs_review: 1, objective_satisfied: 1, should_continue: 1 },
+          selectedAction: null,
+          model: 'jev-1.13.0',
+          errorCode: null,
+        }
+      );
+    }
     if (request.decisionType === 'TOOL_RELEVANCE') {
       try {
         if (!validateToolShortlistRequest(request))

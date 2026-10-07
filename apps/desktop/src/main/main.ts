@@ -49,6 +49,15 @@ import {
 import { MemoryRerankFixtureObserver } from './r5-3-fixture-observer.js';
 import { resolveToolShortlistCloudGateway } from './r5-4-cloud-gateway.js';
 import {
+  CompletionAdvisoryService,
+  COMPLETION_ADVISORY_POLICY,
+} from '@cultivation/application/r5-5-completion-advisory';
+import { completionExecutionContext } from './r5-5-context.js';
+import {
+  CompletionAdvisoryFixtureObserver,
+  registerCompletionAdvisoryWorkflowFixtures,
+} from './r5-5-fixture-observer.js';
+import {
   ToolShortlistService,
   TOOL_SHORTLIST_POLICY,
   type ToolShortlistContext,
@@ -659,8 +668,17 @@ if (!squirrelStartup)
         : null;
       const rerankObservedGateway =
         memoryRerankObserver?.modelGateway(memoryObservedGateway) ?? memoryObservedGateway;
+      const completionAdvisoryFixture =
+        process.argv.includes('--gate1-fake-model') && process.argv.includes('--r5-5-fixture');
+      const completionAdvisoryObserver = completionAdvisoryFixture
+        ? new CompletionAdvisoryFixtureObserver(
+            join(app.getPath('userData'), 'r5-5-execution-facts.json'),
+          )
+        : null;
+      const toolsObservedGateway =
+        toolShortlistObserver?.modelGateway(rerankObservedGateway) ?? rerankObservedGateway;
       const gateway = new AvailabilityAwareModelGateway(
-        toolShortlistObserver?.modelGateway(rerankObservedGateway) ?? rerankObservedGateway,
+        completionAdvisoryObserver?.modelGateway(toolsObservedGateway) ?? toolsObservedGateway,
         availability,
       ) as AvailabilityAwareModelGateway & MemoryCandidateExtractor & EmbeddingGateway;
       const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
@@ -1057,6 +1075,28 @@ if (!squirrelStartup)
       );
       missions.attachToolShortlist(toolShortlist, toolShortlistContext);
       partyMissions.attachToolShortlist(toolShortlist, toolShortlistContext);
+      const completionAdvisory = new CompletionAdvisoryService(async () => {
+        if (process.argv.includes('--gate1-fake-model') && !completionAdvisoryFixture) return null;
+        return resolveToolShortlistCloudGateway({
+          enabled: () => routingStore.config().cloudEnabled,
+          resolveKey: () => r3Config.resolveKey(),
+          create: (key) =>
+            completionAdvisoryFixture
+              ? completionAdvisoryObserver!.decisionGateway(new FakeDecisionGateway())
+              : new TypeSafeDecisionGateway({
+                  apiKey: key,
+                  timeoutMs: COMPLETION_ADVISORY_POLICY.gatewayTimeoutMs,
+                }),
+        });
+      });
+      const completionPort =
+        completionAdvisoryObserver?.advisoryPort(completionAdvisory) ?? completionAdvisory;
+      missions.attachCompletionAdvisory(completionPort, (context) =>
+        completionExecutionContext(workflowStore, context),
+      );
+      partyMissions.attachCompletionAdvisory(completionPort, (context) =>
+        completionExecutionContext(workflowStore, context),
+      );
       missions.attachHumanBridgeExecution(externalWork, externalWorkContinuations, {
         getByMissionId: (id) => {
           const assignment = routingStore.getByMissionId(id);
@@ -1426,6 +1466,7 @@ if (!squirrelStartup)
       );
       installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
       if (toolShortlistFixture) registerToolShortlistWorkflowFixture(workflows);
+      if (completionAdvisoryFixture) registerCompletionAdvisoryWorkflowFixtures(workflows);
       if (process.argv.includes('--g3-fixture') && process.argv.includes('--gate1-fake-model'))
         registerG3WorkflowFixture(workflows, true);
       if (

@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "baseline": "main@c0f0ec5e8201f0c65eaec1462c002526fe4bddee",
+  "comparedWith": "docs/evidence/r5-4-tool-shortlist/frozen-hashes.json",
+  "executionEvidence": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "releases": [
+    {
+      "definitionId": "official.ai-news-video",
+      "version": 1,
+      "manifestHash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd",
+      "contentHash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153"
+    },
+    {
+      "definitionId": "official.research",
+      "version": 1,
+      "manifestHash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+      "contentHash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7"
+    },
+    {
+      "definitionId": "official.software-feature",
+      "version": 1,
+      "manifestHash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d",
+      "contentHash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    }
+  ],
+  "migrations": [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+    27, 28, 29, 30
+  ]
+}

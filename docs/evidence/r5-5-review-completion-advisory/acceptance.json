@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "baseline": "main@c0f0ec5e8201f0c65eaec1462c002526fe4bddee",
+  "finalCommands": {
+    "test": {
+      "path": "docs/evidence/r5-5-review-completion-advisory/validation/test.txt",
+      "bytes": 505,
+      "sha256": "8dc2b55caeb9f95bb95004ba44421a37a50152418418359e9858244370316c52",
+      "command": "npm run test",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "path": "docs/evidence/r5-5-review-completion-advisory/validation/typecheck.txt",
+      "bytes": 77,
+      "sha256": "8b5c52e0d1623ff20d11c198452c6846991380963c7ae8f24107baea8e606573",
+      "command": "npm run typecheck",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "lint": {
+      "path": "docs/evidence/r5-5-review-completion-advisory/validation/lint.txt",
+      "bytes": 51,
+      "sha256": "d514846aa5ac61daca30e902b07c9e9c318fcd21d863b5093323cc6f3dbcd076",
+      "command": "npm run lint",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "format-check": {
+      "path": "docs/evidence/r5-5-review-completion-advisory/validation/format-check.txt",
+      "bytes": 174,
+      "sha256": "89ae57dc2abfe562bd8aa4023ead6adf76f921b65c01964cd998e5a21ea4a8fd",
+      "command": "npm run format:check",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "package": {
+      "path": "docs/evidence/r5-5-review-completion-advisory/validation/package.txt",
+      "bytes": 1604,
+      "sha256": "bbe252c6f07eced409151abf2185a192ef0544fa841bb0dcf4978a997c35842c",
+      "command": "npm run package",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "smoke-package": {
+      "path": "docs/evidence/r5-5-review-completion-advisory/validation/smoke-package.txt",
+      "bytes": 9320,
+      "sha256": "b86fe378c9f9211cee5cf5a4eb94cc090f12233505b7eb00c1692eba8aecf42b",
+      "command": "npm run smoke:package",
+      "status": "PASS",
+      "exitCode": 0
+    }
+  },
+  "validation": {
+    "test": {
+      "command": "npm run test",
+      "files": 142,
+      "tests": 1290
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "diagnostics": 0
+    },
+    "lint": {
+      "command": "npm run lint",
+      "diagnostics": 0
+    },
+    "format-check": {
+      "command": "npm run format:check",
+      "filesChecked": 646
+    },
+    "package": {
+      "command": "npm run package",
+      "packaged": true
+    },
+    "smoke-package": {
+      "command": "npm run smoke:package",
+      "packagedEvidence": true
+    }
+  },
+  "packagedEvidence": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "liveJev": "NOT RUN",
+  "advisory": {
+    "type": "COMPLETION_ADVISORY",
+    "dimensions": ["needs_review", "objective_satisfied", "should_continue"],
+    "choices": ["YES", "NO", "UNCERTAIN"],
+    "stateAuthority": false
+  },
+  "covered": [
+    "SOLO satisfied/concern/inconsistent/Cloud-off",
+    "Party actor isolation",
+    "Workflow validation and REVIEW precedence",
+    "G3 structured RESULT",
+    "restart zero replay"
+  ]
+}

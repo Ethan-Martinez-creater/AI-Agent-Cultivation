@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "r5_1": {
+    "source": "docs/evidence/r5-1-skill-routing/6b2dfed8-f9f5-4323-b5eb-f9bb251d49fc/facts.json",
+    "sha256": "edf208138927c6c6f38309df3db80983ab6947543e36ca1e9d93d982c5c811e5",
+    "modelCalls": 9,
+    "durableSelections": 9
+  },
+  "r5_2": {
+    "source": "docs/evidence/r5-2-memory-pre-gate/9add6d91-82c9-4a7b-a65e-7037e92869d0/facts.json",
+    "sha256": "39b510e6488e56de77929cdd5654dc61ec066ad9087212fa89d33f611c48684b",
+    "extractions": 2,
+    "skippedMemoryRows": 0,
+    "usageRows": 2,
+    "accepted": "ACTIVE",
+    "fallback": "PROPOSED"
+  },
+  "r5_3": {
+    "source": "docs/evidence/r5-3-memory-rerank/c36e87a5-9522-4339-9cf9-9292b6c3ddb8/facts.json",
+    "sha256": "153254f2fc2e757edbfac275c6a3c17b6a0a0bf0e8ca8f9bb088cd037f8b200d",
+    "marker": "R5_3_PACKAGED_SMOKE_OK"
+  },
+  "r5_4": {
+    "source": "docs/evidence/r5-4-tool-shortlist/3e1d461f-c115-4b2c-aa50-3221af55abad/facts.json",
+    "sha256": "971b0233d7c9433650072570e2e9e527345b17c45159534d0d166a8c0b8a201e",
+    "readExecutions": 1,
+    "deny": "PERMISSION_DENIED",
+    "notOffered": "TOOL_NOT_OFFERED",
+    "partyActorIsolation": true,
+    "workflowState": "COMPLETED",
+    "cloudOff": true
+  }
+}

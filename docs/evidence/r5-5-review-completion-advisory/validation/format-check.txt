@@ -1,0 +1,5 @@
+
+> ai-agent-cultivation@0.0.1 format:check
+> node scripts/format-check.mjs
+
+Prettier checked 646 tracked or non-ignored files; skipped 907 ignored or unsupported files.

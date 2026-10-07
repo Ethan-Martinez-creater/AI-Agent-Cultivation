@@ -7,12 +7,17 @@ export type DecisionType =
   | 'SKILL_RELEVANCE'
   | 'MEMORY_EXTRACTION_NEED'
   | 'MEMORY_RELEVANCE'
-  | 'TOOL_RELEVANCE';
+  | 'TOOL_RELEVANCE'
+  | 'COMPLETION_ADVISORY';
 
 /** R3 remains a separate, shadow-only consumer of the original four decisions. */
 export type ShadowDecisionType = Exclude<
   DecisionType,
-  'SKILL_RELEVANCE' | 'MEMORY_EXTRACTION_NEED' | 'MEMORY_RELEVANCE' | 'TOOL_RELEVANCE'
+  | 'SKILL_RELEVANCE'
+  | 'MEMORY_EXTRACTION_NEED'
+  | 'MEMORY_RELEVANCE'
+  | 'TOOL_RELEVANCE'
+  | 'COMPLETION_ADVISORY'
 >;
 
 export interface DecisionQuestion {

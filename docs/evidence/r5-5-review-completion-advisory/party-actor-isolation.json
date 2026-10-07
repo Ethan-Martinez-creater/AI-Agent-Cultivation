@@ -1,0 +1,79 @@
+{
+  "status": "PASS",
+  "source": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "partyState": "COMPLETED",
+  "collaborationState": "APPROVED",
+  "actorIsolation": true,
+  "privateMemoryAndSkillAbsentFromObserver": true,
+  "advisories": [
+    {
+      "type": "COMPLETION_ADVISORY",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "phase": "COORDINATOR",
+      "missionId": "3524d36c-b78c-4c30-aed8-6935c5d74dd0",
+      "values": {
+        "needsReview": "NO",
+        "objectiveSatisfied": "YES",
+        "shouldContinue": "NO"
+      },
+      "disposition": "NO_ADVISORY",
+      "hashes": {
+        "objective": "a75119ca1d3c68f557ee39df149887cd0ba4937994f933561a93969680c9cc5c",
+        "result": "b633355686a3ee83bb914198c344381fce25f195690808a66f0f243564ea670f",
+        "state": "dcdbd8289c9cd3dd840977d3d84f9890fa75092d5743ab56f81838c376dc751c"
+      },
+      "bytes": {
+        "state": 654,
+        "request": 2882,
+        "response": 220
+      },
+      "forbiddenDataSeen": false
+    },
+    {
+      "type": "COMPLETION_ADVISORY",
+      "actorId": "7e26b24f-d3af-4782-9360-52acf45f649a",
+      "phase": "PARTICIPANT",
+      "missionId": "3524d36c-b78c-4c30-aed8-6935c5d74dd0",
+      "values": {
+        "needsReview": "NO",
+        "objectiveSatisfied": "YES",
+        "shouldContinue": "NO"
+      },
+      "disposition": "NO_ADVISORY",
+      "hashes": {
+        "objective": "a75119ca1d3c68f557ee39df149887cd0ba4937994f933561a93969680c9cc5c",
+        "result": "a05370e458c5d9896a02931f12051bab90e91f410ab8f51cdedcbf85ee00fe53",
+        "state": "af088c65ab443c688ae770c22dc41e6fa2822220dc39be6da047a8a2bc580e85"
+      },
+      "bytes": {
+        "state": 812,
+        "request": 3040,
+        "response": 220
+      },
+      "forbiddenDataSeen": false
+    },
+    {
+      "type": "COMPLETION_ADVISORY",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "phase": "SYNTHESIS",
+      "missionId": "3524d36c-b78c-4c30-aed8-6935c5d74dd0",
+      "values": {
+        "needsReview": "NO",
+        "objectiveSatisfied": "YES",
+        "shouldContinue": "NO"
+      },
+      "disposition": "NO_ADVISORY",
+      "hashes": {
+        "objective": "a75119ca1d3c68f557ee39df149887cd0ba4937994f933561a93969680c9cc5c",
+        "result": "6cf6f44738da56937a63d324cb86b57fee0032de8918093d872c2cdb8346b81a",
+        "state": "c86767eabb193bbe1bee6074cd9ef38996926b5daf03802a92feb8cb078abb2d"
+      },
+      "bytes": {
+        "state": 1617,
+        "request": 3845,
+        "response": 220
+      },
+      "forbiddenDataSeen": false
+    }
+  ]
+}

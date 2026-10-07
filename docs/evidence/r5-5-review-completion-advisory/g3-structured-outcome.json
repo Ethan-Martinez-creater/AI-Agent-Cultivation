@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "source": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "protocol": "LANGUAGE",
+  "kind": "RESULT",
+  "hash": "e46dbed5e8f3367fd4c3c0cbd9581a00f97abda5d778ae30a02c7377278b9b52",
+  "consumed": true,
+  "continuationCount": 0,
+  "unaffected": true
+}

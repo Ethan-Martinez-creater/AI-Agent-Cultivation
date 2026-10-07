@@ -37,6 +37,15 @@ import { Gate5PartyService } from './gate5-party-service.js';
 import { PermissionEngine } from './permission-engine.js';
 import { PromptComposer } from './prompt-composer.js';
 import type {
+  CompletionAdvisoryContext,
+  CompletionAdvisoryPort,
+} from './r5-5-completion-advisory.js';
+import {
+  assessCompletionCandidate,
+  completionPublicResult,
+  completionToolSummary,
+} from './r5-5-completion-context.js';
+import type {
   SkillRoutingPort,
   SkillRoutingContext,
   SkillRoutingSelection,
@@ -599,6 +608,67 @@ function appendToolResult(messages: ModelMessage[], call: ModelToolCall, result:
 
 /** Party Mission orchestration. The SOLO service remains the owner of SOLO execution. */
 export class Gate5CollaborationService {
+  private completionAdvisory: CompletionAdvisoryPort | null = null;
+  private completionContext:
+    | ((context: CompletionAdvisoryContext) => CompletionAdvisoryContext)
+    | null = null;
+  attachCompletionAdvisory(
+    port: CompletionAdvisoryPort,
+    context?: (context: CompletionAdvisoryContext) => CompletionAdvisoryContext,
+  ): void {
+    this.completionAdvisory = port;
+    this.completionContext = context ?? null;
+  }
+
+  private async recordCompletionAdvisory(
+    mission: Mission,
+    run: MissionRunRecord,
+    task: ParticipantTask,
+    text: string,
+  ): Promise<void> {
+    if (!this.completionAdvisory || !this.active(mission, run)) return;
+    const actor = this.teammates.getTeammate(task.teammateId);
+    const runtime = actor?.currentRuntimeProfileId
+      ? this.teammates.getRuntimeProfile(actor.currentRuntimeProfileId)
+      : null;
+    if (
+      !actor ||
+      actor.executorKind !== 'MODEL_RUNTIME' ||
+      !runtime ||
+      runtime.executionProtocol === 'GENERATION'
+    )
+      return;
+    const resultText = completionPublicResult(text, task.structuredOutcome === true);
+    if (resultText === null) return;
+    const context: CompletionAdvisoryContext = {
+      missionId: mission.id,
+      runId: run.id,
+      teammateId: task.teammateId,
+      phase: task.phase,
+      missionMode: mission.mode,
+      objective: mission.objective,
+      resultText,
+      resultType: task.structuredOutcome ? 'G3_OUTCOME' : 'TEXT',
+    };
+    const receipt = await assessCompletionCandidate(
+      this.completionAdvisory,
+      context,
+      (base) => {
+        const enriched = {
+          ...base,
+          toolUsage: completionToolSummary(
+            this.missionStore.listMissionEvents(mission.id),
+            run.id,
+            actor.id,
+          ),
+        };
+        return this.completionContext?.(enriched) ?? enriched;
+      },
+      () => this.active(mission, run),
+    );
+    if (this.active(mission, run))
+      this.record(mission, run.id, 'completion.advisory', 'TEAMMATE', actor.id, { ...receipt });
+  }
   private skillRouting: SkillRoutingPort | null = null;
   private skillRoutingContext: ((missionId: string) => SkillRoutingContext | null) | null = null;
   attachSkillRouting(
@@ -2249,7 +2319,11 @@ export class Gate5CollaborationService {
             toolCallCount: response.toolCalls.length,
           }),
         );
-        if (response.toolCalls.length === 0) return { kind: 'DONE', text: bounded(response.text) };
+        if (response.toolCalls.length === 0) {
+          await this.recordCompletionAdvisory(mission, run, task, response.text);
+          if (!this.active(mission, run)) return { kind: 'WAITING' };
+          return { kind: 'DONE', text: bounded(response.text) };
+        }
         if (
           response.toolCalls.length !== 1 ||
           toolCalls + response.toolCalls.length > MAX_TOOL_CALLS

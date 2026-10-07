@@ -32,6 +32,10 @@ import {
   TOOL_SHORTLIST_POLICY,
   validateToolShortlistRequest,
 } from '@cultivation/application/r5-4-tool-shortlist';
+import {
+  COMPLETION_ADVISORY_POLICY,
+  validateCompletionAdvisoryRequest,
+} from '@cultivation/application/r5-5-completion-advisory';
 
 /** The production shadow model is pinned so receipts remain comparable over time. */
 export const TYPESAFE_DECISION_MODEL = 'jev-1.13.0';
@@ -140,6 +144,38 @@ const memoryPreGateResponseSchema = z
               .strict(),
           })
           .strict(),
+      })
+      .strict(),
+    usage: z
+      .object({
+        input_tokens: z.number().int().nonnegative(),
+        output_tokens: z.number().int().nonnegative(),
+      })
+      .strict(),
+  })
+  .strict();
+const completionAdvisoryAnswerSchema = z
+  .object({
+    type: z.literal('choice'),
+    choice: z.enum(['YES', 'NO', 'UNCERTAIN']),
+    confidence: boundedProbability,
+    probabilities: z
+      .object({
+        YES: boundedProbability,
+        NO: boundedProbability,
+        UNCERTAIN: boundedProbability,
+      })
+      .strict(),
+  })
+  .strict();
+const completionAdvisoryResponseSchema = z
+  .object({
+    model: z.string().min(1).max(128),
+    answers: z
+      .object({
+        needs_review: completionAdvisoryAnswerSchema,
+        objective_satisfied: completionAdvisoryAnswerSchema,
+        should_continue: completionAdvisoryAnswerSchema,
       })
       .strict(),
     usage: z
@@ -381,6 +417,9 @@ const failedResult = (errorCode: DecisionErrorCode, latencyMs = 0): TypeSafeDeci
 const isMemoryPreGateDecision = (decisionType: DecisionType): boolean =>
   (decisionType as string) === 'MEMORY_EXTRACTION_NEED';
 
+const isCompletionAdvisoryDecision = (decisionType: DecisionType): boolean =>
+  (decisionType as string) === 'COMPLETION_ADVISORY';
+
 const hasValidMemoryPreGateRequest = (request: DecisionRequest): boolean => {
   try {
     return validateMemoryPreGateRequest(request);
@@ -392,6 +431,14 @@ const hasValidMemoryPreGateRequest = (request: DecisionRequest): boolean => {
 const hasValidMemoryRerankRequest = (request: DecisionRequest): boolean => {
   try {
     return validateMemoryRerankRequest(request);
+  } catch {
+    return false;
+  }
+};
+
+const hasValidCompletionAdvisoryRequest = (request: DecisionRequest): boolean => {
+  try {
+    return validateCompletionAdvisoryRequest(request);
   } catch {
     return false;
   }
@@ -583,11 +630,17 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
     const memoryPreGate = isMemoryPreGateDecision(request.decisionType);
     const memoryRerank = request.decisionType === 'MEMORY_RELEVANCE';
     const toolShortlist = request.decisionType === 'TOOL_RELEVANCE';
-    const timeoutMs = toolShortlist
-      ? TOOL_SHORTLIST_POLICY.gatewayTimeoutMs
-      : memoryRerank
-        ? MEMORY_RERANK_POLICY.gatewayTimeoutMs
-        : this.#timeoutMs;
+    const completionAdvisory = isCompletionAdvisoryDecision(request.decisionType);
+    const timeoutMs = completionAdvisory
+      ? COMPLETION_ADVISORY_POLICY.gatewayTimeoutMs
+      : toolShortlist
+        ? TOOL_SHORTLIST_POLICY.gatewayTimeoutMs
+        : memoryRerank
+          ? MEMORY_RERANK_POLICY.gatewayTimeoutMs
+          : this.#timeoutMs;
+    if (completionAdvisory && !hasValidCompletionAdvisoryRequest(request)) {
+      return failedResult('INVALID_REQUEST');
+    }
     const state = stateSchema.safeParse(extended.state);
     const questions = questionMapSchema.safeParse(extended.questions);
     if (!state.success || !questions.success) {
@@ -595,7 +648,9 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
     }
     // R5.3 has its own exact state validator because its allowlisted `memoryType`
     // key is intentionally forbidden by the generic unsafe-state guard.
-    if (toolShortlist) {
+    if (completionAdvisory) {
+      if (!isPlainJsonTree(state.data)) return failedResult('INVALID_REQUEST');
+    } else if (toolShortlist) {
       if (!validateToolShortlistRequest(request)) return failedResult('INVALID_REQUEST');
     } else if (memoryRerank) {
       if (!hasValidMemoryRerankRequest(request)) return failedResult('INVALID_REQUEST');
@@ -618,10 +673,16 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
       return failedResult('INVALID_REQUEST');
     const stateBytes = utf8Bytes(stateJson);
     const questionsBytes = utf8Bytes(questionsJson);
+    const maxStateBytes = completionAdvisory
+      ? COMPLETION_ADVISORY_POLICY.maxStateBytes
+      : MAX_TYPESAFE_STATE_BYTES;
+    const maxRequestBytes = completionAdvisory
+      ? COMPLETION_ADVISORY_POLICY.maxRequestBytes
+      : MAX_TYPESAFE_REQUEST_BYTES;
     if (
-      stateBytes > MAX_TYPESAFE_STATE_BYTES ||
+      stateBytes > maxStateBytes ||
       questionsBytes > MAX_TYPESAFE_QUESTIONS_BYTES ||
-      stateBytes + questionsBytes > MAX_TYPESAFE_REQUEST_BYTES
+      stateBytes + questionsBytes > maxRequestBytes
     ) {
       return failedResult('INVALID_REQUEST');
     }
@@ -635,6 +696,48 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
         },
         { timeout: timeoutMs, retry: { maxRetries: 0 } },
       );
+      if (completionAdvisory) {
+        let serializedResponse: string | undefined;
+        try {
+          serializedResponse = JSON.stringify(response);
+        } catch {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+        if (
+          serializedResponse === undefined ||
+          utf8Bytes(serializedResponse) > COMPLETION_ADVISORY_POLICY.maxResponseBytes
+        ) {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+
+        const parsedCompletionResponse = completionAdvisoryResponseSchema.safeParse(response);
+        if (
+          !parsedCompletionResponse.success ||
+          parsedCompletionResponse.data.model !== TYPESAFE_DECISION_MODEL
+        ) {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+        const answers = parsedCompletionResponse.data.answers;
+        return {
+          provider: TYPESAFE_DECISION_PROVIDER,
+          model: parsedCompletionResponse.data.model,
+          inputTokens: parsedCompletionResponse.data.usage.input_tokens,
+          outputTokens: parsedCompletionResponse.data.usage.output_tokens,
+          latencyMs: Date.now() - startedAt,
+          errorCode: null,
+          answers: {
+            needs_review: answers.needs_review.choice,
+            objective_satisfied: answers.objective_satisfied.choice,
+            should_continue: answers.should_continue.choice,
+          },
+          confidence: {
+            needs_review: answers.needs_review.confidence,
+            objective_satisfied: answers.objective_satisfied.confidence,
+            should_continue: answers.should_continue.confidence,
+          },
+          selectedAction: null,
+        };
+      }
       if (memoryRerank || toolShortlist) {
         let serializedResponse: string | undefined;
         try {

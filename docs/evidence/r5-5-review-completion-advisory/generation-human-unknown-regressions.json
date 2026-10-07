@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "generation": {
+    "g1": {
+      "path": ".test-data/g1-packaged-dc0c9757-3dc0-4edc-97d8-046dafb4bfee/evidence/facts.json",
+      "bytes": 9028,
+      "sha256": "c0034d63786665c0505df306f1e6229035532774de27371a66d1f714b86b2358"
+    },
+    "g2": {
+      "path": ".test-data/g2-packaged-a8896136-4aa0-4e29-86dc-5c13e3d4c5dc/evidence/facts.json",
+      "bytes": 4994,
+      "sha256": "011770f51ba65d6c307e92f6862d560df6bf5eb907bfe824ea56241d97f7ab96"
+    },
+    "g2Corrective": {
+      "path": ".test-data/g2-corrective-ec418cdc-b3e4-47d1-a933-0d0ab2694305/facts.json",
+      "bytes": 7706,
+      "sha256": "72e04be6660c8d419ab7e002094759fc6996e9f4278887aae044fce1dd5ed3da"
+    },
+    "g3": {
+      "path": "docs/evidence/g3-multimodal-collaboration/12011036-bd5b-4afd-874e-80de84c20049/facts.json",
+      "bytes": 361990,
+      "sha256": "955ebd30edb69e13a2d9b77fd61da8097328d15f4630a90dff223b6298c88a64"
+    },
+    "g3Status": "PASS",
+    "g3GenerationAdvisoryCount": 0
+  },
+  "humanBridge": {
+    "facts": {
+      "path": "docs/evidence/g3-multimodal-collaboration/human-c6e9ccf3-32f5-41dc-adc9-6613b26b6bf0/facts.json",
+      "bytes": 81476,
+      "sha256": "6ecbc30fcc32cfedbd20baa18020b32061d4aaf8ecfcd29063cc689313393d12"
+    },
+    "coordinatorSynthesisPhase": "SYNTHESIS",
+    "coordinatorProtocol": "LANGUAGE",
+    "bridgeTargetAdvisoryCount": 0
+  },
+  "unknown": {
+    "source": ".test-data/w24-clean-packaged-3f677e9c-c571-4411-b769-7b39b3de190e/evidence",
+    "mutationRestartZeroReplay": true,
+    "preparedMutationRestartNoReplay": true,
+    "restartStateUnchanged": true,
+    "finalProductionRestartNoReplay": true,
+    "waitingRestartZeroReplay": true,
+    "acceptedRestartZeroReplay": true,
+    "journal": [
+      {
+        "state": "APPLIED",
+        "beforeHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+        "expectedAfterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664",
+        "observedAfterHash": "0d125f0511e08f0a099e5a9faa35d3338ede38d8ea35bea14016fc450395c664"
+      }
+    ]
+  }
+}

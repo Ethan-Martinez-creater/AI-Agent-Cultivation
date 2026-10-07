@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "source": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "missionState": "COMPLETED",
+  "decisionCountUnchanged": true,
+  "baselineResultHashEqual": true,
+  "fallbackReceipt": {
+    "type": "COMPLETION_ADVISORY",
+    "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+    "phase": "SOLO",
+    "missionId": "837db28d-69b3-431b-ac6f-3d2c522bca61",
+    "runId": "b6b2ff03-5fbd-4915-a328-c0dcb6d9ef6d",
+    "mode": "DETERMINISTIC_FALLBACK",
+    "values": {
+      "needsReview": "UNCERTAIN",
+      "objectiveSatisfied": "UNCERTAIN",
+      "shouldContinue": "UNCERTAIN"
+    },
+    "disposition": "NO_ADVISORY",
+    "hashes": {
+      "objective": "decdbb13a56005bb54a9c14aa1ffa723da5b7eeb926c557eda873ead2c35e1e2",
+      "result": "fcb4b1e58f9fa3699d3b69f39f52935eb774c80d62f19206c4bd9ab10e9481e1",
+      "state": "06b3f7573d9b317749f1c195df97c4993160a59e73df00ec320c08dcb415cf14"
+    },
+    "bytes": {
+      "state": 651,
+      "request": 2879,
+      "response": 0
+    },
+    "forbiddenDataSeen": false
+  }
+}

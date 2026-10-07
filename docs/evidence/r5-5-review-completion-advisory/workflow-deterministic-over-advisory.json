@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "source": "docs/evidence/r5-5-review-completion-advisory/21e88284-32f7-42ac-a6c5-a5adb3c8368d/facts.json",
+  "validation": {
+    "state": "WAITING",
+    "deterministicWon": true,
+    "advisory": {
+      "type": "COMPLETION_ADVISORY",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "phase": "SOLO",
+      "missionId": "323e057d-2caf-4e5a-a3d5-77eb1c941e11",
+      "runId": "8bd24034-d505-4c70-b4ac-bc5795a24ebc",
+      "resultType": "TEXT",
+      "values": {
+        "needsReview": "NO",
+        "objectiveSatisfied": "YES",
+        "shouldContinue": "NO"
+      },
+      "disposition": "NO_ADVISORY",
+      "hashes": {
+        "objective": "82328d282e4f0f3c05a473923a30eb9ec5fec3b0d662820f2dbc69ed40b72a3c",
+        "result": "a6f1a0cd3a92b289f389e96ba27720163ad3548880f3b73ebb5d74e5e99896c9",
+        "state": "f8dfb7c391917870157a0a3160ede7b10bf7aaa2e0db8406103619cb709d0d2b"
+      },
+      "bytes": {
+        "state": 1634,
+        "request": 3862,
+        "response": 220
+      },
+      "forbiddenDataSeen": false
+    }
+  },
+  "review": {
+    "state": "WAITING",
+    "verdict": "REVISE",
+    "deterministicWon": true,
+    "advisory": {
+      "type": "COMPLETION_ADVISORY",
+      "actorId": "1cb25782-aebe-4e5e-b77d-c561707196b4",
+      "phase": "SOLO",
+      "missionId": "b171afcc-91a6-4b13-8392-98fbb22b1e1b",
+      "runId": "b373ff23-432b-443b-9b5b-33db93f7bc92",
+      "resultType": "TEXT",
+      "values": {
+        "needsReview": "NO",
+        "objectiveSatisfied": "YES",
+        "shouldContinue": "NO"
+      },
+      "disposition": "NO_ADVISORY",
+      "hashes": {
+        "objective": "b6b542bba6aa2e6730f80c9733b7bfa4f57cd7ea1654379420904494c7f9c674",
+        "result": "c059c721104febda35cb5bff358ccc010b7328a21c3ed86b7c5d26555f27124e",
+        "state": "5ead40747a6d3a973b51d7e47f776c8f34abff2ef42af691ee2ed00121fd1722"
+      },
+      "bytes": {
+        "state": 1960,
+        "request": 4188,
+        "response": 220
+      },
+      "forbiddenDataSeen": false
+    }
+  }
+}
