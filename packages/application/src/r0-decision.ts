@@ -5,12 +5,13 @@ export type DecisionType =
   | 'COLLABORATION_NEED'
   | 'REVIEW_NEED'
   | 'SKILL_RELEVANCE'
-  | 'MEMORY_EXTRACTION_NEED';
+  | 'MEMORY_EXTRACTION_NEED'
+  | 'MEMORY_RELEVANCE';
 
 /** R3 remains a separate, shadow-only consumer of the original four decisions. */
 export type ShadowDecisionType = Exclude<
   DecisionType,
-  'SKILL_RELEVANCE' | 'MEMORY_EXTRACTION_NEED'
+  'SKILL_RELEVANCE' | 'MEMORY_EXTRACTION_NEED' | 'MEMORY_RELEVANCE'
 >;
 
 export interface DecisionQuestion {
@@ -19,13 +20,13 @@ export interface DecisionQuestion {
   criteria?: Record<string, string | null>;
 }
 
-/** A deliberately small state summary; private Memory and file contents have no slot. */
+/** Decision-specific validators allow only bounded state; no general source-data authority. */
 export interface DecisionRequest {
   decisionType: DecisionType;
   questionVersion: string;
   stateHash: string;
   policyVersion: string;
-  /** Explicit allowlisted, bounded decision state. Never raw private source text. */
+  /** Explicit allowlisted decision state. Never unbounded source text or private history. */
   state: Record<string, unknown>;
   /** Small independent questions; adapter owns provider-specific serialization. */
   questions: Record<string, DecisionQuestion>;

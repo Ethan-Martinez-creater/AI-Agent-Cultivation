@@ -2062,7 +2062,11 @@ export class Gate5CollaborationService {
       skillAssignments: [],
     };
     try {
-      if (this.context) data = await this.context.load(teammate.id, task.memoryQuery ?? task.task);
+      if (this.context)
+        data = await this.context.load(teammate.id, task.memoryQuery ?? task.task, {
+          // Public artifacts/results remain local execution data, not cloud rerank state.
+          memoryRerankQuery: mission.objective,
+        });
     } catch {
       /* optional context */
     }

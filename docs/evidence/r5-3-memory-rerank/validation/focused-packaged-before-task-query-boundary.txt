@@ -1,0 +1,2 @@
+R5_3_PACKAGED_EVIDENCE E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\docs\evidence\r5-3-memory-rerank\29e7f88c-6124-490c-ac3a-0ad72c5875f8\facts.json
+R5_3_PACKAGED_SMOKE_OK production=fixture_free cloud_off=baseline_equal rerank=summary_relevance party=owner_scoped workflow=language_step extractor=0 memories_unchanged=true evidence=E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\docs\evidence\r5-3-memory-rerank\29e7f88c-6124-490c-ac3a-0ad72c5875f8\facts.json

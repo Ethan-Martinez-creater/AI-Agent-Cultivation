@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "command": "npm run package",
+  "buildDirectory": ".tmp/g3-verify",
+  "cacheAndTemp": "Project-local; no NODE_OPTIONS preload",
+  "reason": "Physical dependency copy isolates Electron native rebuild from Node unit/smoke dependencies",
+  "artifact": "out/AI Agent Cultivation-win32-x64/resources/app.asar",
+  "appAsarHash": "3c740acfe2759cd18b5f0469dbb34676bdc9b60a08b7ccb4b44b23ba68cb1ef9",
+  "inputs": [
+    {
+      "path": "apps/desktop/src/main/main.ts",
+      "sourceHash": "f8dbbecddf37065096d50da6491d42fca1a6303932130bcefb3c00fec4db5aee",
+      "buildSourceHash": "f8dbbecddf37065096d50da6491d42fca1a6303932130bcefb3c00fec4db5aee"
+    },
+    {
+      "path": "apps/desktop/src/main/r5-3-fixture-observer.ts",
+      "sourceHash": "09397ff85e7862d70c1d0918b65343f69697368bc32813436089d7c336a8120b",
+      "buildSourceHash": "09397ff85e7862d70c1d0918b65343f69697368bc32813436089d7c336a8120b"
+    },
+    {
+      "path": "apps/desktop/src/renderer/src/r4-routing.tsx",
+      "sourceHash": "fcb9e59a04ff4417a2261925a0d1dc29544e315ca2a8ed8021bcf01a4457c86e",
+      "buildSourceHash": "fcb9e59a04ff4417a2261925a0d1dc29544e315ca2a8ed8021bcf01a4457c86e"
+    },
+    {
+      "path": "packages/application/package.json",
+      "sourceHash": "d3fb4aed8453b97780ae2dd3065e7d4dcf6934845e7d1abc4b3e9c8f2ac9c61d",
+      "buildSourceHash": "d3fb4aed8453b97780ae2dd3065e7d4dcf6934845e7d1abc4b3e9c8f2ac9c61d"
+    },
+    {
+      "path": "packages/application/src/r0-decision.ts",
+      "sourceHash": "ea07808ab8d95781bd385e07851fc65b22da7328a268689d29800231d6e7797c",
+      "buildSourceHash": "ea07808ab8d95781bd385e07851fc65b22da7328a268689d29800231d6e7797c"
+    },
+    {
+      "path": "packages/application/src/r5-3-memory-rerank.ts",
+      "sourceHash": "cdf10d7675b4eaf1d58ee20eaeb644b13e39bb86c78cca3b110ddcca097b3027",
+      "buildSourceHash": "cdf10d7675b4eaf1d58ee20eaeb644b13e39bb86c78cca3b110ddcca097b3027"
+    },
+    {
+      "path": "packages/application/src/gate1-service.ts",
+      "sourceHash": "9313609b4f35a329cfe16f829e01236240c1220ebd96e43c56bb4a01dc9f9143",
+      "buildSourceHash": "9313609b4f35a329cfe16f829e01236240c1220ebd96e43c56bb4a01dc9f9143"
+    },
+    {
+      "path": "packages/application/src/gate2-hybrid-memory-service.ts",
+      "sourceHash": "6b8c51533d0b2b6a8a6f8fd995f8f3b4086aefa91d5551d529f6df05f831041d",
+      "buildSourceHash": "6b8c51533d0b2b6a8a6f8fd995f8f3b4086aefa91d5551d529f6df05f831041d"
+    },
+    {
+      "path": "packages/application/src/gate5-collaboration-service.ts",
+      "sourceHash": "ce93281f82c9692ec67ff6dde5f4bb0daf14218298417e092a7f9d83470216f0",
+      "buildSourceHash": "ce93281f82c9692ec67ff6dde5f4bb0daf14218298417e092a7f9d83470216f0"
+    },
+    {
+      "path": "packages/agent-runtime/src/fake-decision-gateway.ts",
+      "sourceHash": "03a08220650e071408e53571abff6ae1ca5be23c322eeddf4af6aa50d282153a",
+      "buildSourceHash": "03a08220650e071408e53571abff6ae1ca5be23c322eeddf4af6aa50d282153a"
+    },
+    {
+      "path": "packages/agent-runtime/src/typesafe-decision-gateway.ts",
+      "sourceHash": "94fcc2abcd694ee00f3bbae8e0eee360f65048aa562198b97c1097a417c31df7",
+      "buildSourceHash": "94fcc2abcd694ee00f3bbae8e0eee360f65048aa562198b97c1097a417c31df7"
+    }
+  ]
+}

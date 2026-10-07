@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { makeMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
+import { makeMemoryRerankRequest } from '@cultivation/application/r5-3-memory-rerank';
 import type { DecisionRequest, DecisionResult } from '@cultivation/application/r0-decision';
 import { FakeDecisionGateway } from './fake-decision-gateway.js';
 
@@ -212,6 +213,65 @@ describe('FakeDecisionGateway', () => {
       },
       confidence: {},
       selectedAction: null,
+    });
+  });
+
+  it('scores bounded Memory candidates by lexical overlap with the current query', async () => {
+    const rerankRequest = makeMemoryRerankRequest({
+      query: 'Plan the software release for mobile app',
+      candidates: [
+        {
+          id: 'memory-partial',
+          memoryType: 'FACT',
+          text: 'Release plan for mobile app.',
+        },
+        {
+          id: 'memory-unrelated',
+          memoryType: 'PREFERENCE',
+          text: 'Keep fresh herbs watered on weekends.',
+        },
+        {
+          id: 'memory-matching',
+          memoryType: 'EPISODE',
+          text: 'The software release plan for the mobile app uses a staged rollout.',
+        },
+      ],
+    });
+
+    const result = await new FakeDecisionGateway().evaluate(rerankRequest);
+    const memories = result.answers.memories as Array<{ memoryId: string; score: number }>;
+    const scoreById = new Map(memories.map(({ memoryId, score }) => [memoryId, score]));
+
+    expect(memories.map(({ memoryId }) => memoryId)).toEqual([
+      'memory-matching',
+      'memory-partial',
+      'memory-unrelated',
+    ]);
+    expect(scoreById.get('memory-matching')).toBeGreaterThan(scoreById.get('memory-partial')!);
+    expect(scoreById.get('memory-partial')).toBeGreaterThan(scoreById.get('memory-unrelated')!);
+    expect(memories.every(({ score }) => Number.isFinite(score) && score >= 0 && score <= 1)).toBe(
+      true,
+    );
+    expect(new Set(memories.map(({ memoryId }) => memoryId)).size).toBe(3);
+    expect(result).toMatchObject({ confidence: {}, selectedAction: null, errorCode: null });
+    expect(JSON.stringify(result)).not.toContain('staged rollout');
+
+    const state = rerankRequest.state as {
+      query: string;
+      candidates: Array<Record<string, unknown>>;
+    };
+    const invalid = {
+      ...rerankRequest,
+      state: {
+        ...rerankRequest.state,
+        candidates: [state.candidates[0], state.candidates[0]],
+      },
+    } as DecisionRequest;
+    expect(await new FakeDecisionGateway().evaluate(invalid)).toEqual({
+      answers: {},
+      confidence: {},
+      selectedAction: null,
+      errorCode: 'INVALID_REQUEST',
     });
   });
 

@@ -63,6 +63,8 @@ export interface ChatPromptContext {
   load(
     teammateId: string,
     query: string,
+    /** Trusted task summary for cloud rerank; local retrieval keeps its original query. */
+    context?: { memoryRerankQuery: string },
   ): Promise<{
     relevantMemories: MemoryRecord[];
     skills: Skill[];

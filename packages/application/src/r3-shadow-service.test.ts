@@ -53,7 +53,7 @@ function completeTaskAnswer() {
 }
 
 describe('ShadowDecisionService', () => {
-  it.each(['SKILL_RELEVANCE', 'MEMORY_EXTRACTION_NEED'] as const)(
+  it.each(['SKILL_RELEVANCE', 'MEMORY_EXTRACTION_NEED', 'MEMORY_RELEVANCE'] as const)(
     'does not promote %s into the R3 SHADOW plane',
     async (decisionType) => {
       const { service, gateway, receipts } = setup({

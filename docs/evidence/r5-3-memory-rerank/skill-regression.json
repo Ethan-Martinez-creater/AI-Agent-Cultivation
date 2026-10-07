@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "source": "docs\\evidence\\r5-1-skill-routing\\67feeb27-209c-4458-b760-22ac1f023833\\facts.json",
+  "observedCalls": 9,
+  "durableSelections": 9,
+  "completions": {
+    "free": "COMPLETED",
+    "party": "COMPLETED",
+    "workflow": "COMPLETED",
+    "inputWorkflow": "COMPLETED",
+    "fallback": "COMPLETED"
+  },
+  "fallback": {
+    "mode": "DETERMINISTIC_FALLBACK",
+    "selectedSkillIds": [
+      "4f881860-ac73-485c-bfc3-315dec367b87",
+      "39ad3a9a-fabd-4460-80fb-d4458e3bd104",
+      "83ee2d96-6821-45e1-98b3-2406561a3eb0"
+    ],
+    "actualModelCall": true
+  },
+  "isolation": "Existing Skill Routing packaged assertions passed for own actor, enabled/ACTIVE assignments and bounded Workflow context"
+}

@@ -749,3 +749,4 @@ await import('./g3-packaged-smoke.mjs');
 await import('./g3-human-packaged-smoke.mjs');
 await import('./r5-1-packaged-smoke.mjs');
 await import('./r5-2-packaged-smoke.mjs');
+await import('./r5-3-packaged-smoke.mjs');

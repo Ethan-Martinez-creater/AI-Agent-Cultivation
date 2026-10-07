@@ -43,6 +43,11 @@ import {
 import { MemoryPreGateFixtureObserver } from './r5-2-fixture-observer.js';
 import { memoryExecutionPreGateContext } from './r5-2-context.js';
 import {
+  MemoryRerankService,
+  MEMORY_RERANK_POLICY,
+} from '@cultivation/application/r5-3-memory-rerank';
+import { MemoryRerankFixtureObserver } from './r5-3-fixture-observer.js';
+import {
   AiSdkModelGateway,
   FakeModelGateway,
   FakeDecisionGateway,
@@ -624,8 +629,18 @@ if (!squirrelStartup)
           )
         : null;
       const observedGateway = skillRoutingObserver?.modelGateway(rawGateway) ?? rawGateway;
+      const memoryRerankFixture =
+        process.argv.includes('--gate1-fake-model') && process.argv.includes('--r5-3-fixture');
+      const memoryRerankObserver = memoryRerankFixture
+        ? new MemoryRerankFixtureObserver(
+            join(app.getPath('userData'), 'r5-3-execution-facts.json'),
+            (memoryId) => gate2Store.getMemory(memoryId)?.ownerId ?? null,
+          )
+        : null;
+      const memoryObservedGateway =
+        memoryPreGateObserver?.modelGateway(observedGateway) ?? observedGateway;
       const gateway = new AvailabilityAwareModelGateway(
-        memoryPreGateObserver?.modelGateway(observedGateway) ?? observedGateway,
+        memoryRerankObserver?.modelGateway(memoryObservedGateway) ?? memoryObservedGateway,
         availability,
       ) as AvailabilityAwareModelGateway & MemoryCandidateExtractor & EmbeddingGateway;
       const memoryService = new Gate2MemoryService(store, gate2Store, gateway);
@@ -674,6 +689,44 @@ if (!squirrelStartup)
           },
         });
       const hybridMemory = new Gate2HybridMemoryService(store, memoryService, vectorStore, gateway);
+      const memoryRerank = new MemoryRerankService(async () => {
+        // Resolving an opt-in and Main-owned key precedes any candidate text crossing the boundary.
+        if (!routingStore.config().cloudEnabled) return null;
+        // Older offline acceptance profiles have dummy Jev credentials for their own
+        // fixtures. They exercise the frozen fallback unless R5.3 is explicitly enabled.
+        if (process.argv.includes('--gate1-fake-model') && !memoryRerankFixture) return null;
+        const key = await r3Config.resolveKey();
+        if (!key) return null;
+        return memoryRerankFixture
+          ? memoryRerankObserver!.decisionGateway(new FakeDecisionGateway())
+          : new TypeSafeDecisionGateway({
+              apiKey: key,
+              timeoutMs: MEMORY_RERANK_POLICY.gatewayTimeoutMs,
+            });
+      });
+      hybridMemory.attachMemoryRerank(memoryRerank, memoryRerankObserver?.record);
+      const languageMemoryOwner = (teammateId: string): boolean => {
+        const teammate = store.getTeammate(teammateId);
+        const binding = store.getModelBinding(teammateId);
+        return (
+          teammate?.status === 'ACTIVE' &&
+          teammate.executorKind === 'MODEL_RUNTIME' &&
+          Boolean(
+            binding &&
+              (binding.executionProtocol ?? 'LANGUAGE') === 'LANGUAGE' &&
+              binding.runtimeProfileId === teammate.currentRuntimeProfileId &&
+              store.hasValidModelBinding(teammateId),
+          )
+        );
+      };
+      if (memoryRerankFixture)
+        Object.defineProperty(app, 'r53AcceptanceRetrieve', {
+          value: async (teammateId: string, query: string) => {
+            if (!languageMemoryOwner(teammateId)) throw new Error('Invalid LANGUAGE Memory actor');
+            const result = await hybridMemory.retrieveWithReceipt(teammateId, query);
+            return { ids: result.memories.map((memory) => memory.id), receipt: result.receipt };
+          },
+        });
       const skillStore: SkillServiceStore = {
         getSkill: async (id) => gate2Store.getSkill(id),
         listSkills: async () => gate2Store.listSkills(),
@@ -712,8 +765,10 @@ if (!squirrelStartup)
             });
       });
       const promptContext: ChatPromptContext = {
-        load: async (teammateId, query) => ({
-          relevantMemories: await hybridMemory.retrieve(teammateId, query),
+        load: async (teammateId, query, context) => ({
+          relevantMemories: languageMemoryOwner(teammateId)
+            ? await hybridMemory.retrieve(teammateId, query, context?.memoryRerankQuery ?? query)
+            : [],
           skills: gate2Store.listSkills(),
           skillAssignments: gate2Store.listSkillAssignments(teammateId),
         }),

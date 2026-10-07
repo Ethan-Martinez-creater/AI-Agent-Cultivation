@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "source": "2368706c-d4c7-44e3-8e95-ca97de284333\\facts.json",
+  "metrics": {
+    "jevCalls": 8,
+    "fallbackCalls": 3,
+    "retrievalCalls": 11,
+    "languageModelCalls": 9,
+    "memoryRowsBefore": 13,
+    "memoryRowsAfter": 13,
+    "extractorCalls": 0,
+    "maxObservedRequestBytes": 4971,
+    "maxObservedStateBytes": 1594
+  },
+  "actorIds": {
+    "a": {
+      "role": "A",
+      "teammateId": "9c23b137-d644-48a5-8044-4b6e1eebf3f2",
+      "runtimeProfileId": "55c95cb6-8ef3-4972-a5f4-87481d711f6e",
+      "executionProtocol": "LANGUAGE"
+    },
+    "b": {
+      "role": "B",
+      "teammateId": "6ece2021-1022-4946-a6cc-f59293a42d78",
+      "runtimeProfileId": "d90150a4-92f0-4024-8b7c-49b7aa55a7ff",
+      "executionProtocol": "LANGUAGE"
+    }
+  },
+  "ownerFirst": true,
+  "crossOwnerExcluded": true,
+  "rejectedArchivedExpiredExcluded": true,
+  "cloudOffBaselineExact": true,
+  "production": {
+    "normalLaunch": true,
+    "r53MainAcceptanceRetrieve": false,
+    "rendererAcceptanceRetrieve": false,
+    "fixtureEvidenceFile": false,
+    "officialWorkflowHashes": {
+      "official.ai-news-video": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "official.research": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "official.software-feature": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    },
+    "migrations": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      27, 28, 29, 30
+    ]
+  },
+  "staleRecheck": {
+    "status": "PASS",
+    "tests": "gate2-hybrid-memory-service.test.ts",
+    "cases": ["archive", "expire", "owner", "reject", "delete"],
+    "freshFactsOnly": true
+  },
+  "queryBoundary": {
+    "party": "Current Mission objective only; no public Artifact/result body",
+    "localRetrieval": "Original query preserved",
+    "workflow": "Current Step query/metadata; no history"
+  },
+  "privacyScreenshots": [
+    {
+      "name": "routing-privacy-1440.png",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "name": "routing-privacy-1180.png",
+      "width": 1180,
+      "height": 900
+    },
+    {
+      "name": "routing-privacy-900.png",
+      "width": 900,
+      "height": 900
+    }
+  ]
+}

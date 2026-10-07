@@ -1,9 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { makeMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
-import type { DecisionType } from '@cultivation/application/r0-decision';
+import {
+  MEMORY_RERANK_POLICY,
+  makeMemoryRerankRequest,
+} from '@cultivation/application/r5-3-memory-rerank';
+import type { DecisionRequest, DecisionType } from '@cultivation/application/r0-decision';
 import type { Fetch } from '@typesafe-ai/sdk';
 import {
   MAX_TYPESAFE_MEMORY_PRE_GATE_RESPONSE_BYTES,
+  MAX_TYPESAFE_MEMORY_RERANK_RESPONSE_BYTES,
   TypeSafeDecisionGateway,
   TYPESAFE_DECISION_MODEL,
   type TypeSafeDecisionRequest,
@@ -162,6 +167,37 @@ const memoryPreGateResponse = (choice: 'RUN_EXTRACTION' | 'SKIP_EXTRACTION'): un
   usage: { input_tokens: 35, output_tokens: 4 },
 });
 
+const memoryRerankRequest = (): DecisionRequest =>
+  makeMemoryRerankRequest({
+    query: 'Plan the software release for the desktop app.',
+    candidates: [
+      {
+        id: 'memory-release',
+        memoryType: 'FACT',
+        text: 'The desktop app release uses staged rollout and a recovery checklist.',
+      },
+      {
+        id: 'memory-garden',
+        memoryType: 'PREFERENCE',
+        text: 'Garden notes: water the herbs before the weekend.',
+      },
+    ],
+  });
+
+const memoryRerankResponse = (scores: Record<string, number>): unknown => ({
+  model: TYPESAFE_DECISION_MODEL,
+  answers: Object.fromEntries(
+    Object.entries(scores).map(([memoryId, score]) => [
+      `memory.${memoryId}`,
+      { type: 'noul', noul: score },
+    ]),
+  ),
+  usage: { input_tokens: 81, output_tokens: 7 },
+});
+
+const rawJsonResponse = (body: string): Response =>
+  new Response(body, { headers: { 'content-type': 'application/json' } });
+
 describe('TypeSafeDecisionGateway', () => {
   afterEach(() => vi.restoreAllMocks());
 
@@ -255,6 +291,172 @@ describe('TypeSafeDecisionGateway', () => {
       expect(result.confidence).toEqual({});
       expect(result.selectedAction).toBeNull();
     }
+  });
+
+  it('accepts bounded Memory Rerank state and normalizes every pinned-model score', async () => {
+    let sentBody: unknown;
+    let calls = 0;
+    const fetch: Fetch = async (_input, init) => {
+      calls += 1;
+      sentBody = JSON.parse(String(init?.body));
+      return jsonResponse(memoryRerankResponse({ 'memory-release': 0.9, 'memory-garden': 0.2 }));
+    };
+    const request = memoryRerankRequest();
+    const result = await new TypeSafeDecisionGateway({ apiKey, fetch }).evaluate(request);
+    const sent = sentBody as {
+      model: string;
+      state: { query: string; candidates: Array<{ id: string; memoryType: string; text: string }> };
+      questions: Record<string, { type: string; instructions: string }>;
+    };
+
+    expect(calls).toBe(1);
+    expect(sent.model).toBe(TYPESAFE_DECISION_MODEL);
+    expect(sent.state).toEqual(request.state);
+    expect(sent.state.candidates.map(({ memoryType }) => memoryType)).toEqual([
+      'FACT',
+      'PREFERENCE',
+    ]);
+    expect(Object.keys(sent.questions).sort()).toEqual([
+      'memory.memory-garden',
+      'memory.memory-release',
+    ]);
+    expect(Object.values(sent.questions).every((question) => question.type === 'noul')).toBe(true);
+    expect(new TextEncoder().encode(JSON.stringify(request)).byteLength).toBeLessThanOrEqual(
+      MEMORY_RERANK_POLICY.maxRequestBytes,
+    );
+    expect(result).toMatchObject({
+      provider: 'TYPESAFE',
+      model: TYPESAFE_DECISION_MODEL,
+      inputTokens: 81,
+      outputTokens: 7,
+      errorCode: null,
+      confidence: {},
+      selectedAction: null,
+      answers: {
+        memories: [
+          { memoryId: 'memory-release', score: 0.9 },
+          { memoryId: 'memory-garden', score: 0.2 },
+        ],
+      },
+    });
+  });
+
+  it('rejects invalid Memory Rerank request fields before transport', async () => {
+    let calls = 0;
+    const fetch: Fetch = async () => {
+      calls += 1;
+      return jsonResponse(memoryRerankResponse({ 'memory-release': 0.9, 'memory-garden': 0.2 }));
+    };
+    const gateway = new TypeSafeDecisionGateway({ apiKey, fetch });
+    const valid = memoryRerankRequest();
+    const state = valid.state as {
+      query: string;
+      candidates: Array<Record<string, unknown>>;
+    };
+    const invalidRequests: DecisionRequest[] = [
+      { ...valid, stateHash: '0'.repeat(64) },
+      { ...valid, state: { ...valid.state, hidden: 'not allowlisted' } },
+      {
+        ...valid,
+        state: {
+          ...valid.state,
+          candidates: state.candidates.map((candidate, index) =>
+            index === 0 ? { ...candidate, memoryType: 'UNRECOGNIZED' } : candidate,
+          ),
+        },
+      },
+      {
+        ...valid,
+        state: { ...valid.state, query: 'q'.repeat(MEMORY_RERANK_POLICY.maxQueryCharacters + 1) },
+      },
+      {
+        ...valid,
+        questions: {
+          ...valid.questions,
+          'memory.foreign': { type: 'noul', instructions: 'Score a foreign Memory.' },
+        },
+      },
+    ];
+
+    for (const request of invalidRequests) {
+      expect((await gateway.evaluate(request)).errorCode).toBe('INVALID_REQUEST');
+    }
+    expect(calls).toBe(0);
+  });
+
+  it('falls closed on malformed, unknown, extra, oversized, or out-of-range Memory answers', async () => {
+    const request = memoryRerankRequest();
+    const valid = memoryRerankResponse({ 'memory-release': 0.9, 'memory-garden': 0.2 }) as {
+      model: string;
+      answers: Record<string, unknown>;
+      usage: { input_tokens: number; output_tokens: number };
+    };
+    const releaseKey = 'memory.memory-release';
+    const releaseAnswer = valid.answers[releaseKey] as Record<string, unknown>;
+    const oversized = {
+      ...valid,
+      providerDetail: 'x'.repeat(MAX_TYPESAFE_MEMORY_RERANK_RESPONSE_BYTES),
+    };
+    expect(new TextEncoder().encode(JSON.stringify(oversized)).byteLength).toBeGreaterThan(
+      MAX_TYPESAFE_MEMORY_RERANK_RESPONSE_BYTES,
+    );
+    const invalidResponses = [
+      { ...valid, model: 'jev-moving-alias' },
+      { ...valid, unexpected: 'extra envelope field' },
+      { ...valid, selectedAction: null },
+      {
+        ...valid,
+        answers: {
+          ...valid.answers,
+          'memory.foreign': { type: 'noul', noul: 0.8 },
+        },
+      },
+      {
+        ...valid,
+        answers: { 'memory.memory-garden': valid.answers['memory.memory-garden'] },
+      },
+      {
+        ...valid,
+        answers: {
+          ...valid.answers,
+          [releaseKey]: { ...releaseAnswer, extra: 'not allowed' },
+        },
+      },
+      {
+        ...valid,
+        answers: {
+          ...valid.answers,
+          [releaseKey]: { type: 'noul', noul: -0.1 },
+        },
+      },
+      {
+        ...valid,
+        answers: {
+          ...valid.answers,
+          [releaseKey]: { type: 'noul', noul: 1.1 },
+        },
+      },
+      oversized,
+    ];
+
+    for (const response of invalidResponses) {
+      const fetch: Fetch = async () => jsonResponse(response);
+      const result = await new TypeSafeDecisionGateway({ apiKey, fetch }).evaluate(request);
+      expect(result.errorCode).toBe('SCHEMA_MISMATCH');
+      expect(result.answers).toEqual({});
+      expect(result.confidence).toEqual({});
+      expect(result.selectedAction).toBeNull();
+    }
+
+    const nonFiniteFetch: Fetch = async () =>
+      rawJsonResponse(
+        `{"model":"${TYPESAFE_DECISION_MODEL}","answers":{"${releaseKey}":{"type":"noul","noul":1e400},"memory.memory-garden":{"type":"noul","noul":0.2}},"usage":{"input_tokens":1,"output_tokens":1}}`,
+      );
+    const nonFinite = await new TypeSafeDecisionGateway({ apiKey, fetch: nonFiniteFetch }).evaluate(
+      request,
+    );
+    expect(nonFinite.errorCode).toBe('SCHEMA_MISMATCH');
+    expect(nonFinite.answers).toEqual({});
   });
 
   it('pins the model and sends only the bounded state/questions with bearer auth', async () => {

@@ -1,0 +1,9 @@
+
+> ai-agent-cultivation@0.0.1 format:check
+> node scripts/format-check.mjs
+
+Prettier found formatting issues in 4 file(s):
+  docs/evidence/g3-multimodal-collaboration/dee122f4-ae7c-42a7-9507-cfd66379e8e0/facts.json
+  docs/evidence/g3-multimodal-collaboration/human-75da4808-0889-49d3-97e0-9589a007792f/facts.json
+  docs/evidence/r5-1-skill-routing/67feeb27-209c-4458-b760-22ac1f023833/facts.json
+  docs/evidence/r5-2-memory-pre-gate/d27b7262-77cf-40c3-8910-16c4050b5713/facts.json

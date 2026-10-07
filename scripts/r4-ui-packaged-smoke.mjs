@@ -220,6 +220,9 @@ export async function verifyR4RoutingUi(page, { a, b }) {
     'Benchmark 能力档位',
     '已启用功法元数据',
     '可核验经历摘要',
+    '当前道友的候选记忆摘要',
+    '摘要为空时使用脱敏后的有限摘录',
+    '关闭 Cloud 时不发送这些内容',
   ]) {
     assert.ok(
       privacyText.includes(expectedField),
@@ -228,7 +231,7 @@ export async function verifyR4RoutingUi(page, { a, b }) {
   }
   for (const excludedField of [
     '不发送 API Key',
-    '私有记忆原文',
+    '完整私有记忆',
     '完整文件',
     '完整聊天记录',
     '工具输出',

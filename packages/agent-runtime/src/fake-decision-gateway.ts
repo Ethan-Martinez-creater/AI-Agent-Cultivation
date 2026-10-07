@@ -4,8 +4,25 @@ import type {
   DecisionResult,
 } from '@cultivation/application/r0-decision';
 import { validateMemoryPreGateRequest } from '@cultivation/application/r5-2-memory-pre-gate';
+import { validateMemoryRerankRequest } from '@cultivation/application/r5-3-memory-rerank';
 
 const skillIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,89}$/;
+
+const semanticTerms = (value: string): Set<string> =>
+  new Set(
+    value
+      .normalize('NFKC')
+      .toLowerCase()
+      .match(/[\p{L}\p{N}]+/gu) ?? [],
+  );
+
+const memoryRelevanceScore = (queryTerms: ReadonlySet<string>, candidateText: string): number => {
+  const candidateTerms = semanticTerms(candidateText);
+  if (queryTerms.size === 0 || candidateTerms.size === 0) return 0.1;
+  let shared = 0;
+  for (const term of queryTerms) if (candidateTerms.has(term)) shared += 1;
+  return 0.1 + 0.75 * (shared / queryTerms.size) + 0.15 * (shared / candidateTerms.size);
+};
 
 /** Local deterministic fixture gateway; evaluation never performs external calls. */
 export class FakeDecisionGateway implements DecisionGateway {
@@ -39,6 +56,42 @@ export class FakeDecisionGateway implements DecisionGateway {
         return {
           answers: { extraction: decision },
           confidence: { extraction: 1 },
+          selectedAction: null,
+          errorCode: null,
+        };
+      } catch {
+        return { answers: {}, confidence: {}, selectedAction: null, errorCode: 'INVALID_REQUEST' };
+      }
+    }
+
+    if (request.decisionType === 'MEMORY_RELEVANCE') {
+      try {
+        if (!validateMemoryRerankRequest(request)) {
+          return {
+            answers: {},
+            confidence: {},
+            selectedAction: null,
+            errorCode: 'INVALID_REQUEST',
+          };
+        }
+        const state = request.state as {
+          query: string;
+          candidates: Array<{ id: string; memoryType: string; text: string }>;
+        };
+        const queryTerms = semanticTerms(state.query);
+        const memories = state.candidates
+          .map(({ id, text }) => ({
+            memoryId: id,
+            score: memoryRelevanceScore(queryTerms, text),
+          }))
+          .sort(
+            (left, right) =>
+              right.score - left.score ||
+              (left.memoryId < right.memoryId ? -1 : left.memoryId > right.memoryId ? 1 : 0),
+          );
+        return {
+          answers: { memories },
+          confidence: {},
           selectedAction: null,
           errorCode: null,
         };

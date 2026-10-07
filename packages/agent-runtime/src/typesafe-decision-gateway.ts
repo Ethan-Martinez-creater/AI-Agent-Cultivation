@@ -23,6 +23,10 @@ import {
   MEMORY_PRE_GATE_POLICY,
   validateMemoryPreGateRequest,
 } from '@cultivation/application/r5-2-memory-pre-gate';
+import {
+  MEMORY_RERANK_POLICY,
+  validateMemoryRerankRequest,
+} from '@cultivation/application/r5-3-memory-rerank';
 import { z } from 'zod';
 
 /** The production shadow model is pinned so receipts remain comparable over time. */
@@ -36,6 +40,7 @@ export const MAX_TYPESAFE_QUESTIONS_BYTES = 24_000;
 export const MAX_TYPESAFE_REQUEST_BYTES = 48_000;
 export const MAX_TYPESAFE_SKILL_CANDIDATES = 24;
 export const MAX_TYPESAFE_MEMORY_PRE_GATE_RESPONSE_BYTES = MEMORY_PRE_GATE_POLICY.maxResponseBytes;
+export const MAX_TYPESAFE_MEMORY_RERANK_RESPONSE_BYTES = MEMORY_RERANK_POLICY.maxResponseBytes;
 
 type TypeSafeEntry =
   | string
@@ -380,6 +385,14 @@ const hasValidMemoryPreGateRequest = (request: DecisionRequest): boolean => {
   }
 };
 
+const hasValidMemoryRerankRequest = (request: DecisionRequest): boolean => {
+  try {
+    return validateMemoryRerankRequest(request);
+  } catch {
+    return false;
+  }
+};
+
 const errorCodeFor = (error: unknown): TypeSafeDecisionErrorCode => {
   if (error instanceof APITimeoutError) return 'TIMEOUT';
   if (
@@ -444,6 +457,23 @@ const validateNormalizedAnswers = (
       confidence: {},
       selectedAction: null,
     };
+  }
+
+  if (decisionType === 'MEMORY_RELEVANCE') {
+    const memories = Object.entries(questions)
+      .map(([key]) => {
+        const answer = answers[key];
+        if (!key.startsWith('memory.') || !answer || answer.type !== 'noul') return null;
+        return { memoryId: key.slice('memory.'.length), score: answer.noul };
+      })
+      .filter((memory): memory is { memoryId: string; score: number } => memory !== null)
+      .sort(
+        (left, right) =>
+          right.score - left.score ||
+          (left.memoryId < right.memoryId ? -1 : left.memoryId > right.memoryId ? 1 : 0),
+      );
+    if (memories.length === 0) return null;
+    return { answers: { memories }, confidence: {}, selectedAction: null };
   }
 
   if (decisionType === 'TASK_CAPABILITY') {
@@ -536,9 +566,18 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
     const startedAt = Date.now();
     const extended = request as TypeSafeDecisionRequest;
     const memoryPreGate = isMemoryPreGateDecision(request.decisionType);
+    const memoryRerank = request.decisionType === 'MEMORY_RELEVANCE';
+    const timeoutMs = memoryRerank ? MEMORY_RERANK_POLICY.gatewayTimeoutMs : this.#timeoutMs;
     const state = stateSchema.safeParse(extended.state);
     const questions = questionMapSchema.safeParse(extended.questions);
-    if (!state.success || !questions.success || !isPlainJsonTree(state.data)) {
+    if (!state.success || !questions.success) {
+      return failedResult('INVALID_REQUEST');
+    }
+    // R5.3 has its own exact state validator because its allowlisted `memoryType`
+    // key is intentionally forbidden by the generic unsafe-state guard.
+    if (memoryRerank) {
+      if (!hasValidMemoryRerankRequest(request)) return failedResult('INVALID_REQUEST');
+    } else if (!isPlainJsonTree(state.data)) {
       return failedResult('INVALID_REQUEST');
     }
     if (memoryPreGate && !hasValidMemoryPreGateRequest(request)) {
@@ -572,8 +611,47 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
           state: state.data as Record<string, TypeSafeEntry>,
           questions: questions.data as SdkQuestions,
         },
-        { timeout: this.#timeoutMs, retry: { maxRetries: 0 } },
+        { timeout: timeoutMs, retry: { maxRetries: 0 } },
       );
+      if (memoryRerank) {
+        let serializedResponse: string | undefined;
+        try {
+          serializedResponse = JSON.stringify(response);
+        } catch {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+        if (
+          serializedResponse === undefined ||
+          utf8Bytes(serializedResponse) > MAX_TYPESAFE_MEMORY_RERANK_RESPONSE_BYTES
+        ) {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+
+        const parsedMemoryResponse = responseSchema.safeParse(response);
+        if (
+          !parsedMemoryResponse.success ||
+          parsedMemoryResponse.data.model !== TYPESAFE_DECISION_MODEL
+        ) {
+          return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        }
+        const normalized = validateNormalizedAnswers(
+          request.decisionType,
+          questions.data,
+          parsedMemoryResponse.data.answers,
+        );
+        if (!normalized) return failedResult('SCHEMA_MISMATCH', Date.now() - startedAt);
+        return {
+          provider: TYPESAFE_DECISION_PROVIDER,
+          model: parsedMemoryResponse.data.model,
+          inputTokens: parsedMemoryResponse.data.usage.input_tokens,
+          outputTokens: parsedMemoryResponse.data.usage.output_tokens,
+          latencyMs: Date.now() - startedAt,
+          errorCode: null,
+          answers: normalized.answers,
+          confidence: {},
+          selectedAction: null,
+        };
+      }
       if (memoryPreGate) {
         let serializedResponse: string | undefined;
         try {

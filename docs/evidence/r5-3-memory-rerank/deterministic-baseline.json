@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "baseline": "36ac835283b29a05b3e2d7b492511bdbfbf707c0",
+  "test": "packages/application/src/gate2-hybrid-memory-service.test.ts",
+  "query": "Synthetic test query; no user query persisted",
+  "lexicalIds": ["a", "b", "c"],
+  "vectorIds": ["c", "d", "a", "e"],
+  "approvedOrder": ["a", "c", "b", "d", "e"],
+  "currentFallbackOrder": ["a", "c", "b", "d", "e"],
+  "algorithm": "1/(60+rank); stable lexical then vector insertion ties; first 6",
+  "equivalence": "Exact IDs and order; final scoped eligibility remains mandatory"
+}
