@@ -7,6 +7,7 @@ import { EmptyState } from '../components/EmptyState.js';
 import { G3Collaboration } from '../components/G3Collaboration.js';
 import { Section } from '../components/Section.js';
 import { StatusBadge } from '../components/StatusBadge.js';
+import { handleHorizontalTabKeyDown, horizontalTabIndex } from '../horizontal-tabs.js';
 import './mission-party.css';
 import './product-pages.css';
 import { HumanBridgeApproval } from '.././r2-human-bridge.js';
@@ -45,6 +46,13 @@ import type {
 import type { CreateMissionRoutingResult } from '../r4-routing.js';
 
 type AssignmentMode = 'AUTO' | 'SOLO' | 'PARTY' | 'HUMAN_BRIDGE';
+const missionFilterTabs = [
+  ['running', '运行中'],
+  ['history', '历史'],
+  ['all', '全部'],
+] as const;
+const missionFilterValues = missionFilterTabs.map(([filter]) => filter);
+type MissionFilter = (typeof missionFilterTabs)[number][0];
 type RoutingRequiredResult = Extract<
   CreateMissionRoutingResult,
   { status: 'USER_ACTION_REQUIRED' }
@@ -225,7 +233,7 @@ export function MissionPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [missionFilter, setMissionFilter] = useState<'running' | 'history' | 'all'>('running');
+  const [missionFilter, setMissionFilter] = useState<MissionFilter>('running');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const handledCreateQuery = useRef('');
@@ -255,6 +263,19 @@ export function MissionPage() {
         ? isHistoryMission(item)
         : !isHistoryMission(item),
   );
+  const selectMissionFilter = (filter: MissionFilter) => {
+    const next = missions.filter((item) =>
+      filter === 'all'
+        ? true
+        : filter === 'history'
+          ? isHistoryMission(item)
+          : !isHistoryMission(item),
+    );
+    setMissionFilter(filter);
+    setSelectedId(next[0]?.id ?? '');
+    setCreating(false);
+    setEditing(false);
+  };
   const modeLabel = (mode: MissionMode) => {
     const labels: Record<MissionMode, string> = {
       SOLO: '单人历练',
@@ -817,13 +838,7 @@ export function MissionPage() {
         >
           <p className="object-list-summary">{visibleMissions.length} 项</p>
           <div className="mission-filter-tabs" role="tablist" aria-label="筛选历练">
-            {(
-              [
-                ['running', '运行中'],
-                ['history', '历史'],
-                ['all', '全部'],
-              ] as const
-            ).map(([filter, label]) => {
+            {missionFilterTabs.map(([filter, label]) => {
               const count =
                 filter === 'all'
                   ? missions.length
@@ -837,19 +852,16 @@ export function MissionPage() {
                   type="button"
                   role="tab"
                   aria-selected={missionFilter === filter}
-                  onClick={() => {
-                    const next = missions.filter((item) =>
-                      filter === 'all'
-                        ? true
-                        : filter === 'history'
-                          ? isHistoryMission(item)
-                          : !isHistoryMission(item),
-                    );
-                    setMissionFilter(filter);
-                    setSelectedId(next[0]?.id ?? '');
-                    setCreating(false);
-                    setEditing(false);
-                  }}
+                  tabIndex={horizontalTabIndex(missionFilter, filter)}
+                  onKeyDown={(event) =>
+                    handleHorizontalTabKeyDown(
+                      event,
+                      missionFilterValues,
+                      filter,
+                      selectMissionFilter,
+                    )
+                  }
+                  onClick={() => selectMissionFilter(filter)}
                 >
                   {label}
                   <span>{count}</span>

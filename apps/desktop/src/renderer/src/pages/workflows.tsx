@@ -28,6 +28,7 @@ import { SoftwareFeatureWorkflowInputForm } from '../components/SoftwareFeatureW
 import { ResearchWorkflowInputForm } from '../components/ResearchWorkflowInputForm.js';
 import { WorkflowLibrary } from '../components/WorkflowLibrary.js';
 import { completionOriginOf, WorkflowImport } from '../components/WorkflowImport.js';
+import { handleHorizontalTabKeyDown, horizontalTabIndex } from '../horizontal-tabs.js';
 import { PageHeading } from '../ui-shared.js';
 import './mission-party.css';
 import './product-pages.css';
@@ -43,7 +44,13 @@ type WorkflowAction =
   | 'cancel';
 type ConfirmableAction = Extract<WorkflowAction, 'retryMission' | 'retryStep' | 'cancel'>;
 type PendingConfirmation = { action: ConfirmableAction; title: string; explanation: string };
-type WorkflowPageTab = 'runs' | 'official' | 'user';
+const workflowPageTabs = [
+  ['runs', '运行记录', 'workflow-tab-runs'],
+  ['official', '官方工作流', 'workflow-tab-official'],
+  ['user', '我的工作流', 'workflow-tab-user'],
+] as const;
+const workflowPageTabValues = workflowPageTabs.map(([tab]) => tab);
+type WorkflowPageTab = (typeof workflowPageTabs)[number][0];
 
 const runLabels: Record<WorkflowRunState, string> = {
   DRAFT: '草稿',
@@ -334,6 +341,11 @@ export function WorkflowsPage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
+  const selectWorkflowTab = (tab: WorkflowPageTab) => {
+    setActiveTab(tab);
+    setError('');
+    setNotice('');
+  };
 
   const orderedVersions = useMemo(
     () =>
@@ -673,13 +685,7 @@ export function WorkflowsPage() {
       )}
 
       <nav className="workflow-library-tabs" role="tablist" aria-label="工作流管理">
-        {(
-          [
-            ['runs', '运行记录', 'workflow-tab-runs'],
-            ['official', '官方工作流', 'workflow-tab-official'],
-            ['user', '我的工作流', 'workflow-tab-user'],
-          ] as const
-        ).map(([tab, label, testId]) => (
+        {workflowPageTabs.map(([tab, label, testId]) => (
           <button
             key={tab}
             id={testId}
@@ -689,11 +695,11 @@ export function WorkflowsPage() {
             aria-selected={activeTab === tab}
             aria-controls="workflow-management-panel"
             data-testid={testId}
-            onClick={() => {
-              setActiveTab(tab);
-              setError('');
-              setNotice('');
-            }}
+            tabIndex={horizontalTabIndex(activeTab, tab)}
+            onKeyDown={(event) =>
+              handleHorizontalTabKeyDown(event, workflowPageTabValues, tab, selectWorkflowTab)
+            }
+            onClick={() => selectWorkflowTab(tab)}
           >
             {label}
           </button>
