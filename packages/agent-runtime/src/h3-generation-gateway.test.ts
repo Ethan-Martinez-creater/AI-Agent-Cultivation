@@ -116,6 +116,7 @@ function createGateway(
   fixture: { baseUrl: string },
   stateStore = new MemoryStateStore(),
   outputCache = new MemoryOutputCache(),
+  fetchImplementation: typeof globalThis.fetch = globalThis.fetch,
 ) {
   const resolver = async (): Promise<H3ResolvedRuntime> => ({
     baseUrl: fixture.baseUrl,
@@ -123,6 +124,7 @@ function createGateway(
     apiKey: API_KEY,
   });
   const gateway = new H3GenerationGateway(resolver, stateStore, outputCache, {
+    fetch: fetchImplementation,
     requestTimeoutMs: 2_000,
     uploadTimeoutMs: 2_000,
   });
@@ -410,6 +412,75 @@ describe('H3 GenerationGateway HTTP adapter', () => {
         createdJobs: 1,
       });
     } finally {
+      await fixture.close();
+    }
+  });
+
+  it('recovers a durable SUBMITTING barrier as UNKNOWN after the POST was accepted but its response was abandoned', async () => {
+    const fixture = await startH3HttpFixture();
+    const stateStore = new MemoryStateStore();
+    const request = makeRequest();
+    let notifyAccepted!: () => void;
+    const postAccepted = new Promise<void>((resolve) => {
+      notifyAccepted = resolve;
+    });
+    const abandonedResponse: { release?: () => void } = {};
+    let abandonedSubmission: Promise<unknown> | null = null;
+    const losingResponseFetch: typeof globalThis.fetch = async (input, init) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+      if (init?.method === 'POST' && new URL(url).pathname === '/v1/videos') {
+        const response = await globalThis.fetch(input, init);
+        notifyAccepted();
+        return await new Promise<Response>((_resolve, reject) => {
+          abandonedResponse.release = () =>
+            reject(new Error('Simulated process exit before reading response.'));
+        });
+      }
+      return globalThis.fetch(input, init);
+    };
+
+    try {
+      const beforeRestart = createGateway(
+        fixture,
+        stateStore,
+        new MemoryOutputCache(),
+        losingResponseFetch,
+      );
+      abandonedSubmission = beforeRestart.gateway.submit(RUNTIME_ID, request);
+      await postAccepted;
+      expect(fixture.stats()).toMatchObject({ submitRequests: 1, createdJobs: 1 });
+      expect(await stateStore.get(RUNTIME_ID, request.idempotencyKey)).toMatchObject({
+        phase: 'SUBMITTING',
+        providerJobId: null,
+      });
+
+      let restartedNetworkRequests = 0;
+      const restartedFetch: typeof globalThis.fetch = async (input, init) => {
+        restartedNetworkRequests += 1;
+        return globalThis.fetch(input, init);
+      };
+      const afterRestart = createGateway(
+        fixture,
+        stateStore,
+        new MemoryOutputCache(),
+        restartedFetch,
+      );
+      await expect(afterRestart.gateway.submit(RUNTIME_ID, request)).resolves.toEqual({
+        outcome: 'UNKNOWN',
+      });
+      expect(await stateStore.get(RUNTIME_ID, request.idempotencyKey)).toMatchObject({
+        phase: 'UNKNOWN',
+        providerJobId: null,
+      });
+      expect(restartedNetworkRequests).toBe(0);
+      expect(fixture.stats()).toMatchObject({
+        submitRequests: 1,
+        createdJobs: 1,
+        downloadRequests: 0,
+      });
+    } finally {
+      abandonedResponse.release?.();
+      await abandonedSubmission?.catch(() => undefined);
       await fixture.close();
     }
   });
