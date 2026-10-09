@@ -115,7 +115,7 @@ function assertMigrations(profile) {
       .map((row) => row.version);
     assert.deepEqual(
       migrations,
-      Array.from({ length: 31 }, (_, index) => index + 1),
+      Array.from({ length: 32 }, (_, index) => index + 1),
     );
     return migrations;
   });
@@ -411,7 +411,7 @@ productionDatabase = openReadOnlyDatabase(productionProfile, (db) => {
     .map((row) => row.version);
   assert.deepEqual(
     migrations,
-    Array.from({ length: 31 }, (_, index) => index + 1),
+    Array.from({ length: 32 }, (_, index) => index + 1),
   );
   return { migrations, r52EvidenceRows: 0 };
 });
@@ -966,7 +966,7 @@ mkdirSync(evidenceDir, { recursive: true });
 const evidencePath = join(evidenceDir, 'facts.json');
 const evidence = {
   verifiedAt: new Date().toISOString(),
-  schemaVersion: 31,
+  schemaVersion: 32,
   production: {
     normalLaunch: true,
     mainAcceptanceGate: false,

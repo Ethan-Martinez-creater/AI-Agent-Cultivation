@@ -116,7 +116,7 @@ function assertMigrations(profile) {
       .map((row) => row.version);
     assert.deepEqual(
       versions,
-      Array.from({ length: 31 }, (_, index) => index + 1),
+      Array.from({ length: 32 }, (_, index) => index + 1),
     );
     return versions;
   });

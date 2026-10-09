@@ -40,7 +40,9 @@ export function WorkflowArtifactResult({
           </div>
           <div>
             <dt>来源</dt>
-            <dd>{artifact.source}</dd>
+            <dd>
+              {artifact.source === 'IMPORTED_CONFIRMED' ? '外部成果 · 用户确认' : artifact.source}
+            </dd>
           </div>
           <div>
             <dt>产出步骤尝试</dt>
@@ -51,15 +53,23 @@ export function WorkflowArtifactResult({
           <div>
             <dt>历练 / 运行</dt>
             <dd>
-              <code>
-                {artifact.missionId} / {artifact.missionRunId}
-              </code>
+              {artifact.source === 'IMPORTED_CONFIRMED' ? (
+                '无应用内执行事实'
+              ) : (
+                <code>
+                  {artifact.missionId} / {artifact.missionRunId}
+                </code>
+              )}
             </dd>
           </div>
           <div>
             <dt>执行者编号</dt>
             <dd>
-              <code>{artifact.actorId}</code>
+              {artifact.source === 'IMPORTED_CONFIRMED' ? (
+                '外部成果，不归属道友执行'
+              ) : (
+                <code>{artifact.actorId}</code>
+              )}
             </dd>
           </div>
           <div>

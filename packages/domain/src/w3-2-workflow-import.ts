@@ -166,15 +166,35 @@ export function toWorkflowImportProposalSafeDto(
 
 export function validateWorkflowImportProposal(value: WorkflowImportProposal): void {
   if (!plain(value)) invalid('Workflow Import proposal must be a plain object');
-  validateKeys(value, [
-    'id', 'revision', 'status', 'definitionId', 'version', 'versionHash', 'inputSnapshot',
-    'description', 'sources', 'resolution', 'sourceMetadataHash', 'policyVersion',
-    'validationStatus', 'validationErrors', 'createdAt', 'updatedAt', 'runId',
-  ], 'Workflow Import proposal');
+  validateKeys(
+    value,
+    [
+      'id',
+      'revision',
+      'status',
+      'definitionId',
+      'version',
+      'versionHash',
+      'inputSnapshot',
+      'description',
+      'sources',
+      'resolution',
+      'sourceMetadataHash',
+      'policyVersion',
+      'validationStatus',
+      'validationErrors',
+      'createdAt',
+      'updatedAt',
+      'runId',
+    ],
+    'Workflow Import proposal',
+  );
   validateId(value.id, 'Workflow Import proposal');
   validateId(value.definitionId, 'Workflow definition');
-  if (!Number.isSafeInteger(value.revision) || value.revision < 1) invalid('Invalid proposal revision');
-  if (!Number.isSafeInteger(value.version) || value.version < 1) invalid('Invalid Workflow version');
+  if (!Number.isSafeInteger(value.revision) || value.revision < 1)
+    invalid('Invalid proposal revision');
+  if (!Number.isSafeInteger(value.version) || value.version < 1)
+    invalid('Invalid Workflow version');
   validateHash(value.versionHash, 'Workflow versionHash');
   if (!Array.isArray(value.sources) || value.sources.length > WORKFLOW_IMPORT_MAX_SOURCES)
     invalid('Workflow Import source count is outside its bounds');
@@ -199,7 +219,8 @@ export function validateWorkflowImportProposal(value: WorkflowImportProposal): v
   const strict = value.validationStatus === 'VALID';
   if (strict && value.policyVersion !== WORKFLOW_IMPORT_POLICY_VERSION)
     invalid('Valid Workflow Import proposals must use the supported policy version');
-  if (strict && value.sources.length < 1) invalid('Validated proposals require at least one source');
+  if (strict && value.sources.length < 1)
+    invalid('Validated proposals require at least one source');
   const sourceIds = new Set<string>();
   const physicalSources = new Set<string>();
   for (const source of value.sources) {
@@ -214,7 +235,8 @@ export function validateWorkflowImportProposal(value: WorkflowImportProposal): v
   validateWorkflowImportResolution(value.resolution, sourceIds, strict);
   if (!Array.isArray(value.validationErrors) || value.validationErrors.length > 64)
     invalid('Workflow Import validation errors exceed their bound');
-  for (const error of value.validationErrors) validateText(error, 'Workflow Import validation error', 512, true);
+  for (const error of value.validationErrors)
+    validateText(error, 'Workflow Import validation error', 512, true);
   validateTimestamp(value.createdAt);
   validateTimestamp(value.updatedAt);
   if (value.runId !== null) validateId(value.runId, 'Workflow Run');
@@ -222,16 +244,32 @@ export function validateWorkflowImportProposal(value: WorkflowImportProposal): v
 
 export function validateWorkflowImportConfirmation(value: WorkflowImportConfirmation): void {
   if (!plain(value)) invalid('Workflow Import confirmation must be a plain object');
-  validateKeys(value, [
-    'id', 'proposalId', 'runId', 'versionHash', 'sourceMetadataHash', 'completedStepIds',
-    'currentStepId', 'bindings', 'mappingHash', 'createdAt',
-  ], 'Workflow Import confirmation');
+  validateKeys(
+    value,
+    [
+      'id',
+      'proposalId',
+      'runId',
+      'versionHash',
+      'sourceMetadataHash',
+      'completedStepIds',
+      'currentStepId',
+      'bindings',
+      'mappingHash',
+      'createdAt',
+    ],
+    'Workflow Import confirmation',
+  );
   validateId(value.id, 'Workflow Import confirmation');
   validateId(value.proposalId, 'Workflow Import proposal');
   validateId(value.runId, 'Workflow Run');
   validateHash(value.versionHash, 'Workflow Import versionHash');
   validateHash(value.sourceMetadataHash, 'Workflow Import sourceMetadataHash');
-  if (!Array.isArray(value.completedStepIds) || value.completedStepIds.length < 1 || value.completedStepIds.length > WORKFLOW_IMPORT_MAX_COMPLETED_STEPS)
+  if (
+    !Array.isArray(value.completedStepIds) ||
+    value.completedStepIds.length < 1 ||
+    value.completedStepIds.length > WORKFLOW_IMPORT_MAX_COMPLETED_STEPS
+  )
     invalid('Workflow Import completed Step list is outside its bounds');
   validateUniqueIds(value.completedStepIds, 'Workflow Import completed Step');
   validateId(value.currentStepId, 'Workflow Import current Step');
@@ -239,30 +277,63 @@ export function validateWorkflowImportConfirmation(value: WorkflowImportConfirma
     invalid('The current Workflow Step cannot also be marked imported-completed');
   validateMappings(value.bindings, new Set(), false, true);
   validateHash(value.mappingHash, 'Workflow Import mappingHash');
-  if (value.mappingHash !== workflowImportMappingHash(value.completedStepIds, value.currentStepId, value.bindings))
+  if (
+    value.mappingHash !==
+    workflowImportMappingHash(value.completedStepIds, value.currentStepId, value.bindings)
+  )
     invalid('Workflow Import mappingHash does not match its confirmation snapshot');
   validateTimestamp(value.createdAt);
 }
 
 export function validateWorkflowImportedArtifact(value: WorkflowImportedArtifact): void {
   if (!plain(value)) invalid('Imported Workflow Artifact must be a plain object');
-  validateKeys(value, [
-    'id', 'workflowRunId', 'producerStepRunId', 'missionId', 'missionRunId', 'actorId',
-    'sourceId', 'source', 'importConfirmationId', 'kind', 'content', 'contentHash',
-    'metadata', 'inputArtifactIds', 'createdAt',
-  ], 'Imported Workflow Artifact');
-  if (value.source !== 'IMPORTED_CONFIRMED' || value.missionId !== null || value.missionRunId !== null || value.actorId !== null)
+  validateKeys(
+    value,
+    [
+      'id',
+      'workflowRunId',
+      'producerStepRunId',
+      'missionId',
+      'missionRunId',
+      'actorId',
+      'sourceId',
+      'source',
+      'importConfirmationId',
+      'kind',
+      'content',
+      'contentHash',
+      'metadata',
+      'inputArtifactIds',
+      'createdAt',
+    ],
+    'Imported Workflow Artifact',
+  );
+  if (
+    value.source !== 'IMPORTED_CONFIRMED' ||
+    value.missionId !== null ||
+    value.missionRunId !== null ||
+    value.actorId !== null
+  )
     invalid('Imported Workflow Artifacts must have Import provenance and no Mission identity');
   validateId(value.importConfirmationId, 'Workflow Import confirmation');
   validateId(value.id, 'Workflow Artifact');
   validateId(value.workflowRunId, 'Workflow Run');
   validateId(value.producerStepRunId, 'Workflow StepRun');
   validateId(value.sourceId, 'Workflow Import source');
-  if (!['TEXT', 'JSON'].includes(value.kind)) invalid('Workflow Import supports only text and JSON Artifacts');
-  validateText(value.content, 'Workflow Imported Artifact content', WORKFLOW_IMPORT_MAX_SOURCE_BYTES, true);
+  if (!['TEXT', 'JSON'].includes(value.kind))
+    invalid('Workflow Import supports only text and JSON Artifacts');
+  validateText(
+    value.content,
+    'Workflow Imported Artifact content',
+    WORKFLOW_IMPORT_MAX_SOURCE_BYTES,
+    true,
+  );
   if (utf8ByteLength(value.content) > WORKFLOW_IMPORT_MAX_SOURCE_BYTES)
     invalid('Workflow Imported Artifact exceeds its byte bound');
-  if (!Array.isArray(value.inputArtifactIds) || value.inputArtifactIds.length > WORKFLOW_IMPORT_MAX_BINDINGS)
+  if (
+    !Array.isArray(value.inputArtifactIds) ||
+    value.inputArtifactIds.length > WORKFLOW_IMPORT_MAX_BINDINGS
+  )
     invalid('Workflow Imported Artifact lineage exceeds its bound');
   validateUniqueIds(value.inputArtifactIds, 'Workflow Imported input Artifact');
   for (const id of value.inputArtifactIds) validateId(id, 'Workflow Imported input Artifact');
@@ -286,28 +357,48 @@ export function validateWorkflowImportedArtifact(value: WorkflowImportedArtifact
     invalid('Workflow Imported Artifact metadata does not match its confirmed snapshot');
   validateTimestamp(value.createdAt);
   validateHash(value.contentHash, 'Workflow Imported Artifact contentHash');
-  if (workflowImportHash({ content: value.content, metadata: value.metadata }) !== value.contentHash)
+  if (
+    workflowImportHash({ content: value.content, metadata: value.metadata }) !== value.contentHash
+  )
     invalid('Workflow Imported Artifact contentHash must hash its canonical content and metadata');
 }
 
 function validateWorkflowImportSource(value: WorkflowImportSource, strict: boolean): void {
   if (!plain(value)) invalid('Workflow Import source must be a plain object');
-  validateKeys(value, [
-    'id', 'name', 'relativePath', 'workspaceRoot', 'kind', 'size', 'content', 'contentHash', 'mtime',
-  ], 'Workflow Import source');
+  validateKeys(
+    value,
+    [
+      'id',
+      'name',
+      'relativePath',
+      'workspaceRoot',
+      'kind',
+      'size',
+      'content',
+      'contentHash',
+      'mtime',
+    ],
+    'Workflow Import source',
+  );
   validateId(value.id, 'Workflow Import source');
   validateText(value.name, 'Workflow Import source name', 256);
-  if (!isSafeWorkflowRelativePath(value.relativePath)) invalid('Workflow Import source path is unsafe');
+  if (!isSafeWorkflowRelativePath(value.relativePath))
+    invalid('Workflow Import source path is unsafe');
   validateText(value.workspaceRoot, 'Workflow Import workspace root', 4096);
   if (!['TEXT', 'JSON'].includes(value.kind)) invalid('Invalid Workflow Import source kind');
-  if (!Number.isSafeInteger(value.size) || value.size < 0 || value.size > WORKFLOW_IMPORT_MAX_SOURCE_BYTES)
+  if (
+    !Number.isSafeInteger(value.size) ||
+    value.size < 0 ||
+    value.size > WORKFLOW_IMPORT_MAX_SOURCE_BYTES
+  )
     invalid('Workflow Import source size is outside its bounds');
   if (typeof value.content !== 'string' || utf8ByteLength(value.content) !== value.size)
     invalid('Workflow Import source content does not match its byte size');
   validateHash(value.contentHash, 'Workflow Import source contentHash');
   if (sha256Hex(value.content) !== value.contentHash)
     invalid('Workflow Import source contentHash does not match its snapshot');
-  if (!Number.isFinite(value.mtime) || value.mtime < 0) invalid('Invalid Workflow Import source mtime');
+  if (!Number.isFinite(value.mtime) || value.mtime < 0)
+    invalid('Invalid Workflow Import source mtime');
   if (strict && value.kind === 'JSON') {
     try {
       JSON.parse(value.content);
@@ -323,11 +414,22 @@ function validateWorkflowImportResolution(
   strict: boolean,
 ): void {
   if (!plain(value)) invalid('Workflow Import resolution must be a plain object');
-  validateKeys(value, [
-    'suggestedCompletedSteps', 'suggestedCurrentStep', 'candidateArtifactBindings',
-    'missingRequirements', 'confidence', 'explanationSummary',
-  ], 'Workflow Import resolution');
-  if (!Array.isArray(value.suggestedCompletedSteps) || value.suggestedCompletedSteps.length > WORKFLOW_IMPORT_MAX_COMPLETED_STEPS)
+  validateKeys(
+    value,
+    [
+      'suggestedCompletedSteps',
+      'suggestedCurrentStep',
+      'candidateArtifactBindings',
+      'missingRequirements',
+      'confidence',
+      'explanationSummary',
+    ],
+    'Workflow Import resolution',
+  );
+  if (
+    !Array.isArray(value.suggestedCompletedSteps) ||
+    value.suggestedCompletedSteps.length > WORKFLOW_IMPORT_MAX_COMPLETED_STEPS
+  )
     invalid('Suggested completed Steps are outside their bounds');
   if (strict) validateUniqueIds(value.suggestedCompletedSteps, 'Suggested completed Step');
   else for (const id of value.suggestedCompletedSteps) validateId(id, 'Suggested completed Step');
@@ -336,7 +438,10 @@ function validateWorkflowImportResolution(
   if (strict && value.suggestedCompletedSteps.includes(value.suggestedCurrentStep))
     invalid('Suggested current Step cannot be in the completed prefix');
   validateMappings(value.candidateArtifactBindings, sourceIds, strict, strict);
-  if (!Array.isArray(value.missingRequirements) || value.missingRequirements.length > WORKFLOW_IMPORT_MAX_BINDINGS)
+  if (
+    !Array.isArray(value.missingRequirements) ||
+    value.missingRequirements.length > WORKFLOW_IMPORT_MAX_BINDINGS
+  )
     invalid('Missing Workflow Import requirements exceed their bound');
   for (const missing of value.missingRequirements)
     validateText(missing, 'Missing Workflow Import requirement', 256, true);
@@ -360,9 +465,11 @@ function validateMappings(
     validateId(mapping.stepId, 'Workflow Import Step');
     validateId(mapping.outputKey, 'Workflow Import output key');
     validateId(mapping.sourceId, 'Workflow Import source');
-    if (requireKnownSources && !sourceIds.has(mapping.sourceId)) invalid('Workflow Import mapping references an unknown source');
+    if (requireKnownSources && !sourceIds.has(mapping.sourceId))
+      invalid('Workflow Import mapping references an unknown source');
     const identity = `${mapping.stepId}\u0000${mapping.outputKey}`;
-    if (requireUnique && identities.has(identity)) invalid('Duplicate Workflow Import artifact mapping');
+    if (requireUnique && identities.has(identity))
+      invalid('Duplicate Workflow Import artifact mapping');
     identities.add(identity);
   }
 }
@@ -397,10 +504,19 @@ function validateText(value: string, name: string, max: number, allowEmpty = fal
 }
 
 function plain(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
 }
 
-function validateKeys(value: Record<string, unknown>, allowed: readonly string[], name: string): void {
+function validateKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  name: string,
+): void {
   if (Object.keys(value).some((key) => !allowed.includes(key)))
     invalid(`${name} contains an unsupported field`);
 }
@@ -434,27 +550,25 @@ function sha256Hex(value: string): string {
   view.setUint32(paddedLength - 4, bitLength >>> 0, false);
 
   const constants = [
-    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
-    0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
-    0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
-    0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-    0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
-    0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
-    0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
-    0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
-    0xc67178f2,
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
   ];
   const state = [
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
   ];
   const words = new Int32Array(64);
   const rotateRight = (number: number, count: number): number =>
     (number >>> count) | (number << (32 - count));
 
   for (let offset = 0; offset < paddedLength; offset += 64) {
-    for (let index = 0; index < 16; index++) words[index] = view.getInt32(offset + index * 4, false);
+    for (let index = 0; index < 16; index++)
+      words[index] = view.getInt32(offset + index * 4, false);
     for (let index = 16; index < 64; index++) {
       const x = words[index - 15]!;
       const y = words[index - 2]!;
@@ -492,8 +606,15 @@ function sha256Hex(value: string): string {
   return state.map((word) => (word >>> 0).toString(16).padStart(8, '0')).join('');
 }
 
-function compareMapping(left: WorkflowImportArtifactMapping, right: WorkflowImportArtifactMapping): number {
-  return left.stepId.localeCompare(right.stepId) || left.outputKey.localeCompare(right.outputKey) || left.sourceId.localeCompare(right.sourceId);
+function compareMapping(
+  left: WorkflowImportArtifactMapping,
+  right: WorkflowImportArtifactMapping,
+): number {
+  return (
+    left.stepId.localeCompare(right.stepId) ||
+    left.outputKey.localeCompare(right.outputKey) ||
+    left.sourceId.localeCompare(right.sourceId)
+  );
 }
 
 function normalizeSourceLocation(value: string): string {

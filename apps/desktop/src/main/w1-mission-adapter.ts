@@ -327,7 +327,13 @@ export class WorkflowMissionAdapter implements WorkflowMissionPort {
     };
   }
   hasAcceptedArtifactProvenance(artifact: WorkflowArtifact): boolean {
-    if (artifact.source !== 'HUMAN_BRIDGE') return false;
+    if (
+      artifact.source !== 'HUMAN_BRIDGE' ||
+      !artifact.missionId ||
+      !artifact.missionRunId ||
+      !artifact.actorId
+    )
+      return false;
     const step = this.workflows?.findStepByMissionId(artifact.missionId);
     const detail = step ? this.workflows?.detail(step.workflowRunId) : null;
     if (

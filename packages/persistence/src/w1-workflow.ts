@@ -197,6 +197,17 @@ const PRIVATE_MEMORY_KEY = /privatememory/i;
 export class W1WorkflowRepository implements WorkflowRepository {
   constructor(private readonly db: Database.Database) {}
 
+  /** Historical migration tests and upgrades may still be on a pre-import schema. */
+  private get importsAvailable(): boolean {
+    return Boolean(
+      this.db
+        .prepare(
+          "SELECT 1 FROM sqlite_master WHERE type='table' AND name='workflow_import_artifacts'",
+        )
+        .get(),
+    );
+  }
+
   transaction<T>(fn: () => T): T {
     return this.db.transaction(fn)();
   }
@@ -436,7 +447,9 @@ export class W1WorkflowRepository implements WorkflowRepository {
     }
     const workspaceRoot =
       value.workspaceRoot === undefined ? current.workspace_root : value.workspaceRoot;
-    const completionOrigin = value.completionOrigin ?? current.completion_origin;
+    const completionOrigin = value.completionOrigin ?? current.completion_origin ?? 'EXECUTED';
+    if (!this.importsAvailable && completionOrigin !== 'EXECUTED')
+      throw new Error('Import completion requires migration 0032');
     validateNullableText(workspaceRoot, 'Workflow workspace root', 4096);
     return (
       this.db
@@ -444,7 +457,7 @@ export class W1WorkflowRepository implements WorkflowRepository {
           `UPDATE workflow_step_runs SET state = @state, mission_id = @missionId,
              mission_run_id = @missionRunId, workspace_root = @workspaceRoot,
              wait_reason = @waitReason, error_code = @errorCode,
-             completion_origin = @completionOrigin, updated_at = @updatedAt
+             ${this.importsAvailable ? 'completion_origin = @completionOrigin,' : ''} updated_at = @updatedAt
            WHERE id = @id AND state = @expectedState`,
         )
         .run({
@@ -478,12 +491,17 @@ export class W1WorkflowRepository implements WorkflowRepository {
     const artifacts = this.db
       .prepare('SELECT * FROM workflow_artifacts WHERE workflow_run_id = ? ORDER BY created_at, id')
       .all(runId) as ArtifactRow[];
-    const importedArtifacts = this.db
-      .prepare('SELECT * FROM workflow_import_artifacts WHERE workflow_run_id = ? ORDER BY created_at, id')
-      .all(runId) as ImportedArtifactRow[];
-    const artifactInputs = this.db
-      .prepare(
-        `SELECT l.artifact_id, l.input_artifact_id
+    const importedArtifacts: ImportedArtifactRow[] = this.importsAvailable
+      ? (this.db
+          .prepare(
+            'SELECT * FROM workflow_import_artifacts WHERE workflow_run_id = ? ORDER BY created_at, id',
+          )
+          .all(runId) as ImportedArtifactRow[])
+      : [];
+    const artifactInputs = this.importsAvailable
+      ? (this.db
+          .prepare(
+            `SELECT l.artifact_id, l.input_artifact_id
          FROM workflow_artifact_inputs AS l
          JOIN workflow_artifacts AS a ON a.id = l.artifact_id
          WHERE a.workflow_run_id = ?
@@ -498,8 +516,13 @@ export class W1WorkflowRepository implements WorkflowRepository {
          JOIN workflow_import_artifacts AS a ON a.id = l.artifact_id
          WHERE a.workflow_run_id = ?
          ORDER BY artifact_id, input_artifact_id`,
-      )
-      .all(runId, runId, runId) as { artifact_id: string; input_artifact_id: string }[];
+          )
+          .all(runId, runId, runId) as { artifact_id: string; input_artifact_id: string }[])
+      : (this.db
+          .prepare(
+            `SELECT l.artifact_id, l.input_artifact_id FROM workflow_artifact_inputs l JOIN workflow_artifacts a ON a.id=l.artifact_id WHERE a.workflow_run_id=? ORDER BY l.artifact_id,l.input_artifact_id`,
+          )
+          .all(runId) as { artifact_id: string; input_artifact_id: string }[]);
     const inputIds = new Map<string, string[]>();
     for (const input of artifactInputs) {
       const ids = inputIds.get(input.artifact_id) ?? [];
@@ -511,17 +534,25 @@ export class W1WorkflowRepository implements WorkflowRepository {
         'SELECT * FROM workflow_artifact_bindings WHERE workflow_run_id = ? ORDER BY created_at, id',
       )
       .all(runId) as BindingRow[];
-    const importedBindings = this.db
-      .prepare('SELECT * FROM workflow_import_artifact_bindings WHERE workflow_run_id = ? ORDER BY created_at, id')
-      .all(runId) as BindingRow[];
+    const importedBindings: BindingRow[] = this.importsAvailable
+      ? (this.db
+          .prepare(
+            'SELECT * FROM workflow_import_artifact_bindings WHERE workflow_run_id = ? ORDER BY created_at, id',
+          )
+          .all(runId) as BindingRow[])
+      : [];
     const validations = this.db
       .prepare(
         'SELECT * FROM workflow_validation_receipts WHERE workflow_run_id = ? ORDER BY created_at, id',
       )
       .all(runId) as ValidationRow[];
-    const importedValidations = this.db
-      .prepare('SELECT * FROM workflow_import_validations WHERE workflow_run_id = ? ORDER BY created_at, id')
-      .all(runId) as ImportedValidationRow[];
+    const importedValidations: ImportedValidationRow[] = this.importsAvailable
+      ? (this.db
+          .prepare(
+            'SELECT * FROM workflow_import_validations WHERE workflow_run_id = ? ORDER BY created_at, id',
+          )
+          .all(runId) as ImportedValidationRow[])
+      : [];
     const finalValidations = this.db
       .prepare(
         'SELECT * FROM workflow_run_output_validations WHERE workflow_run_id = ? ORDER BY created_at, id',
@@ -536,19 +567,30 @@ export class W1WorkflowRepository implements WorkflowRepository {
     const events = this.db
       .prepare('SELECT * FROM workflow_events WHERE workflow_run_id = ? ORDER BY created_at, id')
       .all(runId) as EventRow[];
-    const confirmationRow = this.db
-      .prepare('SELECT * FROM workflow_import_confirmations WHERE run_id = ?')
-      .get(runId) as ImportConfirmationRow | undefined;
+    const confirmationRow = this.importsAvailable
+      ? (this.db
+          .prepare('SELECT * FROM workflow_import_confirmations WHERE run_id = ?')
+          .get(runId) as ImportConfirmationRow | undefined)
+      : undefined;
     const projectedArtifacts = [
       ...artifacts.map((row) => mapArtifact(row, inputIds.get(row.id) ?? [])),
       ...importedArtifacts.map((row) => mapImportedArtifact(row, inputIds.get(row.id) ?? [])),
-    ].sort((left, right) => left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id));
+    ].sort(
+      (left, right) =>
+        left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id),
+    );
     const projectedBindings = [...bindings, ...importedBindings]
       .map(mapBinding)
-      .sort((left, right) => left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id));
+      .sort(
+        (left, right) =>
+          left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id),
+      );
     const projectedValidations = [...validations, ...importedValidations]
       .map(mapValidation)
-      .sort((left, right) => left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id));
+      .sort(
+        (left, right) =>
+          left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id),
+      );
     return {
       run: mapRun(runRow),
       version,
@@ -721,7 +763,8 @@ export class W1WorkflowRepository implements WorkflowRepository {
         !confirmation.completedStepIds.includes(record.producer_step_id) ||
         record.producer_state !== 'COMPLETED' ||
         record.completion_origin !== 'IMPORTED_CONFIRMED' ||
-        record.mission_id !== null || record.mission_run_id !== null ||
+        record.mission_id !== null ||
+        record.mission_run_id !== null ||
         source.content !== artifact.content ||
         source.contentHash !== artifact.metadata.sourceContentHash ||
         source.name !== artifact.metadata.sourceName ||
@@ -749,7 +792,14 @@ export class W1WorkflowRepository implements WorkflowRepository {
           candidate.contractVersion === record.contract_version &&
           candidate.kind === artifact.kind,
       );
-      if (!version || !step || !spec || step.type !== 'TASK' || step.effectType !== 'NONE' || step.exitCondition !== 'VALID_OUTPUTS')
+      if (
+        !version ||
+        !step ||
+        !spec ||
+        step.type !== 'TASK' ||
+        step.effectType !== 'NONE' ||
+        step.exitCondition !== 'VALID_OUTPUTS'
+      )
         return false;
       const expectedValidatorVersion =
         spec.validator.type === 'REGISTRY'
@@ -813,12 +863,18 @@ export class W1WorkflowRepository implements WorkflowRepository {
       const insertInput = this.db.prepare(
         'INSERT INTO workflow_artifact_inputs (artifact_id, input_artifact_id) VALUES (?, ?)',
       );
-      const insertImportedInput = this.db.prepare(
-        'INSERT INTO workflow_artifact_import_inputs (artifact_id, input_import_artifact_id) VALUES (?, ?)',
-      );
+      const insertImportedInput = this.importsAvailable
+        ? this.db.prepare(
+            'INSERT INTO workflow_artifact_import_inputs (artifact_id, input_import_artifact_id) VALUES (?, ?)',
+          )
+        : null;
       for (const inputArtifactId of value.inputArtifactIds) {
-        const imported = this.db.prepare('SELECT 1 FROM workflow_import_artifacts WHERE id = ?').get(inputArtifactId);
-        if (imported) insertImportedInput.run(value.id, inputArtifactId);
+        const imported =
+          this.importsAvailable &&
+          this.db
+            .prepare('SELECT 1 FROM workflow_import_artifacts WHERE id = ?')
+            .get(inputArtifactId);
+        if (imported) insertImportedInput!.run(value.id, inputArtifactId);
         else insertInput.run(value.id, inputArtifactId);
       }
     });
@@ -826,13 +882,22 @@ export class W1WorkflowRepository implements WorkflowRepository {
 
   appendBinding(value: WorkflowArtifactBinding): void {
     validateBinding(value);
-    const imported = this.db
-      .prepare('SELECT import_confirmation_id FROM workflow_import_artifacts WHERE id = ? AND workflow_run_id = ?')
-      .get(value.artifactId, value.workflowRunId) as { import_confirmation_id: string } | undefined;
+    const imported = this.importsAvailable
+      ? (this.db
+          .prepare(
+            'SELECT import_confirmation_id FROM workflow_import_artifacts WHERE id = ? AND workflow_run_id = ?',
+          )
+          .get(value.artifactId, value.workflowRunId) as
+          | { import_confirmation_id: string }
+          | undefined)
+      : undefined;
     if (imported) {
       if (value.role !== 'INPUT')
         throw new Error('Imported output bindings must be appended through the Import repository');
-      if (value.importConfirmationId && value.importConfirmationId !== imported.import_confirmation_id)
+      if (
+        value.importConfirmationId &&
+        value.importConfirmationId !== imported.import_confirmation_id
+      )
         throw new Error('Imported binding confirmation does not match the Artifact source fact');
       this.db
         .prepare(
@@ -869,7 +934,10 @@ export class W1WorkflowRepository implements WorkflowRepository {
 
   appendValidation(value: WorkflowValidationReceipt): void {
     validateValidation(value);
-    if (this.db.prepare('SELECT 1 FROM workflow_import_artifacts WHERE id = ?').get(value.artifactId))
+    if (
+      this.importsAvailable &&
+      this.db.prepare('SELECT 1 FROM workflow_import_artifacts WHERE id = ?').get(value.artifactId)
+    )
       throw new Error('Imported validations must be appended through the Import repository');
     const result = this.db
       .prepare(
@@ -1027,7 +1095,7 @@ function mapStepRun(row: StepRunRow): WorkflowStepRun {
     workflowRunId: row.workflow_run_id,
     stepId: row.step_id,
     attempt: row.attempt,
-    completionOrigin: row.completion_origin,
+    completionOrigin: row.completion_origin ?? 'EXECUTED',
     state: row.state,
     missionId: row.mission_id,
     missionRunId: row.mission_run_id,
@@ -1059,7 +1127,10 @@ function mapArtifact(row: ArtifactRow, inputArtifactIds: string[]): WorkflowArti
   };
 }
 
-function mapImportedArtifact(row: ImportedArtifactRow, inputArtifactIds: string[]): WorkflowArtifact {
+function mapImportedArtifact(
+  row: ImportedArtifactRow,
+  inputArtifactIds: string[],
+): WorkflowArtifact {
   return {
     id: row.id,
     workflowRunId: row.workflow_run_id,
@@ -1245,7 +1316,9 @@ function validateArtifact(value: WorkflowArtifact): void {
   validateId(value.workflowRunId, 'Workflow Run');
   validateId(value.producerStepRunId, 'Workflow StepRun');
   if (value.missionId === null || value.missionRunId === null || value.actorId === null)
-    throw new Error('Mission-backed Workflow Artifacts require Mission, Mission Run, and actor ids');
+    throw new Error(
+      'Mission-backed Workflow Artifacts require Mission, Mission Run, and actor ids',
+    );
   validateId(value.missionId, 'Mission');
   validateId(value.missionRunId, 'Mission Run');
   validateId(value.actorId, 'Workflow Artifact actor');

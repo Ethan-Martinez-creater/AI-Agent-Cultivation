@@ -15,30 +15,11 @@ import './WorkflowImport.css';
 
 export type WorkflowImportProposal = WorkflowImportProposalSafeDto;
 
-type WorkflowImportApi = {
-  list(): Promise<WorkflowImportProposal[]>;
-  prepare(input: {
-    definitionId: string;
-    version: number;
-    inputs: WorkflowInputs;
-    description: string;
-  }): Promise<WorkflowImportProposal>;
-  selectSource(proposalId: string): Promise<WorkflowImportProposal | null>;
-  revise(input: {
-    proposalId: string;
-    revision: number;
-    completedStepIds: string[];
-    currentStepId: string | null;
-    bindings: Array<{ stepId: string; outputKey: string; sourceId: string }>;
-  }): Promise<WorkflowImportProposal>;
-  confirm(input: { proposalId: string; revision: number }): Promise<WorkflowDetail>;
-  cancel(input: { proposalId: string; revision: number }): Promise<WorkflowImportProposal>;
-  get(proposalId: string): Promise<WorkflowImportProposal>;
-};
+type WorkflowImportApi = typeof window.cultivation.workflowImports;
 
 function workflowImportApiOrNull(): WorkflowImportApi | null {
   if (typeof window === 'undefined') return null;
-  const bridge = window.cultivation as unknown as { workflowImports?: WorkflowImportApi };
+  const bridge = window.cultivation;
   const api = bridge.workflowImports;
   if (
     !api ||
@@ -87,9 +68,12 @@ function isImportableStep(step: WorkflowStepDefinition): boolean {
     step.type === 'TASK' &&
     step.effectType === 'NONE' &&
     step.exitCondition === 'VALID_OUTPUTS' &&
+    !step.confirmationRequired &&
+    !step.executionRequirements?.generation &&
+    step.outputs.length > 0 &&
     !step.effectPaths?.length &&
     step.effectPathMode === undefined &&
-    !step.outputs.some((output) => output.kind === 'FILE' || output.kind === 'DIRECTORY')
+    step.outputs.every((output) => output.kind === 'TEXT' || output.kind === 'JSON')
   );
 }
 
@@ -377,7 +361,7 @@ export function WorkflowImport({
         proposalId: proposal.id,
         revision: proposal.revision,
         completedStepIds,
-        currentStepId: currentStepId || null,
+        currentStepId,
         bindings,
       });
       setProposal(next);
@@ -408,7 +392,7 @@ export function WorkflowImport({
       setProposal(null);
       onClose();
     } catch (reason) {
-      setError(errorMessage(reason, '导入确认失败，运行尚未创建。请刷新提案后重试。'));
+      setError(errorMessage(reason, '无法完成导入确认，请刷新提案核对状态后重试。'));
     } finally {
       setPending(false);
     }
@@ -455,7 +439,9 @@ export function WorkflowImport({
         version ? `导入已有结果 · ${version.definition.name} v${version.version}` : '导入已有结果'
       }
       open={open}
-      onClose={() => void cancel()}
+      onClose={() => {
+        if (!pending) onClose();
+      }}
       className="workflow-import-drawer"
     >
       {version && (
@@ -785,16 +771,18 @@ export function WorkflowImport({
                 </div>
               </section>
 
-              <section className="workflow-import-validation" aria-label="验证结果">
-                {proposal.validationErrors.length > 0 && (
-                  <ul className="workflow-import-error-list" role="alert">
-                    {proposal.validationErrors.map((item, index) => (
-                      <li key={`${index}-${item}`}>{item}</li>
-                    ))}
-                  </ul>
-                )}
-                {dirty && <p role="status">映射已修改，请重新验证后确认。</p>}
-              </section>
+              {(proposal.validationErrors.length > 0 || dirty) && (
+                <section className="workflow-import-validation" aria-label="验证结果">
+                  {proposal.validationErrors.length > 0 && (
+                    <ul className="workflow-import-error-list" role="alert">
+                      {proposal.validationErrors.map((item, index) => (
+                        <li key={`${index}-${item}`}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {dirty && <p role="status">映射已修改，请重新验证后确认。</p>}
+                </section>
+              )}
 
               <div className="workflow-import-actions">
                 <button

@@ -36,6 +36,8 @@ export interface WorkflowRepository {
   appendCheckpoint(value: WorkflowCheckpoint): void;
   appendEvent(value: WorkflowEvent): void;
   appendFinalValidation(value: WorkflowFinalValidation): void;
+  /** Independent import confirmation/source validation; never substitutes for a Mission fact. */
+  verifyImportedArtifact?(artifact: WorkflowArtifact): boolean;
 }
 export interface WorkflowMissionSnapshot {
   mission: Mission;

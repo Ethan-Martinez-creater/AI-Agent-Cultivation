@@ -17,6 +17,8 @@ export * from './w1-workflow-ports.js';
 export * from './w3-2-import-ports.js';
 export * from './w1-workflow-service.js';
 export * from './w3-1-workflow-editor-service.js';
+export * from './w3-2-workflow-import-service.js';
+export * from './w3-2-import-ports.js';
 export * from './research-delivery-projection.js';
 export * from './workflow-validation-policy-registry.js';
 export * from './w1-artifact-context.js';

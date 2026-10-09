@@ -262,7 +262,7 @@ function CompletionArtifactDisclosure({
     typeof artifact.metadata.sizeBytes === 'number' ? artifact.metadata.sizeBytes : undefined;
   return (
     <details className="workflow-data-row" data-testid="workflow-imported-artifact">
-      <summary>{displayName ?? label}</summary>
+      <summary>{displayName ?? kindLabel(artifact.kind)}</summary>
       <p>
         {fileName ? `导入来源：${fileName}` : '导入内容'}
         {size === undefined ? '' : ` · ${size} B`}

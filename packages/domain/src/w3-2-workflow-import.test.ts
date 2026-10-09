@@ -75,7 +75,9 @@ describe('W3.2 Workflow Import domain facts', () => {
     proposal.resolution = {
       suggestedCompletedSteps: ['S01'],
       suggestedCurrentStep: 'S01',
-      candidateArtifactBindings: [{ stepId: 'S01', outputKey: 'brief', sourceId: 'missing-source' }],
+      candidateArtifactBindings: [
+        { stepId: 'S01', outputKey: 'brief', sourceId: 'missing-source' },
+      ],
       missingRequirements: ['S01.brief has no selected source'],
       confidence: 0.2,
       explanationSummary: '',
@@ -112,13 +114,17 @@ describe('W3.2 Workflow Import domain facts', () => {
 
     const resolutionWithAuthority = makeProposal();
     Object.assign(resolutionWithAuthority.resolution, { permission: { allow: ['write'] } });
-    expect(() => validateWorkflowImportProposal(resolutionWithAuthority)).toThrow(/unsupported field/i);
+    expect(() => validateWorkflowImportProposal(resolutionWithAuthority)).toThrow(
+      /unsupported field/i,
+    );
 
     const mappingWithAuthority = makeProposal();
     Object.assign(mappingWithAuthority.resolution.candidateArtifactBindings[0]!, {
       toolAction: { kind: 'execute' },
     });
-    expect(() => validateWorkflowImportProposal(mappingWithAuthority)).toThrow(/unsupported field/i);
+    expect(() => validateWorkflowImportProposal(mappingWithAuthority)).toThrow(
+      /unsupported field/i,
+    );
 
     const invalidDraft = makeProposal();
     invalidDraft.validationStatus = 'INVALID';

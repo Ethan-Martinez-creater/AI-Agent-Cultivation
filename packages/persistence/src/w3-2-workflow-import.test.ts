@@ -56,7 +56,11 @@ function version(withRequiredInputs = false): WorkflowVersion {
   const steps = withRequiredInputs
     ? [
         task('a', [], ['data', 'other']),
-        task('b', [{ key: 'input', fromStepId: 'a', outputKey: 'data', required: true }], ['b', 'otherb']),
+        task(
+          'b',
+          [{ key: 'input', fromStepId: 'a', outputKey: 'data', required: true }],
+          ['b', 'otherb'],
+        ),
         task('c', [{ key: 'input', fromStepId: 'b', outputKey: 'b', required: true }]),
         task('d'),
       ]
@@ -134,8 +138,12 @@ function freshRun(
       updatedAt: NOW,
     });
   expect(repository.saveRun({ ...run, state: 'READY', updatedAt: 'ready' }, 'DRAFT')).toBe(true);
-  const entry = repository.detail(runId)!.steps.find((stepRun) => stepRun.stepId === frozen.entryStepId)!;
-  expect(repository.saveStep({ ...entry, state: 'READY', updatedAt: 'ready' }, 'PENDING')).toBe(true);
+  const entry = repository
+    .detail(runId)!
+    .steps.find((stepRun) => stepRun.stepId === frozen.entryStepId)!;
+  expect(repository.saveStep({ ...entry, state: 'READY', updatedAt: 'ready' }, 'PENDING')).toBe(
+    true,
+  );
   const versionRow = db
     .prepare('SELECT content_hash FROM workflow_versions WHERE definition_id = ? AND version = ?')
     .get(frozen.definition.id, frozen.version) as { content_hash: string };
@@ -223,8 +231,13 @@ describe('W3.2 SQLite Import graph guards', () => {
           status: 'DRAFT',
           definitionId: frozen.definition.id,
           version: frozen.version,
-          versionHash: (db.prepare('SELECT content_hash FROM workflow_versions WHERE definition_id = ? AND version = ?')
-            .get(frozen.definition.id, frozen.version) as { content_hash: string }).content_hash,
+          versionHash: (
+            db
+              .prepare(
+                'SELECT content_hash FROM workflow_versions WHERE definition_id = ? AND version = ?',
+              )
+              .get(frozen.definition.id, frozen.version) as { content_hash: string }
+          ).content_hash,
           inputSnapshot: {},
           description: '',
           sources: [],
@@ -260,17 +273,21 @@ describe('W3.2 SQLite Import graph guards', () => {
         { stepId: 'a', outputKey: 'a', sourceId: 'source-a' },
         { stepId: 'c', outputKey: 'c', sourceId: 'source-c' },
       ];
-      setup.imports.insertProposal(proposal('skip-proposal', frozen, setup.versionHash, sources, bindings));
-      expect(() => appendConfirmation(
-        setup.imports,
-        'skip-proposal',
-        'skip-run',
-        setup.versionHash,
-        sources,
-        ['a', 'c'],
-        'd',
-        bindings,
-      )).toThrow(/Workflow Import confirmation/);
+      setup.imports.insertProposal(
+        proposal('skip-proposal', frozen, setup.versionHash, sources, bindings),
+      );
+      expect(() =>
+        appendConfirmation(
+          setup.imports,
+          'skip-proposal',
+          'skip-run',
+          setup.versionHash,
+          sources,
+          ['a', 'c'],
+          'd',
+          bindings,
+        ),
+      ).toThrow(/Workflow Import confirmation/);
       expect(setup.imports.getConfirmationByProposal('skip-proposal')).toBeNull();
     } finally {
       db.close();
@@ -287,17 +304,21 @@ describe('W3.2 SQLite Import graph guards', () => {
         { stepId: 'a', outputKey: 'other', sourceId: 'source-a' },
         { stepId: 'b', outputKey: 'b', sourceId: 'source-b' },
       ];
-      setup.imports.insertProposal(proposal('input-proposal', frozen, setup.versionHash, sources, bindings));
-      expect(() => appendConfirmation(
-        setup.imports,
-        'input-proposal',
-        'input-run',
-        setup.versionHash,
-        sources,
-        ['a', 'b'],
-        'c',
-        bindings,
-      )).toThrow(/Workflow Import confirmation/);
+      setup.imports.insertProposal(
+        proposal('input-proposal', frozen, setup.versionHash, sources, bindings),
+      );
+      expect(() =>
+        appendConfirmation(
+          setup.imports,
+          'input-proposal',
+          'input-run',
+          setup.versionHash,
+          sources,
+          ['a', 'b'],
+          'c',
+          bindings,
+        ),
+      ).toThrow(/Workflow Import confirmation/);
       expect(setup.imports.getConfirmationByProposal('input-proposal')).toBeNull();
     } finally {
       db.close();
@@ -314,21 +335,24 @@ describe('W3.2 SQLite Import graph guards', () => {
         { stepId: 'a', outputKey: 'data', sourceId: 'source-a' },
         { stepId: 'b', outputKey: 'otherb', sourceId: 'source-b' },
       ];
-      setup.imports.insertProposal(proposal('current-input-proposal', frozen, setup.versionHash, sources, bindings));
-      expect(() => appendConfirmation(
-        setup.imports,
-        'current-input-proposal',
-        'current-input-run',
-        setup.versionHash,
-        sources,
-        ['a', 'b'],
-        'c',
-        bindings,
-      )).toThrow(/Workflow Import confirmation/);
+      setup.imports.insertProposal(
+        proposal('current-input-proposal', frozen, setup.versionHash, sources, bindings),
+      );
+      expect(() =>
+        appendConfirmation(
+          setup.imports,
+          'current-input-proposal',
+          'current-input-run',
+          setup.versionHash,
+          sources,
+          ['a', 'b'],
+          'c',
+          bindings,
+        ),
+      ).toThrow(/Workflow Import confirmation/);
       expect(setup.imports.getConfirmationByProposal('current-input-proposal')).toBeNull();
     } finally {
       db.close();
     }
   });
-
 });

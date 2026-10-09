@@ -13,7 +13,7 @@ function step(
   id: string,
   type: WorkflowStepDefinition['type'] = 'TASK',
   effectType: WorkflowStepDefinition['effectType'] = 'NONE',
-  outputKinds: WorkflowStepDefinition['outputs'][number]['kind'][] = [],
+  outputKinds: WorkflowStepDefinition['outputs'][number]['kind'][] = ['TEXT'],
 ): WorkflowStepDefinition {
   return {
     id,

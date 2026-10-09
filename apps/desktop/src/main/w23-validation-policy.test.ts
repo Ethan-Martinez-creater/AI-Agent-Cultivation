@@ -236,7 +236,7 @@ function makeComputationalAttempt() {
     attempt: 1,
     missionId,
     missionRunId,
-    actorId: recordArtifact.actorId,
+    actorId: recordArtifact.actorId!,
     toolCallId: 'tool-call-experiment',
     toolId: 'mcp.experiment',
     outputHash: hash('tool output'),

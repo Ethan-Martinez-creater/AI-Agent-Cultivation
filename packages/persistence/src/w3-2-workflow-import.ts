@@ -210,7 +210,8 @@ export class W32WorkflowImportRepository implements WorkflowImportRepositoryPort
         valid: value.valid ? 1 : 0,
         errorsJson: canonicalJson(value.errors),
       });
-    if (result.changes !== 1) throw new Error('Imported validation must reference an imported Artifact');
+    if (result.changes !== 1)
+      throw new Error('Imported validation must reference an imported Artifact');
   }
 }
 
@@ -287,7 +288,8 @@ function validateBinding(value: WorkflowImportedBinding): void {
   validateText(value.contractVersion, 'Workflow contract version', 128);
   validateText(value.importConfirmationId, 'Workflow Import confirmation id', 256);
   validateText(value.createdAt, 'Workflow Import binding timestamp', 128);
-  if (!['INPUT', 'OUTPUT'].includes(value.role)) throw new Error('Invalid imported Artifact binding role');
+  if (!['INPUT', 'OUTPUT'].includes(value.role))
+    throw new Error('Invalid imported Artifact binding role');
 }
 
 function validateValidation(value: WorkflowImportedValidation): void {
@@ -300,7 +302,8 @@ function validateValidation(value: WorkflowImportedValidation): void {
   validateHash(value.contentHash, 'Imported Artifact contentHash');
   if (typeof value.valid !== 'boolean' || !Array.isArray(value.errors) || value.errors.length > 64)
     throw new Error('Invalid imported validation receipt');
-  if (value.valid && value.errors.length) throw new Error('Valid import validations cannot contain errors');
+  if (value.valid && value.errors.length)
+    throw new Error('Valid import validations cannot contain errors');
   for (const error of value.errors) validateText(error, 'Import validation error', 512, true);
   validateText(value.createdAt, 'Import validation timestamp', 128);
 }

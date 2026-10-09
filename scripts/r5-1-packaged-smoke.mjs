@@ -483,7 +483,7 @@ const productionDatabase = openReadOnlyDatabase(productionProfile, (db) => {
     .map((row) => row.version);
   assert.deepEqual(
     migrationVersions,
-    Array.from({ length: 31 }, (_, index) => index + 1),
+    Array.from({ length: 32 }, (_, index) => index + 1),
   );
   assert.equal(
     db.prepare("SELECT COUNT(*) AS n FROM mission_events WHERE event_type='skill.selection'").get()
@@ -1003,7 +1003,7 @@ const finalDbFacts = openReadOnlyDatabase(fixtureProfile, (db) => {
     .map((row) => row.version);
   assert.deepEqual(
     migrations,
-    Array.from({ length: 31 }, (_, index) => index + 1),
+    Array.from({ length: 32 }, (_, index) => index + 1),
   );
   assert.equal(
     db.prepare("SELECT COUNT(*) AS n FROM mission_events WHERE event_type='skill.selection'").get()
@@ -1034,7 +1034,7 @@ mkdirSync(evidenceDir, { recursive: true });
 const evidencePath = join(evidenceDir, 'facts.json');
 const evidence = {
   verifiedAt: new Date().toISOString(),
-  schemaVersion: 31,
+  schemaVersion: 32,
   production: { ...productionFacts, database: productionDatabase },
   fixture: {
     ...fixtureFacts,
@@ -1067,7 +1067,7 @@ const evidence = {
 writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
 console.log(`R5_1_PACKAGED_EVIDENCE ${evidencePath}`);
 console.log(
-  `R5_1_PACKAGED_SMOKE_OK production=normal_fixture_free fixture=explicit_top3=1-3 party=own_actor_skills workflow=bounded_step_context fallback=deterministic_real_model_call migration=31 shadow=off evidence=${evidencePath}`,
+  `R5_1_PACKAGED_SMOKE_OK production=normal_fixture_free fixture=explicit_top3=1-3 party=own_actor_skills workflow=bounded_step_context fallback=deterministic_real_model_call migration=32 shadow=off evidence=${evidencePath}`,
 );
 
 async function readObserver(profile) {

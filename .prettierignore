@@ -17,3 +17,7 @@ docs/AI-Agent-Cultivation_Workflow_Architecture_Plan_v0.1.md
 docs/AI-Agent-Cultivation_Generative_Model_Execution_Software_Spec_v0.2.md
 docs/AI-Agent-Cultivation_G3_Multimodal_Collaboration_Plan_v1.0.md
 docs/AI-Agent-Cultivation_UI_Product_System_Reset_Plan_v1.0.md
+# Generated historical raw facts are assertion evidence, preserved verbatim.
+docs/evidence/**/facts.json
+docs/evidence/w3-1-user-workflow-editor/compatibility.json
+docs/evidence/w3-1-user-workflow-editor/draft-version-facts.json

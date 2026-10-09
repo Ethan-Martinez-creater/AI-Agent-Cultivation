@@ -21,6 +21,7 @@ import {
   R4RoutingRepository,
   W1WorkflowRepository,
   W31WorkflowDraftRepository,
+  W32WorkflowImportRepository,
   W2WorkflowRepository,
   W22WorkspaceMutationRepository,
   ResearchSourceRepository,
@@ -83,6 +84,7 @@ import {
   R4DecisionService,
   WorkflowService,
   WorkflowEditorService,
+  WorkflowImportService,
   workflowArtifactContext,
 } from '@cultivation/application';
 import type {
@@ -127,6 +129,8 @@ import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.j
 import { registerWorkflowIpc } from './w1-ipc.js';
 import { registerWorkflowEditorIpc, type WorkflowEditorPort } from './w3-1-ipc.js';
 import { WorkflowEditorFixtureGateway } from './w3-1-fixture.js';
+import { registerWorkflowImportIpc } from './w3-2-ipc.js';
+import { WorkflowImportSources } from './w3-2-import-sources.js';
 import { ResearchInputArtifactService } from './w23-input-artifacts.js';
 import { registerResearchInputIpc } from './w23-input-ipc.js';
 import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.js';
@@ -203,6 +207,8 @@ function createWindow(
   g2: ReturnType<typeof h3GenerationFoundation> | null,
   g3: ReturnType<typeof multimodalFoundation>,
   workflowEditor: WorkflowEditorPort,
+  workflowImports: WorkflowImportService,
+  importSources: WorkflowImportSources,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -396,6 +402,7 @@ function createWindow(
   );
   registerWorkflowIpc(validSender, workflows);
   registerWorkflowEditorIpc(validSender, workflowEditor);
+  registerWorkflowImportIpc(window, validSender, workflowImports, importSources);
   registerResearchInputIpc(window, validSender, researchInputs);
   registerGenerationIpc(validSender, generation);
   if (g2)
@@ -1492,6 +1499,31 @@ if (!squirrelStartup)
         workflowStore,
         workflows,
       );
+      const importSources = new WorkflowImportSources(
+        toolRuntime,
+        () => tools.getWorkspace().rootPath,
+      );
+      const importStore = new W32WorkflowImportRepository(db);
+      // Offline packaged crash acceptance only; a normal bootstrap never installs this hook.
+      if (
+        process.argv.includes('--gate1-fake-model') &&
+        process.argv.includes('--w31-editor-fixture') &&
+        process.argv.includes('--w32-import-crash=AFTER_ARTIFACT')
+      ) {
+        const append = importStore.appendImportedArtifact.bind(importStore);
+        importStore.appendImportedArtifact = (artifact) => {
+          append(artifact);
+          // Electron's process.exit schedules app shutdown and may return to this
+          // synchronous transaction. Abruptly terminate only this fixture process.
+          process.kill(process.pid, 'SIGKILL');
+        };
+      }
+      const workflowImports = new WorkflowImportService(
+        importStore,
+        workflowStore,
+        workflows,
+        importSources,
+      );
       if (toolShortlistFixture) registerToolShortlistWorkflowFixture(workflows);
       if (completionAdvisoryFixture) registerCompletionAdvisoryWorkflowFixtures(workflows);
       if (process.argv.includes('--g3-fixture') && process.argv.includes('--gate1-fake-model'))
@@ -1534,6 +1566,8 @@ if (!squirrelStartup)
         g2,
         g3,
         workflowEditor,
+        workflowImports,
+        importSources,
       );
       if (g2) {
         let polling = false;
@@ -1601,6 +1635,8 @@ if (!squirrelStartup)
             g2,
             g3!,
             workflowEditor,
+            workflowImports,
+            importSources,
           );
       });
     })

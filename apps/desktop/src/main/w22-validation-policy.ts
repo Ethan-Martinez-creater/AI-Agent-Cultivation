@@ -171,7 +171,7 @@ function verificationOutcome(
     report.workflowRunId !== detail.run.id ||
     report.missionId !== producer.missionId ||
     report.missionRunId !== producer.missionRunId ||
-    !report.actorId.trim()
+    !report.actorId?.trim()
   )
     return 'BLOCKED';
 

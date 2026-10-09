@@ -184,6 +184,9 @@ export class WorkflowService {
           ...enriched,
           researchDelivery: projectResearchDelivery(enriched, {
             verifyMissionFact: (artifact, producer) => {
+              if (producer.completionOrigin === 'IMPORTED_CONFIRMED')
+                return this.store.verifyImportedArtifact?.(artifact) === true;
+              if (!artifact.missionId) return false;
               const snapshot = this.missions.snapshot(artifact.missionId);
               if (
                 snapshot.mission.id !== producer.missionId ||
@@ -524,6 +527,7 @@ export class WorkflowService {
         state: 'PENDING',
         missionId: null,
         missionRunId: null,
+        completionOrigin: 'EXECUTED',
         workspaceRoot: null,
         waitReason: null,
         errorCode: null,
@@ -1294,6 +1298,7 @@ export class WorkflowService {
         state: 'PENDING',
         missionId: null,
         missionRunId: null,
+        completionOrigin: 'EXECUTED',
         workspaceRoot: null,
         waitReason: null,
         errorCode: null,
@@ -1482,50 +1487,53 @@ export class WorkflowService {
         artifact.metadata.outputKey,
         artifact.metadata.targetArtifactId,
       ].filter((name): name is string => typeof name === 'string' && name.length > 0);
+      const imported = producer?.completionOrigin === 'IMPORTED_CONFIRMED';
       if (
         binding?.workflowRunId !== detail.run.id ||
         binding.contractId !== contract.contractId ||
         binding.contractVersion !== contract.contractVersion ||
         artifact.workflowRunId !== detail.run.id ||
         artifact.producerStepRunId !== producer?.id ||
-        artifact.missionId !== producer?.missionId ||
-        artifact.missionRunId !== producer?.missionRunId ||
-        (artifact.source === 'HUMAN_BRIDGE' &&
-          detail.version.validationPolicy !== undefined &&
-          (humanBridgeNames.length === 0 ||
-            humanBridgeNames.some((name) => name !== spec.outputKey))) ||
-        snapshot?.mission.id !== producer?.missionId ||
-        snapshot?.mission.state !== 'COMPLETED' ||
-        snapshot?.run?.id !== producer?.missionRunId ||
-        snapshot?.run?.missionId !== producer?.missionId ||
-        snapshot?.run?.status !== 'COMPLETED' ||
-        (artifact.source === 'MISSION' &&
-          ['TEXT', 'JSON'].includes(artifact.kind) &&
-          !snapshot?.outputs.some(
-            (o) =>
-              o.sourceId === artifact.sourceId &&
-              o.actorId === artifact.actorId &&
-              o.source === artifact.source,
-          )) ||
-        (artifact.source === 'MISSION' &&
-          ['FILE', 'DIRECTORY'].includes(artifact.kind) &&
-          !detail.operations?.some(
-            (o) =>
-              o.stepRunId === producer?.id &&
-              o.state === 'VERIFIED' &&
-              o.outputArtifactIds?.includes(artifact.id),
-          )) ||
-        (artifact.source === 'HUMAN_BRIDGE' &&
-          !this.missions.hasAcceptedArtifactProvenance?.(artifact) &&
-          !snapshot?.outputs.some(
-            (o) =>
-              o.source === 'HUMAN_BRIDGE' &&
-              o.sourceId === artifact.sourceId &&
-              o.actorId === artifact.actorId &&
-              o.kind === artifact.kind &&
-              o.content === artifact.content &&
-              workflowHash(o.metadata) === workflowHash(artifact.metadata),
-          )) ||
+        (imported && this.store.verifyImportedArtifact?.(artifact) !== true) ||
+        (!imported &&
+          (artifact.missionId !== producer?.missionId ||
+            artifact.missionRunId !== producer?.missionRunId ||
+            (artifact.source === 'HUMAN_BRIDGE' &&
+              detail.version.validationPolicy !== undefined &&
+              (humanBridgeNames.length === 0 ||
+                humanBridgeNames.some((name) => name !== spec.outputKey))) ||
+            snapshot?.mission.id !== producer?.missionId ||
+            snapshot?.mission.state !== 'COMPLETED' ||
+            snapshot?.run?.id !== producer?.missionRunId ||
+            snapshot?.run?.missionId !== producer?.missionId ||
+            snapshot?.run?.status !== 'COMPLETED' ||
+            (artifact.source === 'MISSION' &&
+              ['TEXT', 'JSON'].includes(artifact.kind) &&
+              !snapshot?.outputs.some(
+                (o) =>
+                  o.sourceId === artifact.sourceId &&
+                  o.actorId === artifact.actorId &&
+                  o.source === artifact.source,
+              )) ||
+            (artifact.source === 'MISSION' &&
+              ['FILE', 'DIRECTORY'].includes(artifact.kind) &&
+              !detail.operations?.some(
+                (o) =>
+                  o.stepRunId === producer?.id &&
+                  o.state === 'VERIFIED' &&
+                  o.outputArtifactIds?.includes(artifact.id),
+              )) ||
+            (artifact.source === 'HUMAN_BRIDGE' &&
+              !this.missions.hasAcceptedArtifactProvenance?.(artifact) &&
+              !snapshot?.outputs.some(
+                (o) =>
+                  o.source === 'HUMAN_BRIDGE' &&
+                  o.sourceId === artifact.sourceId &&
+                  o.actorId === artifact.actorId &&
+                  o.kind === artifact.kind &&
+                  o.content === artifact.content &&
+                  workflowHash(o.metadata) === workflowHash(artifact.metadata),
+              )))) ||
         artifact.contentHash !==
           workflowHash({ content: artifact.content, metadata: artifact.metadata })
       )

@@ -54,6 +54,7 @@ import type {
   WorkflowVersion,
   WorkflowDraft,
   WorkflowDraftContent,
+  WorkflowImportProposalSafeDto,
 } from '@cultivation/domain';
 import type { RoutingMissionCreationResult } from '@cultivation/application';
 import type { AvailabilityService } from '@cultivation/application';
@@ -413,6 +414,26 @@ export interface CultivationBridge {
       };
     }): Promise<MissionDetail>;
   };
+  workflowImports: {
+    list(): Promise<WorkflowImportProposalSafeDto[]>;
+    prepare(input: {
+      definitionId: string;
+      version: number;
+      inputs?: WorkflowInputs;
+      description?: string;
+    }): Promise<WorkflowImportProposalSafeDto>;
+    get(proposalId: string): Promise<WorkflowImportProposalSafeDto>;
+    selectSource(proposalId: string): Promise<WorkflowImportProposalSafeDto | null>;
+    revise(input: {
+      proposalId: string;
+      revision: number;
+      completedStepIds: string[];
+      currentStepId: string;
+      bindings: Array<{ stepId: string; outputKey: string; sourceId: string }>;
+    }): Promise<WorkflowImportProposalSafeDto>;
+    confirm(input: { proposalId: string; revision: number }): Promise<WorkflowDetail>;
+    cancel(input: { proposalId: string; revision: number }): Promise<WorkflowImportProposalSafeDto>;
+  };
   workflowEditor: {
     listDrafts(): Promise<WorkflowDraft[]>;
     getDraft(id: string): Promise<WorkflowDraft>;
@@ -674,6 +695,15 @@ const bridge: CultivationBridge = {
     cancel: (id) => ipcRenderer.invoke('missions:cancel', id),
     resolveApproval: (input) => ipcRenderer.invoke('missions:resolveApproval', input),
     resolveCollaboration: (input) => ipcRenderer.invoke('missions:resolveCollaboration', input),
+  },
+  workflowImports: {
+    list: () => ipcRenderer.invoke('workflowImports:list'),
+    prepare: (input) => ipcRenderer.invoke('workflowImports:prepare', input),
+    get: (id) => ipcRenderer.invoke('workflowImports:get', id),
+    selectSource: (id) => ipcRenderer.invoke('workflowImports:selectSource', id),
+    revise: (input) => ipcRenderer.invoke('workflowImports:revise', input),
+    confirm: (input) => ipcRenderer.invoke('workflowImports:confirm', input),
+    cancel: (input) => ipcRenderer.invoke('workflowImports:cancel', input),
   },
   workflowEditor: {
     listDrafts: () => ipcRenderer.invoke('workflowEditor:listDrafts'),
