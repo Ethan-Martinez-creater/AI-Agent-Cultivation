@@ -3,6 +3,7 @@ export * from './w1-workflow.js';
 export * from './w1-workflow-contract.js';
 export * from './w2-workflow.js';
 export * from './w3-1-workflow-editor.js';
+export * from './w3-2-workflow-import.js';
 
 export type TeammateStatus = 'ACTIVE' | 'ARCHIVED';
 export type Realm = 'QI_REFINING' | 'FOUNDATION' | 'CORE' | 'NASCENT_SOUL';

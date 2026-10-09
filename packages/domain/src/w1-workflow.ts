@@ -193,6 +193,8 @@ export interface WorkflowStepRun {
   workflowRunId: string;
   stepId: string;
   attempt: number;
+  /** Missing on legacy in-memory callers; persisted rows default to EXECUTED. */
+  completionOrigin?: 'EXECUTED' | 'IMPORTED_CONFIRMED';
   state: WorkflowStepState;
   missionId: string | null;
   missionRunId: string | null;
@@ -206,15 +208,17 @@ export interface WorkflowArtifact {
   id: string;
   workflowRunId: string;
   producerStepRunId: string;
-  missionId: string;
-  missionRunId: string;
-  actorId: string;
+  missionId: string | null;
+  missionRunId: string | null;
+  actorId: string | null;
   sourceId: string;
-  source: 'MISSION' | 'HUMAN_BRIDGE';
+  source: 'MISSION' | 'HUMAN_BRIDGE' | 'IMPORTED_CONFIRMED';
+  /** Present only for artifacts projected from the W3.2 Import fact tables. */
+  importConfirmationId?: string;
   kind: WorkflowArtifactKind;
   content: string;
   contentHash: string;
-  metadata: Record<string, string | number>;
+  metadata: Record<string, string | number | boolean>;
   inputArtifactIds: string[];
   createdAt: string;
 }
@@ -228,6 +232,8 @@ export interface WorkflowArtifactBinding {
   contractId: string;
   contractVersion: string;
   createdAt: string;
+  /** Present only for bindings backed by an Import confirmation fact. */
+  importConfirmationId?: string;
 }
 export interface WorkflowValidationReceipt {
   id: string;
@@ -283,6 +289,8 @@ export interface WorkflowDetail {
   finalValidations?: WorkflowFinalValidation[];
   operations?: StepOperationReceipt[];
   traversals?: RevisionTraversal[];
+  /** Import provenance is distinct from Mission, Usage, Human ACCEPT and operation facts. */
+  importConfirmation?: import('./w3-2-workflow-import.js').WorkflowImportConfirmation | null;
   /** Trusted artifact IDs selected for the official research delivery view. */
   researchDelivery?: ResearchDeliveryProjection;
 }

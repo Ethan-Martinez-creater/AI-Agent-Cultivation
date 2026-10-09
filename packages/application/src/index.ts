@@ -14,6 +14,7 @@ import type {
   ToolDescriptor,
 } from '@cultivation/domain';
 export * from './w1-workflow-ports.js';
+export * from './w3-2-import-ports.js';
 export * from './w1-workflow-service.js';
 export * from './w3-1-workflow-editor-service.js';
 export * from './research-delivery-projection.js';

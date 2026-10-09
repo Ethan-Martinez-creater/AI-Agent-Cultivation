@@ -1036,6 +1036,7 @@ function validateMetadata(metadata: WorkflowArtifact['metadata'], maxBytes: numb
       validateText(value, 'Workflow Artifact metadata value', 2048, true);
     else if (typeof value === 'number' && !Number.isFinite(value))
       throw new Error('Workflow Artifact metadata number must be finite');
+    else if (typeof value === 'boolean') continue;
     else if (typeof value !== 'number')
       throw new Error('Workflow Artifact metadata values must be scalar');
   }
