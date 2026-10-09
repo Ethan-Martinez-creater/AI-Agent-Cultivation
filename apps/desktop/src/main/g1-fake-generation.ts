@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { DomainError } from '@cultivation/shared';
 import type {
   GenerationGateway,
@@ -180,7 +181,7 @@ export class FakeGenerationGateway implements GenerationGateway {
       job,
     };
     this.facts.submissions++;
-    this.save();
+    await this.saveWithRetry();
     return scenario === 'UNKNOWN'
       ? { outcome: 'UNKNOWN' }
       : { outcome: 'SUBMITTED', providerJobId, status: 'QUEUED' };
@@ -191,7 +192,7 @@ export class FakeGenerationGateway implements GenerationGateway {
     );
     if (!entry) throw new DomainError('NOT_FOUND', '生成任务不存在');
     this.facts.queries++;
-    this.save();
+    await this.saveWithRetry();
     return structuredClone(entry.job);
   }
   async downloadOutput(
@@ -206,7 +207,7 @@ export class FakeGenerationGateway implements GenerationGateway {
     if (!entry || !entry.job.outputs.some((o) => o.id === outputId))
       throw new DomainError('OUTPUT_MISSING', '输出不存在');
     this.facts.downloads++;
-    this.save();
+    await this.saveWithRetry();
     const bytes = this.bytes;
     const controller = new AbortController();
     return {
@@ -238,6 +239,20 @@ export class FakeGenerationGateway implements GenerationGateway {
     const staging = `${this.factPath}.tmp`;
     writeFileSync(staging, JSON.stringify(this.facts), { encoding: 'utf8' });
     renameSync(staging, this.factPath);
+  }
+  private async saveWithRetry() {
+    // Windows scanners can briefly hold the existing fixture file during atomic replacement.
+    // Retry persistence of the same facts, never submission or generation itself.
+    for (let attempt = 0; ; attempt++) {
+      try {
+        this.save();
+        return;
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        if (attempt >= 4 || !['EPERM', 'EACCES', 'EBUSY'].includes(code ?? '')) throw error;
+        await delay(25 * 2 ** attempt);
+      }
+    }
   }
 }
 export class UnconfiguredGenerationGateway implements GenerationGateway {
