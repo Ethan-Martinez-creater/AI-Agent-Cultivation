@@ -68,6 +68,16 @@ export interface ToolExecutionGuard {
 const MAX_INPUT_BYTES = 64 * 1024;
 const MAX_OUTPUT_CHARS = 64 * 1024;
 const MAX_SCHEMA_BYTES = 16 * 1024;
+const MAX_DESCRIPTOR_BYTES = 64 * 1024;
+
+function fingerprint(value: unknown, maxBytes: number): string | null {
+  try {
+    const encoded = JSON.stringify(value);
+    return typeof encoded === 'string' && Buffer.byteLength(encoded) <= maxBytes ? encoded : null;
+  } catch {
+    return null;
+  }
+}
 
 function boundedResult(call: ToolCall, ok: boolean, code: string, content: string): ToolResult {
   return {
@@ -163,8 +173,9 @@ export class ToolRuntime {
     userId?: string,
   ): Promise<ToolDispatch> {
     const registered = this.registry.get(call.toolId);
+    const originalCall = { id: call.id, toolId: call.toolId, input: call.input };
     const trace: ToolTrace = {
-      toolId: call.toolId.slice(0, 128),
+      toolId: originalCall.toolId.slice(0, 128),
       source: registered?.descriptor.source ?? 'UNKNOWN',
       capability: registered?.descriptor.capability ?? null,
       riskLevel: registered?.descriptor.riskLevel ?? null,
@@ -174,7 +185,7 @@ export class ToolRuntime {
       outputSummary: null,
     };
     const finished = (ok: boolean, code: string, content: string): ToolDispatch => {
-      const result = boundedResult(call, ok, code, content);
+      const result = boundedResult(originalCall, ok, code, content);
       trace.outputSummary = { ok, code, bytes: Buffer.byteLength(result.content) };
       return { kind: 'RESULT', trace, result };
     };
@@ -189,26 +200,51 @@ export class ToolRuntime {
       return finished(false, 'INPUT_INVALID', 'Tool input did not match its schema.');
     }
     const input = call.input as Record<string, unknown>;
+    const inputFingerprint = fingerprint(input, MAX_INPUT_BYTES);
+    const descriptorFingerprint = fingerprint(registered.descriptor, MAX_DESCRIPTOR_BYTES);
+    if (inputFingerprint === null)
+      return finished(false, 'INPUT_INVALID', 'Tool input did not match its schema.');
+    if (descriptorFingerprint === null)
+      return finished(false, 'TOOL_DESCRIPTOR_INVALID', 'Tool descriptor is invalid.');
+    const validate = registered.validate;
+    const resourceFunction = registered.resource;
+    const executeFunction = registered.execute;
     let resource: string;
     try {
-      resource = registered.resource(input);
+      resource = resourceFunction(input);
       if (!resource || resource.length > 512) throw new Error('Invalid resource');
     } catch {
       return finished(false, 'RESOURCE_INVALID', 'Tool resource is invalid.');
     }
     trace.resource = resource;
-    const decision = this.permissions.evaluate({
+    const permissionCheck = {
       subjectType: context ? 'TEAMMATE' : 'USER',
       subjectId: context?.teammateId ?? userId!,
       capability: registered.descriptor.capability,
       resource,
       teammateId: context?.teammateId ?? null,
       missionId: context?.missionId ?? null,
-    }).decision;
+    } as const;
+    const decision = this.permissions.evaluate(permissionCheck).decision;
     if (decision === 'DENY') return finished(false, 'PERMISSION_DENIED', 'Permission denied.');
     if (decision === 'ASK' && !approvalGranted) return { kind: 'APPROVAL', trace, call };
     let guardToken: unknown;
     let guardPrepared = false;
+    const finishGuardFailure = async (code: string, content: string): Promise<ToolDispatch> => {
+      const failed = finished(false, code, content);
+      if (guardPrepared && failed.kind === 'RESULT') {
+        try {
+          await this.executionGuard!.after(guardToken, context!, failed.result);
+        } catch {
+          return finished(
+            false,
+            'TOOL_EXECUTION_EVIDENCE_FAILED',
+            'Tool execution could not be verified.',
+          );
+        }
+      }
+      return failed;
+    };
     try {
       if (this.executionGuard && context) {
         guardToken = await this.executionGuard.before(
@@ -220,6 +256,68 @@ export class ToolRuntime {
         );
         guardPrepared = true;
       }
+
+      // The guard may await while durable Permission rules, the registry, descriptors, or
+      // caller-owned input change. Recheck every execution authority synchronously and do not
+      // yield again before invoking the registered Tool.
+      if (
+        this.registry.get(originalCall.toolId) !== registered ||
+        registered.validate !== validate ||
+        registered.resource !== resourceFunction ||
+        registered.execute !== executeFunction
+      )
+        return await finishGuardFailure(
+          'TOOL_CHANGED',
+          'Tool registration changed before execution.',
+        );
+      if (fingerprint(registered.descriptor, MAX_DESCRIPTOR_BYTES) !== descriptorFingerprint)
+        return await finishGuardFailure(
+          'TOOL_DESCRIPTOR_CHANGED',
+          'Tool descriptor changed before execution.',
+        );
+      if (
+        call.id !== originalCall.id ||
+        call.toolId !== originalCall.toolId ||
+        call.input !== input ||
+        fingerprint(input, MAX_INPUT_BYTES) !== inputFingerprint
+      )
+        return await finishGuardFailure('INPUT_CHANGED', 'Tool input changed before execution.');
+      try {
+        if (!validate(input))
+          return await finishGuardFailure(
+            'INPUT_CHANGED',
+            'Tool input no longer matches its schema.',
+          );
+      } catch {
+        return await finishGuardFailure(
+          'INPUT_CHANGED',
+          'Tool input no longer matches its schema.',
+        );
+      }
+      let currentResource: string;
+      try {
+        currentResource = resourceFunction(input);
+      } catch {
+        return await finishGuardFailure(
+          'RESOURCE_CHANGED',
+          'Tool resource changed before execution.',
+        );
+      }
+      if (!currentResource || currentResource.length > 512 || currentResource !== resource)
+        return await finishGuardFailure(
+          'RESOURCE_CHANGED',
+          'Tool resource changed before execution.',
+        );
+      const currentDecision = this.permissions.evaluate({
+        ...permissionCheck,
+        capability: registered.descriptor.capability,
+        resource: currentResource,
+      }).decision;
+      if (currentDecision === 'DENY')
+        return await finishGuardFailure('PERMISSION_DENIED', 'Permission denied.');
+      if (currentDecision === 'ASK' && !approvalGranted)
+        return await finishGuardFailure('APPROVAL_REQUIRED', 'Permission now requires approval.');
+
       const output = await registered.execute(input);
       if (typeof output.content !== 'string') throw new Error('Malformed tool result');
       const ok = output.ok ?? true;

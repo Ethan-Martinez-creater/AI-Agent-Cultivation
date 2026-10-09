@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { PermissionRule } from '@cultivation/domain';
 import { PermissionEngine, type PermissionRuleStore } from './permission-engine.js';
-import { ToolRegistry, ToolRuntime } from './tool-runtime.js';
+import { ToolRegistry, ToolRuntime, type ToolExecutionGuard } from './tool-runtime.js';
 
 const context = { missionId: 'mission-a', runId: 'run-a', teammateId: 'teammate-a' };
 
-function fixture(rules: PermissionRule[] = []) {
+function fixture(rules: PermissionRule[] = [], executionGuard?: ToolExecutionGuard) {
   let executions = 0;
   const store: PermissionRuleStore = {
     listPermissionRules: (subjectType, subjectId, capability) =>
@@ -41,9 +41,33 @@ function fixture(rules: PermissionRule[] = []) {
     },
   });
   return {
-    runtime: new ToolRuntime(registry, new PermissionEngine(store)),
+    runtime: new ToolRuntime(registry, new PermissionEngine(store), executionGuard),
     executions: () => executions,
+    registry,
   };
+}
+
+function heldGuard() {
+  let release!: () => void;
+  let enter!: () => void;
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const entered = new Promise<void>((resolve) => {
+    enter = resolve;
+  });
+  const outcomes: Array<{ ok: boolean; code: string; content: string }> = [];
+  const guard: ToolExecutionGuard = {
+    before: async () => {
+      enter();
+      await released;
+      return 'held-token';
+    },
+    after: async (_token, _context, outcome) => {
+      outcomes.push(outcome);
+    },
+  };
+  return { guard, outcomes, entered, release: () => release() };
 }
 
 function permission(
@@ -109,6 +133,146 @@ describe('ToolRuntime boundary', () => {
       'APPROVAL',
     );
     expect(executions()).toBe(1);
+  });
+
+  it('rechecks durable Permission after the execution guard and reports denial to the guard', async () => {
+    const rules = [permission('GLOBAL', null, 'ALLOW')];
+    const held = heldGuard();
+    const { runtime, executions } = fixture(rules, held.guard);
+    const pending = runtime.dispatch(call, context);
+
+    await held.entered;
+    rules.push(permission('GLOBAL', null, 'DENY'));
+    held.release();
+
+    const result = await pending;
+    expect(result).toMatchObject({
+      kind: 'RESULT',
+      result: { ok: false, code: 'PERMISSION_DENIED' },
+    });
+    expect(executions()).toBe(0);
+    expect(held.outcomes).toMatchObject([{ ok: false, code: 'PERMISSION_DENIED' }]);
+  });
+
+  it('rejects a registry replacement made while the execution guard is held', async () => {
+    const held = heldGuard();
+    const { runtime, executions, registry } = fixture(
+      [permission('GLOBAL', null, 'ALLOW')],
+      held.guard,
+    );
+    const original = registry.get(call.toolId)!;
+    const pending = runtime.dispatch(call, context);
+
+    await held.entered;
+    registry.unregister(call.toolId);
+    let replacementExecutions = 0;
+    registry.register({
+      descriptor: { ...original.descriptor },
+      resource: original.resource,
+      execute: async () => {
+        replacementExecutions += 1;
+        return { content: 'replacement executed' };
+      },
+    });
+    held.release();
+
+    const result = await pending;
+    expect(result).toMatchObject({ kind: 'RESULT', result: { ok: false, code: 'TOOL_CHANGED' } });
+    expect(executions()).toBe(0);
+    expect(replacementExecutions).toBe(0);
+    expect(held.outcomes).toMatchObject([{ ok: false, code: 'TOOL_CHANGED' }]);
+  });
+
+  it('rejects a descriptor mutation made while the execution guard is held', async () => {
+    const held = heldGuard();
+    const { runtime, executions, registry } = fixture(
+      [permission('GLOBAL', null, 'ALLOW')],
+      held.guard,
+    );
+    const descriptor = registry.get(call.toolId)!.descriptor;
+    const pending = runtime.dispatch(call, context);
+
+    await held.entered;
+    descriptor.description = 'changed after guard preparation';
+    held.release();
+
+    const result = await pending;
+    expect(result).toMatchObject({
+      kind: 'RESULT',
+      result: { ok: false, code: 'TOOL_DESCRIPTOR_CHANGED' },
+    });
+    expect(executions()).toBe(0);
+    expect(held.outcomes).toMatchObject([{ ok: false, code: 'TOOL_DESCRIPTOR_CHANGED' }]);
+  });
+
+  it('rejects input mutation made while the execution guard is held', async () => {
+    const held = heldGuard();
+    const { runtime, executions } = fixture([permission('GLOBAL', null, 'ALLOW')], held.guard);
+    const changedCall = { ...call, input: { ...call.input } };
+    const pending = runtime.dispatch(changedCall, context);
+
+    await held.entered;
+    changedCall.input.content = 'changed after guard preparation';
+    held.release();
+
+    const result = await pending;
+    expect(result).toMatchObject({ kind: 'RESULT', result: { ok: false, code: 'INPUT_CHANGED' } });
+    expect(executions()).toBe(0);
+    expect(held.outcomes).toMatchObject([{ ok: false, code: 'INPUT_CHANGED' }]);
+  });
+
+  it('rejects a resource mapping change made while the execution guard is held', async () => {
+    const rules = [permission('GLOBAL', null, 'ALLOW')];
+    const held = heldGuard();
+    let resourcePrefix = 'file:';
+    let executions = 0;
+    const registry = new ToolRegistry();
+    registry.register({
+      descriptor: {
+        id: 'file.writeText',
+        name: 'Write',
+        description: 'Write a text file',
+        source: 'BUILTIN',
+        capability: 'FILE_WRITE',
+        riskLevel: 'MEDIUM',
+        sideEffect: 'LOCAL_WRITE',
+        inputSchema: {
+          type: 'object',
+          properties: { path: { type: 'string' }, content: { type: 'string' } },
+          required: ['path', 'content'],
+          additionalProperties: false,
+        },
+      },
+      resource: (input) => resourcePrefix + input.path,
+      execute: async () => {
+        executions += 1;
+        return { content: 'written' };
+      },
+    });
+    const store: PermissionRuleStore = {
+      listPermissionRules: (subjectType, subjectId, capability) =>
+        rules.filter(
+          (rule) =>
+            rule.subjectType === subjectType &&
+            rule.subjectId === subjectId &&
+            rule.capability === capability,
+        ),
+      savePermissionRule: (rule) => void rules.push(rule),
+    };
+    const runtime = new ToolRuntime(registry, new PermissionEngine(store), held.guard);
+    const pending = runtime.dispatch(call, context);
+
+    await held.entered;
+    resourcePrefix = 'other:';
+    held.release();
+
+    const result = await pending;
+    expect(result).toMatchObject({
+      kind: 'RESULT',
+      result: { ok: false, code: 'RESOURCE_CHANGED' },
+    });
+    expect(executions).toBe(0);
+    expect(held.outcomes).toMatchObject([{ ok: false, code: 'RESOURCE_CHANGED' }]);
   });
 
   it('normalizes execution failures without exposing thrown text', async () => {
