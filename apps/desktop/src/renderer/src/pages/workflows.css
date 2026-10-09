@@ -835,4 +835,45 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+
+  .workflow-library-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+    padding: var(--space-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+  }
+
+  .workflow-library-tabs [role='tab'] {
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    border: 0;
+    border-radius: var(--radius-small);
+    color: var(--text-secondary);
+    background: transparent;
+    font: inherit;
+    font-size: var(--font-caption);
+    cursor: pointer;
+  }
+
+  .workflow-library-tabs [role='tab']:hover {
+    color: var(--text);
+    background: var(--surface-hover);
+  }
+
+  .workflow-library-tabs [role='tab'].active {
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-weight: var(--weight-strong);
+  }
+
+  @media (max-width: 900px) {
+    .workflow-library-tabs [role='tab'] {
+      flex: 1 1 120px;
+      padding-inline: var(--space-2);
+    }
+  }
 }

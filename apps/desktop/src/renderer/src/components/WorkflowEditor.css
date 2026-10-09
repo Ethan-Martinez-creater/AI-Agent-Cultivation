@@ -1,0 +1,366 @@
+@layer pages {
+  .workflow-library,
+  .workflow-editor {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-5);
+  }
+
+  .workflow-library-heading,
+  .workflow-editor-heading,
+  .workflow-editor-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .workflow-library-heading h2,
+  .workflow-editor-heading h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: var(--font-section);
+    line-height: var(--line-section);
+  }
+
+  .workflow-library-heading p {
+    margin: var(--space-1) 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    line-height: var(--line-caption);
+  }
+
+  .workflow-library-section,
+  .workflow-editor-section {
+    min-width: 0;
+  }
+
+  .workflow-library-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .workflow-library-card {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+  }
+
+  .workflow-library-card-title,
+  .workflow-library-card-actions,
+  .workflow-editor-heading-status,
+  .workflow-editor-actions,
+  .workflow-editor-add-step {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .workflow-library-card-title {
+    justify-content: space-between;
+  }
+
+  .workflow-library-card h3 {
+    min-width: 0;
+    margin: 0;
+    color: var(--text);
+    font-size: var(--font-body);
+    line-height: var(--line-body);
+    overflow-wrap: anywhere;
+  }
+
+  .workflow-library-card p,
+  .workflow-library-card small,
+  .workflow-editor-heading-status > span {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    line-height: var(--line-caption);
+    overflow-wrap: anywhere;
+  }
+
+  .workflow-library-card-actions {
+    padding-top: var(--space-2);
+  }
+
+  .workflow-editor-heading {
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .workflow-editor-heading-status {
+    margin-bottom: var(--space-1);
+  }
+
+  .workflow-editor-actions {
+    justify-content: flex-end;
+  }
+
+  .workflow-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .workflow-editor-field {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-1);
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    line-height: var(--line-caption);
+  }
+
+  .workflow-editor-field > input,
+  .workflow-editor-field > select,
+  .workflow-editor-field > textarea,
+  .workflow-editor-grid input:not([type='checkbox']),
+  .workflow-editor-grid select,
+  .workflow-editor-grid textarea,
+  .workflow-editor-add-step select {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-height);
+    padding: var(--space-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    color: var(--text);
+    background: var(--surface);
+    font: inherit;
+  }
+
+  .workflow-editor-field textarea,
+  .workflow-editor-grid textarea {
+    resize: vertical;
+  }
+
+  .workflow-editor-checkbox {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+  }
+
+  .workflow-editor-checkbox input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--primary);
+  }
+
+  .workflow-editor-steps,
+  .workflow-editor-step-body,
+  .workflow-editor-subsection,
+  .workflow-editor-row-list,
+  .workflow-schema-field-list,
+  .workflow-schema-value,
+  .workflow-schema-nested,
+  .workflow-schema-fields {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-3);
+  }
+
+  .workflow-editor-step-card,
+  .workflow-editor-row,
+  .workflow-schema-field,
+  .workflow-editor-choice-list,
+  .workflow-editor-review-policy {
+    min-width: 0;
+    margin: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+  }
+
+  .workflow-editor-step-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .workflow-editor-step-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .workflow-editor-step-number {
+    display: grid;
+    flex: 0 0 auto;
+    width: var(--control-height-large);
+    height: var(--control-height-large);
+    place-items: center;
+    border-radius: var(--radius-round);
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-size: var(--font-body);
+    font-weight: var(--weight-strong);
+  }
+
+  .workflow-editor-step-summary-copy {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: var(--space-1);
+  }
+
+  .workflow-editor-step-summary-copy strong {
+    color: var(--text);
+    font-size: var(--font-body);
+    overflow-wrap: anywhere;
+  }
+
+  .workflow-editor-step-summary-copy small,
+  .workflow-editor-step-toggle {
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+  }
+
+  .workflow-editor-step-body {
+    padding-top: var(--space-4);
+  }
+
+  .workflow-editor-step-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .workflow-editor-drag-handle {
+    display: grid;
+    flex: 0 0 auto;
+    width: var(--control-height);
+    height: var(--control-height);
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    color: var(--text-secondary);
+    background: var(--surface-subtle);
+    cursor: grab;
+    user-select: none;
+  }
+
+  .workflow-editor-drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .workflow-editor-drag-handle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .workflow-editor-subsection h4 {
+    margin: 0;
+    color: var(--text);
+    font-size: var(--font-body);
+    line-height: var(--line-body);
+  }
+
+  .workflow-editor-row legend,
+  .workflow-schema-field legend,
+  .workflow-editor-choice-list legend,
+  .workflow-editor-review-policy legend {
+    padding-inline: var(--space-1);
+    color: var(--text);
+    font-size: var(--font-caption);
+    font-weight: var(--weight-strong);
+  }
+
+  .workflow-editor-choice-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .workflow-editor-empty,
+  .workflow-editor-hint,
+  .workflow-editor-review-policy p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    line-height: var(--line-caption);
+  }
+
+  .workflow-editor-locked-value {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-height);
+    color: var(--text-secondary);
+  }
+
+  .workflow-editor-feedback {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    font-size: var(--font-caption);
+    line-height: var(--line-caption);
+    overflow-wrap: anywhere;
+  }
+
+  .workflow-editor-feedback.success {
+    color: var(--success);
+    background: var(--success-soft);
+  }
+
+  .workflow-editor-feedback.error {
+    color: var(--danger);
+    background: var(--danger-soft);
+  }
+
+  .workflow-editor-footer {
+    justify-content: flex-end;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .workflow-editor-add-step {
+    justify-content: flex-end;
+  }
+
+  .workflow-editor-add-step select {
+    min-width: 112px;
+  }
+
+  .workflow-copy-dialog .workflow-library-card-actions {
+    justify-content: flex-end;
+  }
+
+  .workflow-copy-dialog p {
+    color: var(--text-secondary);
+    font-size: var(--font-body);
+    line-height: var(--line-body);
+  }
+
+  @media (max-width: 900px) {
+    .workflow-library-cards,
+    .workflow-editor-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .workflow-library-heading,
+    .workflow-editor-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .workflow-editor-actions {
+      justify-content: flex-start;
+    }
+  }
+}
