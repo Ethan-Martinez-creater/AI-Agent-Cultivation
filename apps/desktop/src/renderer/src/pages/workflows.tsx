@@ -27,6 +27,7 @@ import {
 import { SoftwareFeatureWorkflowInputForm } from '../components/SoftwareFeatureWorkflowInputForm.js';
 import { ResearchWorkflowInputForm } from '../components/ResearchWorkflowInputForm.js';
 import { WorkflowLibrary } from '../components/WorkflowLibrary.js';
+import { completionOriginOf, WorkflowImport } from '../components/WorkflowImport.js';
 import { PageHeading } from '../ui-shared.js';
 import './mission-party.css';
 import './product-pages.css';
@@ -234,6 +235,90 @@ function missionLink(missionId: string | null) {
   );
 }
 
+function CompletionArtifactDisclosure({
+  artifact,
+  label,
+  binding,
+  displayName,
+}: {
+  artifact: WorkflowArtifact;
+  label: string;
+  binding?: import('@cultivation/domain').WorkflowArtifactBinding;
+  displayName?: string;
+}) {
+  if (completionOriginOf(artifact) !== 'IMPORTED_CONFIRMED')
+    return (
+      <ArtifactDisclosure
+        artifact={artifact}
+        label={label}
+        binding={binding}
+        displayName={displayName}
+      />
+    );
+
+  const fileName =
+    typeof artifact.metadata.sourceName === 'string' ? artifact.metadata.sourceName : undefined;
+  const size =
+    typeof artifact.metadata.sizeBytes === 'number' ? artifact.metadata.sizeBytes : undefined;
+  return (
+    <details className="workflow-data-row" data-testid="workflow-imported-artifact">
+      <summary>{displayName ?? label}</summary>
+      <p>
+        {fileName ? `导入来源：${fileName}` : '导入内容'}
+        {size === undefined ? '' : ` · ${size} B`}
+      </p>
+      <pre>{artifact.content}</pre>
+      <details className="workflow-technical-details">
+        <summary>高级 · 导入来源记录</summary>
+        <dl>
+          <div>
+            <dt>逻辑键</dt>
+            <dd>{binding?.key ?? label}</dd>
+          </div>
+          <div>
+            <dt>完成方式</dt>
+            <dd>导入确认</dd>
+          </div>
+          <div>
+            <dt>产出步骤尝试</dt>
+            <dd>
+              <code>{artifact.producerStepRunId ?? '无'}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>历练 / Mission Run</dt>
+            <dd>无（导入资料，不创建虚构历练）</dd>
+          </div>
+          <div>
+            <dt>执行者</dt>
+            <dd>{artifact.actorId ?? '无（导入来源）'}</dd>
+          </div>
+          <div>
+            <dt>来源记录编号</dt>
+            <dd>
+              <code>{artifact.sourceId}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>内容 Hash</dt>
+            <dd>
+              <code>{artifact.contentHash}</code>
+            </dd>
+          </div>
+          {artifact.importConfirmationId && (
+            <div>
+              <dt>导入确认编号</dt>
+              <dd>
+                <code>{artifact.importConfirmationId}</code>
+              </dd>
+            </div>
+          )}
+        </dl>
+      </details>
+    </details>
+  );
+}
+
 export function WorkflowsPage() {
   const [versions, setVersions] = useState<WorkflowVersion[]>([]);
   const [runs, setRuns] = useState<WorkflowRun[]>([]);
@@ -244,6 +329,7 @@ export function WorkflowsPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [importVersion, setImportVersion] = useState<WorkflowVersion | null>(null);
   const [activeTab, setActiveTab] = useState<WorkflowPageTab>('runs');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -499,6 +585,11 @@ export function WorkflowsPage() {
           <StatusBadge tone={workflowStateTone(attempt.state)}>
             {stepLabels[attempt.state]}
           </StatusBadge>
+          <StatusBadge
+            tone={completionOriginOf(attempt) === 'IMPORTED_CONFIRMED' ? 'neutral' : 'success'}
+          >
+            {completionOriginOf(attempt) === 'IMPORTED_CONFIRMED' ? '导入确认' : '实际执行'}
+          </StatusBadge>
         </div>
         {waitReason && (
           <p className="workflow-wait-note">
@@ -523,7 +614,11 @@ export function WorkflowsPage() {
               <details className="workflow-data-group">
                 <summary>已绑定输入 · {inputArtifacts.length}</summary>
                 {inputArtifacts.map(({ artifact, label }) => (
-                  <ArtifactDisclosure key={artifact.id} artifact={artifact} label={label} />
+                  <CompletionArtifactDisclosure
+                    key={artifact.id}
+                    artifact={artifact}
+                    label={label}
+                  />
                 ))}
               </details>
             )}
@@ -531,7 +626,11 @@ export function WorkflowsPage() {
               <details className="workflow-data-group">
                 <summary>已生成输出 · {outputArtifacts.length}</summary>
                 {outputArtifacts.map(({ artifact, label }) => (
-                  <ArtifactDisclosure key={artifact.id} artifact={artifact} label={label} />
+                  <CompletionArtifactDisclosure
+                    key={artifact.id}
+                    artifact={artifact}
+                    label={label}
+                  />
                 ))}
               </details>
             )}
@@ -925,7 +1024,7 @@ export function WorkflowsPage() {
                     action={<span className="count-badge">{workflowResults.length}</span>}
                   >
                     {workflowResults.map((artifact) => (
-                      <ArtifactDisclosure
+                      <CompletionArtifactDisclosure
                         key={artifact.id}
                         artifact={artifact}
                         displayName={
@@ -987,7 +1086,7 @@ export function WorkflowsPage() {
                           };
                         })
                       : stepStates
-                    ).map(({ step, state }, index) => {
+                    ).map(({ step, state, attempt }, index) => {
                       const attempts = detail.steps
                         .filter((attempt) => attempt.stepId === step.id)
                         .sort((left, right) => left.attempt - right.attempt);
@@ -1001,6 +1100,19 @@ export function WorkflowsPage() {
                             <StatusBadge tone={workflowStateTone(state)}>
                               {stepLabels[state]}
                             </StatusBadge>
+                            {attempt && (
+                              <StatusBadge
+                                tone={
+                                  completionOriginOf(attempt) === 'IMPORTED_CONFIRMED'
+                                    ? 'neutral'
+                                    : 'success'
+                                }
+                              >
+                                {completionOriginOf(attempt) === 'IMPORTED_CONFIRMED'
+                                  ? '导入确认'
+                                  : '实际执行'}
+                              </StatusBadge>
+                            )}
                           </div>
                           <details className="workflow-step-details">
                             <summary>
@@ -1212,6 +1324,11 @@ export function WorkflowsPage() {
               setActiveTab('runs');
               setCreateOpen(true);
             }}
+            onImportVersion={(version) => {
+              setError('');
+              setNotice('');
+              setImportVersion(version);
+            }}
             onPublished={async (version) => {
               const nextVersions = await workflowApi().versions();
               setVersions(nextVersions);
@@ -1220,6 +1337,23 @@ export function WorkflowsPage() {
           />
         </div>
       )}
+      <WorkflowImport
+        key={importVersion ? versionKey(importVersion) : 'closed'}
+        version={importVersion}
+        open={Boolean(importVersion)}
+        onClose={() => setImportVersion(null)}
+        onConfirmed={async (nextDetail) => {
+          setActiveTab('runs');
+          setDetail(nextDetail);
+          setSelectedRunId(nextDetail.run.id);
+          setNotice('导入结果已确认，工作流运行已创建。');
+          try {
+            await refreshRuns(nextDetail.run.id);
+          } catch {
+            setError('导入运行已创建，但历史列表刷新失败。请稍后重新读取。');
+          }
+        }}
+      />
     </section>
   );
 }

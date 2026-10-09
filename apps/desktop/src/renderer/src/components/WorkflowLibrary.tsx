@@ -6,6 +6,11 @@ import { Dialog } from './Dialog.js';
 import { EmptyState } from './EmptyState.js';
 import { Section } from './Section.js';
 import { StatusBadge } from './StatusBadge.js';
+import {
+  importableStepPrefix,
+  workflowImportAvailable,
+  workflowImportUnsupportedReason,
+} from './WorkflowImport.js';
 import { createDefaultWorkflowDraftContent, WorkflowEditor } from './WorkflowEditor.js';
 import './WorkflowEditor.css';
 
@@ -36,11 +41,13 @@ export function WorkflowLibrary({
   activeView,
   versions,
   onRunVersion,
+  onImportVersion,
   onPublished,
 }: {
   activeView: WorkflowLibraryView;
   versions: WorkflowVersion[];
   onRunVersion: (version: WorkflowVersion) => void;
+  onImportVersion: (version: WorkflowVersion) => void;
   onPublished: (version: WorkflowVersion) => void | Promise<void>;
 }) {
   const [drafts, setDrafts] = useState<WorkflowDraft[]>([]);
@@ -329,6 +336,26 @@ export function WorkflowLibrary({
                       >
                         运行此版本
                       </Button>
+                      {importableStepPrefix(version).length > 0 && workflowImportAvailable() ? (
+                        <Button
+                          variant="secondary"
+                          disabled={busy}
+                          data-testid="workflow-import-version"
+                          onClick={() => onImportVersion(version)}
+                        >
+                          导入已有结果
+                        </Button>
+                      ) : (
+                        workflowImportUnsupportedReason(version) && (
+                          <span
+                            className="workflow-import-unsupported"
+                            title={workflowImportUnsupportedReason(version) ?? undefined}
+                            data-testid="workflow-import-unsupported"
+                          >
+                            暂不支持导入
+                          </span>
+                        )
+                      )}
                       {activeView === 'user' && (
                         <Button
                           variant="secondary"
