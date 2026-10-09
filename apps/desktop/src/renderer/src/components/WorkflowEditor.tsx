@@ -247,7 +247,7 @@ function createDefaultSchemaValue(type: WorkflowValueSchema['type']): WorkflowVa
   }
 }
 
-function fieldName(base: string, properties: Record<string, WorkflowValueSchema>): string {
+function fieldName(base: string, properties: Record<string, unknown>): string {
   let next = base;
   let suffix = 2;
   while (Object.hasOwn(properties, next)) next = `${base}_${suffix++}`;
@@ -909,6 +909,7 @@ function OutputSpecEditor({
   onChange: (next: DraftOutput) => void;
   onRemove: () => void;
 }) {
+  const validator = output.validator;
   const changeKind = (kind: WorkflowArtifactKind) =>
     onChange({
       ...outputDefault(kind, output.key || `output${index + 1}`),
@@ -993,22 +994,22 @@ function OutputSpecEditor({
           删除输出
         </Button>
       </div>
-      {output.validator.type === 'TEXT' && (
+      {validator.type === 'TEXT' && (
         <div className="workflow-editor-grid">
           <NumberField
             label="最少字符"
-            value={output.validator.minLength}
+            value={validator.minLength}
             min={0}
             max={MAX_TEXT_OUTPUT_LENGTH}
-            onChange={(next) => updateValidator({ ...output.validator, minLength: next })}
+            onChange={(next) => updateValidator({ ...validator, minLength: next })}
           />
           <Field label="必须包含的章节（每行一项）">
             <textarea
               rows={2}
-              value={output.validator.requiredSections.join('\n')}
+              value={validator.requiredSections.join('\n')}
               onChange={(event) =>
                 updateValidator({
-                  ...output.validator,
+                  ...validator,
                   requiredSections: event.target.value
                     .split('\n')
                     .map((item) => item.trim())
@@ -1021,17 +1022,17 @@ function OutputSpecEditor({
           </Field>
         </div>
       )}
-      {output.validator.type === 'JSON' && lockedReview ? (
+      {validator.type === 'JSON' && lockedReview ? (
         <p className="workflow-editor-hint">必需字段：{REVIEW_REQUIRED_KEYS.join('、')}。</p>
       ) : (
-        output.validator.type === 'JSON' && (
+        validator.type === 'JSON' && (
           <Field label="必需 JSON 键（每行一项）">
             <textarea
               rows={2}
-              value={output.validator.requiredKeys.join('\n')}
+              value={validator.requiredKeys.join('\n')}
               onChange={(event) =>
                 updateValidator({
-                  ...output.validator,
+                  ...validator,
                   requiredKeys: event.target.value
                     .split('\n')
                     .map((item) => item.trim())
@@ -1044,14 +1045,14 @@ function OutputSpecEditor({
           </Field>
         )
       )}
-      {output.validator.type === 'METADATA' && (
+      {validator.type === 'METADATA' && (
         <Field label="允许扩展名（每行一项）">
           <textarea
             rows={2}
-            value={output.validator.allowedExtensions.join('\n')}
+            value={validator.allowedExtensions.join('\n')}
             onChange={(event) =>
               updateValidator({
-                ...output.validator,
+                ...validator,
                 allowedExtensions: event.target.value
                   .split('\n')
                   .map((item) => item.trim())
@@ -1105,156 +1106,159 @@ function BranchEditor({
     <div className="workflow-editor-subsection">
       <h4>条件分支</h4>
       {branchEdges.length ? (
-        branchEdges.map((branch, branchIndex) => (
-          <fieldset
-            className="workflow-editor-row"
-            key={branch.id}
-            data-testid="workflow-branch-row"
-          >
-            <legend>分支 {branchIndex + 1}</legend>
-            <div className="workflow-editor-grid">
-              <Field label="分支名称">
-                <input
-                  value={branch.branch}
-                  maxLength={80}
-                  aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 名称`}
-                  onChange={(event) => onChange({ ...branch, branch: event.target.value })}
-                />
-              </Field>
-              <Field label="目标步骤">
-                <select
-                  value={branch.toStepId ?? ''}
-                  aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 目标`}
-                  onChange={(event) =>
-                    onChange({ ...branch, toStepId: event.target.value || null })
-                  }
-                >
-                  <option value="">结束工作流</option>
-                  {targets.map((target) => (
-                    <option key={target.id} value={target.id}>
-                      {target.title}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              {step.type === 'REVIEW' && branch.condition.type === 'REVIEW_VERDICT' && (
-                <Field label="审核结论">
+        branchEdges.map((branch, branchIndex) => {
+          const condition = branch.condition;
+          return (
+            <fieldset
+              className="workflow-editor-row"
+              key={branch.id}
+              data-testid="workflow-branch-row"
+            >
+              <legend>分支 {branchIndex + 1}</legend>
+              <div className="workflow-editor-grid">
+                <Field label="分支名称">
+                  <input
+                    value={branch.branch}
+                    maxLength={80}
+                    aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 名称`}
+                    onChange={(event) => onChange({ ...branch, branch: event.target.value })}
+                  />
+                </Field>
+                <Field label="目标步骤">
                   <select
-                    value={branch.condition.verdict}
+                    value={branch.toStepId ?? ''}
+                    aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 目标`}
                     onChange={(event) =>
-                      onChange({
-                        ...branch,
-                        condition: {
-                          ...branch.condition,
-                          verdict: event.target.value as 'PASS' | 'REVISE' | 'FAIL',
-                        },
-                      })
+                      onChange({ ...branch, toStepId: event.target.value || null })
                     }
                   >
-                    <option value="PASS">通过</option>
-                    <option value="REVISE">需要修改</option>
-                    <option value="FAIL">未通过</option>
+                    <option value="">结束工作流</option>
+                    {targets.map((target) => (
+                      <option key={target.id} value={target.id}>
+                        {target.title}
+                      </option>
+                    ))}
                   </select>
                 </Field>
-              )}
-              {step.type === 'DECISION' && branch.condition.type === 'JSON_FIELD_EQUALS' && (
-                <>
-                  <Field label="读取的 JSON 输入">
+                {step.type === 'REVIEW' && condition.type === 'REVIEW_VERDICT' && (
+                  <Field label="审核结论">
                     <select
-                      value={branch.condition.inputKey}
-                      aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 输入键`}
+                      value={condition.verdict}
                       onChange={(event) =>
                         onChange({
                           ...branch,
-                          condition: { ...branch.condition, inputKey: event.target.value },
+                          condition: {
+                            ...condition,
+                            verdict: event.target.value as 'PASS' | 'REVISE' | 'FAIL',
+                          },
                         })
                       }
                     >
-                      {jsonInputs.map((input) => (
-                        <option key={input.key} value={input.key}>
-                          {input.key}
-                        </option>
-                      ))}
+                      <option value="PASS">通过</option>
+                      <option value="REVISE">需要修改</option>
+                      <option value="FAIL">未通过</option>
                     </select>
                   </Field>
-                  <Field label="JSON 字段">
-                    <input
-                      value={branch.condition.field}
-                      maxLength={128}
-                      aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} JSON 字段`}
-                      onChange={(event) =>
-                        onChange({
-                          ...branch,
-                          condition: { ...branch.condition, field: event.target.value },
-                        })
-                      }
-                    />
-                  </Field>
-                  <Field label="匹配值类型">
-                    <select
-                      value={typeof branch.condition.equals}
-                      onChange={(event) => {
-                        const nextType = event.target.value;
-                        const current = String(branch.condition.equals);
-                        const equals =
-                          nextType === 'number'
-                            ? numberValue(current, 0)
-                            : nextType === 'boolean'
-                              ? current === 'true'
-                              : current;
-                        onChange({ ...branch, condition: { ...branch.condition, equals } });
-                      }}
-                    >
-                      <option value="string">文本</option>
-                      <option value="number">数字</option>
-                      <option value="boolean">是 / 否</option>
-                    </select>
-                  </Field>
-                  <Field label="匹配值">
-                    {typeof branch.condition.equals === 'boolean' ? (
+                )}
+                {step.type === 'DECISION' && condition.type === 'JSON_FIELD_EQUALS' && (
+                  <>
+                    <Field label="读取的 JSON 输入">
                       <select
-                        value={String(branch.condition.equals)}
+                        value={condition.inputKey}
+                        aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 输入键`}
                         onChange={(event) =>
                           onChange({
                             ...branch,
-                            condition: {
-                              ...branch.condition,
-                              equals: event.target.value === 'true',
-                            },
+                            condition: { ...condition, inputKey: event.target.value },
                           })
                         }
                       >
-                        <option value="true">是</option>
-                        <option value="false">否</option>
+                        {jsonInputs.map((input) => (
+                          <option key={input.key} value={input.key}>
+                            {input.key}
+                          </option>
+                        ))}
                       </select>
-                    ) : (
+                    </Field>
+                    <Field label="JSON 字段">
                       <input
-                        type={typeof branch.condition.equals === 'number' ? 'number' : 'text'}
-                        value={branch.condition.equals}
-                        aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 匹配值`}
+                        value={condition.field}
+                        maxLength={128}
+                        aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} JSON 字段`}
                         onChange={(event) =>
                           onChange({
                             ...branch,
-                            condition: {
-                              ...branch.condition,
-                              equals:
-                                typeof branch.condition.equals === 'number'
-                                  ? numberValue(event.target.value, branch.condition.equals)
-                                  : event.target.value,
-                            },
+                            condition: { ...condition, field: event.target.value },
                           })
                         }
                       />
-                    )}
-                  </Field>
-                </>
-              )}
-            </div>
-            <Button variant="ghost" className="small" onClick={() => onRemove(branch.id)}>
-              删除分支
-            </Button>
-          </fieldset>
-        ))
+                    </Field>
+                    <Field label="匹配值类型">
+                      <select
+                        value={typeof condition.equals}
+                        onChange={(event) => {
+                          const nextType = event.target.value;
+                          const current = String(condition.equals);
+                          const equals =
+                            nextType === 'number'
+                              ? numberValue(current, 0)
+                              : nextType === 'boolean'
+                                ? current === 'true'
+                                : current;
+                          onChange({ ...branch, condition: { ...condition, equals } });
+                        }}
+                      >
+                        <option value="string">文本</option>
+                        <option value="number">数字</option>
+                        <option value="boolean">是 / 否</option>
+                      </select>
+                    </Field>
+                    <Field label="匹配值">
+                      {typeof condition.equals === 'boolean' ? (
+                        <select
+                          value={String(condition.equals)}
+                          onChange={(event) =>
+                            onChange({
+                              ...branch,
+                              condition: {
+                                ...condition,
+                                equals: event.target.value === 'true',
+                              },
+                            })
+                          }
+                        >
+                          <option value="true">是</option>
+                          <option value="false">否</option>
+                        </select>
+                      ) : (
+                        <input
+                          type={typeof condition.equals === 'number' ? 'number' : 'text'}
+                          value={condition.equals}
+                          aria-label={`步骤 ${index + 1} 分支 ${branchIndex + 1} 匹配值`}
+                          onChange={(event) =>
+                            onChange({
+                              ...branch,
+                              condition: {
+                                ...condition,
+                                equals:
+                                  typeof condition.equals === 'number'
+                                    ? numberValue(event.target.value, condition.equals)
+                                    : event.target.value,
+                              },
+                            })
+                          }
+                        />
+                      )}
+                    </Field>
+                  </>
+                )}
+              </div>
+              <Button variant="ghost" className="small" onClick={() => onRemove(branch.id)}>
+                删除分支
+              </Button>
+            </fieldset>
+          );
+        })
       ) : (
         <p className="workflow-editor-empty">此步骤使用顺序连接。</p>
       )}
@@ -1294,7 +1298,7 @@ function BranchEditor({
   );
 }
 
-function FinalOutputsEditor({
+export function FinalOutputsEditor({
   content,
   onChange,
 }: {
@@ -1313,11 +1317,7 @@ function FinalOutputsEditor({
     <div className="workflow-editor-row-list">
       {content.finalOutputs.length ? (
         content.finalOutputs.map((output, index) => (
-          <fieldset
-            className="workflow-editor-row"
-            key={`${output.key}-${index}`}
-            data-testid="workflow-final-output"
-          >
+          <fieldset className="workflow-editor-row" key={index} data-testid="workflow-final-output">
             <legend>最终输出 {index + 1}</legend>
             <div className="workflow-editor-grid">
               <Field label="输出名称">

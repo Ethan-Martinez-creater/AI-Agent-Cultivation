@@ -5,6 +5,7 @@ import type { WorkflowDraft } from '@cultivation/domain';
 import {
   addWorkflowDraftStep,
   createDefaultWorkflowDraftContent,
+  FinalOutputsEditor,
   removeWorkflowDraftStep,
   updateWorkflowDraftInputSchema,
   WorkflowEditor,
@@ -107,6 +108,24 @@ describe('WorkflowEditor', () => {
       ['taskText', 'context'],
       ['taskText'],
     ]);
+  });
+
+  it('keeps the final output row identity stable when its name changes', () => {
+    const rowKeyFor = (name: string) => {
+      const content = createDefaultWorkflowDraftContent();
+      content.finalOutputs = [{ ...content.finalOutputs[0]!, key: name }];
+      const element = FinalOutputsEditor({ content, onChange: () => undefined });
+      const children = (element.props as { children?: React.ReactNode }).children;
+      const row = React.Children.toArray(children).find(
+        (child) =>
+          React.isValidElement(child) &&
+          (child.props as { 'data-testid'?: string })['data-testid'] === 'workflow-final-output',
+      );
+
+      return React.isValidElement(row) ? row.key : null;
+    };
+
+    expect(rowKeyFor('result')).toBe(rowKeyFor('renamed-result'));
   });
 
   it('keeps removal of a conditional step visible instead of flattening its branches', () => {
