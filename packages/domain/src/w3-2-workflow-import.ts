@@ -192,6 +192,8 @@ export function validateWorkflowImportProposal(value: WorkflowImportProposal): v
   validateText(value.description, 'Workflow Import description', 6_000, true);
   validateText(value.policyVersion, 'Workflow Import policy version', 128);
   const strict = value.validationStatus === 'VALID';
+  if (strict && value.policyVersion !== WORKFLOW_IMPORT_POLICY_VERSION)
+    invalid('Valid Workflow Import proposals must use the supported policy version');
   if (strict && value.sources.length < 1) invalid('Validated proposals require at least one source');
   const sourceIds = new Set<string>();
   const physicalSources = new Set<string>();

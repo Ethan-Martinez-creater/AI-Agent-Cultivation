@@ -25,6 +25,7 @@ import {
   type WorkflowVersion,
 } from '@cultivation/domain';
 import {
+  WORKFLOW_IMPORT_POLICY_VERSION,
   validateWorkflowImportConfirmation,
   validateWorkflowImportProposal,
   validateWorkflowImportedArtifact,
@@ -715,7 +716,7 @@ export class W1WorkflowRepository implements WorkflowRepository {
         record.proposal_version_hash !== record.confirmation_version_hash ||
         record.proposal_version_hash !== record.frozen_version_hash ||
         record.proposal_source_hash !== record.confirmation_source_hash ||
-        record.policy_version !== 'w3-2-text-prefix-v1' ||
+        record.policy_version !== WORKFLOW_IMPORT_POLICY_VERSION ||
         workflowImportSourceMetadataHash(sources) !== record.confirmation_source_hash ||
         !confirmation.completedStepIds.includes(record.producer_step_id) ||
         record.producer_state !== 'COMPLETED' ||

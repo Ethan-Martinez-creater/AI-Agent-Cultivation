@@ -73,6 +73,7 @@ WHEN NOT EXISTS (
   JOIN workflow_runs r ON r.id = new.run_id
   JOIN workflow_versions v ON v.definition_id = r.definition_id AND v.version = r.definition_version
   WHERE p.id = new.proposal_id AND p.status = 'VALIDATED' AND p.validation_status = 'VALID' AND p.run_id IS NULL
+    AND p.policy_version = 'w3-2-text-prefix-v1'
     AND p.definition_id = r.definition_id AND p.definition_version = r.definition_version
     AND p.version_hash = new.version_hash AND v.content_hash = new.version_hash
     AND p.source_metadata_hash = new.source_metadata_hash AND p.input_snapshot_json = r.input_snapshot_json
@@ -237,7 +238,18 @@ WHEN EXISTS (SELECT 1 FROM workflow_artifact_bindings b WHERE b.step_run_id = ne
         AND a.producer_step_run_id = sr.id AND s.type = 'TASK' AND s.effect_type = 'NONE' AND s.exit_condition = 'VALID_OUTPUTS'
         AND EXISTS (SELECT 1 FROM json_each(s.outputs_json) o WHERE json_extract(o.value, '$.key') = new.key AND json_extract(o.value, '$.contractId') = new.contract_id AND json_extract(o.value, '$.contractVersion') = new.contract_version AND json_extract(o.value, '$.kind') = a.kind)
         AND EXISTS (SELECT 1 FROM json_each(c.bindings_json) m WHERE json_extract(m.value, '$.stepId') = sr.step_id AND json_extract(m.value, '$.outputKey') = new.key AND json_extract(m.value, '$.sourceId') = a.source_id))
-      OR (new.role = 'INPUT' AND r.state = 'RUNNING' AND sr.state = 'READY' AND sr.completion_origin = 'EXECUTED'
+      OR (new.role = 'INPUT' AND r.state = 'RUNNING'
+        AND (
+          (sr.state = 'READY' AND sr.completion_origin = 'EXECUTED')
+          OR (sr.state = 'RUNNING' AND sr.completion_origin = 'IMPORTED_CONFIRMED'
+            AND EXISTS (
+              SELECT 1 FROM workflow_import_confirmations confirmation
+              JOIN workflow_import_proposals proposal ON proposal.id = confirmation.proposal_id
+              WHERE confirmation.id = new.import_confirmation_id AND confirmation.run_id = r.id
+                AND proposal.status = 'COMMITTED' AND proposal.run_id = r.id
+                AND EXISTS (SELECT 1 FROM json_each(confirmation.completed_step_ids_json) current_step WHERE current_step.value = sr.step_id)
+            ))
+        )
         AND EXISTS (
           SELECT 1 FROM workflow_step_runs producer
           JOIN workflow_steps ps ON ps.definition_id = r.definition_id AND ps.version = r.definition_version AND ps.id = producer.step_id
@@ -248,6 +260,7 @@ WHEN EXISTS (SELECT 1 FROM workflow_artifact_bindings b WHERE b.step_run_id = ne
           WHERE producer.workflow_run_id = sr.workflow_run_id AND producer.state = 'COMPLETED' AND producer.completion_origin = 'IMPORTED_CONFIRMED'
             AND producer.attempt = (SELECT MAX(latest.attempt) FROM workflow_step_runs latest WHERE latest.workflow_run_id = producer.workflow_run_id AND latest.step_id = producer.step_id)
             AND json_extract(i.value, '$.outputKey') = ob.key AND json_extract(o.value, '$.contractId') = new.contract_id AND json_extract(o.value, '$.contractVersion') = new.contract_version
+            AND v.import_confirmation_id = new.import_confirmation_id
         )))
   )
 BEGIN SELECT RAISE(ABORT, 'Imported Artifact binding must match a confirmed output or declared input'); END;
