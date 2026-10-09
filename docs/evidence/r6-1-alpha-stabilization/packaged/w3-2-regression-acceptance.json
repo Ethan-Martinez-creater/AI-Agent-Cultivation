@@ -1,0 +1,543 @@
+{
+  "profile": ".test-data\\w32-import-packaged-e6d67e79-d73b-4efc-a8fc-c68b082b0ecd",
+  "workspace": ".test-data\\w32-import-workspace-e6d67e79-d73b-4efc-a8fc-c68b082b0ecd",
+  "screenshots": [
+    {
+      "file": "w32-regression-images/import-proposal-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "0b318c0b9c227cb969cafd5257cd87fe72aa8147660d79e6dbf713c7836caaf3",
+      "originalFile": "import-proposal-1440.png"
+    },
+    {
+      "file": "w32-regression-images/import-proposal-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "1e1672637844fd1d7fcfcfa5d8b6358801e5eaff5392bcb3cca5232dc383d1d3",
+      "originalFile": "import-proposal-1180.png"
+    },
+    {
+      "file": "w32-regression-images/import-proposal-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "260613e0feef631f327e4ac15fb868410016c1fa657bb22844ee792d02005bbb",
+      "originalFile": "import-proposal-900.png"
+    },
+    {
+      "file": "w32-regression-images/confirmed-history-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "eb6c7130f3ce69ac60b2e7e1ba0c24ac2f5abcc10927e394a70a788edf4156fb",
+      "originalFile": "confirmed-history-1440.png"
+    },
+    {
+      "file": "w32-regression-images/confirmed-history-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "170346e319db5d90e1e27bd05fbb11fd4603d92951c88f709b09b5f606d6f0d0",
+      "originalFile": "confirmed-history-1180.png"
+    },
+    {
+      "file": "w32-regression-images/confirmed-history-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "82009b8ed587dc74075801a23a01726eecdfaf4d5104b91791b44404d4fd8f98",
+      "originalFile": "confirmed-history-900.png"
+    },
+    {
+      "file": "w32-regression-images/resumed-review-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "cbf8c522701771f1ac889ec96f5d06f6b93d40227b2a5d9bdb05062b04a1ebe4",
+      "originalFile": "resumed-review-1440.png"
+    },
+    {
+      "file": "w32-regression-images/resumed-review-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "cfaf82103a813e989a5bd376664857e2c1203a78063048ae4d2997935fcc7e0e",
+      "originalFile": "resumed-review-1180.png"
+    },
+    {
+      "file": "w32-regression-images/resumed-review-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "e31e80c6446afe9f60a37ff748dbf6da73812cc73d6f9e045b75b4b2b2c45ba3",
+      "originalFile": "resumed-review-900.png"
+    },
+    {
+      "file": "w32-regression-images/completed-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "c9d7b9292c45477e58c8fce908911a8f7fb4c74b2d0dee06378df2ed80447639",
+      "originalFile": "completed-1440.png"
+    },
+    {
+      "file": "w32-regression-images/completed-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "10bc377bbce8496019832277eeeba8c60c0ced9b262fe1b23a4c16a207b0d32b",
+      "originalFile": "completed-1180.png"
+    },
+    {
+      "file": "w32-regression-images/completed-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "37250d158fd93c0c987196930a98efd202ca13d4f1055448e129d58f3c62cec0",
+      "originalFile": "completed-900.png"
+    }
+  ],
+  "acceptance": {
+    "A": {
+      "packagedUserRelease": true,
+      "schemaVersion": 32,
+      "officialHashesFrozen": true,
+      "normalUserImportCreated": true
+    },
+    "hashForgery": { "rejected": true, "revisionUnchanged": true, "storedHashUnchanged": true },
+    "J": {
+      "proposalPreparedAtVersion": 1,
+      "newerPublishedVersion": 2,
+      "originalVersionHash": "317901205c3007367b4d7e711a15dc8ea721da4f5496c78748adbb3b528dc15e",
+      "confirmedVersion": 1
+    },
+    "B": {
+      "sourceCount": 2,
+      "sourceNames": ["first.txt", "second.txt"],
+      "sourceKinds": ["TEXT", "TEXT"],
+      "sourceHashesMatchWorkspaceBytes": true,
+      "boundedAndHashed": true,
+      "automaticSuggestionCoveredBothRequiredOutputs": true,
+      "manualRevisionAndRevalidation": true,
+      "noAuthorityFromUntrustedText": true,
+      "importedFinalProjectionDeclared": ["first-evidence", "result"],
+      "realSubsequentMissions": 2
+    },
+    "H": {
+      "beforeConfirmRestart": true,
+      "actualUiConfirmTriggeredCrash": true,
+      "crashExitCode": 1,
+      "transactionRolledBackAfterArtifactInsert": true,
+      "countsBefore": {
+        "workflow_runs": 0,
+        "workflow_step_runs": 0,
+        "workflow_artifacts": 0,
+        "workflow_artifact_bindings": 0,
+        "workflow_validation_receipts": 0,
+        "workflow_checkpoints": 0,
+        "workflow_events": 0,
+        "workflow_import_artifact_bindings": 0,
+        "workflow_import_artifact_inputs": 0,
+        "workflow_import_artifacts": 0,
+        "workflow_import_confirmations": 0,
+        "workflow_import_proposals": 1,
+        "workflow_import_validations": 0
+      },
+      "countsAfterCrash": {
+        "workflow_runs": 0,
+        "workflow_step_runs": 0,
+        "workflow_artifacts": 0,
+        "workflow_artifact_bindings": 0,
+        "workflow_validation_receipts": 0,
+        "workflow_checkpoints": 0,
+        "workflow_events": 0,
+        "workflow_import_artifact_bindings": 0,
+        "workflow_import_artifact_inputs": 0,
+        "workflow_import_artifacts": 0,
+        "workflow_import_confirmations": 0,
+        "workflow_import_proposals": 1,
+        "workflow_import_validations": 0
+      },
+      "proposalStillValidated": true,
+      "noRunOrPartialImportFacts": true,
+      "confirmedBeforeResume": {
+        "runId": "477150e9-7db3-4f07-83c8-f43a12ee2876",
+        "activeStep": "review",
+        "activeStepState": "READY",
+        "noReplayCounts": {
+          "workflow_runs": 1,
+          "workflow_step_runs": 4,
+          "workflow_artifacts": 0,
+          "workflow_artifact_bindings": 0,
+          "workflow_validation_receipts": 0,
+          "workflow_checkpoints": 2,
+          "workflow_events": 4,
+          "workflow_import_artifact_bindings": 3,
+          "workflow_import_artifact_inputs": 1,
+          "workflow_import_artifacts": 2,
+          "workflow_import_confirmations": 1,
+          "workflow_import_proposals": 1,
+          "workflow_import_validations": 2
+        }
+      },
+      "duringMissionBeforeRestart": {
+        "runId": "9da78788-68b6-4e61-892b-475440def154",
+        "stepId": "final",
+        "stepState": "RUNNING",
+        "missionId": "b66b4aef-27f4-4a2e-9493-2e0afdd25b25",
+        "missionRunId": "fdf397df-15be-4b50-8f4d-e1184d35eeaa",
+        "modelCallStarted": true
+      },
+      "completedRestartNoReplay": {
+        "completedRunSignatureStable": true,
+        "overallCountsBeforeStartup": {
+          "workflow_runs": 2,
+          "workflow_step_runs": 8,
+          "workflow_artifacts": 3,
+          "workflow_artifact_bindings": 5,
+          "workflow_validation_receipts": 3,
+          "workflow_checkpoints": 7,
+          "workflow_events": 16,
+          "workflow_import_artifact_bindings": 8,
+          "workflow_import_artifact_inputs": 2,
+          "workflow_import_artifacts": 4,
+          "workflow_import_confirmations": 2,
+          "workflow_import_proposals": 2,
+          "workflow_import_validations": 4
+        },
+        "state": "COMPLETED"
+      },
+      "duringMissionRestartNoReplay": {
+        "sameMission": true,
+        "sameMissionRun": true,
+        "noNewMissionOrModelCall": true,
+        "stepStateAfterRecovery": "WAITING",
+        "countsBefore": { "missions": 4, "runs": 4, "modelCallStarts": 4 },
+        "countsAfter": { "missions": 4, "runs": 4, "modelCallStarts": 4 }
+      }
+    },
+    "C": {
+      "proposalId": "4d0e012b-456c-4027-b4ae-29325ef5adfa",
+      "confirmationExists": true,
+      "confirmationRunId": "477150e9-7db3-4f07-83c8-f43a12ee2876",
+      "committedStatus": "COMMITTED",
+      "noAutomaticMissionReplay": true,
+      "importedPrefixHasNoFakeMissionOrActor": true,
+      "importedRequiredOutputs": 2,
+      "importedDependencies": 1,
+      "frozenVersionHashMatches": true,
+      "realReviewVerdict": "PASS",
+      "reviewedImportedArtifactIds": ["9c27004b-b4e8-4a87-a9c8-6d1e452dc0b2"]
+    },
+    "K": {
+      "before": {
+        "missions": 0,
+        "mission_runs": 0,
+        "usage_records": 0,
+        "experience_events": 0,
+        "permission_rules": 0,
+        "approval_requests": 0
+      },
+      "after": {
+        "missions": 0,
+        "mission_runs": 0,
+        "usage_records": 0,
+        "experience_events": 0,
+        "permission_rules": 0,
+        "approval_requests": 0
+      },
+      "noGrantOrFakeExecution": true
+    },
+    "G": {
+      "sameRunId": "477150e9-7db3-4f07-83c8-f43a12ee2876",
+      "countsBefore": {
+        "workflow_runs": 1,
+        "workflow_step_runs": 4,
+        "workflow_artifacts": 0,
+        "workflow_artifact_bindings": 0,
+        "workflow_validation_receipts": 0,
+        "workflow_checkpoints": 2,
+        "workflow_events": 4,
+        "workflow_import_artifact_bindings": 3,
+        "workflow_import_artifact_inputs": 1,
+        "workflow_import_artifacts": 2,
+        "workflow_import_confirmations": 1,
+        "workflow_import_proposals": 1,
+        "workflow_import_validations": 2
+      },
+      "countsAfter": {
+        "workflow_runs": 1,
+        "workflow_step_runs": 4,
+        "workflow_artifacts": 0,
+        "workflow_artifact_bindings": 0,
+        "workflow_validation_receipts": 0,
+        "workflow_checkpoints": 2,
+        "workflow_events": 4,
+        "workflow_import_artifact_bindings": 3,
+        "workflow_import_artifact_inputs": 1,
+        "workflow_import_artifacts": 2,
+        "workflow_import_confirmations": 1,
+        "workflow_import_proposals": 1,
+        "workflow_import_validations": 2
+      },
+      "repeatedConfirmationIdempotent": true
+    },
+    "I": {
+      "definitionId": "official.research",
+      "version": 1,
+      "contractId": "research.brief",
+      "contractVersion": "1",
+      "validatorVersion": "w2-deterministic-v1",
+      "inputQuestionMatches": true,
+      "inputFieldMatches": true,
+      "importedStep": {
+        "id": "88910085-1a95-4201-8140-7c8607883a1b",
+        "workflowRunId": "16b0585e-8bfc-4cf0-a9ee-f8a84a5479b9",
+        "stepId": "R01",
+        "attempt": 1,
+        "completionOrigin": "IMPORTED_CONFIRMED",
+        "state": "COMPLETED",
+        "missionId": null,
+        "missionRunId": null,
+        "workspaceRoot": null,
+        "waitReason": null,
+        "errorCode": null,
+        "createdAt": "2026-10-09T15:38:45.374Z",
+        "updatedAt": "2026-10-09T15:38:45.416Z"
+      },
+      "currentStep": {
+        "id": "e8a80f8c-1592-4c56-8a71-e3d42116d994",
+        "workflowRunId": "16b0585e-8bfc-4cf0-a9ee-f8a84a5479b9",
+        "stepId": "R02",
+        "attempt": 1,
+        "completionOrigin": "EXECUTED",
+        "state": "READY",
+        "missionId": null,
+        "missionRunId": null,
+        "workspaceRoot": null,
+        "waitReason": null,
+        "errorCode": null,
+        "createdAt": "2026-10-09T15:38:45.374Z",
+        "updatedAt": "2026-10-09T15:38:45.413Z"
+      },
+      "noMissionForImportedR01": true,
+      "noAutoAdvance": true,
+      "runId": "16b0585e-8bfc-4cf0-a9ee-f8a84a5479b9"
+    },
+    "EffectImportAndDecision": {
+      "definitionId": "official.software-feature",
+      "version": 1,
+      "effectStepId": "S05",
+      "effectType": "WORKSPACE_MUTATION",
+      "validationStatus": "INVALID",
+      "validationErrors": ["不是连续可达的完成路径：S05"],
+      "decisionStepId": "S07",
+      "decisionValidationStatus": "INVALID",
+      "decisionValidationErrors": ["不是连续可达的完成路径：S07"]
+    },
+    "D": {
+      "invalidPrefixes": [
+        { "name": "missing-required-output", "status": "INVALID", "confirmRejected": true },
+        { "name": "review-cannot-be-skipped", "status": "INVALID", "confirmRejected": true }
+      ],
+      "sourceKindMismatch": {
+        "sourceKind": "JSON",
+        "outputKind": "TEXT",
+        "validationStatus": "INVALID",
+        "errors": ["成果类型不匹配：first"]
+      },
+      "changedSource": { "rejectedAtConfirm": true, "runId": null },
+      "oversized": {
+        "proposalId": "845eae3c-af33-4e1e-a707-26bd532f414e",
+        "persistedSources": 0,
+        "rejected": true
+      },
+      "symlink": {
+        "proposalId": "2d5d8c4c-e5d7-4c82-af5a-395ffd7fe8d9",
+        "persistedSources": 0,
+        "rejected": true
+      }
+    },
+    "E": {
+      "revisedAndRevalidated": true,
+      "invalidMappingConfirmRejected": [
+        { "name": "missing-required-output", "status": "INVALID", "confirmRejected": true },
+        { "name": "review-cannot-be-skipped", "status": "INVALID", "confirmRejected": true }
+      ],
+      "noFormalRunFromInvalidRevisions": true
+    },
+    "F": {
+      "status": "CANCELLED",
+      "runId": null,
+      "before": {
+        "workflow_runs": 3,
+        "workflow_step_runs": 22,
+        "workflow_artifacts": 3,
+        "workflow_artifact_bindings": 5,
+        "workflow_validation_receipts": 3,
+        "workflow_checkpoints": 8,
+        "workflow_events": 19,
+        "workflow_import_artifact_bindings": 9,
+        "workflow_import_artifact_inputs": 2,
+        "workflow_import_artifacts": 5,
+        "workflow_import_confirmations": 3,
+        "workflow_import_validations": 5
+      },
+      "after": {
+        "workflow_runs": 3,
+        "workflow_step_runs": 22,
+        "workflow_artifacts": 3,
+        "workflow_artifact_bindings": 5,
+        "workflow_validation_receipts": 3,
+        "workflow_checkpoints": 8,
+        "workflow_events": 19,
+        "workflow_import_artifact_bindings": 9,
+        "workflow_import_artifact_inputs": 2,
+        "workflow_import_artifacts": 5,
+        "workflow_import_confirmations": 3,
+        "workflow_import_validations": 5
+      },
+      "authorityUnchanged": true
+    },
+    "databaseIntegrity": {
+      "ok": true,
+      "foreignKeyViolations": 0,
+      "officialFrozenHashesPreserved": true
+    },
+    "coverageLimits": {
+      "sourceByteBoundary": { "tested": true, "acceptedBytes": 65536, "rejectedBytes": 65537 },
+      "maximumSourceCount": {
+        "tested": false,
+        "reason": "The visible USER import exercised two selected files; it did not exercise the implementation maximum."
+      },
+      "maximumPrefixStepCount": {
+        "tested": false,
+        "reason": "The visible USER import exercised a two-step prefix before a real REVIEW; it did not exercise the implementation maximum."
+      },
+      "userWorkflowRequiredInputSchema": {
+        "tested": false,
+        "reason": "The USER fixture has no required live inputs. The official research import separately verifies the frozen researchQuestion and field snapshot."
+      }
+    },
+    "complete": true
+  },
+  "continuationExecution": {
+    "state": "COMPLETED",
+    "realReviewMissionId": "9a5a99bb-52d7-4fd0-ac41-fa92a3aa042c",
+    "realFinalMissionId": "97d50c4d-37f3-4556-b670-6eb552c21c09",
+    "reviewVerdict": "PASS",
+    "reviewReferencedActualArtifactIds": true,
+    "missionAuditActors": [
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "routing.assigned" },
+      { "actor_type": "USER", "actor_id": "local-user", "action": "mission.created" },
+      { "actor_type": "USER", "actor_id": "local-user", "action": "mission.state.ready" },
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "mission.state.running" },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "skill.selection"
+      },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "tool.selection"
+      },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "model.call_started"
+      },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "model.call_completed"
+      },
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "usage.recorded" },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "completion.advisory"
+      },
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "mission.state.completed" },
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "routing.assigned" },
+      { "actor_type": "USER", "actor_id": "local-user", "action": "mission.created" },
+      { "actor_type": "USER", "actor_id": "local-user", "action": "mission.state.ready" },
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "mission.state.running" },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "skill.selection"
+      },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "tool.selection"
+      },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "model.call_started"
+      },
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "usage.recorded" },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "model.call_completed"
+      },
+      {
+        "actor_type": "TEAMMATE",
+        "actor_id": "05257d0d-6f8f-4430-ae55-9268928cc839",
+        "action": "completion.advisory"
+      },
+      { "actor_type": "SYSTEM", "actor_id": null, "action": "mission.state.completed" }
+    ],
+    "missionAuditIncludesActualTeammate": true,
+    "finalProjectionKeys": ["first-evidence", "result"],
+    "importedFirstProjectionResolves": true,
+    "actorUsageCount": 2,
+    "untrustedSourcePreservedAsData": true,
+    "selectedWorkspaceFilesUnchanged": true
+  },
+  "finalProjection": {
+    "importedFinalProjectionWasPreserved": true,
+    "finalOutputSchemaKeys": ["first-evidence", "result"]
+  },
+  "officialBefore": [
+    {
+      "definition_id": "official.ai-news-video",
+      "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd"
+    },
+    {
+      "definition_id": "official.research",
+      "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3"
+    },
+    {
+      "definition_id": "official.software-feature",
+      "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a",
+      "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d"
+    }
+  ],
+  "officialAfter": [
+    {
+      "definition_id": "official.ai-news-video",
+      "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+      "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd"
+    },
+    {
+      "definition_id": "official.research",
+      "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+      "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3"
+    },
+    {
+      "definition_id": "official.software-feature",
+      "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a",
+      "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d"
+    }
+  ],
+  "failure": null,
+  "archiveNote": "Current R6.1 full regression facts; screenshot paths rebased to bundled captures before restoring approved legacy evidence. Core execution facts unchanged. Not an additional manual review claim."
+}

@@ -1,0 +1,42 @@
+{
+  "stage": "R6.1",
+  "baseline": "7aad12ee3e3895dd70d2f7e6ae4996862add8637",
+  "status": "PASS (OFFLINE)",
+  "live": "NOT RUN",
+  "evidenceLevels": [
+    "unit",
+    "native integration",
+    "Windows packaged",
+    "live external separately NOT RUN"
+  ],
+  "toolAsyncGuard": {
+    "preFix": { "testsPassed": 5, "testsFailed": 5, "log": "validation/tool-guard-before.txt" },
+    "afterFix": {
+      "tests": 11,
+      "races": [
+        "DENY inserted",
+        "ALLOW revoked to ASK",
+        "registration replaced",
+        "descriptor mutated",
+        "input mutated",
+        "resource drift"
+      ],
+      "each": "Structured failure, guard.after failure outcome, zero actual tool execution"
+    },
+    "code": "packages/application/src/tool-runtime.ts"
+  },
+  "actualCompiledIpc": {
+    "layer": "Windows packaged actual Main handler with harness-created forged sender/frame events",
+    "results": ["IPC sender denied", "IPC sender denied", "IPC sender denied"],
+    "assertions": "Reject before import; no formal fact change"
+  },
+  "regressions": [
+    "permission-engine.test.ts exact grant and DENY/scope priority",
+    "r5-4-tool-execution.test.ts offered set and actor",
+    "file-workspace.test.ts canonical traversal/symlink",
+    "mcp-host.test.ts environment/timeout/crash",
+    "gate5-collaboration-service.test.ts distinct actor/no denied execution",
+    "w3-2-workflow-import-service.test.ts untrusted data/no grants",
+    "G1/G3 media inputs remain permission-controlled"
+  ]
+}

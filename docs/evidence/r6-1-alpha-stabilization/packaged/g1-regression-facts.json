@@ -1,0 +1,275 @@
+{
+  "crashes": [
+    {
+      "point": "created",
+      "beforeState": "PENDING",
+      "beforeProviderStatus": null,
+      "providerJobId": "generation-78761efc-90b7-4a8d-9958-cf340a3b707b",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 0,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "c16c477ff3aa083d5e074a89b01bac25b8c47cb00686a2126bb7c740bb8a25e0",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "submitting",
+      "beforeState": "SUBMITTING",
+      "beforeProviderStatus": null,
+      "providerJobId": "generation-1c9ac35b-52fc-4c54-b31f-eddb3ad3534f",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 0,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "8304917b896c1a97970d28a731d729cb612d66c7cd226773717a0adae68666d3",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "submission_sent",
+      "beforeState": "SUBMITTING",
+      "beforeProviderStatus": null,
+      "providerJobId": "generation-7672cdae-1134-46ab-a955-5c0663ad8bf9",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 0,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "f66d3f0997120e9ccb55e3df7e43dad977510d974f170be04cacbb0a3918319e",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "submitted",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "QUEUED",
+      "providerJobId": "generation-6d0daf93-43c3-412b-92cb-5ac756b90b0a",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 0,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "7cd8f106eb6f96fde18b04d3c3067a00aca0b2fa9f4fd2c8fb2dc4c27938c331",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "provider_completed",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-1f404cf7-57fc-4077-8f3a-76eb71beef24",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 0,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "8245e5e0d055bfdf053b3be78adf6123666eb9d359b4df480a920363af36c41a",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "downloading",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-95636cf1-9e3d-4a26-b8ed-c9f3deda2abd",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 2,
+      "downloadsBeforeRestart": 1,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": {
+        "partialBytes": 8,
+        "advertisedBytes": 68,
+        "completeStageExists": false,
+        "artifacts": 0
+      },
+      "artifacts": [
+        {
+          "id": "7e830bf7824a53631a97332689f0a3d5b6ed6b4112baad56e43ed1b27420a84f",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "staged",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-bc137bd8-f449-4a90-8fb9-daa9557491da",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 1,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "3e083e9fb69c645e41a84f0663675c54dbf79fc820c30daf77441f9109d81c0f",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "committed",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-46b64779-0d4b-44ee-bf65-f8e0dfb4a341",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 1,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "5e288ee96db7d64d5250838e28db57f7fd2c80d8a3c1583ff8b25336203e82ab",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    },
+    {
+      "point": "registered",
+      "beforeState": "QUEUED",
+      "beforeProviderStatus": "COMPLETED",
+      "providerJobId": "generation-17509767-3546-4afe-aad4-419165bb6893",
+      "state": "COMPLETED",
+      "submissions": 1,
+      "downloads": 1,
+      "downloadsBeforeRestart": 1,
+      "descriptorLimits": {
+        "maxInputBytes": 33554432,
+        "maxInputFiles": 2,
+        "maxOutputBytes": 33554432,
+        "maxOutputs": 1
+      },
+      "partialFacts": null,
+      "artifacts": [
+        {
+          "id": "6966d4fae647f075b38ec95ce9c143decbde1038ea5f92726bf0ecd2415311a6",
+          "content_hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "storage_scope": "APP_ARTIFACT_STORE"
+        }
+      ]
+    }
+  ],
+  "failClosed": [
+    { "scenario": "UNKNOWN", "state": "UNKNOWN", "errorCode": "SUBMISSION_STATE_UNKNOWN" },
+    { "scenario": "INVALID_MIME", "state": "FAILED", "errorCode": "UNSUPPORTED_MEDIA_TYPE" },
+    { "scenario": "INVALID_HASH", "state": "FAILED", "errorCode": "ARTIFACT_INTEGRITY" },
+    { "scenario": "MISSING", "state": "FAILED", "errorCode": "OUTPUT_MISSING" }
+  ],
+  "production": { "migration": 32, "jobs": 0 },
+  "workspace": [
+    {
+      "deny": false,
+      "state": "COMPLETED",
+      "errorCode": null,
+      "artifacts": [
+        {
+          "id": "38762d12e7543af29966bf46c88b94aecd31ad5bbfec0519e57c2bde45cebb35",
+          "hash": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+          "scope": "MISSION_WORKSPACE"
+        }
+      ]
+    },
+    { "deny": true, "state": "FAILED", "errorCode": "PERMISSION_DENIED", "artifacts": [] }
+  ],
+  "frozenHashes": [
+    {
+      "definition_id": "official.ai-news-video",
+      "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd",
+      "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153"
+    },
+    {
+      "definition_id": "official.research",
+      "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3",
+      "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7"
+    },
+    {
+      "definition_id": "official.software-feature",
+      "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d",
+      "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+    }
+  ],
+  "runtimeUi": {
+    "id": "2b686dad-f834-48ae-946a-dc2bde040663",
+    "executionProtocol": "GENERATION",
+    "generationEntry": true
+  },
+  "unknownRestart": {
+    "state": "UNKNOWN",
+    "automaticSubmissions": 0,
+    "automaticDownloads": 0,
+    "automaticQueries": 0
+  }
+}

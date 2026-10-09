@@ -1,0 +1,77 @@
+{
+  "scope": "Manual inspection of all nine newly captured real Windows packaged screenshots",
+  "reviewed": [
+    {
+      "file": "home-empty-1440.png",
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "sha256": "4a8d3cf28e27aef3bbc16d9017f29d2f6845cbebb0912f6342fb00a86b336594"
+    },
+    {
+      "file": "home-empty-1180.png",
+      "width": 1180,
+      "viewport": 1180,
+      "document": 1180,
+      "sha256": "e0c7f0818aaaa9cf629519b8590ca79fabb23db1baec4a15897511b9b3d1095e"
+    },
+    {
+      "file": "home-empty-900.png",
+      "width": 900,
+      "viewport": 902,
+      "document": 902,
+      "sha256": "a57e0696504f02524ed1bcac8a64f79dbf95b5fe722808a6173b2c66d9acc400"
+    },
+    {
+      "file": "mission-volume-1440.png",
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "sha256": "61c0f1eb0842cdd8fb233925bd13a8db1d37f0d8bbe16d2f61af63feabf87653"
+    },
+    {
+      "file": "mission-volume-1180.png",
+      "width": 1180,
+      "viewport": 1180,
+      "document": 1180,
+      "sha256": "d32c8b0ed81c134ad6dcfd6db44be3d03a27f1656389f23ed34ecf386bb094d8"
+    },
+    {
+      "file": "mission-volume-900.png",
+      "width": 900,
+      "viewport": 902,
+      "document": 902,
+      "sha256": "aa66f77186ccadca737191536803c1d62bec0416cc6625b8505d12731cd30313"
+    },
+    {
+      "file": "workflow-volume-1440.png",
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "sha256": "6a1393c2c47597b4c366ceb94a0727f0b33b6c3630147852e9ca813601c372a0"
+    },
+    {
+      "file": "workflow-volume-1180.png",
+      "width": 1180,
+      "viewport": 1180,
+      "document": 1180,
+      "sha256": "8af5de337de4c9d25eab35f10eb06b5379362e7d547df953820cf9c883288d96"
+    },
+    {
+      "file": "workflow-volume-900.png",
+      "width": 900,
+      "viewport": 902,
+      "document": 902,
+      "sha256": "eb75a1715eff85a246f0908343c439cd3fa488f3b74dd455b4bccba72260c607"
+    }
+  ],
+  "observations": {
+    "home": "All three widths: clear first-teammate action, intact avatar and title/nav; no overlap or horizontal clipping",
+    "mission": "1440/1180: readable list plus detail and focus ring; Human Bridge identity without model availability",
+    "workflow": "1440/1180: run/Step details remain readable and tabs show keyboard focus",
+    "narrow": "900: existing stacked layout has no horizontal overflow but selected detail is below the full long list"
+  },
+  "remaining": "MEDIUM nonblocking UX debt: with 300 Missions / 121 Workflow Runs, the 900 stacked layout requires long scrolling. No convenient high-volume narrow-window operation or pagination is claimed.",
+  "actualWidths": "900 requested -> 902 CSS viewport under existing minimum-size/DPI behavior",
+  "legacyUi": "Full unchanged Product UI smoke separately captured 83 screens at 1440/1180/900; not claimed as 83 additional manual reviews"
+}

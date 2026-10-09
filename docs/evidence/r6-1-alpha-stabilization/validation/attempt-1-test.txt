@@ -1,0 +1,18 @@
+Command: npm run test
+
+> ai-agent-cultivation@0.0.1 test
+> vitest run
+
+
+ RUN  v5.0.1 E:/Graduate_work_folder/Agent_develop/Project/AI Agent Cultivation
+
+
+ Test Files  156 passed (156)
+      Tests  1398 passed (1398)
+   Start at  23:05:59
+   Duration  194.92s (tests 85%, import 11%, transform 3%, worker 1%)
+
+    Isolate  156 workers spawned · ~205ms startup each (spawn + environment, per file)
+             at least ~31.75s faster with isolate: false — reuses workers across files instead of one per file
+
+ExitCode: 0

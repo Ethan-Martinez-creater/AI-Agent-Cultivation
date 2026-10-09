@@ -1,0 +1,34 @@
+{
+  "stage": "R6.1",
+  "baseline": "7aad12ee3e3895dd70d2f7e6ae4996862add8637",
+  "status": "PASS (OFFLINE)",
+  "live": "NOT RUN",
+  "evidenceLevels": [
+    "unit",
+    "native integration",
+    "Windows packaged",
+    "live external separately NOT RUN"
+  ],
+  "scope": [
+    "G1 bounded streaming/file-backed inputs and safe Artifact Store",
+    "G2 H3 rejection vs UNKNOWN and pre-Job chat continuation",
+    "G3 independent actual actor/task/result envelope"
+  ],
+  "adapterAcceptedPostBoundary": "recovery-matrix.json",
+  "finalPackagedMarkers": [
+    "G1_PACKAGED_SMOKE_OK crashes=A-F+partial+commit streaming=true descriptorsAbove16MiB=true partial=re-download-original verifiedStage=zero-redownload idempotency=stable UNKNOWN=no-replay output=app+workspace permission=deny evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\g1-packaged-58364e67-e8b6-44a1-8991-e82564a3a1f1\\evidence",
+    "G2_PACKAGED_SMOKE_OK screenshots=1440_and_900 productionAdapter=H3_HTTP offlineFixture=true evidence=.test-data\\g2-packaged-176be740-4e32-4a4e-9b55-d33dfd184835\\evidence",
+    "G2_CORRECTIVE_PACKAGED_SMOKE_OK evidence=.test-data\\g2-corrective-b2cf2b92-085f-4590-a056-f6957cff08eb preJobRecovery=once rejected=FAILED uncertain=UNKNOWN",
+    "G3_PACKAGED_SMOKE_PASS localH3Fixture=true liveEndpoint=BLOCKED screenshots=1440_1180_900 evidence=docs\\evidence\\g3-multimodal-collaboration\\930c2d35-0298-4edc-87ee-075d6098d0d0",
+    "G3_HUMAN_PACKAGED_SMOKE_PASS needs_input=language-structured,file_read=exact-review=accepted-empty-summary=no-restart screenshots=1440_1180_900 evidence=docs\\evidence\\g3-multimodal-collaboration\\human-447c6998-dd3f-472c-aa96-0b6784e9b195"
+  ],
+  "unknown": "No automatic submit/replay; no live claim",
+  "sealedExecutionProtocol": "Unchanged",
+  "providerCompletion": "Never substitutes safe software Artifact commit",
+  "archivedCurrentFacts": [
+    "packaged/g1-regression-facts.json",
+    "packaged/g2-regression-facts.json",
+    "packaged/g3-regression-facts.json",
+    "packaged/g3-human-regression-facts.json"
+  ]
+}

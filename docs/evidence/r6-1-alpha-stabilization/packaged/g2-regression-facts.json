@@ -1,0 +1,210 @@
+{
+  "scenarios": {
+    "ENTRY_COMMITTED": {
+      "crashed": {
+        "entries": [
+          {
+            "message_id": "929cd97e-a7c2-4691-b65c-943e50d870bb",
+            "job_id": null,
+            "preparation_error_code": null
+          }
+        ],
+        "jobs": [],
+        "adapter": [],
+        "artifacts": 0
+      },
+      "recovered": {
+        "entries": [
+          {
+            "message_id": "929cd97e-a7c2-4691-b65c-943e50d870bb",
+            "job_id": "24c23097-f348-411e-990a-4f3b2b10f64d",
+            "preparation_error_code": null
+          }
+        ],
+        "jobs": [
+          { "id": "24c23097-f348-411e-990a-4f3b2b10f64d", "state": "COMPLETED", "error_code": null }
+        ],
+        "adapter": [
+          {
+            "runtimeId": "b4f587a5-d64a-4209-b479-fca34527b33c",
+            "key": "7245a1b0-2f1e-435b-8ec0-60b97f00af18",
+            "requestFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+            "semanticFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+            "uploadedFiles": [],
+            "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"一段平静湖面的视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+            "phase": "SUBMITTED",
+            "providerJobId": "job_1",
+            "errorCode": null
+          }
+        ],
+        "artifacts": 1
+      },
+      "posts": 1,
+      "restartStable": true
+    },
+    "JOB_CREATED": {
+      "crashed": {
+        "entries": [
+          {
+            "message_id": "2ce7a93b-5952-4780-97d0-d40b6909dbed",
+            "job_id": "95d98b99-a350-40b1-b9db-dd947f8f895d",
+            "preparation_error_code": null
+          }
+        ],
+        "jobs": [
+          { "id": "95d98b99-a350-40b1-b9db-dd947f8f895d", "state": "PENDING", "error_code": null }
+        ],
+        "adapter": [],
+        "artifacts": 0
+      },
+      "recovered": {
+        "entries": [
+          {
+            "message_id": "2ce7a93b-5952-4780-97d0-d40b6909dbed",
+            "job_id": "95d98b99-a350-40b1-b9db-dd947f8f895d",
+            "preparation_error_code": null
+          }
+        ],
+        "jobs": [
+          { "id": "95d98b99-a350-40b1-b9db-dd947f8f895d", "state": "COMPLETED", "error_code": null }
+        ],
+        "adapter": [
+          {
+            "runtimeId": "f0244de5-b77c-427b-bd33-2e44a105ad44",
+            "key": "b50db379-0ab7-4467-ab4d-7d458055c9aa",
+            "requestFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+            "semanticFingerprint": "33459db1926a65957d81f8c0109334c6f1d405828b9f591d9c0ef1bf6f1d3e52",
+            "uploadedFiles": [],
+            "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"一段平静湖面的视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+            "phase": "SUBMITTED",
+            "providerJobId": "job_2",
+            "errorCode": null
+          }
+        ],
+        "artifacts": 1
+      },
+      "posts": 1,
+      "restartStable": true
+    },
+    "preparationFailure": {
+      "entries": [
+        {
+          "message_id": "cc6cb92e-bd29-4319-b090-de58876a8ecf",
+          "job_id": null,
+          "preparation_error_code": "INVALID_INPUT"
+        }
+      ],
+      "jobs": [],
+      "adapter": [],
+      "artifacts": 0
+    },
+    "AUTH_FAILED-FAILED": {
+      "entries": [
+        {
+          "message_id": "29a2443a-39bf-4c26-b8d5-fa04316c5672",
+          "job_id": "1218e713-5dc8-4161-9bde-653cf45d76a6",
+          "preparation_error_code": null
+        }
+      ],
+      "jobs": [
+        {
+          "id": "1218e713-5dc8-4161-9bde-653cf45d76a6",
+          "state": "FAILED",
+          "error_code": "AUTH_FAILED"
+        }
+      ],
+      "adapter": [
+        {
+          "runtimeId": "d54c6689-7f78-4a52-8e22-eaa884610edf",
+          "key": "20d347c5-095a-405e-8404-246da3de40c1",
+          "requestFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+          "semanticFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+          "uploadedFiles": [],
+          "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"生成一段自然风景视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+          "phase": "REJECTED",
+          "providerJobId": null,
+          "errorCode": "AUTH_FAILED"
+        }
+      ],
+      "artifacts": 0,
+      "posts": 1,
+      "zeroReplay": true,
+      "productErrorMapping": true
+    },
+    "QUEUE_FULL-FAILED": {
+      "entries": [
+        {
+          "message_id": "a98c1fcb-4703-4c0e-bab5-48d91976ad7a",
+          "job_id": "fa913363-69df-4f10-8b96-815aad871413",
+          "preparation_error_code": null
+        }
+      ],
+      "jobs": [
+        {
+          "id": "fa913363-69df-4f10-8b96-815aad871413",
+          "state": "FAILED",
+          "error_code": "QUEUE_FULL"
+        }
+      ],
+      "adapter": [
+        {
+          "runtimeId": "58569071-3438-4294-8dc9-685ba9af7d74",
+          "key": "018a2b32-0f24-4754-98de-ed97b0ebb6c0",
+          "requestFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+          "semanticFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+          "uploadedFiles": [],
+          "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"生成一段自然风景视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+          "phase": "REJECTED",
+          "providerJobId": null,
+          "errorCode": "QUEUE_FULL"
+        }
+      ],
+      "artifacts": 0,
+      "posts": 1,
+      "zeroReplay": true,
+      "productErrorMapping": true
+    },
+    "AUTH_FAILED-UNKNOWN": {
+      "entries": [
+        {
+          "message_id": "fac62787-ef94-4c26-9c60-9a0f0bf4c102",
+          "job_id": "3458d9b4-876c-449f-a361-a3fc7fb961c7",
+          "preparation_error_code": null
+        }
+      ],
+      "jobs": [
+        {
+          "id": "3458d9b4-876c-449f-a361-a3fc7fb961c7",
+          "state": "UNKNOWN",
+          "error_code": "SUBMISSION_STATE_UNKNOWN"
+        }
+      ],
+      "adapter": [
+        {
+          "runtimeId": "e49d113e-92dc-43f3-a676-041df9d5f807",
+          "key": "926d7d5f-c7d1-4420-823f-ba4e3f66bd87",
+          "requestFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+          "semanticFingerprint": "4ca12abb714e768d4c9d670703739bf7c75115548396596822dba5af0dc3fdc6",
+          "uploadedFiles": [],
+          "exactBody": "{\"model\":\"minimax-h3\",\"prompt\":\"生成一段自然风景视频\",\"duration\":4,\"aspect\":\"16:9\",\"task\":\"auto\",\"media\":[]}",
+          "phase": "UNKNOWN",
+          "providerJobId": null,
+          "errorCode": null
+        }
+      ],
+      "artifacts": 0,
+      "posts": 1,
+      "zeroReplay": true,
+      "productErrorMapping": true
+    }
+  },
+  "screenshots": [
+    ".test-data\\g2-corrective-b2cf2b92-085f-4590-a056-f6957cff08eb\\AUTH_FAILED-FAILED-1440.png",
+    ".test-data\\g2-corrective-b2cf2b92-085f-4590-a056-f6957cff08eb\\AUTH_FAILED-FAILED-900.png",
+    ".test-data\\g2-corrective-b2cf2b92-085f-4590-a056-f6957cff08eb\\QUEUE_FULL-FAILED-1440.png",
+    ".test-data\\g2-corrective-b2cf2b92-085f-4590-a056-f6957cff08eb\\QUEUE_FULL-FAILED-900.png",
+    ".test-data\\g2-corrective-b2cf2b92-085f-4590-a056-f6957cff08eb\\AUTH_FAILED-UNKNOWN-1440.png",
+    ".test-data\\g2-corrective-b2cf2b92-085f-4590-a056-f6957cff08eb\\AUTH_FAILED-UNKNOWN-900.png"
+  ],
+  "liveIntegration": "BLOCKED / NOT RUN"
+}

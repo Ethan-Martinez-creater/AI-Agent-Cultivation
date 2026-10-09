@@ -1,0 +1,11 @@
+{
+  "baseline": "7aad12ee3e3895dd70d2f7e6ae4996862add8637",
+  "mirror": ".tmp/g3-verify",
+  "command": "npm run package",
+  "sourceFilesCompared": 510,
+  "mismatches": 0,
+  "sourceManifestSha256": "fec98755d34a4c8a16768b975b0e3293b3f2d69c83bdac9ccee4393647677105",
+  "nativeModuleIsolation": "Separate physical Node test and Electron build dependencies, source byte-identical",
+  "nodeOptionsPreload": false,
+  "output": "out/AI Agent Cultivation-win32-x64/AI-Agent-Cultivation.exe"
+}

@@ -1,0 +1,74 @@
+{
+  "stage": "R6.1",
+  "baseline": "7aad12ee3e3895dd70d2f7e6ae4996862add8637",
+  "status": "PASS (OFFLINE)",
+  "live": "NOT RUN",
+  "evidenceLevels": [
+    "unit",
+    "native integration",
+    "Windows packaged",
+    "live external separately NOT RUN"
+  ],
+  "compatibility": [
+    "W1 frozen I/O and final projection integrity",
+    "W2 Contract versions/revision budgets/receipt recovery",
+    "Three immutable official v1 packages",
+    "W3.1 USER CAS draft/version publication",
+    "W3.2 imported+executed lineage, atomic confirmation, actual Mission resume"
+  ],
+  "targeted": "validation/affected.txt: 35 files / 372 tests",
+  "newBoundary": {
+    "sourcesAccepted": 16,
+    "source17Rejected": true,
+    "totalSteps": 32,
+    "reachableImportedPrefix": 16,
+    "formalPrefixArrayBound": 32,
+    "structuralPrefixBound": 31,
+    "reason": "Distinct evidence per output and 16 source cap; a following executable Step is required.",
+    "reusedSourceRejected": true,
+    "partialRunCreatedOnFailure": false,
+    "inputSnapshot": { "count": 2, "mode": "A", "topic": "来源与输入验证" },
+    "before": {
+      "workflow_runs": 0,
+      "workflow_import_confirmations": 0,
+      "workflow_import_artifacts": 0,
+      "workflow_checkpoints": 0,
+      "missions": 0,
+      "mission_runs": 0,
+      "usage_records": 0,
+      "experience_events": 0,
+      "permission_rules": 0,
+      "approval_requests": 0
+    },
+    "after": {
+      "workflow_runs": 1,
+      "workflow_import_confirmations": 1,
+      "workflow_import_artifacts": 16,
+      "workflow_checkpoints": 16,
+      "missions": 0,
+      "mission_runs": 0,
+      "usage_records": 0,
+      "experience_events": 0,
+      "permission_rules": 0,
+      "approval_requests": 0
+    }
+  },
+  "dataUpgrade": "migration-integrity.json",
+  "finalPackagedMarkers": [
+    "W1_PACKAGED_SMOKE_OK evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w1-packaged-84d2e4ca-4a7c-4780-921d-dcb1fd8a138c\\evidence migration=32 routing=existing mission=existing lineage=verified recovery=no_silent_replay",
+    "W2_PACKAGED_SMOKE_OK contract=frozen,deterministic builtin=official-installer+isolated-test-fixture,idempotent production=official-news+software+research-v1 revision=edge+group,idempotent FILE+WORKSPACE=APPLIED-recovery,zero-replay EXTERNAL=UNKNOWN evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w2-packaged-5845185c-77fa-43c9-9224-15b563b0591f\\evidence",
+    "W21_PACKAGED_SMOKE_OK cases=3 steps=14 permission=normal-mcp-approval humanBridge=typed-ipc restarts=N10-wait+N12-applied zeroReplay=true socialPublish=0 evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-849c2b7e-600d-4c34-9e78-161833209977\\evidence\\news",
+    "W22_PACKAGED_SMOKE_OK cases=4 mixedVerification=true independentReview=true dynamicMutation=true crashZeroReplay=true noPublish=true evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-849c2b7e-600d-4c34-9e78-161833209977\\evidence\\software",
+    "W24_PACKAGED_SMOKE_OK cleanProfile=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-849c2b7e-600d-4c34-9e78-161833209977 migration=32 official=3 sharedDatabase=true frozenHashes=true finalProductionRestartZeroReplay=true evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w24-clean-packaged-849c2b7e-600d-4c34-9e78-161833209977\\evidence",
+    "W31_PACKAGED_SMOKE_OK profile=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w31-packaged-ee2af05a-c26b-49fe-b19e-9892b4f4f078 evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\w3-1-user-workflow-editor\\packaged",
+    "W32_PACKAGED_SMOKE_OK profile=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\.test-data\\w32-import-packaged-e6d67e79-d73b-4efc-a8fc-c68b082b0ecd evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\w3-2-import-existing-work\\packaged",
+    "R61_PACKAGED_SMOKE_OK production=normal capacity=16_of_32 required_inputs=frozen forged_ipc=denied keyboard=operable restart=no_replay live=NOT_RUN"
+  ],
+  "publishedVersionHashUnchanged": "frozen-hashes.json",
+  "archivedCurrentFacts": [
+    "packaged/w2-regression-facts.json",
+    "packaged/w3-1-regression-facts.json",
+    "packaged/w3-2-regression-acceptance.json",
+    "packaged/w3-2-regression-rawfacts.json"
+  ]
+}

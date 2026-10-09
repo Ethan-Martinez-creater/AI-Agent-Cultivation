@@ -429,7 +429,7 @@ describe('H3 GenerationGateway HTTP adapter', () => {
     const losingResponseFetch: typeof globalThis.fetch = async (input, init) => {
       const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
       if (init?.method === 'POST' && new URL(url).pathname === '/v1/videos') {
-        const response = await globalThis.fetch(input, init);
+        await globalThis.fetch(input, init);
         notifyAccepted();
         return await new Promise<Response>((_resolve, reject) => {
           abandonedResponse.release = () =>

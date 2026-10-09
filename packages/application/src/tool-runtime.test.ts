@@ -154,6 +154,22 @@ describe('ToolRuntime boundary', () => {
     expect(held.outcomes).toMatchObject([{ ok: false, code: 'PERMISSION_DENIED' }]);
   });
 
+  it('requires approval when ALLOW is revoked to ASK while the execution guard is held', async () => {
+    const rules = [permission('GLOBAL', null, 'ALLOW')];
+    const held = heldGuard();
+    const { runtime, executions } = fixture(rules, held.guard);
+    const pending = runtime.dispatch(call, context);
+    await held.entered;
+    rules[0]!.decision = 'ASK';
+    held.release();
+    expect(await pending).toMatchObject({
+      kind: 'RESULT',
+      result: { ok: false, code: 'APPROVAL_REQUIRED' },
+    });
+    expect(executions()).toBe(0);
+    expect(held.outcomes).toMatchObject([{ ok: false, code: 'APPROVAL_REQUIRED' }]);
+  });
+
   it('rejects a registry replacement made while the execution guard is held', async () => {
     const held = heldGuard();
     const { runtime, executions, registry } = fixture(

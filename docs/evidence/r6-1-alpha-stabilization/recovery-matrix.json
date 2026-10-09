@@ -1,0 +1,116 @@
+{
+  "stage": "R6.1",
+  "baseline": "7aad12ee3e3895dd70d2f7e6ae4996862add8637",
+  "status": "PASS (OFFLINE)",
+  "live": "NOT RUN",
+  "evidenceLevels": [
+    "unit",
+    "native integration",
+    "Windows packaged",
+    "live external separately NOT RUN"
+  ],
+  "newProof": {
+    "normalProduction": {
+      "originalRun": "f2b81362-ce68-413c-8667-f0b264be0ea6",
+      "snapshotIdentical": true,
+      "factCountsIdentical": true,
+      "noMissionOrSideEffectReplay": true
+    },
+    "h3AcceptedResponseLoss": {
+      "test": "packages/agent-runtime/src/h3-generation-gateway.test.ts",
+      "level": "Offline adapter recreation with in-memory state-store double",
+      "fact": "One accepted POST; SUBMITTING with no known provider ID becomes UNKNOWN; zero second request",
+      "limit": "Not an exact-barrier SQLite process-kill or live-provider proof"
+    }
+  },
+  "rows": [
+    {
+      "module": "Mission",
+      "pending": "DRAFT/PAUSED stable",
+      "committed": "State machine and MissionRun attempt",
+      "externalIssued": "RUNNING stream is not resumed",
+      "uncertain": "Startup INTERRUPTED; explicit Retry new attempt",
+      "waiting": "WAITING_APPROVAL preserved/one-time resolve",
+      "completed": "Terminal history append-only",
+      "evidence": ["gate3-mission-service.test.ts", "gate3.test.ts", "smoke-gate3-packaged.mjs"]
+    },
+    {
+      "module": "Party",
+      "pending": "Proposal before execution",
+      "committed": "Actual participant/Run facts",
+      "externalIssued": "Independent actors and durable result",
+      "uncertain": "No automatic re-execution from lost model stream",
+      "waiting": "DENIED target zero model/artifact/Experience",
+      "completed": "Member outcome independent of final Coordinator outcome",
+      "evidence": [
+        "gate5-collaboration-service.test.ts",
+        "gate6-experience-service.test.ts",
+        "gate5-packaged-smoke.mjs",
+        "g3-human-packaged-smoke.mjs"
+      ]
+    },
+    {
+      "module": "Human Bridge",
+      "pending": "ACCEPTED PENDING continuation resumes same Run",
+      "committed": "Artifact/ACCEPT and continuation durable",
+      "externalIssued": "CONSUMING synthesis/tool evidence tracked",
+      "uncertain": "No FINAL + synthesis/tool started -> INTERRUPTED, explicit user retry",
+      "waiting": "External WAITING preserved; rejected/cancelled no success continuation",
+      "completed": "Durable FINAL consumed without synthesis replay",
+      "evidence": [
+        "r2-human-bridge-service.test.ts",
+        "r2-continuation.test.ts",
+        "r3-1-crash-packaged-smoke.mjs"
+      ]
+    },
+    {
+      "module": "Workflow",
+      "pending": "Version/input pin and READY Step",
+      "committed": "Mission terminal + Contract + receipt + exit + checkpoint transaction",
+      "externalIssued": "PREPARED/APPLIED operation boundary",
+      "uncertain": "Verify actual effect, UNKNOWN external -> WAITING_USER; no silent replay",
+      "waiting": "Rebind original waiting Mission/Human",
+      "completed": "Completed Step/receipt/final projection not repeated",
+      "evidence": [
+        "w1-workflow-service.test.ts",
+        "w2-workflow.test.ts",
+        "w24-cross-workflow.test.ts",
+        "w24-packaged-smoke.mjs"
+      ]
+    },
+    {
+      "module": "Generation",
+      "pending": "Pre-Job chat intent durable recovery",
+      "committed": "Task id/idempotency + providerJobId mapping",
+      "externalIssued": "Unconfirmed submit -> UNKNOWN, known providerJobId query original",
+      "uncertain": "UNKNOWN zero submit; partial staging not Artifact",
+      "waiting": "Explicit user handling without second logical submission",
+      "completed": "Verified staging/committed Artifact reused; no repeated register/download",
+      "evidence": [
+        "g2-submission-continuation.test.ts",
+        "h3-generation-gateway.test.ts",
+        "g1-artifact-store.test.ts",
+        "g3-execution-recovery.test.ts",
+        "g1-packaged-smoke.mjs",
+        "g2-corrective-packaged-smoke.mjs",
+        "g3-packaged-smoke.mjs"
+      ]
+    },
+    {
+      "module": "Import",
+      "pending": "Proposal does not create formal Run",
+      "committed": "Confirmation atomically imports Artifact/checkpoint and next READY Step",
+      "externalIssued": "Only Main-controlled user-authorized source read",
+      "uncertain": "Transaction rollback produces no partial Run",
+      "waiting": "Resumed real Mission retains permission/approval",
+      "completed": "Confirmation idempotent; imported completion never fakes execution",
+      "evidence": [
+        "w3-2-workflow-import-service.test.ts",
+        "w3-2-workflow-import.test.ts",
+        "w3-2-packaged-smoke.mjs",
+        "r6-1-packaged-smoke.mjs"
+      ]
+    }
+  ],
+  "packagedChainLog": "validation/final-smoke.txt"
+}

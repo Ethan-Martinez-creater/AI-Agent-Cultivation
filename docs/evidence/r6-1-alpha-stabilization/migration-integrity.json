@@ -1,0 +1,252 @@
+{
+  "stage": "R6.1",
+  "baseline": "7aad12ee3e3895dd70d2f7e6ae4996862add8637",
+  "status": "PASS (OFFLINE)",
+  "live": "NOT RUN",
+  "evidenceLevels": [
+    "unit",
+    "native integration",
+    "Windows packaged",
+    "live external separately NOT RUN"
+  ],
+  "migrations": [
+    {
+      "file": "0001_initial.sql",
+      "sha256LF": "bbf2d9589a85d7fcf11792b2b4dc0dc9df2d3b473a546c93b2f862d1ac28be46",
+      "baselineSha256LF": "bbf2d9589a85d7fcf11792b2b4dc0dc9df2d3b473a546c93b2f862d1ac28be46",
+      "unchanged": true
+    },
+    {
+      "file": "0002_gate1.sql",
+      "sha256LF": "0c0e9a2dafd77f10aca9a36047f18f079949115b145e7fa094ec0c55637ca5f7",
+      "baselineSha256LF": "0c0e9a2dafd77f10aca9a36047f18f079949115b145e7fa094ec0c55637ca5f7",
+      "unchanged": true
+    },
+    {
+      "file": "0003_gate2.sql",
+      "sha256LF": "0e65fc460642728a851df58691bcedae8d17c337bccbef8dcba7d9dcda442179",
+      "baselineSha256LF": "0e65fc460642728a851df58691bcedae8d17c337bccbef8dcba7d9dcda442179",
+      "unchanged": true
+    },
+    {
+      "file": "0004_gate3.sql",
+      "sha256LF": "2f68454d7d3678fe7a3bebbabbe24b7aca16e8d729d65ba8d9c1344b4a22452a",
+      "baselineSha256LF": "2f68454d7d3678fe7a3bebbabbe24b7aca16e8d729d65ba8d9c1344b4a22452a",
+      "unchanged": true
+    },
+    {
+      "file": "0005_gate4.sql",
+      "sha256LF": "1504456d144cf4497903de5332d674f16a2a0f6c025f31a4ca263ca8e22e4e6a",
+      "baselineSha256LF": "1504456d144cf4497903de5332d674f16a2a0f6c025f31a4ca263ca8e22e4e6a",
+      "unchanged": true
+    },
+    {
+      "file": "0006_gate5.sql",
+      "sha256LF": "b406985bcb00a73ee5ab5b011b350c5c6edc990d474e0ea47a47691b8c88a2bc",
+      "baselineSha256LF": "b406985bcb00a73ee5ab5b011b350c5c6edc990d474e0ea47a47691b8c88a2bc",
+      "unchanged": true
+    },
+    {
+      "file": "0007_gate6.sql",
+      "sha256LF": "46e27868c67dbcb1b585eca4f645ce844b58e397988bc63cce9fcf0249687760",
+      "baselineSha256LF": "46e27868c67dbcb1b585eca4f645ce844b58e397988bc63cce9fcf0249687760",
+      "unchanged": true
+    },
+    {
+      "file": "0008_gate6_collaboration_outcome.sql",
+      "sha256LF": "1ff11414e227f85419cbfb74fbcc892804bf1813101e2ea756f0fa6bb3f5906b",
+      "baselineSha256LF": "1ff11414e227f85419cbfb74fbcc892804bf1813101e2ea756f0fa6bb3f5906b",
+      "unchanged": true
+    },
+    {
+      "file": "0009_routing_foundation.sql",
+      "sha256LF": "f013ec88e6b21b509d9fdba98dd553a9c632b0a940ab8007e74751aae208391a",
+      "baselineSha256LF": "f013ec88e6b21b509d9fdba98dd553a9c632b0a940ab8007e74751aae208391a",
+      "unchanged": true
+    },
+    {
+      "file": "0010_r0_capability_evidence_provenance.sql",
+      "sha256LF": "583cb90de2b3ae194cc9be278186f2e38f94b5803682305cdb143527a22bbc4b",
+      "baselineSha256LF": "583cb90de2b3ae194cc9be278186f2e38f94b5803682305cdb143527a22bbc4b",
+      "unchanged": true
+    },
+    {
+      "file": "0011_r1_dynamic_capability.sql",
+      "sha256LF": "cc2aac614e00074133a13e13c3819dcc8c61af9175f09002a13d66298d5b8806",
+      "baselineSha256LF": "cc2aac614e00074133a13e13c3819dcc8c61af9175f09002a13d66298d5b8806",
+      "unchanged": true
+    },
+    {
+      "file": "0012_r2_human_bridge.sql",
+      "sha256LF": "4220f795402c197b3da2f1dcea15efe8813e72836679783fc7d58325083f6b65",
+      "baselineSha256LF": "4220f795402c197b3da2f1dcea15efe8813e72836679783fc7d58325083f6b65",
+      "unchanged": true
+    },
+    {
+      "file": "0013_r3_decision_plane.sql",
+      "sha256LF": "031be87a8ce74e44086ef277dd9e4f2aac088b15a93f83ca3aca8378b6202e8f",
+      "baselineSha256LF": "031be87a8ce74e44086ef277dd9e4f2aac088b15a93f83ca3aca8378b6202e8f",
+      "unchanged": true
+    },
+    {
+      "file": "0014_r3_1_identity_capability.sql",
+      "sha256LF": "5714b0754322070e0b31654fa55e627e8c76a2b028b743d523f49350521741f9",
+      "baselineSha256LF": "5714b0754322070e0b31654fa55e627e8c76a2b028b743d523f49350521741f9",
+      "unchanged": true
+    },
+    {
+      "file": "0015_r3_2_availability.sql",
+      "sha256LF": "7b3c5e7048e6db02428183f783e54386931e70e89caee824ae84da6924046a47",
+      "baselineSha256LF": "7b3c5e7048e6db02428183f783e54386931e70e89caee824ae84da6924046a47",
+      "unchanged": true
+    },
+    {
+      "file": "0016_r4_controlled_routing.sql",
+      "sha256LF": "ff6a7728dbe470f693fdbe6010fe48af9fdea001eaf9d132d29dfe80fa801942",
+      "baselineSha256LF": "ff6a7728dbe470f693fdbe6010fe48af9fdea001eaf9d132d29dfe80fa801942",
+      "unchanged": true
+    },
+    {
+      "file": "0017_w1_workflow_foundation.sql",
+      "sha256LF": "d1220f73322daa73159ec4815266c20be869ec6b4df7bb1b5bdd4776910bf712",
+      "baselineSha256LF": "d1220f73322daa73159ec4815266c20be869ec6b4df7bb1b5bdd4776910bf712",
+      "unchanged": true
+    },
+    {
+      "file": "0018_w1_workflow_io.sql",
+      "sha256LF": "9d0392bdac09021151f1af7fa51c53de91c761cb40e6f2e095978eb55352b4f1",
+      "baselineSha256LF": "9d0392bdac09021151f1af7fa51c53de91c761cb40e6f2e095978eb55352b4f1",
+      "unchanged": true
+    },
+    {
+      "file": "0019_w2_builtin_workflow_contract.sql",
+      "sha256LF": "ace28be8c200ebfba60625017e3a8b5bfcb5a6435dae178d0a674d1664a9ddee",
+      "baselineSha256LF": "ace28be8c200ebfba60625017e3a8b5bfcb5a6435dae178d0a674d1664a9ddee",
+      "unchanged": true
+    },
+    {
+      "file": "0020_w21_ai_news_video.sql",
+      "sha256LF": "c74946011f7793704be23e3de70f70d19479e60fa6893b423fa7f011c5056897",
+      "baselineSha256LF": "c74946011f7793704be23e3de70f70d19479e60fa6893b423fa7f011c5056897",
+      "unchanged": true
+    },
+    {
+      "file": "0021_w21_tool_purpose_bindings.sql",
+      "sha256LF": "c4162f0933e2505e573dbcdc92f48d5efbbedb7dea9633b18952c20cfacf00c6",
+      "baselineSha256LF": "c4162f0933e2505e573dbcdc92f48d5efbbedb7dea9633b18952c20cfacf00c6",
+      "unchanged": true
+    },
+    {
+      "file": "0022_w22_software_feature.sql",
+      "sha256LF": "4d16fd5bbb2a9fe004e5e5d8b1b7df984c2529a8bbdf933cf173e835291c205f",
+      "baselineSha256LF": "4d16fd5bbb2a9fe004e5e5d8b1b7df984c2529a8bbdf933cf173e835291c205f",
+      "unchanged": true
+    },
+    {
+      "file": "0023_w23_research.sql",
+      "sha256LF": "a74ca57f9218eb1e15790b702f8176f6c6b26bf52c2cc08e5f7d6ed0aadbadd9",
+      "baselineSha256LF": "a74ca57f9218eb1e15790b702f8176f6c6b26bf52c2cc08e5f7d6ed0aadbadd9",
+      "unchanged": true
+    },
+    {
+      "file": "0024_w23_input_artifacts.sql",
+      "sha256LF": "f3898197719469a5b6c2818998555f47d39a3923d7f2a387b22cc98e56959ccd",
+      "baselineSha256LF": "f3898197719469a5b6c2818998555f47d39a3923d7f2a387b22cc98e56959ccd",
+      "unchanged": true
+    },
+    {
+      "file": "0025_w23_uncertain_prepared_effect.sql",
+      "sha256LF": "ec61ede92b269562c9081b660eca97a91cbdc66688fedfd12f20e732215f57a6",
+      "baselineSha256LF": "ec61ede92b269562c9081b660eca97a91cbdc66688fedfd12f20e732215f57a6",
+      "unchanged": true
+    },
+    {
+      "file": "0026_w24_dynamic_manifest_integrity.sql",
+      "sha256LF": "22589ff7cdd13797bba1043d30ee0cd773f213eba2d946f22a4882e71290656b",
+      "baselineSha256LF": "22589ff7cdd13797bba1043d30ee0cd773f213eba2d946f22a4882e71290656b",
+      "unchanged": true
+    },
+    {
+      "file": "0027_g1_generation_foundation.sql",
+      "sha256LF": "1eb84e3abab4d05a58000079878346af5c7a3a5e5d54c4b7aab446e3c1fcb90e",
+      "baselineSha256LF": "1eb84e3abab4d05a58000079878346af5c7a3a5e5d54c4b7aab446e3c1fcb90e",
+      "unchanged": true
+    },
+    {
+      "file": "0028_g2_generation_http.sql",
+      "sha256LF": "5a234eb869d09970b8c643f6c21504d340f6735bdc2f9331c78272ee52b3bc14",
+      "baselineSha256LF": "5a234eb869d09970b8c643f6c21504d340f6735bdc2f9331c78272ee52b3bc14",
+      "unchanged": true
+    },
+    {
+      "file": "0029_g2_submission_continuation.sql",
+      "sha256LF": "c2f5dc1b9e146fb53de508dc054df8140f513ef10851e44cfc1376e621fbfa75",
+      "baselineSha256LF": "c2f5dc1b9e146fb53de508dc054df8140f513ef10851e44cfc1376e621fbfa75",
+      "unchanged": true
+    },
+    {
+      "file": "0030_g3_multimodal_collaboration.sql",
+      "sha256LF": "58951c8331c8c6c3d14f0e946c3e13b63190b3650b589745c022574f44cd84ea",
+      "baselineSha256LF": "58951c8331c8c6c3d14f0e946c3e13b63190b3650b589745c022574f44cd84ea",
+      "unchanged": true
+    },
+    {
+      "file": "0031_w31_workflow_drafts.sql",
+      "sha256LF": "823cbb8f3d3d25c01493a82e28c78ebb2fa3e957bb670df1ec72e6a93bbf592c",
+      "baselineSha256LF": "823cbb8f3d3d25c01493a82e28c78ebb2fa3e957bb670df1ec72e6a93bbf592c",
+      "unchanged": true
+    },
+    {
+      "file": "0032_w32_workflow_import.sql",
+      "sha256LF": "67f4b7c19e6ecfb1de94cd01099ba4d90f5a582965b51c3933b5f0c59b498428",
+      "baselineSha256LF": "67f4b7c19e6ecfb1de94cd01099ba4d90f5a582965b51c3933b5f0c59b498428",
+      "unchanged": true
+    }
+  ],
+  "historicalMigrationsUnchanged": true,
+  "newMigration": null,
+  "nativeUpgrade": {
+    "from": 31,
+    "to": 32,
+    "test": "packages/persistence/src/r6-1-migration-integrity.test.ts",
+    "preserved": [
+      "Draft",
+      "WorkflowVersion",
+      "READY Run + input snapshot",
+      "legitimate DRAFT Mission/event",
+      "official releases/contracts",
+      "12 compared fact tables"
+    ],
+    "expectedAddition": "workflow_step_runs completion_origin default EXECUTED",
+    "restart": "Close/reopen twice; second migrate is no-op; FK/integrity clean",
+    "guards": [
+      "Version update rejected",
+      "Run input update rejected",
+      "Direct READY to COMPLETED update rejected"
+    ]
+  },
+  "packagedIntegrity": { "fk": [], "integrity": [{ "integrity_check": "ok" }], "steps": 3872 },
+  "productionBootstrap": {
+    "migrations": 32,
+    "builtin": [
+      {
+        "definition_id": "official.ai-news-video",
+        "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153",
+        "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd"
+      },
+      {
+        "definition_id": "official.research",
+        "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7",
+        "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3"
+      },
+      {
+        "definition_id": "official.software-feature",
+        "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a",
+        "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d"
+      }
+    ],
+    "testOnlyVersions": 0,
+    "jobs": 0,
+    "missions": 0
+  }
+}

@@ -1,0 +1,26 @@
+Command: npm run lint
+
+> ai-agent-cultivation@0.0.1 lint
+> eslint .
+
+
+E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\apps\desktop\src\renderer\src\horizontal-tabs.test.tsx
+  1:8  error  'React' is defined but never used  @typescript-eslint/no-unused-vars
+
+E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\packages\agent-runtime\src\h3-generation-gateway.test.ts
+  432:15  error  'response' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+E:\Graduate_work_folder\Agent_develop\Project\AI Agent Cultivation\scripts\r6-1-packaged-smoke.mjs
+   53:19  error  'performance' is not defined      no-undef
+   63:36  error  'performance' is not defined      no-undef
+   77:17  error  'innerWidth' is not defined       no-undef
+   78:17  error  'document' is not defined         no-undef
+  168:10  error  'structuredClone' is not defined  no-undef
+  228:20  error  'structuredClone' is not defined  no-undef
+  298:23  error  'performance' is not defined      no-undef
+  312:26  error  'performance' is not defined      no-undef
+  319:24  error  'performance' is not defined      no-undef
+
+✖ 11 problems (11 errors, 0 warnings)
+
+ExitCode: 1

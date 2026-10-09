@@ -1,0 +1,6 @@
+Command: npm run typecheck
+
+> ai-agent-cultivation@0.0.1 typecheck
+> tsc --noEmit -p tsconfig.json
+
+ExitCode: 0

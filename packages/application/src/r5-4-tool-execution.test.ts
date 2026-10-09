@@ -631,7 +631,7 @@ describe('Gate 3 offered-set enforcement', () => {
     ]);
     expect(h.shortlist.contexts).toHaveLength(3);
     expect(h.executions.get('fixture.read')).toHaveBeenCalledTimes(1);
-    expect(h.evaluate).toHaveBeenCalledTimes(1);
+    expect(h.evaluate).toHaveBeenCalledTimes(2);
     expect(h.pending.calls.size).toBe(0);
     expect(
       h.store.events
@@ -831,7 +831,7 @@ describe('Gate 5 Party shortlist actor', () => {
     expect(h.shortlist.gateway.requests[0]?.state).toMatchObject({
       context: { actorId: h.actorB.id },
     });
-    expect(h.evaluate).toHaveBeenCalledTimes(1);
+    expect(h.evaluate).toHaveBeenCalledTimes(2);
     expect(h.evaluate).toHaveBeenCalledWith(
       expect.objectContaining({
         subjectType: 'TEAMMATE',

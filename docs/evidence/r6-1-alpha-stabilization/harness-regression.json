@@ -1,0 +1,37 @@
+{
+  "stage": "R6.1",
+  "baseline": "7aad12ee3e3895dd70d2f7e6ae4996862add8637",
+  "status": "PASS (OFFLINE)",
+  "live": "NOT RUN",
+  "evidenceLevels": [
+    "unit",
+    "native integration",
+    "Windows packaged",
+    "live external separately NOT RUN"
+  ],
+  "phases": [
+    "R5.1 Skill Routing",
+    "R5.2 Memory Pre-Gate",
+    "R5.3 Memory Rerank",
+    "R5.4 Tool Shortlist",
+    "R5.5 Review/Completion Advisory"
+  ],
+  "invariant": "Bounded contextual/advisory decisions cannot grant permission or write Mission/Workflow formal state",
+  "cloudOff": "Deterministic fallback preserved in existing phase tests and Windows smoke",
+  "r3": "Original four SHADOW decisions remain SHADOW, no global ACTIVE conversion",
+  "actualActor": "Context/Memory/Skill/Tool permission derives from executor",
+  "finalPackagedMarkers": [
+    "R3_PACKAGED_SMOKE_OK shadow=4 receipts=4 credential=encrypted mission_unchanged=ok",
+    "R3_1_CRASH_PACKAGED_SMOKE_OK pending_restart_same_run=ok synthesis_once=ok continuation_consumed=ok consuming_started_interrupted=ok no_auto_replay=ok accepted_artifact_retained=ok",
+    "R3_2_SDK_PACKAGED_SMOKE_OK metadata=real_http stream=real_sdk solo=real_sdk auth_failure=unavailable no_reroute=ok recovery=ok",
+    "R3_2_PACKAGED_SMOKE_OK unknown=ok probe=ok solo=ok party=ok actor_identity=ok bridge_excluded=ok restart=ok explicit_unavailable=blocked_no_usage recovery=ok",
+    "R3_3_UI_PACKAGED_SMOKE_OK screenshots=35 creation=unbound-templates,keyless-sealed chat=streaming,long-content,copy,unavailable memory-isolated=both-ways archived=no-probe sealed-runtime=readonly human-bridge=no-availability avatar=imported,restart titlebar=verified responsive=1440,1180,900",
+    "R4_PACKAGED_SMOKE_OK constraints=hard_conflicts_zero_side_effects explicit_human_bridge=ui_zero_probe_same_run routing_optin=independent auto_solo=90 auto_party=AD_HOC human_bridge_fallback=durable_same_run explicit_unavailable=no_substitution unmet_capability=blocked shadow=unchanged",
+    "R5_1_PACKAGED_SMOKE_OK production=normal_fixture_free fixture=explicit_top3=1-3 party=own_actor_skills workflow=bounded_step_context fallback=deterministic_real_model_call migration=32 shadow=off evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\r5-1-skill-routing\\83fb71e9-118f-4a25-97fe-3f72cf6401ea\\facts.json",
+    "R5_2_PACKAGED_SMOKE_OK production=normal_fixture_free chat=jev_run_skip fallback=deterministic party=owner_scoped workflow=validated_artifact no_auto_extraction=true evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\r5-2-memory-pre-gate\\0c398a98-9c0a-49c3-8a34-c2e1ffe342e6\\facts.json",
+    "R5_3_PACKAGED_SMOKE_OK production=fixture_free cloud_off=baseline_equal rerank=summary_relevance party=owner_scoped workflow=language_step extractor=0 memories_unchanged=true evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\r5-3-memory-rerank\\e979f57b-57bc-4406-948a-54a702ca0961\\facts.json",
+    "R5_4_PACKAGED_SMOKE_OK production=fixture_free approval_restart=same_run write_deny=unwritten not_offered=blocked mcp=approved party=actor_isolated workflow=hard_eligible cloud_off=deterministic_fallback privacy_widths=1440,1180,900 evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\r5-4-tool-shortlist\\e1ccd9c7-6b2d-4d3b-8fac-bea27bd38835\\facts.json",
+    "R5_5_PACKAGED_SMOKE_OK production=fixture_free solo=satisfied_concern_cloud_off_inconsistent party=actor_isolated workflow=validation_and_review_advisory_conflict g3=structured_result_preserved restart=no_replay privacy_widths=1440,1180,900 evidence=E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\docs\\evidence\\r5-5-review-completion-advisory\\670ed6c4-8639-4108-b32e-549d49767b03\\facts.json"
+  ],
+  "noInferredR56Feature": true
+}

@@ -1,0 +1,13 @@
+
+> ai-agent-cultivation@0.0.1 test
+> vitest run packages/application/src/r6-1-import-boundaries.test.ts packages/persistence/src/r6-1-migration-integrity.test.ts packages/application/src/tool-runtime.test.ts apps/desktop/src/renderer/src/horizontal-tabs.test.tsx
+
+
+ RUN  v5.0.1 E:/Graduate_work_folder/Agent_develop/Project/AI Agent Cultivation
+
+
+ Test Files  4 passed (4)
+      Tests  27 passed (27)
+   Start at  22:52:58
+   Duration  13.71s (tests 82%, transform 13%, import 5%)
+

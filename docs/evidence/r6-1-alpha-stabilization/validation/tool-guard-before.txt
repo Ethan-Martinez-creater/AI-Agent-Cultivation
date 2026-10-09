@@ -1,0 +1,164 @@
+Temporary pre-fix repro evidence
+Baseline production file: 30a004cf5b960541839984d1de11305e7ea6eaed:packages/application/src/tool-runtime.ts
+Tests retained from: 023106e7eb8d4cf6ff51f1c2188d876bfaed876d:packages/application/src/tool-runtime.test.ts
+Command: npm run test -- packages/application/src/tool-runtime.test.ts
+Exit code: 1
+
+
+> ai-agent-cultivation@0.0.1 test
+> vitest run packages/application/src/tool-runtime.test.ts
+
+
+ RUN  v5.0.1 E:/Graduate_work_folder/Agent_develop/Project/AI Agent Cultivation/.tmp/r61-authority-worker
+
+ ❯ packages/application/src/tool-runtime.test.ts (10 tests | 5 failed) 81ms
+   ❯ ToolRuntime boundary (10)
+     × rechecks durable Permission after the execution guard and reports denial to the guard 13ms
+     × rejects a registry replacement made while the execution guard is held 3ms
+     × rejects a descriptor mutation made while the execution guard is held 4ms
+     × rejects input mutation made while the execution guard is held 3ms
+     × rejects a resource mapping change made while the execution guard is held 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/application/src/tool-runtime.test.ts > ToolRuntime boundary > rechecks durable Permission after the execution guard and reports denial to the guard
+AssertionError: expected { kind: 'RESULT', …(2) } to match object { kind: 'RESULT', …(1) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "kind": "RESULT",
+    "result": {
+-     "code": "PERMISSION_DENIED",
+-     "ok": false,
++     "code": "OK",
++     "ok": true,
+    },
+  }
+
+ ❯ packages/application/src/tool-runtime.test.ts:149:20
+    147|
+    148|     const result = await pending;
+    149|     expect(result).toMatchObject({
+       |                    ^
+    150|       kind: 'RESULT',
+    151|       result: { ok: false, code: 'PERMISSION_DENIED' },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  packages/application/src/tool-runtime.test.ts > ToolRuntime boundary > rejects a registry replacement made while the execution guard is held
+AssertionError: expected { kind: 'RESULT', …(2) } to match object { kind: 'RESULT', …(1) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "kind": "RESULT",
+    "result": {
+-     "code": "TOOL_CHANGED",
+-     "ok": false,
++     "code": "OK",
++     "ok": true,
+    },
+  }
+
+ ❯ packages/application/src/tool-runtime.test.ts:180:20
+    178|
+    179|     const result = await pending;
+    180|     expect(result).toMatchObject({ kind: 'RESULT', result: { ok: false…
+       |                    ^
+    181|     expect(executions()).toBe(0);
+    182|     expect(replacementExecutions).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  packages/application/src/tool-runtime.test.ts > ToolRuntime boundary > rejects a descriptor mutation made while the execution guard is held
+AssertionError: expected { kind: 'RESULT', …(2) } to match object { kind: 'RESULT', …(1) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "kind": "RESULT",
+    "result": {
+-     "code": "TOOL_DESCRIPTOR_CHANGED",
+-     "ok": false,
++     "code": "OK",
++     "ok": true,
+    },
+  }
+
+ ❯ packages/application/src/tool-runtime.test.ts:200:20
+    198|
+    199|     const result = await pending;
+    200|     expect(result).toMatchObject({
+       |                    ^
+    201|       kind: 'RESULT',
+    202|       result: { ok: false, code: 'TOOL_DESCRIPTOR_CHANGED' },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  packages/application/src/tool-runtime.test.ts > ToolRuntime boundary > rejects input mutation made while the execution guard is held
+AssertionError: expected { kind: 'RESULT', …(2) } to match object { kind: 'RESULT', …(1) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "kind": "RESULT",
+    "result": {
+-     "code": "INPUT_CHANGED",
+-     "ok": false,
++     "code": "OK",
++     "ok": true,
+    },
+  }
+
+ ❯ packages/application/src/tool-runtime.test.ts:219:20
+    217|
+    218|     const result = await pending;
+    219|     expect(result).toMatchObject({ kind: 'RESULT', result: { ok: false…
+       |                    ^
+    220|     expect(executions()).toBe(0);
+    221|     expect(held.outcomes).toMatchObject([{ ok: false, code: 'INPUT_CHA…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  packages/application/src/tool-runtime.test.ts > ToolRuntime boundary > rejects a resource mapping change made while the execution guard is held
+AssertionError: expected { kind: 'RESULT', …(2) } to match object { kind: 'RESULT', …(1) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "kind": "RESULT",
+    "result": {
+-     "code": "RESOURCE_CHANGED",
+-     "ok": false,
++     "code": "OK",
++     "ok": true,
+    },
+  }
+
+ ❯ packages/application/src/tool-runtime.test.ts:270:20
+    268|
+    269|     const result = await pending;
+    270|     expect(result).toMatchObject({
+       |                    ^
+    271|       kind: 'RESULT',
+    272|       result: { ok: false, code: 'RESOURCE_CHANGED' },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 5 passed (10)
+   Start at  22:56:13
+   Duration  533ms (tests 34%, transform 32%, import 31%, worker 3%)
+
