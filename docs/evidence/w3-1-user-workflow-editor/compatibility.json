@@ -1,0 +1,298 @@
+{
+  "status": "PASS",
+  "markers": [
+    "GATE1_PACKAGED_SMOKE_OK",
+    "GATE2_PACKAGED_SMOKE_OK",
+    "R0_PACKAGED_SMOKE_OK",
+    "GATE3_PACKAGED_SMOKE_OK",
+    "GATE4_PACKAGED_SMOKE_OK",
+    "GATE5_PACKAGED_SMOKE_OK",
+    "GATE6_PACKAGED_SMOKE_OK",
+    "R1_PACKAGED_SMOKE_OK",
+    "R2_PACKAGED_SMOKE_OK",
+    "R3_PACKAGED_SMOKE_OK",
+    "R3_1_CRASH_PACKAGED_SMOKE_OK",
+    "R3_2_SDK_PACKAGED_SMOKE_OK",
+    "R3_2_PACKAGED_SMOKE_OK",
+    "R3_3_UI_PACKAGED_SMOKE_OK",
+    "R4_PACKAGED_SMOKE_OK",
+    "W1_PACKAGED_SMOKE_OK",
+    "W2_PACKAGED_SMOKE_OK",
+    "W21_PACKAGED_SMOKE_OK",
+    "W22_PACKAGED_SMOKE_OK",
+    "W24_PACKAGED_SMOKE_OK",
+    "G1_PACKAGED_SMOKE_OK",
+    "G2_PACKAGED_SMOKE_OK",
+    "G2_CORRECTIVE_PACKAGED_SMOKE_OK",
+    "G3_PACKAGED_SMOKE_PASS",
+    "G3_HUMAN_PACKAGED_SMOKE_PASS",
+    "R5_1_PACKAGED_SMOKE_OK",
+    "R5_2_PACKAGED_SMOKE_OK",
+    "R5_3_PACKAGED_SMOKE_OK",
+    "R5_4_PACKAGED_SMOKE_OK",
+    "R5_5_PACKAGED_SMOKE_OK",
+    "W31_PACKAGED_SMOKE_OK"
+  ],
+  "log": {
+    "path": "docs/evidence/w3-1-user-workflow-editor/validation/smoke-package.txt",
+    "bytes": 9604,
+    "sha256": "d71064612499002ead978d92d7ebdee57ab2296beae1b68afc085d2ed93d2097",
+    "command": "npm run smoke:package",
+    "status": "PASS",
+    "exitCode": 0
+  },
+  "routing": {
+    "runA": [
+      {
+        "missionId": "1c8b83f5-1174-4db2-a3f2-6fd3968853f5",
+        "receiptId": "a7d6b81f-b92b-4b36-a403-6278576e729c",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "a7d6b81f-b92b-4b36-a403-6278576e729c",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "bb6a3215-b8bc-4739-90c0-6fac2a2f3758",
+        "receiptId": "16bc7dc2-f3ee-4862-846e-9ae203019849",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "16bc7dc2-f3ee-4862-846e-9ae203019849",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "a4ff95a3-d106-428e-ad55-00b122135861",
+        "receiptId": "60549f72-fdcd-462a-b2b0-8c39d8de40be",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "60549f72-fdcd-462a-b2b0-8c39d8de40be",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      }
+    ],
+    "runB": [
+      {
+        "missionId": "7f817fef-823c-4518-8984-06794ea2bf26",
+        "receiptId": "fdd20668-38a5-47ae-841a-02a27e2a9daf",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "fdd20668-38a5-47ae-841a-02a27e2a9daf",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "c3d3ca0e-0960-40dc-add0-3745cbc83ee0",
+        "receiptId": "623ae16b-f30a-4c4d-9736-950c9a92153c",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "623ae16b-f30a-4c4d-9736-950c9a92153c",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "ff1c4d19-c947-423c-9c4d-85372aa66dc7",
+        "receiptId": "57cac6ee-49e4-4000-8416-d93d8a5f7c0d",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "57cac6ee-49e4-4000-8416-d93d8a5f7c0d",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      }
+    ],
+    "durableReusableContexts": [
+      {
+        "workflowRunId": "50416df3-9fdc-40cb-bc82-50b0b6eaaed6",
+        "stepRunId": "72b7f6c8-112e-4e72-84ac-96f324ad4d47",
+        "missionId": "7f817fef-823c-4518-8984-06794ea2bf26",
+        "context": {
+          "executionConstraint": "SOLO",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "objective": "审查已绑定交付；返回真实产物引用和结构化结论。",
+          "inputArtifactMetadata": [
+            {
+              "id": "3ece0701-237a-4510-be38-228e6c2afe8d",
+              "name": "5786b4fb-2378-41f0-a4df-ac323831a3cf",
+              "kind": "TEXT"
+            }
+          ],
+          "executionContext": {
+            "origin": "WORKFLOW",
+            "executionId": "50416df3-9fdc-40cb-bc82-50b0b6eaaed6",
+            "stepId": "72b7f6c8-112e-4e72-84ac-96f324ad4d47",
+            "stepType": "REVIEW"
+          }
+        }
+      },
+      {
+        "workflowRunId": "50416df3-9fdc-40cb-bc82-50b0b6eaaed6",
+        "stepRunId": "ef83d292-c38d-4c1c-b8d8-ed31d34be1d2",
+        "missionId": "c3d3ca0e-0960-40dc-add0-3745cbc83ee0",
+        "context": {
+          "executionConstraint": "SOLO",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "objective": "第二版：准备简洁背景并明确目标，不读取额外文件。",
+          "inputArtifactMetadata": [],
+          "executionContext": {
+            "origin": "WORKFLOW",
+            "executionId": "50416df3-9fdc-40cb-bc82-50b0b6eaaed6",
+            "stepId": "ef83d292-c38d-4c1c-b8d8-ed31d34be1d2",
+            "stepType": "TASK"
+          }
+        }
+      },
+      {
+        "workflowRunId": "50416df3-9fdc-40cb-bc82-50b0b6eaaed6",
+        "stepRunId": "7f0f77fd-efd0-4da7-9d8d-b9588a4ab1ac",
+        "missionId": "ff1c4d19-c947-423c-9c4d-85372aa66dc7",
+        "context": {
+          "executionConstraint": "SOLO",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "objective": "整理本次工作并提供简洁文本交付。",
+          "inputArtifactMetadata": [],
+          "executionContext": {
+            "origin": "WORKFLOW",
+            "executionId": "50416df3-9fdc-40cb-bc82-50b0b6eaaed6",
+            "stepId": "7f0f77fd-efd0-4da7-9d8d-b9588a4ab1ac",
+            "stepType": "TASK"
+          }
+        }
+      },
+      {
+        "workflowRunId": "db3969be-950d-450f-9985-73af495cd726",
+        "stepRunId": "ef3166d9-30cd-4e83-a51e-fdb4798f11f5",
+        "missionId": "1c8b83f5-1174-4db2-a3f2-6fd3968853f5",
+        "context": {
+          "executionConstraint": "SOLO",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "objective": "审查已绑定交付；返回真实产物引用和结构化结论。",
+          "inputArtifactMetadata": [
+            {
+              "id": "9fdc4828-08a1-4693-8d3e-ed0252319ce6",
+              "name": "cec632c6-93c2-4c25-8aba-c446fe08e20b",
+              "kind": "TEXT"
+            }
+          ],
+          "executionContext": {
+            "origin": "WORKFLOW",
+            "executionId": "db3969be-950d-450f-9985-73af495cd726",
+            "stepId": "ef3166d9-30cd-4e83-a51e-fdb4798f11f5",
+            "stepType": "REVIEW"
+          }
+        }
+      },
+      {
+        "workflowRunId": "db3969be-950d-450f-9985-73af495cd726",
+        "stepRunId": "8d47538a-0f05-457d-b770-7840e804aa82",
+        "missionId": "bb6a3215-b8bc-4739-90c0-6fac2a2f3758",
+        "context": {
+          "executionConstraint": "SOLO",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "objective": "准备简洁工作背景，不读取额外文件。",
+          "inputArtifactMetadata": [],
+          "executionContext": {
+            "origin": "WORKFLOW",
+            "executionId": "db3969be-950d-450f-9985-73af495cd726",
+            "stepId": "8d47538a-0f05-457d-b770-7840e804aa82",
+            "stepType": "TASK"
+          }
+        }
+      },
+      {
+        "workflowRunId": "db3969be-950d-450f-9985-73af495cd726",
+        "stepRunId": "9a1b64a1-b950-4613-91d9-2172582f1beb",
+        "missionId": "a4ff95a3-d106-428e-ad55-00b122135861",
+        "context": {
+          "executionConstraint": "SOLO",
+          "requiredCapabilities": ["GENERAL_REASONING"],
+          "objective": "整理本次工作并提供简洁文本交付。",
+          "inputArtifactMetadata": [],
+          "executionContext": {
+            "origin": "WORKFLOW",
+            "executionId": "db3969be-950d-450f-9985-73af495cd726",
+            "stepId": "9a1b64a1-b950-4613-91d9-2172582f1beb",
+            "stepType": "TASK"
+          }
+        }
+      }
+    ]
+  },
+  "permission": {
+    "workflowRunId": "bce5edce-dbf7-4397-a05e-dea33dbbe4fc",
+    "missionRunId": "a1b5634d-3d39-4581-bf05-8800d36bf6a3",
+    "approvalId": "b88e10fd-294e-4bc0-be79-cb9c8b02f44c",
+    "restartSameRun": true,
+    "decision": "DENIED",
+    "fileUnchanged": true,
+    "finalState": "COMPLETED"
+  },
+  "restart": {
+    "before": {
+      "missions": 7,
+      "usage": 8,
+      "artifacts": 7,
+      "receipts": 7,
+      "drafts": 4
+    },
+    "after": {
+      "missions": 7,
+      "usage": 8,
+      "artifacts": 7,
+      "receipts": 7,
+      "drafts": 4
+    },
+    "noMissionOrModelReplay": true,
+    "frozenVersions": true,
+    "draftsPreserved": true
+  },
+  "coverage": [
+    "Gate 0–6 / R0–R4",
+    "W1 / W2.0–W2.4",
+    "G1–G3 and UNKNOWN no replay",
+    "R5.1–R5.5 advisory-only Harness",
+    "Memory/Skill/Tool actor scope",
+    "Human Bridge continuation"
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "status": "PASS",
+  "baseline": "main@212f1a5133a36256ad1d60805b55b6878bc27a8a",
+  "sourceCommit": "ae3f3c214674493bfe1a66252fcd2706dc3d3f7b",
+  "tests": 1336,
+  "testFiles": 147,
+  "finalCommands": {
+    "test": {
+      "path": "docs/evidence/w3-1-user-workflow-editor/validation/test.txt",
+      "bytes": 505,
+      "sha256": "ff655958cc96706cec6b1ab4d3474cd2ca85eaee3bb1cdb792f8ef4a80a4def9",
+      "command": "npm run test",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "path": "docs/evidence/w3-1-user-workflow-editor/validation/typecheck.txt",
+      "bytes": 77,
+      "sha256": "8b5c52e0d1623ff20d11c198452c6846991380963c7ae8f24107baea8e606573",
+      "command": "npm run typecheck",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "lint": {
+      "path": "docs/evidence/w3-1-user-workflow-editor/validation/lint.txt",
+      "bytes": 51,
+      "sha256": "d514846aa5ac61daca30e902b07c9e9c318fcd21d863b5093323cc6f3dbcd076",
+      "command": "npm run lint",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "format-check": {
+      "path": "docs/evidence/w3-1-user-workflow-editor/validation/format-check.txt",
+      "bytes": 174,
+      "sha256": "43a3ed11933955f1568ab81ffcb50a268b5ce7b0455c90efcc3ac499a3392eff",
+      "command": "npm run format:check",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "package": {
+      "path": "docs/evidence/w3-1-user-workflow-editor/validation/package.txt",
+      "bytes": 1604,
+      "sha256": "bbe252c6f07eced409151abf2185a192ef0544fa841bb0dcf4978a997c35842c",
+      "command": "npm run package",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "smoke-package": {
+      "path": "docs/evidence/w3-1-user-workflow-editor/validation/smoke-package.txt",
+      "bytes": 9604,
+      "sha256": "d71064612499002ead978d92d7ebdee57ab2296beae1b68afc085d2ed93d2097",
+      "command": "npm run smoke:package",
+      "status": "PASS",
+      "exitCode": 0
+    }
+  },
+  "migration": "0031_w31_workflow_drafts.sql",
+  "newDependencies": [],
+  "scope": "W3.1 only; no W3.2",
+  "packagedMatrix": {
+    "A": "Production profile: 3 frozen OFFICIAL versions, zero Draft/Run fixture",
+    "B": "Visible Renderer creates bounded USER Draft",
+    "C": "Multiple Steps, native drag, branch, Contract, Capability, Review policy",
+    "D": "USER TASK→REVIEW→conditional completion via W1/R4/Mission",
+    "E": "Published v2; Run A remains v1, new Run B uses v2",
+    "F": "OFFICIAL copy → isolated USER identity, no official authority",
+    "G": "Invalid graph/contract/authority deterministic reject, zero invalid publication/execution",
+    "H": "Draft, immutable versions and Run bindings persist after restart",
+    "I": "Approval same Run restart, DENIED file unchanged; full Tool/UNKNOWN regression"
+  },
+  "screenshots": [
+    {
+      "file": "my-workflows-empty-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "4b595c991199d93377ed3436ca191496855f3852343aa38e453e263109351c8c"
+    },
+    {
+      "file": "my-workflows-empty-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "e75f4d54d88d3b117eb68fd7657636231f3160e18109b81c56446c8adfaa964b"
+    },
+    {
+      "file": "my-workflows-empty-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "be0a0a1e110fd26b2fd0a45927552fcce2cbd085e1224069aa90beba63f78b50"
+    },
+    {
+      "file": "editor-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "29d6d5316884cc680eefbe8930c0ab9621b570725fb23c4c666d685c46712993"
+    },
+    {
+      "file": "editor-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "9cc40d40590b21e2398ec1b1ca7bd4209a5ea6448cd0caf4267ede9f384d420e"
+    },
+    {
+      "file": "editor-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "ebf8be35c104932f1bf88bf6c8d45b48a64dd5f494bfc75ba75ca1d0bef2a195"
+    },
+    {
+      "file": "expanded-step-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "e234ad507405bdc95d03ee93802dae1bbe93a1df2b9e815cb7a1d7491295dbff"
+    },
+    {
+      "file": "expanded-step-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "52e5538e6d4892b1bd4062be048df4be0185e731c8400450a1a0801c26784ee9"
+    },
+    {
+      "file": "expanded-step-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "5d57aa0ecd39ce01b314531222b2faebaa99429e336385f7a191852d58f04979"
+    },
+    {
+      "file": "output-contract-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "9ec602794654adf1027f9d5fd0d510ea414034e6870942351721c5e014f46ac8"
+    },
+    {
+      "file": "output-contract-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "073927c5565aa56cf29ee23f4ddaf3cc17961d6702ae086f9493ea899c816700"
+    },
+    {
+      "file": "output-contract-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "a5c34c308584806eff0ace6e0b7f934a2d2b46ecdec557cf7745e45538327d88"
+    },
+    {
+      "file": "review-branch-contract-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "91bbacb0ff5ca03590a36e699487f6c435ba6a52899ef5372fa0bc240efde325"
+    },
+    {
+      "file": "review-branch-contract-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "ff92156a6737e0b07c6b84438a1d387199d4db7ec80fd0a5c484499c694db5d0"
+    },
+    {
+      "file": "review-branch-contract-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "59071f1e2ae2ab2c2c89ea858b1e4204e7c9c94674d58b2932e63dec790a6a55"
+    },
+    {
+      "file": "published-versions-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "3f93f34e6d6dae8bf60d9e86452b21c929e5758766f4c18fb31e9e9587eab2f0"
+    },
+    {
+      "file": "published-versions-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "420f75dd213798b358660d470c4f056e2792934318ac47c067232f40b11b7236"
+    },
+    {
+      "file": "published-versions-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "3ebcdb42870d5273b6cb0de84f3dcf488bd0bce99eef8fa47bac64d582ab6692"
+    },
+    {
+      "file": "completed-user-run-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "5f35f711addb8f1894c3e54def4310dec5b23bfc3b3d242f2164a7db08688a02"
+    },
+    {
+      "file": "completed-user-run-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "faa605dbdf4b2493c1e0fbcc6281a38be464dfa3cae7ca7b811da6bc4debc333"
+    },
+    {
+      "file": "completed-user-run-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "e6b62ce82891c48e4797af0b84cf9f3cf02ed3f6b5c7270313498c5aa237c2e1"
+    },
+    {
+      "file": "my-workflows-restarted-1440.png",
+      "width": 1440,
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "sha256": "2a20518ae77d08ba0132f9703c74d2624d2bc33ac3d1b4867e8a8e8d8892d9d4"
+    },
+    {
+      "file": "my-workflows-restarted-1180.png",
+      "width": 1180,
+      "viewportWidth": 1180,
+      "documentWidth": 1180,
+      "sha256": "eb1049307c26865143ed90aeb91c6efb31bb08802e15484b2269a051dac8f6e7"
+    },
+    {
+      "file": "my-workflows-restarted-900.png",
+      "width": 900,
+      "viewportWidth": 902,
+      "documentWidth": 902,
+      "sha256": "e8fddb831929e77645b5dc653b84bbe113adf32e1d54dca7b92a4bb44cfc3f06"
+    }
+  ],
+  "visualReview": {
+    "widths": [1440, 1180, 900],
+    "noHorizontalWindowOverflow": true,
+    "reviewed": [
+      "my-workflows",
+      "editor",
+      "expanded-step",
+      "output-contract",
+      "review-branch-contract",
+      "published-versions",
+      "completed-user-run"
+    ],
+    "notes": "Publish notification deduplicated; zero-Draft state is compact when releases exist. Standard product tokens and existing Shell retained."
+  },
+  "compatibility": "compatibility.json",
+  "buildProvenance": "build-provenance.json",
+  "frozenHashes": "frozen-hashes.json",
+  "migrationEvidence": "migration-upgrade.json"
+}

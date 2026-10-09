@@ -1,0 +1,395 @@
+{
+  "status": "PASS",
+  "draft": {
+    "id": "5e3f86a3-9135-45ae-95bd-95e56cab537c",
+    "definitionId": "user.660685b5-17e2-4471-ab5f-6807ff0972b4",
+    "revision": 4,
+    "steps": [
+      {
+        "id": "step-84c60c1c-d7e8-40fd-8199-220b38d88959",
+        "type": "TASK",
+        "title": "准备背景"
+      },
+      { "id": "task-1", "type": "TASK", "title": "整理交付" },
+      {
+        "id": "step-809eb258-f46b-441a-8bca-f4aa226898f9",
+        "type": "REVIEW",
+        "title": "审核交付"
+      },
+      {
+        "id": "step-c6133ffe-ec9a-43f0-bae0-6cae953a49f1",
+        "type": "TASK",
+        "title": "按审核意见修改"
+      }
+    ],
+    "realDrag": true,
+    "mainOwnedSequentialEdges": true
+  },
+  "runA": {
+    "run": {
+      "id": "db3969be-950d-450f-9985-73af495cd726",
+      "definition_id": "user.660685b5-17e2-4471-ab5f-6807ff0972b4",
+      "definition_version": 1,
+      "state": "COMPLETED"
+    },
+    "steps": [
+      {
+        "id": "ef3166d9-30cd-4e83-a51e-fdb4798f11f5",
+        "step_id": "step-809eb258-f46b-441a-8bca-f4aa226898f9",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "1c8b83f5-1174-4db2-a3f2-6fd3968853f5",
+        "mission_run_id": "fc128be0-14dd-4e0d-a4f4-737ed7c2466d"
+      },
+      {
+        "id": "8d47538a-0f05-457d-b770-7840e804aa82",
+        "step_id": "step-84c60c1c-d7e8-40fd-8199-220b38d88959",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "bb6a3215-b8bc-4739-90c0-6fac2a2f3758",
+        "mission_run_id": "0285ce86-53f1-4e19-9a6d-79be18fbf884"
+      },
+      {
+        "id": "ac8ff4d0-2e7c-4385-b09d-18ed72cc3a50",
+        "step_id": "step-c6133ffe-ec9a-43f0-bae0-6cae953a49f1",
+        "attempt": 1,
+        "state": "SKIPPED",
+        "mission_id": null,
+        "mission_run_id": null
+      },
+      {
+        "id": "9a1b64a1-b950-4613-91d9-2172582f1beb",
+        "step_id": "task-1",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "a4ff95a3-d106-428e-ad55-00b122135861",
+        "mission_run_id": "cec632c6-93c2-4c25-8aba-c446fe08e20b"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "305c541e-3e06-4e6e-99e8-fbfbec021469",
+        "kind": "TEXT",
+        "content_hash": "9627e60f10f1ea09c312794ab1c7fa959e0e51f3e72c5919390e6f6766bec00c",
+        "producer_step_run_id": "8d47538a-0f05-457d-b770-7840e804aa82"
+      },
+      {
+        "id": "9fdc4828-08a1-4693-8d3e-ed0252319ce6",
+        "kind": "TEXT",
+        "content_hash": "8a142fcfa42b998650b66bd61f015fb533763bfd0d3fb9a39c46f30f4a36259d",
+        "producer_step_run_id": "9a1b64a1-b950-4613-91d9-2172582f1beb"
+      },
+      {
+        "id": "d1499020-1fc5-4f32-a467-bb7af7747fd2",
+        "kind": "JSON",
+        "content_hash": "e3186833f6bd6133d74b481899269043578b82cc3ad4599d4ec3966b98660977",
+        "producer_step_run_id": "ef3166d9-30cd-4e83-a51e-fdb4798f11f5"
+      }
+    ],
+    "bindings": [
+      {
+        "step_run_id": "8d47538a-0f05-457d-b770-7840e804aa82",
+        "artifact_id": "305c541e-3e06-4e6e-99e8-fbfbec021469",
+        "key": "result",
+        "role": "OUTPUT"
+      },
+      {
+        "step_run_id": "9a1b64a1-b950-4613-91d9-2172582f1beb",
+        "artifact_id": "9fdc4828-08a1-4693-8d3e-ed0252319ce6",
+        "key": "result",
+        "role": "OUTPUT"
+      },
+      {
+        "step_run_id": "ef3166d9-30cd-4e83-a51e-fdb4798f11f5",
+        "artifact_id": "9fdc4828-08a1-4693-8d3e-ed0252319ce6",
+        "key": "reviewInput",
+        "role": "INPUT"
+      },
+      {
+        "step_run_id": "ef3166d9-30cd-4e83-a51e-fdb4798f11f5",
+        "artifact_id": "d1499020-1fc5-4f32-a467-bb7af7747fd2",
+        "key": "review",
+        "role": "OUTPUT"
+      }
+    ],
+    "receipts": [
+      { "artifact_id": "305c541e-3e06-4e6e-99e8-fbfbec021469", "valid": 1 },
+      { "artifact_id": "9fdc4828-08a1-4693-8d3e-ed0252319ce6", "valid": 1 },
+      { "artifact_id": "d1499020-1fc5-4f32-a467-bb7af7747fd2", "valid": 1 }
+    ],
+    "checkpoints": 3,
+    "usage": [
+      {
+        "teammate_id": "c0d55d4a-1039-414a-b962-628f06b20178",
+        "runtime_profile_id": "97dcac7a-244c-49ed-a113-c109a9adb80c",
+        "mission_id": "1c8b83f5-1174-4db2-a3f2-6fd3968853f5",
+        "run_id": "fc128be0-14dd-4e0d-a4f4-737ed7c2466d"
+      },
+      {
+        "teammate_id": "c0d55d4a-1039-414a-b962-628f06b20178",
+        "runtime_profile_id": "97dcac7a-244c-49ed-a113-c109a9adb80c",
+        "mission_id": "bb6a3215-b8bc-4739-90c0-6fac2a2f3758",
+        "run_id": "0285ce86-53f1-4e19-9a6d-79be18fbf884"
+      },
+      {
+        "teammate_id": "c0d55d4a-1039-414a-b962-628f06b20178",
+        "runtime_profile_id": "97dcac7a-244c-49ed-a113-c109a9adb80c",
+        "mission_id": "a4ff95a3-d106-428e-ad55-00b122135861",
+        "run_id": "cec632c6-93c2-4c25-8aba-c446fe08e20b"
+      }
+    ],
+    "routing": [
+      {
+        "missionId": "1c8b83f5-1174-4db2-a3f2-6fd3968853f5",
+        "receiptId": "a7d6b81f-b92b-4b36-a403-6278576e729c",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "a7d6b81f-b92b-4b36-a403-6278576e729c",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "bb6a3215-b8bc-4739-90c0-6fac2a2f3758",
+        "receiptId": "16bc7dc2-f3ee-4862-846e-9ae203019849",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "16bc7dc2-f3ee-4862-846e-9ae203019849",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "a4ff95a3-d106-428e-ad55-00b122135861",
+        "receiptId": "60549f72-fdcd-462a-b2b0-8c39d8de40be",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "60549f72-fdcd-462a-b2b0-8c39d8de40be",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      }
+    ],
+    "reviews": [
+      {
+        "artifactId": "d1499020-1fc5-4f32-a467-bb7af7747fd2",
+        "verdict": "PASS",
+        "findings": [],
+        "evidence": ["已核对本次输入产物"],
+        "summary": "内容符合约定，可以继续。",
+        "reviewedArtifactIds": ["9fdc4828-08a1-4693-8d3e-ed0252319ce6"]
+      }
+    ]
+  },
+  "runB": {
+    "run": {
+      "id": "50416df3-9fdc-40cb-bc82-50b0b6eaaed6",
+      "definition_id": "user.660685b5-17e2-4471-ab5f-6807ff0972b4",
+      "definition_version": 2,
+      "state": "COMPLETED"
+    },
+    "steps": [
+      {
+        "id": "72b7f6c8-112e-4e72-84ac-96f324ad4d47",
+        "step_id": "step-809eb258-f46b-441a-8bca-f4aa226898f9",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "7f817fef-823c-4518-8984-06794ea2bf26",
+        "mission_run_id": "c9a0444f-8c91-4e50-ba8a-4c93d044edcc"
+      },
+      {
+        "id": "ef83d292-c38d-4c1c-b8d8-ed31d34be1d2",
+        "step_id": "step-84c60c1c-d7e8-40fd-8199-220b38d88959",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "c3d3ca0e-0960-40dc-add0-3745cbc83ee0",
+        "mission_run_id": "de806275-9919-493a-8523-e7e509fd36b6"
+      },
+      {
+        "id": "701e9a92-0b54-4045-b6dd-257a075daa7f",
+        "step_id": "step-c6133ffe-ec9a-43f0-bae0-6cae953a49f1",
+        "attempt": 1,
+        "state": "SKIPPED",
+        "mission_id": null,
+        "mission_run_id": null
+      },
+      {
+        "id": "7f0f77fd-efd0-4da7-9d8d-b9588a4ab1ac",
+        "step_id": "task-1",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "ff1c4d19-c947-423c-9c4d-85372aa66dc7",
+        "mission_run_id": "5786b4fb-2378-41f0-a4df-ac323831a3cf"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "2cde0ed4-4751-41b3-b2e6-308ccda90097",
+        "kind": "JSON",
+        "content_hash": "3a14fb9ebade4099fc4d7c897b752fff2ef2c75fb1fa1ae681358e28980d120b",
+        "producer_step_run_id": "72b7f6c8-112e-4e72-84ac-96f324ad4d47"
+      },
+      {
+        "id": "3ece0701-237a-4510-be38-228e6c2afe8d",
+        "kind": "TEXT",
+        "content_hash": "8a142fcfa42b998650b66bd61f015fb533763bfd0d3fb9a39c46f30f4a36259d",
+        "producer_step_run_id": "7f0f77fd-efd0-4da7-9d8d-b9588a4ab1ac"
+      },
+      {
+        "id": "cb7f44b2-37e6-4c90-928a-70fa4fc63f6a",
+        "kind": "TEXT",
+        "content_hash": "9627e60f10f1ea09c312794ab1c7fa959e0e51f3e72c5919390e6f6766bec00c",
+        "producer_step_run_id": "ef83d292-c38d-4c1c-b8d8-ed31d34be1d2"
+      }
+    ],
+    "bindings": [
+      {
+        "step_run_id": "ef83d292-c38d-4c1c-b8d8-ed31d34be1d2",
+        "artifact_id": "cb7f44b2-37e6-4c90-928a-70fa4fc63f6a",
+        "key": "result",
+        "role": "OUTPUT"
+      },
+      {
+        "step_run_id": "7f0f77fd-efd0-4da7-9d8d-b9588a4ab1ac",
+        "artifact_id": "3ece0701-237a-4510-be38-228e6c2afe8d",
+        "key": "result",
+        "role": "OUTPUT"
+      },
+      {
+        "step_run_id": "72b7f6c8-112e-4e72-84ac-96f324ad4d47",
+        "artifact_id": "3ece0701-237a-4510-be38-228e6c2afe8d",
+        "key": "reviewInput",
+        "role": "INPUT"
+      },
+      {
+        "step_run_id": "72b7f6c8-112e-4e72-84ac-96f324ad4d47",
+        "artifact_id": "2cde0ed4-4751-41b3-b2e6-308ccda90097",
+        "key": "review",
+        "role": "OUTPUT"
+      }
+    ],
+    "receipts": [
+      { "artifact_id": "cb7f44b2-37e6-4c90-928a-70fa4fc63f6a", "valid": 1 },
+      { "artifact_id": "3ece0701-237a-4510-be38-228e6c2afe8d", "valid": 1 },
+      { "artifact_id": "2cde0ed4-4751-41b3-b2e6-308ccda90097", "valid": 1 }
+    ],
+    "checkpoints": 3,
+    "usage": [
+      {
+        "teammate_id": "c0d55d4a-1039-414a-b962-628f06b20178",
+        "runtime_profile_id": "97dcac7a-244c-49ed-a113-c109a9adb80c",
+        "mission_id": "7f817fef-823c-4518-8984-06794ea2bf26",
+        "run_id": "c9a0444f-8c91-4e50-ba8a-4c93d044edcc"
+      },
+      {
+        "teammate_id": "c0d55d4a-1039-414a-b962-628f06b20178",
+        "runtime_profile_id": "97dcac7a-244c-49ed-a113-c109a9adb80c",
+        "mission_id": "c3d3ca0e-0960-40dc-add0-3745cbc83ee0",
+        "run_id": "de806275-9919-493a-8523-e7e509fd36b6"
+      },
+      {
+        "teammate_id": "c0d55d4a-1039-414a-b962-628f06b20178",
+        "runtime_profile_id": "97dcac7a-244c-49ed-a113-c109a9adb80c",
+        "mission_id": "ff1c4d19-c947-423c-9c4d-85372aa66dc7",
+        "run_id": "5786b4fb-2378-41f0-a4df-ac323831a3cf"
+      }
+    ],
+    "routing": [
+      {
+        "missionId": "7f817fef-823c-4518-8984-06794ea2bf26",
+        "receiptId": "fdd20668-38a5-47ae-841a-02a27e2a9daf",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "fdd20668-38a5-47ae-841a-02a27e2a9daf",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "c3d3ca0e-0960-40dc-add0-3745cbc83ee0",
+        "receiptId": "623ae16b-f30a-4c4d-9736-950c9a92153c",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "623ae16b-f30a-4c4d-9736-950c9a92153c",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      },
+      {
+        "missionId": "ff1c4d19-c947-423c-9c4d-85372aa66dc7",
+        "receiptId": "57cac6ee-49e4-4000-8416-d93d8a5f7c0d",
+        "assignment": {
+          "kind": "SOLO",
+          "coordinatorTeammateId": "c0d55d4a-1039-414a-b962-628f06b20178",
+          "memberTeammateIds": [],
+          "partyId": null,
+          "mode": "SOLO",
+          "id": "57cac6ee-49e4-4000-8416-d93d8a5f7c0d",
+          "demand": [
+            { "dimension": "GENERAL_REASONING", "weight": 1, "required": true }
+          ],
+          "policyVersion": "r4-controlled-routing-v1"
+        }
+      }
+    ],
+    "reviews": [
+      {
+        "artifactId": "2cde0ed4-4751-41b3-b2e6-308ccda90097",
+        "verdict": "PASS",
+        "findings": [],
+        "evidence": ["已核对本次输入产物"],
+        "summary": "内容符合约定，可以继续。",
+        "reviewedArtifactIds": ["3ece0701-237a-4510-be38-228e6c2afe8d"]
+      }
+    ]
+  },
+  "restart": {
+    "before": {
+      "missions": 7,
+      "usage": 8,
+      "artifacts": 7,
+      "receipts": 7,
+      "drafts": 4
+    },
+    "after": {
+      "missions": 7,
+      "usage": 8,
+      "artifacts": 7,
+      "receipts": 7,
+      "drafts": 4
+    },
+    "noMissionOrModelReplay": true,
+    "frozenVersions": true,
+    "draftsPreserved": true
+  }
+}

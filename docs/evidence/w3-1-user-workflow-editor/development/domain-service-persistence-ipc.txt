@@ -1,0 +1,12 @@
+
+ RUN  v5.0.1 E:/Graduate_work_folder/Agent_develop/Project/AI Agent Cultivation
+
+
+ Test Files  4 passed (4)
+      Tests  36 passed (36)
+   Start at  10:02:37
+   Duration  9.34s (tests 64%, import 18%, transform 17%)
+
+    Isolate  4 workers spawned · ~213ms startup each (spawn + environment, per file)
+             at least ~640ms faster with isolate: false — reuses workers across files instead of one per file
+

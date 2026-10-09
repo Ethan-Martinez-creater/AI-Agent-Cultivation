@@ -1,0 +1,9 @@
+
+ RUN  v5.0.1 E:/Graduate_work_folder/Agent_develop/Project/AI Agent Cultivation
+
+
+ Test Files  5 passed (5)
+      Tests  49 passed (49)
+   Start at  10:37:02
+   Duration  30.90s (tests 91%, transform 5%, import 4%)
+

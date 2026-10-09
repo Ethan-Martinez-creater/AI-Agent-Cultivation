@@ -1,0 +1,169 @@
+{
+  "status": "PASS",
+  "migration": "0031_w31_workflow_drafts.sql",
+  "historicalMigrations": [
+    {
+      "path": "migrations/0001_initial.sql",
+      "unchanged": true,
+      "gitContentSha256": "bbf2d9589a85d7fcf11792b2b4dc0dc9df2d3b473a546c93b2f862d1ac28be46"
+    },
+    {
+      "path": "migrations/0002_gate1.sql",
+      "unchanged": true,
+      "gitContentSha256": "0c0e9a2dafd77f10aca9a36047f18f079949115b145e7fa094ec0c55637ca5f7"
+    },
+    {
+      "path": "migrations/0003_gate2.sql",
+      "unchanged": true,
+      "gitContentSha256": "0e65fc460642728a851df58691bcedae8d17c337bccbef8dcba7d9dcda442179"
+    },
+    {
+      "path": "migrations/0004_gate3.sql",
+      "unchanged": true,
+      "gitContentSha256": "2f68454d7d3678fe7a3bebbabbe24b7aca16e8d729d65ba8d9c1344b4a22452a"
+    },
+    {
+      "path": "migrations/0005_gate4.sql",
+      "unchanged": true,
+      "gitContentSha256": "1504456d144cf4497903de5332d674f16a2a0f6c025f31a4ca263ca8e22e4e6a"
+    },
+    {
+      "path": "migrations/0006_gate5.sql",
+      "unchanged": true,
+      "gitContentSha256": "b406985bcb00a73ee5ab5b011b350c5c6edc990d474e0ea47a47691b8c88a2bc"
+    },
+    {
+      "path": "migrations/0007_gate6.sql",
+      "unchanged": true,
+      "gitContentSha256": "46e27868c67dbcb1b585eca4f645ce844b58e397988bc63cce9fcf0249687760"
+    },
+    {
+      "path": "migrations/0008_gate6_collaboration_outcome.sql",
+      "unchanged": true,
+      "gitContentSha256": "1ff11414e227f85419cbfb74fbcc892804bf1813101e2ea756f0fa6bb3f5906b"
+    },
+    {
+      "path": "migrations/0009_routing_foundation.sql",
+      "unchanged": true,
+      "gitContentSha256": "f013ec88e6b21b509d9fdba98dd553a9c632b0a940ab8007e74751aae208391a"
+    },
+    {
+      "path": "migrations/0010_r0_capability_evidence_provenance.sql",
+      "unchanged": true,
+      "gitContentSha256": "583cb90de2b3ae194cc9be278186f2e38f94b5803682305cdb143527a22bbc4b"
+    },
+    {
+      "path": "migrations/0011_r1_dynamic_capability.sql",
+      "unchanged": true,
+      "gitContentSha256": "cc2aac614e00074133a13e13c3819dcc8c61af9175f09002a13d66298d5b8806"
+    },
+    {
+      "path": "migrations/0012_r2_human_bridge.sql",
+      "unchanged": true,
+      "gitContentSha256": "4220f795402c197b3da2f1dcea15efe8813e72836679783fc7d58325083f6b65"
+    },
+    {
+      "path": "migrations/0013_r3_decision_plane.sql",
+      "unchanged": true,
+      "gitContentSha256": "031be87a8ce74e44086ef277dd9e4f2aac088b15a93f83ca3aca8378b6202e8f"
+    },
+    {
+      "path": "migrations/0014_r3_1_identity_capability.sql",
+      "unchanged": true,
+      "gitContentSha256": "5714b0754322070e0b31654fa55e627e8c76a2b028b743d523f49350521741f9"
+    },
+    {
+      "path": "migrations/0015_r3_2_availability.sql",
+      "unchanged": true,
+      "gitContentSha256": "7b3c5e7048e6db02428183f783e54386931e70e89caee824ae84da6924046a47"
+    },
+    {
+      "path": "migrations/0016_r4_controlled_routing.sql",
+      "unchanged": true,
+      "gitContentSha256": "ff6a7728dbe470f693fdbe6010fe48af9fdea001eaf9d132d29dfe80fa801942"
+    },
+    {
+      "path": "migrations/0017_w1_workflow_foundation.sql",
+      "unchanged": true,
+      "gitContentSha256": "d1220f73322daa73159ec4815266c20be869ec6b4df7bb1b5bdd4776910bf712"
+    },
+    {
+      "path": "migrations/0018_w1_workflow_io.sql",
+      "unchanged": true,
+      "gitContentSha256": "9d0392bdac09021151f1af7fa51c53de91c761cb40e6f2e095978eb55352b4f1"
+    },
+    {
+      "path": "migrations/0019_w2_builtin_workflow_contract.sql",
+      "unchanged": true,
+      "gitContentSha256": "ace28be8c200ebfba60625017e3a8b5bfcb5a6435dae178d0a674d1664a9ddee"
+    },
+    {
+      "path": "migrations/0020_w21_ai_news_video.sql",
+      "unchanged": true,
+      "gitContentSha256": "c74946011f7793704be23e3de70f70d19479e60fa6893b423fa7f011c5056897"
+    },
+    {
+      "path": "migrations/0021_w21_tool_purpose_bindings.sql",
+      "unchanged": true,
+      "gitContentSha256": "c4162f0933e2505e573dbcdc92f48d5efbbedb7dea9633b18952c20cfacf00c6"
+    },
+    {
+      "path": "migrations/0022_w22_software_feature.sql",
+      "unchanged": true,
+      "gitContentSha256": "4d16fd5bbb2a9fe004e5e5d8b1b7df984c2529a8bbdf933cf173e835291c205f"
+    },
+    {
+      "path": "migrations/0023_w23_research.sql",
+      "unchanged": true,
+      "gitContentSha256": "a74ca57f9218eb1e15790b702f8176f6c6b26bf52c2cc08e5f7d6ed0aadbadd9"
+    },
+    {
+      "path": "migrations/0024_w23_input_artifacts.sql",
+      "unchanged": true,
+      "gitContentSha256": "f3898197719469a5b6c2818998555f47d39a3923d7f2a387b22cc98e56959ccd"
+    },
+    {
+      "path": "migrations/0025_w23_uncertain_prepared_effect.sql",
+      "unchanged": true,
+      "gitContentSha256": "ec61ede92b269562c9081b660eca97a91cbdc66688fedfd12f20e732215f57a6"
+    },
+    {
+      "path": "migrations/0026_w24_dynamic_manifest_integrity.sql",
+      "unchanged": true,
+      "gitContentSha256": "22589ff7cdd13797bba1043d30ee0cd773f213eba2d946f22a4882e71290656b"
+    },
+    {
+      "path": "migrations/0027_g1_generation_foundation.sql",
+      "unchanged": true,
+      "gitContentSha256": "1eb84e3abab4d05a58000079878346af5c7a3a5e5d54c4b7aab446e3c1fcb90e"
+    },
+    {
+      "path": "migrations/0028_g2_generation_http.sql",
+      "unchanged": true,
+      "gitContentSha256": "5a234eb869d09970b8c643f6c21504d340f6735bdc2f9331c78272ee52b3bc14"
+    },
+    {
+      "path": "migrations/0029_g2_submission_continuation.sql",
+      "unchanged": true,
+      "gitContentSha256": "c2f5dc1b9e146fb53de508dc054df8140f513ef10851e44cfc1376e621fbfa75"
+    },
+    {
+      "path": "migrations/0030_g3_multimodal_collaboration.sql",
+      "unchanged": true,
+      "gitContentSha256": "58951c8331c8c6c3d14f0e946c3e13b63190b3650b589745c022574f44cd84ea"
+    }
+  ],
+  "upgradeTest": "packages/persistence/src/w3-1-workflow-drafts.test.ts: upgrades 0030 to 0031, preserves official hashes and existing Run pins, and restores Draft/version facts",
+  "checks": [
+    "Existing profile 30 → 31",
+    "official content/release hashes unchanged",
+    "v1/v2 Run pins and pending Draft survive reopening",
+    "foreign_key_check empty"
+  ],
+  "newProductionProfile": {
+    "officialVersions": 3,
+    "drafts": 0,
+    "runs": 0,
+    "schemaVersion": 31
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "kind": "cycle",
+      "rejected": true,
+      "definitionId": "user.a849cd8c-fd36-4bd2-8759-2f4a84b3eb4b"
+    },
+    {
+      "kind": "dangling",
+      "rejected": true,
+      "definitionId": "user.87ea91c3-1974-4355-b85a-f9e9e853769a"
+    },
+    {
+      "kind": "invalid-contract",
+      "rejected": true,
+      "definitionId": "user.e2ff7431-5042-4430-ba20-3b04be2f5c24"
+    },
+    {
+      "kind": "authority",
+      "rejected": true,
+      "definitionId": "user.29d9d253-1792-409e-a7d7-5778136b859e"
+    }
+  ],
+  "executionBefore": { "modelCalls": 3, "missions": 3, "routingReceipts": 3 },
+  "executionAfter": { "modelCalls": 3, "missions": 3, "routingReceipts": 3 },
+  "unitEvidence": [
+    "packages/domain/src/w3-1-workflow-editor.test.ts",
+    "apps/desktop/src/main/w3-1-ipc.test.ts"
+  ]
+}
