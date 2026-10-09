@@ -105,6 +105,28 @@ describe('W3.2 Workflow Import domain facts', () => {
     expect(() => validateWorkflowImportProposal(proposal)).toThrow(/duplicate.*source location/i);
   });
 
+  it('rejects authority-like unknown keys on sources, resolutions and mappings, including invalid drafts', () => {
+    const sourceWithAuthority = makeProposal();
+    Object.assign(sourceWithAuthority.sources[0]!, { provider: { model: 'untrusted' } });
+    expect(() => validateWorkflowImportProposal(sourceWithAuthority)).toThrow(/unsupported field/i);
+
+    const resolutionWithAuthority = makeProposal();
+    Object.assign(resolutionWithAuthority.resolution, { permission: { allow: ['write'] } });
+    expect(() => validateWorkflowImportProposal(resolutionWithAuthority)).toThrow(/unsupported field/i);
+
+    const mappingWithAuthority = makeProposal();
+    Object.assign(mappingWithAuthority.resolution.candidateArtifactBindings[0]!, {
+      toolAction: { kind: 'execute' },
+    });
+    expect(() => validateWorkflowImportProposal(mappingWithAuthority)).toThrow(/unsupported field/i);
+
+    const invalidDraft = makeProposal();
+    invalidDraft.validationStatus = 'INVALID';
+    invalidDraft.validationErrors = ['Unmapped output'];
+    Object.assign(invalidDraft.resolution, { graph: { nodes: [] } });
+    expect(() => validateWorkflowImportProposal(invalidDraft)).toThrow(/unsupported field/i);
+  });
+
   it('hashes confirmation mappings independently of caller order', () => {
     const completed = ['S01', 'S02'];
     const bindings = [

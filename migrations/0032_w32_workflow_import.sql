@@ -97,9 +97,76 @@ WHEN NOT EXISTS (
     AND NOT EXISTS (SELECT 1 FROM workflow_revision_traversals WHERE workflow_run_id = r.id)
     AND json_extract(new.completed_step_ids_json, '$[0]') = v.entry_step_id
     AND NOT EXISTS (
+      SELECT completed.value FROM json_each(new.completed_step_ids_json) completed
+      GROUP BY completed.value HAVING COUNT(*) > 1
+    )
+    AND NOT EXISTS (
       SELECT 1 FROM json_each(new.completed_step_ids_json) completed
       WHERE completed.type != 'text' OR completed.value = new.current_step_id
         OR NOT EXISTS (SELECT 1 FROM workflow_steps s WHERE s.definition_id = r.definition_id AND s.version = r.definition_version AND s.id = completed.value AND s.type = 'TASK' AND s.effect_type = 'NONE' AND s.exit_condition = 'VALID_OUTPUTS')
+    )
+    AND NOT EXISTS (
+      SELECT 1 FROM json_each(new.completed_step_ids_json) prior
+      WHERE CAST(prior.key AS INTEGER) < json_array_length(new.completed_step_ids_json) - 1
+        AND NOT EXISTS (
+          SELECT 1 FROM workflow_edges edge
+          JOIN json_each(v.version_json, '$.edges') frozen ON json_extract(frozen.value, '$.id') = edge.id
+          WHERE edge.definition_id = r.definition_id AND edge.version = r.definition_version
+            AND edge.from_step_id = prior.value
+            AND edge.to_step_id = json_extract(new.completed_step_ids_json, '$[' || (CAST(prior.key AS INTEGER) + 1) || ']')
+            AND json_extract(frozen.value, '$.fromStepId') = edge.from_step_id
+            AND json_extract(frozen.value, '$.toStepId') = edge.to_step_id
+            AND json_extract(edge.condition_json, '$.type') = 'ALWAYS' AND edge.revision_code IS NULL
+            AND json_extract(frozen.value, '$.condition.type') = 'ALWAYS'
+            AND json_type(frozen.value, '$.revision') IS NULL
+            AND json_type(frozen.value, '$.revisionCode') IS NULL
+            AND (SELECT COUNT(*) FROM workflow_edges outgoing
+              WHERE outgoing.definition_id = edge.definition_id AND outgoing.version = edge.version
+                AND outgoing.from_step_id = edge.from_step_id) = 1
+        )
+    )
+    AND EXISTS (
+      SELECT 1 FROM workflow_edges edge
+      JOIN json_each(v.version_json, '$.edges') frozen ON json_extract(frozen.value, '$.id') = edge.id
+      WHERE edge.definition_id = r.definition_id AND edge.version = r.definition_version
+        AND edge.from_step_id = json_extract(new.completed_step_ids_json, '$[' || (json_array_length(new.completed_step_ids_json) - 1) || ']')
+        AND edge.to_step_id = new.current_step_id
+        AND json_extract(frozen.value, '$.fromStepId') = edge.from_step_id
+        AND json_extract(frozen.value, '$.toStepId') = edge.to_step_id
+        AND json_extract(edge.condition_json, '$.type') = 'ALWAYS' AND edge.revision_code IS NULL
+        AND json_extract(frozen.value, '$.condition.type') = 'ALWAYS'
+        AND json_type(frozen.value, '$.revision') IS NULL
+        AND json_type(frozen.value, '$.revisionCode') IS NULL
+        AND (SELECT COUNT(*) FROM workflow_edges outgoing
+          WHERE outgoing.definition_id = edge.definition_id AND outgoing.version = edge.version
+            AND outgoing.from_step_id = edge.from_step_id) = 1
+    )
+    AND NOT EXISTS (
+      SELECT 1 FROM json_each(new.completed_step_ids_json) consumer
+      JOIN workflow_steps step ON step.definition_id = r.definition_id AND step.version = r.definition_version AND step.id = consumer.value
+      JOIN json_each(step.inputs_json) input
+      WHERE json_extract(input.value, '$.required') = 1
+        AND NOT EXISTS (
+          SELECT 1 FROM json_each(new.completed_step_ids_json) producer
+          JOIN json_each(new.bindings_json) mapping
+          WHERE CAST(producer.key AS INTEGER) < CAST(consumer.key AS INTEGER)
+            AND producer.value = json_extract(input.value, '$.fromStepId')
+            AND json_extract(mapping.value, '$.stepId') = producer.value
+            AND json_extract(mapping.value, '$.outputKey') = json_extract(input.value, '$.outputKey')
+        )
+    )
+    AND NOT EXISTS (
+      SELECT 1 FROM workflow_steps current_step
+      JOIN json_each(current_step.inputs_json) input
+      WHERE current_step.definition_id = r.definition_id AND current_step.version = r.definition_version
+        AND current_step.id = new.current_step_id AND json_extract(input.value, '$.required') = 1
+        AND NOT EXISTS (
+          SELECT 1 FROM json_each(new.completed_step_ids_json) producer
+          JOIN json_each(new.bindings_json) mapping
+          WHERE producer.value = json_extract(input.value, '$.fromStepId')
+            AND json_extract(mapping.value, '$.stepId') = producer.value
+            AND json_extract(mapping.value, '$.outputKey') = json_extract(input.value, '$.outputKey')
+        )
     )
     AND NOT EXISTS (
       SELECT 1 FROM json_each(new.completed_step_ids_json) completed

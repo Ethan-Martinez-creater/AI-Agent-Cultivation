@@ -63,7 +63,7 @@ export class W32WorkflowImportRepository implements WorkflowImportRepositoryPort
 
   listProposals(): WorkflowImportProposal[] {
     const rows = this.db
-      .prepare('SELECT * FROM workflow_import_proposals ORDER BY updated_at DESC, id')
+      .prepare('SELECT * FROM workflow_import_proposals ORDER BY updated_at DESC, id LIMIT 100')
       .all() as ProposalRow[];
     return rows.map(mapProposal);
   }

@@ -166,6 +166,11 @@ export function toWorkflowImportProposalSafeDto(
 
 export function validateWorkflowImportProposal(value: WorkflowImportProposal): void {
   if (!plain(value)) invalid('Workflow Import proposal must be a plain object');
+  validateKeys(value, [
+    'id', 'revision', 'status', 'definitionId', 'version', 'versionHash', 'inputSnapshot',
+    'description', 'sources', 'resolution', 'sourceMetadataHash', 'policyVersion',
+    'validationStatus', 'validationErrors', 'createdAt', 'updatedAt', 'runId',
+  ], 'Workflow Import proposal');
   validateId(value.id, 'Workflow Import proposal');
   validateId(value.definitionId, 'Workflow definition');
   if (!Number.isSafeInteger(value.revision) || value.revision < 1) invalid('Invalid proposal revision');
@@ -217,6 +222,10 @@ export function validateWorkflowImportProposal(value: WorkflowImportProposal): v
 
 export function validateWorkflowImportConfirmation(value: WorkflowImportConfirmation): void {
   if (!plain(value)) invalid('Workflow Import confirmation must be a plain object');
+  validateKeys(value, [
+    'id', 'proposalId', 'runId', 'versionHash', 'sourceMetadataHash', 'completedStepIds',
+    'currentStepId', 'bindings', 'mappingHash', 'createdAt',
+  ], 'Workflow Import confirmation');
   validateId(value.id, 'Workflow Import confirmation');
   validateId(value.proposalId, 'Workflow Import proposal');
   validateId(value.runId, 'Workflow Run');
@@ -236,6 +245,12 @@ export function validateWorkflowImportConfirmation(value: WorkflowImportConfirma
 }
 
 export function validateWorkflowImportedArtifact(value: WorkflowImportedArtifact): void {
+  if (!plain(value)) invalid('Imported Workflow Artifact must be a plain object');
+  validateKeys(value, [
+    'id', 'workflowRunId', 'producerStepRunId', 'missionId', 'missionRunId', 'actorId',
+    'sourceId', 'source', 'importConfirmationId', 'kind', 'content', 'contentHash',
+    'metadata', 'inputArtifactIds', 'createdAt',
+  ], 'Imported Workflow Artifact');
   if (value.source !== 'IMPORTED_CONFIRMED' || value.missionId !== null || value.missionRunId !== null || value.actorId !== null)
     invalid('Imported Workflow Artifacts must have Import provenance and no Mission identity');
   validateId(value.importConfirmationId, 'Workflow Import confirmation');
@@ -277,6 +292,9 @@ export function validateWorkflowImportedArtifact(value: WorkflowImportedArtifact
 
 function validateWorkflowImportSource(value: WorkflowImportSource, strict: boolean): void {
   if (!plain(value)) invalid('Workflow Import source must be a plain object');
+  validateKeys(value, [
+    'id', 'name', 'relativePath', 'workspaceRoot', 'kind', 'size', 'content', 'contentHash', 'mtime',
+  ], 'Workflow Import source');
   validateId(value.id, 'Workflow Import source');
   validateText(value.name, 'Workflow Import source name', 256);
   if (!isSafeWorkflowRelativePath(value.relativePath)) invalid('Workflow Import source path is unsafe');
@@ -305,6 +323,10 @@ function validateWorkflowImportResolution(
   strict: boolean,
 ): void {
   if (!plain(value)) invalid('Workflow Import resolution must be a plain object');
+  validateKeys(value, [
+    'suggestedCompletedSteps', 'suggestedCurrentStep', 'candidateArtifactBindings',
+    'missingRequirements', 'confidence', 'explanationSummary',
+  ], 'Workflow Import resolution');
   if (!Array.isArray(value.suggestedCompletedSteps) || value.suggestedCompletedSteps.length > WORKFLOW_IMPORT_MAX_COMPLETED_STEPS)
     invalid('Suggested completed Steps are outside their bounds');
   if (strict) validateUniqueIds(value.suggestedCompletedSteps, 'Suggested completed Step');
@@ -334,6 +356,7 @@ function validateMappings(
   const identities = new Set<string>();
   for (const mapping of mappings) {
     if (!plain(mapping)) invalid('Invalid Workflow Import artifact mapping');
+    validateKeys(mapping, ['stepId', 'outputKey', 'sourceId'], 'Workflow Import artifact mapping');
     validateId(mapping.stepId, 'Workflow Import Step');
     validateId(mapping.outputKey, 'Workflow Import output key');
     validateId(mapping.sourceId, 'Workflow Import source');
@@ -375,6 +398,11 @@ function validateText(value: string, name: string, max: number, allowEmpty = fal
 
 function plain(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
+}
+
+function validateKeys(value: Record<string, unknown>, allowed: readonly string[], name: string): void {
+  if (Object.keys(value).some((key) => !allowed.includes(key)))
+    invalid(`${name} contains an unsupported field`);
 }
 
 function sortJson(value: unknown): unknown {
