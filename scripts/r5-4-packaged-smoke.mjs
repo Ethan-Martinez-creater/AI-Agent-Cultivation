@@ -107,7 +107,7 @@ function assertMigrations(profile) {
       .map((row) => row.version);
     assert.deepEqual(
       migrations,
-      Array.from({ length: 30 }, (_, index) => index + 1),
+      Array.from({ length: 31 }, (_, index) => index + 1),
     );
     return migrations;
   });
@@ -1204,7 +1204,7 @@ const mcpConfig = openReadOnlyDatabase(fixtureProfile, (db) =>
 assert.deepEqual(mcpConfig, { id: mcpServerId, enabled: 1 });
 const evidence = {
   verifiedAt: new Date().toISOString(),
-  schemaVersion: 30,
+  schemaVersion: 31,
   production: {
     normalLaunch: true,
     fixtureObserverFile: false,

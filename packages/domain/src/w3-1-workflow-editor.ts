@@ -3,11 +3,7 @@ import {
   EMPTY_WORKFLOW_INPUT_SCHEMA,
   validateWorkflowInputSchema,
 } from './w1-workflow-contract.js';
-import type {
-  WorkflowFinalOutputSpec,
-  WorkflowObjectSchema,
-  WorkflowValueSchema,
-} from './w1-workflow-contract.js';
+import type { WorkflowFinalOutputSpec, WorkflowObjectSchema } from './w1-workflow-contract.js';
 import { validateWorkflowVersion, workflowOutputProjectionMatches } from './w1-workflow.js';
 import type {
   WorkflowArtifactKind,
@@ -19,7 +15,6 @@ import type {
   WorkflowStepType,
   WorkflowVersion,
 } from './w1-workflow.js';
-import { W2_ARTIFACT_VALIDATOR_VERSION } from './w2-workflow.js';
 import type { ArtifactContract, ArtifactContractValidator } from './w2-workflow.js';
 import type { CapabilityDimension } from './index.js';
 
@@ -376,7 +371,7 @@ function parseCondition(value: unknown): WorkflowDraftEdgeCondition {
       )
         return invalid('Invalid REVIEW_VERDICT condition');
       return { type: 'REVIEW_VERDICT', verdict: value.verdict as 'PASS' | 'REVISE' | 'FAIL' };
-    case 'JSON_FIELD_EQUALS':
+    case 'JSON_FIELD_EQUALS': {
       if (
         !exactKeys(value, ['type', 'inputKey', 'field', 'equals']) ||
         !boundedString(value.inputKey, 128) ||
@@ -396,6 +391,7 @@ function parseCondition(value: unknown): WorkflowDraftEdgeCondition {
       if (new TextEncoder().encode(JSON.stringify(condition)).byteLength > 2_048)
         return invalid('JSON_FIELD_EQUALS condition exceeds its storage limit');
       return condition;
+    }
     default:
       return invalid('Unsupported Workflow branch condition');
   }

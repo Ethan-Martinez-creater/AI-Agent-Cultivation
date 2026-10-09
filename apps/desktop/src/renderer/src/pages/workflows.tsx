@@ -1216,7 +1216,6 @@ export function WorkflowsPage() {
               const nextVersions = await workflowApi().versions();
               setVersions(nextVersions);
               setSelectedVersionKey(versionKey(version));
-              setNotice(`已发布 v${version.version}。`);
             }}
           />
         </div>

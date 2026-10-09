@@ -286,6 +286,8 @@ export function WorkflowLibrary({
                     </article>
                   ))}
                 </div>
+              ) : visibleVersions.length ? (
+                <p className="workflow-editor-empty">暂无待编辑草稿</p>
               ) : (
                 <EmptyState
                   icon="Workflow"

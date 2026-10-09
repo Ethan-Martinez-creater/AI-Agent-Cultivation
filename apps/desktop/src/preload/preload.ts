@@ -52,6 +52,8 @@ import type {
   WorkflowInputs,
   WorkflowRun,
   WorkflowVersion,
+  WorkflowDraft,
+  WorkflowDraftContent,
 } from '@cultivation/domain';
 import type { RoutingMissionCreationResult } from '@cultivation/application';
 import type { AvailabilityService } from '@cultivation/application';
@@ -411,6 +413,28 @@ export interface CultivationBridge {
       };
     }): Promise<MissionDetail>;
   };
+  workflowEditor: {
+    listDrafts(): Promise<WorkflowDraft[]>;
+    getDraft(id: string): Promise<WorkflowDraft>;
+    createDraft(input: { name?: string }): Promise<WorkflowDraft>;
+    saveDraft(input: {
+      id: string;
+      expectedRevision: number;
+      content: WorkflowDraftContent;
+    }): Promise<WorkflowDraft>;
+    reorderDraft(input: {
+      id: string;
+      expectedRevision: number;
+      stepIds: string[];
+    }): Promise<WorkflowDraft>;
+    editVersion(input: { definitionId: string; version: number }): Promise<WorkflowDraft>;
+    copyVersion(input: {
+      definitionId: string;
+      version: number;
+      name?: string;
+    }): Promise<WorkflowDraft>;
+    publishDraft(input: { id: string; expectedRevision: number }): Promise<WorkflowVersion>;
+  };
   workflows: {
     inputCandidates(
       category: 'SOURCE' | 'DATA' | 'CODE',
@@ -650,6 +674,16 @@ const bridge: CultivationBridge = {
     cancel: (id) => ipcRenderer.invoke('missions:cancel', id),
     resolveApproval: (input) => ipcRenderer.invoke('missions:resolveApproval', input),
     resolveCollaboration: (input) => ipcRenderer.invoke('missions:resolveCollaboration', input),
+  },
+  workflowEditor: {
+    listDrafts: () => ipcRenderer.invoke('workflowEditor:listDrafts'),
+    getDraft: (id) => ipcRenderer.invoke('workflowEditor:getDraft', id),
+    createDraft: (input) => ipcRenderer.invoke('workflowEditor:createDraft', input),
+    saveDraft: (input) => ipcRenderer.invoke('workflowEditor:saveDraft', input),
+    reorderDraft: (input) => ipcRenderer.invoke('workflowEditor:reorderDraft', input),
+    editVersion: (input) => ipcRenderer.invoke('workflowEditor:editVersion', input),
+    copyVersion: (input) => ipcRenderer.invoke('workflowEditor:copyVersion', input),
+    publishDraft: (input) => ipcRenderer.invoke('workflowEditor:publishDraft', input),
   },
   workflows: {
     inputCandidates: (category) => ipcRenderer.invoke('workflows:inputCandidates', category),

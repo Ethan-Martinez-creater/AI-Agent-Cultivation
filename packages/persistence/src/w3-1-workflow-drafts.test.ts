@@ -121,6 +121,30 @@ function workflowServices(db: Database.Database) {
 }
 
 describe('W3.1 Workflow Draft persistence', () => {
+  it('rejects non-finite inline validator values without making saved drafts unreadable', () => {
+    const db = new Database(':memory:');
+    db.pragma('foreign_keys = ON');
+    runMigrations(db, migrations);
+    const services = workflowServices(db);
+    try {
+      const original = services.editor.createDraft({ name: '可恢复草稿' });
+      for (const minLength of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+        const content = structuredClone(original.content);
+        content.steps[0]!.outputs[0]!.validator = { type: 'TEXT', minLength, requiredSections: [] };
+        expect(() =>
+          services.editor.saveDraft({
+            id: original.id,
+            expectedRevision: original.revision,
+            content,
+          }),
+        ).toThrow();
+        expect(services.editor.getDraft(original.id)).toEqual(original);
+        expect(services.editor.listDrafts()).toEqual([original]);
+      }
+    } finally {
+      db.close();
+    }
+  });
   it('safely copies and publishes each of the three official packages under new USER identities', () => {
     const db = new Database(':memory:');
     db.pragma('foreign_keys = ON');
@@ -292,7 +316,8 @@ describe('W3.1 Workflow Draft persistence', () => {
       db?.close();
       if (existsSync(path)) unlinkSync(path);
     }
-  });
+    // Applies the complete historical migration set and opens the on-disk profile twice.
+  }, 30_000);
 
   it('keeps invalid or failed publications as Drafts and rolls back a partially published version', () => {
     const db = new Database(':memory:');

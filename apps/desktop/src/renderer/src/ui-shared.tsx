@@ -457,6 +457,7 @@ export interface GenerationChatBridge {
 }
 
 export interface CultivationBridge {
+  workflowEditor: PreloadBridge['workflowEditor'];
   generation: PreloadBridge['generation'];
   routing: PreloadBridge['routing'];
   desktop: PreloadBridge['desktop'];

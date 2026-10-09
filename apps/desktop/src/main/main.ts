@@ -20,6 +20,7 @@ import {
   R32AvailabilityRepository,
   R4RoutingRepository,
   W1WorkflowRepository,
+  W31WorkflowDraftRepository,
   W2WorkflowRepository,
   W22WorkspaceMutationRepository,
   ResearchSourceRepository,
@@ -81,6 +82,7 @@ import {
   RoutingMissionService,
   R4DecisionService,
   WorkflowService,
+  WorkflowEditorService,
   workflowArtifactContext,
 } from '@cultivation/application';
 import type {
@@ -123,6 +125,8 @@ import { routingFixtureGateway } from './r4-fixture-decision.js';
 import { WorkflowMissionAdapter } from './w1-mission-adapter.js';
 import { WorkflowFixtureGateway, registerWorkflowFixtures } from './w1-fixture.js';
 import { registerWorkflowIpc } from './w1-ipc.js';
+import { registerWorkflowEditorIpc, type WorkflowEditorPort } from './w3-1-ipc.js';
+import { WorkflowEditorFixtureGateway } from './w3-1-fixture.js';
 import { ResearchInputArtifactService } from './w23-input-artifacts.js';
 import { registerResearchInputIpc } from './w23-input-ipc.js';
 import { ContractFixtureGateway, registerContractFixtures } from './w2-fixture.js';
@@ -198,6 +202,7 @@ function createWindow(
   generation: GenerationService,
   g2: ReturnType<typeof h3GenerationFoundation> | null,
   g3: ReturnType<typeof multimodalFoundation>,
+  workflowEditor: WorkflowEditorPort,
 ): BrowserWindow {
   const preload = join(__dirname, 'preload.js');
   const window = new BrowserWindow({
@@ -390,6 +395,7 @@ function createWindow(
     r3Observer.observeMission(mission),
   );
   registerWorkflowIpc(validSender, workflows);
+  registerWorkflowEditorIpc(validSender, workflowEditor);
   registerResearchInputIpc(window, validSender, researchInputs);
   registerGenerationIpc(validSender, generation);
   if (g2)
@@ -519,25 +525,24 @@ if (!squirrelStartup)
       const workspaceMutations = new W22WorkspaceMutationRepository(db);
       const rawGateway: ModelGateway & MemoryCandidateExtractor & EmbeddingGateway =
         process.argv.includes('--gate1-fake-model')
-          ? process.argv.includes('--w23-fake-research')
-            ? new ResearchWorkflowFixtureGateway(() => {
+          ? process.argv.includes('--w31-editor-fixture')
+            ? new WorkflowEditorFixtureGateway(() => {
                 for (const run of workflowStore
                   .listRuns()
                   .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
                   const detail = workflowStore.detail(run.id)!;
                   const step = detail.steps.find(
                     (item) =>
-                      ['RUNNING', 'WAITING'].includes(item.state) &&
-                      item.missionId !== null &&
+                      item.state === 'RUNNING' &&
+                      item.missionId &&
                       gate3Store.getMission(item.missionId)?.state === 'RUNNING',
                   );
-                  if (step && detail.version.validationPolicy === 'research-integrity-v1')
-                    return { detail, step };
+                  if (step && detail.version.definition.source === 'USER') return { detail, step };
                 }
                 return null;
               })
-            : process.argv.includes('--w22-fake-software')
-              ? new SoftwareWorkflowFixtureGateway(() => {
+            : process.argv.includes('--w23-fake-research')
+              ? new ResearchWorkflowFixtureGateway(() => {
                   for (const run of workflowStore
                     .listRuns()
                     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
@@ -548,36 +553,53 @@ if (!squirrelStartup)
                         item.missionId !== null &&
                         gate3Store.getMission(item.missionId)?.state === 'RUNNING',
                     );
-                    if (step && detail.version.validationPolicy === 'software-integrity-v1')
+                    if (step && detail.version.validationPolicy === 'research-integrity-v1')
                       return { detail, step };
                   }
                   return null;
                 })
-              : process.argv.includes('--w21-fake-news')
-                ? new NewsWorkflowFixtureGateway(
-                    () => {
-                      for (const run of workflowStore
-                        .listRuns()
-                        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
-                        const detail = workflowStore.detail(run.id)!;
-                        const step = detail.steps.find(
-                          (item) =>
-                            ['RUNNING', 'WAITING'].includes(item.state) &&
-                            item.missionId !== null &&
-                            gate3Store.getMission(item.missionId)?.state === 'RUNNING',
-                        );
-                        if (step && detail.version.validationPolicy === 'news-integrity-v1')
-                          return { detail, step };
-                      }
-                      return null;
-                    },
-                    join(process.cwd(), 'scripts', 'fixtures', 'news-media'),
-                  )
-                : process.argv.includes('--w2-fake-workflow')
-                  ? new ContractFixtureGateway()
-                  : process.argv.includes('--w1-fake-workflow')
-                    ? new WorkflowFixtureGateway()
-                    : new FakeModelGateway()
+              : process.argv.includes('--w22-fake-software')
+                ? new SoftwareWorkflowFixtureGateway(() => {
+                    for (const run of workflowStore
+                      .listRuns()
+                      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
+                      const detail = workflowStore.detail(run.id)!;
+                      const step = detail.steps.find(
+                        (item) =>
+                          ['RUNNING', 'WAITING'].includes(item.state) &&
+                          item.missionId !== null &&
+                          gate3Store.getMission(item.missionId)?.state === 'RUNNING',
+                      );
+                      if (step && detail.version.validationPolicy === 'software-integrity-v1')
+                        return { detail, step };
+                    }
+                    return null;
+                  })
+                : process.argv.includes('--w21-fake-news')
+                  ? new NewsWorkflowFixtureGateway(
+                      () => {
+                        for (const run of workflowStore
+                          .listRuns()
+                          .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))) {
+                          const detail = workflowStore.detail(run.id)!;
+                          const step = detail.steps.find(
+                            (item) =>
+                              ['RUNNING', 'WAITING'].includes(item.state) &&
+                              item.missionId !== null &&
+                              gate3Store.getMission(item.missionId)?.state === 'RUNNING',
+                          );
+                          if (step && detail.version.validationPolicy === 'news-integrity-v1')
+                            return { detail, step };
+                        }
+                        return null;
+                      },
+                      join(process.cwd(), 'scripts', 'fixtures', 'news-media'),
+                    )
+                  : process.argv.includes('--w2-fake-workflow')
+                    ? new ContractFixtureGateway()
+                    : process.argv.includes('--w1-fake-workflow')
+                      ? new WorkflowFixtureGateway()
+                      : new FakeModelGateway()
           : new AiSdkModelGateway(async (runtimeProfileId) => {
               const resolved = await service.resolveRuntime(runtimeProfileId);
               if (resolved.kind === 'GENERATION_HTTP')
@@ -1465,6 +1487,11 @@ if (!squirrelStartup)
         workflowPolicies,
       );
       installOfficialBuiltinWorkflows(workflowStore, workflowFoundation);
+      const workflowEditor = new WorkflowEditorService(
+        new W31WorkflowDraftRepository(db),
+        workflowStore,
+        workflows,
+      );
       if (toolShortlistFixture) registerToolShortlistWorkflowFixture(workflows);
       if (completionAdvisoryFixture) registerCompletionAdvisoryWorkflowFixtures(workflows);
       if (process.argv.includes('--g3-fixture') && process.argv.includes('--gate1-fake-model'))
@@ -1506,6 +1533,7 @@ if (!squirrelStartup)
         generation.service,
         g2,
         g3,
+        workflowEditor,
       );
       if (g2) {
         let polling = false;
@@ -1572,6 +1600,7 @@ if (!squirrelStartup)
             generation.service,
             g2,
             g3!,
+            workflowEditor,
           );
       });
     })
