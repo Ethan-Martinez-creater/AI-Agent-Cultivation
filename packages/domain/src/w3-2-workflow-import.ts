@@ -194,10 +194,15 @@ export function validateWorkflowImportProposal(value: WorkflowImportProposal): v
   const strict = value.validationStatus === 'VALID';
   if (strict && value.sources.length < 1) invalid('Validated proposals require at least one source');
   const sourceIds = new Set<string>();
+  const physicalSources = new Set<string>();
   for (const source of value.sources) {
     validateWorkflowImportSource(source, strict);
     if (sourceIds.has(source.id)) invalid('Duplicate Workflow Import source id');
     sourceIds.add(source.id);
+    const physicalIdentity = `${normalizeSourceLocation(source.workspaceRoot)}\u0000${normalizeSourceLocation(source.relativePath)}`;
+    if (strict && physicalSources.has(physicalIdentity))
+      invalid('Duplicate Workflow Import source location');
+    physicalSources.add(physicalIdentity);
   }
   validateWorkflowImportResolution(value.resolution, sourceIds, strict);
   if (!Array.isArray(value.validationErrors) || value.validationErrors.length > 64)
@@ -459,6 +464,10 @@ function sha256Hex(value: string): string {
 
 function compareMapping(left: WorkflowImportArtifactMapping, right: WorkflowImportArtifactMapping): number {
   return left.stepId.localeCompare(right.stepId) || left.outputKey.localeCompare(right.outputKey) || left.sourceId.localeCompare(right.sourceId);
+}
+
+function normalizeSourceLocation(value: string): string {
+  return value.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
 }
 
 function invalid(message: string): never {

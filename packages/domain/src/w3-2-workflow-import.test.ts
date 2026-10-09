@@ -90,6 +90,21 @@ describe('W3.2 Workflow Import domain facts', () => {
     expect(() => validateWorkflowImportProposal(proposal)).toThrow(/at least one source/);
   });
 
+  it('rejects duplicate physical source locations case-insensitively', () => {
+    const proposal = makeProposal();
+    proposal.sources = [
+      source,
+      {
+        ...source,
+        id: 'source-b',
+        workspaceRoot: 'e:\\WORKSPACE\\',
+        relativePath: 'DELIVERABLES\\BRIEF.TXT',
+      },
+    ];
+    proposal.sourceMetadataHash = workflowImportSourceMetadataHash(proposal.sources);
+    expect(() => validateWorkflowImportProposal(proposal)).toThrow(/duplicate.*source location/i);
+  });
+
   it('hashes confirmation mappings independently of caller order', () => {
     const completed = ['S01', 'S02'];
     const bindings = [

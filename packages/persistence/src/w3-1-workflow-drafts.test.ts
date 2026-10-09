@@ -249,7 +249,7 @@ describe('W3.1 Workflow Draft persistence', () => {
         )
         .all();
 
-      runMigrations(db, migrations);
+      runMigrations(db, migrations.filter((migration) => migration.version <= 31));
       expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
         version: 31,
       });

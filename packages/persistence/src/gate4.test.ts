@@ -123,6 +123,7 @@ describe('Gate 4 persistence', () => {
       { version: 29 },
       { version: 30 },
       { version: 31 },
+      { version: 32 },
     ]);
     expect(gate4.getWorkspaceRoot()).toBeNull();
     gate4.setWorkspaceRoot('E:/workspace/project');

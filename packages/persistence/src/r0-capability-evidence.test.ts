@@ -289,7 +289,7 @@ describe('R0 CapabilityEvidence execution provenance', () => {
     repository.appendCapabilityEvidence(evidence());
     runMigrations(db, migrations);
     expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
-      version: 31,
+      version: 32,
     });
     expect(repository.listCapabilityEvidence('member')).toEqual([evidence()]);
     expect(() =>
