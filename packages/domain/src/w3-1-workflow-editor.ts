@@ -201,6 +201,7 @@ function parseValidator(value: unknown): WorkflowDraftArtifactSpec['validator'] 
       if (
         !exactKeys(value, ['type', 'minLength', 'requiredSections']) ||
         typeof value.minLength !== 'number' ||
+        !Number.isFinite(value.minLength) ||
         !stringList(value.requiredSections, 20, 256)
       )
         return invalid('Invalid TEXT Artifact validator');
@@ -294,7 +295,12 @@ function parseRouting(value: unknown): WorkflowDraftRouting {
     routing.requiredCapabilities = [...(value.requiredCapabilities as CapabilityDimension[])];
   }
   if (Object.hasOwn(value, 'executionConstraint')) {
-    if (!['AUTO', 'SOLO', 'PARTY', 'HUMAN_BRIDGE'].includes(String(value.executionConstraint)))
+    if (
+      typeof value.executionConstraint !== 'string' ||
+      !(['AUTO', 'SOLO', 'PARTY', 'HUMAN_BRIDGE'] as readonly string[]).includes(
+        value.executionConstraint,
+      )
+    )
       return invalid('Invalid execution constraint');
     routing.executionConstraint =
       value.executionConstraint as WorkflowDraftRouting['executionConstraint'];
@@ -330,7 +336,8 @@ function parseStep(value: unknown): WorkflowDraftStep {
     value.outputs.length > 12 ||
     typeof value.maxAttempts !== 'number' ||
     !Number.isFinite(value.maxAttempts) ||
-    !['VALID_OUTPUTS', 'REVIEW_PASS'].includes(String(value.exitCondition)) ||
+    typeof value.exitCondition !== 'string' ||
+    !(['VALID_OUTPUTS', 'REVIEW_PASS'] as readonly string[]).includes(value.exitCondition) ||
     (Object.hasOwn(value, 'workflowInputKeys') && !stringList(value.workflowInputKeys, 16, 128)) ||
     (Object.hasOwn(value, 'reviewOutputKey') && !boundedString(value.reviewOutputKey, 128))
   )
@@ -364,7 +371,8 @@ function parseCondition(value: unknown): WorkflowDraftEdgeCondition {
     case 'REVIEW_VERDICT':
       if (
         !exactKeys(value, ['type', 'verdict']) ||
-        !['PASS', 'REVISE', 'FAIL'].includes(String(value.verdict))
+        typeof value.verdict !== 'string' ||
+        !(['PASS', 'REVISE', 'FAIL'] as readonly string[]).includes(value.verdict)
       )
         return invalid('Invalid REVIEW_VERDICT condition');
       return { type: 'REVIEW_VERDICT', verdict: value.verdict as 'PASS' | 'REVISE' | 'FAIL' };
@@ -563,6 +571,8 @@ function assertSafeUserRouting(step: WorkflowDraftStep): void {
     !['AUTO', 'SOLO', 'PARTY', 'HUMAN_BRIDGE'].includes(step.routing.executionConstraint)
   )
     invalid('Step routing has an unsupported execution constraint');
+  if (step.routing.executionConstraint === 'HUMAN_BRIDGE' && capabilities.length === 0)
+    invalid('HUMAN_BRIDGE routing requires at least one capability dimension');
 }
 
 function assertReviewSemantics(step: WorkflowDraftStep): void {
@@ -1089,13 +1099,49 @@ function genericReviewOutputKey(
     : null;
 }
 
-function topologicalCopyOrder(version: WorkflowVersion): WorkflowStepDefinition[] {
+function cyclicBuiltinArtifactInputs(version: WorkflowVersion): ReadonlySet<WorkflowInputBinding> {
+  const omitted = new Set<WorkflowInputBinding>();
+  const consumersByProducer = new Map<string, string[]>();
+  const dependencies = version.steps.flatMap((step) =>
+    step.inputs.map((input) => ({ consumerId: step.id, input })),
+  );
+  for (const { consumerId, input } of dependencies) {
+    const consumers = consumersByProducer.get(input.fromStepId) ?? [];
+    consumers.push(consumerId);
+    consumersByProducer.set(input.fromStepId, consumers);
+  }
+
+  const dependencyPathExists = (fromStepId: string, toStepId: string): boolean => {
+    const pending = [fromStepId];
+    const visited = new Set<string>();
+    while (pending.length > 0) {
+      const current = pending.pop()!;
+      if (current === toStepId) return true;
+      if (visited.has(current)) continue;
+      visited.add(current);
+      pending.push(...(consumersByProducer.get(current) ?? []));
+    }
+    return false;
+  };
+
+  for (const { consumerId, input } of dependencies) {
+    // A producer-to-consumer binding is cyclic exactly when the remaining
+    // bindings provide a path back from that consumer to its producer.
+    if (dependencyPathExists(consumerId, input.fromStepId)) omitted.add(input);
+  }
+  return omitted;
+}
+
+function topologicalCopyOrder(
+  version: WorkflowVersion,
+  omittedInputs: ReadonlySet<WorkflowInputBinding>,
+): WorkflowStepDefinition[] {
   const remaining = [...version.steps];
   const ordered: WorkflowStepDefinition[] = [];
   const emitted = new Set<string>();
   while (remaining.length > 0) {
     const ready = (step: WorkflowStepDefinition): boolean =>
-      step.inputs.every((input) => emitted.has(input.fromStepId));
+      step.inputs.every((input) => omittedInputs.has(input) || emitted.has(input.fromStepId));
     const entryIndex = remaining.findIndex(
       (step) => step.id === version.entryStepId && ready(step),
     );
@@ -1111,7 +1157,10 @@ function topologicalCopyOrder(version: WorkflowVersion): WorkflowStepDefinition[
 /**
  * Copies a frozen BUILTIN or USER version into editable user content.
  * Normalization is explicit: official branch targets and all bounded revision
- * edges are replaced by a dependency-safe step-order sequence; a generic
+ * edges are replaced by a dependency-safe step-order sequence. Official
+ * Artifact inputs that participate in dependency cycles are omitted because
+ * those dependencies require revisiting a Step through a bounded revision
+ * cycle; those review/fix semantics do not survive the copy. A generic
  * REVIEW becomes REVIEW_PASS with only PASS-to-next (REVISE/FAIL wait for user
  * action), while a non-generic official REVIEW becomes a TASK. DECISION
  * branches become an unconditional sequential continuation. Trusted execution/effect/release/validation fields
@@ -1213,7 +1262,11 @@ export function copyWorkflowVersionToDraftContent(version: WorkflowVersion): Wor
     return renamed;
   };
 
-  const orderedSteps = topologicalCopyOrder(version);
+  const omittedInputs =
+    version.definition.source === 'BUILTIN'
+      ? cyclicBuiltinArtifactInputs(version)
+      : new Set<WorkflowInputBinding>();
+  const orderedSteps = topologicalCopyOrder(version, omittedInputs);
   const steps: WorkflowDraftStep[] = orderedSteps.map((step) => {
     const genericReviewKey =
       step.type === 'REVIEW' ? genericReviewOutputKey(step, contracts, version.steps) : null;
@@ -1233,13 +1286,15 @@ export function copyWorkflowVersionToDraftContent(version: WorkflowVersion): Wor
           ? {}
           : { executionConstraint: step.routing.executionConstraint }),
       },
-      inputs: step.inputs.map((input) => {
-        const producer = version.steps.find((candidate) => candidate.id === input.fromStepId);
-        const producerOutput = producer?.outputs.find(
-          (candidate) => candidate.key === input.outputKey,
-        );
-        return { ...input, required: input.required && producerOutput?.required === true };
-      }),
+      inputs: step.inputs
+        .filter((input) => !omittedInputs.has(input))
+        .map((input) => {
+          const producer = version.steps.find((candidate) => candidate.id === input.fromStepId);
+          const producerOutput = producer?.outputs.find(
+            (candidate) => candidate.key === input.outputKey,
+          );
+          return { ...input, required: input.required && producerOutput?.required === true };
+        }),
       ...(step.workflowInputKeys === undefined
         ? {}
         : { workflowInputKeys: [...step.workflowInputKeys] }),

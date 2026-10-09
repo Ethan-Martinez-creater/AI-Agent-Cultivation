@@ -14,6 +14,9 @@ import type {
 } from './w3-1-workflow-editor.js';
 import type { WorkflowVersion } from './w1-workflow.js';
 import { W2_ARTIFACT_VALIDATOR_VERSION } from './w2-workflow.js';
+import { AI_NEWS_VIDEO_PACKAGE } from '../../application/src/builtin/ai-news-video/v1.js';
+import { RESEARCH_PACKAGE } from '../../application/src/builtin/research/v1.js';
+import { SOFTWARE_FEATURE_PACKAGE } from '../../application/src/builtin/software-feature/v1.js';
 
 const at = '2026-10-01T00:00:00.000Z';
 const reviewKeys = ['verdict', 'findings', 'evidence', 'summary', 'reviewedArtifactIds'];
@@ -104,6 +107,51 @@ describe('W3.1 user Workflow draft domain', () => {
     expectInvalid(() => parseWorkflowDraftContent(withCapability));
   });
 
+  it('rejects enum values that would otherwise stringify into supported literals', () => {
+    const coercedRouting = content({
+      steps: [
+        task('first', {
+          routing: { executionConstraint: ['SOLO'] as never },
+        }),
+      ],
+    });
+    const coercedExitCondition = content({
+      steps: [task('first', { exitCondition: ['VALID_OUTPUTS'] as never })],
+    });
+    const coercedVerdict = content({
+      edges: [
+        {
+          id: 'coerced-verdict',
+          fromStepId: 'first',
+          toStepId: null,
+          branch: 'PASS',
+          condition: { type: 'REVIEW_VERDICT', verdict: ['PASS'] as never },
+        },
+      ],
+    });
+
+    for (const value of [coercedRouting, coercedExitCondition, coercedVerdict])
+      expectInvalid(() => parseWorkflowDraftContent(value));
+  });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+    'rejects a non-finite TEXT validator minimum (%s) while parsing',
+    (minLength) => {
+      const invalidText = content({
+        steps: [
+          task('first', {
+            outputs: [
+              artifact({
+                validator: { type: 'TEXT', minLength, requiredSections: [] },
+              }),
+            ],
+          }),
+        ],
+      });
+      expectInvalid(() => parseWorkflowDraftContent(invalidText));
+    },
+  );
+
   it('bounds JSON decision conditions and accepts multibyte values within the limits', () => {
     const multibyte = content({
       edges: [
@@ -163,6 +211,29 @@ describe('W3.1 user Workflow draft domain', () => {
       routing: { requiredCapabilities: ['GENERAL_REASONING'], executionConstraint: 'SOLO' },
     });
     expect(version.steps[0]).not.toHaveProperty('executionRequirements');
+  });
+
+  it('rejects HUMAN_BRIDGE routing without a required capability', () => {
+    const missingCapability = content({
+      steps: [
+        task('first', {
+          routing: { executionConstraint: 'HUMAN_BRIDGE', requiredCapabilities: [] },
+        }),
+      ],
+    });
+    expectInvalid(() => validateUserWorkflowDraft(missingCapability));
+
+    const routable = content({
+      steps: [
+        task('first', {
+          routing: {
+            executionConstraint: 'HUMAN_BRIDGE',
+            requiredCapabilities: ['GENERAL_REASONING'],
+          },
+        }),
+      ],
+    });
+    expect(() => validateUserWorkflowDraft(routable)).not.toThrow();
   });
 
   it('rejects dangling, self-referential, cyclic, and ambiguous branch graphs', () => {
@@ -564,7 +635,28 @@ describe('W3.1 user Workflow draft domain', () => {
 
   it('round-trips an editor-owned USER version without changing its graph or contracts', () => {
     const userContent = content({
-      steps: [task('first', { routing: { executionConstraint: 'PARTY' } })],
+      steps: [
+        task('first', { routing: { executionConstraint: 'PARTY' } }),
+        task('second', {
+          inputs: [{ key: 'source', fromStepId: 'first', outputKey: 'result', required: true }],
+        }),
+      ],
+      edges: [
+        {
+          id: 'first-second',
+          fromStepId: 'first',
+          toStepId: 'second',
+          branch: 'continue',
+          condition: { type: 'ALWAYS' },
+        },
+        {
+          id: 'second-end',
+          fromStepId: 'second',
+          toStepId: null,
+          branch: 'continue',
+          condition: { type: 'ALWAYS' },
+        },
+      ],
     });
     const version = compileUserWorkflowVersion(draft(userContent), 3, at);
     expect(copyWorkflowVersionToDraftContent(version)).toEqual(userContent);
@@ -763,5 +855,45 @@ describe('W3.1 user Workflow draft domain', () => {
     expect(copied.steps[1]?.type).toBe('TASK');
     expect(copied.steps[1]).not.toHaveProperty('reviewOutputKey');
     expect(() => validateUserWorkflowDraft(copied)).not.toThrow();
+  });
+
+  it.each([
+    ['AI news video', AI_NEWS_VIDEO_PACKAGE],
+    ['software feature', SOFTWARE_FEATURE_PACKAGE],
+    ['research', RESEARCH_PACKAGE],
+  ])('normalizes official package %s into a publishable user draft', (_name, officialPackage) => {
+    const original = JSON.stringify(officialPackage.version);
+    const copied = copyWorkflowVersionToDraftContent(officialPackage.version);
+    expect(JSON.stringify(officialPackage.version)).toBe(original);
+    expect(() => validateUserWorkflowDraft(copied)).not.toThrow();
+
+    const order = new Map(copied.steps.map((step, index) => [step.id, index]));
+    for (const [index, step] of copied.steps.entries())
+      for (const input of step.inputs) expect(order.get(input.fromStepId)).toBeLessThan(index);
+    expect(copied.edges).toHaveLength(copied.steps.length);
+    for (const [index, edge] of copied.edges.entries()) {
+      expect(edge.fromStepId).toBe(copied.steps[index]?.id);
+      expect(edge.toStepId).toBe(copied.steps[index + 1]?.id ?? null);
+      expect(edge.condition).toEqual(
+        copied.steps[index]?.type === 'REVIEW'
+          ? { type: 'REVIEW_VERDICT', verdict: 'PASS' }
+          : { type: 'ALWAYS' },
+      );
+    }
+
+    const compiled = compileUserWorkflowVersion(draft(copied), 1, at);
+    expect(compiled.definition.source).toBe('USER');
+    expect(compiled.steps.every((step) => step.effectType === 'NONE')).toBe(true);
+    expect(
+      compiled.steps.every(
+        (step) =>
+          step.executionRequirements === undefined &&
+          step.routing.requiredExecutionProtocol === undefined,
+      ),
+    ).toBe(true);
+    expect(compiled.validationPolicy).toBeUndefined();
+    expect(compiled.contractManifest).toBeUndefined();
+    expect(compiled.revisionGroups).toBeUndefined();
+    expect(compiled.releaseMetadata).toBeUndefined();
   });
 });
