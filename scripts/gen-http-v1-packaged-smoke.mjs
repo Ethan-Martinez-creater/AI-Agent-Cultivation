@@ -127,8 +127,8 @@ function read(profilePath, query) {
 async function captureThreeWidths(page, name) {
   const dimensions = [
     { width: 1440, height: 900 },
+    { width: 1180, height: 900 },
     { width: 900, height: 900 },
-    { width: 390, height: 844 },
   ];
   for (const size of dimensions) {
     const browserWindow = await live.app.browserWindow(page);
@@ -650,5 +650,5 @@ try {
 }
 
 console.log(
-  `GEN_HTTP_V1_PACKAGED_SMOKE_OK capabilities=IMAGE_VIDEO_MUSIC_SPEECH typedIPC=true restart=true screenshots=1440_900_390 productionFlags=true evidence=${relative(root, evidence)}`,
+  `GEN_HTTP_V1_PACKAGED_SMOKE_OK capabilities=IMAGE_VIDEO_MUSIC_SPEECH typedIPC=true restart=true screenshots=1440_1180_900 productionFlags=true evidence=${relative(root, evidence)}`,
 );
