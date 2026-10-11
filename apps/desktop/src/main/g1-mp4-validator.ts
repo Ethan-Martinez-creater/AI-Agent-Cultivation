@@ -28,6 +28,11 @@ export interface Mp4MediaRange {
 
 type MediaRange = Mp4MediaRange;
 
+interface PresentationRange {
+  start: bigint;
+  end: bigint;
+}
+
 interface SampleTable {
   sampleCount: number;
   sampleSizes: number[] | null;
@@ -235,7 +240,8 @@ function parseEditList(
   context: ParseContext,
   box: Box,
   movie: { timescale: number; duration: number },
-  media: { timescale: number; duration: number },
+  media: { timescale: number },
+  presentationRanges: PresentationRange[],
 ): number {
   const children = boxList(context, box.payloadStart, box.end, 3);
   checkTypes(children, ['elst', 'free']);
@@ -276,14 +282,16 @@ function parseEditList(
       if (index !== entryCount - 1 || mediaTimeValue < 0n)
         unsupported('MP4 media edit is misplaced or negative');
       mediaEntries++;
-      const availableMediaTicks = BigInt(media.duration) - mediaTimeValue;
-      const requestedNumerator = segmentDuration * BigInt(media.timescale);
-      const availableNumerator = availableMediaTicks * BigInt(movie.timescale);
+      const start = mediaTimeValue * BigInt(movie.timescale);
+      const end = start + segmentDuration * BigInt(media.timescale);
       if (
-        availableMediaTicks <= 0n ||
-        requestedNumerator > availableNumerator + BigInt(media.timescale)
+        !presentationRanges.some(
+          (range) =>
+            start >= range.start * BigInt(movie.timescale) &&
+            end <= range.end * BigInt(movie.timescale),
+        )
       )
-        unsupported('MP4 edit list references media beyond its decode timeline');
+        unsupported('MP4 edit list is not covered by the presentation sample timeline');
     }
     totalDuration += segmentDuration;
   }
@@ -366,6 +374,30 @@ function parseAvcConfiguration(context: ParseContext, box: Box): string {
     requireRange(bytes, cursor, length, box.end);
     if (!length || (bytes[cursor]! & 0x1f) !== 8) unsupported('AVC PPS record is invalid');
     cursor += length;
+  }
+  if ([100, 110, 122, 144].includes(profile)) {
+    requireRange(bytes, cursor, 4, box.end);
+    const chroma = bytes[cursor++]!;
+    const lumaDepth = bytes[cursor++]!;
+    const chromaDepth = bytes[cursor++]!;
+    const extensionCount = bytes[cursor++]!;
+    if (
+      (chroma & 0xfc) !== 0xfc ||
+      (chroma & 0x03) !== 1 ||
+      (lumaDepth & 0xf8) !== 0xf8 ||
+      (lumaDepth & 0x07) !== 0 ||
+      (chromaDepth & 0xf8) !== 0xf8 ||
+      (chromaDepth & 0x07) !== 0
+    )
+      unsupported('AVC high-profile format fields are unsupported');
+    for (let index = 0; index < extensionCount; index++) {
+      const length = u16(bytes, cursor, box.end);
+      cursor += 2;
+      requireRange(bytes, cursor, length, box.end);
+      if (!length || (bytes[cursor]! & 0x80) !== 0 || (bytes[cursor]! & 0x1f) !== 13)
+        unsupported('AVC SPS extension record is invalid');
+      cursor += length;
+    }
   }
   if (cursor !== box.end) unsupported('AVC configuration has unsupported trailing data');
   return `avc1.${profile.toString(16).padStart(2, '0')}${compatibility.toString(16).padStart(2, '0')}${level.toString(16).padStart(2, '0')}`;
@@ -485,10 +517,31 @@ function parseAacConfiguration(
     sampleRate !== entryRate
   )
     unsupported('AAC decoder configuration disagrees with its sample entry');
-  // AAC object type 5/29 has extension sampling fields; reject them instead of guessing.
-  for (; bitOffset < (end - start) * 8; bitOffset++)
-    if (readBits(bytes, start, bitOffset, 1) !== 0)
-      unsupported('Extended AAC decoder configurations are not supported');
+  const frameLengthFlag = read(1);
+  const dependsOnCoreCoder = read(1);
+  if (dependsOnCoreCoder) read(14);
+  const extensionFlag = read(1);
+  if (frameLengthFlag || dependsOnCoreCoder || extensionFlag)
+    unsupported('AAC GASpecificConfig features are not supported');
+
+  const remainingBits = (end - start) * 8 - bitOffset;
+  const consumeZeroPadding = (maxBits: number) => {
+    const paddingBits = (end - start) * 8 - bitOffset;
+    if (paddingBits > maxBits) unsupported('AAC decoder configuration has trailing data');
+    for (; bitOffset < (end - start) * 8; bitOffset++)
+      if (readBits(bytes, start, bitOffset, 1) !== 0)
+        unsupported('AAC decoder configuration padding is nonzero');
+  };
+  if (remainingBits <= 7) {
+    consumeZeroPadding(7);
+    return `mp4a.40.${objectType}`;
+  }
+  if (objectType !== 2 || remainingBits < 17)
+    unsupported('Extended AAC decoder configurations are not supported');
+  if (read(11) !== 0x2b7 || read(5) !== 5)
+    unsupported('AAC sync extension is not the supported SBR marker');
+  if (read(1) !== 0) unsupported('AAC SBR extensions are not supported');
+  consumeZeroPadding(7);
   return `mp4a.40.${objectType}`;
 }
 
@@ -699,9 +752,76 @@ function parseSyncSamples(context: ParseContext, box: Box, sampleCount: number):
   return result;
 }
 
+function parseRollSampleGroups(
+  context: ParseContext,
+  descriptionsBox: Box,
+  mappingBox: Box,
+  sampleCount: number,
+): void {
+  const descriptions = fullBox(context, descriptionsBox, [1]);
+  if (descriptions.flags !== 0) unsupported('MP4 sgpd flags are invalid');
+  if (context.bytes.toString('latin1', descriptions.body, descriptions.body + 4) !== 'roll')
+    unsupported('MP4 only roll sample groups are supported');
+  const defaultLength = u32(context.bytes, descriptions.body + 4, descriptionsBox.end);
+  const descriptionCount = u32(context.bytes, descriptions.body + 8, descriptionsBox.end);
+  if (
+    defaultLength !== 2 ||
+    !descriptionCount ||
+    descriptionCount > MAX_TABLE_ENTRIES ||
+    descriptionsBox.end - (descriptions.body + 12) !== descriptionCount * 2
+  )
+    unsupported('MP4 roll sample-group descriptions are malformed');
+
+  for (let index = 0; index < descriptionCount; index++) {
+    const distance = context.bytes.readInt16BE(descriptions.body + 12 + index * 2);
+    if (!distance || Math.abs(distance) > sampleCount)
+      unsupported('MP4 roll distance exceeds the sample table');
+  }
+
+  const mapping = fullBox(context, mappingBox, [0]);
+  if (mapping.flags !== 0) unsupported('MP4 sbgp flags are invalid');
+  if (context.bytes.toString('latin1', mapping.body, mapping.body + 4) !== 'roll')
+    unsupported('MP4 roll sample-group types disagree');
+  const runCount = u32(context.bytes, mapping.body + 4, mappingBox.end);
+  if (
+    !runCount ||
+    runCount > MAX_TABLE_ENTRIES ||
+    mappingBox.end - (mapping.body + 8) !== runCount * 8
+  )
+    unsupported('MP4 roll sample-group mapping is malformed');
+
+  const referenced = new Set<number>();
+  let samplesMapped = 0;
+  for (let index = 0; index < runCount; index++) {
+    const offset = mapping.body + 8 + index * 8;
+    const samples = u32(context.bytes, offset, mappingBox.end);
+    const descriptionIndex = u32(context.bytes, offset + 4, mappingBox.end);
+    if (!samples || samples > sampleCount - samplesMapped || descriptionIndex > descriptionCount)
+      unsupported('MP4 roll sample-group mapping exceeds its bounds');
+    if (descriptionIndex) referenced.add(descriptionIndex);
+    samplesMapped += samples;
+  }
+  if (samplesMapped !== sampleCount || referenced.size !== descriptionCount)
+    unsupported('MP4 roll sample-group mapping does not cover its descriptions');
+  for (let index = 1; index <= descriptionCount; index++)
+    if (!referenced.has(index)) unsupported('MP4 roll sample-group description is unused');
+}
+
 function parseSampleTable(context: ParseContext, box: Box, handler: 'vide' | 'soun'): SampleTable {
   const children = boxList(context, box.payloadStart, box.end, 5);
-  checkTypes(children, ['stsd', 'stts', 'ctts', 'stsc', 'stsz', 'stco', 'co64', 'stss', 'free']);
+  checkTypes(children, [
+    'stsd',
+    'stts',
+    'ctts',
+    'stsc',
+    'stsz',
+    'stco',
+    'co64',
+    'stss',
+    'sgpd',
+    'sbgp',
+    'free',
+  ]);
   only(children, 'stsd');
   const stts = only(children, 'stts')!;
   const stsc = only(children, 'stsc')!;
@@ -713,6 +833,12 @@ function parseSampleTable(context: ParseContext, box: Box, handler: 'vide' | 'so
   const compositionBox = only(children, 'ctts', false);
   const composition = compositionBox ? parseComposition(context, compositionBox) : null;
   const sizes = parseSampleSizes(context, stsz);
+  const descriptionsBox = only(children, 'sgpd', false);
+  const mappingBox = only(children, 'sbgp', false);
+  if (!!descriptionsBox !== !!mappingBox)
+    unsupported('MP4 roll sample-group boxes must appear together');
+  if (descriptionsBox && mappingBox)
+    parseRollSampleGroups(context, descriptionsBox, mappingBox, sizes.sampleCount);
   const chunks = parseChunkOffsets(context, stco ?? co64!);
   const mapping = parseSampleToChunk(context, stsc);
   if (mapping[mapping.length - 1]!.firstChunk > chunks.length)
@@ -737,51 +863,67 @@ function parseSampleTable(context: ParseContext, box: Box, handler: 'vide' | 'so
   };
 }
 
-function computeTiming(table: SampleTable): number {
-  let sampleCount = 0;
+function computeTiming(table: SampleTable): {
+  decodeDuration: number;
+  presentationRanges: PresentationRange[];
+} {
+  const composition = table.composition ?? [{ count: table.sampleCount, offset: 0 }];
+  if (
+    table.timing.reduce((sum, run) => sum + run.count, 0) !== table.sampleCount ||
+    composition.reduce((sum, run) => sum + run.count, 0) !== table.sampleCount
+  )
+    unsupported('MP4 sample timing does not cover every sample');
+
+  const sampleRanges: PresentationRange[] = [];
+  let timingIndex = 0;
+  let compositionIndex = 0;
+  let timingRemaining = table.timing[0]!.count;
+  let compositionRemaining = composition[0]!.count;
   let decodeTime = 0n;
-  for (const run of table.timing) {
-    sampleCount += run.count;
-    decodeTime += BigInt(run.count) * BigInt(run.delta);
-  }
-  if (sampleCount !== table.sampleCount || decodeTime > BigInt(Number.MAX_SAFE_INTEGER))
-    unsupported('MP4 decode timeline is invalid');
-  if (table.composition) {
-    let timingIndex = 0;
-    let compositionIndex = 0;
-    let timingRemaining = table.timing[0]!.count;
-    let compositionRemaining = table.composition[0]!.count;
-    let decodeCursor = 0n;
-    let maxEnd = 0n;
-    let consumed = 0;
-    while (consumed < table.sampleCount) {
-      const count = Math.min(timingRemaining, compositionRemaining);
-      const timing = table.timing[timingIndex]!;
-      const composition = table.composition[compositionIndex]!;
-      const start = decodeCursor + BigInt(composition.offset);
-      const end =
-        decodeCursor +
-        BigInt(count - 1) * BigInt(timing.delta) +
-        BigInt(composition.offset) +
-        BigInt(timing.delta);
-      if (start < 0n) unsupported('MP4 presentation timeline starts before zero');
-      if (end > maxEnd) maxEnd = end;
-      decodeCursor += BigInt(count) * BigInt(timing.delta);
-      consumed += count;
-      timingRemaining -= count;
-      compositionRemaining -= count;
-      if (!timingRemaining && consumed < table.sampleCount) {
-        timingIndex++;
-        timingRemaining = table.timing[timingIndex]!.count;
-      }
-      if (!compositionRemaining && consumed < table.sampleCount) {
-        compositionIndex++;
-        compositionRemaining = table.composition[compositionIndex]!.count;
-      }
+  for (let consumed = 0; consumed < table.sampleCount; consumed++) {
+    const timing = table.timing[timingIndex]!;
+    const offset = composition[compositionIndex]!.offset;
+    const start = decodeTime + BigInt(offset);
+    const end = start + BigInt(timing.delta);
+    if (start < 0n) unsupported('MP4 presentation timeline starts before zero');
+    if (end > BigInt(Number.MAX_SAFE_INTEGER))
+      unsupported('MP4 presentation timeline exceeds the safe range');
+    sampleRanges.push({ start, end });
+    decodeTime += BigInt(timing.delta);
+    timingRemaining--;
+    compositionRemaining--;
+    if (!timingRemaining && consumed + 1 < table.sampleCount) {
+      timingIndex++;
+      timingRemaining = table.timing[timingIndex]!.count;
     }
-    if (maxEnd > decodeTime) unsupported('MP4 presentation timeline exceeds media duration');
+    if (!compositionRemaining && consumed + 1 < table.sampleCount) {
+      compositionIndex++;
+      compositionRemaining = composition[compositionIndex]!.count;
+    }
   }
-  return Number(decodeTime);
+  if (decodeTime > BigInt(Number.MAX_SAFE_INTEGER)) unsupported('MP4 decode timeline is invalid');
+
+  sampleRanges.sort((left, right) =>
+    left.start < right.start
+      ? -1
+      : left.start > right.start
+        ? 1
+        : left.end < right.end
+          ? -1
+          : left.end > right.end
+            ? 1
+            : 0,
+  );
+  const presentationRanges: PresentationRange[] = [];
+  for (const range of sampleRanges) {
+    const previous = presentationRanges[presentationRanges.length - 1];
+    if (!previous || range.start > previous.end) {
+      presentationRanges.push({ start: range.start, end: range.end });
+    } else if (range.end > previous.end) {
+      previous.end = range.end;
+    }
+  }
+  return { decodeDuration: Number(decodeTime), presentationRanges };
 }
 
 function mapChunks(table: SampleTable, mdats: MediaRange[], fileLength: number): MediaRange[] {
@@ -838,7 +980,6 @@ function parseTrack(
     unsupported('Extended media language metadata is not supported');
   const mediaHeader = parseMediaHeader(context, only(mediaChildren, 'mdhd')!);
   const handler = parseHandler(context, only(mediaChildren, 'hdlr')!);
-  const editDuration = editBox ? parseEditList(context, editBox, movie, mediaHeader) : null;
   const minf = only(mediaChildren, 'minf')!;
   const minfChildren = boxList(context, minf.payloadStart, minf.end, 4);
   checkTypes(minfChildren, ['vmhd', 'smhd', 'dinf', 'stbl', 'free']);
@@ -863,8 +1004,12 @@ function parseTrack(
     trackHeader.height,
   );
   const table = parseSampleTable(context, stbl, handler);
-  const decodeDuration = computeTiming(table);
-  if (decodeDuration !== mediaHeader.duration) unsupported('MP4 mdhd duration disagrees with stts');
+  const timing = computeTiming(table);
+  if (timing.decodeDuration !== mediaHeader.duration)
+    unsupported('MP4 mdhd duration disagrees with stts');
+  const editDuration = editBox
+    ? parseEditList(context, editBox, movie, mediaHeader, timing.presentationRanges)
+    : null;
   const movieDuration = Math.round(
     (mediaHeader.duration * movie.timescale) / mediaHeader.timescale,
   );

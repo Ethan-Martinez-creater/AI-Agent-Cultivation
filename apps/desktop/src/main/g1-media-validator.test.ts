@@ -191,13 +191,21 @@ function identityMatrix(): Buffer {
   return matrix;
 }
 
-function makeMp4Fixture(): Buffer {
+function makeMp4Fixture(
+  options: {
+    compositionOffsets?: number[];
+    edit?: { mediaTime: number; segmentDuration: number };
+  } = {},
+): Buffer {
   const sample = Buffer.from([0, 0, 0, 2, 0x65, 0x88]);
+  const sampleCount = options.compositionOffsets?.length ?? 1;
+  const decodeDuration = sampleCount * 1000;
+  const movieDuration = options.edit?.segmentDuration ?? decodeDuration;
   const ftyp = mp4Box('ftyp', Buffer.from('isom\0\0\0\0isomiso2avc1mp41', 'latin1'));
 
   const mvhdBody = Buffer.alloc(96);
   mvhdBody.writeUInt32BE(1000, 8);
-  mvhdBody.writeUInt32BE(1000, 12);
+  mvhdBody.writeUInt32BE(movieDuration, 12);
   mvhdBody.writeUInt32BE(0x00010000, 16);
   mvhdBody.writeUInt16BE(0x0100, 20);
   identityMatrix().copy(mvhdBody, 32);
@@ -205,7 +213,7 @@ function makeMp4Fixture(): Buffer {
 
   const tkhdBody = Buffer.alloc(80);
   tkhdBody.writeUInt32BE(1, 8);
-  tkhdBody.writeUInt32BE(1000, 16);
+  tkhdBody.writeUInt32BE(movieDuration, 16);
   identityMatrix().copy(tkhdBody, 36);
   tkhdBody.writeUInt32BE(640 * 65536, 72);
   tkhdBody.writeUInt32BE(360 * 65536, 76);
@@ -213,7 +221,7 @@ function makeMp4Fixture(): Buffer {
 
   const mdhdBody = Buffer.alloc(20);
   mdhdBody.writeUInt32BE(1000, 8);
-  mdhdBody.writeUInt32BE(1000, 12);
+  mdhdBody.writeUInt32BE(decodeDuration, 12);
   mdhdBody.writeUInt16BE(0x55c4, 16);
   const mdhd = fullBox('mdhd', mdhdBody);
   const hdlr = fullBox(
@@ -226,7 +234,9 @@ function makeMp4Fixture(): Buffer {
   const dinf = mp4Box('dinf', dref);
   const avcConfig = mp4Box(
     'avcC',
-    Buffer.from([1, 0x64, 0, 0x1f, 0xff, 0xe1, 0, 2, 0x67, 0x64, 1, 0, 2, 0x68, 0xee]),
+    Buffer.from([
+      1, 0x64, 0, 0x1f, 0xff, 0xe1, 0, 2, 0x67, 0x64, 1, 0, 2, 0x68, 0xee, 0xfd, 0xf8, 0xf8, 0,
+    ]),
   );
   const visualEntry = Buffer.alloc(78);
   visualEntry.writeUInt16BE(1, 6);
@@ -234,24 +244,59 @@ function makeMp4Fixture(): Buffer {
   visualEntry.writeUInt16BE(360, 26);
   const avc1 = mp4Box('avc1', Buffer.concat([visualEntry, avcConfig]));
   const stsd = fullBox('stsd', Buffer.concat([u32(1), avc1]));
-  const stts = fullBox('stts', Buffer.concat([u32(1), u32(1), u32(1000)]));
-  const stsc = fullBox('stsc', Buffer.concat([u32(1), u32(1), u32(1), u32(1)]));
-  const stsz = fullBox('stsz', Buffer.concat([u32(0), u32(1), u32(sample.length)]));
+  const stts = fullBox('stts', Buffer.concat([u32(1), u32(sampleCount), u32(1000)]));
+  let ctts: Buffer | null = null;
+  if (options.compositionOffsets) {
+    const runs: Array<{ count: number; offset: number }> = [];
+    for (const offset of options.compositionOffsets) {
+      const previous = runs[runs.length - 1];
+      if (previous?.offset === offset) previous.count++;
+      else runs.push({ count: 1, offset });
+    }
+    ctts = fullBox(
+      'ctts',
+      Buffer.concat([
+        u32(runs.length),
+        ...runs.flatMap((run) => [u32(run.count), u32(run.offset)]),
+      ]),
+    );
+  }
+  const stsc = fullBox('stsc', Buffer.concat([u32(1), u32(1), u32(sampleCount), u32(1)]));
+  const stsz = fullBox(
+    'stsz',
+    Buffer.concat([
+      u32(0),
+      u32(sampleCount),
+      ...Array.from({ length: sampleCount }, () => u32(sample.length)),
+    ]),
+  );
   const stss = fullBox('stss', Buffer.concat([u32(1), u32(1)]));
+  let edts: Buffer[] = [];
+  if (options.edit) {
+    const entry = Buffer.alloc(12);
+    entry.writeUInt32BE(options.edit.segmentDuration, 0);
+    entry.writeInt32BE(options.edit.mediaTime, 4);
+    entry.writeInt16BE(1, 8);
+    edts = [mp4Box('edts', fullBox('elst', Buffer.concat([u32(1), entry])))];
+  }
 
   const createMovie = (sampleOffset: number) => {
     const stco = fullBox('stco', Buffer.concat([u32(1), u32(sampleOffset)]));
-    const stbl = mp4Box('stbl', Buffer.concat([stsd, stts, stsc, stsz, stco, stss]));
+    const stbl = mp4Box(
+      'stbl',
+      Buffer.concat([stsd, stts, ...(ctts ? [ctts] : []), stsc, stsz, stco, stss]),
+    );
     const minf = mp4Box('minf', Buffer.concat([vmhd, dinf, stbl]));
     const mdia = mp4Box('mdia', Buffer.concat([mdhd, hdlr, minf]));
-    const trak = mp4Box('trak', Buffer.concat([tkhd, mdia]));
+    const trak = mp4Box('trak', Buffer.concat([tkhd, ...edts, mdia]));
     return mp4Box('moov', Buffer.concat([mvhd, trak]));
   };
 
   const firstMoov = createMovie(0);
   const payloadStart = ftyp.length + firstMoov.length + 8;
   const moov = createMovie(payloadStart);
-  return Buffer.concat([ftyp, moov, mp4Box('mdat', sample)]);
+  const samples = Buffer.concat(Array.from({ length: sampleCount }, () => sample));
+  return Buffer.concat([ftyp, moov, mp4Box('mdat', samples)]);
 }
 
 function expectDomainCode(action: () => Promise<unknown>, expectedCode: string) {
@@ -437,6 +482,30 @@ describe('G1 file-backed generation media validation', () => {
       mdatBytes: mdatPayloadBytes,
     });
     expect(reader.sizeBytes).toBeGreaterThan(16 * 1024 * 1024);
+    expect(reader.protectedBytesRead).toBe(0);
+    expect(reader.largestRequest).toBeLessThanOrEqual(READER_LIMIT);
+  });
+
+  it('validates a B-frame edit against ctts presentation ranges without reading mdat samples', async () => {
+    const fixture = makeMp4Fixture({
+      compositionOffsets: [1000, 2000, 0],
+      edit: { mediaTime: 1000, segmentDuration: 3000 },
+    });
+    const payloadStart = fixture.length - 3 * 6;
+    const mdatHeaderStart = payloadStart - 8;
+    const mdatPayloadBytes = 32 * 1024 * 1024;
+    fixture.writeUInt32BE(mdatPayloadBytes + 8, mdatHeaderStart);
+    const reader = new MemoryMediaReader(
+      payloadStart + mdatPayloadBytes,
+      fixture.subarray(0, payloadStart),
+    );
+    reader.protectedRanges.push({ start: payloadStart, end: reader.sizeBytes });
+
+    await expect(validateGenerationMedia('video/mp4', reader)).resolves.toMatchObject({
+      container: 'mp4',
+      durationSeconds: 3,
+      sampleCount: 3,
+    });
     expect(reader.protectedBytesRead).toBe(0);
     expect(reader.largestRequest).toBeLessThanOrEqual(READER_LIMIT);
   });
