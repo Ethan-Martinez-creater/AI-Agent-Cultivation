@@ -808,7 +808,7 @@ const ROLE_FEATURE: Record<string, string> = {
   LAST_FRAME: 'FIRST_FRAME_CONDITIONING',
 };
 const MAX_REQUEST_JSON_BYTES = 32 * 1024;
-const DEFAULT_REQUEST_TIMEOUT_MS = 20_000;
+const DEFAULT_REQUEST_TIMEOUT_MS = 120_000;
 
 /** Common durable billable-submission barrier and cache-backed GenerationGateway behavior. */
 export class CommercialGenerationGateway implements GenerationGateway {
