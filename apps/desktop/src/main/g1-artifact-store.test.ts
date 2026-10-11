@@ -94,14 +94,61 @@ function webp(): Buffer {
   return Buffer.concat([riff, header, frame, Buffer.alloc(1)]);
 }
 
-function binarySource(bytes: Uint8Array): GenerationBinarySource {
+function wav(dataBytes: number, sampleRate = 20_000): Buffer {
+  const header = Buffer.alloc(44);
+  header.write('RIFF', 0, 'ascii');
+  header.writeUInt32LE(dataBytes + 36, 4);
+  header.write('WAVEfmt ', 8, 'ascii');
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(1, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(sampleRate, 28);
+  header.writeUInt16LE(1, 32);
+  header.writeUInt16LE(8, 34);
+  header.write('data', 36, 'ascii');
+  header.writeUInt32LE(dataBytes, 40);
+  return Buffer.concat([header, Buffer.alloc(dataBytes)]);
+}
+
+function makeMusicTask(id: string): GenerationTask {
+  return {
+    ...makeTask(id),
+    capability: 'MUSIC_GENERATION',
+    expectedOutput: { artifactKind: 'AUDIO', mimeTypes: ['audio/wav'] },
+  };
+}
+
+function makeMusicDescriptor(maxOutputBytes = 8 * 1024 * 1024): GenerationModelDescriptor {
+  return {
+    ...makeDescriptor(),
+    outputCapability: 'MUSIC_GENERATION',
+    outputTypes: ['audio/wav'],
+    limits: { ...makeDescriptor().limits, maxOutputBytes },
+  };
+}
+
+function makeWavOutput(
+  bytes: Uint8Array,
+  outputId: string,
+  metadata: GenerationOutputDescriptor['metadata'],
+): GenerationOutputDescriptor {
+  return {
+    ...makeOutput(bytes, outputId),
+    mimeType: 'audio/wav',
+    extension: '.wav',
+    metadata,
+  };
+}
+
+function binarySource(bytes: Uint8Array, chunkSize = 8): GenerationBinarySource {
   const controller = new AbortController();
   return {
     open: (signal?: AbortSignal) =>
       (async function* () {
-        for (let offset = 0; offset < bytes.byteLength; offset += 8) {
+        for (let offset = 0; offset < bytes.byteLength; offset += chunkSize) {
           if (signal?.aborted || controller.signal.aborted) throw new Error('cancelled');
-          yield bytes.subarray(offset, Math.min(bytes.byteLength, offset + 8));
+          yield bytes.subarray(offset, Math.min(bytes.byteLength, offset + chunkSize));
         }
       })(),
     cancel: () => controller.abort(),
@@ -427,6 +474,152 @@ describe('GenerationArtifactStore', () => {
         ),
       ),
     ).rejects.toThrow();
+  });
+
+  it.each([
+    { actualSeconds: 202.9735, providerSeconds: 202.96 },
+    { actualSeconds: 206.9735, providerSeconds: 206.96 },
+  ])(
+    'accepts provider duration rounded to hundredths ($actualSeconds / $providerSeconds)',
+    async ({ actualSeconds, providerSeconds }) => {
+      const f = await fixture();
+      const task = makeMusicTask(`duration-rounded-${actualSeconds}`);
+      const bytes = wav(Math.round(actualSeconds * 20_000));
+      const output = makeWavOutput(bytes, 'suno-track', {
+        durationSeconds: providerSeconds,
+        durationToleranceSeconds: 0.02,
+      });
+      const artifact = await makeStore(f).commit(
+        makeJob(task),
+        task,
+        makeMusicDescriptor(),
+        output,
+        async () => binarySource(bytes, 64 * 1024),
+      );
+
+      expect(artifact.metadata).toMatchObject({
+        container: 'wav',
+        channels: 1,
+        sampleRate: 20_000,
+        bitsPerSample: 8,
+        durationSeconds: actualSeconds,
+      });
+      expect(artifact.metadata).not.toHaveProperty('durationToleranceSeconds');
+    },
+  );
+
+  it.each([
+    { actualSeconds: 202.9735, providerSeconds: 202.96 },
+    { actualSeconds: 206.9735, providerSeconds: 206.96 },
+  ])(
+    'keeps the default duration tolerance strict ($actualSeconds / $providerSeconds)',
+    async ({ actualSeconds, providerSeconds }) => {
+      const f = await fixture();
+      const task = makeMusicTask(`duration-strict-${actualSeconds}`);
+      const bytes = wav(Math.round(actualSeconds * 20_000));
+      const output = makeWavOutput(bytes, 'suno-track', {
+        durationSeconds: providerSeconds,
+        durationTolerance: 0.02,
+      });
+
+      await expect(
+        makeStore(f).commit(makeJob(task), task, makeMusicDescriptor(), output, async () =>
+          binarySource(bytes, 64 * 1024),
+        ),
+      ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
+    },
+  );
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, -0.001, 0.050001])(
+    'rejects invalid provider duration tolerance (%s)',
+    async (durationToleranceSeconds) => {
+      const f = await fixture();
+      const task = makeMusicTask(`duration-invalid-tolerance-${String(durationToleranceSeconds)}`);
+      const bytes = wav(20_000);
+      const output = makeWavOutput(bytes, 'suno-track', {
+        durationSeconds: 1,
+        durationToleranceSeconds,
+      });
+
+      await expect(
+        makeStore(f).commit(makeJob(task), task, makeMusicDescriptor(), output, async () =>
+          binarySource(bytes),
+        ),
+      ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
+    },
+  );
+
+  it('accepts the 0.05 second ceiling and rejects durations beyond the declared tolerance', async () => {
+    const f = await fixture();
+    const task = makeMusicTask('duration-tolerance-boundary');
+    const job = makeJob(task);
+    const bytes = wav(20_000);
+    const store = makeStore(f);
+    const commit = (output: GenerationOutputDescriptor) =>
+      store.commit(job, task, makeMusicDescriptor(), output, async () => binarySource(bytes));
+
+    const artifact = await commit(
+      makeWavOutput(bytes, 'maximum-tolerance', {
+        durationSeconds: 0.96,
+        durationToleranceSeconds: 0.05,
+      }),
+    );
+    expect(artifact.metadata.durationSeconds).toBe(1);
+
+    await expect(
+      commit(
+        makeWavOutput(bytes, 'outside-tolerance', {
+          durationSeconds: 1.0501,
+          durationToleranceSeconds: 0.05,
+        }),
+      ),
+    ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
+    await expect(
+      commit(
+        makeWavOutput(bytes, 'outside-suno-tolerance', {
+          durationSeconds: 1.0201,
+          durationToleranceSeconds: 0.02,
+        }),
+      ),
+    ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
+  });
+
+  it('does not let duration tolerance weaken other media integrity checks', async () => {
+    const f = await fixture();
+    const task = makeMusicTask('duration-tolerance-integrity');
+    const job = makeJob(task);
+    const bytes = wav(20_000);
+    const store = makeStore(f);
+    const commit = (output: GenerationOutputDescriptor) =>
+      store.commit(job, task, makeMusicDescriptor(), output, async () => binarySource(bytes));
+
+    await expect(
+      commit(
+        makeWavOutput(bytes, 'wrong-header-claim', {
+          durationSeconds: 1,
+          durationToleranceSeconds: 0.02,
+          channels: 2,
+        }),
+      ),
+    ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
+    await expect(
+      commit({
+        ...makeWavOutput(bytes, 'wrong-size-claim', {
+          durationSeconds: 1,
+          durationToleranceSeconds: 0.02,
+        }),
+        sizeBytes: bytes.byteLength + 1,
+      }),
+    ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
+    await expect(
+      commit({
+        ...makeWavOutput(bytes, 'wrong-hash-claim', {
+          durationSeconds: 1,
+          durationToleranceSeconds: 0.02,
+        }),
+        contentHash: '0'.repeat(64),
+      }),
+    ).rejects.toMatchObject({ code: 'ARTIFACT_INTEGRITY' });
   });
 
   it('aborts an overflowing source immediately and never publishes an Artifact', async () => {

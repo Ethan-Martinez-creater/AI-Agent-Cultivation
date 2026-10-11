@@ -207,6 +207,9 @@ function matchesMime(value: string, format: Format): boolean {
   return formats.get(value.trim().toLowerCase())?.mimeType === format.mimeType;
 }
 
+const DEFAULT_PROVIDER_DURATION_TOLERANCE_SECONDS = 0.000001;
+const MAX_PROVIDER_DURATION_TOLERANCE_SECONDS = 0.05;
+
 function validateProviderClaims(
   claims: GenerationOutputDescriptor['metadata'],
   metadata: Record<string, number | string | boolean | null>,
@@ -216,13 +219,24 @@ function validateProviderClaims(
     if (claimed !== undefined && metadata[key] !== claimed)
       fail('ARTIFACT_INTEGRITY', 'Provider 声明的媒体元数据与文件头不一致');
   }
+  const requestedDurationTolerance = claims?.durationToleranceSeconds;
+  if (
+    requestedDurationTolerance !== undefined &&
+    (typeof requestedDurationTolerance !== 'number' ||
+      !Number.isFinite(requestedDurationTolerance) ||
+      requestedDurationTolerance < 0 ||
+      requestedDurationTolerance > MAX_PROVIDER_DURATION_TOLERANCE_SECONDS)
+  )
+    fail('ARTIFACT_INTEGRITY', 'Provider 声明的媒体时长容差无效');
+  const durationTolerance =
+    requestedDurationTolerance ?? DEFAULT_PROVIDER_DURATION_TOLERANCE_SECONDS;
   const duration = claims?.durationSeconds;
   if (
     duration !== undefined &&
     (typeof duration !== 'number' ||
       !Number.isFinite(duration) ||
       typeof metadata.durationSeconds !== 'number' ||
-      Math.abs(duration - metadata.durationSeconds) > 0.000001)
+      Math.abs(duration - metadata.durationSeconds) > durationTolerance)
   )
     fail('ARTIFACT_INTEGRITY', 'Provider 声明的媒体时长与文件不一致');
 }
