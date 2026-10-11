@@ -67,7 +67,7 @@ function createApiMartConfig(options: GenerationProviderHttpOptions): Commercial
       if (
         !isRecord(payload) ||
         payload.object !== 'list' ||
-        payload.success !== true ||
+        (Object.hasOwn(payload, 'success') && payload.success !== true) ||
         !Array.isArray(payload.data) ||
         payload.data.length > 4096
       )

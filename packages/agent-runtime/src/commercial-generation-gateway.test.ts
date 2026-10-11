@@ -666,7 +666,7 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
       expect(call.method).toBe('GET');
       expect(call.url).toBe('https://tokenrhythm.studio/v1/models');
       expect(call.headers.get('authorization')).toBe('Bearer ' + API_KEY);
-      return jsonResponse({ models: [{ id: 'qwen3.8-flash' }] });
+      return jsonResponse({ object: 'list', data: [{ id: 'qwen3.8-flash' }] });
     });
     const gateway = new TokenRhythmGenerationGateway(
       async () => runtime('qwen-image-2.0', 'tokenrhythm'),

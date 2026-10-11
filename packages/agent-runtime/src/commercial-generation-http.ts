@@ -27,7 +27,7 @@ import type {
 } from './generation-provider-ports.js';
 
 const MiB = 1024 * 1024;
-export const MAX_PROVIDER_JSON_BYTES = 256 * 1024;
+export const MAX_PROVIDER_JSON_BYTES = 2 * MiB;
 export const MAX_PROVIDER_CHUNK_BYTES = MiB;
 const MAX_SOURCE_YIELD_BYTES = 64 * 1024;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/i;

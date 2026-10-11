@@ -47,7 +47,10 @@ function tokenRhythmConfig(): CommercialGatewayConfig {
     async verifyDescriptor(runtime, _descriptor, fetchJson) {
       const { response, payload } = await fetchJson(runtime, '/models');
       if (!response.ok) fail(statusErrorCode(response.status, 'MODEL_UNAVAILABLE'));
-      if (!isRecord(payload) || !Array.isArray(payload.models) || payload.models.length > 4096)
+      if (!isRecord(payload)) fail('MODEL_UNAVAILABLE');
+      const discoveredModels =
+        payload.object === 'list' && Array.isArray(payload.data) ? payload.data : payload.models;
+      if (!Array.isArray(discoveredModels) || discoveredModels.length > 4096)
         fail('MODEL_UNAVAILABLE');
       // TokenRhythm's discovery endpoint currently lists LLMs only. It confirms key and API
       // connectivity; media capabilities remain the fixed documented descriptors below.
