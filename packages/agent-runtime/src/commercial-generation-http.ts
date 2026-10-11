@@ -80,6 +80,12 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+export function isByteChunk(value: unknown): value is Uint8Array {
+  return (
+    ArrayBuffer.isView(value) && Object.prototype.toString.call(value) === '[object Uint8Array]'
+  );
+}
+
 export function boundedString(value: unknown, maxLength = 512): value is string {
   return typeof value === 'string' && value.length > 0 && value.length <= maxLength;
 }
@@ -231,8 +237,10 @@ export async function readBoundedJson(response: Response): Promise<unknown | nul
     while (true) {
       const item = await reader.read();
       if (item.done) break;
-      if (!(item.value instanceof Uint8Array) || item.value.byteLength > MAX_PROVIDER_CHUNK_BYTES)
+      if (!isByteChunk(item.value) || item.value.byteLength > MAX_PROVIDER_CHUNK_BYTES) {
+        await reader.cancel();
         return null;
+      }
       total += item.value.byteLength;
       if (total > MAX_PROVIDER_JSON_BYTES) {
         await reader.cancel();
@@ -241,6 +249,11 @@ export async function readBoundedJson(response: Response): Promise<unknown | nul
       chunks.push(item.value);
     }
   } catch {
+    try {
+      await reader.cancel();
+    } catch {
+      // Preserve the bounded-JSON failure result.
+    }
     return null;
   } finally {
     reader.releaseLock();
@@ -481,7 +494,7 @@ export async function openRemoteMedia(
       const item = await reader.read();
       if (item.done) break;
       headerChunks += 1;
-      if (!(item.value instanceof Uint8Array) || item.value.byteLength > MAX_PROVIDER_CHUNK_BYTES) {
+      if (!isByteChunk(item.value) || item.value.byteLength > MAX_PROVIDER_CHUNK_BYTES) {
         await reader.cancel();
         reader.releaseLock();
         fail('OUTPUT_TOO_LARGE');
@@ -537,10 +550,7 @@ export async function openRemoteMedia(
               ? { done: false as const, value: prefetched[prefetchedIndex++]! }
               : await reader.read();
           if (item.done) break;
-          if (
-            !(item.value instanceof Uint8Array) ||
-            item.value.byteLength > MAX_PROVIDER_CHUNK_BYTES
-          )
+          if (!isByteChunk(item.value) || item.value.byteLength > MAX_PROVIDER_CHUNK_BYTES)
             fail('OUTPUT_TOO_LARGE');
           total += item.value.byteLength;
           if (total > maxBytes || (advertisedSize !== null && total > advertisedSize))
@@ -630,7 +640,7 @@ export function multipartImageBody(
           return;
         }
         const chunk = next.value;
-        if (!(chunk instanceof Uint8Array) || chunk.byteLength > MAX_PROVIDER_CHUNK_BYTES)
+        if (!isByteChunk(chunk) || chunk.byteLength > MAX_PROVIDER_CHUNK_BYTES)
           fail('INPUT_TOO_LARGE');
         total += chunk.byteLength;
         if (total > expectedSize || total > maxBytes) fail('INPUT_TOO_LARGE');

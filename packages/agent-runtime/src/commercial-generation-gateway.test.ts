@@ -1,7 +1,14 @@
 import { createHash } from 'node:crypto';
+import { runInNewContext } from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '@cultivation/shared';
-import { extensionForMime, openRemoteMedia } from './commercial-generation-http.js';
+import {
+  extensionForMime,
+  isByteChunk,
+  MAX_PROVIDER_CHUNK_BYTES,
+  openRemoteMedia,
+  readBoundedJson,
+} from './commercial-generation-http.js';
 import type {
   GenerationBinarySource,
   ProviderGenerationRequest,
@@ -259,6 +266,39 @@ async function rejectsCode(action: Promise<unknown>, code: string): Promise<Doma
 }
 
 describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
+  it('parses bounded JSON byte chunks created in a separate JavaScript realm', async () => {
+    const expected = { object: 'list', data: [{ id: 'qwen3.8-flash' }] };
+    const encoded = new TextEncoder().encode(JSON.stringify(expected));
+    const foreignBytes = runInNewContext(
+      `new Uint8Array([${Array.from(encoded).join(',')}])`,
+    ) as Uint8Array;
+    expect(foreignBytes instanceof Uint8Array).toBe(false);
+    expect(isByteChunk(foreignBytes)).toBe(true);
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(foreignBytes);
+        controller.close();
+      },
+    });
+
+    await expect(readBoundedJson({ body } as Response)).resolves.toEqual(expected);
+  });
+
+  it('cancels an oversized bounded-JSON response stream', async () => {
+    let cancelled = false;
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(MAX_PROVIDER_CHUNK_BYTES + 1));
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+
+    await expect(readBoundedJson({ body } as Response)).resolves.toBeNull();
+    expect(cancelled).toBe(true);
+  });
+
   it('sniffs bounded generic WAV headers, emits bounded chunks, and names WebP cache files', async () => {
     const wav = new Uint8Array(100_000);
     wav.set([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45]);
