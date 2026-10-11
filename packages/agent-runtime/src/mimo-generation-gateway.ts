@@ -44,6 +44,7 @@ const MiB = 1024 * 1024;
 const MAX_PROMPT_BYTES = 4 * 1024;
 /** Short V1 TTS is deliberately much smaller than the shared 1 GiB audio ceiling. */
 const MAX_OUTPUT_BYTES = 16 * MiB;
+const MAX_MODEL_LIST_RESPONSE_BYTES = 64 * 1024;
 const JSON_ENVELOPE_BYTES = 64 * 1024;
 const MAX_BASE64_CHARS = Math.ceil(MAX_OUTPUT_BYTES / 3) * 4;
 const MAX_RESPONSE_BYTES = MAX_BASE64_CHARS + JSON_ENVELOPE_BYTES;
@@ -131,6 +132,15 @@ function runtimeHeaders(runtime: GenerationProviderRuntime): Headers {
     accept: 'application/json',
     authorization: 'Bearer ' + runtime.apiKey,
     'content-type': 'application/json',
+  });
+}
+
+function isModelList(value: unknown): boolean {
+  const payload = asRecord(value);
+  if (payload?.object !== 'list' || !Array.isArray(payload.data)) return false;
+  return payload.data.every((item) => {
+    const model = asRecord(item);
+    return typeof model?.id === 'string' && model.id.length > 0 && model.id.length <= 256;
   });
 }
 
@@ -231,7 +241,10 @@ async function discardResponseBody(response: Response): Promise<void> {
   }
 }
 
-async function readBoundedJson(response: Response): Promise<unknown | null> {
+async function readBoundedJson(
+  response: Response,
+  maximumBytes = MAX_RESPONSE_BYTES,
+): Promise<unknown | null> {
   const contentType = response.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase();
   if (contentType !== 'application/json' && !contentType?.endsWith('+json')) {
     await discardResponseBody(response);
@@ -252,7 +265,7 @@ async function readBoundedJson(response: Response): Promise<unknown | null> {
         break;
       }
       totalBytes += result.value.byteLength;
-      if (totalBytes > MAX_RESPONSE_BYTES) {
+      if (totalBytes > maximumBytes) {
         await reader.cancel();
         return null;
       }
@@ -425,6 +438,27 @@ export class MiMoTtsGateway implements GenerationGateway {
 
   async getDescriptor(runtimeProfileId: string): Promise<GenerationModelDescriptor> {
     const runtime = assertRuntime(await this.resolveRuntime(runtimeProfileId));
+    let response: Response;
+    try {
+      response = await this.fetchImplementation(runtime.baseUrl + '/models', {
+        method: 'GET',
+        headers: runtimeHeaders(runtime),
+        redirect: 'error',
+        signal: AbortSignal.timeout(this.requestTimeoutMs),
+      });
+    } catch {
+      fail('RUNTIME_UNAVAILABLE');
+    }
+
+    if (!response.ok) {
+      const errorCode = response.status === 401 || response.status === 403 ? 'AUTH_FAILED' : null;
+      await discardResponseBody(response);
+      fail(errorCode ?? 'RUNTIME_UNAVAILABLE');
+    }
+
+    const modelList = await readBoundedJson(response, MAX_MODEL_LIST_RESPONSE_BYTES);
+    if (!isModelList(modelList)) fail('RUNTIME_UNAVAILABLE');
+
     return {
       modelId: runtime.modelId,
       outputCapability: 'SPEECH_GENERATION',

@@ -144,6 +144,16 @@ function audioResponse(bytes = wavBytes()): Response {
   );
 }
 
+function modelListResponse(ids = [MODEL_ID]): Response {
+  return new Response(
+    JSON.stringify({
+      object: 'list',
+      data: ids.map((id) => ({ id, object: 'model', owned_by: 'xiaomimimo' })),
+    }),
+    { status: 200, headers: { 'content-type': 'application/json; charset=utf-8' } },
+  );
+}
+
 function makeRequest(
   overrides: Partial<ProviderGenerationRequest> = {},
 ): ProviderGenerationRequest {
@@ -203,7 +213,7 @@ async function expectDomainCode(action: Promise<unknown>, code: string): Promise
 
 describe('MiMo TTS GenerationGateway', () => {
   it('exposes only the bounded synchronous WAV speech capability and preset voice parameter', async () => {
-    const fetcher = fakeFetch(audioResponse());
+    const fetcher = fakeFetch(modelListResponse(['mimo-v2.5-tts-alias']));
     const { gateway } = createGateway(fetcher.fetch);
     const descriptor = await gateway.getDescriptor(RUNTIME_ID);
     expect(descriptor).toMatchObject({
@@ -225,7 +235,44 @@ describe('MiMo TTS GenerationGateway', () => {
       required: ['voice'],
       additionalProperties: false,
     });
-    expect(fetcher.fetch).not.toHaveBeenCalled();
+    expect(fetcher.calls).toHaveLength(1);
+    expect(fetcher.calls[0]?.url).toBe('https://api.xiaomimimo.com/v1/models');
+    expect(fetcher.calls[0]?.init?.method).toBe('GET');
+    expect(fetcher.calls[0]?.init?.redirect).toBe('error');
+    expect(new Headers(fetcher.calls[0]?.init?.headers).get('authorization')).toBe(
+      'Bearer ' + API_KEY,
+    );
+  });
+
+  it('requires an authenticated models check and never probes with billable TTS', async () => {
+    const fetcher = fakeFetch(
+      new Response('not authorized', { status: 401, headers: { 'content-type': 'text/plain' } }),
+    );
+    const { gateway } = createGateway(fetcher.fetch);
+    const error = await expectDomainCode(gateway.getDescriptor(RUNTIME_ID), 'AUTH_FAILED');
+    expect(error.message).not.toContain(API_KEY);
+    expect(fetcher.calls).toHaveLength(1);
+    expect(fetcher.calls[0]?.url).toBe('https://api.xiaomimimo.com/v1/models');
+    expect(fetcher.calls.some((call) => call.url.endsWith('/chat/completions'))).toBe(false);
+  });
+
+  it('rejects malformed or oversized model discovery responses', async () => {
+    const responses = [
+      new Response(JSON.stringify({ object: 'list', data: [{ object: 'model' }] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+      new Response(JSON.stringify({ object: 'list', data: [] }) + ' '.repeat(70 * 1024), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    ];
+    for (const response of responses) {
+      const fetcher = fakeFetch(response);
+      const { gateway } = createGateway(fetcher.fetch);
+      await expectDomainCode(gateway.getDescriptor(RUNTIME_ID), 'RUNTIME_UNAVAILABLE');
+      expect(fetcher.calls.some((call) => call.url.endsWith('/chat/completions'))).toBe(false);
+    }
   });
 
   it.each(MIMO_TTS_VOICES)(
@@ -476,7 +523,14 @@ describe('MiMo TTS GenerationGateway', () => {
       status: 200,
       headers: { 'content-type': 'application/json' },
     });
-    const fetcher = fakeFetch(response);
+    const fetcher = fakeFetch(async (input) =>
+      String(input).endsWith('/models')
+        ? new Response(JSON.stringify({ object: 'list', data: [], provider_debug: API_KEY }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+        : response,
+    );
     const statePort = new MemoryStatePort();
     const { gateway } = createGateway(fetcher.fetch, statePort);
     const descriptor = await gateway.getDescriptor(RUNTIME_ID);
