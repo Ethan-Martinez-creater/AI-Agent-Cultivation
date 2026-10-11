@@ -11,7 +11,6 @@ import type {
   GenerationModelDescriptor,
   GenerationOutputDescriptor,
   GenerationSubmission,
-  GenerationSubmissionRejectionCode,
   ProviderGenerationJob,
 } from '@cultivation/domain/g1-generation';
 import type {
@@ -53,12 +52,6 @@ const DEFAULT_REQUEST_TIMEOUT_MS = 120_000;
 const SAFE_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const PROVIDER_ID_PATTERN = /^mimo_v1_[a-f0-9]{64}$/;
-const DEFINITIVE_REJECTIONS = new Set<GenerationSubmissionRejectionCode>([
-  'AUTH_FAILED',
-  'MODEL_NOT_FOUND',
-  'INVALID_INPUT',
-  'QUEUE_FULL',
-]);
 const SAFE_MESSAGES: Record<string, string> = {
   AUTH_FAILED: 'MiMo authentication failed.',
   MODEL_NOT_FOUND: 'The configured MiMo TTS model was not found.',
@@ -223,14 +216,6 @@ function stateMatchesRequest(
     state.requestFingerprint === request.fingerprint &&
     state.semanticFingerprint === semanticFingerprint
   );
-}
-
-function parseDefinitiveRejection(status: number): GenerationSubmissionRejectionCode | null {
-  if (status === 400) return 'INVALID_INPUT';
-  if (status === 401 || status === 403) return 'AUTH_FAILED';
-  if (status === 404) return 'MODEL_NOT_FOUND';
-  if (status === 429) return 'QUEUE_FULL';
-  return null;
 }
 
 async function discardResponseBody(response: Response): Promise<void> {
@@ -571,9 +556,8 @@ export class MiMoTtsGateway implements GenerationGateway {
         return { outcome: 'SUBMITTED', providerJobId: state.providerJobId, status: 'RUNNING' };
       }
       if (state.phase === 'REJECTED') {
-        if (!state.errorCode || !DEFINITIVE_REJECTIONS.has(state.errorCode))
-          return { outcome: 'UNKNOWN' };
-        return { outcome: 'REJECTED', errorCode: state.errorCode };
+        await this.markUnknown(state);
+        return { outcome: 'UNKNOWN' };
       }
       if (state.phase === 'SUBMITTING' || state.phase === 'UNKNOWN') {
         if (state.phase === 'SUBMITTING') await this.markUnknown(state);
@@ -629,23 +613,9 @@ export class MiMoTtsGateway implements GenerationGateway {
     }
 
     if (!response.ok) {
-      const errorCode = parseDefinitiveRejection(response.status);
       await discardResponseBody(response);
-      if (!errorCode) {
-        await this.markUnknown(submittingState);
-        return { outcome: 'UNKNOWN' };
-      }
-      try {
-        await this.statePort.put({
-          ...submittingState,
-          phase: 'REJECTED',
-          providerJobId: null,
-          errorCode,
-        });
-      } catch {
-        return { outcome: 'UNKNOWN' };
-      }
-      return { outcome: 'REJECTED', errorCode };
+      await this.markUnknown(submittingState);
+      return { outcome: 'UNKNOWN' };
     }
 
     let rawAudio = audioDataFromResponse(await readBoundedJson(response));

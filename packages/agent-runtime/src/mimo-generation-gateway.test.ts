@@ -426,23 +426,72 @@ describe('MiMo TTS GenerationGateway', () => {
     expect(fetcher.fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('maps the official 404 response to a durable model rejection without exposing its body', async () => {
-    const fetcher = fakeFetch(
-      new Response('{"error":{"message":"model not found"}}', {
-        status: 404,
+  it.each([
+    ['400 status only', new Response(null, { status: 400 })],
+    ['401 status only', new Response(null, { status: 401 })],
+    [
+      '400 malformed JSON',
+      new Response('{"error":', {
+        status: 400,
         headers: { 'content-type': 'application/json' },
       }),
-    );
+    ],
+    [
+      '401 plain text',
+      new Response('invalid API key', {
+        status: 401,
+        headers: { 'content-type': 'text/plain' },
+      }),
+    ],
+    [
+      '500 JSON',
+      new Response('{"error":{"code":"server_error"}}', {
+        status: 500,
+        headers: { 'content-type': 'application/json' },
+      }),
+    ],
+  ] as const)(
+    'keeps provider errors UNKNOWN for %s and does not replay them',
+    async (_label, response) => {
+      const fetcher = fakeFetch(response);
+      const statePort = new MemoryStatePort();
+      const { gateway } = createGateway(fetcher.fetch, statePort);
+      const request = makeRequest();
+      expect(await gateway.submit(RUNTIME_ID, request)).toEqual({ outcome: 'UNKNOWN' });
+      expect(await statePort.get(RUNTIME_ID, request.idempotencyKey)).toMatchObject({
+        phase: 'UNKNOWN',
+        providerJobId: null,
+        errorCode: null,
+      });
+
+      const restarted = createGateway(fetcher.fetch, statePort);
+      expect(await restarted.gateway.submit(RUNTIME_ID, request)).toEqual({ outcome: 'UNKNOWN' });
+      expect(fetcher.fetch).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('downgrades a legacy status-derived REJECTED fact to durable UNKNOWN without replay', async () => {
+    const fetcher = fakeFetch(new Response(null, { status: 404 }));
     const statePort = new MemoryStatePort();
-    const { gateway } = createGateway(fetcher.fetch, statePort);
+    const first = createGateway(fetcher.fetch, statePort);
     const request = makeRequest();
-    expect(await gateway.submit(RUNTIME_ID, request)).toEqual({
-      outcome: 'REJECTED',
+    expect(await first.gateway.submit(RUNTIME_ID, request)).toEqual({ outcome: 'UNKNOWN' });
+
+    const priorFact = await statePort.get(RUNTIME_ID, request.idempotencyKey);
+    expect(priorFact).not.toBeNull();
+    await statePort.put({
+      ...priorFact!,
+      phase: 'REJECTED',
+      providerJobId: null,
       errorCode: 'MODEL_NOT_FOUND',
     });
+
+    const restarted = createGateway(fetcher.fetch, statePort);
+    expect(await restarted.gateway.submit(RUNTIME_ID, request)).toEqual({ outcome: 'UNKNOWN' });
     expect(await statePort.get(RUNTIME_ID, request.idempotencyKey)).toMatchObject({
-      phase: 'REJECTED',
-      errorCode: 'MODEL_NOT_FOUND',
+      phase: 'UNKNOWN',
+      providerJobId: null,
+      errorCode: null,
     });
     expect(fetcher.fetch).toHaveBeenCalledTimes(1);
   });
