@@ -231,6 +231,71 @@ function parseMediaHeader(
   return { timescale, duration };
 }
 
+function parseEditList(
+  context: ParseContext,
+  box: Box,
+  movie: { timescale: number; duration: number },
+  media: { timescale: number; duration: number },
+): number {
+  const children = boxList(context, box.payloadStart, box.end, 3);
+  checkTypes(children, ['elst', 'free']);
+  const elst = only(children, 'elst')!;
+  const { version, flags, body } = fullBox(context, elst, [0, 1]);
+  if (flags !== 0) unsupported('MP4 edit-list flags are invalid');
+  const entryCount = u32(context.bytes, body, elst.end);
+  const entryBytes = version === 0 ? 12 : 20;
+  if (entryCount < 1 || entryCount > 2 || elst.end - body !== 4 + entryCount * entryBytes)
+    unsupported('MP4 edit-list entry count or length is invalid');
+
+  let totalDuration = 0n;
+  let mediaEntries = 0;
+  for (let index = 0; index < entryCount; index++) {
+    const offset = body + 4 + index * entryBytes;
+    const segmentDuration =
+      version === 0
+        ? BigInt(u32(context.bytes, offset, elst.end))
+        : BigInt(u64(context.bytes, offset, elst.end));
+    const mediaTimeValue =
+      version === 0
+        ? BigInt(context.bytes.readInt32BE(offset + 4))
+        : context.bytes.readBigInt64BE(offset + 8);
+    const rateOffset = offset + (version === 0 ? 8 : 16);
+    const mediaRateInteger = context.bytes.readInt16BE(rateOffset);
+    const mediaRateFraction = context.bytes.readInt16BE(rateOffset + 2);
+    if (
+      segmentDuration <= 0n ||
+      segmentDuration > BigInt(Number.MAX_SAFE_INTEGER) ||
+      mediaRateInteger !== 1 ||
+      mediaRateFraction !== 0
+    )
+      unsupported('MP4 edit-list duration or media rate is unsupported');
+    if (mediaTimeValue === -1n) {
+      if (index !== 0 || entryCount !== 2 || mediaEntries !== 0)
+        unsupported('MP4 empty edit is misplaced');
+    } else {
+      if (index !== entryCount - 1 || mediaTimeValue < 0n)
+        unsupported('MP4 media edit is misplaced or negative');
+      mediaEntries++;
+      const availableMediaTicks = BigInt(media.duration) - mediaTimeValue;
+      const requestedNumerator = segmentDuration * BigInt(media.timescale);
+      const availableNumerator = availableMediaTicks * BigInt(movie.timescale);
+      if (
+        availableMediaTicks <= 0n ||
+        requestedNumerator > availableNumerator + BigInt(media.timescale)
+      )
+        unsupported('MP4 edit list references media beyond its decode timeline');
+    }
+    totalDuration += segmentDuration;
+  }
+  if (
+    mediaEntries !== 1 ||
+    totalDuration > BigInt(Number.MAX_SAFE_INTEGER) ||
+    totalDuration > BigInt(movie.duration) + 1n
+  )
+    unsupported('MP4 edit-list presentation duration is invalid');
+  return Number(totalDuration);
+}
+
 function parseHandler(context: ParseContext, box: Box): 'vide' | 'soun' {
   const { version, flags, body } = fullBox(context, box, [0]);
   if (version !== 0 || flags !== 0) unsupported('MP4 hdlr fields are invalid');
@@ -421,11 +486,9 @@ function parseAacConfiguration(
   )
     unsupported('AAC decoder configuration disagrees with its sample entry');
   // AAC object type 5/29 has extension sampling fields; reject them instead of guessing.
-  if (
-    bitOffset < (end - start) * 8 &&
-    bytes.subarray(start + Math.floor(bitOffset / 8), end).some((value) => value !== 0)
-  )
-    unsupported('Extended AAC decoder configurations are not supported');
+  for (; bitOffset < (end - start) * 8; bitOffset++)
+    if (readBits(bytes, start, bitOffset, 1) !== 0)
+      unsupported('Extended AAC decoder configurations are not supported');
   return `mp4a.40.${objectType}`;
 }
 
@@ -764,9 +827,10 @@ function parseTrack(
   mdats: MediaRange[],
 ): TrackFacts {
   const children = boxList(context, box.payloadStart, box.end, 2);
-  checkTypes(children, ['tkhd', 'mdia', 'free']);
+  checkTypes(children, ['tkhd', 'mdia', 'edts', 'free']);
   const tkhd = only(children, 'tkhd')!;
   const mdia = only(children, 'mdia')!;
+  const editBox = only(children, 'edts', false);
   const trackHeader = parseTrackHeader(context, tkhd);
   const mediaChildren = boxList(context, mdia.payloadStart, mdia.end, 3);
   checkTypes(mediaChildren, ['mdhd', 'hdlr', 'minf', 'elng', 'free']);
@@ -774,6 +838,7 @@ function parseTrack(
     unsupported('Extended media language metadata is not supported');
   const mediaHeader = parseMediaHeader(context, only(mediaChildren, 'mdhd')!);
   const handler = parseHandler(context, only(mediaChildren, 'hdlr')!);
+  const editDuration = editBox ? parseEditList(context, editBox, movie, mediaHeader) : null;
   const minf = only(mediaChildren, 'minf')!;
   const minfChildren = boxList(context, minf.payloadStart, minf.end, 4);
   checkTypes(minfChildren, ['vmhd', 'smhd', 'dinf', 'stbl', 'free']);
@@ -804,10 +869,12 @@ function parseTrack(
     (mediaHeader.duration * movie.timescale) / mediaHeader.timescale,
   );
   if (
-    Math.abs(movieDuration - trackHeader.duration) > 1 ||
+    Math.abs((editDuration ?? movieDuration) - trackHeader.duration) > 1 ||
     trackHeader.duration > movie.duration + 1
   )
     unsupported('MP4 tkhd duration disagrees with media timeline');
+  const presentationDuration = editDuration ?? mediaHeader.duration;
+  const presentationTimescale = editDuration === null ? mediaHeader.timescale : movie.timescale;
   const ranges = mapChunks(table, mdats, context.fileLength ?? context.bytes.length);
   if (handler === 'vide') {
     if (
@@ -822,8 +889,8 @@ function parseTrack(
     return {
       handler,
       trackId: trackHeader.trackId,
-      duration: mediaHeader.duration,
-      timescale: mediaHeader.timescale,
+      duration: presentationDuration,
+      timescale: presentationTimescale,
       width: trackHeader.width,
       height: trackHeader.height,
       codec: description,
@@ -836,8 +903,8 @@ function parseTrack(
   return {
     handler,
     trackId: trackHeader.trackId,
-    duration: mediaHeader.duration,
-    timescale: mediaHeader.timescale,
+    duration: presentationDuration,
+    timescale: presentationTimescale,
     width: null,
     height: null,
     codec: description,

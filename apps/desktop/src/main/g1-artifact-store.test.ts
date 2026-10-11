@@ -56,6 +56,44 @@ function png(width: number, height: number): Buffer {
 
 const PNG = png(1, 1);
 
+function jpeg(): Buffer {
+  const segment = (marker: number, payload: Buffer) => {
+    const header = Buffer.alloc(4);
+    header[0] = 0xff;
+    header[1] = marker;
+    header.writeUInt16BE(payload.length + 2, 2);
+    return Buffer.concat([header, payload]);
+  };
+  return Buffer.concat([
+    Buffer.from([0xff, 0xd8]),
+    segment(0xc0, Buffer.from([8, 0, 1, 0, 1, 3, 1, 0x11, 0, 2, 0x11, 0, 3, 0x11, 0])),
+    segment(0xda, Buffer.from([3, 1, 0, 2, 0x11, 3, 0x11, 0, 63, 0])),
+    Buffer.from([0x12, 0xff, 0x00, 0x34, 0xff, 0xd9]),
+  ]);
+}
+
+function mp3(): Buffer {
+  const result = Buffer.alloc(417);
+  result.set([0xff, 0xfb, 0x90, 0x64]);
+  return result;
+}
+
+function webp(): Buffer {
+  const header = Buffer.alloc(8);
+  header.write('VP8 ', 0, 'ascii');
+  header.writeUInt32LE(11, 4);
+  const frame = Buffer.alloc(11);
+  frame[0] = 0x30;
+  frame.set([0x9d, 0x01, 0x2a], 3);
+  frame.writeUInt16LE(1, 6);
+  frame.writeUInt16LE(1, 8);
+  const riff = Buffer.alloc(12);
+  riff.write('RIFF', 0, 'ascii');
+  riff.writeUInt32LE(24, 4);
+  riff.write('WEBP', 8, 'ascii');
+  return Buffer.concat([riff, header, frame, Buffer.alloc(1)]);
+}
+
 function binarySource(bytes: Uint8Array): GenerationBinarySource {
   const controller = new AbortController();
   return {
@@ -295,6 +333,74 @@ describe('GenerationArtifactStore', () => {
     authority.mockRejectedValueOnce(denied);
     const reader = resolved.source.open()[Symbol.asyncIterator]();
     await expect(reader.next()).rejects.toBe(denied);
+  });
+
+  it.each([
+    {
+      name: 'JPEG',
+      mimeType: 'image/jpeg',
+      extension: '.jpg',
+      providerExtension: '.jpeg',
+      bytes: jpeg(),
+      kind: 'IMAGE' as const,
+    },
+    {
+      name: 'WebP',
+      mimeType: 'image/webp',
+      extension: '.webp',
+      providerExtension: '.webp',
+      bytes: webp(),
+      kind: 'IMAGE' as const,
+    },
+    {
+      name: 'MP3',
+      mimeType: 'audio/mpeg',
+      extension: '.mp3',
+      providerExtension: '.mp3',
+      bytes: mp3(),
+      kind: 'AUDIO' as const,
+    },
+  ])('commits and verifies $name with its canonical media extension', async (sample) => {
+    const f = await fixture();
+    const repository = new MemoryGenerationRepository();
+    const task = {
+      ...makeTask(`canonical-${sample.name.toLowerCase()}`),
+      ...(sample.kind === 'AUDIO' ? { capability: 'MUSIC_GENERATION' as const } : {}),
+      expectedOutput: { artifactKind: sample.kind, mimeTypes: [sample.mimeType] },
+    };
+    const descriptor = {
+      ...makeDescriptor(),
+      ...(sample.kind === 'AUDIO' ? { outputCapability: 'MUSIC_GENERATION' as const } : {}),
+      outputTypes: [sample.mimeType],
+      inputRoles: [
+        {
+          role: 'REFERENCE' as const,
+          artifactKinds: [sample.kind],
+          mimeTypes: [sample.mimeType],
+          maxFiles: 1,
+        },
+      ],
+    };
+    const output = {
+      ...makeOutput(sample.bytes, 'canonical-output'),
+      mimeType: sample.mimeType,
+      extension: sample.providerExtension,
+      metadata: {},
+    };
+    const job = makeJob(task);
+    const store = makeStore(f, repository);
+    const artifact = await store.commit(job, task, descriptor, output, async () =>
+      binarySource(sample.bytes),
+    );
+    repository.add(job, task, artifact);
+    expect(artifact.mimeType).toBe(sample.mimeType);
+    expect(artifact.extension).toBe(sample.extension);
+    await store.verify(artifact, task);
+    const published = await stat(
+      path.join(f.userData, 'generation-artifacts', 'files', `${artifact.id}${sample.extension}`),
+    );
+    expect(published.isFile()).toBe(true);
+    expect(published.size).toBe(sample.bytes.length);
   });
 
   it.each([-1, 1])('rejects advertised/streamed size mismatch (%s)', async (difference) => {

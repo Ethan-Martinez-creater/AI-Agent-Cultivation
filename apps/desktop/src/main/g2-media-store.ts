@@ -27,16 +27,39 @@ type StoredInput = GenerationAttachment & {
   storageKey: string;
   metadata: Record<string, number | string | boolean | null>;
 };
-type CachedMedia = { sizeBytes: number; contentHash: string; source: GenerationBinarySource };
+type CachedMedia = {
+  sizeBytes: number;
+  contentHash: string;
+  mimeType: string;
+  source: GenerationBinarySource;
+};
 function fail(code: string): never {
   throw new DomainError(code, '媒体文件未通过安全校验');
 }
 const digestKey = (value: string) => createHash('sha256').update(value).digest('hex');
-const formats: Record<string, { mime: string; kind: string }> = {
-  '.png': { mime: 'image/png', kind: 'IMAGE' },
-  '.mp4': { mime: 'video/mp4', kind: 'VIDEO' },
-  '.wav': { mime: 'audio/wav', kind: 'AUDIO' },
+type MediaFormat = { mime: string; kind: string; extension: string };
+const formats: Record<string, MediaFormat> = {
+  '.png': { mime: 'image/png', kind: 'IMAGE', extension: '.png' },
+  '.webp': { mime: 'image/webp', kind: 'IMAGE', extension: '.webp' },
+  '.jpg': { mime: 'image/jpeg', kind: 'IMAGE', extension: '.jpg' },
+  '.jpeg': { mime: 'image/jpeg', kind: 'IMAGE', extension: '.jpg' },
+  '.mp4': { mime: 'video/mp4', kind: 'VIDEO', extension: '.mp4' },
+  '.wav': { mime: 'audio/wav', kind: 'AUDIO', extension: '.wav' },
+  '.mp3': { mime: 'audio/mpeg', kind: 'AUDIO', extension: '.mp3' },
 };
+const formatsByMime = new Map<string, MediaFormat>([
+  ['image/png', formats['.png']!],
+  ['image/webp', formats['.webp']!],
+  ['image/jpeg', formats['.jpg']!],
+  ['image/jpg', formats['.jpg']!],
+  ['video/mp4', formats['.mp4']!],
+  ['audio/wav', formats['.wav']!],
+  ['audio/wave', formats['.wav']!],
+  ['audio/x-wav', formats['.wav']!],
+  ['audio/mpeg', formats['.mp3']!],
+  ['audio/mp3', formats['.mp3']!],
+  ['audio/x-mp3', formats['.mp3']!],
+]);
 function inside(root: string, value: string): boolean {
   const rel = path.relative(root, value);
   return rel !== '' && !path.isAbsolute(rel) && rel !== '..' && !rel.startsWith(`..${path.sep}`);
@@ -221,7 +244,7 @@ export class GenerationMediaStore {
         name: existing.name,
       };
     }
-    const key = `${id}${path.extname(selected).toLowerCase()}`;
+    const key = `${id}${format.extension}`;
     const partial = path.join(root, `${id}-${randomUUID()}.partial`);
     const target = path.join(root, key);
     const input = await this.reader(await realpath(selected));
@@ -275,7 +298,8 @@ export class GenerationMediaStore {
   async resolveInput(id: string, role: string): Promise<GenerationResolvedInput> {
     const input = this.get(id);
     if (!input) fail('NOT_FOUND');
-    if (!/^[a-z0-9-]+\.(png|mp4|wav)$/i.test(input.storageKey)) fail('INVALID_INPUT');
+    if (!/^[a-z0-9-]+\.(png|jpe?g|webp|mp4|wav|mp3)$/i.test(input.storageKey))
+      fail('INVALID_INPUT');
     const root = await this.directory('inputs');
     const file = path.join(root, input.storageKey);
     const canonical = await realpath(file);
@@ -299,8 +323,7 @@ export class GenerationMediaStore {
   async lookup(runtime: string, job: string, output: string): Promise<CachedMedia | null> {
     const root = await this.directory('cache');
     const key = this.cacheKey(runtime, job, output);
-    const file = path.join(root, `${key}.mp4`);
-    let meta: { sizeBytes: number; contentHash: string };
+    let rawMeta: unknown;
     try {
       const metaFile = path.join(root, `${key}.json`);
       const stat = await lstat(metaFile);
@@ -309,7 +332,7 @@ export class GenerationMediaStore {
       try {
         const opened = await handle.stat();
         if (opened.ino !== stat.ino || opened.size !== stat.size) fail('INVALID_OUTPUT');
-        meta = JSON.parse(await handle.readFile({ encoding: 'utf8' }));
+        rawMeta = JSON.parse(await handle.readFile({ encoding: 'utf8' }));
       } finally {
         await handle.close();
       }
@@ -317,16 +340,40 @@ export class GenerationMediaStore {
       if (e && typeof e === 'object' && 'code' in e && e.code === 'ENOENT') return null;
       throw e;
     }
+    if (!rawMeta || typeof rawMeta !== 'object' || Array.isArray(rawMeta)) fail('INVALID_OUTPUT');
+    const parsed = rawMeta as Record<string, unknown>;
+    const format =
+      typeof parsed.mimeType === 'string'
+        ? formatsByMime.get(parsed.mimeType.trim().toLowerCase())
+        : parsed.mimeType === undefined
+          ? formatsByMime.get('video/mp4')
+          : undefined;
+    const meta = {
+      sizeBytes: parsed.sizeBytes,
+      contentHash: parsed.contentHash,
+      mimeType: format?.mime,
+    };
     if (
+      !format ||
       !Number.isSafeInteger(meta.sizeBytes) ||
-      meta.sizeBytes <= 0 ||
+      (meta.sizeBytes as number) <= 0 ||
+      typeof meta.contentHash !== 'string' ||
       !/^[a-f0-9]{64}$/.test(meta.contentHash)
     )
       fail('INVALID_OUTPUT');
-    const checked = await this.inspect(file, 'video/mp4', 'output');
+    const file = path.join(root, `${key}${format.extension}`);
+    const checked = await this.inspect(file, format.mime, 'output');
     if (checked.sizeBytes !== meta.sizeBytes || checked.contentHash !== meta.contentHash)
       fail('OUTPUT_HASH_MISMATCH');
-    return { ...meta, source: this.source(file, meta) };
+    return {
+      sizeBytes: meta.sizeBytes as number,
+      contentHash: meta.contentHash as string,
+      mimeType: format.mime,
+      source: this.source(file, {
+        sizeBytes: meta.sizeBytes as number,
+        contentHash: meta.contentHash as string,
+      }),
+    };
   }
   async capture(input: {
     runtimeProfileId: string;
@@ -339,14 +386,19 @@ export class GenerationMediaStore {
   }): Promise<CachedMedia> {
     const cached = await this.lookup(input.runtimeProfileId, input.providerJobId, input.outputId);
     if (cached) {
+      const requestedFormat = formatsByMime.get(input.mimeType.trim().toLowerCase());
+      if (!requestedFormat || cached.mimeType !== requestedFormat.mime)
+        fail('OUTPUT_HASH_MISMATCH');
       await input.source.cancel();
       return cached;
     }
-    if (input.mimeType !== 'video/mp4') fail('UNSUPPORTED_MEDIA_TYPE');
+    const format = formatsByMime.get(input.mimeType.trim().toLowerCase());
+    if (!format) fail('UNSUPPORTED_MEDIA_TYPE');
+    const mimeType = format.mime;
     const root = await this.directory('cache');
     const key = this.cacheKey(input.runtimeProfileId, input.providerJobId, input.outputId);
     const partial = path.join(root, `${key}-${randomUUID()}.partial`);
-    const target = path.join(root, `${key}.mp4`);
+    const target = path.join(root, `${key}${format.extension}`);
     const handle = await open(partial, 'wx');
     let count = 0;
     const hash = createHash('sha256');
@@ -355,7 +407,7 @@ export class GenerationMediaStore {
         count += chunk.byteLength;
         if (
           chunk.byteLength > GENERATION_MEDIA_POLICY.maxSourceChunkBytes ||
-          count > (getGenerationMediaCeilingBytes('', input.mimeType, 'output') ?? 0) ||
+          count > (getGenerationMediaCeilingBytes('', mimeType, 'output') ?? 0) ||
           (input.advertisedSize !== null && count > input.advertisedSize)
         )
           fail('OUTPUT_TOO_LARGE');
@@ -374,16 +426,16 @@ export class GenerationMediaStore {
       fail('OUTPUT_SIZE_MISMATCH');
     const contentHash = hash.digest('hex');
     const reader = await this.reader(partial);
-    await validateGenerationMedia(input.mimeType, reader);
+    await validateGenerationMedia(mimeType, reader);
     try {
       await link(partial, target);
     } catch (e) {
       if (!(e && typeof e === 'object' && 'code' in e && e.code === 'EEXIST')) throw e;
-      const check = await this.inspect(target, input.mimeType, 'output');
+      const check = await this.inspect(target, mimeType, 'output');
       if (check.contentHash !== contentHash || check.sizeBytes !== count)
         fail('OUTPUT_HASH_MISMATCH');
     }
-    const meta = { sizeBytes: count, contentHash };
+    const meta = { sizeBytes: count, contentHash, mimeType };
     const metaPartial = path.join(root, `${key}-${randomUUID()}.json.partial`);
     const metaHandle = await open(metaPartial, 'wx');
     try {
@@ -396,7 +448,20 @@ export class GenerationMediaStore {
       await link(metaPartial, path.join(root, `${key}.json`));
     } catch (e) {
       if (!(e && typeof e === 'object' && 'code' in e && e.code === 'EEXIST')) throw e;
+      const existing = await this.lookup(
+        input.runtimeProfileId,
+        input.providerJobId,
+        input.outputId,
+      );
+      if (
+        !existing ||
+        existing.mimeType !== mimeType ||
+        existing.sizeBytes !== count ||
+        existing.contentHash !== contentHash
+      )
+        fail('OUTPUT_HASH_MISMATCH');
+      return existing;
     }
-    return { sizeBytes: count, contentHash, source: this.source(target, meta) };
+    return { sizeBytes: count, contentHash, mimeType, source: this.source(target, meta) };
   }
 }

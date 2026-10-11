@@ -26,10 +26,16 @@ import type {
 type Format = { mimeType: string; extension: string; container: string };
 const formats = new Map<string, Format>([
   ['image/png', { mimeType: 'image/png', extension: '.png', container: 'png' }],
+  ['image/jpeg', { mimeType: 'image/jpeg', extension: '.jpg', container: 'jpeg' }],
+  ['image/jpg', { mimeType: 'image/jpeg', extension: '.jpg', container: 'jpeg' }],
+  ['image/webp', { mimeType: 'image/webp', extension: '.webp', container: 'webp' }],
   ['video/mp4', { mimeType: 'video/mp4', extension: '.mp4', container: 'mp4' }],
   ['audio/wav', { mimeType: 'audio/wav', extension: '.wav', container: 'wav' }],
   ['audio/wave', { mimeType: 'audio/wav', extension: '.wav', container: 'wav' }],
   ['audio/x-wav', { mimeType: 'audio/wav', extension: '.wav', container: 'wav' }],
+  ['audio/mpeg', { mimeType: 'audio/mpeg', extension: '.mp3', container: 'mp3' }],
+  ['audio/mp3', { mimeType: 'audio/mpeg', extension: '.mp3', container: 'mp3' }],
+  ['audio/x-mp3', { mimeType: 'audio/mpeg', extension: '.mp3', container: 'mp3' }],
 ]);
 
 export interface GenerationArtifactStoreOptions {
@@ -177,9 +183,14 @@ function normalizedHint(task: GenerationTask, id: string, extension: string): st
   const segments = safeRelativePath(hint);
   const current = segments.join('/');
   const hintExtension = path.posix.extname(current).toLowerCase();
-  if (hintExtension && hintExtension !== extension)
+  if (hintExtension && !extensionMatches(hintExtension, extension))
     fail('UNSUPPORTED_MEDIA_TYPE', '输出路径扩展名与媒体类型不匹配');
   return hintExtension ? current : `${current}${extension}`;
+}
+
+function extensionMatches(value: string, expected: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  return normalized === expected || (expected === '.jpg' && normalized === '.jpeg');
 }
 
 function appStoreKey(id: string, extension: string): string {
@@ -865,7 +876,7 @@ export class GenerationArtifactStore implements GenerationArtifactPort {
       !format ||
       !descriptor.outputTypes.some((m) => matchesMime(m, format)) ||
       !task.expectedOutput.mimeTypes.some((m) => matchesMime(m, format)) ||
-      output.extension.toLowerCase() !== format.extension
+      !extensionMatches(output.extension, format.extension)
     )
       fail('UNSUPPORTED_MEDIA_TYPE', 'Provider 媒体类型与契约不一致');
     if (

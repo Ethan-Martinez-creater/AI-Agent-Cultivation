@@ -102,6 +102,69 @@ function makeWav(dataBytes = 4): Buffer {
   return header;
 }
 
+function jpegSegment(marker: number, payload: Buffer): Buffer {
+  const header = Buffer.alloc(4);
+  header[0] = 0xff;
+  header[1] = marker;
+  header.writeUInt16BE(payload.length + 2, 2);
+  return Buffer.concat([header, payload]);
+}
+
+function makeJpeg(): Buffer {
+  const sof = Buffer.from([8, 0, 1, 0, 1, 3, 1, 0x11, 0, 2, 0x11, 0, 3, 0x11, 0]);
+  const sos = Buffer.from([3, 1, 0, 2, 0x11, 3, 0x11, 0, 63, 0]);
+  return Buffer.concat([
+    Buffer.from([0xff, 0xd8]),
+    jpegSegment(0xc0, sof),
+    jpegSegment(0xda, sos),
+    Buffer.from([0x12, 0xff, 0x00, 0x34, 0xff, 0xd9]),
+  ]);
+}
+
+function makeMp3(frameCount = 2): Buffer {
+  const frameBytes = 417;
+  const result = Buffer.alloc(frameCount * frameBytes);
+  for (let index = 0; index < frameCount; index++) {
+    const offset = index * frameBytes;
+    result.set([0xff, 0xfb, 0x90, 0x64], offset);
+  }
+  return result;
+}
+
+function makeWebp(extended = false, lossless = false, exifAfterImage = false): Buffer {
+  const chunk = (type: string, data: Buffer) => {
+    const header = Buffer.alloc(8);
+    header.write(type, 0, 'ascii');
+    header.writeUInt32LE(data.length, 4);
+    return Buffer.concat([header, data, data.length & 1 ? Buffer.alloc(1) : Buffer.alloc(0)]);
+  };
+  const chunks: Buffer[] = [];
+  if (extended) {
+    const header = Buffer.alloc(10);
+    if (exifAfterImage) header[0] = 0x08;
+    header.writeUIntLE(0, 4, 3);
+    header.writeUIntLE(0, 7, 3);
+    chunks.push(chunk('VP8X', header));
+  }
+  if (lossless) {
+    chunks.push(chunk('VP8L', Buffer.from([0x2f, 0, 0, 0, 0])));
+  } else {
+    const frame = Buffer.alloc(11);
+    frame[0] = 0x30; // keyframe, shown, one-byte first partition
+    frame.set([0x9d, 0x01, 0x2a], 3);
+    frame.writeUInt16LE(1, 6);
+    frame.writeUInt16LE(1, 8);
+    chunks.push(chunk('VP8 ', frame));
+  }
+  if (exifAfterImage) chunks.push(chunk('EXIF', Buffer.from([0])));
+  const body = Buffer.concat(chunks);
+  const riff = Buffer.alloc(12);
+  riff.write('RIFF', 0, 'ascii');
+  riff.writeUInt32LE(body.length + 4, 4);
+  riff.write('WEBP', 8, 'ascii');
+  return Buffer.concat([riff, body]);
+}
+
 function u32(value: number): Buffer {
   const bytes = Buffer.alloc(4);
   bytes.writeUInt32BE(value);
@@ -246,6 +309,107 @@ describe('G1 file-backed generation media validation', () => {
     await expectDomainCode(
       () =>
         validateGenerationMedia('audio/wav', new MemoryMediaReader(malformed.length, malformed)),
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+  });
+
+  it('checks JPEG markers and dimensions while streaming entropy data', async () => {
+    const bytes = makeJpeg();
+    const reader = new MemoryMediaReader(bytes.length, bytes, 2);
+    reader.protectedRanges.push({ start: bytes.length - 6, end: bytes.length - 2 });
+    await expect(validateGenerationMedia('image/jpeg', reader)).resolves.toEqual({
+      container: 'jpeg',
+      width: 1,
+      height: 1,
+    });
+    expect(reader.protectedBytesRead).toBeGreaterThan(0);
+    expect(reader.largestRequest).toBeLessThanOrEqual(READER_LIMIT);
+
+    const truncated = bytes.subarray(0, bytes.length - 2);
+    await expectDomainCode(
+      () =>
+        validateGenerationMedia('image/jpeg', new MemoryMediaReader(truncated.length, truncated)),
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+    const badDimensions = Buffer.from(bytes);
+    badDimensions.writeUInt16BE(0, 7);
+    await expectDomainCode(
+      () =>
+        validateGenerationMedia(
+          'image/jpeg',
+          new MemoryMediaReader(badDimensions.length, badDimensions),
+        ),
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+  });
+
+  it('validates bounded static lossy WebP chunks and rejects arbitrary RIFF data', async () => {
+    for (const bytes of [
+      makeWebp(),
+      makeWebp(true),
+      makeWebp(false, true),
+      makeWebp(true, false, true),
+    ]) {
+      await expect(
+        validateGenerationMedia('image/webp', new MemoryMediaReader(bytes.length, bytes)),
+      ).resolves.toEqual({ container: 'webp', width: 1, height: 1 });
+    }
+    const arbitraryRiff = Buffer.from(makeWebp());
+    arbitraryRiff.write('AVI ', 8, 'ascii');
+    await expectDomainCode(
+      () =>
+        validateGenerationMedia(
+          'image/webp',
+          new MemoryMediaReader(arbitraryRiff.length, arbitraryRiff),
+        ),
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+    const badChunkLength = Buffer.from(makeWebp());
+    badChunkLength.writeUInt32LE(0xffffffff, 16);
+    await expectDomainCode(
+      () =>
+        validateGenerationMedia(
+          'image/webp',
+          new MemoryMediaReader(badChunkLength.length, badChunkLength),
+        ),
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+  });
+
+  it('validates MP3 Layer III frame boundaries while seeking over frame payloads', async () => {
+    const bytes = makeMp3(3);
+    const reader = new MemoryMediaReader(bytes.length, bytes);
+    reader.protectedRanges.push(
+      { start: 4, end: 417 },
+      { start: 421, end: 834 },
+      { start: 838, end: 1251 },
+    );
+    await expect(validateGenerationMedia('audio/mpeg', reader)).resolves.toEqual({
+      container: 'mp3',
+      audioCodec: 'mp3',
+      channels: 2,
+      sampleRate: 44100,
+      frameCount: 3,
+      bitrateKbps: 128,
+      durationSeconds: 0.078367,
+    });
+    expect(reader.protectedBytesRead).toBe(0);
+    expect(reader.largestRequest).toBe(4);
+
+    const truncated = bytes.subarray(0, bytes.length - 1);
+    await expectDomainCode(
+      () =>
+        validateGenerationMedia('audio/mp3', new MemoryMediaReader(truncated.length, truncated)),
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+    const invalidHeader = Buffer.from(bytes);
+    invalidHeader[2] = invalidHeader[2]! & 0x0f;
+    await expectDomainCode(
+      () =>
+        validateGenerationMedia(
+          'audio/mpeg',
+          new MemoryMediaReader(invalidHeader.length, invalidHeader),
+        ),
       'UNSUPPORTED_MEDIA_TYPE',
     );
   });
