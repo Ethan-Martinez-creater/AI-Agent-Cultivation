@@ -151,6 +151,7 @@ function createApiMartConfig(options: GenerationProviderHttpOptions): Commercial
         id: outputIdForUrl(index, value.url),
         url: value.url,
         metadata: value.metadata,
+        ...(runtime.modelId === MUSIC_MODEL ? { durationToleranceSeconds: 0.02 } : {}),
       }));
       return { status, outputs, errorCode: null };
     },
@@ -232,7 +233,6 @@ function descriptorFor(runtime: GenerationProviderRuntime): GenerationModelDescr
       parameterSchema: {
         type: 'object',
         properties: {
-          durationSeconds: { type: 'integer', minimum: 10, maximum: 360 },
           version: { type: 'string', enum: ['v6'], default: 'v6' },
           audioFormat: { type: 'string', enum: ['wav', 'mp3'], default: 'wav' },
         },
@@ -303,8 +303,6 @@ function buildRequestBody(
       prompt: request.prompt,
       audio_format: request.parameters.audioFormat ?? 'wav',
     };
-    if (request.parameters.durationSeconds !== undefined)
-      body.duration = request.parameters.durationSeconds;
     return body;
   }
   fail('MODEL_NOT_FOUND');
@@ -341,7 +339,8 @@ function verifyPreparedBody(
     for (let index = 0; index < urls.length; index += 1) {
       const value = urls[index];
       if (typeof value !== 'string' || sha256(value) !== uploadedFiles[index]?.fileId) return false;
-      if (!isAllowedProviderUrl(value, 'APIMART', testOnly)) return false;
+      if (!isAllowedProviderUrl(value, 'APIMART', testOnly, [orderedInputs[index]!.mimeType]))
+        return false;
     }
     const descriptor = descriptorFor({ modelId: request.modelId } as GenerationProviderRuntime);
     const expected = buildRequestBody(

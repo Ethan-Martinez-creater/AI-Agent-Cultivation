@@ -28,7 +28,6 @@ export function canTestNewModel(
   modelId: string,
   credentialId: string | null,
 ): boolean {
-  if (kind === 'GENERATION_HTTP' && modelId.trim() !== 'minimax-h3') return false;
   const endpointRequired = kind === 'OPENAI_COMPATIBLE' || kind === 'GENERATION_HTTP';
   return Boolean(modelId.trim() && (endpointRequired ? endpoint.trim() : credentialId));
 }

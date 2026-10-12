@@ -1,5 +1,6 @@
 import { clipboard, ipcMain, type BrowserWindow, type IpcMainInvokeEvent } from 'electron';
 import { z } from 'zod';
+import { GENERATION_ADAPTER_IDS } from '@cultivation/domain';
 import { Gate1Service } from '@cultivation/application/gate1-service';
 import { DomainError } from '@cultivation/shared';
 import { ModelUnavailableError } from '@cultivation/application';
@@ -17,7 +18,7 @@ const providerInput = z
       'OPENAI_COMPATIBLE',
       'GENERATION_HTTP',
     ]),
-    adapterId: z.enum(['H3']).nullable().optional(),
+    adapterId: z.enum(GENERATION_ADAPTER_IDS).nullable().optional(),
     baseUrl: z.string().max(2048).nullable().optional(),
   })
   .strict();

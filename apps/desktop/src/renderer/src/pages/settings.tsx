@@ -10,6 +10,8 @@ import { R3ShadowPanel } from '.././r3-shadow-panel.js';
 import { AvailabilityBadge } from '.././r3-2-availability.js';
 import { RoutingConfigPanel } from '../r4-routing.js';
 import './product-pages.css';
+import { generationAdapters } from '../generation-adapters.js';
+import type { GenerationAdapterId } from '@cultivation/domain';
 import { providerKinds, errorText, PageHeading, InlineMessage, EmptyList } from '../ui-shared.js';
 import type {
   ProviderKind,
@@ -468,6 +470,7 @@ export function ProvidersPanel({
 }) {
   const [name, setName] = useState('');
   const [kind, setKind] = useState<ProviderKind>('OPENAI');
+  const [adapterId, setAdapterId] = useState<GenerationAdapterId>('GEN_HTTP_V1');
   const [baseUrl, setBaseUrl] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -484,7 +487,7 @@ export function ProvidersPanel({
         name: name.trim(),
         kind,
         ...(baseUrl.trim() ? { baseUrl: baseUrl.trim() } : {}),
-        ...(kind === 'GENERATION_HTTP' ? { adapterId: 'H3' } : {}),
+        ...(kind === 'GENERATION_HTTP' ? { adapterId } : {}),
       });
       setName('');
       setBaseUrl('');
@@ -579,6 +582,25 @@ export function ProvidersPanel({
               ))}
             </select>
           </label>
+          {kind === 'GENERATION_HTTP' && (
+            <label className="field">
+              <span>生成服务</span>
+              <select
+                value={adapterId}
+                onChange={(event) => {
+                  const next = generationAdapters.find((a) => a.id === event.target.value)!;
+                  setAdapterId(next.id);
+                  setBaseUrl(next.endpoint);
+                }}
+              >
+                {generationAdapters.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="field">
             <span>服务地址 {endpointRequired ? '（必填）' : '（选填）'}</span>
             <input
@@ -812,9 +834,10 @@ export function RuntimesPanel({
     }
     if (
       generationHttp &&
-      (form.executionProtocol !== 'GENERATION' || form.modelId.trim() !== 'minimax-h3')
+      (form.executionProtocol !== 'GENERATION' ||
+        (selectedProvider?.adapterId === 'H3' && form.modelId.trim() !== 'minimax-h3'))
     ) {
-      setError('Generation HTTP 需要 GENERATION 协议，并明确配置 minimax-h3。');
+      setError('请选择生成模型，并填写服务支持的模型编号。');
       return;
     }
     setBusy(true);
@@ -1085,7 +1108,9 @@ export function RuntimesPanel({
               value={form.modelId}
               onChange={(event) => update({ modelId: event.target.value })}
             />
-            {generationHttp && <small>请明确输入 minimax-h3；连接检测会核对服务端模型身份。</small>}
+            {generationHttp && selectedProvider?.adapterId === 'H3' && (
+              <small>旧协议模型编号：minimax-h3</small>
+            )}
           </label>
           <label className="field">
             <span>模型类型</span>
@@ -1102,7 +1127,6 @@ export function RuntimesPanel({
               <option value="LANGUAGE">文本模型</option>
               <option value="GENERATION">生成模型</option>
             </select>
-            {generationHttp && <small>此服务商只支持 GENERATION 协议。</small>}
           </label>
           {error && <InlineMessage tone="error">{error}</InlineMessage>}
           <div className="button-row">

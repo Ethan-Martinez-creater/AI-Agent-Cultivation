@@ -1,0 +1,1 @@
+LIVE_JEV_PACKAGED_OK r3=4-shadow-decisions r4=solo r5.1=skill r5.2=pre-gate-and-extractor r5.3=rerank-and-prompt-selection r5.4=offered-tool-proposal r5.5=completion-advisory restart=verified screenshots=3

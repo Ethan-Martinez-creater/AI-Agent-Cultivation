@@ -426,6 +426,7 @@ async function main() {
   const unknownPrompt = '未知提交测试：云层缓慢散开';
   fixture.mode.uncertain = true;
   const submissionsBeforeUnknown = fixture.facts.submissions;
+  const postAttemptsBeforeUnknown = fixture.facts.postAttempts;
   await sendPrompt(live.page, unknownPrompt);
   await waitForJobState(live.page, unknownPrompt, 'UNKNOWN');
   const unknownDetail = await conversationDetail(live.page, identity.teammateId);
@@ -433,11 +434,17 @@ async function main() {
   assert.equal(unknownEntry.job.state, 'UNKNOWN');
   assert.equal(unknownEntry.artifacts.length, 0);
   assert.equal(fixture.facts.submissions, submissionsBeforeUnknown + 1);
+  assert.equal(
+    fixture.facts.postAttempts,
+    postAttemptsBeforeUnknown + 1,
+    'Accepted POST response loss must not trigger a transport retry',
+  );
   await capture(live.page, 'unknown-submission');
   facts.scenarios.unknownSubmission = {
     jobId: unknownEntry.job.id,
     state: unknownEntry.job.state,
     initialSubmissionCount: fixture.facts.submissions,
+    postAttempts: fixture.facts.postAttempts - postAttemptsBeforeUnknown,
     artifactCount: unknownEntry.artifacts.length,
   };
 

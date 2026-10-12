@@ -4,6 +4,7 @@ import { MakerZIP } from '@electron-forge/maker-zip';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -14,8 +15,14 @@ const config: ForgeConfig = {
     prune: false,
     derefSymlinks: true,
     asar: { unpack: '**/*.node' },
+    tmpdir: resolve('.tmp/package-temp'),
+    download: { cacheRoot: resolve('.electron-cache') },
     extraResource: [resolve('node_modules/sqlite-vec-windows-x64/vec0.dll')],
-    electronZipDir: process.env.CULTIVATION_ELECTRON_ZIP_DIR || undefined,
+    electronZipDir:
+      process.env.CULTIVATION_ELECTRON_ZIP_DIR ||
+      (existsSync(resolve('.electron-dist/electron-v44.4.3-win32-x64.zip'))
+        ? resolve('.electron-dist')
+        : undefined),
     ignore: (file: string) => {
       const normalized = file.replaceAll('\\', '/');
       if (!normalized) return false;

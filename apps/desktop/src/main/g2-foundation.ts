@@ -17,6 +17,13 @@ import type { SecretStore } from '@cultivation/application';
 import type { PermissionEngine } from '@cultivation/application/permission-engine';
 import { DomainError } from '@cultivation/shared';
 import { H3GenerationGateway } from '@cultivation/agent-runtime/h3-generation-gateway';
+import { GenHttpV1Gateway } from '@cultivation/agent-runtime/gen-http-v1-gateway';
+import { ApiMartGenerationGateway } from '@cultivation/agent-runtime/apimart-generation-gateway';
+import { TokenRhythmGenerationGateway } from '@cultivation/agent-runtime/tokenrhythm-generation-gateway';
+import { MiMoTtsGateway } from '@cultivation/agent-runtime/mimo-generation-gateway';
+import { GenerationGatewayDispatch } from '@cultivation/agent-runtime/generation-gateway-dispatch';
+import { isGenerationAdapterId } from '@cultivation/domain';
+import type { GenerationProviderHttpOptions } from '@cultivation/agent-runtime/generation-provider-ports';
 import { GenerationArtifactStore } from './g1-artifact-store.js';
 import { GenerationMediaStore } from './g2-media-store.js';
 import { GenerationAdapterStateStore } from './g2-adapter-state.js';
@@ -32,6 +39,8 @@ export function h3GenerationFoundation(options: {
   tools: Gate4SqliteRepository;
   permission: PermissionEngine;
   secrets: SecretStore;
+  /** Main network transport; no Renderer-supplied adapter or request implementation. */
+  httpOptions?: GenerationProviderHttpOptions;
   onAvailabilityChanged?: Parameters<typeof createGenerationAvailabilityService>[4];
   chatCrash?: GenerationChatServiceOptions['crash'];
   approveMediaAccess?: (
@@ -47,32 +56,55 @@ export function h3GenerationFoundation(options: {
   const { db, store } = options;
   const repository = new GenerationSqliteRepository(db);
   const media = new GenerationMediaStore(options.userData, db);
-  const h3 = new H3GenerationGateway(
-    async (id: string) => {
+  const resolveRuntime = async (id: string) => {
+    const runtime = store.getRuntimeProfile(id);
+    const provider = runtime ? store.getProvider(runtime.providerId) : null;
+    if (
+      !runtime ||
+      runtime.executionProtocol !== 'GENERATION' ||
+      provider?.kind !== 'GENERATION_HTTP' ||
+      !isGenerationAdapterId(provider.adapterId) ||
+      !provider.baseUrl
+    )
+      throw new DomainError('MODEL_NOT_FOUND', '生成服务执行身份无效');
+    if (!provider.enabled) throw new DomainError('MODEL_UNAVAILABLE', '生成服务已停用');
+    const credential = runtime.credentialId ? store.getCredential(runtime.credentialId) : null;
+    if (runtime.credentialId && (!credential || credential.providerId !== provider.id))
+      throw new DomainError('AUTH_FAILED', '生成服务凭证无效');
+    return {
+      baseUrl: provider.baseUrl,
+      modelId: runtime.modelId,
+      apiKey: credential ? await options.secrets.decrypt(credential.ciphertext) : '',
+    };
+  };
+  const states = new GenerationAdapterStateStore(db);
+  const dispatch = new GenerationGatewayDispatch(
+    (id) => {
       const runtime = store.getRuntimeProfile(id);
       const provider = runtime ? store.getProvider(runtime.providerId) : null;
-      if (
-        !runtime ||
-        runtime.executionProtocol !== 'GENERATION' ||
-        provider?.kind !== 'GENERATION_HTTP' ||
-        provider.adapterId !== 'H3' ||
-        !provider.baseUrl
-      )
-        throw new DomainError('MODEL_NOT_FOUND', '生成服务执行身份无效');
-      if (!provider.enabled) throw new DomainError('MODEL_UNAVAILABLE', '生成服务已停用');
-      const credential = runtime.credentialId ? store.getCredential(runtime.credentialId) : null;
-      if (runtime.credentialId && (!credential || credential.providerId !== provider.id))
-        throw new DomainError('AUTH_FAILED', '生成服务凭证无效');
-      return {
-        baseUrl: provider.baseUrl,
-        modelId: runtime.modelId,
-        apiKey: credential ? await options.secrets.decrypt(credential.ciphertext) : '',
-      };
+      return runtime?.executionProtocol === 'GENERATION' && provider?.kind === 'GENERATION_HTTP'
+        ? (provider.adapterId ?? null)
+        : null;
     },
-    new GenerationAdapterStateStore(db),
-    media,
+    {
+      H3: new H3GenerationGateway(resolveRuntime, states, media, options.httpOptions),
+      GEN_HTTP_V1: new GenHttpV1Gateway(resolveRuntime, states, options.httpOptions),
+      APIMART_ASYNC: new ApiMartGenerationGateway(
+        resolveRuntime,
+        states,
+        media,
+        options.httpOptions,
+      ),
+      MIMO_TTS: new MiMoTtsGateway(resolveRuntime, states, media, options.httpOptions),
+      TOKENRHYTHM_ASYNC: new TokenRhythmGenerationGateway(
+        resolveRuntime,
+        states,
+        media,
+        options.httpOptions,
+      ),
+    },
   );
-  const raw = options.gatewayDecorator?.(h3) ?? h3;
+  const raw = options.gatewayDecorator?.(dispatch) ?? dispatch;
   const resolver = {
     resolveRuntime: (id: string) => {
       const teammate = store

@@ -1,4 +1,15 @@
-import { app, BrowserWindow, ipcMain, Menu, Notification, safeStorage } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  Notification,
+  safeStorage,
+  net,
+  session,
+} from 'electron';
+import { createGenerationHttpTransport } from './generation-http-transport.js';
+import { generationDecisionEvidence } from './generation-decision-evidence.js';
 import squirrelStartup from 'electron-squirrel-startup';
 import { join } from 'node:path';
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -235,8 +246,8 @@ function createWindow(
   const rendererFile = join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`);
   const allowedFilePath = new URL(pathToFileURL(rendererFile).href).pathname;
   const csp = devUrl
-    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' cultivation-media:; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; frame-src 'none'; base-uri 'none'"
-    : "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' cultivation-media:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'";
+    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: cultivation-media:; media-src 'self' cultivation-media:; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; frame-src 'none'; base-uri 'none'"
+    : "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: cultivation-media:; media-src 'self' cultivation-media:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'";
   window.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({ responseHeaders: { ...details.responseHeaders, 'Content-Security-Policy': [csp] } });
   });
@@ -347,6 +358,7 @@ function createWindow(
     parties,
     (mission) => r3Observer.observeMission(mission),
     (input) => g3.resolveApproval(input),
+    { list: g3.shareableArtifacts, share: g3.shareArtifact },
   );
   registerGate4Ipc(window, validSender, tools);
   registerGate6Ipc(validSender, experience);
@@ -519,10 +531,17 @@ if (!squirrelStartup)
             }
           : fakeDecision
             ? new FakeDecisionGateway()
-            : new TypeSafeDecisionGateway({ apiKey, timeoutMs });
+            : new TypeSafeDecisionGateway({
+                apiKey,
+                timeoutMs,
+                fetch: (input, init) => net.fetch(input, init),
+              });
       const r3Config = new R3DecisionConfigController(r3Store, secretStore, async (apiKey) => {
         if (fakeDecision || fakeDecisionError) return { ok: true, model: 'jev-1.13.0' };
-        const gateway = new TypeSafeDecisionGateway({ apiKey });
+        const gateway = new TypeSafeDecisionGateway({
+          apiKey,
+          fetch: (input, init) => net.fetch(input, init),
+        });
         const result = await gateway.testConnection();
         return { ok: result.ok, model: result.model };
       });
@@ -607,23 +626,32 @@ if (!squirrelStartup)
                     : process.argv.includes('--w1-fake-workflow')
                       ? new WorkflowFixtureGateway()
                       : new FakeModelGateway()
-          : new AiSdkModelGateway(async (runtimeProfileId) => {
-              const resolved = await service.resolveRuntime(runtimeProfileId);
-              if (resolved.kind === 'GENERATION_HTTP')
-                throw new DomainError('INVALID_INPUT', '生成服务不能执行文本对话');
-              return { ...resolved, kind: resolved.kind };
-            });
+          : new AiSdkModelGateway(
+              async (runtimeProfileId) => {
+                const resolved = await service.resolveRuntime(runtimeProfileId);
+                if (resolved.kind === 'GENERATION_HTTP')
+                  throw new DomainError('INVALID_INPUT', '生成服务不能执行文本对话');
+                return { ...resolved, kind: resolved.kind };
+              },
+              {
+                fetch: (input, init) => net.fetch(input instanceof URL ? input.href : input, init),
+              },
+            );
       const availability = new AvailabilityService(
         new R32AvailabilityRepository(db),
         store,
         process.argv.includes('--gate1-fake-model')
           ? { probe: async () => ({ kind: 'SUCCESS' as const, code: 'PROBE_SUCCEEDED' }) }
-          : new AiSdkModelAvailabilityProbe((runtimeProfileId) =>
-              service.resolveRuntime(runtimeProfileId).then((r) => {
-                if (r.kind === 'GENERATION_HTTP')
-                  throw new DomainError('INVALID_INPUT', '生成服务不能使用文本检测');
-                return { ...r, kind: r.kind };
-              }),
+          : new AiSdkModelAvailabilityProbe(
+              (runtimeProfileId) =>
+                service.resolveRuntime(runtimeProfileId).then((r) => {
+                  if (r.kind === 'GENERATION_HTTP')
+                    throw new DomainError('INVALID_INPUT', '生成服务不能使用文本检测');
+                  return { ...r, kind: r.kind };
+                }),
+              {
+                fetch: (input, init) => net.fetch(input instanceof URL ? input.href : input, init),
+              },
             ),
         { onChanged: notifyAvailability },
       );
@@ -719,10 +747,17 @@ if (!squirrelStartup)
           ? memoryPreGateObserver!.decisionGateway(new FakeDecisionGateway())
           : new TypeSafeDecisionGateway({
               apiKey: key,
+              fetch: (input, init) => net.fetch(input, init),
               timeoutMs: MEMORY_PRE_GATE_POLICY.gatewayTimeoutMs,
             });
       });
-      memoryService.attachMemoryPreGate(memoryPreGate, memoryPreGateObserver?.record);
+      const decisionEvidence = generationDecisionEvidence((event) =>
+        gate3Store.appendAuditEvent(event),
+      );
+      memoryService.attachMemoryPreGate(memoryPreGate, (receipt) => {
+        decisionEvidence.preGate(receipt);
+        memoryPreGateObserver?.record(receipt);
+      });
       // Main-only, explicitly test-only compatibility seam. Never a Renderer IPC
       // and never an automatic Mission/Workflow extraction trigger.
       if (memoryPreGateFixture)
@@ -768,10 +803,14 @@ if (!squirrelStartup)
           ? memoryRerankObserver!.decisionGateway(new FakeDecisionGateway())
           : new TypeSafeDecisionGateway({
               apiKey: key,
+              fetch: (input, init) => net.fetch(input, init),
               timeoutMs: MEMORY_RERANK_POLICY.gatewayTimeoutMs,
             });
       });
-      hybridMemory.attachMemoryRerank(memoryRerank, memoryRerankObserver?.record);
+      hybridMemory.attachMemoryRerank(memoryRerank, (receipt) => {
+        decisionEvidence.rerank(receipt);
+        memoryRerankObserver?.record(receipt);
+      });
       const languageMemoryOwner = (teammateId: string): boolean => {
         const teammate = store.getTeammate(teammateId);
         const binding = store.getModelBinding(teammateId);
@@ -828,6 +867,7 @@ if (!squirrelStartup)
           ? skillRoutingObserver!.decisionGateway(new FakeDecisionGateway())
           : new TypeSafeDecisionGateway({
               apiKey: key,
+              fetch: (input, init) => net.fetch(input, init),
               timeoutMs: SKILL_ROUTING_POLICY.gatewayTimeoutMs,
             });
       });
@@ -858,6 +898,13 @@ if (!squirrelStartup)
             tools: gate4Store,
             permission: permissionEngine,
             secrets: secretStore,
+            httpOptions: {
+              fetch: createGenerationHttpTransport({
+                readFetch: (input, init) =>
+                  net.fetch(input instanceof URL ? input.href : input, init),
+                resolveProxy: (url) => session.defaultSession.resolveProxy(url),
+              }),
+            },
             onAvailabilityChanged: { onChanged: notifyAvailability },
             chatCrash:
               process.env.CULTIVATION_G2_ACCEPTANCE === '1'
@@ -1072,6 +1119,7 @@ if (!squirrelStartup)
                 ? toolShortlistObserver!.decisionGateway(new FakeDecisionGateway())
                 : new TypeSafeDecisionGateway({
                     apiKey: key,
+                    fetch: (input, init) => net.fetch(input, init),
                     timeoutMs: TOOL_SHORTLIST_POLICY.gatewayTimeoutMs,
                   }),
           });
@@ -1114,6 +1162,7 @@ if (!squirrelStartup)
               ? completionAdvisoryObserver!.decisionGateway(new FakeDecisionGateway())
               : new TypeSafeDecisionGateway({
                   apiKey: key,
+                  fetch: (input, init) => net.fetch(input, init),
                   timeoutMs: COMPLETION_ADVISORY_POLICY.gatewayTimeoutMs,
                 }),
         });

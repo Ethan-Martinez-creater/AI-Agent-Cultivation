@@ -1,0 +1,232 @@
+{
+  "baseline": "630dfb89029aa8fb359048d547d861bb35b1b721",
+  "schemaVersion": 1,
+  "runId": "1113d8d1-77c6-4a3c-82ea-d1908827f9b8",
+  "status": "PASS",
+  "productionFakeFlags": false,
+  "languageModel": "gpt-4.1-nano-2025-04-14",
+  "runtimeParameters": "NOT_EXPOSED_BY_CURRENT_TYPED_IPC",
+  "cases": {
+    "r3": {
+      "status": "PASS",
+      "observations": [
+        {
+          "attemptId": "f99dede9-95a6-43cd-8c8b-ed42607d9fd7",
+          "decisionType": "COLLABORATION_NEED",
+          "status": "SUCCESS",
+          "receiptId": "4654c9f6-300a-47b5-93ff-8cfec19d2e5e",
+          "stateHash": "fa7c8afcb67768bd1aaa78fb8ad266e5f7cd6bfff7b5d95f0e9cb0b6171914cf",
+          "policyVersion": "r3-shadow-policy-v1",
+          "questionVersion": "r3-collaboration-need-v1",
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0"
+        },
+        {
+          "attemptId": "162ec253-f5a8-4168-889c-76e674ef311c",
+          "decisionType": "REVIEW_NEED",
+          "status": "SUCCESS",
+          "receiptId": "d05cec9e-d208-49eb-86d8-a64e8bbce49f",
+          "stateHash": "d5ab60d2470f3594df731c0c0c046350dd6e09b1456f37ba644d0195a602b6cb",
+          "policyVersion": "r3-shadow-policy-v1",
+          "questionVersion": "r3-review-need-v1",
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0"
+        },
+        {
+          "attemptId": "09b75a1b-af73-4490-84d1-85871d17e614",
+          "decisionType": "TASK_CAPABILITY",
+          "status": "SUCCESS",
+          "receiptId": "7764bf64-d227-4403-ad4f-271d9cd93b9f",
+          "stateHash": "cb43f9ff53dbb75b58ecfafd4e42f2d94e33acfae5453a7733e64ac6a8b76efe",
+          "policyVersion": "r3-shadow-policy-v1",
+          "questionVersion": "r3-task-capability-atomic-v2",
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0"
+        },
+        {
+          "attemptId": "065c65d8-2e51-4a5d-80c9-d8adb48ab920",
+          "decisionType": "TEAMMATE_FIT",
+          "status": "SUCCESS",
+          "receiptId": "9124a50f-a080-444d-b3bf-7e4b13ae53f6",
+          "stateHash": "24af7a9361f07f3c2abfb8e105ede7a41fc02f35547840a8c260266752965fd3",
+          "policyVersion": "r3-shadow-policy-v1",
+          "questionVersion": "r3-teammate-fit-v1",
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0"
+        }
+      ],
+      "createIntent": true,
+      "missionId": "9b73594e-f026-440e-b05d-10f0ff18c10d",
+      "missionState": "DRAFT",
+      "independentSwitchDisabledAfterEvidence": true,
+      "restartObservationCount": 4
+    },
+    "r52": {
+      "status": "PASS",
+      "conversationIdsBefore": [],
+      "conversationCreateIntent": true,
+      "conversationId": "d8c74f3b-5f32-46fa-8e44-823c1867a03d",
+      "chatRequestId": "6317e5ac-4cd0-43bc-9452-19acf904dfbf",
+      "chatSendIntent": true,
+      "userMessageId": "e7f87998-b144-40d4-b259-06ba9461fd85",
+      "chatMessageCharacters": 34,
+      "extractorUsageIdsBefore": [],
+      "proposalIntent": true,
+      "proposeCalled": true,
+      "preGate": {
+        "auditId": "2de4aad0-f520-4a7b-8cc7-48223c64514a",
+        "sourceId": "e7f87998-b144-40d4-b259-06ba9461fd85",
+        "ownerId": "27ab0207-9307-4655-a3a1-fea983f9800f",
+        "mode": "JEV",
+        "decision": "SKIP_EXTRACTION",
+        "confidence": 0.18,
+        "stateHash": "1169b0e626183a84fef472b608ebce57b2e1c7b8c1ef588f097bd40ae47772f5",
+        "policyVersion": "r5-2-memory-pre-gate-policy-v1",
+        "questionVersion": "r5-2-memory-extraction-need-question-v1",
+        "reason": "JEV_DECISION",
+        "errorCode": null,
+        "extractorInvoked": false,
+        "candidateCount": 0
+      },
+      "proposedCandidateCount": 0,
+      "proposedCandidateIds": [],
+      "extractorUsageIds": [],
+      "fallbackMemoryCreateIntent": true,
+      "activeMemoryId": "240dacba-843b-46d0-9f62-c4134a4309e4",
+      "activeMemorySource": "USER_CREATED_FALLBACK"
+    },
+    "r4r5": {
+      "status": "PASS",
+      "routeCreateIntent": true,
+      "missionId": "7facb30b-5ed8-4e1f-9c46-0f28043769ca",
+      "routeReceiptId": "3a943cad-8b96-49bf-89ce-e2352913b9ee",
+      "assignmentKind": "SOLO",
+      "decisionSignals": [
+        {
+          "type": "TEAMMATE_FIT",
+          "status": "IGNORED",
+          "recommendation": "27ab0207-9307-4655-a3a1-fea983f9800f",
+          "requestHash": "289a22ad4bb4ad75bfc59f239cd3304e4fc1ef376130f0c96887e85c68fc5216",
+          "policyVersion": "r4-routing-policy-v1",
+          "questionVersion": "r4-teammate-fit-v1",
+          "errorCode": null
+        }
+      ],
+      "startIntent": true,
+      "explicitTransportRetryIntent": true,
+      "failedOriginalRunId": "ffd95202-1dcf-4fd2-931b-52fe6d37e8b8",
+      "explicitJsonModeCorrectionRetryIntent": true,
+      "failedJsonModeRunId": "7dba9645-c23e-482e-9b3a-980a7c940a09",
+      "approvalIntentIds": ["33de2c40-aea8-4c96-980c-13c475b5544e"],
+      "missionState": "COMPLETED",
+      "runIds": [
+        "ffd95202-1dcf-4fd2-931b-52fe6d37e8b8",
+        "7dba9645-c23e-482e-9b3a-980a7c940a09",
+        "b214755a-de18-4589-9729-4cb422d8f7a1"
+      ],
+      "persistence": {
+        "missionId": "7facb30b-5ed8-4e1f-9c46-0f28043769ca",
+        "runId": "b214755a-de18-4589-9729-4cb422d8f7a1",
+        "memoryMissionId": "c4e417df-2714-4985-b940-b91cf6a590f2",
+        "memoryRunId": "c28751a3-e656-4205-9971-bc5ca64f0f19",
+        "skillSelection": {
+          "eventId": "dbddd49b-132d-4811-94fd-f416c3ee68d3",
+          "actorId": "27ab0207-9307-4655-a3a1-fea983f9800f",
+          "mode": "JEV",
+          "inputHash": "58158381033f4f9651eda8b468c53b33f5b68f219ac072e86b6cc6c1b8bf9f16",
+          "candidateIds": ["b2b654d1-519f-4234-a8e9-c289d5d11bcd"],
+          "selectedSkillIds": ["b2b654d1-519f-4234-a8e9-c289d5d11bcd"]
+        },
+        "memoryRerank": {
+          "auditId": "bc8640e5-5dc9-4fd4-9577-8f9540f3e99b",
+          "mode": "JEV",
+          "stateHash": "b74a78cd25611c6d7d7fdde4fe8ab4d17f5820c59a2282b8fdbfcf0ad859905b",
+          "queryHash": "3cffde7b865d826ade8075f4b7e3e6fcd65aa7904a92446a60b5a5f5bd0c395d",
+          "baselineIds": ["240dacba-843b-46d0-9f62-c4134a4309e4"],
+          "candidateIds": ["240dacba-843b-46d0-9f62-c4134a4309e4"],
+          "orderedIds": ["240dacba-843b-46d0-9f62-c4134a4309e4"],
+          "selectedIds": ["240dacba-843b-46d0-9f62-c4134a4309e4"]
+        },
+        "promptSelection": {
+          "eventId": "36db2589-5f55-4f69-9e3f-df479d252f3c",
+          "auditId": "59693951-a61e-4683-b632-5c69ee042e19",
+          "runId": "c28751a3-e656-4205-9971-bc5ca64f0f19",
+          "memoryIds": ["240dacba-843b-46d0-9f62-c4134a4309e4"],
+          "sectionHash": "a365bde39bf20fd39e2b166342d82475c4727821884131bc43368adb31116a6d"
+        },
+        "toolSelection": {
+          "eventId": "d6a7d42d-d8a1-404c-8c27-b88e54d8c6b8",
+          "runId": "b214755a-de18-4589-9729-4cb422d8f7a1",
+          "mode": "JEV",
+          "eligibleIds": ["file.list", "file.readText", "file.writeText", "file.createDirectory"],
+          "candidateIds": ["file.list", "file.readText", "file.writeText", "file.createDirectory"],
+          "offeredIds": ["file.list", "file.readText", "file.writeText", "file.createDirectory"],
+          "matchingModelToolProposals": [
+            {
+              "eventId": "81479138-d6c7-42de-b9ac-a0a0fb1378f2",
+              "toolId": "file.readText",
+              "runId": "b214755a-de18-4589-9729-4cb422d8f7a1"
+            }
+          ]
+        },
+        "completionAdvisory": {
+          "eventId": "38abd7c7-3652-4df3-a367-c8118a14fa29",
+          "runId": "b214755a-de18-4589-9729-4cb422d8f7a1",
+          "mode": "JEV",
+          "phase": "SOLO",
+          "disposition": "OBJECTIVE_UNCERTAIN",
+          "objectiveHash": "05a7e23379237b5d38cd9677330aaadad28251b1baca5804056f00284a7caa66",
+          "resultHash": "3939fa52c1505c0687911c9f5eadb4de4e7cb2680fa08aa3b35423cec718a270",
+          "stateHash": "69bf1be648f9d5bd615fd97b34c84b068123ffe41345d2b95ac8403816d971c8",
+          "policyVersion": "r5-5-completion-advisory-policy-v1",
+          "questionVersion": "r5-5-completion-advisory-question-v1"
+        }
+      },
+      "assignment": {
+        "receiptId": "3a943cad-8b96-49bf-89ce-e2352913b9ee",
+        "kind": "SOLO",
+        "coordinatorTeammateId": "27ab0207-9307-4655-a3a1-fea983f9800f",
+        "routeEventId": "82f999d4-ec7d-4620-b0d4-53cb8a06739e"
+      },
+      "restartMissionState": "COMPLETED"
+    },
+    "r53": {
+      "missionId": "c4e417df-2714-4985-b940-b91cf6a590f2",
+      "runId": "c28751a3-e656-4205-9971-bc5ca64f0f19"
+    }
+  },
+  "screenshots": ["jev-home-1440.png", "jev-home-1180.png", "jev-home-900.png"],
+  "restartVerified": true,
+  "updatedAt": "2026-10-11T15:04:19.957Z",
+  "jev": {
+    "model": "jev-1.13.0",
+    "keySource": "SAFE_STORAGE",
+    "authenticatedCheck": "PASS"
+  },
+  "actor": {
+    "teammateId": "27ab0207-9307-4655-a3a1-fea983f9800f",
+    "runtimeProfileId": "53e86dc7-7d44-4b68-ad7b-7baba0dd9177",
+    "providerKind": "OPENAI_COMPATIBLE",
+    "modelId": "gpt-4.1-nano-2025-04-14",
+    "executionProtocol": "LANGUAGE"
+  },
+  "workspace": {
+    "selected": true,
+    "builtinToolCount": 4
+  },
+  "skill": {
+    "skillId": "b2b654d1-519f-4234-a8e9-c289d5d11bcd",
+    "teammateId": "27ab0207-9307-4655-a3a1-fea983f9800f",
+    "status": "ACTIVE",
+    "enabled": true
+  },
+  "completedAt": "2026-10-11T15:04:19.957Z",
+  "previousFailure": {
+    "type": "AssertionError",
+    "location": [
+      "    at verifyPersistentEvidence (file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/gen-v1-jev-live-packaged.mjs:909:10)",
+      "    at ensureMainMission (file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/gen-v1-jev-live-packaged.mjs:1091:17)",
+      "    at async main (file:///E:/Graduate_work_folder/Agent_develop/Project/AI%20Agent%20Cultivation/scripts/gen-v1-jev-live-packaged.mjs:1190:23)"
+    ]
+  }
+}

@@ -20,7 +20,7 @@ import {
 } from '../ui-shared.js';
 import './generation-chat.css';
 
-type SupportedParameterKey = 'duration' | 'aspect' | 'seed' | 'nativeAudio';
+type SupportedParameterKey = string;
 type ParameterSchema = Record<string, unknown>;
 
 interface ParameterField {
@@ -94,7 +94,7 @@ export function GenerationChatPage() {
       if (active.teammateId !== targetTeammateId || active.conversationId !== targetConversationId)
         return;
       setDetail(next);
-      if (next.descriptor) setDescriptor(next.descriptor);
+      if (next.descriptor) setDescriptor((current) => current ?? next.descriptor);
     } catch (cause) {
       if (
         activeConversation.current.teammateId === targetTeammateId &&
@@ -204,7 +204,7 @@ export function GenerationChatPage() {
           const active = activeConversation.current;
           if (active.teammateId !== teammateId || active.conversationId !== conversationId) return;
           setDetail(next);
-          if (next.descriptor) setDescriptor(next.descriptor);
+          if (next.descriptor) setDescriptor((current) => current ?? next.descriptor);
         })
         .catch(() => undefined);
     }, 3000);
@@ -340,7 +340,7 @@ export function GenerationChatPage() {
         activeConversation.current.conversationId === conversationId
       ) {
         setDetail(next);
-        if (next.descriptor) setDescriptor(next.descriptor);
+        if (next.descriptor) setDescriptor((current) => current ?? next.descriptor);
         setInputs([]);
       }
       await refreshConversations();
@@ -534,7 +534,9 @@ export function GenerationChatPage() {
                 {teammate && (
                   <Avatar avatar={teammate.avatar} name={teammate.name} kind="TEAMMATE" size={88} />
                 )}
-                <h1>和{teammate?.name ?? '这位道友'}开始生成视频</h1>
+                <h1>
+                  和{teammate?.name ?? '这位道友'}开始生成{mediaLabel(descriptor)}
+                </h1>
                 <p>发送提示词，可附加素材并选择素材用途。</p>
                 {generationIdentityReady && (
                   <button
@@ -563,7 +565,11 @@ export function GenerationChatPage() {
                 {teammate && (
                   <Avatar avatar={teammate.avatar} name={teammate.name} kind="TEAMMATE" size={54} />
                 )}
-                <span>写下你想生成的视频内容。</span>
+                <span>
+                  {descriptor?.outputCapability === 'SPEECH_GENERATION'
+                    ? '输入需要朗读的原文。'
+                    : `写下你想生成的${mediaLabel(descriptor)}内容。`}
+                </span>
               </div>
             )}
           </div>
@@ -716,19 +722,25 @@ export function GenerationChatPage() {
                 )}
                 {descriptor && (
                   <span className="g2-generation-descriptor">
-                    {descriptor.outputCapability === 'VIDEO_GENERATION' ? '视频生成' : '生成模型'} ·{' '}
+                    {mediaLabel(descriptor)}生成 ·{' '}
                     {descriptor.executionMode === 'ASYNC_JOB' ? '异步任务' : '即时生成'}
                   </span>
                 )}
               </div>
               <label className="r33-visually-hidden" htmlFor="generation-chat-prompt">
-                描述想生成的视频
+                {descriptor?.outputCapability === 'SPEECH_GENERATION'
+                  ? '朗读原文'
+                  : `描述想生成的${mediaLabel(descriptor)}`}
               </label>
               <textarea
                 id="generation-chat-prompt"
                 rows={3}
                 value={draft}
-                aria-label="描述想生成的视频"
+                aria-label={
+                  descriptor?.outputCapability === 'SPEECH_GENERATION'
+                    ? '朗读原文'
+                    : `描述想生成的${mediaLabel(descriptor)}`
+                }
                 disabled={!conversationId || busy || !descriptor}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => {
@@ -758,7 +770,7 @@ export function GenerationChatPage() {
                     !inputRolesReady
                   }
                 >
-                  {busy ? '提交中' : '生成视频'}
+                  {busy ? '提交中' : `生成${mediaLabel(descriptor)}`}
                   <Icon name={busy ? 'Refresh' : 'ArrowUp'} size={16} />
                 </button>
               </div>
@@ -929,7 +941,7 @@ function GenerationTechnicalDetails({
   );
 }
 
-function GenerationArtifactCard({
+export function GenerationArtifactCard({
   artifact,
   teammate,
 }: {
@@ -950,11 +962,13 @@ function GenerationArtifactCard({
     formatBytes(artifact.sizeBytes),
   ].filter((item): item is string => item !== null);
   const isVideo = artifact.mimeType.startsWith('video/');
+  const isImage = artifact.mimeType.startsWith('image/');
+  const isAudio = artifact.mimeType.startsWith('audio/');
   useEffect(() => {
     let cancelled = false;
     setSource(null);
     setSourceError(false);
-    if (!isVideo) {
+    if (!isVideo && !isImage && !isAudio) {
       return () => {
         cancelled = true;
       };
@@ -975,7 +989,7 @@ function GenerationArtifactCard({
     return () => {
       cancelled = true;
     };
-  }, [artifact.id, isVideo]);
+  }, [artifact.id, isVideo, isImage, isAudio]);
   return (
     <article className="g2-generation-artifact-card" data-testid="generation-artifact-card">
       {isVideo ? (
@@ -995,13 +1009,37 @@ function GenerationArtifactCard({
             {sourceError ? '暂时无法加载视频预览。' : '正在准备视频预览…'}
           </div>
         )
+      ) : isImage || isAudio ? (
+        source ? (
+          isImage ? (
+            <img
+              className="g2-generation-image"
+              src={source}
+              alt={`${teammate?.name ?? '道友'}生成的图片`}
+            />
+          ) : (
+            <audio
+              className="g2-generation-audio"
+              src={source}
+              controls
+              preload="metadata"
+              aria-label="生成音频"
+            />
+          )
+        ) : (
+          <div role={sourceError ? 'alert' : 'status'}>
+            {sourceError ? '暂时无法加载预览。' : '正在准备预览…'}
+          </div>
+        )
       ) : (
         <div className="g2-generation-file-icon">
           <Icon name="Attachment" size={24} />
         </div>
       )}
       <div className="g2-generation-artifact-copy">
-        <strong>{isVideo ? '生成视频' : '生成文件'}</strong>
+        <strong>
+          {isVideo ? '生成视频' : isImage ? '生成图片' : isAudio ? '生成音频' : '生成文件'}
+        </strong>
         <span>{meta.join(' · ') || artifact.mimeType}</span>
         <small>{artifact.mimeType}</small>
       </div>
@@ -1023,7 +1061,7 @@ function ParameterControl({
   onRemove: (key: SupportedParameterKey) => void;
 }) {
   const label = parameterLabel(field.key);
-  if (field.key === 'nativeAudio') {
+  if (field.schema.type === 'boolean') {
     return (
       <label className="field">
         <span>
@@ -1045,7 +1083,7 @@ function ParameterControl({
       </label>
     );
   }
-  if (field.key === 'aspect') {
+  if (field.schema.type === 'string') {
     const options = stringOptions(field.schema.enum);
     return (
       <label className="field">
@@ -1072,6 +1110,7 @@ function ParameterControl({
           <input
             type="text"
             required={field.required}
+            maxLength={Math.min(optionalNumber(field.schema.maxLength) ?? 2048, 8000)}
             value={typeof value === 'string' ? value : ''}
             onChange={(event) =>
               event.target.value ? onChange(field.key, event.target.value) : onRemove(field.key)
@@ -1081,7 +1120,7 @@ function ParameterControl({
       </label>
     );
   }
-  const isDuration = field.key === 'duration';
+  const isDuration = field.key === 'duration' || field.key === 'durationSeconds';
   const isSeed = field.key === 'seed';
   const min = isDuration
     ? boundedMinimum(field.schema.minimum, descriptor.limits.minDurationSeconds)
@@ -1122,27 +1161,23 @@ function ParameterControl({
   );
 }
 
-function supportedParameterFields(descriptor: GenerationModelDescriptor): ParameterField[] {
+export function supportedParameterFields(descriptor: GenerationModelDescriptor): ParameterField[] {
   const schema = descriptor.parameterSchema;
   const properties = isRecord(schema.properties) ? schema.properties : {};
   const required = unknownArray(schema.required).filter(
     (item): item is string => typeof item === 'string',
   );
-  const supported: SupportedParameterKey[] = ['duration', 'aspect', 'seed', 'nativeAudio'];
+  const supported = Object.keys(properties)
+    .filter((key) => /^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(key))
+    .slice(0, 32);
   return supported.flatMap((key) => {
     const candidate = properties[key];
     if (!isRecord(candidate)) return [];
     const propertyType = candidate.type;
-    const supportedType =
-      (key === 'duration' && (propertyType === 'number' || propertyType === 'integer')) ||
-      (key === 'aspect' && propertyType === 'string') ||
-      (key === 'seed' && (propertyType === 'number' || propertyType === 'integer')) ||
-      (key === 'nativeAudio' &&
-        propertyType === 'boolean' &&
-        descriptor.featureTags.includes('NATIVE_AUDIO'));
+    const supportedType = ['number', 'integer', 'string', 'boolean'].includes(String(propertyType));
     if (!supportedType) return [];
     const parameterSchema =
-      key === 'duration'
+      key === 'duration' || key === 'durationSeconds'
         ? {
             ...candidate,
             ...(boundedMinimum(candidate.minimum, descriptor.limits.minDurationSeconds) !==
@@ -1159,7 +1194,7 @@ function supportedParameterFields(descriptor: GenerationModelDescriptor): Parame
   });
 }
 
-function defaultParameters(descriptor: GenerationModelDescriptor): Record<string, unknown> {
+export function defaultParameters(descriptor: GenerationModelDescriptor): Record<string, unknown> {
   const defaults: Record<string, unknown> = {};
   for (const field of supportedParameterFields(descriptor)) {
     if (!Object.hasOwn(field.schema, 'default')) continue;
@@ -1170,8 +1205,8 @@ function defaultParameters(descriptor: GenerationModelDescriptor): Record<string
 }
 
 function hasValidParameterValue(field: ParameterField, value: unknown): boolean {
-  if (field.key === 'nativeAudio') return typeof value === 'boolean';
-  if (field.key === 'aspect') {
+  if (field.schema.type === 'boolean') return typeof value === 'boolean';
+  if (field.schema.type === 'string') {
     const options = stringOptions(field.schema.enum);
     return typeof value === 'string' && (!options.length || options.includes(value));
   }
@@ -1187,7 +1222,7 @@ function hasValidParameterValue(field: ParameterField, value: unknown): boolean 
 }
 
 function entryParameterSummary(parameters: Record<string, unknown>): string[] {
-  const supported: SupportedParameterKey[] = ['duration', 'aspect', 'seed', 'nativeAudio'];
+  const supported = Object.keys(parameters).slice(0, 32);
   return supported.flatMap((key) => {
     const value = parameters[key];
     if (typeof value !== 'number' && typeof value !== 'string' && typeof value !== 'boolean')
@@ -1305,8 +1340,30 @@ function parameterLabel(key: SupportedParameterKey): string {
     aspect: '画面比例',
     seed: '随机种子',
     nativeAudio: '要求原生音频',
+    durationSeconds: '时长',
+    resolution: '清晰度',
+    size: '画面比例',
+    voice: '音色',
+    instrumental: '纯音乐',
+    title: '标题',
+    tags: '音乐风格',
+    lyrics: '歌词',
+    n: '数量',
+    customMode: '自定义歌曲',
+    version: '版本',
+    audioFormat: '音频格式',
   };
-  return labels[key];
+  return labels[key] ?? key;
+}
+
+function mediaLabel(descriptor: GenerationModelDescriptor | null): string {
+  return descriptor?.outputCapability.startsWith('IMAGE_')
+    ? '图片'
+    : descriptor?.outputCapability === 'MUSIC_GENERATION'
+      ? '音乐'
+      : descriptor?.outputCapability === 'SPEECH_GENERATION'
+        ? '语音'
+        : '视频';
 }
 
 function roleLabel(role: string): string {

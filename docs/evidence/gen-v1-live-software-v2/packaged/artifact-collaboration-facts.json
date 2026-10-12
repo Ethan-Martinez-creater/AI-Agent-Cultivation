@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "productionFakeFlags": false,
+  "sourceArtifact": {
+    "id": "ec4a84a6753d87280c7200ff919c4db92b7d7796fe72a7be6b5619d879f52504",
+    "kind": "IMAGE",
+    "mimeType": "image/jpeg",
+    "contentHash": "32ee8be56630182a9e75ab292fdb19e3583d9a90d4fb34133dda45875b2a3cf0",
+    "sizeBytes": 427580
+  },
+  "coordinatorId": "27ab0207-9307-4655-a3a1-fea983f9800f",
+  "memberId": "c87c3f73-ff1e-487e-a874-11592dbfb46a",
+  "missionId": "6f05f048-bee9-4c1a-8fdc-3c49907a20bc",
+  "startIntent": true,
+  "schemaCorrectionRetryIntent": true,
+  "previousFailedRunId": "d2678df1-0288-4b60-bfad-6229b3fc0ebc",
+  "modelRecheckIntent": true,
+  "modelRecheck": "UNSTABLE",
+  "availabilityRecoveryRetryIntent": true,
+  "unavailableRunId": "0dcfc589-3039-4f63-8547-a21c6fb07a06",
+  "runId": "a14e4174-ac83-4b70-b29f-c9a1d7b5c319",
+  "share": {
+    "artifact_id": "ec4a84a6753d87280c7200ff919c4db92b7d7796fe72a7be6b5619d879f52504",
+    "source_type": "APPROVED_IMPORT",
+    "source_id": "b83400cb-32d9-429e-b9a4-1fd596a0f412",
+    "content_hash": "32ee8be56630182a9e75ab292fdb19e3583d9a90d4fb34133dda45875b2a3cf0"
+  },
+  "shareProvenance": {
+    "eventId": "b83400cb-32d9-429e-b9a4-1fd596a0f412",
+    "auditId": "1df3c773-63ad-49e4-9777-a55c2a20aa77",
+    "actor": "local-user"
+  },
+  "state": "COMPLETED",
+  "approvalIntent": "676360f1-4545-4a3f-b206-84e9c0927f3e",
+  "execution": [
+    {
+      "taskId": "ddd4b57c-378d-43e2-9677-98b7201600a8",
+      "jobId": "40eb5b6f-90a6-418e-9b44-ee3be8d0f117",
+      "state": "COMPLETED",
+      "inputs": [
+        {
+          "contentHash": "32ee8be56630182a9e75ab292fdb19e3583d9a90d4fb34133dda45875b2a3cf0",
+          "id": "ec4a84a6753d87280c7200ff919c4db92b7d7796fe72a7be6b5619d879f52504",
+          "kind": "IMAGE",
+          "mimeType": "image/jpeg",
+          "role": "FIRST_FRAME",
+          "sizeBytes": 427580
+        }
+      ]
+    }
+  ],
+  "output": [
+    {
+      "id": "901d5b2b9b84478dd633c09bd0a6df3e6b0655785a37e4aaeb6d611b34ecdabc",
+      "kind": "VIDEO",
+      "mime_type": "video/mp4",
+      "content_hash": "4555dcb06d9cd7465172eb30d4548398406746ccdbbf7c5617a8541829d59ba3",
+      "size_bytes": 544461
+    }
+  ],
+  "playback": {
+    "loaded": true,
+    "currentTime": 0.108425,
+    "duration": 2.02,
+    "opaque": true
+  },
+  "reentry": {
+    "jobCount": 1,
+    "outputCount": 1,
+    "sameJobAndArtifacts": true,
+    "noNewSubmissionIntent": true
+  },
+  "previousFailure": {
+    "message": "locator.waitFor: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '已有图片的短视频协作' }).first() to be visible\u001b[22m\n",
+    "location": [
+      "    at E:\\Graduate_work_folder\\Agent_develop\\Project\\AI Agent Cultivation\\scripts\\gen-v1-artifact-collaboration-live.mjs:167:73"
+    ]
+  },
+  "levels": {
+    "api": "PASS",
+    "adapter": "PASS",
+    "integration": "PASS",
+    "packaged": "PASS"
+  }
+}

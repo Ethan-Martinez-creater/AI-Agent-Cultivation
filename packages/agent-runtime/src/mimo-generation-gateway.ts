@@ -178,7 +178,7 @@ function validateRequest(request: ProviderGenerationRequest): string {
     request.inputs.length !== 0 ||
     typeof request.prompt !== 'string' ||
     request.prompt.trim().length === 0 ||
-    /[\u0000]/.test(request.prompt) ||
+    request.prompt.includes(String.fromCharCode(0)) ||
     utf8Size(request.prompt) > MAX_PROMPT_BYTES
   )
     fail('INVALID_INPUT');

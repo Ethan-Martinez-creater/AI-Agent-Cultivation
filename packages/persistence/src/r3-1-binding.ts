@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import Database from 'better-sqlite3';
+import { isGenerationAdapterId } from '@cultivation/domain';
 import type {
   ExecutionProtocol,
   ProviderKind as DomainProviderKind,
@@ -286,7 +287,7 @@ export class R31BindingRepository {
       row.actual_provider_kind === row.provider_kind &&
       row.actual_adapter_id === row.adapter_id &&
       (row.provider_kind !== 'GENERATION_HTTP' ||
-        (row.adapter_id === 'H3' && row.execution_protocol === 'GENERATION')) &&
+        (isGenerationAdapterId(row.adapter_id) && row.execution_protocol === 'GENERATION')) &&
       isSupportedProviderKind(row.provider_kind) &&
       row.provider_enabled === 1 &&
       row.provider_endpoint === row.endpoint &&

@@ -129,7 +129,7 @@ function makeMusicDescriptor(maxOutputBytes = 8 * 1024 * 1024): GenerationModelD
 }
 
 function makeWavOutput(
-  bytes: Uint8Array,
+  bytes: Buffer,
   outputId: string,
   metadata: GenerationOutputDescriptor['metadata'],
 ): GenerationOutputDescriptor {

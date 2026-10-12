@@ -5,6 +5,7 @@ import {
   makeMemoryRerankRequest,
 } from '@cultivation/application/r5-3-memory-rerank';
 import type { DecisionRequest, DecisionType } from '@cultivation/application/r0-decision';
+import { DecisionStateBuilder } from '@cultivation/application/r3-decision-state';
 import type { Fetch } from '@typesafe-ai/sdk';
 import {
   MAX_TYPESAFE_MEMORY_PRE_GATE_RESPONSE_BYTES,
@@ -494,6 +495,25 @@ describe('TypeSafeDecisionGateway', () => {
     expect(result.selectedAction).toBeNull();
   });
 
+  it('accepts the production R3 task-capability builder through the real SDK contract', async () => {
+    let payload: Record<string, unknown> | undefined;
+    const fetch: Fetch = async (_input, init) => {
+      payload = JSON.parse(String(init?.body));
+      return jsonResponse(successfulTaskResponse());
+    };
+    const request = new DecisionStateBuilder().buildTaskCapability({
+      taskSummary: 'Review a short coding change.',
+    });
+    const result = await new TypeSafeDecisionGateway({ apiKey, fetch }).evaluate(request);
+    expect(result.errorCode).toBeNull();
+    expect(result.answers.demands).toHaveLength(14);
+    expect(payload?.questions).toEqual(request.questions);
+    expect(request.questions['demand.CODING.probability']?.criteria).toEqual({
+      true: 'This capability is materially involved in the task.',
+      false: 'This capability is not materially involved in the task.',
+    });
+  });
+
   it('normalizes a fit recommendation and keeps choice probabilities outside domain answers', async () => {
     const fetch: Fetch = async () =>
       jsonResponse({
@@ -849,5 +869,32 @@ describe('TypeSafeDecisionGateway', () => {
       model: TYPESAFE_DECISION_MODEL,
       errorCode: 'MODEL_UNAVAILABLE',
     });
+  });
+
+  it('Test Connection checks the pinned version when discovery only advertises an alias', async () => {
+    const requests: string[] = [];
+    const fetch: Fetch = async (url, init) => {
+      requests.push(url);
+      if (url.endsWith('/models'))
+        return jsonResponse({
+          models: [{ name: 'jev-latest', description: 'alias', release_date: '2026-09-15' }],
+        });
+      const body = JSON.parse(String(init?.body));
+      expect(body.model).toBe(TYPESAFE_DECISION_MODEL);
+      expect(body.state).toEqual({ connectionProbe: 'Public, non-sensitive connection check.' });
+      return jsonResponse({
+        model: TYPESAFE_DECISION_MODEL,
+        answers: { connected: { type: 'noul', noul: 1 } },
+        usage: { input_tokens: 1, output_tokens: 1 },
+      });
+    };
+    expect(await new TypeSafeDecisionGateway({ apiKey, fetch }).testConnection()).toMatchObject({
+      ok: true,
+      errorCode: null,
+    });
+    expect(requests).toEqual([
+      'https://api.typesafe.ai/v1/models',
+      'https://api.typesafe.ai/v1/systemone',
+    ]);
   });
 });

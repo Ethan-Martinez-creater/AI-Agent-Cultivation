@@ -11,6 +11,8 @@ import {
 import { errorText, providerKinds, safeLabel } from '../ui-shared.js';
 import type { ProviderKind, ProviderView, RuntimeProfileView, TeammateView } from '../ui-shared.js';
 import './create-teammate.css';
+import { generationAdapters } from '../generation-adapters.js';
+import type { GenerationAdapterId } from '@cultivation/domain';
 
 type FlowStep = 'identity' | 'model' | 'confirm';
 type ModelMode = 'existing' | 'new';
@@ -60,6 +62,7 @@ export function CreateTeammatePanel({
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
   const [selectedRuntimeId, setSelectedRuntimeId] = useState('');
   const [providerKind, setProviderKind] = useState<ProviderKind>('OPENAI');
+  const [adapterId, setAdapterId] = useState<GenerationAdapterId>('GEN_HTTP_V1');
   const [endpoint, setEndpoint] = useState('');
   const [modelId, setModelId] = useState('');
   const [executionProtocol, setExecutionProtocol] = useState<'LANGUAGE' | 'GENERATION'>('LANGUAGE');
@@ -75,7 +78,12 @@ export function CreateTeammatePanel({
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  const providerKey = providerKind + '|' + endpoint.trim();
+  const providerKey =
+    providerKind +
+    '|' +
+    (providerKind === 'GENERATION_HTTP' ? adapterId : '') +
+    '|' +
+    endpoint.trim();
   const requiresEndpoint =
     providerKind === 'OPENAI_COMPATIBLE' || providerKind === 'GENERATION_HTTP';
   const optionalCredential =
@@ -125,6 +133,7 @@ export function CreateTeammatePanel({
     setSelectedRuntimeId('');
     setTemplatesLoaded(false);
     setProviderKind('OPENAI');
+    setAdapterId('GEN_HTTP_V1');
     setEndpoint('');
     setModelId('');
     setExecutionProtocol('LANGUAGE');
@@ -179,7 +188,7 @@ export function CreateTeammatePanel({
       (item) =>
         item.kind === providerKind &&
         item.baseUrl === (endpoint.trim() || null) &&
-        (providerKind !== 'GENERATION_HTTP' || item.adapterId === 'H3'),
+        (providerKind !== 'GENERATION_HTTP' || item.adapterId === adapterId),
     );
     if (knownProvider) {
       setCreatedProviderId(knownProvider.id);
@@ -190,7 +199,7 @@ export function CreateTeammatePanel({
       name: kindLabel(providerKind),
       kind: providerKind,
       baseUrl: endpoint.trim() || undefined,
-      ...(providerKind === 'GENERATION_HTTP' ? { adapterId: 'H3' } : {}),
+      ...(providerKind === 'GENERATION_HTTP' ? { adapterId } : {}),
     });
     setProviders((current) => [...current.filter((item) => item.id !== created.id), created]);
     setCreatedProviderId(created.id);
@@ -234,14 +243,19 @@ export function CreateTeammatePanel({
     if (mode === 'new' && (!modelId.trim() || (requiresEndpoint && !endpoint.trim()))) {
       setError(
         providerKind === 'GENERATION_HTTP'
-          ? '请填写 Generation Endpoint，并明确输入 minimax-h3。'
+          ? '请填写生成服务地址和模型编号。'
           : providerKind === 'OPENAI_COMPATIBLE'
             ? '请填写 Endpoint 和 Model ID。'
             : '请填写 Model ID。',
       );
       return;
     }
-    if (mode === 'new' && providerKind === 'GENERATION_HTTP' && modelId.trim() !== 'minimax-h3') {
+    if (
+      mode === 'new' &&
+      providerKind === 'GENERATION_HTTP' &&
+      adapterId === 'H3' &&
+      modelId.trim() !== 'minimax-h3'
+    ) {
       setError('Generation HTTP 固定使用 minimax-h3，请明确配置此 Model ID 后测试。');
       return;
     }
@@ -550,6 +564,30 @@ export function CreateTeammatePanel({
                     ))}
                   </select>
                 </label>
+                {providerKind === 'GENERATION_HTTP' && (
+                  <label className="field">
+                    <span>生成服务</span>
+                    <select
+                      value={adapterId}
+                      disabled={busy}
+                      onChange={(event) => {
+                        const next = generationAdapters.find((a) => a.id === event.target.value)!;
+                        setAdapterId(next.id);
+                        setEndpoint(next.endpoint);
+                        setCreatedCredentialId('');
+                        setCreatedCredentialKey('');
+                        setDraftRuntimeId('');
+                        invalidateTest();
+                      }}
+                    >
+                      {generationAdapters.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
                 <label className="field">
                   <span>Endpoint {requiresEndpoint ? '（必填）' : '（选填）'}</span>
                   <input
@@ -578,7 +616,7 @@ export function CreateTeammatePanel({
                       invalidateTest();
                     }}
                   />
-                  {providerKind === 'GENERATION_HTTP' && (
+                  {providerKind === 'GENERATION_HTTP' && adapterId === 'H3' && (
                     <small>请明确输入 minimax-h3；连接检测会核对服务端的生成模型身份。</small>
                   )}
                 </label>
@@ -627,7 +665,9 @@ export function CreateTeammatePanel({
                       busy ||
                       !modelId.trim() ||
                       (requiresEndpoint && !endpoint.trim()) ||
-                      (providerKind === 'GENERATION_HTTP' && modelId.trim() !== 'minimax-h3')
+                      (providerKind === 'GENERATION_HTTP' &&
+                        adapterId === 'H3' &&
+                        modelId.trim() !== 'minimax-h3')
                     }
                     onClick={() => void importApiKey()}
                   >

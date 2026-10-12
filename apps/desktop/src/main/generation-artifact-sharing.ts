@@ -108,7 +108,7 @@ function requireShareableArtifact(
     fail('UNSUPPORTED_MEDIA_TYPE', 'Artifact 必须是已知 MIME 的图片、视频或音频');
   if (
     !Number.isSafeInteger(artifact.sizeBytes) ||
-    artifact.sizeBytes < 0 ||
+    artifact.sizeBytes <= 0 ||
     !/^[a-f0-9]{64}$/u.test(artifact.contentHash)
   )
     fail('ARTIFACT_INTEGRITY', 'Artifact 元数据不满足完整性要求');

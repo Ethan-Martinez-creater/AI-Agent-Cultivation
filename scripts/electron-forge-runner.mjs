@@ -57,6 +57,67 @@ function installForgeGlobCompatibility() {
   };
 }
 
+function installContainedPackagerCompatibility() {
+  const directory = path.dirname(require.resolve('@electron/packager'));
+  const version = require(path.join(directory, '..', 'package.json')).version;
+  if (version !== '18.4.4')
+    throw new Error('Contained staging compatibility requires Packager 18.4.4');
+  const platformFile = path.join(directory, 'platform.js');
+  const localRequire = createRequire(platformFile);
+  const { App } = require(platformFile);
+  const io = localRequire('fs-extra');
+  const { userPathFilter } = require(path.join(directory, 'copy-filter.js'));
+  const { promisifyHooks } = require(path.join(directory, 'hooks.js'));
+  const original = App.prototype.copyTemplate;
+  App.prototype.copyTemplate = async function copyTemplateWithContainedStaging() {
+    const rel = path
+      .relative(path.resolve(this.opts.dir), this.originalResourcesAppDir)
+      .replaceAll('\\', '/');
+    if (!/^\.tmp\/[^/]+\/electron-packager\/tmp-[^/]+\/resources\/app$/.test(rel))
+      return original.call(this);
+    await promisifyHooks(this.opts.beforeCopy, this.hookArgsWithOriginalResourcesAppDir);
+    await copyContainedPackagerTemplate(
+      io,
+      this.opts.dir,
+      this.originalResourcesAppDir,
+      {
+        filter: userPathFilter(this.opts),
+        dereference: this.opts.derefSymlinks,
+      },
+      process.cwd(),
+    );
+    await promisifyHooks(this.opts.afterCopy, this.hookArgsWithOriginalResourcesAppDir);
+    if (this.opts.prune)
+      await promisifyHooks(this.opts.afterPrune, this.hookArgsWithOriginalResourcesAppDir);
+  };
+}
+
+// fs-extra rejects root → contained destination before consulting Packager's ignore filter.
+// Copying allowed immediate children preserves that filter without recursing into staging.
+// This wrapper is installed only for Packager's platform module; all other copies are untouched.
+async function copyContainedPackagerTemplate(io, source, destination, options, root) {
+  const from = path.resolve(source);
+  const to = path.resolve(destination);
+  const rel = path.relative(path.resolve(root), to).replaceAll('\\', '/');
+  if (
+    from !== path.resolve(root) ||
+    !/^\.tmp\/[^/]+\/electron-packager\/tmp-[^/]+\/resources\/app$/.test(rel) ||
+    typeof options?.filter !== 'function'
+  )
+    return io.copy(source, destination, options);
+  if (!(await options.filter(from, to))) return;
+  await io.ensureDir(to);
+  for (const name of await io.readdir(from)) {
+    const child = path.join(from, name);
+    const target = path.join(to, name);
+    if (!(await options.filter(child, target))) continue;
+    const nested = path.relative(child, to);
+    if (!nested.startsWith('..' + path.sep) && !path.isAbsolute(nested))
+      throw new Error('Packager filter must exclude its contained staging directory');
+    await io.copy(child, target, options);
+  }
+}
+
 function runForgeCli(args) {
   const forgeEntry = require.resolve('@electron-forge/core');
   const forgePackageJson = path.resolve(path.dirname(forgeEntry), '../../package.json');
@@ -72,13 +133,21 @@ function runForgeCli(args) {
 
   if (process.platform === 'win32') {
     installForgeGlobCompatibility();
+    installContainedPackagerCompatibility();
     console.log(
       '[build] Applying scoped Electron Forge 7.11.2 Windows temporary-path glob compatibility.',
     );
   }
 
-  const cliPath = require.resolve('@electron-forge/cli/dist/electron-forge.js');
-  process.argv = [process.execPath, cliPath, ...args];
+  // The top-level Commander CLI spawns a subcommand process and loses scoped compatibility.
+  // Invoke its official package subcommand in this process; flags and Forge package API stay intact.
+  const directPackage = args[0] === 'package';
+  const cliPath = require.resolve(
+    directPackage
+      ? '@electron-forge/cli/dist/electron-forge-package.js'
+      : '@electron-forge/cli/dist/electron-forge.js',
+  );
+  process.argv = [process.execPath, cliPath, ...(directPackage ? args.slice(1) : args)];
   require(cliPath);
 }
 
@@ -87,4 +156,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === currentFile) {
   runForgeCli(process.argv.slice(2));
 }
 
-export { isForgeTemporaryBinCleanupGlob, normalizeForgeFastGlobCall };
+export {
+  isForgeTemporaryBinCleanupGlob,
+  normalizeForgeFastGlobCall,
+  copyContainedPackagerTemplate,
+};

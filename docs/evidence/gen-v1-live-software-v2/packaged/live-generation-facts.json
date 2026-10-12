@@ -1,0 +1,371 @@
+{
+  "baseline": "630dfb89029aa8fb359048d547d861bb35b1b721",
+  "cases": {
+    "LIVE_APIMART_IMAGE": {
+      "api": "PASS",
+      "adapter": "PASS",
+      "integration": "PASS",
+      "packaged": "PASS",
+      "teammateId": "3cea1bbb-c641-49ad-9ab9-0910ee0cc903",
+      "intentAt": "2026-10-11T12:58:26.153Z",
+      "failure": "page.evaluate: Target page, context or browser has been closed",
+      "jobId": "1b967aa5-3a32-46d1-b69c-977fa060d258",
+      "state": "COMPLETED",
+      "errorCode": null,
+      "artifacts": [
+        {
+          "id": "ec4a84a6753d87280c7200ff919c4db92b7d7796fe72a7be6b5619d879f52504",
+          "kind": "IMAGE",
+          "mimeType": "image/jpeg",
+          "sizeBytes": 427580,
+          "contentHash": "32ee8be56630182a9e75ab292fdb19e3583d9a90d4fb34133dda45875b2a3cf0"
+        }
+      ],
+      "persistence": {
+        "integrity": "ok",
+        "binding": {
+          "adapter_id": "APIMART_ASYNC",
+          "model_id": "gemini-3.1-flash-lite-image",
+          "execution_protocol": "GENERATION",
+          "credential_id": "7c2f71d9-b088-47a2-a637-bf841c596096"
+        },
+        "inputs": []
+      },
+      "playback": [
+        {
+          "kind": "IMAGE",
+          "width": 1024,
+          "loaded": true,
+          "opaque": true
+        }
+      ],
+      "finishedAt": "2026-10-11T13:09:12.415Z",
+      "restartPlayback": [],
+      "restartImages": [
+        {
+          "loaded": true,
+          "opaque": true
+        }
+      ],
+      "restartHistory": "PASS"
+    },
+    "LIVE_APIMART_VIDEO_T2V": {
+      "api": "PASS",
+      "adapter": "PASS",
+      "integration": "PASS",
+      "packaged": "PASS",
+      "teammateId": "13e90345-c460-4e1b-b986-468d103bbdb7",
+      "intentAt": "2026-10-11T14:33:55.375Z",
+      "jobId": "c20ed22e-ef94-471a-8758-0bee7897d6ba",
+      "state": "COMPLETED",
+      "errorCode": null,
+      "previousAttempts": [
+        {
+          "jobId": "2ba569fd-b8d8-4f16-a4b8-cf206fb1817d",
+          "providerJobId": null,
+          "state": "FAILED",
+          "errorCode": "UNSUPPORTED_MEDIA_TYPE"
+        }
+      ],
+      "providerJobId": "task_01M4NP53ZS2NAEBXN7H7FH75G8",
+      "artifacts": [
+        {
+          "id": "bc09ec3c914d4315e31f19434b17de702a534d13bf3ebf27edc0378fdee67e5f",
+          "kind": "VIDEO",
+          "mimeType": "video/mp4",
+          "sizeBytes": 835920,
+          "contentHash": "e916471f4606ad7474150da7f2f870360893439a2d68df94baf5cce3a1e8eca5"
+        }
+      ],
+      "persistence": {
+        "integrity": "ok",
+        "binding": {
+          "adapter_id": "APIMART_ASYNC",
+          "model_id": "wan2.7",
+          "execution_protocol": "GENERATION",
+          "credential_id": "7c2f71d9-b088-47a2-a637-bf841c596096"
+        },
+        "inputs": []
+      },
+      "playback": [
+        {
+          "kind": "VIDEO",
+          "loaded": true,
+          "currentTime": 0.171243,
+          "duration": 2.02,
+          "opaque": true,
+          "progressed": true
+        }
+      ],
+      "finishedAt": "2026-10-11T14:50:18.066Z",
+      "restartPlayback": [],
+      "restartImages": [],
+      "restartHistory": "PASS"
+    },
+    "LIVE_APIMART_MUSIC": {
+      "api": "PASS",
+      "adapter": "PASS",
+      "integration": "PASS",
+      "packaged": "PASS",
+      "teammateId": "a5e539ab-78bd-4810-a481-27c8366bf35b",
+      "intentAt": "2026-10-11T14:50:49.546Z",
+      "jobId": "52918cb0-5054-4f4a-9478-b932cfd20c03",
+      "state": "COMPLETED",
+      "errorCode": null,
+      "previousAttempts": [
+        {
+          "jobId": "608ecf4a-63b6-4ca4-9288-d85a6b730482",
+          "providerJobId": null,
+          "state": "FAILED",
+          "errorCode": "INVALID_INPUT"
+        },
+        {
+          "jobId": "45d4fb59-9460-4beb-b01f-1c2b5824153d",
+          "providerJobId": "task_01M4NM3F42WBKY00376MPX1R6M",
+          "state": "FAILED",
+          "errorCode": "ARTIFACT_INTEGRITY"
+        }
+      ],
+      "providerJobId": "task_01M4NQ4CQFZ87EYE42CQKM41HD",
+      "artifacts": [
+        {
+          "id": "1dc6ea21ef5c436a61f75f9286c40497674b7010787a8bb2355e2015e721c8e6",
+          "kind": "AUDIO",
+          "mimeType": "audio/wav",
+          "sizeBytes": 41083084,
+          "contentHash": "205f74355aa03c336ae2fda7af698ca7af3677058fcca31d01d992ea603ca910"
+        },
+        {
+          "id": "fe0071fd800bdac11633faa4a0b728463d7daad5698f10e7968708868ab52d0a",
+          "kind": "AUDIO",
+          "mimeType": "audio/wav",
+          "sizeBytes": 40238284,
+          "contentHash": "17ba853572c0cb4102c9f7bbbe1a162eee227b13a3a7a7569f59fd7b8eec988c"
+        }
+      ],
+      "persistence": {
+        "integrity": "ok",
+        "binding": {
+          "adapter_id": "APIMART_ASYNC",
+          "model_id": "suno",
+          "execution_protocol": "GENERATION",
+          "credential_id": "7c2f71d9-b088-47a2-a637-bf841c596096"
+        },
+        "inputs": []
+      },
+      "playback": [
+        {
+          "kind": "AUDIO",
+          "loaded": true,
+          "currentTime": 0.118203,
+          "duration": 213.9735,
+          "opaque": true,
+          "progressed": true
+        },
+        {
+          "kind": "AUDIO",
+          "loaded": true,
+          "currentTime": 0.141983,
+          "duration": 209.5735,
+          "opaque": true,
+          "progressed": true
+        }
+      ],
+      "finishedAt": "2026-10-11T14:53:19.479Z",
+      "restartPlayback": [],
+      "restartImages": [],
+      "restartHistory": "PASS"
+    },
+    "LIVE_APIMART_VIDEO_I2V": {
+      "api": "NOT_RUN",
+      "adapter": "NOT_RUN",
+      "integration": "NOT_RUN",
+      "packaged": "BLOCKED",
+      "teammateId": "c87c3f73-ff1e-487e-a874-11592dbfb46a",
+      "intentAt": "2026-10-11T13:22:10.779Z",
+      "jobId": "e169d555-55cc-420c-9904-48fb490747aa",
+      "state": "UNKNOWN",
+      "errorCode": "INTERNAL_ERROR",
+      "failure": "GENERATION_UNKNOWN:INTERNAL_ERROR"
+    },
+    "LIVE_MIMO_TTS": {
+      "api": "PASS",
+      "adapter": "PASS",
+      "integration": "PASS",
+      "packaged": "PASS",
+      "teammateId": "846c9c4f-d976-4bc9-93a0-868185971373",
+      "intentAt": "2026-10-11T13:34:56.357Z",
+      "jobId": "511d0a73-2ace-49ef-8f82-b7f41ef601a1",
+      "providerJobId": "mimo_v1_957db7e390d2565e6ffe2cd406c2dd7f14dd4511a7c8b539a3e8c9199a483300",
+      "state": "COMPLETED",
+      "errorCode": null,
+      "artifacts": [
+        {
+          "id": "338189603597016bdfbd17c57826154c9c061327def4145a4d9e2f7f4a68dfff",
+          "kind": "AUDIO",
+          "mimeType": "audio/wav",
+          "sizeBytes": 207404,
+          "contentHash": "e924cb45d2f18e9e69455b5a02d965d9523623881602ff5e1f99a568a720ef47"
+        }
+      ],
+      "persistence": {
+        "integrity": "ok",
+        "binding": {
+          "adapter_id": "MIMO_TTS",
+          "model_id": "mimo-v2.5-tts",
+          "execution_protocol": "GENERATION",
+          "credential_id": "439579cf-5fd4-459c-a4a8-f28f9e542c72"
+        },
+        "inputs": []
+      },
+      "playback": [
+        {
+          "kind": "AUDIO",
+          "loaded": true,
+          "currentTime": 0,
+          "duration": 4.32,
+          "opaque": true
+        }
+      ],
+      "finishedAt": "2026-10-11T13:35:04.172Z",
+      "restartPlayback": [],
+      "restartImages": [],
+      "restartHistory": "PASS"
+    },
+    "LIVE_TOKENRHYTHM_QWEN_IMAGE": {
+      "api": "PASS",
+      "adapter": "PASS",
+      "integration": "PASS",
+      "packaged": "PASS",
+      "teammateId": "eeca3bc9-6628-4309-84be-25901f107b9c",
+      "intentAt": "2026-10-12T02:43:01.944Z",
+      "jobId": "f572752e-ca06-4873-afec-7e9538ab2cf8",
+      "providerJobId": "1339931e-e9df-4b46-b831-e5fbfd89fdd8",
+      "state": "COMPLETED",
+      "errorCode": null,
+      "artifacts": [
+        {
+          "id": "0d9e856411e56ae9e858c6a81cb2475615a6ae2cc186fa6553936067e3ef9401",
+          "kind": "IMAGE",
+          "mimeType": "image/png",
+          "sizeBytes": 1002409,
+          "contentHash": "077567468ef54543f9202665cb222f7decdae3ce25c2fa5784a4b698ad5b485d"
+        }
+      ],
+      "persistence": {
+        "integrity": "ok",
+        "binding": {
+          "adapter_id": "TOKENRHYTHM_ASYNC",
+          "model_id": "qwen-image-2.0",
+          "execution_protocol": "GENERATION",
+          "credential_id": "c7a9ffe7-292b-4a6e-948e-d3e097d74902"
+        },
+        "inputs": []
+      },
+      "playback": [
+        {
+          "kind": "IMAGE",
+          "width": 1024,
+          "loaded": true,
+          "opaque": true
+        }
+      ],
+      "finishedAt": "2026-10-12T02:58:41.771Z",
+      "restartPlayback": [],
+      "restartImages": [
+        {
+          "loaded": true,
+          "opaque": true
+        }
+      ],
+      "restartHistory": "PASS"
+    },
+    "LIVE_TOKENRHYTHM_WAN_IMAGE": {
+      "api": "PASS",
+      "adapter": "PASS",
+      "integration": "PASS",
+      "packaged": "PASS",
+      "teammateId": "e679ccd9-5f00-4acc-b809-1df22763b075",
+      "intentAt": "2026-10-12T02:58:43.683Z",
+      "jobId": "6b78f55b-760e-454d-b37d-b2c894e029b0",
+      "providerJobId": "92d9c668-72c1-48ed-ace7-2f8171ca59bc",
+      "state": "COMPLETED",
+      "errorCode": null,
+      "artifacts": [
+        {
+          "id": "3154ab1c2fadaa63115034e3d8cc3d103e4fc5824c38a5ef0b8b4d06cdfed512",
+          "kind": "IMAGE",
+          "mimeType": "image/png",
+          "sizeBytes": 1515457,
+          "contentHash": "33618ae7ff19c72b143170b42daf000535358d0fb9126b734c6659b2900f9afa"
+        }
+      ],
+      "persistence": {
+        "integrity": "ok",
+        "binding": {
+          "adapter_id": "TOKENRHYTHM_ASYNC",
+          "model_id": "wan2.7-image",
+          "execution_protocol": "GENERATION",
+          "credential_id": "c7a9ffe7-292b-4a6e-948e-d3e097d74902"
+        },
+        "inputs": []
+      },
+      "playback": [
+        {
+          "kind": "IMAGE",
+          "width": 1024,
+          "loaded": true,
+          "opaque": true
+        }
+      ],
+      "finishedAt": "2026-10-12T02:59:04.734Z",
+      "restartPlayback": [],
+      "restartImages": [
+        {
+          "loaded": true,
+          "opaque": true
+        }
+      ],
+      "restartHistory": "PASS"
+    }
+  },
+  "screenshots": [
+    "live_apimart_image-1440.png",
+    "live_apimart_image-1180.png",
+    "live_apimart_image-900.png",
+    "live_mimo_tts-1440.png",
+    "live_mimo_tts-1180.png",
+    "live_mimo_tts-900.png",
+    "live_apimart_video_t2v-1440.png",
+    "live_apimart_video_t2v-1180.png",
+    "live_apimart_video_t2v-900.png",
+    "live_apimart_music-1440.png",
+    "live_apimart_music-1180.png",
+    "live_apimart_music-900.png",
+    "live_tokenrhythm_qwen_image-1440.png",
+    "live_tokenrhythm_qwen_image-1180.png",
+    "live_tokenrhythm_qwen_image-900.png",
+    "live_tokenrhythm_wan_image-1440.png",
+    "live_tokenrhythm_wan_image-1180.png",
+    "live_tokenrhythm_wan_image-900.png",
+    "live_apimart_image-restart-1440.png",
+    "live_apimart_image-restart-1180.png",
+    "live_apimart_image-restart-900.png",
+    "live_apimart_video_t2v-restart-1440.png",
+    "live_apimart_video_t2v-restart-1180.png",
+    "live_apimart_video_t2v-restart-900.png",
+    "live_apimart_music-restart-1440.png",
+    "live_apimart_music-restart-1180.png",
+    "live_apimart_music-restart-900.png",
+    "live_mimo_tts-restart-1440.png",
+    "live_mimo_tts-restart-1180.png",
+    "live_mimo_tts-restart-900.png",
+    "live_tokenrhythm_qwen_image-restart-1440.png",
+    "live_tokenrhythm_qwen_image-restart-1180.png",
+    "live_tokenrhythm_qwen_image-restart-900.png",
+    "live_tokenrhythm_wan_image-restart-1440.png",
+    "live_tokenrhythm_wan_image-restart-1180.png",
+    "live_tokenrhythm_wan_image-restart-900.png"
+  ],
+  "productionFakeFlags": false
+}

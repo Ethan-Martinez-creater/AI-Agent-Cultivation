@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "offlineFixture": true,
+  "productionFakeFlags": false,
+  "unknownSubmission": {
+    "jobId": "5c0a530f-1e82-4f22-a0f5-c79ea68edbf4",
+    "state": "UNKNOWN",
+    "initialSubmissionCount": 3,
+    "postAttempts": 1,
+    "artifactCount": 0
+  },
+  "unknownRestart": {
+    "jobId": "5c0a530f-1e82-4f22-a0f5-c79ea68edbf4",
+    "state": "UNKNOWN",
+    "automaticSubmissions": 0,
+    "automaticStatusQueries": 0,
+    "automaticDownloads": 0
+  }
+}

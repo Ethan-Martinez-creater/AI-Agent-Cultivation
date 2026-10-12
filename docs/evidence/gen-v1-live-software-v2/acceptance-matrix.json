@@ -1,0 +1,199 @@
+{
+  "baseline": "630dfb89029aa8fb359048d547d861bb35b1b721",
+  "checkedAt": "2026-10-12T04:15:12.259Z",
+  "cases": [
+    {
+      "id": "SOFTWARE_OFFLINE",
+      "status": "PASS",
+      "evidence": "validation/"
+    },
+    {
+      "id": "GEN_HTTP_V1_OFFLINE",
+      "status": "PASS",
+      "evidence": "packaged/gen-http-v1/"
+    },
+    {
+      "id": "LIVE_APIMART_IMAGE",
+      "status": "PASS",
+      "evidence": "packaged/live-generation-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_APIMART_VIDEO_T2V",
+      "status": "PASS",
+      "evidence": "packaged/live-generation-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_APIMART_VIDEO_I2V",
+      "status": "PASS",
+      "evidence": "packaged/artifact-collaboration-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_APIMART_MUSIC",
+      "status": "PASS",
+      "evidence": "packaged/live-generation-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_MIMO_TTS",
+      "status": "PASS",
+      "evidence": "packaged/live-generation-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_JEV_R3",
+      "status": "PASS",
+      "evidence": "packaged/jev-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_JEV_R4",
+      "status": "PASS",
+      "evidence": "packaged/jev-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_JEV_R5_1",
+      "status": "PASS",
+      "evidence": "packaged/jev-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_JEV_R5_2",
+      "status": "PASS",
+      "evidence": "packaged/jev-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_JEV_R5_3",
+      "status": "PASS",
+      "evidence": "packaged/jev-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_JEV_R5_4",
+      "status": "PASS",
+      "evidence": "packaged/jev-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_JEV_R5_5",
+      "status": "PASS",
+      "evidence": "packaged/jev-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_TOKENRHYTHM_QWEN_IMAGE",
+      "status": "PASS",
+      "evidence": "packaged/live-generation-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_TOKENRHYTHM_WAN_IMAGE",
+      "status": "PASS",
+      "evidence": "packaged/live-generation-facts.json",
+      "levels": {
+        "api": "PASS",
+        "adapter": "PASS",
+        "integration": "PASS",
+        "packaged": "PASS"
+      }
+    },
+    {
+      "id": "LIVE_TOKENRHYTHM_WAN_VIDEO_CHECK",
+      "status": "BLOCKED",
+      "evidence": "packaged/tokenrhythm-video-check.json",
+      "reason": "Authenticated read-only checks do not establish a current Wan model price and account-specific generation permission. No billable POST was made."
+    },
+    {
+      "id": "LIVE_TOKENRHYTHM_WAN_VIDEO_GEN",
+      "status": "NOT_RUN",
+      "evidence": "packaged/tokenrhythm-video-check.json",
+      "generationPosts": 0
+    },
+    {
+      "id": "WINDOWS_PACKAGED_LIVE",
+      "status": "PASS",
+      "evidence": "packaged/",
+      "productionFakeFlags": false,
+      "contentWidths": [1440, 1180, 900]
+    },
+    {
+      "id": "LEGACY_H3_OFFLINE",
+      "status": "PASS",
+      "evidence": "validation/smoke-package.txt"
+    },
+    {
+      "id": "H3_GPU_LIVE",
+      "status": "NOT_RUN",
+      "evidence": "User explicitly cancelled the previous GPU live test"
+    }
+  ]
+}

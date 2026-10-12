@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import type { GenerationArtifact, GenerationJob } from '@cultivation/domain/g1-generation';
 import { Button } from '../components/Button.js';
 import { StatusBadge } from '../components/StatusBadge.js';
+import { GenerationArtifactCard } from './generation-chat.js';
 const labels = {
   PENDING: '待提交',
   SUBMITTING: '提交中',
@@ -88,6 +89,7 @@ export function GenerationPage() {
               <div className="generation-results">
                 {selected.artifacts.map((a) => (
                   <article key={a.id} className="generation-result">
+                    <GenerationArtifactCard artifact={a} teammate={null} />
                     <h3>
                       {a.kind === 'IMAGE'
                         ? '图片结果'

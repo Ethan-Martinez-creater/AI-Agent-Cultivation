@@ -1,0 +1,240 @@
+{
+  "runId": "7056587b-7d9a-4d6c-be2d-1e01c2b4c726",
+  "package": {
+    "fakeGenerationFlag": false,
+    "executable": "out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe"
+  },
+  "upstream": "offline loopback HTTP fixture",
+  "fixture": {
+    "baseUrl": "http://127.0.0.1:57599/v1",
+    "uploads": [
+      {
+        "fileId": "fixture_file_1",
+        "artifactId": "421223d6-c219-4cb2-896e-f312a75503ba",
+        "role": "FIRST_FRAME",
+        "mimeType": "image/png",
+        "sizeBytes": 1504,
+        "contentHash": "b33dd64feb99da52281827d562b061236e8ad6dba99cc4039327f99956c84ae5"
+      }
+    ],
+    "submissions": [
+      {
+        "providerJobId": "fixture_job_1",
+        "model": "fixture-image",
+        "capability": "IMAGE_GENERATION",
+        "requiredFeatures": [
+          "TEXT_TO_IMAGE"
+        ],
+        "inputs": []
+      },
+      {
+        "providerJobId": "fixture_job_2",
+        "model": "fixture-video",
+        "capability": "VIDEO_GENERATION",
+        "requiredFeatures": [
+          "IMAGE_TO_VIDEO"
+        ],
+        "inputs": [
+          {
+            "fileId": "fixture_file_1",
+            "artifactId": "421223d6-c219-4cb2-896e-f312a75503ba",
+            "role": "FIRST_FRAME",
+            "contentHash": "b33dd64feb99da52281827d562b061236e8ad6dba99cc4039327f99956c84ae5"
+          }
+        ]
+      },
+      {
+        "providerJobId": "fixture_job_3",
+        "model": "fixture-music",
+        "capability": "MUSIC_GENERATION",
+        "requiredFeatures": [
+          "TEXT_TO_MUSIC"
+        ],
+        "inputs": []
+      },
+      {
+        "providerJobId": "fixture_job_4",
+        "model": "fixture-speech",
+        "capability": "SPEECH_GENERATION",
+        "requiredFeatures": [
+          "TEXT_TO_SPEECH"
+        ],
+        "inputs": []
+      }
+    ],
+    "postAttempts": 4,
+    "downloads": 4,
+    "statusQueries": 12,
+    "healthChecks": 48,
+    "modelQueries": 48
+  },
+  "scenarios": {
+    "image": {
+      "providerId": "b550267a-faaf-4503-bfed-f669b23f6102",
+      "runtimeId": "ddcf3579-8282-456b-a06c-dd287bdee36f",
+      "teammateId": "3b881773-6618-4dbe-bc0c-095713b22a6f",
+      "conversationId": "fcb616ad-2374-4764-b179-43802812bb89",
+      "jobId": "61955869-6bff-4115-b9c9-03aadd3593b4",
+      "state": "COMPLETED",
+      "artifactIds": [
+        "a8fd37745d6da0feb50828065184b84ce6c5b7a4265ff964988212d3622708ab"
+      ],
+      "mimeType": "image/png",
+      "contentHash": "b33dd64feb99da52281827d562b061236e8ad6dba99cc4039327f99956c84ae5",
+      "sizeBytes": 1504,
+      "opaqueArtifactUrl": "cultivation-media://artifact/dffd961a-063e-4c69-818a-5a68fff425b2",
+      "preview": {
+        "src": "cultivation-media://artifact/1e3e4faf-a0ca-4c28-9d42-8e096a3b0136",
+        "currentSrc": "cultivation-media://artifact/1e3e4faf-a0ca-4c28-9d42-8e096a3b0136",
+        "complete": true,
+        "naturalWidth": 640,
+        "naturalHeight": 360
+      },
+      "inputArtifactId": null,
+      "inputContentHash": null,
+      "sealedAdapter": "GEN_HTTP_V1"
+    },
+    "i2vLineage": {
+      "sourceImageJobId": "61955869-6bff-4115-b9c9-03aadd3593b4",
+      "sourceImageArtifactId": "a8fd37745d6da0feb50828065184b84ce6c5b7a4265ff964988212d3622708ab",
+      "importedInputArtifactId": "421223d6-c219-4cb2-896e-f312a75503ba",
+      "sourceAndUploadHashMatch": true
+    },
+    "video": {
+      "providerId": "b550267a-faaf-4503-bfed-f669b23f6102",
+      "runtimeId": "b88b836a-85b5-42d2-8dfe-7f8f6a089c85",
+      "teammateId": "db80b0b0-3e0c-4edf-bfb8-30a01380d10d",
+      "conversationId": "988ae524-13b7-42f0-850a-a0fbd9147f6b",
+      "jobId": "56cfd32d-f8fd-44a4-a7c1-3a136fdedc46",
+      "state": "COMPLETED",
+      "artifactIds": [
+        "da196357e69e862c940940f3221bc952f87d9bf094d39aeefa4febef07a07525"
+      ],
+      "mimeType": "video/mp4",
+      "contentHash": "c7db576ce0ac97ce6a143180cac93092de94a5648d2c75d881e86e6192264618",
+      "sizeBytes": 248226,
+      "opaqueArtifactUrl": "cultivation-media://artifact/945d6d4b-2c6b-4902-8a71-49bc72e4f364",
+      "preview": {
+        "src": "cultivation-media://artifact/c713b0c2-0afd-4ac1-a941-6ba78fbffb85",
+        "currentSrc": "cultivation-media://artifact/c713b0c2-0afd-4ac1-a941-6ba78fbffb85",
+        "readyState": 4,
+        "videoWidth": 320,
+        "videoHeight": 180,
+        "paused": false,
+        "errorCode": null
+      },
+      "inputArtifactId": "421223d6-c219-4cb2-896e-f312a75503ba",
+      "inputContentHash": "b33dd64feb99da52281827d562b061236e8ad6dba99cc4039327f99956c84ae5",
+      "sealedAdapter": "GEN_HTTP_V1"
+    },
+    "music": {
+      "providerId": "b550267a-faaf-4503-bfed-f669b23f6102",
+      "runtimeId": "4c451eb2-1d46-46f7-8d94-b03771a022a2",
+      "teammateId": "48f4de6b-397c-41f5-91f3-eac374d506e4",
+      "conversationId": "f8ce4b57-0224-4036-923c-83914665505a",
+      "jobId": "3c403f47-9ae9-464e-aff2-880d783c1d04",
+      "state": "COMPLETED",
+      "artifactIds": [
+        "a8439bbaa01c810eb998ae596b3b5c91934b61c3bc15adc43871fdccb4c9cd60"
+      ],
+      "mimeType": "audio/wav",
+      "contentHash": "229960a43caa755fd2f0f6143c68152f31dde6955a008cbb2aac8ed3004220bd",
+      "sizeBytes": 38444,
+      "opaqueArtifactUrl": "cultivation-media://artifact/5c75c870-85f2-4b05-adb2-af84b73dcb04",
+      "preview": {
+        "src": "cultivation-media://artifact/19e0c348-b1f8-4860-909c-0f36f1dfc121",
+        "currentSrc": "cultivation-media://artifact/19e0c348-b1f8-4860-909c-0f36f1dfc121",
+        "readyState": 4,
+        "duration": 1.2,
+        "paused": false,
+        "errorCode": null
+      },
+      "inputArtifactId": null,
+      "inputContentHash": null,
+      "sealedAdapter": "GEN_HTTP_V1"
+    },
+    "speech": {
+      "providerId": "b550267a-faaf-4503-bfed-f669b23f6102",
+      "runtimeId": "93b9fd11-bde5-4539-b59b-32d596aff505",
+      "teammateId": "c91e0af5-c3bf-4685-99cf-4ac45dfb6de1",
+      "conversationId": "17886723-8277-473e-99dc-41899e9d99c0",
+      "jobId": "e883daaa-dbb8-4172-b006-0f5b2bcd2e56",
+      "state": "COMPLETED",
+      "artifactIds": [
+        "69b0176937dc9ee0da812bd4c42419a80fd6125a37825d25af578318e4a83418"
+      ],
+      "mimeType": "audio/wav",
+      "contentHash": "376a639b4827481ffe9e50972fd2c806cd070c32ad070572e6b520e832e50aa1",
+      "sizeBytes": 25644,
+      "opaqueArtifactUrl": "cultivation-media://artifact/d68b0ccb-411e-4b6c-9edf-b4d36586089e",
+      "preview": {
+        "src": "cultivation-media://artifact/ba83bfb1-c49b-4a40-b7ee-4c07ddc0a68c",
+        "currentSrc": "cultivation-media://artifact/ba83bfb1-c49b-4a40-b7ee-4c07ddc0a68c",
+        "readyState": 4,
+        "duration": 0.8,
+        "paused": false,
+        "errorCode": null
+      },
+      "inputArtifactId": null,
+      "inputContentHash": null,
+      "sealedAdapter": "GEN_HTTP_V1"
+    }
+  },
+  "screenshots": [
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\image-1440x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\image-1180x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\image-900x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\video-1440x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\video-1180x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\video-900x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\music-1440x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\music-1180x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\music-900x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\speech-1440x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\speech-1180x900.png",
+    ".test-data\\gen-http-v1-packaged-7056587b-7d9a-4d6c-be2d-1e01c2b4c726\\evidence\\speech-900x900.png"
+  ],
+  "restart": {
+    "sameJobsAndArtifacts": true,
+    "verified": [
+      {
+        "capability": "IMAGE_GENERATION",
+        "jobId": "61955869-6bff-4115-b9c9-03aadd3593b4",
+        "artifactIds": [
+          "a8fd37745d6da0feb50828065184b84ce6c5b7a4265ff964988212d3622708ab"
+        ],
+        "previewReady": true
+      },
+      {
+        "capability": "VIDEO_GENERATION",
+        "jobId": "56cfd32d-f8fd-44a4-a7c1-3a136fdedc46",
+        "artifactIds": [
+          "da196357e69e862c940940f3221bc952f87d9bf094d39aeefa4febef07a07525"
+        ],
+        "previewReady": true
+      },
+      {
+        "capability": "MUSIC_GENERATION",
+        "jobId": "3c403f47-9ae9-464e-aff2-880d783c1d04",
+        "artifactIds": [
+          "a8439bbaa01c810eb998ae596b3b5c91934b61c3bc15adc43871fdccb4c9cd60"
+        ],
+        "previewReady": true
+      },
+      {
+        "capability": "SPEECH_GENERATION",
+        "jobId": "e883daaa-dbb8-4172-b006-0f5b2bcd2e56",
+        "artifactIds": [
+          "69b0176937dc9ee0da812bd4c42419a80fd6125a37825d25af578318e4a83418"
+        ],
+        "previewReady": true
+      }
+    ]
+  },
+  "failure": null,
+  "database": {
+    "generationJobs": 4,
+    "generationArtifacts": 4,
+    "conversations": 4
+  }
+}

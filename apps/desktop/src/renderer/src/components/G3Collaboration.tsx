@@ -116,7 +116,7 @@ export function G3Collaboration({
                 {outcome?.outcome.publicResult && (
                   <div className="g3-public-result">{outcome.outcome.publicResult}</div>
                 )}
-                {outcome?.outcome.artifactRefs.length ? (
+                {outcome?.outcome.kind === 'RESULT' && outcome.outcome.artifactRefs?.length ? (
                   <div className="g3-artifact-grid" aria-label="协作成果">
                     {outcome.outcome.artifactRefs.map((reference) => {
                       const artifact = execution.artifacts.find((item) => item.id === reference.id);
@@ -161,15 +161,20 @@ export function G3Collaboration({
             ))}
           </div>
         )}
-        {execution.outcomes.some((outcome) => outcome.outcome.artifactRefs.length > 0) && (
+        {execution.outcomes.some(
+          (outcome) =>
+            outcome.outcome.kind === 'RESULT' && (outcome.outcome.artifactRefs?.length ?? 0) > 0,
+        ) && (
           <ul className="g3-advanced-artifact-list">
             {execution.outcomes.flatMap((outcome) =>
-              outcome.outcome.artifactRefs.map((reference) => (
-                <li key={`${outcome.id}:${reference.id}`}>
-                  <code>artifact: {reference.id}</code>
-                  <code>sha256: {reference.contentHash}</code>
-                </li>
-              )),
+              (outcome.outcome.kind === 'RESULT' ? (outcome.outcome.artifactRefs ?? []) : []).map(
+                (reference) => (
+                  <li key={`${outcome.id}:${reference.id}`}>
+                    <code>artifact: {reference.id}</code>
+                    <code>sha256: {reference.contentHash}</code>
+                  </li>
+                ),
+              ),
             )}
           </ul>
         )}

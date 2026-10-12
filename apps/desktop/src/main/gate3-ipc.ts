@@ -122,6 +122,10 @@ export function registerGate3Ipc(
     approvalId: string;
     decision: 'APPROVED' | 'DENIED' | 'ALLOW_MISSION';
   }) => Promise<unknown | null>,
+  artifactSharing?: {
+    list(): unknown;
+    share(input: { missionId: string; runId: string; artifactId: string }): Promise<unknown>;
+  },
 ): void {
   const register = (
     channel: string,
@@ -163,6 +167,15 @@ export function registerGate3Ipc(
     return missions.list();
   });
   register('missions:detail', (args) => detail(one(id, args)));
+  register('missions:shareableArtifacts', (args) => {
+    noArgs(args);
+    return artifactSharing?.list() ?? [];
+  });
+  register('missions:shareArtifact', async (args) => {
+    const input = one(z.object({ missionId: id, runId: id, artifactId: id }).strict(), args);
+    if (!artifactSharing) throw new DomainError('NOT_FOUND', '素材分享暂不可用');
+    return artifactSharing.share(input);
+  });
   register('missions:create', (args) => {
     const input = one(missionInput, args);
     const mode: MissionMode = input.mode ?? 'SOLO';

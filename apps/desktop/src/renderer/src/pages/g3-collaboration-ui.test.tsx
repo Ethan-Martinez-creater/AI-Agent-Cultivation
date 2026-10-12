@@ -90,7 +90,7 @@ function fixture(): {
     { index: 2, kind: 'NEEDS_INPUT' },
     { index: 3, kind: 'NEEDS_CAPABILITY' },
     { index: 4, kind: 'WAITING_USER' },
-    { index: 6, kind: 'COMPLETED' },
+    { index: 6, kind: 'RESULT' },
   ].map(({ index, kind }) => ({
     id: `outcome-${ids[index]}-private`,
     attemptId: attempts[index]!.id,
@@ -132,6 +132,24 @@ function readSource(relativePath: string): string {
 }
 
 describe('G3 collaboration mission UI', () => {
+  it('renders real non-result outcomes without assuming they own output artifacts', () => {
+    const props = fixture();
+    for (const kind of ['NEEDS_INPUT', 'NEEDS_CAPABILITY', 'FAILED_RETRYABLE', 'FAILED_TERMINAL']) {
+      props.execution.outcomes = [
+        {
+          id: 'outcome-no-result',
+          attemptId: props.execution.attempts[0]!.id,
+          participantTeammateId: 'delegated',
+          outcome: { kind },
+          consumedAt: null,
+        },
+      ];
+      expect(() => renderToStaticMarkup(createElement(G3Collaboration, props))).not.toThrow();
+      expect(renderToStaticMarkup(createElement(G3Collaboration, props))).not.toContain(
+        'g3-artifact-card',
+      );
+    }
+  });
   it('keeps execution prompt markers in Advanced and shows the actual task in the primary view', () => {
     const props = fixture();
     props.execution.tasks[0]!.description =

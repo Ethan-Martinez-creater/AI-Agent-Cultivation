@@ -64,11 +64,28 @@ const deterministicPreparationErrors = new Set([
   'PERSISTENCE_INTEGRITY',
 ]);
 
-function taskFeatures(inputs: GenerationInputBinding[], parameters: Record<string, unknown>) {
-  const features = new Set<string>(inputs.length === 0 ? ['TEXT_TO_VIDEO'] : []);
+function taskFeatures(
+  inputs: GenerationInputBinding[],
+  parameters: Record<string, unknown>,
+  descriptor: GenerationModelDescriptor,
+) {
+  const base = descriptor.outputCapability.startsWith('IMAGE_')
+    ? 'TEXT_TO_IMAGE'
+    : descriptor.outputCapability === 'VIDEO_GENERATION'
+      ? 'TEXT_TO_VIDEO'
+      : descriptor.outputCapability === 'MUSIC_GENERATION'
+        ? 'TEXT_TO_MUSIC'
+        : 'TEXT_TO_SPEECH';
+  const features = new Set<string>(
+    inputs.length === 0 && descriptor.featureTags.includes(base) ? [base] : [],
+  );
   for (const item of inputs) {
     if (item.role === 'FIRST_FRAME' || item.role === 'LAST_FRAME')
-      features.add('FIRST_FRAME_CONDITIONING');
+      features.add(
+        descriptor.featureTags.includes('IMAGE_TO_VIDEO')
+          ? 'IMAGE_TO_VIDEO'
+          : 'FIRST_FRAME_CONDITIONING',
+      );
     else if (item.role.startsWith('REFERENCE_')) features.add('REFERENCE_CONDITIONING');
     else if (item.role === 'SOURCE_VIDEO') features.add('VIDEO_TO_AUDIO');
   }
@@ -326,14 +343,25 @@ export class GenerationChatService {
       )
         throw new DomainError('INVALID_INPUT', '生成输入记录无效');
 
+      const identity = this.identity(row.teammate_id);
+      // Archiving suspends an existing intent; it does not invalidate its immutable inputs.
+      // Do this before descriptor discovery so startup never probes an archived teammate.
+      if (identity.teammate.status !== 'ACTIVE')
+        throw new GenerationCrash('已归档道友暂不可执行；保留原生成准备记录');
+      const descriptor = await this.gateway.getDescriptor(identity.runtime.id);
+      const artifactKind = descriptor.outputCapability.startsWith('IMAGE_')
+        ? 'IMAGE'
+        : descriptor.outputCapability === 'VIDEO_GENERATION'
+          ? 'VIDEO'
+          : 'AUDIO';
       const job = await this.generation.create({
         targetTeammateId: row.teammate_id,
-        capability: 'VIDEO_GENERATION',
-        requiredFeatures: taskFeatures(inputs, parameters),
+        capability: descriptor.outputCapability,
+        requiredFeatures: taskFeatures(inputs, parameters, descriptor),
         prompt: row.content,
         inputs,
         parameters,
-        expectedOutput: { artifactKind: 'VIDEO', mimeTypes: ['video/mp4'] },
+        expectedOutput: { artifactKind, mimeTypes: descriptor.outputTypes },
         outputDestination: { scope: 'APP_ARTIFACT_STORE' },
         requester: { actorType: 'USER', actorId: row.message_id },
         missionId: null,

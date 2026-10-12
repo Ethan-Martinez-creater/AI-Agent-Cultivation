@@ -34,6 +34,7 @@ import g2SubmissionContinuationSql from '../../../migrations/0029_g2_submission_
 import g3MultimodalSql from '../../../migrations/0030_g3_multimodal_collaboration.sql?raw';
 import w31WorkflowDraftsSql from '../../../migrations/0031_w31_workflow_drafts.sql?raw';
 import w32WorkflowImportSql from '../../../migrations/0032_w32_workflow_import.sql?raw';
+import generationArtifactSharingSql from '../../../migrations/0033_generation_artifact_sharing.sql?raw';
 export { G3SqliteRepository } from './g3-execution.js';
 export { ResearchInputArtifactRepository } from './w23-input-artifacts.js';
 import { R31BindingRepository } from './r3-1-binding.js';
@@ -146,6 +147,7 @@ export const migrations: readonly Migration[] = [
   { version: 30, name: 'g3_multimodal_collaboration', sql: g3MultimodalSql },
   { version: 31, name: 'w31_user_workflow_drafts', sql: w31WorkflowDraftsSql },
   { version: 32, name: 'w32_workflow_import', sql: w32WorkflowImportSql },
+  { version: 33, name: 'generation_artifact_sharing', sql: generationArtifactSharingSql },
 ];
 
 export type ProviderKind = import('@cultivation/domain').ProviderKind;

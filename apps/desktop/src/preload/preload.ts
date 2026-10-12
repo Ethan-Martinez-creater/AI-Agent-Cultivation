@@ -375,6 +375,12 @@ export interface CultivationBridge {
   missions: {
     list(): Promise<Mission[]>;
     detail(id: string): Promise<MissionDetail>;
+    shareableArtifacts(): Promise<import('@cultivation/domain/g3-execution').ArtifactRef[]>;
+    shareArtifact(input: {
+      missionId: string;
+      runId: string;
+      artifactId: string;
+    }): Promise<import('@cultivation/domain/g3-execution').ArtifactRef>;
     create(input: {
       title: string;
       objective: string;
@@ -685,6 +691,8 @@ const bridge: CultivationBridge = {
   missions: {
     list: () => ipcRenderer.invoke('missions:list'),
     detail: (id) => ipcRenderer.invoke('missions:detail', id),
+    shareableArtifacts: () => ipcRenderer.invoke('missions:shareableArtifacts'),
+    shareArtifact: (input) => ipcRenderer.invoke('missions:shareArtifact', input),
     create: (input) => ipcRenderer.invoke('missions:create', input),
     update: (input) => ipcRenderer.invoke('missions:update', input),
     ready: (id) => ipcRenderer.invoke('missions:ready', id),

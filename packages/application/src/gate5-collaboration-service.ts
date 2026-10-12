@@ -1691,6 +1691,10 @@ export class Gate5CollaborationService {
       conversationContext: [{ role: 'user', content: mission.objective }],
     });
     const skillIds = skillIdsInPromptSection(composition.sections.activeSkills);
+    this.record(mission, run.id, 'memory.prompt_selection', 'TEAMMATE', coordinator.id, {
+      memoryIds: skillIdsInPromptSection(composition.sections.relevantMemory),
+      sectionHash: createHash('sha256').update(composition.sections.relevantMemory).digest('hex'),
+    });
     const systemContext =
       composition.messages.find((message) => message.role === 'system')?.content ?? POLICY;
     if (!this.active(mission, run)) return;
@@ -2188,6 +2192,10 @@ export class Gate5CollaborationService {
     });
     const skillIds = skillIdsInPromptSection(composition.sections.activeSkills);
     const messages: ModelMessage[] = [...composition.messages];
+    this.record(mission, run.id, 'memory.prompt_selection', 'TEAMMATE', teammate.id, {
+      memoryIds: skillIdsInPromptSection(composition.sections.relevantMemory),
+      sectionHash: createHash('sha256').update(composition.sections.relevantMemory).digest('hex'),
+    });
     if (this.artifactContext)
       messages.splice(Math.max(0, messages.length - 1), 0, ...this.artifactContext(mission.id));
     if (resume) messages.push(...resume.messages);

@@ -9,7 +9,10 @@ import {
   GenerationEntry,
   generationErrorText,
   generationFailureText,
+  supportedParameterFields,
+  defaultParameters,
 } from './generation-chat.js';
+import type { GenerationModelDescriptor } from '@cultivation/domain/g1-generation';
 import type { GenerationChatEntryView } from '../ui-shared.js';
 
 function readSource(relativePath: string): string {
@@ -17,7 +20,7 @@ function readSource(relativePath: string): string {
 }
 
 describe('G2 Generation single chat UI contracts', () => {
-  it('allows an optional credential while requiring the configured endpoint and minimax-h3 identity', () => {
+  it('allows configured generation model identities while legacy H3 retains its model guard', () => {
     const credentialId = newModelCredentialId('GENERATION_HTTP', '', '', 'provider-key');
     expect(credentialId).toBeNull();
     expect(
@@ -31,7 +34,7 @@ describe('G2 Generation single chat UI contracts', () => {
         'another-model',
         credentialId,
       ),
-    ).toBe(false);
+    ).toBe(true);
 
     const wizard = readSource('./create-teammate.tsx').replace(/\s+/g, ' ');
     expect(wizard).toContain(
@@ -44,7 +47,8 @@ describe('G2 Generation single chat UI contracts', () => {
       "disabled={busy || Boolean(draftRuntimeId) || providerKind === 'GENERATION_HTTP'}",
     );
     expect(wizard).toContain("modelId.trim() !== 'minimax-h3'");
-    expect(wizard).toContain("...(providerKind === 'GENERATION_HTTP' ? { adapterId: 'H3' } : {})");
+    expect(wizard).toContain("...(providerKind === 'GENERATION_HTTP' ? { adapterId } : {})");
+    expect(wizard).toContain("adapterId === 'H3' && modelId.trim() !== 'minimax-h3'");
     expect(wizard).toContain('window.cultivation.credentials.create({');
     expect(wizard).not.toMatch(/navigator\.clipboard/);
   });
@@ -82,20 +86,31 @@ describe('G2 Generation single chat UI contracts', () => {
 
   it('renders only descriptor-supported parameter fields and requires an explicit allowed input role', () => {
     const source = readSource('./generation-chat.tsx');
-    const supportedKeys = source.match(
-      /const supported: SupportedParameterKey\[\] = (\[[^\]]+\]);/,
-    )?.[1];
-    expect(supportedKeys).toBe("['duration', 'aspect', 'seed', 'nativeAudio']");
-    expect(source).toContain(
-      "key === 'duration' && (propertyType === 'number' || propertyType === 'integer')",
-    );
-    expect(source).toContain("key === 'aspect' && propertyType === 'string'");
-    expect(source).toContain(
-      "key === 'seed' && (propertyType === 'number' || propertyType === 'integer')",
-    );
-    expect(source.replace(/\s+/g, ' ')).toContain(
-      "key === 'nativeAudio' && propertyType === 'boolean' && descriptor.featureTags.includes('NATIVE_AUDIO')",
-    );
+    const descriptor: GenerationModelDescriptor = {
+      modelId: 'tts',
+      outputCapability: 'SPEECH_GENERATION',
+      executionMode: 'SYNC',
+      featureTags: ['TEXT_TO_SPEECH'],
+      inputRoles: [],
+      parameterSchema: {
+        type: 'object',
+        properties: {
+          voice: { type: 'string', enum: ['冰糖', 'Mia'], default: '冰糖' },
+          speed: { type: 'number', minimum: 0.8, maximum: 1.2, default: 1 },
+          instrumental: { type: 'boolean', default: false },
+          unsupported: { type: 'object' },
+        },
+        required: ['voice'],
+      },
+      outputTypes: ['audio/wav'],
+      limits: { maxInputFiles: 0, maxInputBytes: 0, maxOutputBytes: 1024, maxOutputs: 1 },
+    };
+    expect(supportedParameterFields(descriptor).map((f) => f.key)).toEqual([
+      'voice',
+      'speed',
+      'instrumental',
+    ]);
+    expect(defaultParameters(descriptor)).toEqual({ voice: '冰糖', speed: 1, instrumental: false });
     expect(source).toContain('descriptor.inputRoles.filter((role) => {');
     expect(source).toContain('const roles = allowedInputRoles(descriptor, attachment);');
     expect(source).toContain('value={role.role}');

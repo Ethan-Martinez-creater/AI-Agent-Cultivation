@@ -89,7 +89,7 @@ export interface TypeSafeDecisionGatewayOptions {
   /** Supply only from Main-process SecretStore after decrypting safeStorage data. */
   apiKey: string;
   timeoutMs?: number;
-  /** Test seam for deterministic transport tests; production uses Node fetch. */
+  /** Trusted Main transport (including Electron/system proxy) or deterministic test seam. */
   fetch?: Fetch;
   /** Test or enterprise API endpoint override. Production defaults to api.typesafe.ai. */
   baseURL?: string;
@@ -868,7 +868,27 @@ export class TypeSafeDecisionGateway implements DecisionGateway {
           latencyMs: Date.now() - startedAt,
         };
       }
-      const available = parsed.data.some((model) => model.name === TYPESAFE_DECISION_MODEL);
+      let available = parsed.data.some((model) => model.name === TYPESAFE_DECISION_MODEL);
+      // Public discovery may list moving aliases while the pinned version remains callable.
+      // Verify the pinned model once; never substitute an alias or retry the decision POST.
+      if (!available) {
+        const probe = await this.#client.systemOne(
+          {
+            model: TYPESAFE_DECISION_MODEL,
+            state: { connectionProbe: 'Public, non-sensitive connection check.' },
+            questions: {
+              connected: { type: 'noul', instructions: 'Return 1 for this connection check.' },
+            },
+          },
+          { timeout: this.#timeoutMs, retry: { maxRetries: 0 } },
+        );
+        const result = responseSchema.safeParse(probe);
+        available =
+          result.success &&
+          result.data.model === TYPESAFE_DECISION_MODEL &&
+          Object.keys(result.data.answers).length === 1 &&
+          result.data.answers.connected?.type === 'noul';
+      }
       return {
         ok: available,
         model: TYPESAFE_DECISION_MODEL,

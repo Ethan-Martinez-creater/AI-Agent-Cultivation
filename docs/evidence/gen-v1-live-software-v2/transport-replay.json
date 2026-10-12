@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "transport": "one-shot Node HTTP/1.1 + Main-selected HTTP CONNECT proxy + verified TLS",
+  "tlsVerificationEnabled": true,
+  "successPostAttempts": 1,
+  "responseLostPostAttempts": 1,
+  "automaticPostRetries": 0,
+  "liveProviderCalls": 0
+}

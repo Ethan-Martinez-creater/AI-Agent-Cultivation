@@ -389,7 +389,7 @@ export interface MissionExecutionOutcomeView {
   outcome: {
     kind: string;
     publicResult?: string | null;
-    artifactRefs: MissionExecutionArtifactReferenceView[];
+    artifactRefs?: MissionExecutionArtifactReferenceView[];
   };
   consumedAt: string | null;
 }
@@ -623,6 +623,12 @@ export interface CultivationBridge {
   usage: { list(teammateId?: string): Promise<UsageView[]> };
   experience: { get(teammateId: string): Promise<TeammateExperienceView> };
   missions: {
+    shareableArtifacts(): Promise<import('@cultivation/domain/g3-execution').ArtifactRef[]>;
+    shareArtifact(input: {
+      missionId: string;
+      runId: string;
+      artifactId: string;
+    }): Promise<import('@cultivation/domain/g3-execution').ArtifactRef>;
     list(): Promise<MissionView[]>;
     create(input: {
       title: string;

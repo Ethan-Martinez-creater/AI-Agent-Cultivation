@@ -45,6 +45,7 @@ import { FileWorkspace } from './file-workspace.js';
 import type { Gate3MissionService } from '@cultivation/application/gate3-mission-service';
 import type { WorkflowRepository, WorkflowMissionSnapshot } from '@cultivation/application';
 import type { GenerationWorkflowExecutionPort } from './g3-workflow-adapter.js';
+import { GenerationArtifactSharingService } from './generation-artifact-sharing.js';
 
 const mediaCapabilities = new Set<CapabilityDimension>([
   'IMAGE_GENERATION',
@@ -90,6 +91,12 @@ export function multimodalFoundation(options: {
 }) {
   const { db, store, missions, parties, partyExecution, generation } = options;
   const repository = new G3SqliteRepository(db);
+  const artifactSharing = new GenerationArtifactSharingService({
+    missions,
+    execution: repository,
+    generation: generation.repository,
+    artifacts: generation.artifacts,
+  });
   const languageResumes = new Map<
     string,
     Parameters<Gate5CollaborationService['executeLanguageParticipant']>[3]
@@ -212,9 +219,30 @@ export function multimodalFoundation(options: {
             )
           );
         });
+      const userSharedInput =
+        artifact.storageScope === 'APP_ARTIFACT_STORE' &&
+        repository
+          .listArtifactRefs(task.missionId, task.runId)
+          .some((value) => sameRef(value, ref)) &&
+        missions
+          .listMissionEvents(task.missionId)
+          .some(
+            (event) =>
+              event.runId === task.runId &&
+              event.actorType === 'USER' &&
+              event.eventType === 'collaboration.artifact_shared' &&
+              event.payloadJson.artifactId === ref.id &&
+              event.payloadJson.sourceJobId === artifact.jobId &&
+              event.payloadJson.kind === ref.kind &&
+              event.payloadJson.mimeType === ref.mimeType &&
+              event.payloadJson.contentHash === ref.contentHash &&
+              event.payloadJson.sizeBytes === ref.sizeBytes,
+          );
       if (
         !source ||
-        (!workflowInput && (source.missionId !== task.missionId || source.runId !== task.runId)) ||
+        (!workflowInput &&
+          !userSharedInput &&
+          (source.missionId !== task.missionId || source.runId !== task.runId)) ||
         job?.state !== 'COMPLETED'
       )
         throw new DomainError('ARTIFACT_PROVENANCE', '素材不属于当前历练轮次');
@@ -1604,6 +1632,22 @@ export function multimodalFoundation(options: {
   };
   return {
     repository,
+    shareableArtifacts: () =>
+      generation.repository
+        .listJobs()
+        .filter((job) => job.state === 'COMPLETED')
+        .flatMap((job) => generation.repository.listArtifacts(job.id))
+        .filter((artifact) => artifact.storageScope === 'APP_ARTIFACT_STORE')
+        .slice(-100)
+        .map((artifact) => ({
+          id: artifact.id,
+          kind: artifact.kind,
+          mimeType: artifact.mimeType,
+          contentHash: artifact.contentHash,
+          sizeBytes: artifact.sizeBytes,
+        })),
+    shareArtifact: (input: { missionId: string; runId: string; artifactId: string }) =>
+      artifactSharing.share(input),
     service,
     delegate,
     recover,

@@ -120,7 +120,7 @@ try {
     jobs: db.prepare('SELECT COUNT(*) n FROM generation_jobs').get().n,
     missions: db.prepare('SELECT COUNT(*) n FROM missions').get().n,
   }));
-  assert.equal(facts.production.migrations, 32);
+  assert.equal(facts.production.migrations, 33);
   assert.equal(facts.production.builtin.length, 3);
   assert.equal(facts.production.testOnlyVersions, 0);
   assert.equal(facts.production.jobs, 0);

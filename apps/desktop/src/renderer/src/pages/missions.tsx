@@ -5,6 +5,7 @@ import { Avatar } from '../components/Avatar.js';
 import { Drawer } from '../components/Drawer.js';
 import { EmptyState } from '../components/EmptyState.js';
 import { G3Collaboration } from '../components/G3Collaboration.js';
+import { MissionArtifactSharing } from '../components/MissionArtifactSharing.js';
 import { Section } from '../components/Section.js';
 import { StatusBadge } from '../components/StatusBadge.js';
 import { handleHorizontalTabKeyDown, horizontalTabIndex } from '../horizontal-tabs.js';
@@ -71,6 +72,7 @@ function recentEventLabel(eventType: string): string {
     'collaboration.denied': '协作请求已拒绝',
     'collaboration.started': '道友开始协作',
     'collaboration.completed': '道友完成协作',
+    'collaboration.artifact_shared': '用户提供协作素材',
     'collaboration.failed': '协作未能完成',
     'tool.call_started': '开始使用法宝',
     'tool.execution_started': '开始使用法宝',
@@ -1557,6 +1559,16 @@ export function MissionPage() {
                       })}
                   </div>
                 </section>
+              )}
+
+              {mission.mode !== 'SOLO' && detail.runs.at(-1)?.status === 'RUNNING' && (
+                <MissionArtifactSharing
+                  missionId={mission.id}
+                  runId={detail.runs.at(-1)!.id}
+                  onShared={() => {
+                    void runAction('素材已提供给本次历练。', async () => undefined);
+                  }}
+                />
               )}
 
               {detail.execution && (

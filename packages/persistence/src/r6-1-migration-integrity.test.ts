@@ -109,7 +109,7 @@ it('R6.1 preserves native on-disk 0031 profile facts, guards and frozen releases
     }));
     expect(after).toEqual(before);
     expect(db.prepare('SELECT MAX(version) version FROM schema_migrations').get()).toEqual({
-      version: 32,
+      version: 33,
     });
     expect(db.pragma('foreign_key_check')).toEqual([]);
     expect(db.pragma('integrity_check')).toEqual([{ integrity_check: 'ok' }]);

@@ -279,7 +279,7 @@ try {
   assert.deepEqual(await live.page.evaluate(() => window.cultivation.workflows.list()), []);
   assert.equal(
     read((db) => db.prepare('SELECT max(version) AS v FROM schema_migrations').get().v),
-    32,
+    33,
   );
   assert.deepEqual(
     read((db) => db.prepare('PRAGMA foreign_key_check').all()),
@@ -300,7 +300,7 @@ try {
     officialVersions: 3,
     drafts: 0,
     runs: 0,
-    schemaVersion: 32,
+    schemaVersion: 33,
   };
 } finally {
   await live.app.close();

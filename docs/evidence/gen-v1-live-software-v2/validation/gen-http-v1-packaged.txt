@@ -1,0 +1,1 @@
+GEN_HTTP_V1_PACKAGED_SMOKE_OK capabilities=IMAGE_VIDEO_MUSIC_SPEECH typedIPC=true restart=true screenshots=1440_1180_900 productionFlags=true evidence=.test-data\gen-http-v1-packaged-5ed1df9c-0908-411a-a459-39f81884e95c\evidence

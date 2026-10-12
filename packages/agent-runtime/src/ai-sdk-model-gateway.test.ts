@@ -67,6 +67,37 @@ function responseFor(kind: RuntimeProviderKind): Record<string, unknown> {
 }
 
 describe('AiSdkModelGateway', () => {
+  it('explicitly requests JSON for compatible generation instead of relying on provider defaults', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const gateway = new AiSdkModelGateway(
+      async () => ({
+        kind: 'OPENAI_COMPATIBLE',
+        baseUrl: 'https://provider.example/v1',
+        modelId: 'fixture-model',
+        apiKey: 'test-secret',
+      }),
+      {
+        fetch: async (input, init) => {
+          const body = (await new Request(input, init).json()) as Record<string, unknown>;
+          bodies.push(body);
+          if (body.stream !== false)
+            return new Response('data: [DONE]\n\n', {
+              headers: { 'content-type': 'text/event-stream' },
+            });
+          return new Response(JSON.stringify(responseFor('OPENAI_COMPATIBLE')), {
+            headers: { 'content-type': 'application/json' },
+          });
+        },
+      },
+    );
+    await expect(gateway.generate(request)).resolves.toMatchObject({ text: 'PONG' });
+    await expect(gateway.generateWithTools({ ...request, tools: [] })).resolves.toMatchObject({
+      text: 'PONG',
+      toolCalls: [],
+    });
+    expect(bodies).toHaveLength(2);
+    expect(bodies.every((body) => body.stream === false)).toBe(true);
+  });
   it('rejects GENERATION runtimes before language model provider I/O', async () => {
     let fetchCalls = 0;
     const gateway = new AiSdkModelGateway(
@@ -203,6 +234,41 @@ describe('AiSdkModelGateway', () => {
     expect(result.usage.inputTokens).toBe(7);
     expect(JSON.stringify(bodies[0])).toContain('GATE5_A_MEMORY only');
     expect(JSON.stringify(bodies[0])).not.toContain('GATE5_B_MEMORY');
+    expect(JSON.stringify(bodies[0])).toContain('inputRequirements');
+    expect(JSON.stringify(bodies[0])).toContain('artifactKinds');
+  });
+
+  it('keeps explicit streaming true for compatible Chat while JSON defaults are disabled', async () => {
+    let stream: unknown;
+    const gateway = new AiSdkModelGateway(
+      async () => ({
+        kind: 'OPENAI_COMPATIBLE',
+        baseUrl: 'https://provider.example/v1',
+        modelId: 'fixture-model',
+        apiKey: 'test-secret',
+      }),
+      {
+        fetch: async (input, init) => {
+          stream = ((await new Request(input, init).json()) as Record<string, unknown>).stream;
+          return new Response(
+            'data: ' +
+              JSON.stringify({
+                id: 'chunk-1',
+                object: 'chat.completion.chunk',
+                created: 1,
+                model: 'fixture-model',
+                choices: [{ index: 0, delta: { content: 'PONG' }, finish_reason: 'stop' }],
+              }) +
+              '\n\ndata: [DONE]\n\n',
+            { headers: { 'content-type': 'text/event-stream' } },
+          );
+        },
+      },
+    );
+    const events = [];
+    for await (const event of gateway.stream(request)) events.push(event);
+    expect(stream).toBe(true);
+    expect(events).toContainEqual({ type: 'text-delta', text: 'PONG' });
   });
 
   it('validates structured memory candidates without accepting owner or status from the model', async () => {

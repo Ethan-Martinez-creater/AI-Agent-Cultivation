@@ -1701,6 +1701,24 @@ export class Gate3MissionService {
       conversationContext: [{ role: 'user', content: mission.objective }],
     });
     const skillIds = skillIdsInPromptSection(composition.sections.activeSkills);
+    const memorySelection = {
+      memoryIds: skillIdsInPromptSection(composition.sections.relevantMemory),
+      sectionHash: createHash('sha256').update(composition.sections.relevantMemory).digest('hex'),
+    };
+    this.store.transaction(() => {
+      this.appendEvent(
+        mission,
+        run.id,
+        'memory.prompt_selection',
+        'TEAMMATE',
+        teammate.id,
+        memorySelection,
+      );
+      this.appendAudit(mission, 'memory.prompt_selection', 'TEAMMATE', teammate.id, {
+        runId: run.id,
+        ...memorySelection,
+      });
+    });
     const messages: ModelRequest['messages'] = [...composition.messages];
     if (this.artifactContext)
       messages.splice(Math.max(0, messages.length - 1), 0, ...this.artifactContext(mission.id));

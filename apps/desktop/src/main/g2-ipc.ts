@@ -53,7 +53,9 @@ export function registerGenerationChatIpc(
     const chosen = await dialog.showOpenDialog(window, {
       title: '导入生成参考素材',
       properties: ['openFile'],
-      filters: [{ name: '媒体素材', extensions: ['png', 'mp4', 'wav'] }],
+      filters: [
+        { name: '媒体素材', extensions: ['png', 'jpg', 'jpeg', 'webp', 'mp4', 'wav', 'mp3'] },
+      ],
     });
     if (chosen.canceled || chosen.filePaths.length !== 1) return null;
     return media.importSelectedFile(chosen.filePaths[0]!);

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { DomainError } from '@cultivation/shared';
 import {
   extensionForMime,
+  isAllowedProviderUrl,
   isByteChunk,
   MAX_PROVIDER_CHUNK_BYTES,
   openRemoteMedia,
@@ -299,6 +300,52 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
     expect(cancelled).toBe(true);
   });
 
+  it('allows the observed exact delivery host only for supported media and never other origins', () => {
+    expect(
+      isAllowedProviderUrl('https://getapib.org/image/output', 'APIMART', false, ['image/png']),
+    ).not.toBeNull();
+    expect(
+      isAllowedProviderUrl('https://getapib.org/video/output', 'APIMART', false, ['video/mp4']),
+    ).not.toBeNull();
+    expect(
+      isAllowedProviderUrl('https://getapib.org/output', 'APIMART', false, ['text/html']),
+    ).toBeNull();
+    expect(
+      isAllowedProviderUrl('https://getapib.org.attacker.invalid/output', 'APIMART', false, [
+        'image/png',
+      ]),
+    ).toBeNull();
+    expect(
+      isAllowedProviderUrl('https://getapib.org/output', 'TOKENRHYTHM', false, ['image/png']),
+    ).toBeNull();
+  });
+
+  it('limits the authenticated TokenRhythm image delivery bucket to that provider and image MIME', () => {
+    const host = 'tokenrhythm-prod-backup-oss.oss-cn-beijing.aliyuncs.com';
+    expect(
+      isAllowedProviderUrl(`https://${host}/image.png`, 'TOKENRHYTHM', false, ['image/png']),
+    ).not.toBeNull();
+    expect(
+      isAllowedProviderUrl(`https://${host}/video.mp4`, 'TOKENRHYTHM', false, ['video/mp4']),
+    ).toBeNull();
+    expect(
+      isAllowedProviderUrl(`https://${host}/image.png`, 'APIMART', false, ['image/png']),
+    ).toBeNull();
+    expect(
+      isAllowedProviderUrl(`https://${host}.attacker.invalid/image.png`, 'TOKENRHYTHM', false, [
+        'image/png',
+      ]),
+    ).toBeNull();
+    expect(
+      isAllowedProviderUrl(
+        'https://other.oss-cn-beijing.aliyuncs.com/image.png',
+        'TOKENRHYTHM',
+        false,
+        ['image/png'],
+      ),
+    ).toBeNull();
+  });
+
   it('sniffs bounded generic WAV headers, emits bounded chunks, and names WebP cache files', async () => {
     const wav = new Uint8Array(100_000);
     wav.set([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45]);
@@ -363,7 +410,7 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
         const uploadedBody = await readStream(call.body as ReadableStream<Uint8Array>);
         expect(Buffer.from(uploadedBody).includes(Buffer.from(imageBytes))).toBe(true);
         return jsonResponse({
-          url: 'https://upload.apimart.ai/f/image/ref-one.jpg',
+          url: 'https://getapib.org/f/image/ref-one.jpg',
           filename: 'ref-one.jpg',
           content_type: 'image/jpeg',
           bytes: imageBytes.byteLength,
@@ -378,7 +425,7 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
           resolution: '1K',
           n: 1,
         });
-        expect(body.image_urls).toEqual([{ url: 'https://upload.apimart.ai/f/image/ref-one.jpg' }]);
+        expect(body.image_urls).toEqual([{ url: 'https://getapib.org/f/image/ref-one.jpg' }]);
         return jsonResponse({
           code: 200,
           data: [{ status: 'submitted', task_id: 'task-image-001' }],
@@ -411,6 +458,9 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
     const saved = await states.get(RUNTIME_ID, imageRequest.idempotencyKey);
     expect(saved?.phase).toBe('SUBMITTED');
     expect(saved?.uploadedFiles[0]?.contentHash).toBe(input.contentHash);
+    expect(await gateway.submit(RUNTIME_ID, imageRequest)).toEqual(submitted);
+    expect(seen.filter((call) => call.url.endsWith('/uploads/images'))).toHaveLength(1);
+    expect(seen.filter((call) => call.url.endsWith('/images/generations'))).toHaveLength(1);
     const descriptor = await gateway.getDescriptor(RUNTIME_ID);
     expect(descriptor.outputCapability).toBe('IMAGE_GENERATION');
     expect(descriptor.outputTypes).toEqual(['image/png', 'image/jpeg']);
@@ -580,6 +630,7 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
           version: 'v6',
           audio_format: 'wav',
         });
+        expect(JSON.parse(String(call.body))).not.toHaveProperty('duration');
         return jsonResponse({ data: [{ status: 'submitted', task_id: 'task-music-001' }] });
       }
       if (call.url.endsWith('/music/tasks/task-music-001'))
@@ -614,6 +665,8 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
       throw new Error('Unexpected fixture request.');
     });
     const { gateway, cache } = createApiMart('suno', mock.fetch);
+    const descriptor = await gateway.getDescriptor(RUNTIME_ID);
+    expect(descriptor.parameterSchema.properties).not.toHaveProperty('durationSeconds');
     const musicRequest = request('suno', 'MUSIC_GENERATION');
     const submission = await gateway.submit(RUNTIME_ID, musicRequest);
     expect(submission.outcome).toBe('SUBMITTED');
@@ -625,6 +678,9 @@ describe('API Mart and TokenRhythm GenerationGateway adapters', () => {
       { mimeType: 'audio/mpeg', extension: '.mp3' },
     ]);
     expect(job.outputs).toHaveLength(2);
+    expect(job.outputs.every((output) => output.metadata?.durationToleranceSeconds === 0.02)).toBe(
+      true,
+    );
     expect(cache.captures).toBe(2);
     expect(seen.filter((entry) => entry.url.endsWith('/music/generations'))).toHaveLength(1);
   });

@@ -401,14 +401,30 @@ export function isAllowedProviderUrl(
       ? new Set(['upload.apimart.ai', 'api.apimart.ai'])
       : new Set(['tokenrhythm.studio']);
   const loopbackFixture = testOnly && isLoopbackHostname(host);
-  const verifiedApiMartAudioHost =
+  // Authenticated image and Suno task manifests both use this exact delivery host.
+  // Its contents still require descriptor MIME, size and container validation.
+  const verifiedApiMartMediaHost =
     provider === 'APIMART' &&
     host === 'getapib.org' &&
     !!allowedMimeTypes?.length &&
-    allowedMimeTypes.every((mimeType) => canonicalMime(mimeType).startsWith('audio/'));
+    allowedMimeTypes.every((mimeType) =>
+      /^(?:image\/(?:png|jpeg|webp)|video\/mp4|audio\/(?:wav|mpeg))$/.test(canonicalMime(mimeType)),
+    );
+  // Exact image delivery bucket observed in TokenRhythm's authenticated image response.
+  // No wildcard Aliyun access, API credential, redirect, or video authority is granted.
+  const verifiedTokenRhythmImageHost =
+    provider === 'TOKENRHYTHM' &&
+    host === 'tokenrhythm-prod-backup-oss.oss-cn-beijing.aliyuncs.com' &&
+    !!allowedMimeTypes?.length &&
+    allowedMimeTypes.every((mimeType) =>
+      /^image\/(?:png|jpeg|webp)$/.test(canonicalMime(mimeType)),
+    );
   if (
     !(url.protocol === 'https:' || (loopbackFixture && url.protocol === 'http:')) ||
-    (!allowedHosts.has(host) && !verifiedApiMartAudioHost && !loopbackFixture) ||
+    (!allowedHosts.has(host) &&
+      !verifiedApiMartMediaHost &&
+      !verifiedTokenRhythmImageHost &&
+      !loopbackFixture) ||
     url.username ||
     url.password ||
     url.hash ||
@@ -742,6 +758,8 @@ export interface CommercialOutputSource {
   id: string;
   url: string;
   metadata?: Record<string, unknown>;
+  /** Set only by trusted adapter code, never copied from provider JSON. */
+  durationToleranceSeconds?: number;
 }
 
 export interface CommercialGatewayConfig {
@@ -1148,7 +1166,12 @@ export class CommercialGenerationGateway implements GenerationGateway {
         extension: extensionForMime(media.mimeType),
         sizeBytes: media.sizeBytes,
         contentHash: media.contentHash,
-        metadata: safeOutputMetadata(output.metadata ?? {}),
+        metadata: {
+          ...safeOutputMetadata(output.metadata ?? {}),
+          ...(output.durationToleranceSeconds !== undefined
+            ? { durationToleranceSeconds: output.durationToleranceSeconds }
+            : {}),
+        },
       });
     }
     return result;
@@ -1308,7 +1331,7 @@ export class CommercialGenerationGateway implements GenerationGateway {
     }
     const result = isRecord(payload) ? payload : null;
     const url = typeof result?.url === 'string' ? result.url : '';
-    const safeUrl = isAllowedProviderUrl(url, this.config.provider, this.testOnly);
+    const safeUrl = isAllowedProviderUrl(url, this.config.provider, this.testOnly, [mimeType]);
     if (
       !safeUrl ||
       canonicalMime(typeof result?.content_type === 'string' ? result.content_type : '') !==

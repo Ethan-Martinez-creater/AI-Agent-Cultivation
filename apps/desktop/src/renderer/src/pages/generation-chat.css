@@ -1,4 +1,16 @@
 @layer pages {
+  .g2-generation-image {
+    display: block;
+    width: min(46%, 320px);
+    min-width: 118px;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: var(--radius-small);
+  }
+  .g2-generation-audio {
+    width: min(100%, 360px);
+    min-width: 180px;
+  }
   .g2-generation-chat {
     display: flex;
     min-height: 0;

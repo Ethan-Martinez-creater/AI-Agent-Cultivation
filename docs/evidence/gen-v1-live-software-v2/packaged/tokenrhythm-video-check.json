@@ -1,0 +1,47 @@
+{
+  "generationPosts": 0,
+  "requests": [
+    {
+      "path": "/v1/models",
+      "http": 200,
+      "modelIds": [
+        "glm-5.1",
+        "minimax-m2.7",
+        "kimi-k2.6",
+        "mimo-v2.5-pro",
+        "qwen3.7-max",
+        "kimi-k2.7-code",
+        "glm-5.2",
+        "qwen3.8-max",
+        "deepseek-v4-flash-0731",
+        "seed-2.1-turbo",
+        "seed-2.1-pro",
+        "deepseek-v4-pro-0813",
+        "glm-5.3",
+        "qwen3.7-flash",
+        "qwen3.8-27b",
+        "kimi-k3",
+        "longcat-2.0",
+        "glm-5.3-flash",
+        "qwen3.8-flash",
+        "deepseek-flash",
+        "glm-5.3-flashx",
+        "mimo-v2.6-pro",
+        "mimo-v2.6-flash",
+        "tr-alpha-channel"
+      ],
+      "code": null
+    },
+    {
+      "path": "/v1/videos?page=1&pageSize=1",
+      "http": 200,
+      "code": null,
+      "count": 0
+    }
+  ],
+  "status": "BLOCKED",
+  "reason": "Authenticated read-only checks do not establish a current Wan model price and account-specific generation permission. No billable POST was made.",
+  "videoGeneration": "NOT_RUN",
+  "publicDocumentation": "https://tokenrhythm.studio/docs/api-integration",
+  "checkedAt": "2026-10-12T03:02:09.832Z"
+}

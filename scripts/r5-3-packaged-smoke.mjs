@@ -130,7 +130,7 @@ function assertMigrations(profile) {
       .map((row) => row.version);
     assert.deepEqual(
       migrations,
-      Array.from({ length: 32 }, (_, index) => index + 1),
+      Array.from({ length: 33 }, (_, index) => index + 1),
     );
     return migrations;
   });
@@ -1087,7 +1087,7 @@ assert.equal(databaseFacts.memoryRows, memoryCountBeforeRetrieval);
 assert.equal(databaseFacts.seededRows, Object.keys(memories).length);
 assert.deepEqual(
   databaseFacts.migrations,
-  Array.from({ length: 32 }, (_, index) => index + 1),
+  Array.from({ length: 33 }, (_, index) => index + 1),
 );
 
 const jevReceipts = observer.retrievals.filter((receipt) => receipt.mode === 'JEV');
@@ -1097,7 +1097,7 @@ const evidencePath = join(evidenceDir, 'facts.json');
 mkdirSync(evidenceDir, { recursive: true });
 const evidence = {
   verifiedAt: new Date().toISOString(),
-  schemaVersion: 32,
+  schemaVersion: 33,
   privacyScreenshots,
   liveJev: { status: 'NOT RUN', gateway: 'explicit FakeDecisionGateway fixture' },
   production: {
