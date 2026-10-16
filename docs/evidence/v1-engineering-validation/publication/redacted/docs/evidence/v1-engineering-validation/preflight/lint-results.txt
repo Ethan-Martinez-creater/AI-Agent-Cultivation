@@ -1,0 +1,21 @@
+
+> ai-agent-cultivation@0.0.1 lint
+> eslint .
+
+
+[REPOSITORY_ROOT]\private\tmp-cleanup-report-2026-10-14.mjs
+   4:14  error  'process' is not defined  no-undef
+  86:1   error  'console' is not defined  no-undef
+
+[REPOSITORY_ROOT]\private\tmp-cleanup-size-audit-2026-10-14.mjs
+   2:23  error  'existsSync' is defined but never used  @typescript-eslint/no-unused-vars
+   6:14  error  'process' is not defined                no-undef
+   9:1   error  'console' is not defined                no-undef
+   9:42  error  'process' is not defined                no-undef
+  11:31  error  'process' is not defined                no-undef
+  21:63  error  Empty block statement                   no-empty
+  71:1   error  'console' is not defined                no-undef
+  91:1   error  'console' is not defined                no-undef
+
+✖ 10 problems (10 errors, 0 warnings)
+

@@ -1,0 +1,57 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/packaged-clean-launch.json",
+    "originalSha256": "1eee41c178ce001ee5c1911ec2cc31f28528bb2a95f65c71c1e596acf159886f",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH",
+      "LOCAL_SYSTEM_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "schemaVersion": 1,
+  "purpose": "Final escalated whole-controller packaged UI launch preflight for E1 P4/P5",
+  "startedAt": "2026-10-15T14:58:18.336Z",
+  "status": "HEALTHY_WINDOW",
+  "executablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+  "evidence": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\evidence\\final-escalated-launch-68448a52-0927-4f52-999d-d60ef6a8232f",
+  "profile": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\final-escalated-launch-23c36163-02a5-415a-8ebe-f5e47cb4d605\\cr-a-profile",
+  "workspace": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\final-escalated-launch-9bd0fae2-5441-426a-b69a-d570184cbf51\\cr-a-workspace",
+  "flags": [
+    "--gate1-fake-model",
+    "--r4-fake-routing",
+    "--w22-fake-software"
+  ],
+  "restrictions": {
+    "appEvaluate": false,
+    "providerKeysPassed": false,
+    "apiCallsIntended": false,
+    "forcedTermination": false,
+    "productionFilesModified": false
+  },
+  "app": {
+    "pid": 18852,
+    "spawnfile": "[WINDOWS_ROOT]\\system32\\cmd.exe",
+    "startedAt": "2026-10-15T14:58:18.336Z",
+    "exitCodeAtCapture": null,
+    "signalCodeAtCapture": null
+  },
+  "window": {
+    "title": "AI Agent Cultivation",
+    "url": "file:///[REPOSITORY_ROOT]/out/AI%20Agent%20Cultivation-win32-x64/resources/app.asar/.vite/renderer/main_window/index.html",
+    "bodyText": "",
+    "screenshotPath": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\evidence\\final-escalated-launch-68448a52-0927-4f52-999d-d60ef6a8232f\\first-window.png"
+  },
+  "error": null,
+  "normalClose": {
+    "requested": true,
+    "beforeClose": {
+      "pid": 18852,
+      "exitCode": null,
+      "signalCode": null
+    },
+    "exitCodeAfterClose": 0,
+    "signalCodeAfterClose": null
+  },
+  "finishedAt": "2026-10-15T14:58:41.955Z"
+}

@@ -1,0 +1,1399 @@
+{
+  "evidenceType": "E1_P1_SKILL_INPUT_COMPATIBILITY",
+  "generatedAt": "2026-10-15T04:07:28.942Z",
+  "status": "PASS",
+  "policyVersion": "r5-1-skill-routing-policy-v1",
+  "maxCandidates": 24,
+  "maxSelectedSkills": 3,
+  "datasetSha256": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+  "cases": [
+    {
+      "caseId": "SK-01",
+      "status": "PASS",
+      "live": false,
+      "ownerId": "e1-skill-owner-sk-01",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-01",
+        "name": "E1 isolated SK-01",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "csv-clean",
+        "sql-join",
+        "anomaly",
+        "markdown",
+        "chart",
+        "notes"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["csv-clean", "sql-join", "anomaly", "markdown", "chart", "notes"],
+      "preEligibilityIds": ["csv-clean", "sql-join", "anomaly", "markdown", "chart", "notes"],
+      "postEligibilityIds": ["csv-clean", "markdown", "anomaly", "chart", "notes", "sql-join"],
+      "productionCandidateIds": ["csv-clean", "markdown", "anomaly", "chart", "notes", "sql-join"],
+      "jevRequestCandidateIds": ["csv-clean", "markdown", "anomaly", "chart", "notes", "sql-join"],
+      "noCandidateDropped": true,
+      "fullInputHash": "18dbb0d32a704f96aad85002d314a2245eabcfb7552feb60abf1b5d0a630981c",
+      "inputHash": "18dbb0d32a704f96aad85002d314a2245eabcfb7552feb60abf1b5d0a630981c",
+      "reconstructedInputHash": "18dbb0d32a704f96aad85002d314a2245eabcfb7552feb60abf1b5d0a630981c",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "csv-clean",
+            "name": "CSV 数据清洗",
+            "description": "规范日期、缺失值、重复行并输出清洗报告",
+            "tags": ["CSV", "data-cleaning"]
+          },
+          {
+            "id": "markdown",
+            "name": "Markdown 排版",
+            "description": "整理标题、列表、代码块和文档格式",
+            "tags": ["markdown", "formatting"]
+          },
+          {
+            "id": "anomaly",
+            "name": "统计异常识别",
+            "description": "通过稳健统计量定位离群点与突变",
+            "tags": ["statistics", "anomaly"]
+          },
+          {
+            "id": "chart",
+            "name": "趋势可视化",
+            "description": "将时间序列数据绘制成清晰的图表",
+            "tags": ["visualization", "chart"]
+          },
+          {
+            "id": "notes",
+            "name": "版本发布说明",
+            "description": "根据已验证变更撰写发布文档",
+            "tags": ["release", "documentation"]
+          },
+          {
+            "id": "sql-join",
+            "name": "SQL 查询与关联",
+            "description": "使用关系型查询进行过滤、聚合及表连接",
+            "tags": ["SQL", "database"]
+          }
+        ],
+        "context": {
+          "objective": "清理季度销售 CSV 中的重复订单和日期格式，产出可追溯清洗报告。"
+        }
+      },
+      "selectedSkillIds": ["csv-clean", "markdown", "anomaly"],
+      "scores": [
+        {
+          "skillId": "csv-clean",
+          "score": 0.1235
+        },
+        {
+          "skillId": "markdown",
+          "score": 0.0123
+        },
+        {
+          "skillId": "anomaly",
+          "score": 0
+        },
+        {
+          "skillId": "chart",
+          "score": 0
+        },
+        {
+          "skillId": "notes",
+          "score": 0
+        },
+        {
+          "skillId": "sql-join",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "a8c8151add26134a6aa94771991669f1cb52598bf9e512560d84feb8a0f0019b",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-02",
+      "status": "PASS",
+      "live": true,
+      "ownerId": "e1-skill-owner-sk-02",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-02",
+        "name": "E1 isolated SK-02",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "csv-clean",
+        "anomaly",
+        "chart",
+        "sql-join",
+        "perf",
+        "notes"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["csv-clean", "anomaly", "chart", "sql-join", "perf", "notes"],
+      "preEligibilityIds": ["csv-clean", "anomaly", "chart", "sql-join", "perf", "notes"],
+      "postEligibilityIds": ["chart", "anomaly", "csv-clean", "notes", "perf", "sql-join"],
+      "productionCandidateIds": ["chart", "anomaly", "csv-clean", "notes", "perf", "sql-join"],
+      "jevRequestCandidateIds": ["chart", "anomaly", "csv-clean", "notes", "perf", "sql-join"],
+      "noCandidateDropped": true,
+      "fullInputHash": "ec2b9c1221b81d94a28a826b589c4877a3f8203d798d43cc92f50200e9516e7b",
+      "inputHash": "ec2b9c1221b81d94a28a826b589c4877a3f8203d798d43cc92f50200e9516e7b",
+      "reconstructedInputHash": "ec2b9c1221b81d94a28a826b589c4877a3f8203d798d43cc92f50200e9516e7b",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "chart",
+            "name": "趋势可视化",
+            "description": "将时间序列数据绘制成清晰的图表",
+            "tags": ["visualization", "chart"]
+          },
+          {
+            "id": "anomaly",
+            "name": "统计异常识别",
+            "description": "通过稳健统计量定位离群点与突变",
+            "tags": ["statistics", "anomaly"]
+          },
+          {
+            "id": "csv-clean",
+            "name": "CSV 数据清洗",
+            "description": "规范日期、缺失值、重复行并输出清洗报告",
+            "tags": ["CSV", "data-cleaning"]
+          },
+          {
+            "id": "notes",
+            "name": "版本发布说明",
+            "description": "根据已验证变更撰写发布文档",
+            "tags": ["release", "documentation"]
+          },
+          {
+            "id": "perf",
+            "name": "性能瓶颈剖析",
+            "description": "定位慢查询、网络延迟和资源热点",
+            "tags": ["performance", "profiling"]
+          },
+          {
+            "id": "sql-join",
+            "name": "SQL 查询与关联",
+            "description": "使用关系型查询进行过滤、聚合及表连接",
+            "tags": ["SQL", "database"]
+          }
+        ],
+        "context": {
+          "objective": "识别经营数据里突然偏离常态的月份，并画出变化趋势。"
+        }
+      },
+      "selectedSkillIds": ["chart", "anomaly", "csv-clean"],
+      "scores": [
+        {
+          "skillId": "chart",
+          "score": 0.058
+        },
+        {
+          "skillId": "anomaly",
+          "score": 0.0435
+        },
+        {
+          "skillId": "csv-clean",
+          "score": 0.0435
+        },
+        {
+          "skillId": "notes",
+          "score": 0
+        },
+        {
+          "skillId": "perf",
+          "score": 0
+        },
+        {
+          "skillId": "sql-join",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "d96de80cbb59b1f0826108dc01d94d8cef172017efb71b6a7a402db1ffc371e8",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-03",
+      "status": "PASS",
+      "live": true,
+      "ownerId": "e1-skill-owner-sk-03",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-03",
+        "name": "E1 isolated SK-03",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "log-debug",
+        "security",
+        "api-design",
+        "unit-test",
+        "markdown",
+        "translate"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": [
+        "log-debug",
+        "security",
+        "api-design",
+        "unit-test",
+        "markdown",
+        "translate"
+      ],
+      "preEligibilityIds": [
+        "log-debug",
+        "security",
+        "api-design",
+        "unit-test",
+        "markdown",
+        "translate"
+      ],
+      "postEligibilityIds": [
+        "api-design",
+        "log-debug",
+        "markdown",
+        "security",
+        "translate",
+        "unit-test"
+      ],
+      "productionCandidateIds": [
+        "api-design",
+        "log-debug",
+        "markdown",
+        "security",
+        "translate",
+        "unit-test"
+      ],
+      "jevRequestCandidateIds": [
+        "api-design",
+        "log-debug",
+        "markdown",
+        "security",
+        "translate",
+        "unit-test"
+      ],
+      "noCandidateDropped": true,
+      "fullInputHash": "432cd74bb2434b1b25293b691f4e6fca134d8a2f6b6f42c13362b570304c5285",
+      "inputHash": "432cd74bb2434b1b25293b691f4e6fca134d8a2f6b6f42c13362b570304c5285",
+      "reconstructedInputHash": "432cd74bb2434b1b25293b691f4e6fca134d8a2f6b6f42c13362b570304c5285",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "api-design",
+            "name": "API 契约设计",
+            "description": "定义 HTTP API 输入输出与错误协议",
+            "tags": ["API", "contract"]
+          },
+          {
+            "id": "log-debug",
+            "name": "日志根因分析",
+            "description": "从调用轨迹和错误日志定位故障来源",
+            "tags": ["logging", "debugging"]
+          },
+          {
+            "id": "markdown",
+            "name": "Markdown 排版",
+            "description": "整理标题、列表、代码块和文档格式",
+            "tags": ["markdown", "formatting"]
+          },
+          {
+            "id": "security",
+            "name": "安全边界审查",
+            "description": "检查权限、凭据与输入校验风险",
+            "tags": ["security", "permission"]
+          },
+          {
+            "id": "translate",
+            "name": "双语翻译",
+            "description": "中英双向翻译并保持术语一致",
+            "tags": ["translation", "language"]
+          },
+          {
+            "id": "unit-test",
+            "name": "单元测试设计",
+            "description": "编写可重复的边界与回归单元测试",
+            "tags": ["testing", "test"]
+          }
+        ],
+        "context": {
+          "objective": "接口偶发返回 502，排查请求链路并确认是否暴露了访问令牌。"
+        }
+      },
+      "selectedSkillIds": ["api-design", "log-debug", "markdown"],
+      "scores": [
+        {
+          "skillId": "api-design",
+          "score": 0
+        },
+        {
+          "skillId": "log-debug",
+          "score": 0
+        },
+        {
+          "skillId": "markdown",
+          "score": 0
+        },
+        {
+          "skillId": "security",
+          "score": 0
+        },
+        {
+          "skillId": "translate",
+          "score": 0
+        },
+        {
+          "skillId": "unit-test",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "013d1299b43920bf452f74fcba55be7bc5596c8c097e5d3715e57300d3ce082a",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-04",
+      "status": "PASS",
+      "live": false,
+      "ownerId": "e1-skill-owner-sk-04",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-04",
+        "name": "E1 isolated SK-04",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "api-design",
+        "unit-test",
+        "requirements",
+        "log-debug",
+        "notes",
+        "chart"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["api-design", "unit-test", "requirements", "log-debug", "notes", "chart"],
+      "preEligibilityIds": [
+        "api-design",
+        "unit-test",
+        "requirements",
+        "log-debug",
+        "notes",
+        "chart"
+      ],
+      "postEligibilityIds": [
+        "api-design",
+        "unit-test",
+        "chart",
+        "log-debug",
+        "notes",
+        "requirements"
+      ],
+      "productionCandidateIds": [
+        "api-design",
+        "unit-test",
+        "chart",
+        "log-debug",
+        "notes",
+        "requirements"
+      ],
+      "jevRequestCandidateIds": [
+        "api-design",
+        "unit-test",
+        "chart",
+        "log-debug",
+        "notes",
+        "requirements"
+      ],
+      "noCandidateDropped": true,
+      "fullInputHash": "197773f09a612d9ad9ffd2ff40485329686ff171948f574e396540868977a1e0",
+      "inputHash": "197773f09a612d9ad9ffd2ff40485329686ff171948f574e396540868977a1e0",
+      "reconstructedInputHash": "197773f09a612d9ad9ffd2ff40485329686ff171948f574e396540868977a1e0",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "api-design",
+            "name": "API 契约设计",
+            "description": "定义 HTTP API 输入输出与错误协议",
+            "tags": ["API", "contract"]
+          },
+          {
+            "id": "unit-test",
+            "name": "单元测试设计",
+            "description": "编写可重复的边界与回归单元测试",
+            "tags": ["testing", "test"]
+          },
+          {
+            "id": "chart",
+            "name": "趋势可视化",
+            "description": "将时间序列数据绘制成清晰的图表",
+            "tags": ["visualization", "chart"]
+          },
+          {
+            "id": "log-debug",
+            "name": "日志根因分析",
+            "description": "从调用轨迹和错误日志定位故障来源",
+            "tags": ["logging", "debugging"]
+          },
+          {
+            "id": "notes",
+            "name": "版本发布说明",
+            "description": "根据已验证变更撰写发布文档",
+            "tags": ["release", "documentation"]
+          },
+          {
+            "id": "requirements",
+            "name": "需求拆解",
+            "description": "将产品需求转化成验收任务与约束",
+            "tags": ["requirements", "planning"]
+          }
+        ],
+        "context": {
+          "objective": "将新版 REST 接口字段冻结成契约，并为输入异常补回归测试。"
+        }
+      },
+      "selectedSkillIds": ["api-design", "unit-test", "chart"],
+      "scores": [
+        {
+          "skillId": "api-design",
+          "score": 0.0556
+        },
+        {
+          "skillId": "unit-test",
+          "score": 0.0556
+        },
+        {
+          "skillId": "chart",
+          "score": 0
+        },
+        {
+          "skillId": "log-debug",
+          "score": 0
+        },
+        {
+          "skillId": "notes",
+          "score": 0
+        },
+        {
+          "skillId": "requirements",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "e769dea6e262246fbed61fc758a7e5439c4e571344e47d9297c5b385ef1a2d12",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-05",
+      "status": "PASS",
+      "live": true,
+      "ownerId": "e1-skill-owner-sk-05",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-05",
+        "name": "E1 isolated SK-05",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "research",
+        "markdown",
+        "privacy",
+        "benchmark",
+        "translate",
+        "chart"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["research", "markdown", "privacy", "benchmark", "translate", "chart"],
+      "preEligibilityIds": ["research", "markdown", "privacy", "benchmark", "translate", "chart"],
+      "postEligibilityIds": ["research", "markdown", "benchmark", "chart", "privacy", "translate"],
+      "productionCandidateIds": [
+        "research",
+        "markdown",
+        "benchmark",
+        "chart",
+        "privacy",
+        "translate"
+      ],
+      "jevRequestCandidateIds": [
+        "research",
+        "markdown",
+        "benchmark",
+        "chart",
+        "privacy",
+        "translate"
+      ],
+      "noCandidateDropped": true,
+      "fullInputHash": "1c457ae9f255d1f0d22e272696ba1a20f8d0620ce2639e3cf5e16b861ffc8822",
+      "inputHash": "1c457ae9f255d1f0d22e272696ba1a20f8d0620ce2639e3cf5e16b861ffc8822",
+      "reconstructedInputHash": "1c457ae9f255d1f0d22e272696ba1a20f8d0620ce2639e3cf5e16b861ffc8822",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "research",
+            "name": "文献证据整理",
+            "description": "组织研究来源、主张与证据映射",
+            "tags": ["research", "evidence"]
+          },
+          {
+            "id": "markdown",
+            "name": "Markdown 排版",
+            "description": "整理标题、列表、代码块和文档格式",
+            "tags": ["markdown", "formatting"]
+          },
+          {
+            "id": "benchmark",
+            "name": "实验评测设计",
+            "description": "定义对照组、指标、样本和误差分析",
+            "tags": ["benchmark", "evaluation"]
+          },
+          {
+            "id": "chart",
+            "name": "趋势可视化",
+            "description": "将时间序列数据绘制成清晰的图表",
+            "tags": ["visualization", "chart"]
+          },
+          {
+            "id": "privacy",
+            "name": "敏感数据脱敏",
+            "description": "删除或匿名化不应外发的敏感字段",
+            "tags": ["privacy", "redaction"]
+          },
+          {
+            "id": "translate",
+            "name": "双语翻译",
+            "description": "中英双向翻译并保持术语一致",
+            "tags": ["translation", "language"]
+          }
+        ],
+        "context": {
+          "objective": "将研究访谈笔记整理成有来源依据的证据表，禁止编造引用。"
+        }
+      },
+      "selectedSkillIds": ["research", "markdown", "benchmark"],
+      "scores": [
+        {
+          "skillId": "research",
+          "score": 0.1067
+        },
+        {
+          "skillId": "markdown",
+          "score": 0.0133
+        },
+        {
+          "skillId": "benchmark",
+          "score": 0
+        },
+        {
+          "skillId": "chart",
+          "score": 0
+        },
+        {
+          "skillId": "privacy",
+          "score": 0
+        },
+        {
+          "skillId": "translate",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "d5a5cf6477d823f2c321fd9ff7d4192213bd52841162451975965a8b46647234",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-06",
+      "status": "PASS",
+      "live": false,
+      "ownerId": "e1-skill-owner-sk-06",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-06",
+        "name": "E1 isolated SK-06",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "benchmark",
+        "perf",
+        "unit-test",
+        "chart",
+        "api-design",
+        "sql-join"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["benchmark", "perf", "unit-test", "chart", "api-design", "sql-join"],
+      "preEligibilityIds": ["benchmark", "perf", "unit-test", "chart", "api-design", "sql-join"],
+      "postEligibilityIds": ["benchmark", "perf", "api-design", "unit-test", "chart", "sql-join"],
+      "productionCandidateIds": [
+        "benchmark",
+        "perf",
+        "api-design",
+        "unit-test",
+        "chart",
+        "sql-join"
+      ],
+      "jevRequestCandidateIds": [
+        "benchmark",
+        "perf",
+        "api-design",
+        "unit-test",
+        "chart",
+        "sql-join"
+      ],
+      "noCandidateDropped": true,
+      "fullInputHash": "a6be2430ec9ac2d0c2bd369cae89bd285278cabfde10192199d609d8c6e14efb",
+      "inputHash": "a6be2430ec9ac2d0c2bd369cae89bd285278cabfde10192199d609d8c6e14efb",
+      "reconstructedInputHash": "a6be2430ec9ac2d0c2bd369cae89bd285278cabfde10192199d609d8c6e14efb",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "benchmark",
+            "name": "实验评测设计",
+            "description": "定义对照组、指标、样本和误差分析",
+            "tags": ["benchmark", "evaluation"]
+          },
+          {
+            "id": "perf",
+            "name": "性能瓶颈剖析",
+            "description": "定位慢查询、网络延迟和资源热点",
+            "tags": ["performance", "profiling"]
+          },
+          {
+            "id": "api-design",
+            "name": "API 契约设计",
+            "description": "定义 HTTP API 输入输出与错误协议",
+            "tags": ["API", "contract"]
+          },
+          {
+            "id": "unit-test",
+            "name": "单元测试设计",
+            "description": "编写可重复的边界与回归单元测试",
+            "tags": ["testing", "test"]
+          },
+          {
+            "id": "chart",
+            "name": "趋势可视化",
+            "description": "将时间序列数据绘制成清晰的图表",
+            "tags": ["visualization", "chart"]
+          },
+          {
+            "id": "sql-join",
+            "name": "SQL 查询与关联",
+            "description": "使用关系型查询进行过滤、聚合及表连接",
+            "tags": ["SQL", "database"]
+          }
+        ],
+        "context": {
+          "objective": "评估两种缓存算法的延迟差异，设计公平对照并分析瓶颈。"
+        }
+      },
+      "selectedSkillIds": ["benchmark", "perf", "api-design"],
+      "scores": [
+        {
+          "skillId": "benchmark",
+          "score": 0.0694
+        },
+        {
+          "skillId": "perf",
+          "score": 0.0556
+        },
+        {
+          "skillId": "api-design",
+          "score": 0.0417
+        },
+        {
+          "skillId": "unit-test",
+          "score": 0.0417
+        },
+        {
+          "skillId": "chart",
+          "score": 0
+        },
+        {
+          "skillId": "sql-join",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "27dff29268c6aeb53b30aeac5b446a235c4c72a9df805b73cbb8f6800702b5a2",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-07",
+      "status": "PASS",
+      "live": false,
+      "ownerId": "e1-skill-owner-sk-07",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-07",
+        "name": "E1 isolated SK-07",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "notes",
+        "markdown",
+        "requirements",
+        "unit-test",
+        "api-design",
+        "log-debug"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": [
+        "notes",
+        "markdown",
+        "requirements",
+        "unit-test",
+        "api-design",
+        "log-debug"
+      ],
+      "preEligibilityIds": [
+        "notes",
+        "markdown",
+        "requirements",
+        "unit-test",
+        "api-design",
+        "log-debug"
+      ],
+      "postEligibilityIds": [
+        "notes",
+        "api-design",
+        "log-debug",
+        "markdown",
+        "requirements",
+        "unit-test"
+      ],
+      "productionCandidateIds": [
+        "notes",
+        "api-design",
+        "log-debug",
+        "markdown",
+        "requirements",
+        "unit-test"
+      ],
+      "jevRequestCandidateIds": [
+        "notes",
+        "api-design",
+        "log-debug",
+        "markdown",
+        "requirements",
+        "unit-test"
+      ],
+      "noCandidateDropped": true,
+      "fullInputHash": "7b95395932566488d93fdafa63aeed56de558b82fbf315b6c2809d3f39d6e5b2",
+      "inputHash": "7b95395932566488d93fdafa63aeed56de558b82fbf315b6c2809d3f39d6e5b2",
+      "reconstructedInputHash": "7b95395932566488d93fdafa63aeed56de558b82fbf315b6c2809d3f39d6e5b2",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "notes",
+            "name": "版本发布说明",
+            "description": "根据已验证变更撰写发布文档",
+            "tags": ["release", "documentation"]
+          },
+          {
+            "id": "api-design",
+            "name": "API 契约设计",
+            "description": "定义 HTTP API 输入输出与错误协议",
+            "tags": ["API", "contract"]
+          },
+          {
+            "id": "log-debug",
+            "name": "日志根因分析",
+            "description": "从调用轨迹和错误日志定位故障来源",
+            "tags": ["logging", "debugging"]
+          },
+          {
+            "id": "markdown",
+            "name": "Markdown 排版",
+            "description": "整理标题、列表、代码块和文档格式",
+            "tags": ["markdown", "formatting"]
+          },
+          {
+            "id": "requirements",
+            "name": "需求拆解",
+            "description": "将产品需求转化成验收任务与约束",
+            "tags": ["requirements", "planning"]
+          },
+          {
+            "id": "unit-test",
+            "name": "单元测试设计",
+            "description": "编写可重复的边界与回归单元测试",
+            "tags": ["testing", "test"]
+          }
+        ],
+        "context": {
+          "objective": "把本轮已批准的变更写成可发布说明，不修改任何程序文件。"
+        }
+      },
+      "selectedSkillIds": ["notes", "api-design", "log-debug"],
+      "scores": [
+        {
+          "skillId": "notes",
+          "score": 0.1333
+        },
+        {
+          "skillId": "api-design",
+          "score": 0
+        },
+        {
+          "skillId": "log-debug",
+          "score": 0
+        },
+        {
+          "skillId": "markdown",
+          "score": 0
+        },
+        {
+          "skillId": "requirements",
+          "score": 0
+        },
+        {
+          "skillId": "unit-test",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "4b01c98b11539e2bcf9cf16086a3593318de1d412fc9be9474185dffff6ea06a",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-08",
+      "status": "PASS",
+      "live": true,
+      "ownerId": "e1-skill-owner-sk-08",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-08",
+        "name": "E1 isolated SK-08",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "privacy",
+        "security",
+        "log-debug",
+        "markdown",
+        "notes",
+        "translate"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["privacy", "security", "log-debug", "markdown", "notes", "translate"],
+      "preEligibilityIds": ["privacy", "security", "log-debug", "markdown", "notes", "translate"],
+      "postEligibilityIds": ["log-debug", "markdown", "notes", "privacy", "security", "translate"],
+      "productionCandidateIds": [
+        "log-debug",
+        "markdown",
+        "notes",
+        "privacy",
+        "security",
+        "translate"
+      ],
+      "jevRequestCandidateIds": [
+        "log-debug",
+        "markdown",
+        "notes",
+        "privacy",
+        "security",
+        "translate"
+      ],
+      "noCandidateDropped": true,
+      "fullInputHash": "d5f0761398e23d5c5040dea09b7040c390249932291ad4c275c3a5b47b284987",
+      "inputHash": "d5f0761398e23d5c5040dea09b7040c390249932291ad4c275c3a5b47b284987",
+      "reconstructedInputHash": "d5f0761398e23d5c5040dea09b7040c390249932291ad4c275c3a5b47b284987",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "log-debug",
+            "name": "日志根因分析",
+            "description": "从调用轨迹和错误日志定位故障来源",
+            "tags": ["logging", "debugging"]
+          },
+          {
+            "id": "markdown",
+            "name": "Markdown 排版",
+            "description": "整理标题、列表、代码块和文档格式",
+            "tags": ["markdown", "formatting"]
+          },
+          {
+            "id": "notes",
+            "name": "版本发布说明",
+            "description": "根据已验证变更撰写发布文档",
+            "tags": ["release", "documentation"]
+          },
+          {
+            "id": "privacy",
+            "name": "敏感数据脱敏",
+            "description": "删除或匿名化不应外发的敏感字段",
+            "tags": ["privacy", "redaction"]
+          },
+          {
+            "id": "security",
+            "name": "安全边界审查",
+            "description": "检查权限、凭据与输入校验风险",
+            "tags": ["security", "permission"]
+          },
+          {
+            "id": "translate",
+            "name": "双语翻译",
+            "description": "中英双向翻译并保持术语一致",
+            "tags": ["translation", "language"]
+          }
+        ],
+        "context": {
+          "objective": "把内部排障日志作为面试材料，但所有密钥和客户标识必须移除。"
+        }
+      },
+      "selectedSkillIds": ["log-debug", "markdown", "notes"],
+      "scores": [
+        {
+          "skillId": "log-debug",
+          "score": 0.037
+        },
+        {
+          "skillId": "markdown",
+          "score": 0
+        },
+        {
+          "skillId": "notes",
+          "score": 0
+        },
+        {
+          "skillId": "privacy",
+          "score": 0
+        },
+        {
+          "skillId": "security",
+          "score": 0
+        },
+        {
+          "skillId": "translate",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "1d41265304aab8315ec649a8c39504c9996a4c5d6e5a92c7ee5412e1b2a2b297",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-09",
+      "status": "PASS",
+      "live": false,
+      "ownerId": "e1-skill-owner-sk-09",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-09",
+        "name": "E1 isolated SK-09",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "api-design",
+        "markdown",
+        "translate",
+        "security",
+        "unit-test",
+        "chart"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["api-design", "markdown", "translate", "security", "unit-test", "chart"],
+      "preEligibilityIds": [
+        "api-design",
+        "markdown",
+        "translate",
+        "security",
+        "unit-test",
+        "chart"
+      ],
+      "postEligibilityIds": [
+        "api-design",
+        "markdown",
+        "chart",
+        "security",
+        "translate",
+        "unit-test"
+      ],
+      "productionCandidateIds": [
+        "api-design",
+        "markdown",
+        "chart",
+        "security",
+        "translate",
+        "unit-test"
+      ],
+      "jevRequestCandidateIds": [
+        "api-design",
+        "markdown",
+        "chart",
+        "security",
+        "translate",
+        "unit-test"
+      ],
+      "noCandidateDropped": true,
+      "fullInputHash": "264c6b15978eb4f67ae5a1164f5e2f9c99aed75afec716968bd68c0a072b821a",
+      "inputHash": "264c6b15978eb4f67ae5a1164f5e2f9c99aed75afec716968bd68c0a072b821a",
+      "reconstructedInputHash": "264c6b15978eb4f67ae5a1164f5e2f9c99aed75afec716968bd68c0a072b821a",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "api-design",
+            "name": "API 契约设计",
+            "description": "定义 HTTP API 输入输出与错误协议",
+            "tags": ["API", "contract"]
+          },
+          {
+            "id": "markdown",
+            "name": "Markdown 排版",
+            "description": "整理标题、列表、代码块和文档格式",
+            "tags": ["markdown", "formatting"]
+          },
+          {
+            "id": "chart",
+            "name": "趋势可视化",
+            "description": "将时间序列数据绘制成清晰的图表",
+            "tags": ["visualization", "chart"]
+          },
+          {
+            "id": "security",
+            "name": "安全边界审查",
+            "description": "检查权限、凭据与输入校验风险",
+            "tags": ["security", "permission"]
+          },
+          {
+            "id": "translate",
+            "name": "双语翻译",
+            "description": "中英双向翻译并保持术语一致",
+            "tags": ["translation", "language"]
+          },
+          {
+            "id": "unit-test",
+            "name": "单元测试设计",
+            "description": "编写可重复的边界与回归单元测试",
+            "tags": ["testing", "test"]
+          }
+        ],
+        "context": {
+          "objective": "需要只解释现有代码中的接口类型并写出中文说明，不更改接口协议。"
+        }
+      },
+      "selectedSkillIds": ["api-design", "markdown", "chart"],
+      "scores": [
+        {
+          "skillId": "api-design",
+          "score": 0.0119
+        },
+        {
+          "skillId": "markdown",
+          "score": 0.0119
+        },
+        {
+          "skillId": "chart",
+          "score": 0
+        },
+        {
+          "skillId": "security",
+          "score": 0
+        },
+        {
+          "skillId": "translate",
+          "score": 0
+        },
+        {
+          "skillId": "unit-test",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "402f7028924c7e3537e8564f3be273b9ff8a0033a5ac53349d7ed6d30a5fd197",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "SK-10",
+      "status": "PASS",
+      "live": true,
+      "ownerId": "e1-skill-owner-sk-10",
+      "teammateFixture": {
+        "id": "e1-skill-owner-sk-10",
+        "name": "E1 isolated SK-10",
+        "avatar": null,
+        "title": "Offline Skill routing evaluation fixture",
+        "description": "Synthetic per-case Teammate DTO for offline selector preflight.",
+        "identityPrompt": "Synthetic E1 owner fixture; no model execution is configured.",
+        "behaviorPrompt": "",
+        "executorKind": "MODEL_RUNTIME",
+        "routingPolicy": "NORMAL",
+        "systemKind": null,
+        "status": "ACTIVE",
+        "realm": "QI_REFINING",
+        "currentRuntimeProfileId": null,
+        "createdAt": "2026-10-15T00:00:00.000Z",
+        "updatedAt": "2026-10-15T00:00:00.000Z"
+      },
+      "teammateFixtureSource": "Typed @cultivation/domain Teammate DTO in a per-case in-memory fixture store; no Gate1 persistence, Provider probe, or model execution.",
+      "ownerExistsBeforeAssignment": true,
+      "ownerExistenceCheckedForAssignmentIds": [
+        "benchmark",
+        "perf",
+        "anomaly",
+        "research",
+        "notes",
+        "api-design"
+      ],
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["benchmark", "perf", "anomaly", "research", "notes", "api-design"],
+      "preEligibilityIds": ["benchmark", "perf", "anomaly", "research", "notes", "api-design"],
+      "postEligibilityIds": ["anomaly", "api-design", "benchmark", "notes", "perf", "research"],
+      "productionCandidateIds": ["anomaly", "api-design", "benchmark", "notes", "perf", "research"],
+      "jevRequestCandidateIds": ["anomaly", "api-design", "benchmark", "notes", "perf", "research"],
+      "noCandidateDropped": true,
+      "fullInputHash": "1e4a6fde73345f10baf36c06e83d1677280fcacd4cf2e23402444567f890f8e2",
+      "inputHash": "1e4a6fde73345f10baf36c06e83d1677280fcacd4cf2e23402444567f890f8e2",
+      "reconstructedInputHash": "1e4a6fde73345f10baf36c06e83d1677280fcacd4cf2e23402444567f890f8e2",
+      "inputHashMatches": true,
+      "textProjection": {
+        "candidates": [
+          {
+            "id": "anomaly",
+            "name": "统计异常识别",
+            "description": "通过稳健统计量定位离群点与突变",
+            "tags": ["statistics", "anomaly"]
+          },
+          {
+            "id": "api-design",
+            "name": "API 契约设计",
+            "description": "定义 HTTP API 输入输出与错误协议",
+            "tags": ["API", "contract"]
+          },
+          {
+            "id": "benchmark",
+            "name": "实验评测设计",
+            "description": "定义对照组、指标、样本和误差分析",
+            "tags": ["benchmark", "evaluation"]
+          },
+          {
+            "id": "notes",
+            "name": "版本发布说明",
+            "description": "根据已验证变更撰写发布文档",
+            "tags": ["release", "documentation"]
+          },
+          {
+            "id": "perf",
+            "name": "性能瓶颈剖析",
+            "description": "定位慢查询、网络延迟和资源热点",
+            "tags": ["performance", "profiling"]
+          },
+          {
+            "id": "research",
+            "name": "文献证据整理",
+            "description": "组织研究来源、主张与证据映射",
+            "tags": ["research", "evidence"]
+          }
+        ],
+        "context": {
+          "objective": "用同一输入比较规则排序与语义排序，统计准确性和耗时，报告负面案例。"
+        }
+      },
+      "selectedSkillIds": ["anomaly", "api-design", "benchmark"],
+      "scores": [
+        {
+          "skillId": "anomaly",
+          "score": 0.0345
+        },
+        {
+          "skillId": "api-design",
+          "score": 0.0115
+        },
+        {
+          "skillId": "benchmark",
+          "score": 0
+        },
+        {
+          "skillId": "notes",
+          "score": 0
+        },
+        {
+          "skillId": "perf",
+          "score": 0
+        },
+        {
+          "skillId": "research",
+          "score": 0
+        }
+      ],
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-1-skill-routing-policy-v1",
+      "receiptHash": "690ce8ed5272e0b7703496b30656e7efbb0aac7e7dfa06731ade5db633f36be7",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    }
+  ]
+}

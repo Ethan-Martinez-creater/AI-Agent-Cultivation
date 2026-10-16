@@ -1,0 +1,8 @@
+{
+  "scope": "Read-only Windows Application events 1000/1001 for AI-Agent-Cultivation; local 2026-10-15 12:00–12:30",
+  "checkedAt": "2026-10-15T16:34:24.5561597+00:00",
+  "fullUnrelatedEventMessagesPublished": false,
+  "records": [],
+  "queryError": null,
+  "interpretation": "No PID or root-cause linkage is assumed without a matching application event. Empty results or access errors do not prove there was no crash."
+}

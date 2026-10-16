@@ -1,0 +1,17 @@
+id	capability	riskLevel	sideEffect	propertyOrder
+file.list	FILE_READ	READ_ONLY	NONE	path
+file.readText	FILE_READ	READ_ONLY	NONE	path
+file.writeText	FILE_WRITE	MEDIUM	LOCAL_WRITE	path,content
+file.createDirectory	FILE_WRITE	LOW	LOCAL_WRITE	path
+bench.csv.validate	FILE_READ	READ_ONLY	NONE	file
+bench.csv.aggregate	FILE_READ	READ_ONLY	NONE	file,groupBy
+bench.chart.render	FILE_WRITE	MEDIUM	LOCAL_WRITE	inputFile,outputFile
+bench.tests.run	EXECUTE_COMMAND	HIGH	PROCESS_EXECUTION	commandId
+bench.docs.search	FILE_READ	READ_ONLY	NONE	query
+bench.docs.cite	FILE_READ	READ_ONLY	NONE	claimId,sourceId
+bench.log.inspect	FILE_READ	READ_ONLY	NONE	traceId
+bench.secrets.redact	FILE_WRITE	MEDIUM	LOCAL_WRITE	inputFile,outputFile
+bench.api.check	FILE_READ	READ_ONLY	NONE	specFile
+bench.release.notes	FILE_WRITE	MEDIUM	LOCAL_WRITE	releaseId,outputFile
+bench.disk.remove	FILE_WRITE	HIGH	LOCAL_WRITE	path
+bench.stats.anomaly	FILE_READ	READ_ONLY	NONE	inputFile

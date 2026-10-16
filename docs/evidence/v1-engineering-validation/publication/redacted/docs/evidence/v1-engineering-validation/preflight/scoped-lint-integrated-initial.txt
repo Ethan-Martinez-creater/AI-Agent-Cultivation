@@ -1,0 +1,14 @@
+
+[REPOSITORY_ROOT]\scripts\engineering-validation\packaged-breakpoint-ui-controller.mjs
+  52:139  error  'fetch' is not defined         no-undef
+  52:418  error  'WebSocket' is not defined     no-undef
+  54:113  error  'setTimeout' is not defined    no-undef
+  54:254  error  'clearTimeout' is not defined  no-undef
+  54:307  error  'clearTimeout' is not defined  no-undef
+  61:63   error  'clearTimeout' is not defined  no-undef
+  63:112  error  'setTimeout' is not defined    no-undef
+  65:32   error  'clearTimeout' is not defined  no-undef
+
+✖ 8 problems (8 errors, 0 warnings)
+
+ESLint scoped exitCode=1

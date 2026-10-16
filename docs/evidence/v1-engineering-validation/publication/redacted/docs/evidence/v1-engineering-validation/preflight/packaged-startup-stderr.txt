@@ -1,0 +1,9 @@
+Debugger listening on ws://127.0.0.1:39129/be4dc3bb-f812-4048-b183-d7c871f82d47
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[27612:1015/115019.716:FATAL:mojo\public\cpp\platform\platform_channel.cc:108] Check failed: . : 拒绝访问。 (0x5)
+
+DevTools listening on ws://127.0.0.1:39130/devtools/browser/fb220da3-2446-48eb-b01b-26178a9d5e18
+[27612:1015/115026.500:ERROR:content\browser\network_sandbox.cc:410] Failed to grant sandbox access to cache directory [REPOSITORY_ROOT]\.tmp\e1-packaged-preflight\isolated\66bba9eabc4342679aa2718a8770a78c\cr-a-profile\UserData\Cache\Cache_Data: 拒绝访问。 (0x5)
+[27612:1015/115026.717:ERROR:content\browser\network_sandbox.cc:335] Failed to grant sandbox access to SharedDictionary directory [REPOSITORY_ROOT]\.tmp\e1-packaged-preflight\isolated\66bba9eabc4342679aa2718a8770a78c\cr-a-profile\UserData\Shared Dictionary: 拒绝访问。 (0x5)
+[27612:1015/115027.153:ERROR:content\browser\network_sandbox.cc:518] Failed to grant sandbox access to network context data directory [REPOSITORY_ROOT]\.tmp\e1-packaged-preflight\isolated\66bba9eabc4342679aa2718a8770a78c\cr-a-profile\UserData\Network: 拒绝访问。 (0x5)
+[27612:1015/115027.172:ERROR:content\browser\network_sandbox_grant_result_helper.cc:106] Encountered error while migrating network context data or granting sandbox access for [REPOSITORY_ROOT]\.tmp\e1-packaged-preflight\isolated\66bba9eabc4342679aa2718a8770a78c\cr-a-profile\UserData\Network. Result: 6: 操作成功完成。 (0x0)

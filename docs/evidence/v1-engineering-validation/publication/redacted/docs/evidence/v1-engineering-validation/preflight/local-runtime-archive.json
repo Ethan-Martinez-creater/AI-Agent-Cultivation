@@ -1,0 +1,18 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/local-runtime-archive.json",
+    "originalSha256": "acf5ed19c5b82f1829dfcc60e45b966694f1965beef2c35179c6b6fa40e4c1ea",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "source": "installed local Electron distribution",
+  "version": "44.4.3",
+  "archive": "[REPOSITORY_ROOT]\\.tmp\\e1-runtime-zip\\electron-v44.4.3-win32-x64.zip",
+  "archiveSha256": "f8a181398063e1c7ca69efedfb8dd76185d76f3533e1fe28f31ee2f72f68ef9e",
+  "exeSha256": "bf0fe749904ca9f713ccfb2427c519fa39d0bbd0337ba411ba08785802e8d548",
+  "officialDownloadArchive": false,
+  "productionFilesModified": false
+}

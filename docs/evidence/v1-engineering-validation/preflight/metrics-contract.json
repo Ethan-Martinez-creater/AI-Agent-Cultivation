@@ -1,0 +1,233 @@
+{
+  "classification": "SYNTHETIC_UNIT_VECTORS_ONLY_NO_JEV_LIVE_DATA",
+  "liveEvaluation": "NONE",
+  "source": "Hand-authored vectors in metrics.test.mjs; no production catalog, E0 gold set, private data, gateway, or Live Jev call was used.",
+  "contract": {
+    "positiveGradeThreshold": 2,
+    "precisionDenominator": "min(K, outputCount)",
+    "recallDenominator": "count of legal candidates with grade >= 2",
+    "ndcgGain": "2^grade - 1",
+    "ndcgIdealPool": "same complete legal candidate grade pool",
+    "pairedPool": "paired native scores must have the same canonical candidate-ID-and-grade fingerprint",
+    "gradeRowAllowlist": ["candidateId", "grade"],
+    "productionK": {
+      "SKILL": 3,
+      "MEMORY": 6,
+      "TOOL": 8
+    },
+    "fixedLivePerFamilyDenominator": 5,
+    "registeredLiveCaseIds": "explicit five-ID allowlist required; all five must appear exactly once",
+    "liveStatuses": ["LIVE_SUCCESS", "FALLBACK", "NOT_RUN"],
+    "nativeAndDerived": "Separate score records; DERIVED must be the observed NATIVE output truncated to production K.",
+    "liveQualityViews": "Native-success conditional macro uses only LIVE_SUCCESS native scores; system-effective macro uses scored LIVE_SUCCESS plus FALLBACK outputs. NOT_RUN remains in the fixed-five status and coverage denominator without score imputation.",
+    "fixedDenominatorQuality": "Report observed metric sums, fixed denominator 5, scored coverage, and NOT_RUN IDs separately; do not synthesize per-case zero scores.",
+    "unknownCost": "null remains unknown; totalCostUsd is null if any observed case has unknown cost."
+  },
+  "vectors": [
+    {
+      "id": "MEMORY-N6-K6",
+      "candidateGrades": [
+        {
+          "grade": 3,
+          "id": "m1"
+        },
+        {
+          "grade": 2,
+          "id": "m2"
+        },
+        {
+          "grade": 2,
+          "id": "m3"
+        },
+        {
+          "grade": 1,
+          "id": "m4"
+        },
+        {
+          "grade": 0,
+          "id": "m5"
+        },
+        {
+          "grade": 0,
+          "id": "m6"
+        }
+      ],
+      "lowerRanking": ["m6", "m4", "m1", "m5", "m2", "m3"],
+      "higherRanking": ["m1", "m2", "m3", "m4", "m5", "m6"],
+      "expected": {
+        "precisionAt6": 0.5,
+        "recallAt6": 1,
+        "lowerPrecisionAt3": 0.3333333333333333,
+        "higherPrecisionAt3": 1,
+        "lowerRecallAt3": 0.3333333333333333,
+        "higherRecallAt3": 1,
+        "lowerNdcgAt3LessThanHigher": true
+      }
+    },
+    {
+      "id": "TOOL-N8-K8",
+      "candidateGrades": [
+        {
+          "grade": 3,
+          "id": "t1"
+        },
+        {
+          "grade": 2,
+          "id": "t2"
+        },
+        {
+          "grade": 2,
+          "id": "t3"
+        },
+        {
+          "grade": 1,
+          "id": "t4"
+        },
+        {
+          "grade": 1,
+          "id": "t5"
+        },
+        {
+          "grade": 0,
+          "id": "t6"
+        },
+        {
+          "grade": 0,
+          "id": "t7"
+        },
+        {
+          "grade": 0,
+          "id": "t8"
+        }
+      ],
+      "orderedRanking": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8"],
+      "reversedRanking": ["t8", "t7", "t6", "t5", "t4", "t3", "t2", "t1"],
+      "expected": {
+        "candidateCount": 8,
+        "outputCount": 8,
+        "precisionAt8Both": 0.375,
+        "recallAt8Both": 1,
+        "orderedNdcgAt8GreaterThanReversed": true
+      }
+    },
+    {
+      "id": "TO-09-N12-K8-native-vs-derived",
+      "candidateGrades": [
+        {
+          "grade": 3,
+          "id": "to09-01"
+        },
+        {
+          "grade": 3,
+          "id": "to09-02"
+        },
+        {
+          "grade": 2,
+          "id": "to09-03"
+        },
+        {
+          "grade": 2,
+          "id": "to09-04"
+        },
+        {
+          "grade": 1,
+          "id": "to09-05"
+        },
+        {
+          "grade": 1,
+          "id": "to09-06"
+        },
+        {
+          "grade": 0,
+          "id": "to09-07"
+        },
+        {
+          "grade": 0,
+          "id": "to09-08"
+        },
+        {
+          "grade": 0,
+          "id": "to09-09"
+        },
+        {
+          "grade": 0,
+          "id": "to09-10"
+        },
+        {
+          "grade": 0,
+          "id": "to09-11"
+        },
+        {
+          "grade": 0,
+          "id": "to09-12"
+        }
+      ],
+      "nativeOutputCount": 12,
+      "derivedOutputCount": 8,
+      "expected": {
+        "nativeAndDerivedPrecisionDenominator": 8,
+        "nativeAndDerivedPrecisionAt8": 0.5,
+        "nativeAndDerivedRecallAt8": 1,
+        "samePoolIdcg": true,
+        "derivedIsNativePrefix": true
+      }
+    },
+    {
+      "id": "FIXED-LIVE5-status-accounting",
+      "registeredCaseIds": ["TO-LIVE-01", "TO-LIVE-02", "TO-LIVE-03", "TO-LIVE-04", "TO-LIVE-05"],
+      "statuses": ["LIVE_SUCCESS", "LIVE_SUCCESS", "FALLBACK", "NOT_RUN", "NOT_RUN"],
+      "expected": {
+        "denominator": 5,
+        "liveSuccess": 2,
+        "fallback": 1,
+        "notRun": 2,
+        "statusRates": {
+          "LIVE_SUCCESS": 0.4,
+          "FALLBACK": 0.2,
+          "NOT_RUN": 0.4
+        },
+        "nativeSuccessConditional": {
+          "includedStatuses": ["LIVE_SUCCESS"],
+          "scoredCaseCount": 2,
+          "scoredCoverage": 0.4,
+          "top1GradeMean": 1.5
+        },
+        "systemEffective": {
+          "includedStatuses": ["LIVE_SUCCESS", "FALLBACK"],
+          "scoredCaseCount": 3,
+          "scoredCoverage": 0.6,
+          "top1GradeMean": 2,
+          "fixedDenominator": 5,
+          "observedPrecisionAtKSum": 1.5,
+          "observedTop1GradeSum": 6,
+          "notRunCaseIds": ["TO-LIVE-04", "TO-LIVE-05"],
+          "notRunScoreImputation": "NONE"
+        }
+      }
+    },
+    {
+      "id": "FIXED-LIVE5-all-NOT_RUN-no-zero-imputation",
+      "registeredCaseIds": ["NOT-RUN-01", "NOT-RUN-02", "NOT-RUN-03", "NOT-RUN-04", "NOT-RUN-05"],
+      "statuses": ["NOT_RUN", "NOT_RUN", "NOT_RUN", "NOT_RUN", "NOT_RUN"],
+      "expected": {
+        "denominator": 5,
+        "statusCountNotRun": 5,
+        "systemEffectiveScoredCaseCount": 0,
+        "systemEffectiveScoredCoverage": 0,
+        "precisionObservedSum": null,
+        "precisionScoredValueCount": 0,
+        "notRunScoreImputation": "NONE",
+        "costTotalUsd": null
+      }
+    },
+    {
+      "id": "UNKNOWN-COST",
+      "estimatesUsd": [0.01, null],
+      "expected": {
+        "knownSubtotalUsd": 0.01,
+        "unknownCount": 1,
+        "totalCostUsd": null
+      }
+    }
+  ]
+}

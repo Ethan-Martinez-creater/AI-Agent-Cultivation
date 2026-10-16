@@ -1,0 +1,31 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ai-agent-cultivation@0.0.1 package
+> node scripts/electron-forge-runner.mjs package --platform=win32 --arch=x64
+
+[build] Applying scoped Electron Forge 7.11.2 Windows temporary-path glob compatibility.
+> Preparing to package application
+√ Preparing to package application
+> Running packaging hooks
+> Running generateAssets hook
+√ Running generateAssets hook
+> Running prePackage hook
+> [plugin-vite] Building production Vite bundles
+> Building main and preload targets...
+> Building renderer targets...
+> Building apps/desktop/src/main/main.ts target
+> Building apps/desktop/src/preload/preload.ts target
+√ Building apps/desktop/src/preload/preload.ts target
+√ Building apps/desktop/src/main/main.ts target
+√ Building main and preload targets...
+√ Built target main_window
+√ Building renderer targets...
+√ [plugin-vite] Building production Vite bundles
+√ Running prePackage hook
+√ Running packaging hooks
+> Packaging application
+› Determining targets...
+> Packaging for x64 on win32
+> Copying files
+> Preparing native dependencies
+> Finalizing package

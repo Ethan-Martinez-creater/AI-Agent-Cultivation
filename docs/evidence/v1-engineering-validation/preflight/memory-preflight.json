@@ -1,0 +1,1063 @@
+{
+  "evidenceType": "E1_P1_MEMORY_INPUT_COMPATIBILITY",
+  "generatedAt": "2026-10-15T04:07:28.942Z",
+  "status": "PASS",
+  "evidenceLevel": "R5.3 RERANK_ONLY",
+  "policyVersion": "r5-3-memory-rerank-policy-v1",
+  "maxShortlist": 12,
+  "finalTopK": 6,
+  "datasetSha256": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+  "cases": [
+    {
+      "caseId": "ME-01",
+      "status": "PASS",
+      "live": false,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-01",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["api-old", "api-current", "mimo", "workflow", "music", "recovery"],
+      "memoryTypeById": {
+        "api-old": "EPISODE",
+        "api-current": "FACT",
+        "mimo": "FACT",
+        "workflow": "FACT",
+        "music": "EPISODE",
+        "recovery": "PROCEDURE"
+      },
+      "preEligibilityIds": ["api-old", "api-current", "mimo", "workflow", "music", "recovery"],
+      "postEligibilityIds": ["api-old", "api-current", "mimo", "workflow", "music", "recovery"],
+      "baselineIds": ["api-old", "api-current", "mimo", "workflow", "music", "recovery"],
+      "candidateIds": ["api-old", "api-current", "mimo", "workflow", "music", "recovery"],
+      "orderedIds": ["api-old", "api-current", "mimo", "workflow", "music", "recovery"],
+      "noCandidateDropped": true,
+      "stateHash": "740e049dc190e0e4f126ec53e31a47516486f07fa6309324e8b378c564b5c429",
+      "fullInputHash": "740e049dc190e0e4f126ec53e31a47516486f07fa6309324e8b378c564b5c429",
+      "reconstructedStateHash": "740e049dc190e0e4f126ec53e31a47516486f07fa6309324e8b378c564b5c429",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "api-old",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 91,
+          "projectedTextSha256": "90f616bf2469a2865a783a5770a3bf7a8f8efa65f63731c7421dee23112c7c31",
+          "catalogTextSha256": "39cf02a82a9dd7074b4e86f1795f7a8ca2f8f2e3de90437f806ea87ae309ab0c"
+        },
+        {
+          "id": "api-current",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 76,
+          "projectedTextSha256": "77b51b30752cb836ecd9648a14d8c94be52169dbe5e121cfa8047f79857a9e07",
+          "catalogTextSha256": "d5e1d4c3e0ed24dd022db30fe8882554e21c7c42630eb562667937f4698cd418"
+        },
+        {
+          "id": "mimo",
+          "projectedTextCharacters": 40,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "1b6d3f7c501f17671550d3c3eaed5342fa7bfbb0e22b22fdb6d6a36fab43c334",
+          "catalogTextSha256": "58e5e2d232bf27c087229061aab560c4062cd1f7b0371c0473919bfed0ee7786"
+        },
+        {
+          "id": "workflow",
+          "projectedTextCharacters": 44,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "d81737258ce87cf32fd981a43a72c673cfb083fb28bd9332d2f7e1840a4c3cea",
+          "catalogTextSha256": "30c042b4ccc756d48e10cac492f1b219b6c3bc1f57abd693b8ad59099e412c49"
+        },
+        {
+          "id": "music",
+          "projectedTextCharacters": 37,
+          "projectedTextUtf8Bytes": 71,
+          "projectedTextSha256": "c2292a36a06499fbedc733a637908a05903c39186960d84ee96e0da29cc7fb66",
+          "catalogTextSha256": "1b95b3989eea9736a36ef9e4c5264f2efeafc9e1f1061a8853cb462456ae86e7"
+        },
+        {
+          "id": "recovery",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 65,
+          "projectedTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6",
+          "catalogTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "ce3fc47a7078b3420a2d609c38d2c8fc048e2a19f1091f9577ab6bc9fc6859a3",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-02",
+      "status": "PASS",
+      "live": true,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-02",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": [
+        "csv-example",
+        "csv-policy",
+        "ui-size",
+        "api-old",
+        "privacy",
+        "code-review"
+      ],
+      "memoryTypeById": {
+        "csv-example": "EPISODE",
+        "csv-policy": "PROCEDURE",
+        "ui-size": "FACT",
+        "api-old": "EPISODE",
+        "privacy": "PROCEDURE",
+        "code-review": "PROCEDURE"
+      },
+      "preEligibilityIds": [
+        "csv-example",
+        "csv-policy",
+        "ui-size",
+        "api-old",
+        "privacy",
+        "code-review"
+      ],
+      "postEligibilityIds": [
+        "csv-example",
+        "csv-policy",
+        "ui-size",
+        "api-old",
+        "privacy",
+        "code-review"
+      ],
+      "baselineIds": ["csv-example", "csv-policy", "ui-size", "api-old", "privacy", "code-review"],
+      "candidateIds": ["csv-example", "csv-policy", "ui-size", "api-old", "privacy", "code-review"],
+      "orderedIds": ["csv-example", "csv-policy", "ui-size", "api-old", "privacy", "code-review"],
+      "noCandidateDropped": true,
+      "stateHash": "d322febd23e5c2130ac0ae8ce29a8397a98bbb3b5ec8babd228919e706843575",
+      "fullInputHash": "d322febd23e5c2130ac0ae8ce29a8397a98bbb3b5ec8babd228919e706843575",
+      "reconstructedStateHash": "d322febd23e5c2130ac0ae8ce29a8397a98bbb3b5ec8babd228919e706843575",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "csv-example",
+          "projectedTextCharacters": 25,
+          "projectedTextUtf8Bytes": 73,
+          "projectedTextSha256": "df54ee3fa1bea42f69eb14f660c634342400ce9153a12b0f3c473bcb7c21063c",
+          "catalogTextSha256": "744db17f582e7b0ee6f38a7ca961015a7a632958f064b1ed3c21c8a7522fe345"
+        },
+        {
+          "id": "csv-policy",
+          "projectedTextCharacters": 32,
+          "projectedTextUtf8Bytes": 72,
+          "projectedTextSha256": "0e9209a14c268c9a71362cbc7ac34ed5f17e3ff944c54745ba64ce9ea3d9e0d7",
+          "catalogTextSha256": "1081387d8f2894a0f2ab9b3c13c4e07b4ec70a5813f4bb32b83ec17873d6c3be"
+        },
+        {
+          "id": "ui-size",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 54,
+          "projectedTextSha256": "6ffad69ba14c5074099dcef3b0f38350cf33daf307de02603a0789632f04c49d",
+          "catalogTextSha256": "6ffad69ba14c5074099dcef3b0f38350cf33daf307de02603a0789632f04c49d"
+        },
+        {
+          "id": "api-old",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 91,
+          "projectedTextSha256": "90f616bf2469a2865a783a5770a3bf7a8f8efa65f63731c7421dee23112c7c31",
+          "catalogTextSha256": "39cf02a82a9dd7074b4e86f1795f7a8ca2f8f2e3de90437f806ea87ae309ab0c"
+        },
+        {
+          "id": "privacy",
+          "projectedTextCharacters": 38,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f",
+          "catalogTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f"
+        },
+        {
+          "id": "code-review",
+          "projectedTextCharacters": 30,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "8e3b256cc0d88312ec15ab5c73f193b284c863b005c06c34e8f47f00a5deb7e5",
+          "catalogTextSha256": "9fa99f814fa15aeeeec7bb49fadb4938dc141842043e858050404bd174279474"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "052ca130a15f049da5ea5357d5f8c8e557116c5a7d0f836fc2df203562d5b245",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-03",
+      "status": "PASS",
+      "live": true,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-03",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["outdated-cost", "recovery", "workflow", "jev-tool", "music", "ui-theme"],
+      "memoryTypeById": {
+        "outdated-cost": "FACT",
+        "recovery": "PROCEDURE",
+        "workflow": "FACT",
+        "jev-tool": "FACT",
+        "music": "EPISODE",
+        "ui-theme": "PREFERENCE"
+      },
+      "preEligibilityIds": [
+        "outdated-cost",
+        "recovery",
+        "workflow",
+        "jev-tool",
+        "music",
+        "ui-theme"
+      ],
+      "postEligibilityIds": [
+        "outdated-cost",
+        "recovery",
+        "workflow",
+        "jev-tool",
+        "music",
+        "ui-theme"
+      ],
+      "baselineIds": ["outdated-cost", "recovery", "workflow", "jev-tool", "music", "ui-theme"],
+      "candidateIds": ["outdated-cost", "recovery", "workflow", "jev-tool", "music", "ui-theme"],
+      "orderedIds": ["outdated-cost", "recovery", "workflow", "jev-tool", "music", "ui-theme"],
+      "noCandidateDropped": true,
+      "stateHash": "1f8177f79b933de7d654799a5393e2f08f1bb0c61111642aca3c6380f5e17bc7",
+      "fullInputHash": "1f8177f79b933de7d654799a5393e2f08f1bb0c61111642aca3c6380f5e17bc7",
+      "reconstructedStateHash": "1f8177f79b933de7d654799a5393e2f08f1bb0c61111642aca3c6380f5e17bc7",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "outdated-cost",
+          "projectedTextCharacters": 28,
+          "projectedTextUtf8Bytes": 82,
+          "projectedTextSha256": "ce0ad61b8249866e52b694a2f747c02ab0e68e945d6a8f2cbfd89c28c0c9306f",
+          "catalogTextSha256": "fd6b51f429f887e0f30eb46fec69368ce82cfd8906c848ed615e797aea7a0618"
+        },
+        {
+          "id": "recovery",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 65,
+          "projectedTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6",
+          "catalogTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6"
+        },
+        {
+          "id": "workflow",
+          "projectedTextCharacters": 44,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "d81737258ce87cf32fd981a43a72c673cfb083fb28bd9332d2f7e1840a4c3cea",
+          "catalogTextSha256": "30c042b4ccc756d48e10cac492f1b219b6c3bc1f57abd693b8ad59099e412c49"
+        },
+        {
+          "id": "jev-tool",
+          "projectedTextCharacters": 40,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "629244886c90f8a11af1109cbbeb591cf421eb33b430355742ca8850cc8f8fc0",
+          "catalogTextSha256": "bc6528a7102a692cc15eaf07977481071aab83d7b0ef0eac675af7f51327b1e8"
+        },
+        {
+          "id": "music",
+          "projectedTextCharacters": 37,
+          "projectedTextUtf8Bytes": 71,
+          "projectedTextSha256": "c2292a36a06499fbedc733a637908a05903c39186960d84ee96e0da29cc7fb66",
+          "catalogTextSha256": "1b95b3989eea9736a36ef9e4c5264f2efeafc9e1f1061a8853cb462456ae86e7"
+        },
+        {
+          "id": "ui-theme",
+          "projectedTextCharacters": 24,
+          "projectedTextUtf8Bytes": 70,
+          "projectedTextSha256": "5a95f4e2b6b111e78d85f00c7c0ce8ab869e28b3d298234a52ebf8e5de37380b",
+          "catalogTextSha256": "5bfd2f3e61e5506124a75b9d5e53b825174c4d3c3ad343f884a40994a012f157"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "014c7192180bf634439f7262f16135a0218858e3ac3e5cda6e5a49c20fae0755",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-04",
+      "status": "PASS",
+      "live": false,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-04",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": [
+        "jev-shadow",
+        "jev-tool",
+        "permission",
+        "privacy",
+        "code-review",
+        "api-current"
+      ],
+      "memoryTypeById": {
+        "jev-shadow": "FACT",
+        "jev-tool": "FACT",
+        "permission": "FACT",
+        "privacy": "PROCEDURE",
+        "code-review": "PROCEDURE",
+        "api-current": "FACT"
+      },
+      "preEligibilityIds": [
+        "jev-shadow",
+        "jev-tool",
+        "permission",
+        "privacy",
+        "code-review",
+        "api-current"
+      ],
+      "postEligibilityIds": [
+        "jev-shadow",
+        "jev-tool",
+        "permission",
+        "privacy",
+        "code-review",
+        "api-current"
+      ],
+      "baselineIds": [
+        "jev-shadow",
+        "jev-tool",
+        "permission",
+        "privacy",
+        "code-review",
+        "api-current"
+      ],
+      "candidateIds": [
+        "jev-shadow",
+        "jev-tool",
+        "permission",
+        "privacy",
+        "code-review",
+        "api-current"
+      ],
+      "orderedIds": [
+        "jev-shadow",
+        "jev-tool",
+        "permission",
+        "privacy",
+        "code-review",
+        "api-current"
+      ],
+      "noCandidateDropped": true,
+      "stateHash": "7111829a822216d037ec7b8c6cab0e2be02eaf675899bd3236933b92b7179619",
+      "fullInputHash": "7111829a822216d037ec7b8c6cab0e2be02eaf675899bd3236933b92b7179619",
+      "reconstructedStateHash": "7111829a822216d037ec7b8c6cab0e2be02eaf675899bd3236933b92b7179619",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "jev-shadow",
+          "projectedTextCharacters": 50,
+          "projectedTextUtf8Bytes": 74,
+          "projectedTextSha256": "4f2b5a2fbce08c21a9145caa3b3b84df33b746892ea1a0780545fc06b752dda4",
+          "catalogTextSha256": "802b691d07d6ffe6f4d8c5fb03456b0429a22861038526bf99ce1233259289c8"
+        },
+        {
+          "id": "jev-tool",
+          "projectedTextCharacters": 40,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "629244886c90f8a11af1109cbbeb591cf421eb33b430355742ca8850cc8f8fc0",
+          "catalogTextSha256": "bc6528a7102a692cc15eaf07977481071aab83d7b0ef0eac675af7f51327b1e8"
+        },
+        {
+          "id": "permission",
+          "projectedTextCharacters": 53,
+          "projectedTextUtf8Bytes": 95,
+          "projectedTextSha256": "c594dde02e013b8e470fa3cbbabd734ed5db2406c8fc2f9500f8cb2fcae38269",
+          "catalogTextSha256": "524a805aa31e1a9dd2de4d24002e934c2da3e9426a4089373c83b23d672b4e59"
+        },
+        {
+          "id": "privacy",
+          "projectedTextCharacters": 38,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f",
+          "catalogTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f"
+        },
+        {
+          "id": "code-review",
+          "projectedTextCharacters": 30,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "8e3b256cc0d88312ec15ab5c73f193b284c863b005c06c34e8f47f00a5deb7e5",
+          "catalogTextSha256": "9fa99f814fa15aeeeec7bb49fadb4938dc141842043e858050404bd174279474"
+        },
+        {
+          "id": "api-current",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 76,
+          "projectedTextSha256": "77b51b30752cb836ecd9648a14d8c94be52169dbe5e121cfa8047f79857a9e07",
+          "catalogTextSha256": "d5e1d4c3e0ed24dd022db30fe8882554e21c7c42630eb562667937f4698cd418"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "64520d2b6b9d98fea3d245703d278b658f028206afdecd0c52eeb95f7c02b563",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-05",
+      "status": "PASS",
+      "live": true,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-05",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["outdated-cost", "cost", "privacy", "recovery", "ui-theme", "music"],
+      "memoryTypeById": {
+        "outdated-cost": "FACT",
+        "cost": "PREFERENCE",
+        "privacy": "PROCEDURE",
+        "recovery": "PROCEDURE",
+        "ui-theme": "PREFERENCE",
+        "music": "EPISODE"
+      },
+      "preEligibilityIds": ["outdated-cost", "cost", "privacy", "recovery", "ui-theme", "music"],
+      "postEligibilityIds": ["outdated-cost", "cost", "privacy", "recovery", "ui-theme", "music"],
+      "baselineIds": ["outdated-cost", "cost", "privacy", "recovery", "ui-theme", "music"],
+      "candidateIds": ["outdated-cost", "cost", "privacy", "recovery", "ui-theme", "music"],
+      "orderedIds": ["outdated-cost", "cost", "privacy", "recovery", "ui-theme", "music"],
+      "noCandidateDropped": true,
+      "stateHash": "82e18071d4421ce08233767bde22264943365d79092fec2385473d4f53189723",
+      "fullInputHash": "82e18071d4421ce08233767bde22264943365d79092fec2385473d4f53189723",
+      "reconstructedStateHash": "82e18071d4421ce08233767bde22264943365d79092fec2385473d4f53189723",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "outdated-cost",
+          "projectedTextCharacters": 28,
+          "projectedTextUtf8Bytes": 82,
+          "projectedTextSha256": "ce0ad61b8249866e52b694a2f747c02ab0e68e945d6a8f2cbfd89c28c0c9306f",
+          "catalogTextSha256": "fd6b51f429f887e0f30eb46fec69368ce82cfd8906c848ed615e797aea7a0618"
+        },
+        {
+          "id": "cost",
+          "projectedTextCharacters": 24,
+          "projectedTextUtf8Bytes": 70,
+          "projectedTextSha256": "9db0c902ffd2746742553cc304b916f9d94129ab15346c8d76e20b30d0a236ae",
+          "catalogTextSha256": "6002547c61bbaa764f0ac1f12ff31f735f82546a0016b5ecc9d7889a8dcc13bd"
+        },
+        {
+          "id": "privacy",
+          "projectedTextCharacters": 38,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f",
+          "catalogTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f"
+        },
+        {
+          "id": "recovery",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 65,
+          "projectedTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6",
+          "catalogTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6"
+        },
+        {
+          "id": "ui-theme",
+          "projectedTextCharacters": 24,
+          "projectedTextUtf8Bytes": 70,
+          "projectedTextSha256": "5a95f4e2b6b111e78d85f00c7c0ce8ab869e28b3d298234a52ebf8e5de37380b",
+          "catalogTextSha256": "5bfd2f3e61e5506124a75b9d5e53b825174c4d3c3ad343f884a40994a012f157"
+        },
+        {
+          "id": "music",
+          "projectedTextCharacters": 37,
+          "projectedTextUtf8Bytes": 71,
+          "projectedTextSha256": "c2292a36a06499fbedc733a637908a05903c39186960d84ee96e0da29cc7fb66",
+          "catalogTextSha256": "1b95b3989eea9736a36ef9e4c5264f2efeafc9e1f1061a8853cb462456ae86e7"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "9911c35d789848022197dfe56c21943e848d029fca4f6359fc5b8b0146da34e8",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-06",
+      "status": "PASS",
+      "live": false,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-06",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": [
+        "research-cite",
+        "code-review",
+        "workflow",
+        "csv-policy",
+        "api-current",
+        "ui-size"
+      ],
+      "memoryTypeById": {
+        "research-cite": "PROCEDURE",
+        "code-review": "PROCEDURE",
+        "workflow": "FACT",
+        "csv-policy": "PROCEDURE",
+        "api-current": "FACT",
+        "ui-size": "FACT"
+      },
+      "preEligibilityIds": [
+        "research-cite",
+        "code-review",
+        "workflow",
+        "csv-policy",
+        "api-current",
+        "ui-size"
+      ],
+      "postEligibilityIds": [
+        "research-cite",
+        "code-review",
+        "workflow",
+        "csv-policy",
+        "api-current",
+        "ui-size"
+      ],
+      "baselineIds": [
+        "research-cite",
+        "code-review",
+        "workflow",
+        "csv-policy",
+        "api-current",
+        "ui-size"
+      ],
+      "candidateIds": [
+        "research-cite",
+        "code-review",
+        "workflow",
+        "csv-policy",
+        "api-current",
+        "ui-size"
+      ],
+      "orderedIds": [
+        "research-cite",
+        "code-review",
+        "workflow",
+        "csv-policy",
+        "api-current",
+        "ui-size"
+      ],
+      "noCandidateDropped": true,
+      "stateHash": "046bd5a4ebe0e0189a9ca4ea4e2043c1555cb9fa88c632eeed5e2513d1df6355",
+      "fullInputHash": "046bd5a4ebe0e0189a9ca4ea4e2043c1555cb9fa88c632eeed5e2513d1df6355",
+      "reconstructedStateHash": "046bd5a4ebe0e0189a9ca4ea4e2043c1555cb9fa88c632eeed5e2513d1df6355",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "research-cite",
+          "projectedTextCharacters": 23,
+          "projectedTextUtf8Bytes": 69,
+          "projectedTextSha256": "71bd8d8d2f89d342210248df03519417b9b91d03f0f22ba708ff3ea249185ac5",
+          "catalogTextSha256": "71bd8d8d2f89d342210248df03519417b9b91d03f0f22ba708ff3ea249185ac5"
+        },
+        {
+          "id": "code-review",
+          "projectedTextCharacters": 30,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "8e3b256cc0d88312ec15ab5c73f193b284c863b005c06c34e8f47f00a5deb7e5",
+          "catalogTextSha256": "9fa99f814fa15aeeeec7bb49fadb4938dc141842043e858050404bd174279474"
+        },
+        {
+          "id": "workflow",
+          "projectedTextCharacters": 44,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "d81737258ce87cf32fd981a43a72c673cfb083fb28bd9332d2f7e1840a4c3cea",
+          "catalogTextSha256": "30c042b4ccc756d48e10cac492f1b219b6c3bc1f57abd693b8ad59099e412c49"
+        },
+        {
+          "id": "csv-policy",
+          "projectedTextCharacters": 32,
+          "projectedTextUtf8Bytes": 72,
+          "projectedTextSha256": "0e9209a14c268c9a71362cbc7ac34ed5f17e3ff944c54745ba64ce9ea3d9e0d7",
+          "catalogTextSha256": "1081387d8f2894a0f2ab9b3c13c4e07b4ec70a5813f4bb32b83ec17873d6c3be"
+        },
+        {
+          "id": "api-current",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 76,
+          "projectedTextSha256": "77b51b30752cb836ecd9648a14d8c94be52169dbe5e121cfa8047f79857a9e07",
+          "catalogTextSha256": "d5e1d4c3e0ed24dd022db30fe8882554e21c7c42630eb562667937f4698cd418"
+        },
+        {
+          "id": "ui-size",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 54,
+          "projectedTextSha256": "6ffad69ba14c5074099dcef3b0f38350cf33daf307de02603a0789632f04c49d",
+          "catalogTextSha256": "6ffad69ba14c5074099dcef3b0f38350cf33daf307de02603a0789632f04c49d"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "e2e9b3ba70f78d8b42c7dae697d11da30915950b4efd28465364efc6ca6cbe26",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-07",
+      "status": "PASS",
+      "live": false,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-07",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["ui-theme", "ui-size", "music", "mimo", "api-old", "privacy"],
+      "memoryTypeById": {
+        "ui-theme": "PREFERENCE",
+        "ui-size": "FACT",
+        "music": "EPISODE",
+        "mimo": "FACT",
+        "api-old": "EPISODE",
+        "privacy": "PROCEDURE"
+      },
+      "preEligibilityIds": ["ui-theme", "ui-size", "music", "mimo", "api-old", "privacy"],
+      "postEligibilityIds": ["ui-theme", "ui-size", "music", "mimo", "api-old", "privacy"],
+      "baselineIds": ["ui-theme", "ui-size", "music", "mimo", "api-old", "privacy"],
+      "candidateIds": ["ui-theme", "ui-size", "music", "mimo", "api-old", "privacy"],
+      "orderedIds": ["ui-theme", "ui-size", "music", "mimo", "api-old", "privacy"],
+      "noCandidateDropped": true,
+      "stateHash": "4360cc66740be00fdd0232ec54c86c611c75073a81f68a155809adb32965f5a6",
+      "fullInputHash": "4360cc66740be00fdd0232ec54c86c611c75073a81f68a155809adb32965f5a6",
+      "reconstructedStateHash": "4360cc66740be00fdd0232ec54c86c611c75073a81f68a155809adb32965f5a6",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "ui-theme",
+          "projectedTextCharacters": 24,
+          "projectedTextUtf8Bytes": 70,
+          "projectedTextSha256": "5a95f4e2b6b111e78d85f00c7c0ce8ab869e28b3d298234a52ebf8e5de37380b",
+          "catalogTextSha256": "5bfd2f3e61e5506124a75b9d5e53b825174c4d3c3ad343f884a40994a012f157"
+        },
+        {
+          "id": "ui-size",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 54,
+          "projectedTextSha256": "6ffad69ba14c5074099dcef3b0f38350cf33daf307de02603a0789632f04c49d",
+          "catalogTextSha256": "6ffad69ba14c5074099dcef3b0f38350cf33daf307de02603a0789632f04c49d"
+        },
+        {
+          "id": "music",
+          "projectedTextCharacters": 37,
+          "projectedTextUtf8Bytes": 71,
+          "projectedTextSha256": "c2292a36a06499fbedc733a637908a05903c39186960d84ee96e0da29cc7fb66",
+          "catalogTextSha256": "1b95b3989eea9736a36ef9e4c5264f2efeafc9e1f1061a8853cb462456ae86e7"
+        },
+        {
+          "id": "mimo",
+          "projectedTextCharacters": 40,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "1b6d3f7c501f17671550d3c3eaed5342fa7bfbb0e22b22fdb6d6a36fab43c334",
+          "catalogTextSha256": "58e5e2d232bf27c087229061aab560c4062cd1f7b0371c0473919bfed0ee7786"
+        },
+        {
+          "id": "api-old",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 91,
+          "projectedTextSha256": "90f616bf2469a2865a783a5770a3bf7a8f8efa65f63731c7421dee23112c7c31",
+          "catalogTextSha256": "39cf02a82a9dd7074b4e86f1795f7a8ca2f8f2e3de90437f806ea87ae309ab0c"
+        },
+        {
+          "id": "privacy",
+          "projectedTextCharacters": 38,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f",
+          "catalogTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "aa21534efc19c9f69a7a23522a7e2e6bc347f3b8ddcf4cb3e6752c48102b68ce",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-08",
+      "status": "PASS",
+      "live": true,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-08",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": [
+        "api-old",
+        "api-current",
+        "recovery",
+        "mimo",
+        "csv-example",
+        "jev-shadow"
+      ],
+      "memoryTypeById": {
+        "api-old": "EPISODE",
+        "api-current": "FACT",
+        "recovery": "PROCEDURE",
+        "mimo": "FACT",
+        "csv-example": "EPISODE",
+        "jev-shadow": "FACT"
+      },
+      "preEligibilityIds": [
+        "api-old",
+        "api-current",
+        "recovery",
+        "mimo",
+        "csv-example",
+        "jev-shadow"
+      ],
+      "postEligibilityIds": [
+        "api-old",
+        "api-current",
+        "recovery",
+        "mimo",
+        "csv-example",
+        "jev-shadow"
+      ],
+      "baselineIds": ["api-old", "api-current", "recovery", "mimo", "csv-example", "jev-shadow"],
+      "candidateIds": ["api-old", "api-current", "recovery", "mimo", "csv-example", "jev-shadow"],
+      "orderedIds": ["api-old", "api-current", "recovery", "mimo", "csv-example", "jev-shadow"],
+      "noCandidateDropped": true,
+      "stateHash": "ef119c3dccd1b0f84749909f374d1155680b820e5765838104e4e4289606e920",
+      "fullInputHash": "ef119c3dccd1b0f84749909f374d1155680b820e5765838104e4e4289606e920",
+      "reconstructedStateHash": "ef119c3dccd1b0f84749909f374d1155680b820e5765838104e4e4289606e920",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "api-old",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 91,
+          "projectedTextSha256": "90f616bf2469a2865a783a5770a3bf7a8f8efa65f63731c7421dee23112c7c31",
+          "catalogTextSha256": "39cf02a82a9dd7074b4e86f1795f7a8ca2f8f2e3de90437f806ea87ae309ab0c"
+        },
+        {
+          "id": "api-current",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 76,
+          "projectedTextSha256": "77b51b30752cb836ecd9648a14d8c94be52169dbe5e121cfa8047f79857a9e07",
+          "catalogTextSha256": "d5e1d4c3e0ed24dd022db30fe8882554e21c7c42630eb562667937f4698cd418"
+        },
+        {
+          "id": "recovery",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 65,
+          "projectedTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6",
+          "catalogTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6"
+        },
+        {
+          "id": "mimo",
+          "projectedTextCharacters": 40,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "1b6d3f7c501f17671550d3c3eaed5342fa7bfbb0e22b22fdb6d6a36fab43c334",
+          "catalogTextSha256": "58e5e2d232bf27c087229061aab560c4062cd1f7b0371c0473919bfed0ee7786"
+        },
+        {
+          "id": "csv-example",
+          "projectedTextCharacters": 25,
+          "projectedTextUtf8Bytes": 73,
+          "projectedTextSha256": "df54ee3fa1bea42f69eb14f660c634342400ce9153a12b0f3c473bcb7c21063c",
+          "catalogTextSha256": "744db17f582e7b0ee6f38a7ca961015a7a632958f064b1ed3c21c8a7522fe345"
+        },
+        {
+          "id": "jev-shadow",
+          "projectedTextCharacters": 50,
+          "projectedTextUtf8Bytes": 74,
+          "projectedTextSha256": "4f2b5a2fbce08c21a9145caa3b3b84df33b746892ea1a0780545fc06b752dda4",
+          "catalogTextSha256": "802b691d07d6ffe6f4d8c5fb03456b0429a22861038526bf99ce1233259289c8"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "4a908f3c955b0bbc6e202b32492db1b03c906586f77dda1c76d76668ba593a74",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-09",
+      "status": "PASS",
+      "live": false,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-09",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": ["mimo", "api-current", "music", "privacy", "cost", "workflow"],
+      "memoryTypeById": {
+        "mimo": "FACT",
+        "api-current": "FACT",
+        "music": "EPISODE",
+        "privacy": "PROCEDURE",
+        "cost": "PREFERENCE",
+        "workflow": "FACT"
+      },
+      "preEligibilityIds": ["mimo", "api-current", "music", "privacy", "cost", "workflow"],
+      "postEligibilityIds": ["mimo", "api-current", "music", "privacy", "cost", "workflow"],
+      "baselineIds": ["mimo", "api-current", "music", "privacy", "cost", "workflow"],
+      "candidateIds": ["mimo", "api-current", "music", "privacy", "cost", "workflow"],
+      "orderedIds": ["mimo", "api-current", "music", "privacy", "cost", "workflow"],
+      "noCandidateDropped": true,
+      "stateHash": "ac3a2ff7d0acd237e443bf99a26bdf1d87e28179ebdfb6be9a233a77a5ea13c5",
+      "fullInputHash": "ac3a2ff7d0acd237e443bf99a26bdf1d87e28179ebdfb6be9a233a77a5ea13c5",
+      "reconstructedStateHash": "ac3a2ff7d0acd237e443bf99a26bdf1d87e28179ebdfb6be9a233a77a5ea13c5",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "mimo",
+          "projectedTextCharacters": 40,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "1b6d3f7c501f17671550d3c3eaed5342fa7bfbb0e22b22fdb6d6a36fab43c334",
+          "catalogTextSha256": "58e5e2d232bf27c087229061aab560c4062cd1f7b0371c0473919bfed0ee7786"
+        },
+        {
+          "id": "api-current",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 76,
+          "projectedTextSha256": "77b51b30752cb836ecd9648a14d8c94be52169dbe5e121cfa8047f79857a9e07",
+          "catalogTextSha256": "d5e1d4c3e0ed24dd022db30fe8882554e21c7c42630eb562667937f4698cd418"
+        },
+        {
+          "id": "music",
+          "projectedTextCharacters": 37,
+          "projectedTextUtf8Bytes": 71,
+          "projectedTextSha256": "c2292a36a06499fbedc733a637908a05903c39186960d84ee96e0da29cc7fb66",
+          "catalogTextSha256": "1b95b3989eea9736a36ef9e4c5264f2efeafc9e1f1061a8853cb462456ae86e7"
+        },
+        {
+          "id": "privacy",
+          "projectedTextCharacters": 38,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f",
+          "catalogTextSha256": "0c7870534f160b4b01b03ad8e4c38525e1a08bcd8f6cb07f0d6929ddff07c40f"
+        },
+        {
+          "id": "cost",
+          "projectedTextCharacters": 24,
+          "projectedTextUtf8Bytes": 70,
+          "projectedTextSha256": "9db0c902ffd2746742553cc304b916f9d94129ab15346c8d76e20b30d0a236ae",
+          "catalogTextSha256": "6002547c61bbaa764f0ac1f12ff31f735f82546a0016b5ecc9d7889a8dcc13bd"
+        },
+        {
+          "id": "workflow",
+          "projectedTextCharacters": 44,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "d81737258ce87cf32fd981a43a72c673cfb083fb28bd9332d2f7e1840a4c3cea",
+          "catalogTextSha256": "30c042b4ccc756d48e10cac492f1b219b6c3bc1f57abd693b8ad59099e412c49"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "ae322f9b09a153b67c1423d181a47587f6c6ef6ae763497e91f9573ca5829ec8",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    },
+    {
+      "caseId": "ME-10",
+      "status": "PASS",
+      "live": true,
+      "evidenceLevel": "R5.3 RERANK_ONLY",
+      "ownerId": "e1-memory-owner-me-10",
+      "fixedTime": "2026-10-15T00:00:00.000Z",
+      "ownerType": "TEAMMATE",
+      "statusValue": "ACTIVE",
+      "expiresAt": null,
+      "sourceType": "MANUAL",
+      "sourceIds": null,
+      "importance": 0.5,
+      "confidence": 1,
+      "confirmedAt": "2026-10-15T00:00:00.000Z",
+      "catalogOrderIds": [
+        "permission",
+        "workflow",
+        "recovery",
+        "api-current",
+        "jev-tool",
+        "ui-theme"
+      ],
+      "memoryTypeById": {
+        "permission": "FACT",
+        "workflow": "FACT",
+        "recovery": "PROCEDURE",
+        "api-current": "FACT",
+        "jev-tool": "FACT",
+        "ui-theme": "PREFERENCE"
+      },
+      "preEligibilityIds": [
+        "permission",
+        "workflow",
+        "recovery",
+        "api-current",
+        "jev-tool",
+        "ui-theme"
+      ],
+      "postEligibilityIds": [
+        "permission",
+        "workflow",
+        "recovery",
+        "api-current",
+        "jev-tool",
+        "ui-theme"
+      ],
+      "baselineIds": ["permission", "workflow", "recovery", "api-current", "jev-tool", "ui-theme"],
+      "candidateIds": ["permission", "workflow", "recovery", "api-current", "jev-tool", "ui-theme"],
+      "orderedIds": ["permission", "workflow", "recovery", "api-current", "jev-tool", "ui-theme"],
+      "noCandidateDropped": true,
+      "stateHash": "998f9fa8464868b1493db9a9894485260827770bd05f29a99d0190b285703bc3",
+      "fullInputHash": "998f9fa8464868b1493db9a9894485260827770bd05f29a99d0190b285703bc3",
+      "reconstructedStateHash": "998f9fa8464868b1493db9a9894485260827770bd05f29a99d0190b285703bc3",
+      "stateHashMatches": true,
+      "textProjectionSource": "makeMemoryRerankRequest(...).state.candidates",
+      "textProjection": [
+        {
+          "id": "permission",
+          "projectedTextCharacters": 53,
+          "projectedTextUtf8Bytes": 95,
+          "projectedTextSha256": "c594dde02e013b8e470fa3cbbabd734ed5db2406c8fc2f9500f8cb2fcae38269",
+          "catalogTextSha256": "524a805aa31e1a9dd2de4d24002e934c2da3e9426a4089373c83b23d672b4e59"
+        },
+        {
+          "id": "workflow",
+          "projectedTextCharacters": 44,
+          "projectedTextUtf8Bytes": 78,
+          "projectedTextSha256": "d81737258ce87cf32fd981a43a72c673cfb083fb28bd9332d2f7e1840a4c3cea",
+          "catalogTextSha256": "30c042b4ccc756d48e10cac492f1b219b6c3bc1f57abd693b8ad59099e412c49"
+        },
+        {
+          "id": "recovery",
+          "projectedTextCharacters": 31,
+          "projectedTextUtf8Bytes": 65,
+          "projectedTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6",
+          "catalogTextSha256": "0e7233199c532701c61d439226494674affe1498fab4a6f15f5e33e60b2564e6"
+        },
+        {
+          "id": "api-current",
+          "projectedTextCharacters": 26,
+          "projectedTextUtf8Bytes": 76,
+          "projectedTextSha256": "77b51b30752cb836ecd9648a14d8c94be52169dbe5e121cfa8047f79857a9e07",
+          "catalogTextSha256": "d5e1d4c3e0ed24dd022db30fe8882554e21c7c42630eb562667937f4698cd418"
+        },
+        {
+          "id": "jev-tool",
+          "projectedTextCharacters": 40,
+          "projectedTextUtf8Bytes": 88,
+          "projectedTextSha256": "629244886c90f8a11af1109cbbeb591cf421eb33b430355742ca8850cc8f8fc0",
+          "catalogTextSha256": "bc6528a7102a692cc15eaf07977481071aab83d7b0ef0eac675af7f51327b1e8"
+        },
+        {
+          "id": "ui-theme",
+          "projectedTextCharacters": 24,
+          "projectedTextUtf8Bytes": 70,
+          "projectedTextSha256": "5a95f4e2b6b111e78d85f00c7c0ce8ab869e28b3d298234a52ebf8e5de37380b",
+          "catalogTextSha256": "5bfd2f3e61e5506124a75b9d5e53b825174c4d3c3ad343f884a40994a012f157"
+        }
+      ],
+      "textHashesMatch": true,
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-3-memory-rerank-policy-v1",
+      "receiptHash": "735ded07eb5e669e43d6fb0be85748210eeb90fb979bbbd5a1a2029a105d583b",
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false
+    }
+  ]
+}

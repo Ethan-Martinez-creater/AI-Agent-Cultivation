@@ -1,0 +1,36 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ai-agent-cultivation@0.0.1 package
+> node scripts/electron-forge-runner.mjs package --platform=win32 --arch=x64
+
+[build] Applying scoped Electron Forge 7.11.2 Windows temporary-path glob compatibility.
+> Preparing to package application
+√ Preparing to package application
+> Running packaging hooks
+> Running generateAssets hook
+√ Running generateAssets hook
+> Running prePackage hook
+> [plugin-vite] Building production Vite bundles
+> Building main and preload targets...
+> Building renderer targets...
+> Building apps/desktop/src/main/main.ts target
+> Building apps/desktop/src/preload/preload.ts target
+√ Building apps/desktop/src/preload/preload.ts target
+× Building apps/desktop/src/main/main.ts target [FAILED: Could not resolve "../../../migrations/0003_gate2.sql?raw" from "node_modules/@cultivation/persistence/src/index.ts"]
+× Building main and preload targets... [FAILED: Could not resolve "../../../migrations/0003_gate2.sql?raw" from "node_modules/@cultivation/persistence/src/index.ts"]
+× [plugin-vite] Building production Vite bundles [FAILED: Could not resolve "../../../migrations/0003_gate2.sql?raw" from "node_modules/@cultivation/persistence/src/index.ts"
+file: [REPOSITORY_ROOT]/.tmp/e1-build-1792036630673/node_modules/@cultivation/persistence/src/index.ts]
+× Running prePackage hook [FAILED: Could not resolve "../../../migrations/0003_gate2.sql?raw" from "node_modules/@cultivation/persistence/src/index.ts"
+file: [REPOSITORY_ROOT]/.tmp/e1-build-1792036630673/node_modules/@cultivation/persistence/src/index.ts]
+× Running packaging hooks [FAILED: Could not resolve "../../../migrations/0003_gate2.sql?raw" from "node_modules/@cultivation/persistence/src/index.ts"
+file: [REPOSITORY_ROOT]/.tmp/e1-build-1792036630673/node_modules/@cultivation/persistence/src/index.ts]
+
+An unhandled rejection has occurred inside Forge:
+RollupError: Could not resolve "../../../migrations/0003_gate2.sql?raw" from "node_modules/@cultivation/persistence/src/index.ts"
+file: [REPOSITORY_ROOT]/.tmp/e1-build-1792036630673/node_modules/@cultivation/persistence/src/index.ts
+npm notice
+npm notice New major version of npm available! 11.12.1 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+[?25h

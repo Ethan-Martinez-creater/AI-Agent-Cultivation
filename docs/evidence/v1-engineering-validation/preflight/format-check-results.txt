@@ -1,0 +1,9 @@
+
+> ai-agent-cultivation@0.0.1 format:check
+> node scripts/format-check.mjs
+
+Prettier found formatting issues in 3 file(s):
+  docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design.md
+  docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md
+  docs/AI_Agent_Cultivation_V1_E1_Feasibility_Review.md
+format-check exitCode=1

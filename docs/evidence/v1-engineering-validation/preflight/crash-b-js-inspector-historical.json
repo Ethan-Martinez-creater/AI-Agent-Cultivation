@@ -1,0 +1,200 @@
+{
+  "observedAt": "2026-10-15T16:09:11.388Z",
+  "target": {
+    "id": "51a48e39-1dc4-4fa2-8f3b-a973bb63524f",
+    "type": "node",
+    "url": "file://"
+  },
+  "pausedEvents": [
+    {
+      "callFrames": [
+        {
+          "callFrameId": "-5551348575349078451.1.0",
+          "functionName": "execute",
+          "functionLocation": {
+            "scriptId": "134",
+            "lineNumber": 9848,
+            "columnNumber": 13589
+          },
+          "location": {
+            "scriptId": "134",
+            "lineNumber": 9848,
+            "columnNumber": 13635
+          },
+          "url": "",
+          "scopeChain": [
+            {
+              "type": "local",
+              "object": {
+                "type": "object",
+                "className": "Object",
+                "description": "Object",
+                "objectId": "-5551348575349078451.1.1"
+              },
+              "name": "execute",
+              "startLocation": {
+                "scriptId": "134",
+                "lineNumber": 9848,
+                "columnNumber": 13589
+              },
+              "endLocation": {
+                "scriptId": "134",
+                "lineNumber": 9848,
+                "columnNumber": 13661
+              }
+            },
+            {
+              "type": "closure",
+              "object": {
+                "type": "object",
+                "className": "Object",
+                "description": "Object",
+                "objectId": "-5551348575349078451.1.2"
+              },
+              "name": "a1",
+              "startLocation": {
+                "scriptId": "134",
+                "lineNumber": 9848,
+                "columnNumber": 12077
+              },
+              "endLocation": {
+                "scriptId": "134",
+                "lineNumber": 9848,
+                "columnNumber": 14140
+              }
+            },
+            {
+              "type": "closure",
+              "object": {
+                "type": "object",
+                "className": "Object",
+                "description": "Object",
+                "objectId": "-5551348575349078451.1.3"
+              },
+              "startLocation": {
+                "scriptId": "134",
+                "lineNumber": 0,
+                "columnNumber": 0
+              },
+              "endLocation": {
+                "scriptId": "134",
+                "lineNumber": 10100,
+                "columnNumber": 0
+              }
+            },
+            {
+              "type": "global",
+              "object": {
+                "type": "object",
+                "className": "global",
+                "description": "global",
+                "objectId": "-5551348575349078451.1.4"
+              }
+            }
+          ],
+          "this": {
+            "type": "object",
+            "className": "Object",
+            "description": "Object",
+            "objectId": "-5551348575349078451.1.5"
+          },
+          "canBeRestarted": false
+        },
+        {
+          "callFrameId": "-5551348575349078451.1.1",
+          "functionName": "dispatchChecked",
+          "functionLocation": {
+            "scriptId": "134",
+            "lineNumber": 9726,
+            "columnNumber": 166804
+          },
+          "location": {
+            "scriptId": "134",
+            "lineNumber": 9726,
+            "columnNumber": 169637
+          },
+          "url": "",
+          "scopeChain": [
+            {
+              "type": "block",
+              "object": {
+                "type": "object",
+                "className": "Object",
+                "description": "Object",
+                "objectId": "-5551348575349078451.1.6"
+              },
+              "name": "dispatchChecked",
+              "startLocation": {
+                "scriptId": "134",
+                "lineNumber": 9726,
+                "columnNumber": 168496
+              },
+              "endLocation": {
+                "scriptId": "134",
+                "lineNumber": 9726,
+                "columnNumber": 169959
+              }
+            },
+            {
+              "type": "local",
+              "object": {
+                "type": "object",
+                "className": "Object",
+                "description": "Object",
+                "objectId": "-5551348575349078451.1.7"
+              },
+              "name": "dispatchChecked",
+              "startLocation": {
+                "scriptId": "134",
+                "lineNumber": 9726,
+                "columnNumber": 166804
+              },
+              "endLocation": {
+                "scriptId": "134",
+                "lineNumber": 9726,
+                "columnNumber": 170106
+              }
+            },
+            {
+              "type": "closure",
+              "object": {
+                "type": "object",
+                "className": "Object",
+                "description": "Object",
+                "objectId": "-5551348575349078451.1.8"
+              },
+              "startLocation": {
+                "scriptId": "134",
+                "lineNumber": 0,
+                "columnNumber": 0
+              },
+              "endLocation": {
+                "scriptId": "134",
+                "lineNumber": 10100,
+                "columnNumber": 0
+              }
+            },
+            {
+              "type": "global",
+              "object": {
+                "type": "object",
+                "className": "global",
+                "description": "global",
+                "objectId": "-5551348575349078451.1.9"
+              }
+            }
+          ],
+          "this": {
+            "type": "object",
+            "className": "_Ie",
+            "description": "_Ie",
+            "objectId": "-5551348575349078451.1.10"
+          },
+          "canBeRestarted": false
+        }
+      ],
+      "reason": "other",
+      "hitBreakpoints": []
+    }
+  ]
+}

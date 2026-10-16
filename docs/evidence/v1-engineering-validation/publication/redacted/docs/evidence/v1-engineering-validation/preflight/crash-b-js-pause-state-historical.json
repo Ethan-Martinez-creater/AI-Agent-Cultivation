@@ -1,0 +1,79 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-pause-state-historical.json",
+    "originalSha256": "1c3745c5d7c001789ecf6db6f29b6f364e20ab1e2a632e6a9ddde60ba4888dc9",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "capturedAt": "2026-10-15T16:09:54.1681882Z",
+  "runId": "5cff1c2f-00d5-4b11-8fbd-6de4c9e83e3b",
+  "mainProcess": null,
+  "mainPid": 20900,
+  "workspaceFile": {
+    "path": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\workspace\\main.js",
+    "content": "export const answer = 0;",
+    "sha256": "c604a79064d3242742128d4d35c4a036e769cb6d4486a7bd5e4278fab34d76ee",
+    "sizeBytes": 25
+  },
+  "expectedAfterHash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+  "database": {
+    "receiptColumns": [
+      "id",
+      "workflow_run_id",
+      "step_run_id",
+      "attempt",
+      "operation_key",
+      "effect_type",
+      "state",
+      "input_hash",
+      "manifest_json",
+      "output_artifact_ids_json",
+      "external_reference",
+      "created_at",
+      "updated_at"
+    ],
+    "journal": [
+      {
+        "id": "2d57a97b-55dd-47a6-bf01-60658801aa1f",
+        "workflow_run_id": "5cff1c2f-00d5-4b11-8fbd-6de4c9e83e3b",
+        "step_run_id": "b9ec20fd-0f45-43ad-874b-ec0a805bd7fa",
+        "operation_receipt_id": "a3d1d270-5007-48ab-8154-ae353e3f797b",
+        "attempt": 1,
+        "mission_id": "4be2cae0-d497-4755-8aa1-960780f9d443",
+        "mission_run_id": "31738ce3-b2e0-48e4-b6ec-aaff79050386",
+        "teammate_id": "6263d57f-753a-490f-a277-5ab24180b83a",
+        "tool_call_id": "w22-2923f312-fc5f-4a10-8dfb-f119cb5659e4",
+        "tool_id": "file.writeText",
+        "permission_resource": "file:88ee9a50c2937f3c:main.js",
+        "workspace_tag": "88ee9a50c2937f3c",
+        "relative_path": "main.js",
+        "before_hash": "c604a79064d3242742128d4d35c4a036e769cb6d4486a7bd5e4278fab34d76ee",
+        "expected_after_hash": "e77ce1f09268079de910c45c2b1b66b28fe0f516708a1eabfec5157d711cdd98",
+        "observed_after_hash": null,
+        "state": "PREPARED",
+        "result_code": null,
+        "created_at": "2026-10-15T16:05:13.524Z",
+        "updated_at": "2026-10-15T16:05:13.524Z"
+      }
+    ],
+    "receipt": {
+      "id": "a3d1d270-5007-48ab-8154-ae353e3f797b",
+      "workflow_run_id": "5cff1c2f-00d5-4b11-8fbd-6de4c9e83e3b",
+      "step_run_id": "b9ec20fd-0f45-43ad-874b-ec0a805bd7fa",
+      "attempt": 1,
+      "operation_key": "workflow:5cff1c2f-00d5-4b11-8fbd-6de4c9e83e3b:b9ec20fd-0f45-43ad-874b-ec0a805bd7fa",
+      "effect_type": "WORKSPACE_MUTATION",
+      "state": "PREPARED",
+      "input_hash": "8ff920f10e748d04bb3ec6b0bf7090f6e5b88ef2d7569f7f04af1e536cf5982e",
+      "manifest_json": "[]",
+      "output_artifact_ids_json": "[]",
+      "external_reference": null,
+      "created_at": "2026-10-15T16:05:13.04Z",
+      "updated_at": "2026-10-15T16:05:13.04Z"
+    },
+    "missionToolResultCount": 0
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "documentPath": "[REPOSITORY_ROOT]\\docs\\AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md",
+  "evidenceDir": "[REPOSITORY_ROOT]\\docs\\evidence\\v1-engineering-validation\\preflight",
+  "hashes": {
+    "document": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+    "expectedDocument": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+    "documentStatus": "PASS",
+    "dataset": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+    "expectedDataset": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+    "datasetStatus": "PASS",
+    "toolMapping": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+    "expectedToolMapping": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+    "toolMappingStatus": "PASS"
+  },
+  "datasetStatus": "PASS",
+  "skillStatus": "PASS",
+  "memoryStatus": "PASS",
+  "toolStatus": "PASS",
+  "faultStatus": "PASS",
+  "inputHashStatus": "PASS",
+  "tool09Status": "PASS",
+  "tool09NativeOfferedCount": 12,
+  "generatedFiles": [
+    "input-dataset-integrity.json",
+    "skill-preflight.json",
+    "memory-preflight.json",
+    "tool-preflight.json",
+    "input-fault-preflight.json",
+    "input-preflight-summary.md"
+  ]
+}

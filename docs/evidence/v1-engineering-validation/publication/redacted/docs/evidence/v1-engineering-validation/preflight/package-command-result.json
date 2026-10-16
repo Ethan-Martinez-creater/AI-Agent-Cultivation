@@ -1,0 +1,20 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/package-command-result.json",
+    "originalSha256": "433dc3b8b668fe7b541b4f465b1bb8448919e7edaa9e6311a7c71d851a73ffb7",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "command": "npm run package",
+  "scope": "[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673",
+  "startedAt": "2026-10-15T14:58:14.0914331+00:00",
+  "endedAt": "2026-10-15T14:59:12.0732645+00:00",
+  "exitCode": 1,
+  "isolatedCopy": true,
+  "applicationLaunched": false,
+  "runtimeArchive": "local-runtime-archive.json",
+  "officialDistributionArchive": false
+}

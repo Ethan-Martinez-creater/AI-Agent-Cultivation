@@ -1,0 +1,93 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/p6-backup-integrated-results.json",
+    "originalSha256": "e047ddeac016cb957d783537edacfc10ab0d54453d28a2e246b2dc7dd8835a90",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "purpose": "P6 read-only SQLite online-backup feasibility; no app launch/kill/restart or source SQL writes; WAL/SHM sidecars may be created",
+  "observedAt": "2026-10-15T14:50:32.496Z",
+  "sourcePath": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-a-profile\\UserData\\data\\cultivation.sqlite",
+  "sourceReadonly": true,
+  "sourceBefore": {
+    "exists": true,
+    "sizeBytes": 2146304,
+    "sha256": "63206470596633960f9b86eecb799c5c2ae248521c718f3d2bfa4c588232079d",
+    "lastWriteTime": "2026-10-15T03:55:26.980Z"
+  },
+  "sourceAfter": {
+    "exists": true,
+    "sizeBytes": 2146304,
+    "sha256": "63206470596633960f9b86eecb799c5c2ae248521c718f3d2bfa4c588232079d",
+    "lastWriteTime": "2026-10-15T03:55:26.980Z"
+  },
+  "sourceUnchangedDuringBackup": true,
+  "sidecarsBefore": {
+    "stage": "before-online-backup",
+    "wal": {
+      "exists": true,
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lastWriteTime": "2026-10-15T04:03:39.732Z"
+    },
+    "shm": {
+      "exists": true,
+      "sizeBytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "lastWriteTime": "2026-10-15T04:03:39.733Z"
+    }
+  },
+  "sidecarsAfter": {
+    "stage": "after-online-backup",
+    "wal": {
+      "exists": true,
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lastWriteTime": "2026-10-15T04:03:39.732Z"
+    },
+    "shm": {
+      "exists": true,
+      "sizeBytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "lastWriteTime": "2026-10-15T14:50:31.956Z"
+    }
+  },
+  "sourceChecks": {
+    "queryOnly": 1,
+    "journalMode": "wal",
+    "integrityCheck": [
+      "ok"
+    ],
+    "tableCount": 104
+  },
+  "backupPath": "[REPOSITORY_ROOT]\\.test-data\\e1-backup-main-1792075830888\\cr-a-online-backup.sqlite",
+  "backupPages": {
+    "totalPages": 524,
+    "remainingPages": 0
+  },
+  "backupBeforeVerify": {
+    "exists": true,
+    "sizeBytes": 2146304,
+    "sha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001",
+    "lastWriteTime": "2026-10-15T14:50:32.219Z"
+  },
+  "backupAfterVerify": {
+    "exists": true,
+    "sizeBytes": 2146304,
+    "sha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001",
+    "lastWriteTime": "2026-10-15T14:50:32.219Z"
+  },
+  "backupHashFrozenDuringVerification": true,
+  "verification": {
+    "queryOnly": 1,
+    "journalMode": "wal",
+    "integrityCheck": [
+      "ok"
+    ],
+    "foreignKeyViolations": 0,
+    "schemaVersion": 1
+  }
+}

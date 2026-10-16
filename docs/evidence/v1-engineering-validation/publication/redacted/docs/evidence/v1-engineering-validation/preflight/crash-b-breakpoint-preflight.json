@@ -1,0 +1,32 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/crash-b-breakpoint-preflight.json",
+    "originalSha256": "4325e679abc1f1b3533b97f748eb7b5acc3a4cd49a95c572e7e6316e03683a36",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "evidenceVersion": 1,
+  "observedAt": "2026-10-15T12:07:09.2837906+08:00",
+  "case": "CR-B",
+  "breakpoint": {
+    "target": "P5 file.writeText post-await/pre-return",
+    "source": "apps/desktop/src/main/gate4-builtins.ts:105-108",
+    "desired": "after await workspace.writeText, before builtin execute result returns",
+    "requiredState": "Operation receipt PREPARED; mutation journal PREPARED; guard.after not APPLIED; no successful tool.result",
+    "reached": false
+  },
+  "status": "NOT_RUN",
+  "reason": "After the parent reported a user-visible app error, all new app launches were paused; no second packaged launch was attempted.",
+  "preparedProfile": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-b-profile",
+  "preparedWorkspace": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-b-workspace",
+  "workflowCreated": false,
+  "toolEntryCount": null,
+  "postwriteHitCount": null,
+  "fileHashAtBarrier": null,
+  "providerCalls": 0,
+  "credentialsRead": false,
+  "note": "No claim is made about PREPARED state, file contents, or independent entry/postwrite hit counts."
+}

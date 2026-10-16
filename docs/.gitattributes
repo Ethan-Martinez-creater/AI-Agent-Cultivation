@@ -1,0 +1,6 @@
+# Preserve frozen evidence and executed-source provenance across Windows checkouts.
+AI_Agent_Cultivation_V1_E0*.md -text
+AI_Agent_Cultivation_V1_E1*.md -text
+evidence/v1-engineering-validation/** -text
+status/v1-engineering-validation*.md -text
+status/workflow-crash-recovery-case-study*.md -text

@@ -1,0 +1,143 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/execution-notes.json",
+    "originalSha256": "0a669096b50c7ae5274ca7d4763d416019e4c75d294fbced9002ab674e592525",
+    "redactionCategories": [
+      "USER_HOME_PATH",
+      "LOCAL_TOOL_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "scope": "E1 Closure / Preflight only",
+  "formalExperiments": {
+    "jevLive": "NOT_RUN",
+    "crAKillRestart": "NOT_RUN",
+    "crBKillRestart": "NOT_RUN"
+  },
+  "screenshotProvidedByUser": {
+    "filename": "IMG_20261015_121414.jpg",
+    "reportedLocalPath": "[USER_HOME]/Desktop/IMG_20261015_121414.jpg",
+    "source": "Image content supplied in conversation and visually inspected",
+    "localFileReadable": false,
+    "imageByteHash": null,
+    "title": "AI-Agent-Cultivation.exe - 应用程序错误",
+    "exception": "unknown software exception (0x80000003)",
+    "address": "0x00007FF75E78AE59",
+    "exactPidAndRootCauseEstablishedByImageAlone": false,
+    "note": "The local path did not exist when read. The screenshot was not copied, edited or uploaded to the repository. Its text is transcribed from the user-supplied image."
+  },
+  "earlierStartupAttempt": {
+    "applicationPid": 27612,
+    "context": "ordinary restricted launch; later external debugger attach cannot change that already-created process context",
+    "log": "packaged-startup-stderr.txt",
+    "fatal": "Chromium platform_channel access denied (0x5)",
+    "popupRelatedToThisExactPid": "NOT_ESTABLISHED",
+    "forcedApplicationTermination": false,
+    "normalCloseRequested": true,
+    "exitCause": "NOT_ESTABLISHED; own PIDs were later observed absent"
+  },
+  "buildAttempts": [
+    {
+      "attempt": 1,
+      "result": "FAIL",
+      "reason": "Physical copy materialized workspace packages; persistence relative migration path no longer resolved",
+      "log": "package-attempt-1-results.txt",
+      "correction": "Moved five materialized copies within the isolated build tree and restored junctions to that tree's packages; no deletion and no root source change"
+    },
+    {
+      "attempt": 2,
+      "result": "NO_COMPLETION_EVIDENCE",
+      "reason": "Session lost across usage-limit interruption; no exit code was obtained",
+      "log": "package-attempt-2-interrupted-results.txt"
+    },
+    {
+      "attempt": 3,
+      "result": "CANCELLED",
+      "exitCode": -1,
+      "log": "package-attempt-3-cancelled-results.txt",
+      "commandResult": "package-attempt-3-command-result.json",
+      "stoppedProcess": {
+        "pid": 29088,
+        "executable": "[NODE_RUNTIME_ROOT]/node.exe",
+        "commandLine": "node scripts/electron-forge-runner.mjs package --platform=win32 --arch=x64",
+        "identityVerifiedBeforeStop": true,
+        "electronApplicationProcess": false,
+        "crashExperiment": false
+      }
+    },
+    {
+      "attempt": 4,
+      "result": "FAIL",
+      "exitCode": 1,
+      "reason": "MSBuild MSB3491: isolated staging paths exceeded the Windows 260-character limit while rebuilding better-sqlite3",
+      "runtimeSource": "Local installed Electron 44.4.3 distribution, archived without modifying it; not the official download ZIP",
+      "log": "package-results.txt",
+      "commandResult": "package-command-result.json",
+      "runtimeProvenance": "local-runtime-archive.json"
+    }
+  ],
+  "transportFixtureCorrection": {
+    "initialLocalFixtureFailure": "Mock GET /v1/models initially returned [] rather than the SDK-required {models:[]}; probe dispatch assertion failed",
+    "productionCodeChanged": false,
+    "finalRun": "17 local cases PASS; see transport-run-results.txt and jev-transport-preflight.json"
+  },
+  "testScriptTypeCorrections": {
+    "initialStrictCheck": "URL input needed conversion for Electron net.fetch; child environment needed NodeJS.ProcessEnv annotation",
+    "productionCodeChanged": false,
+    "finalStrictCheck": "PASS"
+  },
+  "usageLimit": {
+    "blockedReviewActionExecuted": false,
+    "pendingAction": "P6 integrated backup verification",
+    "resolved": true,
+    "finalAction": "Reran successfully after the user restored quota; see p6-backup-integrated-results.json and p6-wal-integrated-results.json"
+  },
+  "cleanLaunch": {
+    "evidence": "packaged-clean-launch.json",
+    "result": "HEALTHY_WINDOW; normal close exit 0",
+    "pidCaveat": "Its app.pid 18852 is the cmd.exe launcher wrapper, not an established Electron Main PID. Later controller evidence queries Main runtime identity and OS creation time separately.",
+    "interpretation": "Restricted-launch context contributed diagnostic evidence; neither one successful launch nor the screenshot establishes a general product root cause."
+  },
+  "packagedControllerDevelopment": {
+    "evidenceClass": "Test harness development attempts, not formal crash experiments or product defect findings",
+    "errorsCorrected": [
+      "Debugger.setBreakpoint returns actualLocation, not a locations array; an initial controller assertion falsely called a resolvable breakpoint unresolved.",
+      "An extra Inspector connection kept a quitting test app waiting. Only the exact owned controller debugger socket was ended; no application process was killed. See controller-debugger-cleanup.json.",
+      "A UI locator and native folder picker helper failed before useful workflow execution. Final chooser uses the existing test-only dialog input seam and public tools.chooseWorkspace IPC.",
+      "Workspace must be chosen before mounting the workflow drawer, so its tool list includes the workspace built-ins.",
+      "Benchmark rows must target teammate.currentRuntimeProfileId (the sealed cloned runtime), not the source template runtime.id. The earlier mismatch produced CAPABILITY_UNSUPPORTED / NO_CAPABLE_EXECUTOR at S01.",
+      "The initial local workspace omitted package.json required by the existing w22 fake language fixture. Permission was granted normally, reads failed, the tool limit was reached, and S01 required explicit retry. Final fixture adds the required package.json."
+    ],
+    "syntheticCredentialChange": "A proposed cloud/key harness change was removed; final runs have no real Provider or Jev key and use the three existing fake flags. The actual routing fixture defect was the sealed runtime benchmark target.",
+    "shellNote": "An early folder-picker helper used Windows PowerShell 5.1; it failed and was retired. Final helper subprocesses use pwsh 7, with E-drive profile/temp paths.",
+    "historicalRawArtifacts": ".tmp/e1-packaged-preflight/evidence (ignored, preserved)",
+    "allFailuresRetained": true,
+    "formalKillRestartPerformed": false
+  },
+  "finalFormatCheck": {
+    "restrictedAttempt": "format-check-restricted-attempt.txt; sandbox denied Node spawning git (EPERM)",
+    "localReadOnlyRerun": "format-check-results.txt; completed and reported only the three preexisting E0/E1 document formatting failures",
+    "frozenFilesFormatted": false,
+    "finalLog": "Final full format:check rerun after integration: format-check-results.txt. Only three preexisting frozen/history documents are expected; actual output is authoritative."
+  },
+  "packagedControllerFinal": {
+    "crA": "TypeScript PASS; crash-a-packaged-execution-final.json",
+    "crB": "TypeScript PASS; crash-b-packaged-execution-final.json",
+    "earlierJavaScriptFixtureDeviationResolved": true,
+    "trueEntrySite": "9848:7612 (first legal V8 statement; static requested 7607)",
+    "rejectedPostCandidate": "9848:13635 resolved but failed to hit the required continuation; historical result preserved",
+    "actualPostSite": "9848:13661, V8 return; dynamic file hash + PREPARED + no result substantiated window",
+    "correctedPrematureInterpretation": "An earlier user-facing statement assumed a resolved source location proved write completion. A before-hash observation contradicted it; the statement was explicitly corrected, and only the final dynamic return capture is accepted.",
+    "controllerProtocolFix": "Approval IPC must race the breakpoint; do not await a potentially held Debugger.resume response before consuming a pause event. Remove test breakpoints before normal cleanup.",
+    "finalProjectionOnlyEnrichment": "The deliverable controller now includes MissionRun/ToolCall/operation/journal IDs and before/observed hashes at capture. This metadata-only change was lint/syntax checked; the application window was not rerun for that projection change.",
+    "systemEventQuery": "windows-application-error-observation.json; no matched event, no proven screenshot/PID linkage",
+    "formalExperiments": "All NOT_RUN",
+    "finalDeliverableChangesAfterWindowRun": [
+      "Enrich captured MissionRun/ToolCall/journal/operation identity and hash fields",
+      "Require E-drive script/repository roots before creating artifacts, and explicitly redirect pwsh child profile/temp paths to E",
+      "Bind existing Node global fetch/WebSocket and import standard timers for the root ESLint configuration; the integrated initial no-undef log is retained separately",
+      "These are observation/environment/reference changes; no product logic or tested compiled artifact changed. No additional app run was made after them."
+    ]
+  }
+}

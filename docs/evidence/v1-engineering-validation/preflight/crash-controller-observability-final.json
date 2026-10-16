@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "scope": "Independent controller observability preflight, not formal crash recovery",
+  "compiledScriptSha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71",
+  "crA": {
+    "evidence": "crash-a-packaged-execution-final.json",
+    "runId": "a1086c61-7bfe-4b75-a981-822597b7fac3",
+    "mainPid": 27408,
+    "mainCreatedAt": "2026-10-16T00:24:18.225196+08:00",
+    "verifierEntry": 1,
+    "verifierCompleted": 1
+  },
+  "crB": {
+    "evidence": "crash-b-packaged-execution-final.json",
+    "identitySupplement": "crash-b-identity-supplement.json",
+    "workflowRunId": "5b5bf26a-cf5f-470d-b8de-880b747d475d",
+    "stepRunId": "08910f33-4107-4acd-9c7b-d3a256b324b8",
+    "missionId": "5c0f6aa2-752e-46aa-90e6-b3a7b76cdd33",
+    "missionRunId": "a6a5e5e2-e66d-402e-8964-cc90f6d16b20",
+    "toolCallId": "w22-fb8506b8-3778-4309-9b17-c698e8c3def7",
+    "mutationId": "61d1ac28-f2da-4b64-9a28-80dec8be7d7a",
+    "operationReceiptId": "50b3962a-fcb6-4f53-81b4-803546f23d24",
+    "relativePath": "renderer.ts",
+    "mainPid": 28880,
+    "mainCreatedAt": "2026-10-16T00:33:37.255188+08:00",
+    "independentEntryHits": 1,
+    "independentPostWriteHits": 1,
+    "beforeHash": "6d1bbc70d0961794c1f755f7a9543627b6aad4dbec749693173926062d356c9b",
+    "afterHash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637",
+    "entryActualLocation": {
+      "scriptId": "134",
+      "lineNumber": 9848,
+      "columnNumber": 7612
+    },
+    "postwriteActualLocation": {
+      "scriptId": "134",
+      "lineNumber": 9848,
+      "columnNumber": 13661
+    }
+  },
+  "sqliteCaptureMethod": {
+    "backup": "p6-backup-integrated-results.json",
+    "activeWal": "p6-wal-integrated-results.json",
+    "status": "PASS",
+    "readonlyWalShmCreationCaveat": true
+  },
+  "postRestartCounts": "NOT_RUN",
+  "formalKillRestart": "NOT_RUN",
+  "realProviderCalls": 0,
+  "processIdentityPolicy": "Use verified PID/executable/creation-time, not unchecked candidate parent-PID trees",
+  "publishedBinaryDatabaseOrProfile": false
+}

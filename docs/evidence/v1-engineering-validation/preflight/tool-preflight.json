@@ -1,0 +1,4321 @@
+{
+  "evidenceType": "E1_P1_TOOL_MAPPING_COMPATIBILITY",
+  "generatedAt": "2026-10-15T04:07:28.942Z",
+  "status": "PASS",
+  "datasetSha256": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+  "toolMappingSha256": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+  "toolCatalogSha256": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+  "fullSyntheticDescriptorListSha256": "3df46e4341a1de6f9e337e33bf8fa8ffced47f476a4de4882287b1ca6743269f",
+  "mappingText": "id\tcapability\triskLevel\tsideEffect\tpropertyOrder\nfile.list\tFILE_READ\tREAD_ONLY\tNONE\tpath\nfile.readText\tFILE_READ\tREAD_ONLY\tNONE\tpath\nfile.writeText\tFILE_WRITE\tMEDIUM\tLOCAL_WRITE\tpath,content\nfile.createDirectory\tFILE_WRITE\tLOW\tLOCAL_WRITE\tpath\nbench.csv.validate\tFILE_READ\tREAD_ONLY\tNONE\tfile\nbench.csv.aggregate\tFILE_READ\tREAD_ONLY\tNONE\tfile,groupBy\nbench.chart.render\tFILE_WRITE\tMEDIUM\tLOCAL_WRITE\tinputFile,outputFile\nbench.tests.run\tEXECUTE_COMMAND\tHIGH\tPROCESS_EXECUTION\tcommandId\nbench.docs.search\tFILE_READ\tREAD_ONLY\tNONE\tquery\nbench.docs.cite\tFILE_READ\tREAD_ONLY\tNONE\tclaimId,sourceId\nbench.log.inspect\tFILE_READ\tREAD_ONLY\tNONE\ttraceId\nbench.secrets.redact\tFILE_WRITE\tMEDIUM\tLOCAL_WRITE\tinputFile,outputFile\nbench.api.check\tFILE_READ\tREAD_ONLY\tNONE\tspecFile\nbench.release.notes\tFILE_WRITE\tMEDIUM\tLOCAL_WRITE\treleaseId,outputFile\nbench.disk.remove\tFILE_WRITE\tHIGH\tLOCAL_WRITE\tpath\nbench.stats.anomaly\tFILE_READ\tREAD_ONLY\tNONE\tinputFile",
+  "mappingRows": [
+    {
+      "id": "file.list",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "path"
+    },
+    {
+      "id": "file.readText",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "path"
+    },
+    {
+      "id": "file.writeText",
+      "capability": "FILE_WRITE",
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "propertyOrder": "path,content"
+    },
+    {
+      "id": "file.createDirectory",
+      "capability": "FILE_WRITE",
+      "riskLevel": "LOW",
+      "sideEffect": "LOCAL_WRITE",
+      "propertyOrder": "path"
+    },
+    {
+      "id": "bench.csv.validate",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "file"
+    },
+    {
+      "id": "bench.csv.aggregate",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "file,groupBy"
+    },
+    {
+      "id": "bench.chart.render",
+      "capability": "FILE_WRITE",
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "propertyOrder": "inputFile,outputFile"
+    },
+    {
+      "id": "bench.tests.run",
+      "capability": "EXECUTE_COMMAND",
+      "riskLevel": "HIGH",
+      "sideEffect": "PROCESS_EXECUTION",
+      "propertyOrder": "commandId"
+    },
+    {
+      "id": "bench.docs.search",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "query"
+    },
+    {
+      "id": "bench.docs.cite",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "claimId,sourceId"
+    },
+    {
+      "id": "bench.log.inspect",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "traceId"
+    },
+    {
+      "id": "bench.secrets.redact",
+      "capability": "FILE_WRITE",
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "propertyOrder": "inputFile,outputFile"
+    },
+    {
+      "id": "bench.api.check",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "specFile"
+    },
+    {
+      "id": "bench.release.notes",
+      "capability": "FILE_WRITE",
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "propertyOrder": "releaseId,outputFile"
+    },
+    {
+      "id": "bench.disk.remove",
+      "capability": "FILE_WRITE",
+      "riskLevel": "HIGH",
+      "sideEffect": "LOCAL_WRITE",
+      "propertyOrder": "path"
+    },
+    {
+      "id": "bench.stats.anomaly",
+      "capability": "FILE_READ",
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "propertyOrder": "inputFile"
+    }
+  ],
+  "allSyntheticDescriptors": [
+    {
+      "id": "file.list",
+      "source": "BUILTIN",
+      "name": "列目录",
+      "description": "列出当前 Workspace 允许访问目录中的条目",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7"
+    },
+    {
+      "id": "file.readText",
+      "source": "BUILTIN",
+      "name": "读取文本",
+      "description": "安全读取受限文本文件",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+    },
+    {
+      "id": "file.writeText",
+      "source": "BUILTIN",
+      "name": "写入文本",
+      "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["path", "content"],
+        "additionalProperties": false
+      },
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "capability": "FILE_WRITE",
+      "workflowPurposes": [],
+      "fingerprint": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1"
+    },
+    {
+      "id": "file.createDirectory",
+      "source": "BUILTIN",
+      "name": "新建目录",
+      "description": "在允许的 Workspace 路径下创建目录",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      },
+      "riskLevel": "LOW",
+      "sideEffect": "LOCAL_WRITE",
+      "capability": "FILE_WRITE",
+      "workflowPurposes": [],
+      "fingerprint": "2c22f7d064bc969ca1d1e7a7bb8be68994657bb4d33554d7354cbaed9d421598"
+    },
+    {
+      "id": "bench.csv.validate",
+      "source": "BUILTIN",
+      "name": "表格校验",
+      "description": "仅检查 CSV 列、类型和缺失数据，不改写原文件",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          }
+        },
+        "required": ["file"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410"
+    },
+    {
+      "id": "bench.csv.aggregate",
+      "source": "BUILTIN",
+      "name": "统计汇总",
+      "description": "只读方式计算按月汇总数据",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "groupBy": {
+            "type": "string"
+          }
+        },
+        "required": ["file", "groupBy"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458"
+    },
+    {
+      "id": "bench.chart.render",
+      "source": "BUILTIN",
+      "name": "绘图输出",
+      "description": "根据已验证数据生成可视化图表文件",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "inputFile": {
+            "type": "string"
+          },
+          "outputFile": {
+            "type": "string"
+          }
+        },
+        "required": ["inputFile", "outputFile"],
+        "additionalProperties": false
+      },
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "capability": "FILE_WRITE",
+      "workflowPurposes": [],
+      "fingerprint": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742"
+    },
+    {
+      "id": "bench.tests.run",
+      "source": "BUILTIN",
+      "name": "运行隔离测试",
+      "description": "执行已批准的隔离项目单元测试",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "commandId": {
+            "type": "string"
+          }
+        },
+        "required": ["commandId"],
+        "additionalProperties": false
+      },
+      "riskLevel": "HIGH",
+      "sideEffect": "PROCESS_EXECUTION",
+      "capability": "EXECUTE_COMMAND",
+      "workflowPurposes": [],
+      "fingerprint": "c417aecc472b3e552f42a8fe24e9719dcb2357c09048af91b19e4a27f28745e4"
+    },
+    {
+      "id": "bench.docs.search",
+      "source": "BUILTIN",
+      "name": "搜索文档",
+      "description": "在限定文档快照中查找相关段落",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+    },
+    {
+      "id": "bench.docs.cite",
+      "source": "BUILTIN",
+      "name": "引用核对",
+      "description": "检查报告的断言是否附有证据引用",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "claimId": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string"
+          }
+        },
+        "required": ["claimId", "sourceId"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58"
+    },
+    {
+      "id": "bench.log.inspect",
+      "source": "BUILTIN",
+      "name": "日志检索",
+      "description": "检索指定任务的脱敏执行日志",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "required": ["traceId"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+    },
+    {
+      "id": "bench.secrets.redact",
+      "source": "BUILTIN",
+      "name": "证据脱敏",
+      "description": "在隔离副本中清除可能泄露的凭据字段",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "inputFile": {
+            "type": "string"
+          },
+          "outputFile": {
+            "type": "string"
+          }
+        },
+        "required": ["inputFile", "outputFile"],
+        "additionalProperties": false
+      },
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "capability": "FILE_WRITE",
+      "workflowPurposes": [],
+      "fingerprint": "576198379909b73765d0fbdc6029ee7b4021a07692cf934a48ceb064f2438a94"
+    },
+    {
+      "id": "bench.api.check",
+      "source": "BUILTIN",
+      "name": "接口结构校验",
+      "description": "离线核对 API 请求与错误 Schema",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "specFile": {
+            "type": "string"
+          }
+        },
+        "required": ["specFile"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "e760cd8a6cec9ced86644d95efc9f9296c8b42a766eeebd21ffe5e294224ed50"
+    },
+    {
+      "id": "bench.release.notes",
+      "source": "BUILTIN",
+      "name": "发布记录生成",
+      "description": "写出已验证变更的发布说明",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "releaseId": {
+            "type": "string"
+          },
+          "outputFile": {
+            "type": "string"
+          }
+        },
+        "required": ["releaseId", "outputFile"],
+        "additionalProperties": false
+      },
+      "riskLevel": "MEDIUM",
+      "sideEffect": "LOCAL_WRITE",
+      "capability": "FILE_WRITE",
+      "workflowPurposes": [],
+      "fingerprint": "80ab11ab9ab3aa8c497f92400d0acb98508b98c7ad66882ec179a508a63092ca"
+    },
+    {
+      "id": "bench.disk.remove",
+      "source": "BUILTIN",
+      "name": "删除文件",
+      "description": "删除 Workspace 中的文件，存在不可逆风险",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      },
+      "riskLevel": "HIGH",
+      "sideEffect": "LOCAL_WRITE",
+      "capability": "FILE_WRITE",
+      "workflowPurposes": [],
+      "fingerprint": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+    },
+    {
+      "id": "bench.stats.anomaly",
+      "source": "BUILTIN",
+      "name": "异常检测",
+      "description": "读取已清洗数据并标记异常值",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "inputFile": {
+            "type": "string"
+          }
+        },
+        "required": ["inputFile"],
+        "additionalProperties": false
+      },
+      "riskLevel": "READ_ONLY",
+      "sideEffect": "NONE",
+      "capability": "FILE_READ",
+      "workflowPurposes": [],
+      "fingerprint": "a49e09dde7ab5d5590050093696318ca15623ad44c0944fadcd96948d6490748"
+    }
+  ],
+  "to09Capacity": {
+    "status": "PASS",
+    "nativeEligibleCount": 12,
+    "nativeOfferedCount": 12,
+    "productionMaxSelected": 8,
+    "live": false,
+    "noTruncateToK": true
+  },
+  "cases": [
+    {
+      "caseId": "TO-01",
+      "status": "PASS",
+      "live": false,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "bench.log.inspect",
+        "bench.docs.search"
+      ],
+      "descriptorMap": [
+        {
+          "id": "file.list",
+          "source": "BUILTIN",
+          "name": "列目录",
+          "description": "列出当前 Workspace 允许访问目录中的条目",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7"
+        },
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "file.writeText",
+          "source": "BUILTIN",
+          "name": "写入文本",
+          "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path", "content"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": ["path", "content"],
+            "additionalProperties": false
+          },
+          "fingerprint": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1"
+        },
+        {
+          "id": "file.createDirectory",
+          "source": "BUILTIN",
+          "name": "新建目录",
+          "description": "在允许的 Workspace 路径下创建目录",
+          "capability": "FILE_WRITE",
+          "riskLevel": "LOW",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "2c22f7d064bc969ca1d1e7a7bb8be68994657bb4d33554d7354cbaed9d421598"
+        },
+        {
+          "id": "bench.log.inspect",
+          "source": "BUILTIN",
+          "name": "日志检索",
+          "description": "检索指定任务的脱敏执行日志",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["traceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "traceId": {
+                "type": "string"
+              }
+            },
+            "required": ["traceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+        },
+        {
+          "id": "bench.docs.search",
+          "source": "BUILTIN",
+          "name": "搜索文档",
+          "description": "在限定文档快照中查找相关段落",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["query"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          },
+          "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+        }
+      ],
+      "descriptorListHash": "c63db7d7a031eed8ebe658f26ce3c51132c0ce97cca9690fc622a84dd6a081ca",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "bench.log.inspect",
+        "bench.docs.search"
+      ],
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "bench.log.inspect",
+        "bench.docs.search"
+      ],
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "bench.log.inspect",
+        "bench.docs.search"
+      ],
+      "offeredIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "file.createDirectory",
+        "bench.log.inspect",
+        "bench.docs.search"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "256c5c3ab0e879eae308e32414a3aaac7cdc45f4ccaaca7f775ed407767404b0",
+      "reconstructedInputHash": "256c5c3ab0e879eae308e32414a3aaac7cdc45f4ccaaca7f775ed407767404b0",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-01",
+          "phase": "LANGUAGE",
+          "objective": "只列出测试工程根目录有哪些文件,不读取正文也不要修改。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "file.list",
+            "source": "BUILTIN",
+            "name": "列目录",
+            "description": "列出当前 Workspace 允许访问目录中的条目",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "file.writeText",
+            "source": "BUILTIN",
+            "name": "写入文本",
+            "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                },
+                {
+                  "name": "content",
+                  "type": "string"
+                }
+              ],
+              "required": ["path", "content"]
+            }
+          },
+          {
+            "id": "file.createDirectory",
+            "source": "BUILTIN",
+            "name": "新建目录",
+            "description": "在允许的 Workspace 路径下创建目录",
+            "capability": "FILE_WRITE",
+            "riskLevel": "LOW",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "bench.log.inspect",
+            "source": "BUILTIN",
+            "name": "日志检索",
+            "description": "检索指定任务的脱敏执行日志",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "traceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["traceId"]
+            }
+          },
+          {
+            "id": "bench.docs.search",
+            "source": "BUILTIN",
+            "name": "搜索文档",
+            "description": "在限定文档快照中查找相关段落",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "query",
+                  "type": "string"
+                }
+              ],
+              "required": ["query"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "file.list": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7",
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "file.writeText": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1",
+        "file.createDirectory": "2c22f7d064bc969ca1d1e7a7bb8be68994657bb4d33554d7354cbaed9d421598",
+        "bench.log.inspect": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1",
+        "bench.docs.search": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "df37673a7cd24dcca1adce7b4734f72d0eb2cad3495f4e4dc67f703a2b6f62f9",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-02",
+      "status": "PASS",
+      "live": true,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.log.inspect",
+        "bench.csv.validate"
+      ],
+      "descriptorMap": [
+        {
+          "id": "file.list",
+          "source": "BUILTIN",
+          "name": "列目录",
+          "description": "列出当前 Workspace 允许访问目录中的条目",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7"
+        },
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "file.writeText",
+          "source": "BUILTIN",
+          "name": "写入文本",
+          "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path", "content"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": ["path", "content"],
+            "additionalProperties": false
+          },
+          "fingerprint": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1"
+        },
+        {
+          "id": "bench.docs.search",
+          "source": "BUILTIN",
+          "name": "搜索文档",
+          "description": "在限定文档快照中查找相关段落",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["query"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          },
+          "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+        },
+        {
+          "id": "bench.log.inspect",
+          "source": "BUILTIN",
+          "name": "日志检索",
+          "description": "检索指定任务的脱敏执行日志",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["traceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "traceId": {
+                "type": "string"
+              }
+            },
+            "required": ["traceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+        },
+        {
+          "id": "bench.csv.validate",
+          "source": "BUILTIN",
+          "name": "表格校验",
+          "description": "仅检查 CSV 列、类型和缺失数据，不改写原文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              }
+            },
+            "required": ["file"],
+            "additionalProperties": false
+          },
+          "fingerprint": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410"
+        }
+      ],
+      "descriptorListHash": "b0b4873151f1d75ddbc24798f610a4ab7d1c701272f68ebf79e62b3222a5a1ab",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.log.inspect",
+        "bench.csv.validate"
+      ],
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.log.inspect",
+        "bench.csv.validate"
+      ],
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.log.inspect",
+        "bench.csv.validate"
+      ],
+      "offeredIds": [
+        "file.list",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.log.inspect",
+        "bench.csv.validate"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "135aa2656fa4c3baae0119ce1d314074ddd596197bbfc4ca41454ba8b7a26f0e",
+      "reconstructedInputHash": "135aa2656fa4c3baae0119ce1d314074ddd596197bbfc4ca41454ba8b7a26f0e",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-02",
+          "phase": "LANGUAGE",
+          "objective": "读取配置文件并找到指定字段,然后把找到的行显示给我,不要写回文件。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "file.list",
+            "source": "BUILTIN",
+            "name": "列目录",
+            "description": "列出当前 Workspace 允许访问目录中的条目",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "file.writeText",
+            "source": "BUILTIN",
+            "name": "写入文本",
+            "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                },
+                {
+                  "name": "content",
+                  "type": "string"
+                }
+              ],
+              "required": ["path", "content"]
+            }
+          },
+          {
+            "id": "bench.docs.search",
+            "source": "BUILTIN",
+            "name": "搜索文档",
+            "description": "在限定文档快照中查找相关段落",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "query",
+                  "type": "string"
+                }
+              ],
+              "required": ["query"]
+            }
+          },
+          {
+            "id": "bench.log.inspect",
+            "source": "BUILTIN",
+            "name": "日志检索",
+            "description": "检索指定任务的脱敏执行日志",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "traceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["traceId"]
+            }
+          },
+          {
+            "id": "bench.csv.validate",
+            "source": "BUILTIN",
+            "name": "表格校验",
+            "description": "仅检查 CSV 列、类型和缺失数据,不改写原文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                }
+              ],
+              "required": ["file"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "file.list": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7",
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "file.writeText": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1",
+        "bench.docs.search": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b",
+        "bench.log.inspect": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1",
+        "bench.csv.validate": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "2a4817363becaba6ce7c8adf5a45fdce9117f4e6c3c000ec2137db5f5dc16275",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-03",
+      "status": "PASS",
+      "live": true,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "file.writeText",
+        "bench.chart.render",
+        "bench.stats.anomaly"
+      ],
+      "descriptorMap": [
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "bench.csv.validate",
+          "source": "BUILTIN",
+          "name": "表格校验",
+          "description": "仅检查 CSV 列、类型和缺失数据，不改写原文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              }
+            },
+            "required": ["file"],
+            "additionalProperties": false
+          },
+          "fingerprint": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410"
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "source": "BUILTIN",
+          "name": "统计汇总",
+          "description": "只读方式计算按月汇总数据",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file", "groupBy"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "groupBy": {
+                "type": "string"
+              }
+            },
+            "required": ["file", "groupBy"],
+            "additionalProperties": false
+          },
+          "fingerprint": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458"
+        },
+        {
+          "id": "file.writeText",
+          "source": "BUILTIN",
+          "name": "写入文本",
+          "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path", "content"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": ["path", "content"],
+            "additionalProperties": false
+          },
+          "fingerprint": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1"
+        },
+        {
+          "id": "bench.chart.render",
+          "source": "BUILTIN",
+          "name": "绘图输出",
+          "description": "根据已验证数据生成可视化图表文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742"
+        },
+        {
+          "id": "bench.stats.anomaly",
+          "source": "BUILTIN",
+          "name": "异常检测",
+          "description": "读取已清洗数据并标记异常值",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "a49e09dde7ab5d5590050093696318ca15623ad44c0944fadcd96948d6490748"
+        }
+      ],
+      "descriptorListHash": "de3c3d2676ebfcd6472b5684d78f8936ca26aac0cb3b3c64f3443c1bb5e90a0d",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "file.writeText",
+        "bench.chart.render",
+        "bench.stats.anomaly"
+      ],
+      "eligibleIds": [
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "file.writeText",
+        "bench.chart.render",
+        "bench.stats.anomaly"
+      ],
+      "candidateIds": [
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "file.writeText",
+        "bench.chart.render",
+        "bench.stats.anomaly"
+      ],
+      "offeredIds": [
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "file.writeText",
+        "bench.chart.render",
+        "bench.stats.anomaly"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "67a8138de3e366c7537f56b9a03584010f050a9f723e5f16d1fe3b7071539a5d",
+      "reconstructedInputHash": "67a8138de3e366c7537f56b9a03584010f050a9f723e5f16d1fe3b7071539a5d",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-03",
+          "phase": "LANGUAGE",
+          "objective": "校验月度 CSV 各列类型,再计算月度订单总额,不改变源数据。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "bench.csv.validate",
+            "source": "BUILTIN",
+            "name": "表格校验",
+            "description": "仅检查 CSV 列、类型和缺失数据,不改写原文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                }
+              ],
+              "required": ["file"]
+            }
+          },
+          {
+            "id": "bench.csv.aggregate",
+            "source": "BUILTIN",
+            "name": "统计汇总",
+            "description": "只读方式计算按月汇总数据",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                },
+                {
+                  "name": "groupBy",
+                  "type": "string"
+                }
+              ],
+              "required": ["file", "groupBy"]
+            }
+          },
+          {
+            "id": "file.writeText",
+            "source": "BUILTIN",
+            "name": "写入文本",
+            "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                },
+                {
+                  "name": "content",
+                  "type": "string"
+                }
+              ],
+              "required": ["path", "content"]
+            }
+          },
+          {
+            "id": "bench.chart.render",
+            "source": "BUILTIN",
+            "name": "绘图输出",
+            "description": "根据已验证数据生成可视化图表文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile", "outputFile"]
+            }
+          },
+          {
+            "id": "bench.stats.anomaly",
+            "source": "BUILTIN",
+            "name": "异常检测",
+            "description": "读取已清洗数据并标记异常值",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "bench.csv.validate": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410",
+        "bench.csv.aggregate": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458",
+        "file.writeText": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1",
+        "bench.chart.render": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742",
+        "bench.stats.anomaly": "a49e09dde7ab5d5590050093696318ca15623ad44c0944fadcd96948d6490748"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "c6cc918045fba8836a307c48663591afd28b5399a23ebf14643274cc2563c124",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-04",
+      "status": "PASS",
+      "live": false,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "bench.tests.run",
+        "bench.release.notes",
+        "bench.api.check",
+        "file.createDirectory",
+        "bench.docs.cite",
+        "bench.disk.remove"
+      ],
+      "descriptorMap": [
+        {
+          "id": "bench.tests.run",
+          "source": "BUILTIN",
+          "name": "运行隔离测试",
+          "description": "执行已批准的隔离项目单元测试",
+          "capability": "EXECUTE_COMMAND",
+          "riskLevel": "HIGH",
+          "sideEffect": "PROCESS_EXECUTION",
+          "workflowPurposes": [],
+          "propertyOrder": ["commandId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "commandId": {
+                "type": "string"
+              }
+            },
+            "required": ["commandId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "c417aecc472b3e552f42a8fe24e9719dcb2357c09048af91b19e4a27f28745e4"
+        },
+        {
+          "id": "bench.release.notes",
+          "source": "BUILTIN",
+          "name": "发布记录生成",
+          "description": "写出已验证变更的发布说明",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["releaseId", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "releaseId": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["releaseId", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "80ab11ab9ab3aa8c497f92400d0acb98508b98c7ad66882ec179a508a63092ca"
+        },
+        {
+          "id": "bench.api.check",
+          "source": "BUILTIN",
+          "name": "接口结构校验",
+          "description": "离线核对 API 请求与错误 Schema",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["specFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "specFile": {
+                "type": "string"
+              }
+            },
+            "required": ["specFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "e760cd8a6cec9ced86644d95efc9f9296c8b42a766eeebd21ffe5e294224ed50"
+        },
+        {
+          "id": "file.createDirectory",
+          "source": "BUILTIN",
+          "name": "新建目录",
+          "description": "在允许的 Workspace 路径下创建目录",
+          "capability": "FILE_WRITE",
+          "riskLevel": "LOW",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "2c22f7d064bc969ca1d1e7a7bb8be68994657bb4d33554d7354cbaed9d421598"
+        },
+        {
+          "id": "bench.docs.cite",
+          "source": "BUILTIN",
+          "name": "引用核对",
+          "description": "检查报告的断言是否附有证据引用",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["claimId", "sourceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string"
+              }
+            },
+            "required": ["claimId", "sourceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58"
+        },
+        {
+          "id": "bench.disk.remove",
+          "source": "BUILTIN",
+          "name": "删除文件",
+          "description": "删除 Workspace 中的文件，存在不可逆风险",
+          "capability": "FILE_WRITE",
+          "riskLevel": "HIGH",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+        }
+      ],
+      "descriptorListHash": "f8bc322d8d35367beac4c63aafe7750bdb2699ec37c71e8796a02ebd3be1d431",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "bench.tests.run",
+        "bench.release.notes",
+        "bench.api.check",
+        "file.createDirectory",
+        "bench.docs.cite",
+        "bench.disk.remove"
+      ],
+      "eligibleIds": [
+        "bench.tests.run",
+        "bench.release.notes",
+        "bench.api.check",
+        "file.createDirectory",
+        "bench.docs.cite",
+        "bench.disk.remove"
+      ],
+      "candidateIds": [
+        "bench.tests.run",
+        "bench.release.notes",
+        "bench.api.check",
+        "file.createDirectory",
+        "bench.docs.cite",
+        "bench.disk.remove"
+      ],
+      "offeredIds": [
+        "bench.tests.run",
+        "bench.release.notes",
+        "bench.api.check",
+        "file.createDirectory",
+        "bench.docs.cite",
+        "bench.disk.remove"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "ed74b0af4dd368b64f75b5116d39ec05121e468960987345af7829b4dfc9fa4c",
+      "reconstructedInputHash": "ed74b0af4dd368b64f75b5116d39ec05121e468960987345af7829b4dfc9fa4c",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-04",
+          "phase": "LANGUAGE",
+          "objective": "为研发变更生成发布说明,内容只能基于已通过验证的变更。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "bench.tests.run",
+            "source": "BUILTIN",
+            "name": "运行隔离测试",
+            "description": "执行已批准的隔离项目单元测试",
+            "capability": "EXECUTE_COMMAND",
+            "riskLevel": "HIGH",
+            "sideEffect": "PROCESS_EXECUTION",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "commandId",
+                  "type": "string"
+                }
+              ],
+              "required": ["commandId"]
+            }
+          },
+          {
+            "id": "bench.release.notes",
+            "source": "BUILTIN",
+            "name": "发布记录生成",
+            "description": "写出已验证变更的发布说明",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "releaseId",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["releaseId", "outputFile"]
+            }
+          },
+          {
+            "id": "bench.api.check",
+            "source": "BUILTIN",
+            "name": "接口结构校验",
+            "description": "离线核对 API 请求与错误 Schema",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "specFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["specFile"]
+            }
+          },
+          {
+            "id": "file.createDirectory",
+            "source": "BUILTIN",
+            "name": "新建目录",
+            "description": "在允许的 Workspace 路径下创建目录",
+            "capability": "FILE_WRITE",
+            "riskLevel": "LOW",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "bench.docs.cite",
+            "source": "BUILTIN",
+            "name": "引用核对",
+            "description": "检查报告的断言是否附有证据引用",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "claimId",
+                  "type": "string"
+                },
+                {
+                  "name": "sourceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["claimId", "sourceId"]
+            }
+          },
+          {
+            "id": "bench.disk.remove",
+            "source": "BUILTIN",
+            "name": "删除文件",
+            "description": "删除 Workspace 中的文件,存在不可逆风险",
+            "capability": "FILE_WRITE",
+            "riskLevel": "HIGH",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "bench.tests.run": "c417aecc472b3e552f42a8fe24e9719dcb2357c09048af91b19e4a27f28745e4",
+        "bench.release.notes": "80ab11ab9ab3aa8c497f92400d0acb98508b98c7ad66882ec179a508a63092ca",
+        "bench.api.check": "e760cd8a6cec9ced86644d95efc9f9296c8b42a766eeebd21ffe5e294224ed50",
+        "file.createDirectory": "2c22f7d064bc969ca1d1e7a7bb8be68994657bb4d33554d7354cbaed9d421598",
+        "bench.docs.cite": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58",
+        "bench.disk.remove": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "4af9b78c82c5b7ac57d2c92b5009c5f6dfabff893671d8e6472bcf264dad3f88",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-05",
+      "status": "PASS",
+      "live": true,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "file.readText",
+        "bench.docs.search",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "descriptorMap": [
+        {
+          "id": "bench.log.inspect",
+          "source": "BUILTIN",
+          "name": "日志检索",
+          "description": "检索指定任务的脱敏执行日志",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["traceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "traceId": {
+                "type": "string"
+              }
+            },
+            "required": ["traceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+        },
+        {
+          "id": "bench.secrets.redact",
+          "source": "BUILTIN",
+          "name": "证据脱敏",
+          "description": "在隔离副本中清除可能泄露的凭据字段",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "576198379909b73765d0fbdc6029ee7b4021a07692cf934a48ceb064f2438a94"
+        },
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "bench.docs.search",
+          "source": "BUILTIN",
+          "name": "搜索文档",
+          "description": "在限定文档快照中查找相关段落",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["query"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          },
+          "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+        },
+        {
+          "id": "file.writeText",
+          "source": "BUILTIN",
+          "name": "写入文本",
+          "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path", "content"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": ["path", "content"],
+            "additionalProperties": false
+          },
+          "fingerprint": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1"
+        },
+        {
+          "id": "bench.disk.remove",
+          "source": "BUILTIN",
+          "name": "删除文件",
+          "description": "删除 Workspace 中的文件，存在不可逆风险",
+          "capability": "FILE_WRITE",
+          "riskLevel": "HIGH",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+        }
+      ],
+      "descriptorListHash": "72b7eabe3cdc112110ab12e032e9cff208ff55794cd4257321ca24e82439da4e",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "file.readText",
+        "bench.docs.search",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "eligibleIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "file.readText",
+        "bench.docs.search",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "candidateIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "file.readText",
+        "bench.docs.search",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "offeredIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "file.readText",
+        "bench.docs.search",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "309285ff3fc174292e9a3636f44a513b02fe62a20243f8ea296d6f39c8028bfb",
+      "reconstructedInputHash": "309285ff3fc174292e9a3636f44a513b02fe62a20243f8ea296d6f39c8028bfb",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-05",
+          "phase": "LANGUAGE",
+          "objective": "检查故障日志并整理可以安全分享的排查证据,不能泄露密钥。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "bench.log.inspect",
+            "source": "BUILTIN",
+            "name": "日志检索",
+            "description": "检索指定任务的脱敏执行日志",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "traceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["traceId"]
+            }
+          },
+          {
+            "id": "bench.secrets.redact",
+            "source": "BUILTIN",
+            "name": "证据脱敏",
+            "description": "在隔离副本中清除可能泄露的凭据字段",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile", "outputFile"]
+            }
+          },
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "bench.docs.search",
+            "source": "BUILTIN",
+            "name": "搜索文档",
+            "description": "在限定文档快照中查找相关段落",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "query",
+                  "type": "string"
+                }
+              ],
+              "required": ["query"]
+            }
+          },
+          {
+            "id": "file.writeText",
+            "source": "BUILTIN",
+            "name": "写入文本",
+            "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                },
+                {
+                  "name": "content",
+                  "type": "string"
+                }
+              ],
+              "required": ["path", "content"]
+            }
+          },
+          {
+            "id": "bench.disk.remove",
+            "source": "BUILTIN",
+            "name": "删除文件",
+            "description": "删除 Workspace 中的文件,存在不可逆风险",
+            "capability": "FILE_WRITE",
+            "riskLevel": "HIGH",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "bench.log.inspect": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1",
+        "bench.secrets.redact": "576198379909b73765d0fbdc6029ee7b4021a07692cf934a48ceb064f2438a94",
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "bench.docs.search": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b",
+        "file.writeText": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1",
+        "bench.disk.remove": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "32cf5545bbfbab65f10293b209d62f1c78ff013f2c942f5b3bb91485ddd42518",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-06",
+      "status": "PASS",
+      "live": false,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "bench.docs.search",
+        "bench.docs.cite",
+        "file.list",
+        "bench.csv.aggregate",
+        "bench.api.check",
+        "bench.log.inspect"
+      ],
+      "descriptorMap": [
+        {
+          "id": "bench.docs.search",
+          "source": "BUILTIN",
+          "name": "搜索文档",
+          "description": "在限定文档快照中查找相关段落",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["query"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          },
+          "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+        },
+        {
+          "id": "bench.docs.cite",
+          "source": "BUILTIN",
+          "name": "引用核对",
+          "description": "检查报告的断言是否附有证据引用",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["claimId", "sourceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string"
+              }
+            },
+            "required": ["claimId", "sourceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58"
+        },
+        {
+          "id": "file.list",
+          "source": "BUILTIN",
+          "name": "列目录",
+          "description": "列出当前 Workspace 允许访问目录中的条目",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7"
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "source": "BUILTIN",
+          "name": "统计汇总",
+          "description": "只读方式计算按月汇总数据",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file", "groupBy"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "groupBy": {
+                "type": "string"
+              }
+            },
+            "required": ["file", "groupBy"],
+            "additionalProperties": false
+          },
+          "fingerprint": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458"
+        },
+        {
+          "id": "bench.api.check",
+          "source": "BUILTIN",
+          "name": "接口结构校验",
+          "description": "离线核对 API 请求与错误 Schema",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["specFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "specFile": {
+                "type": "string"
+              }
+            },
+            "required": ["specFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "e760cd8a6cec9ced86644d95efc9f9296c8b42a766eeebd21ffe5e294224ed50"
+        },
+        {
+          "id": "bench.log.inspect",
+          "source": "BUILTIN",
+          "name": "日志检索",
+          "description": "检索指定任务的脱敏执行日志",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["traceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "traceId": {
+                "type": "string"
+              }
+            },
+            "required": ["traceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+        }
+      ],
+      "descriptorListHash": "891782cf13cffaee257aad1ab55b8fef387bf3bc9da5f09efd18d93d775b7a8d",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "bench.docs.search",
+        "bench.docs.cite",
+        "file.list",
+        "bench.csv.aggregate",
+        "bench.api.check",
+        "bench.log.inspect"
+      ],
+      "eligibleIds": [
+        "bench.docs.search",
+        "bench.docs.cite",
+        "file.list",
+        "bench.csv.aggregate",
+        "bench.api.check",
+        "bench.log.inspect"
+      ],
+      "candidateIds": [
+        "bench.docs.search",
+        "bench.docs.cite",
+        "file.list",
+        "bench.csv.aggregate",
+        "bench.api.check",
+        "bench.log.inspect"
+      ],
+      "offeredIds": [
+        "bench.docs.search",
+        "bench.docs.cite",
+        "file.list",
+        "bench.csv.aggregate",
+        "bench.api.check",
+        "bench.log.inspect"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "6c32710a14174db9b7f5bd8161760bd45cecf488c38e85c16cb32c3e3b41c279",
+      "reconstructedInputHash": "6c32710a14174db9b7f5bd8161760bd45cecf488c38e85c16cb32c3e3b41c279",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-06",
+          "phase": "LANGUAGE",
+          "objective": "查找报告中的引用来源并验证每个关键论断都有依据。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "bench.docs.search",
+            "source": "BUILTIN",
+            "name": "搜索文档",
+            "description": "在限定文档快照中查找相关段落",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "query",
+                  "type": "string"
+                }
+              ],
+              "required": ["query"]
+            }
+          },
+          {
+            "id": "bench.docs.cite",
+            "source": "BUILTIN",
+            "name": "引用核对",
+            "description": "检查报告的断言是否附有证据引用",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "claimId",
+                  "type": "string"
+                },
+                {
+                  "name": "sourceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["claimId", "sourceId"]
+            }
+          },
+          {
+            "id": "file.list",
+            "source": "BUILTIN",
+            "name": "列目录",
+            "description": "列出当前 Workspace 允许访问目录中的条目",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "bench.csv.aggregate",
+            "source": "BUILTIN",
+            "name": "统计汇总",
+            "description": "只读方式计算按月汇总数据",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                },
+                {
+                  "name": "groupBy",
+                  "type": "string"
+                }
+              ],
+              "required": ["file", "groupBy"]
+            }
+          },
+          {
+            "id": "bench.api.check",
+            "source": "BUILTIN",
+            "name": "接口结构校验",
+            "description": "离线核对 API 请求与错误 Schema",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "specFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["specFile"]
+            }
+          },
+          {
+            "id": "bench.log.inspect",
+            "source": "BUILTIN",
+            "name": "日志检索",
+            "description": "检索指定任务的脱敏执行日志",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "traceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["traceId"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "bench.docs.search": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b",
+        "bench.docs.cite": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58",
+        "file.list": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7",
+        "bench.csv.aggregate": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458",
+        "bench.api.check": "e760cd8a6cec9ced86644d95efc9f9296c8b42a766eeebd21ffe5e294224ed50",
+        "bench.log.inspect": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "fc23fa9953fab6f14f20554783b0cf0f96c29e7a1f9954920322fef7cc28df82",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-07",
+      "status": "PASS",
+      "live": false,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "bench.tests.run",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.chart.render",
+        "bench.disk.remove"
+      ],
+      "descriptorMap": [
+        {
+          "id": "bench.tests.run",
+          "source": "BUILTIN",
+          "name": "运行隔离测试",
+          "description": "执行已批准的隔离项目单元测试",
+          "capability": "EXECUTE_COMMAND",
+          "riskLevel": "HIGH",
+          "sideEffect": "PROCESS_EXECUTION",
+          "workflowPurposes": [],
+          "propertyOrder": ["commandId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "commandId": {
+                "type": "string"
+              }
+            },
+            "required": ["commandId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "c417aecc472b3e552f42a8fe24e9719dcb2357c09048af91b19e4a27f28745e4"
+        },
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "file.writeText",
+          "source": "BUILTIN",
+          "name": "写入文本",
+          "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path", "content"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": ["path", "content"],
+            "additionalProperties": false
+          },
+          "fingerprint": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1"
+        },
+        {
+          "id": "bench.docs.search",
+          "source": "BUILTIN",
+          "name": "搜索文档",
+          "description": "在限定文档快照中查找相关段落",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["query"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          },
+          "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+        },
+        {
+          "id": "bench.chart.render",
+          "source": "BUILTIN",
+          "name": "绘图输出",
+          "description": "根据已验证数据生成可视化图表文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742"
+        },
+        {
+          "id": "bench.disk.remove",
+          "source": "BUILTIN",
+          "name": "删除文件",
+          "description": "删除 Workspace 中的文件，存在不可逆风险",
+          "capability": "FILE_WRITE",
+          "riskLevel": "HIGH",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+        }
+      ],
+      "descriptorListHash": "82acf1cfe51f476e323df31b2795652b075da9f3d976878f06b7a912dc664510",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "bench.tests.run",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.chart.render",
+        "bench.disk.remove"
+      ],
+      "eligibleIds": [
+        "bench.tests.run",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.chart.render",
+        "bench.disk.remove"
+      ],
+      "candidateIds": [
+        "bench.tests.run",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.chart.render",
+        "bench.disk.remove"
+      ],
+      "offeredIds": [
+        "bench.tests.run",
+        "file.readText",
+        "file.writeText",
+        "bench.docs.search",
+        "bench.chart.render",
+        "bench.disk.remove"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "e9688f6c683a543263ee94979861211edcb184cdc4af489f393b8bddf80f0f7b",
+      "reconstructedInputHash": "e9688f6c683a543263ee94979861211edcb184cdc4af489f393b8bddf80f0f7b",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-07",
+          "phase": "LANGUAGE",
+          "objective": "对已有隔离测试项目执行已批准的单元测试,不允许改写业务代码。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "bench.tests.run",
+            "source": "BUILTIN",
+            "name": "运行隔离测试",
+            "description": "执行已批准的隔离项目单元测试",
+            "capability": "EXECUTE_COMMAND",
+            "riskLevel": "HIGH",
+            "sideEffect": "PROCESS_EXECUTION",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "commandId",
+                  "type": "string"
+                }
+              ],
+              "required": ["commandId"]
+            }
+          },
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "file.writeText",
+            "source": "BUILTIN",
+            "name": "写入文本",
+            "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                },
+                {
+                  "name": "content",
+                  "type": "string"
+                }
+              ],
+              "required": ["path", "content"]
+            }
+          },
+          {
+            "id": "bench.docs.search",
+            "source": "BUILTIN",
+            "name": "搜索文档",
+            "description": "在限定文档快照中查找相关段落",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "query",
+                  "type": "string"
+                }
+              ],
+              "required": ["query"]
+            }
+          },
+          {
+            "id": "bench.chart.render",
+            "source": "BUILTIN",
+            "name": "绘图输出",
+            "description": "根据已验证数据生成可视化图表文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile", "outputFile"]
+            }
+          },
+          {
+            "id": "bench.disk.remove",
+            "source": "BUILTIN",
+            "name": "删除文件",
+            "description": "删除 Workspace 中的文件,存在不可逆风险",
+            "capability": "FILE_WRITE",
+            "riskLevel": "HIGH",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "bench.tests.run": "c417aecc472b3e552f42a8fe24e9719dcb2357c09048af91b19e4a27f28745e4",
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "file.writeText": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1",
+        "bench.docs.search": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b",
+        "bench.chart.render": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742",
+        "bench.disk.remove": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "239cba0eaca44e2958d598576107bf994f84f22b50c8999a9b3b7fb628b5cfef",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-08",
+      "status": "PASS",
+      "live": true,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "bench.stats.anomaly",
+        "bench.chart.render",
+        "bench.csv.aggregate",
+        "bench.csv.validate",
+        "file.readText",
+        "bench.docs.cite"
+      ],
+      "descriptorMap": [
+        {
+          "id": "bench.stats.anomaly",
+          "source": "BUILTIN",
+          "name": "异常检测",
+          "description": "读取已清洗数据并标记异常值",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "a49e09dde7ab5d5590050093696318ca15623ad44c0944fadcd96948d6490748"
+        },
+        {
+          "id": "bench.chart.render",
+          "source": "BUILTIN",
+          "name": "绘图输出",
+          "description": "根据已验证数据生成可视化图表文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742"
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "source": "BUILTIN",
+          "name": "统计汇总",
+          "description": "只读方式计算按月汇总数据",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file", "groupBy"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "groupBy": {
+                "type": "string"
+              }
+            },
+            "required": ["file", "groupBy"],
+            "additionalProperties": false
+          },
+          "fingerprint": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458"
+        },
+        {
+          "id": "bench.csv.validate",
+          "source": "BUILTIN",
+          "name": "表格校验",
+          "description": "仅检查 CSV 列、类型和缺失数据，不改写原文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              }
+            },
+            "required": ["file"],
+            "additionalProperties": false
+          },
+          "fingerprint": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410"
+        },
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "bench.docs.cite",
+          "source": "BUILTIN",
+          "name": "引用核对",
+          "description": "检查报告的断言是否附有证据引用",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["claimId", "sourceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string"
+              }
+            },
+            "required": ["claimId", "sourceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58"
+        }
+      ],
+      "descriptorListHash": "b7668e915ed2e1efbafcab79af34d71a48ad7d929cbd1b81aa3e32af78d1f443",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "bench.stats.anomaly",
+        "bench.chart.render",
+        "bench.csv.aggregate",
+        "bench.csv.validate",
+        "file.readText",
+        "bench.docs.cite"
+      ],
+      "eligibleIds": [
+        "bench.stats.anomaly",
+        "bench.chart.render",
+        "bench.csv.aggregate",
+        "bench.csv.validate",
+        "file.readText",
+        "bench.docs.cite"
+      ],
+      "candidateIds": [
+        "bench.stats.anomaly",
+        "bench.chart.render",
+        "bench.csv.aggregate",
+        "bench.csv.validate",
+        "file.readText",
+        "bench.docs.cite"
+      ],
+      "offeredIds": [
+        "bench.stats.anomaly",
+        "bench.chart.render",
+        "bench.csv.aggregate",
+        "bench.csv.validate",
+        "file.readText",
+        "bench.docs.cite"
+      ],
+      "nativeOfferedCount": 6,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "04d87650d5f5f86f33a7c4cb20997de749c0c740e9c47d2b769d05e37fe984a0",
+      "reconstructedInputHash": "04d87650d5f5f86f33a7c4cb20997de749c0c740e9c47d2b769d05e37fe984a0",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-08",
+          "phase": "LANGUAGE",
+          "objective": "从已清洗的数据中找出异常订单并画一张离群值可视化图表。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "bench.stats.anomaly",
+            "source": "BUILTIN",
+            "name": "异常检测",
+            "description": "读取已清洗数据并标记异常值",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile"]
+            }
+          },
+          {
+            "id": "bench.chart.render",
+            "source": "BUILTIN",
+            "name": "绘图输出",
+            "description": "根据已验证数据生成可视化图表文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile", "outputFile"]
+            }
+          },
+          {
+            "id": "bench.csv.aggregate",
+            "source": "BUILTIN",
+            "name": "统计汇总",
+            "description": "只读方式计算按月汇总数据",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                },
+                {
+                  "name": "groupBy",
+                  "type": "string"
+                }
+              ],
+              "required": ["file", "groupBy"]
+            }
+          },
+          {
+            "id": "bench.csv.validate",
+            "source": "BUILTIN",
+            "name": "表格校验",
+            "description": "仅检查 CSV 列、类型和缺失数据,不改写原文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                }
+              ],
+              "required": ["file"]
+            }
+          },
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "bench.docs.cite",
+            "source": "BUILTIN",
+            "name": "引用核对",
+            "description": "检查报告的断言是否附有证据引用",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "claimId",
+                  "type": "string"
+                },
+                {
+                  "name": "sourceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["claimId", "sourceId"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "bench.stats.anomaly": "a49e09dde7ab5d5590050093696318ca15623ad44c0944fadcd96948d6490748",
+        "bench.chart.render": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742",
+        "bench.csv.aggregate": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458",
+        "bench.csv.validate": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410",
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "bench.docs.cite": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "54d0a4a758d5b04c2e52b44de095a805e5c38962f4255ff819f086dfcc726650",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    },
+    {
+      "caseId": "TO-09",
+      "status": "PASS",
+      "live": false,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "file.list",
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "bench.chart.render",
+        "bench.tests.run",
+        "bench.docs.search",
+        "bench.docs.cite",
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.api.check",
+        "bench.release.notes"
+      ],
+      "descriptorMap": [
+        {
+          "id": "file.list",
+          "source": "BUILTIN",
+          "name": "列目录",
+          "description": "列出当前 Workspace 允许访问目录中的条目",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7"
+        },
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "bench.csv.validate",
+          "source": "BUILTIN",
+          "name": "表格校验",
+          "description": "仅检查 CSV 列、类型和缺失数据，不改写原文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              }
+            },
+            "required": ["file"],
+            "additionalProperties": false
+          },
+          "fingerprint": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410"
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "source": "BUILTIN",
+          "name": "统计汇总",
+          "description": "只读方式计算按月汇总数据",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["file", "groupBy"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "groupBy": {
+                "type": "string"
+              }
+            },
+            "required": ["file", "groupBy"],
+            "additionalProperties": false
+          },
+          "fingerprint": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458"
+        },
+        {
+          "id": "bench.chart.render",
+          "source": "BUILTIN",
+          "name": "绘图输出",
+          "description": "根据已验证数据生成可视化图表文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742"
+        },
+        {
+          "id": "bench.tests.run",
+          "source": "BUILTIN",
+          "name": "运行隔离测试",
+          "description": "执行已批准的隔离项目单元测试",
+          "capability": "EXECUTE_COMMAND",
+          "riskLevel": "HIGH",
+          "sideEffect": "PROCESS_EXECUTION",
+          "workflowPurposes": [],
+          "propertyOrder": ["commandId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "commandId": {
+                "type": "string"
+              }
+            },
+            "required": ["commandId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "c417aecc472b3e552f42a8fe24e9719dcb2357c09048af91b19e4a27f28745e4"
+        },
+        {
+          "id": "bench.docs.search",
+          "source": "BUILTIN",
+          "name": "搜索文档",
+          "description": "在限定文档快照中查找相关段落",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["query"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          },
+          "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+        },
+        {
+          "id": "bench.docs.cite",
+          "source": "BUILTIN",
+          "name": "引用核对",
+          "description": "检查报告的断言是否附有证据引用",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["claimId", "sourceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string"
+              }
+            },
+            "required": ["claimId", "sourceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58"
+        },
+        {
+          "id": "bench.log.inspect",
+          "source": "BUILTIN",
+          "name": "日志检索",
+          "description": "检索指定任务的脱敏执行日志",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["traceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "traceId": {
+                "type": "string"
+              }
+            },
+            "required": ["traceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+        },
+        {
+          "id": "bench.secrets.redact",
+          "source": "BUILTIN",
+          "name": "证据脱敏",
+          "description": "在隔离副本中清除可能泄露的凭据字段",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "576198379909b73765d0fbdc6029ee7b4021a07692cf934a48ceb064f2438a94"
+        },
+        {
+          "id": "bench.api.check",
+          "source": "BUILTIN",
+          "name": "接口结构校验",
+          "description": "离线核对 API 请求与错误 Schema",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["specFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "specFile": {
+                "type": "string"
+              }
+            },
+            "required": ["specFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "e760cd8a6cec9ced86644d95efc9f9296c8b42a766eeebd21ffe5e294224ed50"
+        },
+        {
+          "id": "bench.release.notes",
+          "source": "BUILTIN",
+          "name": "发布记录生成",
+          "description": "写出已验证变更的发布说明",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["releaseId", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "releaseId": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["releaseId", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "80ab11ab9ab3aa8c497f92400d0acb98508b98c7ad66882ec179a508a63092ca"
+        }
+      ],
+      "descriptorListHash": "274b29555f16bffee70fb39ce98683e4f9b585137ec95b020623370b6cd84e1a",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "file.list",
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "bench.chart.render",
+        "bench.tests.run",
+        "bench.docs.search",
+        "bench.docs.cite",
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.api.check",
+        "bench.release.notes"
+      ],
+      "eligibleIds": [
+        "file.list",
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "bench.chart.render",
+        "bench.tests.run",
+        "bench.docs.search",
+        "bench.docs.cite",
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.api.check",
+        "bench.release.notes"
+      ],
+      "candidateIds": [
+        "file.list",
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "bench.chart.render",
+        "bench.tests.run",
+        "bench.docs.search",
+        "bench.docs.cite",
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.api.check",
+        "bench.release.notes"
+      ],
+      "offeredIds": [
+        "file.list",
+        "file.readText",
+        "bench.csv.validate",
+        "bench.csv.aggregate",
+        "bench.chart.render",
+        "bench.tests.run",
+        "bench.docs.search",
+        "bench.docs.cite",
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.api.check",
+        "bench.release.notes"
+      ],
+      "nativeOfferedCount": 12,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "0c354db202423b1f70ba03492fbd49e6a9f432a3baf66a7ae12ec93753031adc",
+      "reconstructedInputHash": "0c354db202423b1f70ba03492fbd49e6a9f432a3baf66a7ae12ec93753031adc",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-09",
+          "phase": "LANGUAGE",
+          "objective": "为本轮审计读取日志、检查 API Schema、确认引用并导出发布记录。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "file.list",
+            "source": "BUILTIN",
+            "name": "列目录",
+            "description": "列出当前 Workspace 允许访问目录中的条目",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "bench.csv.validate",
+            "source": "BUILTIN",
+            "name": "表格校验",
+            "description": "仅检查 CSV 列、类型和缺失数据,不改写原文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                }
+              ],
+              "required": ["file"]
+            }
+          },
+          {
+            "id": "bench.csv.aggregate",
+            "source": "BUILTIN",
+            "name": "统计汇总",
+            "description": "只读方式计算按月汇总数据",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "file",
+                  "type": "string"
+                },
+                {
+                  "name": "groupBy",
+                  "type": "string"
+                }
+              ],
+              "required": ["file", "groupBy"]
+            }
+          },
+          {
+            "id": "bench.chart.render",
+            "source": "BUILTIN",
+            "name": "绘图输出",
+            "description": "根据已验证数据生成可视化图表文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile", "outputFile"]
+            }
+          },
+          {
+            "id": "bench.tests.run",
+            "source": "BUILTIN",
+            "name": "运行隔离测试",
+            "description": "执行已批准的隔离项目单元测试",
+            "capability": "EXECUTE_COMMAND",
+            "riskLevel": "HIGH",
+            "sideEffect": "PROCESS_EXECUTION",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "commandId",
+                  "type": "string"
+                }
+              ],
+              "required": ["commandId"]
+            }
+          },
+          {
+            "id": "bench.docs.search",
+            "source": "BUILTIN",
+            "name": "搜索文档",
+            "description": "在限定文档快照中查找相关段落",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "query",
+                  "type": "string"
+                }
+              ],
+              "required": ["query"]
+            }
+          },
+          {
+            "id": "bench.docs.cite",
+            "source": "BUILTIN",
+            "name": "引用核对",
+            "description": "检查报告的断言是否附有证据引用",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "claimId",
+                  "type": "string"
+                },
+                {
+                  "name": "sourceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["claimId", "sourceId"]
+            }
+          },
+          {
+            "id": "bench.log.inspect",
+            "source": "BUILTIN",
+            "name": "日志检索",
+            "description": "检索指定任务的脱敏执行日志",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "traceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["traceId"]
+            }
+          },
+          {
+            "id": "bench.secrets.redact",
+            "source": "BUILTIN",
+            "name": "证据脱敏",
+            "description": "在隔离副本中清除可能泄露的凭据字段",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile", "outputFile"]
+            }
+          },
+          {
+            "id": "bench.api.check",
+            "source": "BUILTIN",
+            "name": "接口结构校验",
+            "description": "离线核对 API 请求与错误 Schema",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "specFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["specFile"]
+            }
+          },
+          {
+            "id": "bench.release.notes",
+            "source": "BUILTIN",
+            "name": "发布记录生成",
+            "description": "写出已验证变更的发布说明",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "releaseId",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["releaseId", "outputFile"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "file.list": "40c90660d7a2ef19c4439f8e2df0d5d51af095990b5a66b35b8914c44878dbf7",
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "bench.csv.validate": "702768219c52c0453d552405d92378076a87d2b448372d0a11f71d4b1b382410",
+        "bench.csv.aggregate": "43b35db24b5a95b45c1883c3791a3cf7f8fb85325a2b568adcfaeda62f9e3458",
+        "bench.chart.render": "91fbb8531638a7e533709ba7ab2197f8ee8800392715da242045542de9719742",
+        "bench.tests.run": "c417aecc472b3e552f42a8fe24e9719dcb2357c09048af91b19e4a27f28745e4",
+        "bench.docs.search": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b",
+        "bench.docs.cite": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58",
+        "bench.log.inspect": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1",
+        "bench.secrets.redact": "576198379909b73765d0fbdc6029ee7b4021a07692cf934a48ceb064f2438a94",
+        "bench.api.check": "e760cd8a6cec9ced86644d95efc9f9296c8b42a766eeebd21ffe5e294224ed50",
+        "bench.release.notes": "80ab11ab9ab3aa8c497f92400d0acb98508b98c7ad66882ec179a508a63092ca"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "87be425a7166ad31af250d3b1dab75fe016f0c8f34821fb746dfd070440fc53e",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": {
+        "nativeOffered": 12,
+        "jevMaxSelected": 8,
+        "live": false
+      }
+    },
+    {
+      "caseId": "TO-10",
+      "status": "PASS",
+      "live": true,
+      "syntheticFixtureCatalog": true,
+      "registrySourceSemantics": "BUILTIN enum value for isolated synthetic descriptors; not product built-ins",
+      "catalogOrderIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.docs.cite",
+        "bench.docs.search",
+        "file.readText",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "descriptorMap": [
+        {
+          "id": "bench.log.inspect",
+          "source": "BUILTIN",
+          "name": "日志检索",
+          "description": "检索指定任务的脱敏执行日志",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["traceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "traceId": {
+                "type": "string"
+              }
+            },
+            "required": ["traceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1"
+        },
+        {
+          "id": "bench.secrets.redact",
+          "source": "BUILTIN",
+          "name": "证据脱敏",
+          "description": "在隔离副本中清除可能泄露的凭据字段",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["inputFile", "outputFile"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "inputFile": {
+                "type": "string"
+              },
+              "outputFile": {
+                "type": "string"
+              }
+            },
+            "required": ["inputFile", "outputFile"],
+            "additionalProperties": false
+          },
+          "fingerprint": "576198379909b73765d0fbdc6029ee7b4021a07692cf934a48ceb064f2438a94"
+        },
+        {
+          "id": "bench.docs.cite",
+          "source": "BUILTIN",
+          "name": "引用核对",
+          "description": "检查报告的断言是否附有证据引用",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["claimId", "sourceId"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string"
+              }
+            },
+            "required": ["claimId", "sourceId"],
+            "additionalProperties": false
+          },
+          "fingerprint": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58"
+        },
+        {
+          "id": "bench.docs.search",
+          "source": "BUILTIN",
+          "name": "搜索文档",
+          "description": "在限定文档快照中查找相关段落",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["query"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          },
+          "fingerprint": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b"
+        },
+        {
+          "id": "file.readText",
+          "source": "BUILTIN",
+          "name": "读取文本",
+          "description": "安全读取受限文本文件",
+          "capability": "FILE_READ",
+          "riskLevel": "READ_ONLY",
+          "sideEffect": "NONE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5"
+        },
+        {
+          "id": "file.writeText",
+          "source": "BUILTIN",
+          "name": "写入文本",
+          "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+          "capability": "FILE_WRITE",
+          "riskLevel": "MEDIUM",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path", "content"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": ["path", "content"],
+            "additionalProperties": false
+          },
+          "fingerprint": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1"
+        },
+        {
+          "id": "bench.disk.remove",
+          "source": "BUILTIN",
+          "name": "删除文件",
+          "description": "删除 Workspace 中的文件，存在不可逆风险",
+          "capability": "FILE_WRITE",
+          "riskLevel": "HIGH",
+          "sideEffect": "LOCAL_WRITE",
+          "workflowPurposes": [],
+          "propertyOrder": ["path"],
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"],
+            "additionalProperties": false
+          },
+          "fingerprint": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+        }
+      ],
+      "descriptorListHash": "e72f58893f710ec2ca39fa41bfb958e668a1ed2164e86277a60060657f1d63e0",
+      "mappingHash": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+      "toolCatalogHash": "38e29196ca91426cbc2e224b8f5ffadb1e9b79d07eed1a92d33eb9813061bf88",
+      "registryOrderIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.docs.cite",
+        "bench.docs.search",
+        "file.readText",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "eligibleIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.docs.cite",
+        "bench.docs.search",
+        "file.readText",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "candidateIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.docs.cite",
+        "bench.docs.search",
+        "file.readText",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "offeredIds": [
+        "bench.log.inspect",
+        "bench.secrets.redact",
+        "bench.docs.cite",
+        "bench.docs.search",
+        "file.readText",
+        "file.writeText",
+        "bench.disk.remove"
+      ],
+      "nativeOfferedCount": 7,
+      "maxSelected": 8,
+      "noCandidateDropped": true,
+      "fullInputHash": "605c4db416c7b13fc0463d8e8766d58731fe44c91e57072ce79770fa419c51cd",
+      "reconstructedInputHash": "605c4db416c7b13fc0463d8e8766d58731fe44c91e57072ce79770fa419c51cd",
+      "inputHashMatches": true,
+      "textProjection": {
+        "context": {
+          "actorId": "e1-tool-owner-to-10",
+          "phase": "LANGUAGE",
+          "objective": "需要对外输出事故报告:先检索日志、删除其中敏感字段,并检查说明中的来源。",
+          "workflow": null
+        },
+        "candidates": [
+          {
+            "id": "bench.log.inspect",
+            "source": "BUILTIN",
+            "name": "日志检索",
+            "description": "检索指定任务的脱敏执行日志",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "traceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["traceId"]
+            }
+          },
+          {
+            "id": "bench.secrets.redact",
+            "source": "BUILTIN",
+            "name": "证据脱敏",
+            "description": "在隔离副本中清除可能泄露的凭据字段",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "inputFile",
+                  "type": "string"
+                },
+                {
+                  "name": "outputFile",
+                  "type": "string"
+                }
+              ],
+              "required": ["inputFile", "outputFile"]
+            }
+          },
+          {
+            "id": "bench.docs.cite",
+            "source": "BUILTIN",
+            "name": "引用核对",
+            "description": "检查报告的断言是否附有证据引用",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "claimId",
+                  "type": "string"
+                },
+                {
+                  "name": "sourceId",
+                  "type": "string"
+                }
+              ],
+              "required": ["claimId", "sourceId"]
+            }
+          },
+          {
+            "id": "bench.docs.search",
+            "source": "BUILTIN",
+            "name": "搜索文档",
+            "description": "在限定文档快照中查找相关段落",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "query",
+                  "type": "string"
+                }
+              ],
+              "required": ["query"]
+            }
+          },
+          {
+            "id": "file.readText",
+            "source": "BUILTIN",
+            "name": "读取文本",
+            "description": "安全读取受限文本文件",
+            "capability": "FILE_READ",
+            "riskLevel": "READ_ONLY",
+            "sideEffect": "NONE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          },
+          {
+            "id": "file.writeText",
+            "source": "BUILTIN",
+            "name": "写入文本",
+            "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+            "capability": "FILE_WRITE",
+            "riskLevel": "MEDIUM",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                },
+                {
+                  "name": "content",
+                  "type": "string"
+                }
+              ],
+              "required": ["path", "content"]
+            }
+          },
+          {
+            "id": "bench.disk.remove",
+            "source": "BUILTIN",
+            "name": "删除文件",
+            "description": "删除 Workspace 中的文件,存在不可逆风险",
+            "capability": "FILE_WRITE",
+            "riskLevel": "HIGH",
+            "sideEffect": "LOCAL_WRITE",
+            "workflowPurposes": [],
+            "inputShape": {
+              "properties": [
+                {
+                  "name": "path",
+                  "type": "string"
+                }
+              ],
+              "required": ["path"]
+            }
+          }
+        ]
+      },
+      "descriptorFingerprints": {
+        "bench.log.inspect": "d0363e3a07d543157e7cee412608fc006803e3419245ac3344e654f68c7e46c1",
+        "bench.secrets.redact": "576198379909b73765d0fbdc6029ee7b4021a07692cf934a48ceb064f2438a94",
+        "bench.docs.cite": "b901a8a706121be1a52d27f0d9bc41507acbe7450f8966ecdc1e03c8c6fedf58",
+        "bench.docs.search": "1fb7ae8ef3fedaae55b8a16057b7a183a5b4ab9e1a4fa888f7b368e8357a064b",
+        "file.readText": "4bf358adb7b38a7afc5bdcf68ae9140d5975349a78b98ac7f63c362faa7388b5",
+        "file.writeText": "8a7b4a9c90b768f792ca9f224ebe774d1d174617fe819628803144457969dad1",
+        "bench.disk.remove": "34fca20c4b6e2d6d34dd290033e18dba1f81c1890b831c745c35c62b2e9ee081"
+      },
+      "mode": "DETERMINISTIC_FALLBACK",
+      "reason": "GATEWAY_UNAVAILABLE",
+      "errorCode": "PROVIDER_UNAVAILABLE",
+      "policyVersion": "r5-4-tool-shortlist-policy-v1",
+      "receiptHash": "879d512aec2f3bba6c6049fe23ed37d446a45aba0dc9ba9f3ac57969dc19b9ca",
+      "resourceCalls": 0,
+      "executeCalls": 0,
+      "gatewayFactoryReturnedNull": true,
+      "gatewayCalls": 0,
+      "goldSentToSelector": false,
+      "to09CapacityContract": null
+    }
+  ]
+}

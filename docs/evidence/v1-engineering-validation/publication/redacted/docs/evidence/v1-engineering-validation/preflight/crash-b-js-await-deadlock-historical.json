@@ -1,0 +1,721 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-await-deadlock-historical.json",
+    "originalSha256": "35675ecb72ad072a944cecee6c5761564d4213c35fa8466062a50e9b405b05fd",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH",
+      "LOCAL_TOOL_PATH",
+      "LOCAL_SYSTEM_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "schemaVersion": 1,
+  "scenario": "CR_B_P5",
+  "startedAt": "2026-10-15T16:05:04.787Z",
+  "status": "BLOCKED_OR_ERROR",
+  "executablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+  "profile": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\profile",
+  "workspace": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\workspace",
+  "databasePath": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\profile\\UserData\\data\\cultivation.sqlite",
+  "evidence": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\evidence\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac",
+  "fixture": "offline --gate1-fake-model --r4-fake-routing --w22-fake-software",
+  "fixtureLanguage": "JavaScript (main.js + verify.mjs; not TypeScript)",
+  "testOnlySeams": [
+    "Playwright ElectronApplication.evaluate installs only a dialog.showOpenDialog stub returning this isolated E-drive workspace; subsequent chooser click and workflow launch use the visible renderer UI and exposed preload IPC."
+  ],
+  "restrictions": {
+    "realProvider": false,
+    "providerKeysPassed": false,
+    "workflowBusinessStateMutatedViaMainEvaluation": false,
+    "privateDatabaseWrites": false,
+    "forcedTermination": false,
+    "productionFilesModified": false
+  },
+  "breakpoints": [
+    {
+      "label": "P5 builtin file.writeText execute entry",
+      "requested": {
+        "index": 2557482,
+        "lineNumber": 9848,
+        "columnNumber": 13599
+      },
+      "condition": null,
+      "rawSetBreakpointResponse": {
+        "breakpointId": "4:9848:13599:134",
+        "actualLocation": {
+          "scriptId": "134",
+          "lineNumber": 9848,
+          "columnNumber": 13635
+        }
+      },
+      "actualLocations": [
+        {
+          "scriptId": "134",
+          "lineNumber": 9848,
+          "columnNumber": 13635
+        }
+      ],
+      "breakpointId": "4:9848:13599:134",
+      "possibleBreakpoints": []
+    },
+    {
+      "label": "P5 builtin file.writeText after awaited workspace.writeText before return",
+      "requested": {
+        "index": 2557518,
+        "lineNumber": 9848,
+        "columnNumber": 13635
+      },
+      "condition": null,
+      "rawSetBreakpointResponse": {
+        "breakpointId": "4:9848:13635:134",
+        "actualLocation": {
+          "scriptId": "134",
+          "lineNumber": 9848,
+          "columnNumber": 13635
+        }
+      },
+      "actualLocations": [
+        {
+          "scriptId": "134",
+          "lineNumber": 9848,
+          "columnNumber": 13635
+        }
+      ],
+      "breakpointId": "4:9848:13635:134",
+      "possibleBreakpoints": [
+        {
+          "scriptId": "134",
+          "lineNumber": 9848,
+          "columnNumber": 13635
+        }
+      ]
+    }
+  ],
+  "hits": [
+    {
+      "label": "P5-entry",
+      "at": "2026-10-15T16:11:24.578Z",
+      "reason": "other",
+      "hitBreakpoints": [
+        "4:9848:13599:134",
+        "4:9848:13635:134"
+      ],
+      "rawPaused": {
+        "callFrames": [
+          {
+            "callFrameId": "-5551348575349078451.1.0",
+            "functionName": "execute",
+            "functionLocation": {
+              "scriptId": "134",
+              "lineNumber": 9848,
+              "columnNumber": 13589
+            },
+            "location": {
+              "scriptId": "134",
+              "lineNumber": 9848,
+              "columnNumber": 13635
+            },
+            "url": "",
+            "scopeChain": [
+              {
+                "type": "local",
+                "object": {
+                  "type": "object",
+                  "className": "Object",
+                  "description": "Object",
+                  "objectId": "-5551348575349078451.1.1"
+                },
+                "name": "execute",
+                "startLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9848,
+                  "columnNumber": 13589
+                },
+                "endLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9848,
+                  "columnNumber": 13661
+                }
+              },
+              {
+                "type": "closure",
+                "object": {
+                  "type": "object",
+                  "className": "Object",
+                  "description": "Object",
+                  "objectId": "-5551348575349078451.1.2"
+                },
+                "name": "a1",
+                "startLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9848,
+                  "columnNumber": 12077
+                },
+                "endLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9848,
+                  "columnNumber": 14140
+                }
+              },
+              {
+                "type": "closure",
+                "object": {
+                  "type": "object",
+                  "className": "Object",
+                  "description": "Object",
+                  "objectId": "-5551348575349078451.1.3"
+                },
+                "startLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 0,
+                  "columnNumber": 0
+                },
+                "endLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 10100,
+                  "columnNumber": 0
+                }
+              },
+              {
+                "type": "global",
+                "object": {
+                  "type": "object",
+                  "className": "global",
+                  "description": "global",
+                  "objectId": "-5551348575349078451.1.4"
+                }
+              }
+            ],
+            "this": {
+              "type": "object",
+              "className": "Object",
+              "description": "Object",
+              "objectId": "-5551348575349078451.1.5"
+            },
+            "canBeRestarted": false
+          },
+          {
+            "callFrameId": "-5551348575349078451.1.1",
+            "functionName": "dispatchChecked",
+            "functionLocation": {
+              "scriptId": "134",
+              "lineNumber": 9726,
+              "columnNumber": 166804
+            },
+            "location": {
+              "scriptId": "134",
+              "lineNumber": 9726,
+              "columnNumber": 169637
+            },
+            "url": "",
+            "scopeChain": [
+              {
+                "type": "block",
+                "object": {
+                  "type": "object",
+                  "className": "Object",
+                  "description": "Object",
+                  "objectId": "-5551348575349078451.1.6"
+                },
+                "name": "dispatchChecked",
+                "startLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9726,
+                  "columnNumber": 168496
+                },
+                "endLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9726,
+                  "columnNumber": 169959
+                }
+              },
+              {
+                "type": "local",
+                "object": {
+                  "type": "object",
+                  "className": "Object",
+                  "description": "Object",
+                  "objectId": "-5551348575349078451.1.7"
+                },
+                "name": "dispatchChecked",
+                "startLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9726,
+                  "columnNumber": 166804
+                },
+                "endLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 9726,
+                  "columnNumber": 170106
+                }
+              },
+              {
+                "type": "closure",
+                "object": {
+                  "type": "object",
+                  "className": "Object",
+                  "description": "Object",
+                  "objectId": "-5551348575349078451.1.8"
+                },
+                "startLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 0,
+                  "columnNumber": 0
+                },
+                "endLocation": {
+                  "scriptId": "134",
+                  "lineNumber": 10100,
+                  "columnNumber": 0
+                }
+              },
+              {
+                "type": "global",
+                "object": {
+                  "type": "object",
+                  "className": "global",
+                  "description": "global",
+                  "objectId": "-5551348575349078451.1.9"
+                }
+              }
+            ],
+            "this": {
+              "type": "object",
+              "className": "_Ie",
+              "description": "_Ie",
+              "objectId": "-5551348575349078451.1.10"
+            },
+            "canBeRestarted": false
+          }
+        ],
+        "reason": "other",
+        "hitBreakpoints": [
+          "4:9848:13599:134",
+          "4:9848:13635:134"
+        ]
+      },
+      "callFrame": {
+        "error": "Can only perform operation while paused.",
+        "functionName": "execute",
+        "location": {
+          "scriptId": "134",
+          "lineNumber": 9848,
+          "columnNumber": 13635
+        }
+      }
+    }
+  ],
+  "observations": [
+    {
+      "at": "2026-10-15T16:05:10.132Z",
+      "text": "healthy packaged window opened; PID=21988"
+    },
+    {
+      "at": "2026-10-15T16:05:10.582Z",
+      "text": "Controller fixture correction: benchmarks target teammate.currentRuntimeProfileId (sealed clone) rather than the source runtime template; prior S01 NO_CAPABLE_EXECUTOR was a controller fixture defect, not evidence of a production R4 defect."
+    },
+    {
+      "at": "2026-10-15T16:05:10.582Z",
+      "text": "Controller fixture correction: workspace now includes required package.json (type=module, test=node verify.mjs); prior run’s S01 mission exhausted tool calls after file.readText failures because the required input file was absent."
+    },
+    {
+      "at": "2026-10-15T16:05:10.588Z",
+      "text": "installed test-only Electron dialog.showOpenDialog stub for the isolated workspace; workflow actions remain through visible UI and preload IPC"
+    },
+    {
+      "at": "2026-10-15T16:05:10.651Z",
+      "text": "official.software-feature@1 created; runId=5cff1c2f-00d5-4b11-8fbd-6de4c9e83e3b"
+    },
+    {
+      "at": "2026-10-15T16:11:29.497Z",
+      "text": "controller stopped: Can only perform operation while paused."
+    },
+    {
+      "at": "2026-10-15T16:11:30.476Z",
+      "text": "final status=BLOCKED_OR_ERROR; evidence=[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\evidence\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\breakpoint-execution.json"
+    }
+  ],
+  "app": {
+    "launcherPid": 21988,
+    "spawnfile": "[WINDOWS_ROOT]\\system32\\cmd.exe",
+    "spawnargs": [
+      "[WINDOWS_ROOT]\\system32\\cmd.exe",
+      "/d",
+      "/s",
+      "/c",
+      "\"\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" \"--inspect=0\" \"--remote-debugging-port=0\" \"--gate1-fake-model\" \"--r4-fake-routing\" \"--w22-fake-software\" \"--inspect=127.0.0.1:52926\" \"--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\profile\\Chromium\"\""
+    ],
+    "configuredExe": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+    "inspectorPort": 52926,
+    "observedAt": "2026-10-15T16:05:05.963Z",
+    "processTree": [
+      {
+        "ProcessId": 21988,
+        "ParentProcessId": 30136,
+        "Name": "cmd.exe",
+        "ExecutablePath": "[WINDOWS_ROOT]\\system32\\cmd.exe",
+        "CreationDate": "2026-10-16T00:05:04.814661+08:00"
+      },
+      {
+        "ProcessId": 20900,
+        "ParentProcessId": 21988,
+        "Name": "AI-Agent-Cultivation.exe",
+        "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "CreationDate": "2026-10-16T00:05:04.877042+08:00"
+      },
+      {
+        "ProcessId": 6416,
+        "ParentProcessId": 20900,
+        "Name": "rundll32.exe",
+        "ExecutablePath": null,
+        "CreationDate": "2026-10-15T22:18:11.722721+08:00"
+      },
+      {
+        "ProcessId": 30696,
+        "ParentProcessId": 20900,
+        "Name": "AI-Agent-Cultivation.exe",
+        "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "CreationDate": "2026-10-16T00:05:05.252078+08:00"
+      },
+      {
+        "ProcessId": 30240,
+        "ParentProcessId": 20900,
+        "Name": "AI-Agent-Cultivation.exe",
+        "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "CreationDate": "2026-10-16T00:05:05.262748+08:00"
+      },
+      {
+        "ProcessId": 25036,
+        "ParentProcessId": 20900,
+        "Name": "AI-Agent-Cultivation.exe",
+        "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "CreationDate": "2026-10-16T00:05:05.818986+08:00"
+      },
+      {
+        "ProcessId": 20436,
+        "ParentProcessId": 6416,
+        "Name": "rundll32.exe",
+        "ExecutablePath": null,
+        "CreationDate": "2026-10-15T22:14:50.851504+08:00"
+      }
+    ],
+    "mainPid": 20900,
+    "mainExecPath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+    "runtimeFixtureArgs": [
+      "--gate1-fake-model",
+      "--r4-fake-routing",
+      "--w22-fake-software"
+    ]
+  },
+  "homepage": {
+    "title": "AI Agent Cultivation",
+    "url": "file:///[REPOSITORY_ROOT]/out/AI%20Agent%20Cultivation-win32-x64/resources/app.asar/.vite/renderer/main_window/index.html",
+    "screenshot": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\evidence\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\home.png"
+  },
+  "bundle": {
+    "url": "file:///[REPOSITORY_ROOT]/out/AI%20Agent%20Cultivation-win32-x64/resources/app.asar/.vite/build/main-pyN31JHh.js",
+    "scriptId": "134",
+    "sha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71",
+    "length": 3177404,
+    "expectedSha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71",
+    "hashMatchesApproved": true
+  },
+  "staticLocations": {
+    "P4": {
+      "index": 1001489,
+      "lineNumber": 9625,
+      "columnNumber": 7198
+    },
+    "P5entry": {
+      "index": 2557482,
+      "lineNumber": 9848,
+      "columnNumber": 13599
+    },
+    "P5postwrite": {
+      "index": 2557518,
+      "lineNumber": 9848,
+      "columnNumber": 13635
+    }
+  },
+  "runtimeIdentity": {
+    "value": "{\"pid\":20900,\"execPath\":\"[REPOSITORY_ROOT]\\\\out\\\\AI Agent Cultivation-win32-x64\\\\AI-Agent-Cultivation.exe\",\"userData\":\"[REPOSITORY_ROOT]\\\\.tmp\\\\e1-packaged-preflight\\\\isolated\\\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\\\profile\\\\UserData\",\"fixtureArgs\":[\"--gate1-fake-model\",\"--r4-fake-routing\",\"--w22-fake-software\"],\"electronUserData\":null}",
+    "exception": null,
+    "observedAt": "2026-10-15T16:05:10.358Z"
+  },
+  "fixtureFlagsVerified": true,
+  "fixtureSetup": {
+    "actors": [
+      {
+        "id": "6263d57f-753a-490f-a277-5ab24180b83a",
+        "name": "青岚"
+      },
+      {
+        "id": "8efd6bd0-f1b7-49a8-b97f-2ba92f361049",
+        "name": "明衡"
+      }
+    ],
+    "serverId": "0209ab76-e63f-4ec4-9cf8-f3e36ba659f0",
+    "toolId": "0209ab76-e63f-4ec4-9cf8-f3e36ba659f0:verify_repository",
+    "mcpStatus": "READY",
+    "routingConfig": {
+      "cloudEnabled": false,
+      "policyVersion": "r4-controlled-routing-v1"
+    },
+    "r3Config": {
+      "provider": "TYPESAFE",
+      "model": "jev-1.13.0",
+      "mode": "SHADOW",
+      "enabled": false,
+      "configured": false,
+      "keySource": "NONE"
+    },
+    "availability": [
+      {
+        "teammateId": "6263d57f-753a-490f-a277-5ab24180b83a",
+        "observations": [
+          {
+            "teammateId": "6263d57f-753a-490f-a277-5ab24180b83a",
+            "runtimeProfileId": "608fe593-81dc-4f5a-8a17-a9914e45c210",
+            "status": "AVAILABLE",
+            "lastCheckedAt": "2026-10-15T16:05:10.573Z",
+            "lastSuccessAt": "2026-10-15T16:05:10.573Z",
+            "lastFailureAt": null,
+            "recentOutcomes": [
+              {
+                "kind": "SUCCESS",
+                "code": "PROBE_SUCCEEDED",
+                "checkedAt": "2026-10-15T16:05:10.573Z"
+              }
+            ],
+            "policyVersion": "r3-2-availability-v1"
+          }
+        ],
+        "latest": {
+          "teammateId": "6263d57f-753a-490f-a277-5ab24180b83a",
+          "runtimeProfileId": "608fe593-81dc-4f5a-8a17-a9914e45c210",
+          "status": "AVAILABLE",
+          "lastCheckedAt": "2026-10-15T16:05:10.573Z",
+          "lastSuccessAt": "2026-10-15T16:05:10.573Z",
+          "lastFailureAt": null,
+          "recentOutcomes": [
+            {
+              "kind": "SUCCESS",
+              "code": "PROBE_SUCCEEDED",
+              "checkedAt": "2026-10-15T16:05:10.573Z"
+            }
+          ],
+          "policyVersion": "r3-2-availability-v1"
+        }
+      },
+      {
+        "teammateId": "8efd6bd0-f1b7-49a8-b97f-2ba92f361049",
+        "observations": [
+          {
+            "teammateId": "8efd6bd0-f1b7-49a8-b97f-2ba92f361049",
+            "runtimeProfileId": "0f0f3926-95dd-4cbb-b60b-9344b77da50e",
+            "status": "AVAILABLE",
+            "lastCheckedAt": "2026-10-15T16:05:10.580Z",
+            "lastSuccessAt": "2026-10-15T16:05:10.580Z",
+            "lastFailureAt": null,
+            "recentOutcomes": [
+              {
+                "kind": "SUCCESS",
+                "code": "PROBE_SUCCEEDED",
+                "checkedAt": "2026-10-15T16:05:10.580Z"
+              }
+            ],
+            "policyVersion": "r3-2-availability-v1"
+          }
+        ],
+        "latest": {
+          "teammateId": "8efd6bd0-f1b7-49a8-b97f-2ba92f361049",
+          "runtimeProfileId": "0f0f3926-95dd-4cbb-b60b-9344b77da50e",
+          "status": "AVAILABLE",
+          "lastCheckedAt": "2026-10-15T16:05:10.580Z",
+          "lastSuccessAt": "2026-10-15T16:05:10.580Z",
+          "lastFailureAt": null,
+          "recentOutcomes": [
+            {
+              "kind": "SUCCESS",
+              "code": "PROBE_SUCCEEDED",
+              "checkedAt": "2026-10-15T16:05:10.580Z"
+            }
+          ],
+          "policyVersion": "r3-2-availability-v1"
+        }
+      }
+    ],
+    "modelGateway": "--gate1-fake-model probe/model gateway; no real provider/API invocation"
+  },
+  "availabilityBeforeWorkflow": [
+    {
+      "teammateId": "6263d57f-753a-490f-a277-5ab24180b83a",
+      "observations": [
+        {
+          "status": "AVAILABLE",
+          "recentOutcomes": [
+            {
+              "kind": "SUCCESS",
+              "code": "PROBE_SUCCEEDED",
+              "checkedAt": "2026-10-15T16:05:10.573Z"
+            }
+          ],
+          "lastCheckedAt": "2026-10-15T16:05:10.573Z"
+        }
+      ],
+      "latestStatus": "AVAILABLE"
+    },
+    {
+      "teammateId": "8efd6bd0-f1b7-49a8-b97f-2ba92f361049",
+      "observations": [
+        {
+          "status": "AVAILABLE",
+          "recentOutcomes": [
+            {
+              "kind": "SUCCESS",
+              "code": "PROBE_SUCCEEDED",
+              "checkedAt": "2026-10-15T16:05:10.580Z"
+            }
+          ],
+          "lastCheckedAt": "2026-10-15T16:05:10.580Z"
+        }
+      ],
+      "latestStatus": "AVAILABLE"
+    }
+  ],
+  "workspaceSelection": {
+    "rootPath": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\workspace",
+    "method": "exposed preload IPC window.cultivation.tools.chooseWorkspace before workflow form mount",
+    "at": "2026-10-15T16:05:10.595Z"
+  },
+  "workflowCreation": {
+    "runId": "5cff1c2f-00d5-4b11-8fbd-6de4c9e83e3b",
+    "route": "window.cultivation.workflows.create preload IPC",
+    "definitionId": "official.software-feature",
+    "version": 1,
+    "initialState": "READY",
+    "inputs": {
+      "workspaceRoot": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\cr_b_p5-7d4f0979-61bc-4a68-ad95-40b5a1c7a4ac\\workspace",
+      "targetArea": [
+        "main.js"
+      ],
+      "allowedToolScope": [
+        "file.readText",
+        "file.writeText",
+        "0209ab76-e63f-4ec4-9cf8-f3e36ba659f0:verify_repository"
+      ]
+    }
+  },
+  "runId": "5cff1c2f-00d5-4b11-8fbd-6de4c9e83e3b",
+  "advanceDispatchCount": 3,
+  "advanceReturns": 2,
+  "lastAdvanceRunState": "WAITING",
+  "approvals": [
+    {
+      "stepId": "S01",
+      "capability": "FILE_READ",
+      "decision": "ALLOW_MISSION"
+    },
+    {
+      "stepId": "S05",
+      "capability": "FILE_WRITE",
+      "decision": "ALLOW_MISSION"
+    }
+  ],
+  "processTreeAtBreakpoint": [
+    {
+      "ProcessId": 6416,
+      "ParentProcessId": 20900,
+      "Name": "rundll32.exe",
+      "ExecutablePath": null,
+      "CreationDate": "2026-10-15T22:18:11.722721+08:00"
+    },
+    {
+      "ProcessId": 20900,
+      "ParentProcessId": 21988,
+      "Name": "AI-Agent-Cultivation.exe",
+      "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "CreationDate": "2026-10-16T00:05:04.877042+08:00"
+    },
+    {
+      "ProcessId": 30696,
+      "ParentProcessId": 20900,
+      "Name": "AI-Agent-Cultivation.exe",
+      "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "CreationDate": "2026-10-16T00:05:05.252078+08:00"
+    },
+    {
+      "ProcessId": 30240,
+      "ParentProcessId": 20900,
+      "Name": "AI-Agent-Cultivation.exe",
+      "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "CreationDate": "2026-10-16T00:05:05.262748+08:00"
+    },
+    {
+      "ProcessId": 25036,
+      "ParentProcessId": 20900,
+      "Name": "AI-Agent-Cultivation.exe",
+      "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "CreationDate": "2026-10-16T00:05:05.818986+08:00"
+    },
+    {
+      "ProcessId": 22768,
+      "ParentProcessId": 20900,
+      "Name": "node.exe",
+      "ExecutablePath": "[NODE_RUNTIME_ROOT]\\node.exe",
+      "CreationDate": "2026-10-16T00:05:10.416822+08:00"
+    },
+    {
+      "ProcessId": 14912,
+      "ParentProcessId": 20900,
+      "Name": "AI-Agent-Cultivation.exe",
+      "ExecutablePath": null,
+      "CreationDate": "2026-10-16T00:11:24.110806+08:00"
+    },
+    {
+      "ProcessId": 20436,
+      "ParentProcessId": 6416,
+      "Name": "rundll32.exe",
+      "ExecutablePath": null,
+      "CreationDate": "2026-10-15T22:14:50.851504+08:00"
+    },
+    {
+      "ProcessId": 29992,
+      "ParentProcessId": 22768,
+      "Name": "conhost.exe",
+      "ExecutablePath": "[WINDOWS_ROOT]\\system32\\conhost.exe",
+      "CreationDate": "2026-10-16T00:05:10.448486+08:00"
+    }
+  ],
+  "mainProcessIdentityAtBreakpoint": {
+    "ProcessId": 20900,
+    "ParentProcessId": 21988,
+    "Name": "AI-Agent-Cultivation.exe",
+    "ExecutablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+    "CreationDate": "2026-10-16T00:05:04.877042+08:00"
+  },
+  "P5entry": {
+    "filePath": null,
+    "fileBefore": null,
+    "entryHitCount": 1
+  },
+  "error": {
+    "name": "Error",
+    "message": "Can only perform operation while paused.",
+    "stack": "Error: Can only perform operation while paused.\n    at WebSocket.<anonymous> (file:///[REPOSITORY_ROOT]/.tmp/e1-packaged-preflight/scripts/engineering-validation/packaged-breakpoint-ui-controller.mjs:49:323)\n    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:843:20)\n    at WebSocket.dispatchEvent (node:internal/event_target:776:26)\n    at fireEvent (node:internal/deps/undici/undici:14147:14)\n    at #onMessage (node:internal/deps/undici/undici:15425:9)\n    at Object.onMessage (node:internal/deps/undici/undici:15138:76)\n    at websocketMessageReceived (node:internal/deps/undici/undici:14151:15)\n    at ByteParser.run (node:internal/deps/undici/undici:14840:19)\n    at ByteParser._write (node:internal/deps/undici/undici:14734:14)\n    at writeOrBuffer (node:internal/streams/writable:570:12)"
+  },
+  "resumeBeforeClose": {
+    "error": "Can only perform operation while paused."
+  },
+  "inspectorSocketClosedBeforeAppQuit": true,
+  "normalIpcCloseError": "page.evaluate: Target page, context or browser has been closed",
+  "normalClose": {
+    "requested": true,
+    "pid": 21988,
+    "exitCodeBefore": null,
+    "signalCodeBefore": null,
+    "exitCodeAfter": 0,
+    "signalCodeAfter": null
+  },
+  "finishedAt": "2026-10-15T16:11:30.475Z"
+}

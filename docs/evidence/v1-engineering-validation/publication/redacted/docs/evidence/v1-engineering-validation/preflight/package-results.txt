@@ -1,0 +1,654 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ai-agent-cultivation@0.0.1 package
+> node scripts/electron-forge-runner.mjs package --platform=win32 --arch=x64
+
+[build] Applying scoped Electron Forge 7.11.2 Windows temporary-path glob compatibility.
+> Preparing to package application
+√ Preparing to package application
+> Running packaging hooks
+> Running generateAssets hook
+√ Running generateAssets hook
+> Running prePackage hook
+> [plugin-vite] Building production Vite bundles
+> Building main and preload targets...
+> Building renderer targets...
+> Building apps/desktop/src/main/main.ts target
+> Building apps/desktop/src/preload/preload.ts target
+√ Building apps/desktop/src/preload/preload.ts target
+√ Building apps/desktop/src/main/main.ts target
+√ Building main and preload targets...
+√ Built target main_window
+√ Building renderer targets...
+√ [plugin-vite] Building production Vite bundles
+√ Running prePackage hook
+√ Running packaging hooks
+> Packaging application
+› Determining targets...
+> Packaging for x64 on win32
+> Copying files
+> Preparing native dependencies
+> Finalizing package
+√ Copying files
+› Attempting to build a module with a space in the path
+
+› See https://github.com/nodejs/node-gyp/issues/65#issuecomment-368820565 for reasons why this may not work
+
+› gyp verb clean removing "build" directory
+gyp verb download using dist-url https://www.electronjs.org/headers
+gyp verb find Python Python is not set from command line or npm configuration
+gyp verb find Python Python is not set from environment variable PYTHON
+gyp verb find Python checking if the py launcher can be used to find Python 3
+gyp verb find Python - executing "py.exe" to get Python 3 executable path
+gyp sill find Python execFile: exec = "py.exe"
+gyp sill find Python execFile: args = ["-3","-c","import sys; sys.stdout.buffer.write(sys.executable.encode('utf-8'));"]
+[DERIVED/REDACTED: full inherited environment dump omitted; build diagnostic lines retained]
+gyp sill find Python execFile result: err = null
+gyp sill find Python execFile result: stdout = "[LOCAL_PATH_ROOT]\\python.exe"
+gyp sill find Python execFile result: stderr = ""
+gyp verb find Python - executable path is "[LOCAL_PATH_ROOT]\python.exe"
+gyp verb find Python - executing "[LOCAL_PATH_ROOT]\python.exe" to get version
+gyp sill find Python execFile: exec = "[LOCAL_PATH_ROOT]\\python.exe"
+gyp sill find Python execFile: args = ["-c","import sys; print(\"%s.%s.%s\" % sys.version_info[:3]);"]
+[DERIVED/REDACTED: full inherited environment dump omitted; build diagnostic lines retained]
+gyp sill find Python execFile result: err = null
+gyp sill find Python execFile result: stdout = "3.9.0\r\n"
+gyp sill find Python execFile result: stderr = ""
+gyp verb find Python - version is "3.9.0"
+gyp info find Python using Python version 3.9.0 found at "[LOCAL_PATH_ROOT]\python.exe"
+gyp verb get node dir compiling against --target node version: 44.4.3
+
+gyp verb download using dist-url https://www.electronjs.org/headers
+gyp verb install input version string "44.4.3"
+gyp verb install installing version: 44.4.3
+gyp verb install --ensure was passed, so won't reinstall if already installed
+gyp verb install version not already installed, continuing with install 44.4.3
+gyp verb ensuring devDir is created [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\e1-runtime\userprofile\.electron-gyp\44.4.3
+gyp verb created devDir \\?\[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\e1-runtime\userprofile\.electron-gyp
+gyp http GET https://www.electronjs.org/headers/v44.4.3/node-v44.4.3-headers.tar.gz
+gyp http 200 https://artifacts.electronjs.org/headers/dist/v44.4.3/node-v44.4.3-headers.tar.gz
+gyp sill ignoring from tarball node_headers/
+gyp sill ignoring from tarball node_headers/include/
+gyp sill ignoring from tarball node_headers/include/node/
+gyp verb extracted file from tarball node_headers/include/node/common.gypi
+gyp verb extracted file from tarball node_headers/include/node/config.gypi
+gyp sill ignoring from tarball node_headers/include/node/cppgc/
+gyp verb extracted file from tarball node_headers/include/node/cppgc/allocation.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/common.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/cross-thread-persistent.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/custom-space.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/default-platform.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/explicit-management.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/garbage-collected.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/heap-consistency.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/heap-handle.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/heap-state.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/heap-statistics.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/heap.h
+gyp sill ignoring from tarball node_headers/include/node/cppgc/internal/
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/api-constants.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/atomic-entry-flag.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/base-page-handle.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/caged-heap-local-data.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/caged-heap.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/compiler-specific.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/conditional-stack-allocated.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/finalizer-trait.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/gc-info.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/logging.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/member-storage.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/name-trait.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/persistent-node.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/pointer-policies.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/internal/write-barrier.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/liveness-broker.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/macros.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/member.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/name-provider.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/object-size-trait.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/persistent.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/platform.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/prefinalizer.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/process-heap-statistics.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/sentinel-pointer.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/source-location.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/testing.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/trace-trait.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/type-traits.h
+gyp verb extracted file from tarball node_headers/include/node/cppgc/visitor.h
+gyp verb extracted file from tarball node_headers/include/node/js_native_api.h
+gyp verb extracted file from tarball node_headers/include/node/js_native_api_types.h
+gyp sill ignoring from tarball node_headers/include/node/libplatform/
+gyp verb extracted file from tarball node_headers/include/node/libplatform/libplatform-export.h
+gyp verb extracted file from tarball node_headers/include/node/libplatform/libplatform.h
+gyp verb extracted file from tarball node_headers/include/node/libplatform/v8-tracing.h
+gyp verb extracted file from tarball node_headers/include/node/node.h
+gyp verb extracted file from tarball node_headers/include/node/node_api.h
+gyp verb extracted file from tarball node_headers/include/node/node_api_types.h
+gyp verb extracted file from tarball node_headers/include/node/node_buffer.h
+gyp verb extracted file from tarball node_headers/include/node/node_object_wrap.h
+gyp verb extracted file from tarball node_headers/include/node/node_version.h
+gyp sill ignoring from tarball node_headers/include/node/uv/
+gyp verb extracted file from tarball node_headers/include/node/uv/aix.h
+gyp verb extracted file from tarball node_headers/include/node/uv/bsd.h
+gyp verb extracted file from tarball node_headers/include/node/uv/darwin.h
+gyp verb extracted file from tarball node_headers/include/node/uv/errno.h
+gyp verb extracted file from tarball node_headers/include/node/uv/linux.h
+gyp verb extracted file from tarball node_headers/include/node/uv/os390.h
+gyp verb extracted file from tarball node_headers/include/node/uv/posix.h
+gyp verb extracted file from tarball node_headers/include/node/uv/sunos.h
+gyp verb extracted file from tarball node_headers/include/node/uv/threadpool.h
+gyp verb extracted file from tarball node_headers/include/node/uv/tree.h
+gyp verb extracted file from tarball node_headers/include/node/uv/unix.h
+gyp verb extracted file from tarball node_headers/include/node/uv/version.h
+gyp verb extracted file from tarball node_headers/include/node/uv/win.h
+gyp verb extracted file from tarball node_headers/include/node/uv.h
+gyp verb extracted file from tarball node_headers/include/node/v8-array-buffer.h
+gyp verb extracted file from tarball node_headers/include/node/v8-callbacks.h
+gyp verb extracted file from tarball node_headers/include/node/v8-container.h
+gyp verb extracted file from tarball node_headers/include/node/v8-context.h
+gyp verb extracted file from tarball node_headers/include/node/v8-cppgc.h
+gyp verb extracted file from tarball node_headers/include/node/v8-data.h
+gyp verb extracted file from tarball node_headers/include/node/v8-date.h
+gyp verb extracted file from tarball node_headers/include/node/v8-debug.h
+gyp verb extracted file from tarball node_headers/include/node/v8-embedder-heap.h
+gyp verb extracted file from tarball node_headers/include/node/v8-embedder-state-scope.h
+gyp verb extracted file from tarball node_headers/include/node/v8-exception.h
+gyp verb extracted file from tarball node_headers/include/node/v8-extension.h
+gyp verb extracted file from tarball node_headers/include/node/v8-external.h
+gyp verb extracted file from tarball node_headers/include/node/v8-forward.h
+gyp verb extracted file from tarball node_headers/include/node/v8-function-callback.h
+gyp verb extracted file from tarball node_headers/include/node/v8-function.h
+gyp verb extracted file from tarball node_headers/include/node/v8-handle-base.h
+gyp verb extracted file from tarball node_headers/include/node/v8-initialization.h
+gyp verb extracted file from tarball node_headers/include/node/v8-internal.h
+gyp verb extracted file from tarball node_headers/include/node/v8-isolate.h
+gyp verb extracted file from tarball node_headers/include/node/v8-json.h
+gyp verb extracted file from tarball node_headers/include/node/v8-local-handle.h
+gyp verb extracted file from tarball node_headers/include/node/v8-locker.h
+gyp verb extracted file from tarball node_headers/include/node/v8-maybe.h
+gyp verb extracted file from tarball node_headers/include/node/v8-memory-span.h
+gyp verb extracted file from tarball node_headers/include/node/v8-message.h
+gyp verb extracted file from tarball node_headers/include/node/v8-microtask-queue.h
+gyp verb extracted file from tarball node_headers/include/node/v8-microtask.h
+gyp verb extracted file from tarball node_headers/include/node/v8-object.h
+gyp verb extracted file from tarball node_headers/include/node/v8-persistent-handle.h
+gyp verb extracted file from tarball node_headers/include/node/v8-platform.h
+gyp verb extracted file from tarball node_headers/include/node/v8-primitive-object.h
+gyp verb extracted file from tarball node_headers/include/node/v8-primitive.h
+gyp verb extracted file from tarball node_headers/include/node/v8-profiler.h
+gyp verb extracted file from tarball node_headers/include/node/v8-promise.h
+gyp verb extracted file from tarball node_headers/include/node/v8-proxy.h
+gyp verb extracted file from tarball node_headers/include/node/v8-regexp.h
+gyp verb extracted file from tarball node_headers/include/node/v8-sandbox.h
+gyp verb extracted file from tarball node_headers/include/node/v8-script.h
+gyp verb extracted file from tarball node_headers/include/node/v8-snapshot.h
+gyp verb extracted file from tarball node_headers/include/node/v8-source-location.h
+gyp verb extracted file from tarball node_headers/include/node/v8-statistics.h
+gyp verb extracted file from tarball node_headers/include/node/v8-template.h
+gyp verb extracted file from tarball node_headers/include/node/v8-traced-handle.h
+gyp verb extracted file from tarball node_headers/include/node/v8-typed-array.h
+gyp verb extracted file from tarball node_headers/include/node/v8-unwinder.h
+gyp verb extracted file from tarball node_headers/include/node/v8-value-serializer.h
+gyp verb extracted file from tarball node_headers/include/node/v8-value.h
+gyp verb extracted file from tarball node_headers/include/node/v8-version.h
+gyp verb extracted file from tarball node_headers/include/node/v8-wasm.h
+gyp verb extracted file from tarball node_headers/include/node/v8-weak-callback-info.h
+gyp verb extracted file from tarball node_headers/include/node/v8.h
+gyp verb extracted file from tarball node_headers/include/node/v8config.h
+gyp verb extracted file from tarball node_headers/include/node/zconf.h
+gyp verb extracted file from tarball node_headers/include/node/zlib.h
+gyp verb content checksum node-v44.4.3-headers.tar.gz 168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed
+gyp verb tarball done parsing tarball
+gyp verb on Windows; need to download `node.lib`... 
+gyp verb x64 node.lib dir [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\e1-runtime\temp\node-gyp-tmp-4zrca3\x64
+gyp verb x64 node.lib url https://www.electronjs.org/headers/v44.4.3/win-x64/node.lib
+gyp verb check download content checksum, need to download `SHASUMS256.txt`... 
+gyp verb checksum url https://www.electronjs.org/headers/v44.4.3/SHASUMS256.txt
+gyp http GET https://www.electronjs.org/headers/v44.4.3/SHASUMS256.txt
+gyp verb streaming x64 node.lib to: [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\e1-runtime\temp\node-gyp-tmp-4zrca3\x64\node.lib
+gyp http GET https://www.electronjs.org/headers/v44.4.3/win-x64/node.lib
+gyp http 200 https://artifacts.electronjs.org/headers/dist/v44.4.3/SHASUMS256.txt
+gyp verb checksum data {"node-v44.4.3.tar.gz":"168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed","node-v44.4.3-headers.tar.gz":"168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed","iojs-v44.4.3.tar.gz":"168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed","iojs-v44.4.3-headers.tar.gz":"168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed","x64/node.lib":"221dac8b3f9e9e7cabb1e782c347399b24f0a68d0778e294ee34714c59d6446e","win-x64/iojs.lib":"221dac8b3f9e9e7cabb1e782c347399b24f0a68d0778e294ee34714c59d6446e","win-x64/node.lib":"221dac8b3f9e9e7cabb1e782c347399b24f0a68d0778e294ee34714c59d6446e","arm64/node.lib":"bc290c92c6811f13a75cca8e1495f2d14906287b59610c1e63f042c169fbed20","win-arm64/iojs.lib":"bc290c92c6811f13a75cca8e1495f2d14906287b59610c1e63f042c169fbed20","win-arm64/node.lib":"bc290c92c6811f13a75cca8e1495f2d14906287b59610c1e63f042c169fbed20"}
+gyp http 200 https://artifacts.electronjs.org/headers/dist/v44.4.3/win-x64/node.lib
+gyp verb content checksum win-x64/node.lib 221dac8b3f9e9e7cabb1e782c347399b24f0a68d0778e294ee34714c59d6446e
+gyp verb download contents checksum {"node-v44.4.3-headers.tar.gz":"168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed","win-x64/node.lib":"221dac8b3f9e9e7cabb1e782c347399b24f0a68d0778e294ee34714c59d6446e"}
+gyp verb validating download checksum for node-v44.4.3-headers.tar.gz (168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed == 168d0427ce4c5673e021dfa40ddd36458f87ea10189ef1e10b0b5acb047425ed)
+gyp verb validating download checksum for win-x64/node.lib (221dac8b3f9e9e7cabb1e782c347399b24f0a68d0778e294ee34714c59d6446e == 221dac8b3f9e9e7cabb1e782c347399b24f0a68d0778e294ee34714c59d6446e)
+gyp verb get node dir target node version installed: 44.4.3
+gyp verb build dir attempting to create "build" dir: [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build
+gyp verb build dir "build" dir needed to be created? Yes
+gyp verb find VS msvs_version not set from command line or npm config
+gyp verb find VS VCINSTALLDIR not set, not running in VS Command Prompt
+gyp sill find VS Running [WINDOWS_ROOT]\System32\WindowsPowerShell\v1.0\powershell.exe [
+gyp sill find VS '-NoProfile',
+gyp sill find VS '-Command',
+gyp sill find VS '&{@(Get-Module -ListAvailable -Name VSSetup).Version.ToString()}'
+gyp sill find VS ]
+gyp sill find VS Running [WINDOWS_ROOT]\System32\WindowsPowerShell\v1.0\powershell.exe [
+gyp sill find VS '-NoProfile',
+gyp sill find VS '-Command',
+gyp sill find VS '&{Get-VSSetupInstance  | ConvertTo-Json -Depth 3}'
+gyp sill find VS ]
+gyp sill find VS PS stderr = "Get-VSSetupInstance : The term 'Get-VSSetupInstance' is not recognized as the name of a cmdlet, function, script file, \r\nor operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try\r\n again.\r\nAt line:1 char:3\r\n+ &{Get-VSSetupInstance  | ConvertTo-Json -Depth 3}\r\n+   ~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : ObjectNotFound: (Get-VSSetupInstance:String) [], CommandNotFoundException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n"
+gyp sill find VS PS stdout = ""
+gyp sill find VS SyntaxError: Unexpected end of JSON input
+gyp sill find VS at JSON.parse (<anonymous>)
+gyp sill find VS at VisualStudioFinder.parseData ([REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\node_modules\@electron\node-gyp\lib\find-visualstudio.js:286:21)
+gyp sill find VS at VisualStudioFinder.findNewVSUsingSetupModule ([REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\node_modules\@electron\node-gyp\lib\find-visualstudio.js:202:27)
+gyp sill find VS at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+gyp sill find VS at async VisualStudioFinder.findVisualStudio ([REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\node_modules\@electron\node-gyp\lib\find-visualstudio.js:68:20)
+gyp sill find VS at async createBuildDir ([REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\node_modules\@electron\node-gyp\lib\configure.js:112:18)
+gyp sill find VS at async process.<anonymous> ([REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\node_modules\@electron\rebuild\lib\module-type\node-gyp\worker.js:27:13)
+gyp verb find VS could not use PowerShell to find Visual Studio 2017 or newer, try re-running with '--loglevel silly' for more details.
+gyp verb find VS 
+gyp verb find VS Failure details: undefined
+gyp sill find VS Running [WINDOWS_ROOT]\System32\WindowsPowerShell\v1.0\powershell.exe [
+gyp sill find VS '-ExecutionPolicy',
+gyp sill find VS 'Unrestricted',
+gyp sill find VS '-NoProfile',
+gyp sill find VS '-Command',
+gyp sill find VS "&{Add-Type -Path '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\node_modules\\@electron\\node-gyp\\lib\\Find-VisualStudio.cs';[VisualStudioConfiguration.Main]::PrintJson()}"
+gyp sill find VS ]
+gyp sill find VS PS stderr = ""
+gyp sill find VS processing installation: "[LOCAL_PATH_ROOT] build tools\vs2022"
+gyp sill find VS - version match = ["17.14.37516.0","17","14"]
+gyp sill find VS - found VC.Tools.x86.x64
+gyp sill find VS - found Win10/11SDK: 26100
+gyp sill find VS vsInfo: [
+gyp sill find VS {
+gyp sill find VS version: '17.14.37516.0',
+gyp sill find VS versionMajor: 17,
+gyp sill find VS versionMinor: 14,
+gyp sill find VS versionYear: 2022,
+gyp sill find VS path: '[LOCAL_PATH_ROOT] build tools\\vs2022',
+gyp sill find VS msBuild: '[LOCAL_PATH_ROOT] build tools\\vs2022\\MSBuild\\Current\\Bin\\MSBuild.exe',
+gyp sill find VS toolset: 'v143',
+gyp sill find VS sdk: '10.0.26100.0'
+gyp sill find VS }
+gyp sill find VS ]
+gyp verb find VS checking VS2022 (17.14.37516.0) found at:
+gyp verb find VS "[LOCAL_PATH_ROOT] build tools\vs2022"
+gyp verb find VS - found "Visual Studio C++ core features"
+gyp verb find VS - found VC++ toolset: v143
+gyp verb find VS - found Windows SDK: 10.0.26100.0
+gyp info find VS using VS2022 (17.14.37516.0) found at:
+gyp info find VS "[LOCAL_PATH_ROOT] build tools\vs2022"
+gyp info find VS run with --verbose for detailed information
+gyp verb build/config.gypi creating config file
+gyp sill build/config.gypi {
+gyp sill build/config.gypi target_defaults: {
+gyp sill build/config.gypi cflags: [],
+gyp sill build/config.gypi configurations: { Debug: [Object], Release: [Object] },
+gyp sill build/config.gypi default_configuration: 'Release',
+gyp sill build/config.gypi defines: [],
+gyp sill build/config.gypi include_dirs: [],
+gyp sill build/config.gypi libraries: [],
+gyp sill build/config.gypi target_conditions: [ [Array] ],
+gyp sill build/config.gypi msbuild_toolset: 'v143',
+gyp sill build/config.gypi msvs_windows_target_platform_version: '10.0.26100.0'
+gyp sill build/config.gypi },
+gyp sill build/config.gypi variables: {
+gyp sill build/config.gypi arm_fpu: 'neon',
+gyp sill build/config.gypi asan: 0,
+gyp sill build/config.gypi build_v8_with_gn: 'false',
+gyp sill build/config.gypi built_with_electron: 1,
+gyp sill build/config.gypi conditions: [ [Array] ],
+gyp sill build/config.gypi control_flow_guard: 'false',
+gyp sill build/config.gypi coverage: 'false',
+gyp sill build/config.gypi dcheck_always_on: 0,
+gyp sill build/config.gypi debug_nghttp2: 'false',
+gyp sill build/config.gypi debug_node: 'false',
+gyp sill build/config.gypi debug_symbols: 'false',
+gyp sill build/config.gypi enable_lto: 'false',
+gyp sill build/config.gypi enable_pgo_generate: 'false',
+gyp sill build/config.gypi enable_pgo_use: 'false',
+gyp sill build/config.gypi enable_thin_lto: 'false',
+gyp sill build/config.gypi error_on_warn: 'false',
+gyp sill build/config.gypi force_dynamic_crt: 0,
+gyp sill build/config.gypi host_arch: 'x64',
+gyp sill build/config.gypi icu_data_in: '..\\..\\deps\\icu-tmp\\icudt78l.dat',
+gyp sill build/config.gypi icu_endianness: 'l',
+gyp sill build/config.gypi icu_gyp_path: 'tools/icu/icu-generic.gyp',
+gyp sill build/config.gypi icu_path: 'deps/icu-small',
+gyp sill build/config.gypi icu_small: 'false',
+gyp sill build/config.gypi icu_ver_major: '78',
+gyp sill build/config.gypi libdir: 'lib',
+gyp sill build/config.gypi llvm_version: '0.0',
+gyp sill build/config.gypi napi_build_version: '10',
+gyp sill build/config.gypi node_builtin_shareable_builtins: [ 'deps/undici/undici.js', 'deps/amaro/dist/index.js' ],
+gyp sill build/config.gypi node_byteorder: 'little',
+gyp sill build/config.gypi node_cctest_sources: [
+gyp sill build/config.gypi 'test/cctest/inspector/test_network_requests_buffer.cc',
+gyp sill build/config.gypi 'test/cctest/inspector/test_node_protocol.cc',
+gyp sill build/config.gypi 'test/cctest/node_test_fixture.cc',
+gyp sill build/config.gypi 'test/cctest/test_aliased_buffer.cc',
+gyp sill build/config.gypi 'test/cctest/test_base64.cc',
+gyp sill build/config.gypi 'test/cctest/test_base_object_ptr.cc',
+gyp sill build/config.gypi 'test/cctest/test_cppgc.cc',
+gyp sill build/config.gypi 'test/cctest/test_crypto_clienthello.cc',
+gyp sill build/config.gypi 'test/cctest/test_dataqueue.cc',
+gyp sill build/config.gypi 'test/cctest/test_diagnostics_channel.cc',
+gyp sill build/config.gypi 'test/cctest/test_environment.cc',
+gyp sill build/config.gypi 'test/cctest/test_inspector_socket.cc',
+gyp sill build/config.gypi 'test/cctest/test_inspector_socket_server.cc',
+gyp sill build/config.gypi 'test/cctest/test_json_utils.cc',
+gyp sill build/config.gypi 'test/cctest/test_linked_binding.cc',
+gyp sill build/config.gypi 'test/cctest/test_lru_cache.cc',
+gyp sill build/config.gypi 'test/cctest/test_node_api.cc',
+gyp sill build/config.gypi 'test/cctest/test_node_crypto.cc',
+gyp sill build/config.gypi 'test/cctest/test_node_crypto_env.cc',
+gyp sill build/config.gypi 'test/cctest/test_node_ipc_serdes.cc',
+gyp sill build/config.gypi 'test/cctest/test_node_postmortem_metadata.cc',
+gyp sill build/config.gypi 'test/cctest/test_node_task_runner.cc',
+gyp sill build/config.gypi 'test/cctest/test_path.cc',
+gyp sill build/config.gypi 'test/cctest/test_per_process.cc',
+gyp sill build/config.gypi 'test/cctest/test_platform.cc',
+gyp sill build/config.gypi 'test/cctest/test_quic_arena.cc',
+gyp sill build/config.gypi 'test/cctest/test_quic_cid.cc',
+gyp sill build/config.gypi 'test/cctest/test_quic_error.cc',
+gyp sill build/config.gypi 'test/cctest/test_quic_preferredaddress.cc',
+gyp sill build/config.gypi 'test/cctest/test_quic_tokenbucket.cc',
+gyp sill build/config.gypi 'test/cctest/test_quic_tokens.cc',
+gyp sill build/config.gypi 'test/cctest/test_report.cc',
+gyp sill build/config.gypi 'test/cctest/test_sockaddr.cc',
+gyp sill build/config.gypi 'test/cctest/test_string_bytes.cc',
+gyp sill build/config.gypi 'test/cctest/test_traced_value.cc',
+gyp sill build/config.gypi 'test/cctest/test_util.cc',
+gyp sill build/config.gypi 'test/cctest/node_test_fixture.h'
+gyp sill build/config.gypi ],
+gyp sill build/config.gypi node_debug_lib: 'false',
+gyp sill build/config.gypi node_enable_d8: 'false',
+gyp sill build/config.gypi node_enable_experimentals: 'false',
+gyp sill build/config.gypi node_enable_v8_vtunejit: 'false',
+gyp sill build/config.gypi node_enable_v8windbg: 'false',
+gyp sill build/config.gypi node_fipsinstall: 'false',
+gyp sill build/config.gypi node_install_corepack: 'true',
+gyp sill build/config.gypi node_install_npm: 'true',
+gyp sill build/config.gypi node_library_files: [
+gyp sill build/config.gypi 'lib/_http_agent.js',
+gyp sill build/config.gypi 'lib/_http_client.js',
+gyp sill build/config.gypi 'lib/_http_common.js',
+gyp sill build/config.gypi 'lib/_http_incoming.js',
+gyp sill build/config.gypi 'lib/_http_outgoing.js',
+gyp sill build/config.gypi 'lib/_http_server.js',
+gyp sill build/config.gypi 'lib/_stream_duplex.js',
+gyp sill build/config.gypi 'lib/_stream_passthrough.js',
+gyp sill build/config.gypi 'lib/_stream_readable.js',
+gyp sill build/config.gypi 'lib/_stream_transform.js',
+gyp sill build/config.gypi 'lib/_stream_wrap.js',
+gyp sill build/config.gypi 'lib/_stream_writable.js',
+gyp sill build/config.gypi 'lib/_tls_common.js',
+gyp sill build/config.gypi 'lib/_tls_wrap.js',
+gyp sill build/config.gypi 'lib/assert.js',
+gyp sill build/config.gypi 'lib/assert/strict.js',
+gyp sill build/config.gypi 'lib/async_hooks.js',
+gyp sill build/config.gypi 'lib/buffer.js',
+gyp sill build/config.gypi 'lib/child_process.js',
+gyp sill build/config.gypi 'lib/cluster.js',
+gyp sill build/config.gypi 'lib/console.js',
+gyp sill build/config.gypi 'lib/constants.js',
+gyp sill build/config.gypi 'lib/crypto.js',
+gyp sill build/config.gypi 'lib/dgram.js',
+gyp sill build/config.gypi 'lib/diagnostics_channel.js',
+gyp sill build/config.gypi 'lib/dns.js',
+gyp sill build/config.gypi 'lib/dns/promises.js',
+gyp sill build/config.gypi 'lib/domain.js',
+gyp sill build/config.gypi 'lib/events.js',
+gyp sill build/config.gypi 'lib/fs.js',
+gyp sill build/config.gypi 'lib/fs/promises.js',
+gyp sill build/config.gypi 'lib/http.js',
+gyp sill build/config.gypi 'lib/http2.js',
+gyp sill build/config.gypi 'lib/https.js',
+gyp sill build/config.gypi 'lib/inspector.js',
+gyp sill build/config.gypi 'lib/inspector/promises.js',
+gyp sill build/config.gypi 'lib/internal/abort_controller.js',
+gyp sill build/config.gypi 'lib/internal/assert.js',
+gyp sill build/config.gypi 'lib/internal/assert/assertion_error.js',
+gyp sill build/config.gypi 'lib/internal/assert/calltracker.js',
+gyp sill build/config.gypi 'lib/internal/assert/myers_diff.js',
+gyp sill build/config.gypi 'lib/internal/assert/utils.js',
+gyp sill build/config.gypi 'lib/internal/async_context_frame.js',
+gyp sill build/config.gypi 'lib/internal/async_hooks.js',
+gyp sill build/config.gypi 'lib/internal/async_local_storage/async_context_frame.js',
+gyp sill build/config.gypi 'lib/internal/async_local_storage/async_hooks.js',
+gyp sill build/config.gypi 'lib/internal/async_local_storage/run_scope.js',
+gyp sill build/config.gypi 'lib/internal/blob.js',
+gyp sill build/config.gypi 'lib/internal/blocklist.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/node.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/realm.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/shadow_realm.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/switches/does_not_own_process_state.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/switches/does_own_process_state.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/switches/is_main_thread.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/switches/is_not_main_thread.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/web/exposed-wildcard.js',
+gyp sill build/config.gypi 'lib/internal/bootstrap/web/exposed-window-or-worker.js',
+gyp sill build/config.gypi 'lib/internal/buffer.js',
+gyp sill build/config.gypi 'lib/internal/child_process.js',
+gyp sill build/config.gypi 'lib/internal/child_process/serialization.js',
+gyp sill build/config.gypi 'lib/internal/cli_table.js',
+gyp sill build/config.gypi 'lib/internal/cluster/child.js',
+gyp sill build/config.gypi 'lib/internal/cluster/primary.js',
+gyp sill build/config.gypi 'lib/internal/cluster/round_robin_handle.js',
+gyp sill build/config.gypi 'lib/internal/cluster/shared_handle.js',
+gyp sill build/config.gypi 'lib/internal/cluster/utils.js',
+gyp sill build/config.gypi 'lib/internal/cluster/worker.js',
+gyp sill build/config.gypi 'lib/internal/console/constructor.js',
+gyp sill build/config.gypi 'lib/internal/console/global.js',
+gyp sill build/config.gypi 'lib/internal/constants.js',
+gyp sill build/config.gypi 'lib/internal/crypto/aes.js',
+gyp sill build/config.gypi 'lib/internal/crypto/argon2.js',
+gyp sill build/config.gypi 'lib/internal/crypto/certificate.js',
+gyp sill build/config.gypi 'lib/internal/crypto/cfrg.js',
+gyp sill build/config.gypi 'lib/internal/crypto/chacha20_poly1305.js',
+gyp sill build/config.gypi 'lib/internal/crypto/cipher.js',
+gyp sill build/config.gypi 'lib/internal/crypto/diffiehellman.js',
+gyp sill build/config.gypi 'lib/internal/crypto/ec.js',
+gyp sill build/config.gypi 'lib/internal/crypto/hash.js',
+gyp sill build/config.gypi 'lib/internal/crypto/hashnames.js',
+gyp sill build/config.gypi 'lib/internal/crypto/hkdf.js',
+gyp sill build/config.gypi 'lib/internal/crypto/kem.js',
+gyp sill build/config.gypi 'lib/internal/crypto/keygen.js',
+gyp sill build/config.gypi 'lib/internal/crypto/keys.js',
+gyp sill build/config.gypi 'lib/internal/crypto/mac.js',
+gyp sill build/config.gypi 'lib/internal/crypto/ml_dsa.js',
+gyp sill build/config.gypi 'lib/internal/crypto/ml_kem.js',
+gyp sill build/config.gypi 'lib/internal/crypto/pbkdf2.js',
+gyp sill build/config.gypi 'lib/internal/crypto/random.js',
+gyp sill build/config.gypi 'lib/internal/crypto/rsa.js',
+gyp sill build/config.gypi 'lib/internal/crypto/scrypt.js',
+gyp sill build/config.gypi 'lib/internal/crypto/sig.js',
+gyp sill build/config.gypi 'lib/internal/crypto/util.js',
+gyp sill build/config.gypi 'lib/internal/crypto/webcrypto.js',
+gyp sill build/config.gypi 'lib/internal/crypto/webcrypto_util.js',
+gyp sill build/config.gypi 'lib/internal/crypto/webidl.js',
+gyp sill build/config.gypi 'lib/internal/crypto/x509.js',
+gyp sill build/config.gypi 'lib/internal/data_url.js',
+gyp sill build/config.gypi 'lib/internal/debugger/inspect.js',
+gyp sill build/config.gypi ... 273 more items
+gyp sill build/config.gypi ],
+gyp sill build/config.gypi node_module_version: 149,
+gyp sill build/config.gypi node_no_browser_globals: 'false',
+gyp sill build/config.gypi node_prefix: '\\usr\\local',
+gyp sill build/config.gypi node_release_urlbase: '',
+gyp sill build/config.gypi node_shared: 'false',
+gyp sill build/config.gypi node_shared_ada: 'false',
+gyp sill build/config.gypi node_shared_brotli: 'false',
+gyp sill build/config.gypi node_shared_cares: 'false',
+gyp sill build/config.gypi node_shared_gtest: 'false',
+gyp sill build/config.gypi node_shared_hdr_histogram: 'false',
+gyp sill build/config.gypi node_shared_http_parser: 'false',
+gyp sill build/config.gypi node_shared_libuv: 'false',
+gyp sill build/config.gypi node_shared_merve: 'false',
+gyp sill build/config.gypi node_shared_nbytes: 'false',
+gyp sill build/config.gypi node_shared_nghttp2: 'false',
+gyp sill build/config.gypi node_shared_nghttp3: 'false',
+gyp sill build/config.gypi node_shared_ngtcp2: 'false',
+gyp sill build/config.gypi node_shared_openssl: 'false',
+gyp sill build/config.gypi node_shared_simdjson: 'false',
+gyp sill build/config.gypi node_shared_simdutf: 'false',
+gyp sill build/config.gypi node_shared_sqlite: 'false',
+gyp sill build/config.gypi node_shared_uvwasi: 'false',
+gyp sill build/config.gypi node_shared_zlib: 'false',
+gyp sill build/config.gypi node_shared_zstd: 'false',
+gyp sill build/config.gypi node_tag: '',
+gyp sill build/config.gypi node_target_type: 'executable',
+gyp sill build/config.gypi node_use_amaro: 'true',
+gyp sill build/config.gypi node_use_bundled_v8: 'true',
+gyp sill build/config.gypi node_use_node_code_cache: 'false',
+gyp sill build/config.gypi node_use_node_snapshot: 'false',
+gyp sill build/config.gypi node_use_openssl: 'true',
+gyp sill build/config.gypi node_use_quic: 'false',
+gyp sill build/config.gypi node_use_sqlite: 'true',
+gyp sill build/config.gypi node_use_v8_platform: 'true',
+gyp sill build/config.gypi node_with_ltcg: 'true',
+gyp sill build/config.gypi node_without_node_options: 'false',
+gyp sill build/config.gypi node_write_snapshot_as_array_literals: 'true',
+gyp sill build/config.gypi openssl_is_boringssl: 'false',
+gyp sill build/config.gypi openssl_is_fips: 'false',
+gyp sill build/config.gypi openssl_no_asm: 1,
+gyp sill build/config.gypi openssl_version: 0,
+gyp sill build/config.gypi ossfuzz: 'false',
+gyp sill build/config.gypi shlib_suffix: 'so.137',
+gyp sill build/config.gypi single_executable_application: 'true',
+gyp sill build/config.gypi suppress_all_error_on_warn: 'false',
+gyp sill build/config.gypi target_arch: 'x64',
+gyp sill build/config.gypi ubsan: 0,
+gyp sill build/config.gypi use_ccache_win: 0,
+gyp sill build/config.gypi use_prefix_to_find_headers: 'false',
+gyp sill build/config.gypi using_electron_config_gypi: 1,
+gyp sill build/config.gypi v8_cppgc_microtask_queue: 1,
+gyp sill build/config.gypi v8_enable_31bit_smis_on_64bit_arch: 1,
+gyp sill build/config.gypi v8_enable_extensible_ro_snapshot: 0,
+gyp sill build/config.gypi v8_enable_external_code_space: 1,
+gyp sill build/config.gypi v8_enable_gdbjit: 0,
+gyp sill build/config.gypi v8_enable_hugepage: 0,
+gyp sill build/config.gypi v8_enable_i18n_support: 1,
+gyp sill build/config.gypi v8_enable_inspector: 1,
+gyp sill build/config.gypi v8_enable_javascript_promise_hooks: 1,
+gyp sill build/config.gypi v8_enable_lite_mode: 0,
+gyp sill build/config.gypi v8_enable_maglev: 1,
+gyp sill build/config.gypi v8_enable_object_print: 1,
+gyp sill build/config.gypi v8_enable_pointer_compression: 1,
+gyp sill build/config.gypi v8_enable_pointer_compression_shared_cage: 0,
+gyp sill build/config.gypi v8_enable_sandbox: 1,
+gyp sill build/config.gypi v8_enable_webassembly: 1,
+gyp sill build/config.gypi v8_optimized_debug: 1,
+gyp sill build/config.
+› gypi v8_promise_internal_field_count: 1,
+gyp sill build/config.gypi v8_random_seed: 0,
+gyp sill build/config.gypi v8_trace_maps: 0,
+gyp sill build/config.gypi v8_use_perfetto: 0,
+gyp sill build/config.gypi v8_use_siphash: 1,
+gyp sill build/config.gypi want_separate_host_toolset: 1,
+gyp sill build/config.gypi nodedir: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\userprofile\\.electron-gyp\\44.4.3',
+gyp sill build/config.gypi python: '[LOCAL_PATH_ROOT]\\python.exe',
+gyp sill build/config.gypi standalone_static_library: 1,
+gyp sill build/config.gypi msbuild_path: '[LOCAL_PATH_ROOT] build tools\\vs2022\\MSBuild\\Current\\Bin\\MSBuild.exe',
+gyp sill build/config.gypi runtime: 'electron',
+gyp sill build/config.gypi target: '44.4.3',
+gyp sill build/config.gypi build_from_source: true,
+gyp sill build/config.gypi cache: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\npm-cache',
+gyp sill build/config.gypi globalconfig: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\appdata\\npm\\etc\\npmrc',
+gyp sill build/config.gypi global_prefix: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\appdata\\npm',
+gyp sill build/config.gypi init_module: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\userprofile\\.npm-init.js',
+gyp sill build/config.gypi local_prefix: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673',
+gyp sill build/config.gypi node_gyp: '[NODE_RUNTIME_ROOT]\\node_modules\\npm\\node_modules\\node-gyp\\bin\\node-gyp.js',
+gyp sill build/config.gypi npm_version: '11.12.1',
+gyp sill build/config.gypi prefix: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\appdata\\npm',
+gyp sill build/config.gypi userconfig: '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\userprofile\\.npmrc',
+gyp sill build/config.gypi user_agent: 'npm/11.12.1 node/v24.15.0 win32 x64 workspaces/false'
+gyp sill build/config.gypi }
+gyp sill build/config.gypi }
+gyp verb build/config.gypi writing out config file: [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\config.gypi
+gyp verb config.gypi checking for gypi file: [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\config.gypi
+gyp verb common.gypi checking for gypi file: [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\common.gypi
+gyp verb gyp gyp format was not specified; forcing "msvs"
+gyp info spawn [LOCAL_PATH_ROOT]\python.exe
+gyp info spawn args [
+gyp info spawn args '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\node_modules\\@electron\\node-gyp\\gyp\\gyp_main.py',
+gyp info spawn args 'binding.gyp',
+gyp info spawn args '-f',
+gyp info spawn args 'msvs',
+gyp info spawn args '-I',
+gyp info spawn args '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\package-temp\\electron-packager\\tmp-TxmFJ7\\resources\\app\\node_modules\\better-sqlite3\\build\\config.gypi',
+gyp info spawn args '-I',
+gyp info spawn args '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\node_modules\\@electron\\node-gyp\\addon.gypi',
+gyp info spawn args '-I',
+gyp info spawn args '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\userprofile\\.electron-gyp\\44.4.3\\include\\node\\common.gypi',
+gyp info spawn args '-Dlibrary=shared_library',
+gyp info spawn args '-Dvisibility=default',
+gyp info spawn args '-Dnode_root_dir=[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\e1-runtime\\userprofile\\.electron-gyp\\44.4.3',
+gyp info spawn args '-Dnode_gyp_dir=[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\node_modules\\@electron\\node-gyp',
+gyp info spawn args '-Dnode_lib_file=[REPOSITORY_ROOT]\\\\.tmp\\\\e1-build-1792036630673\\\\.tmp\\\\e1-runtime\\\\userprofile\\\\.electron-gyp\\\\44.4.3\\\\<(target_arch)\\\\node.lib',
+gyp info spawn args '-Dmodule_root_dir=[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\package-temp\\electron-packager\\tmp-TxmFJ7\\resources\\app\\node_modules\\better-sqlite3',
+gyp info spawn args '-Dnode_engine=v8',
+gyp info spawn args '--depth=.',
+gyp info spawn args '--no-parallel',
+gyp info spawn args '--generator-output',
+gyp info spawn args '[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\package-temp\\electron-packager\\tmp-TxmFJ7\\resources\\app\\node_modules\\better-sqlite3\\build',
+gyp info spawn args '-Goutput_dir=.'
+gyp info spawn args ]
+gyp verb build type Release
+gyp verb architecture x64
+gyp verb node dev dir [REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\e1-runtime\userprofile\.electron-gyp\44.4.3
+gyp verb python [LOCAL_PATH_ROOT]\python.exe
+gyp verb found first Solution file build/binding.sln
+gyp verb using MSBuild: [LOCAL_PATH_ROOT] build tools\vs2022\MSBuild\Current\Bin\MSBuild.exe
+gyp info spawn [LOCAL_PATH_ROOT] build tools\vs2022\MSBuild\Current\Bin\MSBuild.exe
+gyp info spawn args [
+gyp info spawn args 'build/binding.sln',
+gyp info spawn args '/nologo',
+gyp info spawn args '/p:Configuration=Release;Platform=x64',
+gyp info spawn args map: [Function (anonymous)]
+gyp info spawn args ]
+生成启动时间为 2026/10/15 22:59:10。
+
+› 节点 1 上的项目“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\binding.sln”(默认目标)。
+› ValidateSolutionConfiguration:
+›   正在生成解决方案配置“Release|x64”。
+› 项目“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\binding.sln”(1)正在节点 1 上生成“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\better_sqlite3.vcxproj”(2) (默认目标)。
+› PrepareForBuild:
+›   正在创建目录“Release\obj\better_sqlite3\”。
+›   已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+›   正在创建目录“Release\obj\better_sqlite3\better_sqlite3.tlog\”。
+› [LOCAL_PATH_ROOT] build tools\vs2022\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(385,5): error MSB3491: 未能向文件“Release\obj\better_sqlite3\better_sqlite3.tlog\better_sqlite3.lastbuildstate”写入行。路径: Release\obj\better_sqlite3\better_sqlite3.tlog\better_sqlite3.lastbuildstate 超过 OS 最大路径限制。完全限定的文件名必须少于 260 个字符。  [[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\better_sqlite3.vcxproj]
+› 已完成生成项目“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\better_sqlite3.vcxproj”(默认目标)的操作 - 失败。
+› 项目“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\binding.sln”(1)正在节点 1 上生成“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\test_extension.vcxproj”(3) (默认目标)。
+› PrepareForBuild:
+›   正在创建目录“Release\obj\test_extension\”。
+›   已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+›   正在创建目录“Release\obj\test_extension\test_extension.tlog\”。
+› [LOCAL_PATH_ROOT] build tools\vs2022\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(385,5): error MSB3491: 未能向文件“Release\obj\test_extension\test_extension.tlog\test_extension.lastbuildstate”写入行。路径: Release\obj\test_extension\test_extension.tlog\test_extension.lastbuildstate 超过 OS 最大路径限制。完全限定的文件名必须少于 260 个字符。  [[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\test_extension.vcxproj]
+› 已完成生成项目“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\test_extension.vcxproj”(默认目标)的操作 - 失败。
+› 已完成生成项目“[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\binding.sln”(默认目标)的操作 - 失败。
+
+› 生成失败。
+
+› “[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\binding.sln”(默认目标) (1) ->
+› “[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\better_sqlite3.vcxproj”(默认目标) (2) ->
+› (InitializeBuildStatus 目标) -> 
+›   [LOCAL_PATH_ROOT] build tools\vs2022\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(385,5): error MSB3491: 未能向文件“Release\obj\better_sqlite3\better_sqlite3.tlog\better_sqlite3.lastbuildstate”写入行。路径: Release\obj\better_sqlite3\better_sqlite3.tlog\better_sqlite3.lastbuildstate 超过 OS 最大路径限制。完全限定的文件名必须少于 260 个字符。  [[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\better_sqlite3.vcxproj]
+
+
+› “[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\binding.sln”(默认目标) (1) ->
+› “[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\test_extension.vcxproj”(默认目标) (3) ->
+›   [LOCAL_PATH_ROOT] build tools\vs2022\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(385,5): error MSB3491: 未能向文件“Release\obj\test_extension\test_extension.tlog\test_extension.lastbuildstate”写入行。路径: Release\obj\test_extension\test_extension.tlog\test_extension.lastbuildstate 超过 OS 最大路径限制。完全限定的文件名必须少于 260 个字符。  [[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3\build\test_extension.vcxproj]
+
+›     0 个警告
+›     2 个错误
+
+› 已用时间 00:00:01.61
+› Error: `[LOCAL_PATH_ROOT] build tools\vs2022\MSBuild\Current\Bin\MSBuild.exe` failed with exit code: 1
+    at ChildProcess.<anonymous> ([REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\node_modules\@electron\node-gyp\lib\build.js:215:23)
+    at ChildProcess.emit (node:events:509:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:295:12)
+
+
+
+An unhandled rejection has occurred inside Forge:
+Error: node-gyp failed to rebuild '[REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\.tmp\package-temp\electron-packager\tmp-TxmFJ7\resources\app\node_modules\better-sqlite3'
+at ChildProcess.<anonymous> ([REPOSITORY_ROOT]\.tmp\e1-build-1792036630673\node_modules\@electron\rebuild\lib\module-type\node-gyp\node-gyp.js:121:24)
+    at ChildProcess.emit (node:events:509:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:295:12)

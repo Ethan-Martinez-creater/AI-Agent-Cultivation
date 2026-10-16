@@ -1,0 +1,23 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/build-isolation.json",
+    "originalSha256": "58aed02a0237e49190846ae8d0442b23b2e2dffd7d346cb5b86b56085f87e59e",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "destination": "[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673",
+  "source": "[REPOSITORY_ROOT]",
+  "trackedFiles": 1595,
+  "dependencyCopy": "physical/dereferenced",
+  "sourceModified": false,
+  "createdAt": "2026-10-15T04:07:49.280Z",
+  "workspaceJunctionCorrection": {
+    "preserved": "[REPOSITORY_ROOT]\\.tmp\\e1-build-1792036630673\\.tmp\\materialized-workspaces-preserved",
+    "withinBuildOnly": true,
+    "sourceModified": false,
+    "reason": "materialized workspace packages break relative migration paths; junctions now target copied packages"
+  }
+}

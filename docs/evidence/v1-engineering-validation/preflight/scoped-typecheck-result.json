@@ -1,0 +1,18 @@
+{
+  "recordType": "Execution receipt summarized from the observed tool completion; not compiler stdout",
+  "scope": [
+    "scripts/engineering-validation/integrity-preflight.ts",
+    "scripts/engineering-validation/input-preflight.ts",
+    "scripts/engineering-validation/jev-transport-preflight.ts"
+  ],
+  "strict": true,
+  "exitCode": 0,
+  "diagnostics": [],
+  "stdoutFile": "scoped-typecheck-results.txt",
+  "emptyStdoutMeaning": "The final successful compiler invocation emitted no diagnostics. Root npm run typecheck does not include these independent scripts.",
+  "earlierCorrections": [
+    "Convert URL input to href for the Electron net.fetch signature",
+    "Annotate the child-process environment as NodeJS.ProcessEnv"
+  ],
+  "productionCodeChanged": false
+}

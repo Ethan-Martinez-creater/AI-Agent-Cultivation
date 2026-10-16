@@ -1,0 +1,87 @@
+{
+  "checkedAt": "2026-10-15T16:37:04.414Z",
+  "evidenceTime": "AFTER_NORMAL_RESUME_AND_EXIT",
+  "purpose": "Recover immutable identities omitted by the original paused snapshot projection. Paused PREPARED/no-result assertions remain solely in crash-b-packaged-execution-final.json.",
+  "linkage": {
+    "workflowRunId": "5b5bf26a-cf5f-470d-b8de-880b747d475d",
+    "stepRunId": "08910f33-4107-4acd-9c7b-d3a256b324b8",
+    "missionId": "5c0f6aa2-752e-46aa-90e6-b3a7b76cdd33",
+    "missionRunId": "a6a5e5e2-e66d-402e-8964-cc90f6d16b20",
+    "toolCallId": "w22-fb8506b8-3778-4309-9b17-c698e8c3def7",
+    "mutationId": "61d1ac28-f2da-4b64-9a28-80dec8be7d7a",
+    "operationReceiptId": "50b3962a-fcb6-4f53-81b4-803546f23d24",
+    "relativePath": "renderer.ts"
+  },
+  "immutableHashes": {
+    "before": "6d1bbc70d0961794c1f755f7a9543627b6aad4dbec749693173926062d356c9b",
+    "expectedAfter": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637"
+  },
+  "currentPostResumeRows": {
+    "step": {
+      "id": "08910f33-4107-4acd-9c7b-d3a256b324b8",
+      "workflow_run_id": "5b5bf26a-cf5f-470d-b8de-880b747d475d",
+      "step_id": "S05",
+      "attempt": 1,
+      "state": "WAITING",
+      "mission_id": "5c0f6aa2-752e-46aa-90e6-b3a7b76cdd33",
+      "mission_run_id": "a6a5e5e2-e66d-402e-8964-cc90f6d16b20"
+    },
+    "mutation": {
+      "id": "61d1ac28-f2da-4b64-9a28-80dec8be7d7a",
+      "workflow_run_id": "5b5bf26a-cf5f-470d-b8de-880b747d475d",
+      "step_run_id": "08910f33-4107-4acd-9c7b-d3a256b324b8",
+      "operation_receipt_id": "50b3962a-fcb6-4f53-81b4-803546f23d24",
+      "attempt": 1,
+      "mission_id": "5c0f6aa2-752e-46aa-90e6-b3a7b76cdd33",
+      "mission_run_id": "a6a5e5e2-e66d-402e-8964-cc90f6d16b20",
+      "teammate_id": "5735c33b-74f6-41ba-a3fc-a8135f795882",
+      "tool_call_id": "w22-fb8506b8-3778-4309-9b17-c698e8c3def7",
+      "tool_id": "file.writeText",
+      "permission_resource": "file:3b1f9cf7b0d2d974:renderer.ts",
+      "workspace_tag": "3b1f9cf7b0d2d974",
+      "relative_path": "renderer.ts",
+      "before_hash": "6d1bbc70d0961794c1f755f7a9543627b6aad4dbec749693173926062d356c9b",
+      "expected_after_hash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637",
+      "observed_after_hash": "22a5764d7e1083cadf86d8cec7b1d7d29c8d617116385716cff747e3b7a2b637",
+      "state": "APPLIED",
+      "result_code": "OK",
+      "created_at": "2026-10-15T16:33:46.924Z",
+      "updated_at": "2026-10-15T16:33:55.095Z"
+    },
+    "operation": {
+      "id": "50b3962a-fcb6-4f53-81b4-803546f23d24",
+      "workflow_run_id": "5b5bf26a-cf5f-470d-b8de-880b747d475d",
+      "step_run_id": "08910f33-4107-4acd-9c7b-d3a256b324b8",
+      "attempt": 1,
+      "operation_key": "workflow:5b5bf26a-cf5f-470d-b8de-880b747d475d:08910f33-4107-4acd-9c7b-d3a256b324b8",
+      "effect_type": "WORKSPACE_MUTATION",
+      "state": "PREPARED",
+      "input_hash": "13c9db2eb3ef8eb9dc690a516365a188f890dcb2c35b733c13bc15c289115a69",
+      "manifest_json": "[]",
+      "output_artifact_ids_json": "[]",
+      "external_reference": null,
+      "created_at": "2026-10-15T16:33:46.322Z",
+      "updated_at": "2026-10-15T16:33:46.322Z"
+    }
+  },
+  "currentStatesMustNotBeUsedAsPausedStates": true,
+  "databaseSha256Before": "114a04b97ba353797d8e3f5490ed45b5c2dabfd3513456654d7ea0fa85beccac",
+  "databaseSha256After": "114a04b97ba353797d8e3f5490ed45b5c2dabfd3513456654d7ea0fa85beccac",
+  "sidecarsBefore": {
+    "-wal": null,
+    "-shm": null
+  },
+  "sidecarsAfter": {
+    "-wal": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "-shm": {
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    }
+  },
+  "sourceOpenedReadOnly": true,
+  "businessStateModified": false,
+  "finalControllerProjectionEnriched": "Final deliverable enriches identity/hash observations, makes Node global references explicit for ESLint, and enforces E-drive/profile child paths. Syntax/lint passed; no application rerun for these observation/environment/reference-only changes."
+}

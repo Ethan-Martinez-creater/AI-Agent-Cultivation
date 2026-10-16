@@ -1,0 +1,31 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/controller-debugger-cleanup.json",
+    "originalSha256": "fbb366394b5b53d0ae0df8142a6cf640f8b026760ef9787f9c8c81b85d259703",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH",
+      "LOCAL_TOOL_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "observedAt": "2026-10-15T15:29:34.369Z",
+  "identity": {
+    "pid": 23672,
+    "execPath": "[NODE_RUNTIME_ROOT]\\node.exe",
+    "argv": [
+      "[NODE_RUNTIME_ROOT]\\node.exe",
+      "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\scripts\\engineering-validation\\packaged-breakpoint-ui-controller.mjs",
+      "CR_A_P4"
+    ]
+  },
+  "action": {
+    "controllerPid": 23672,
+    "localPort": 61747,
+    "remotePort": 61721,
+    "action": "end only test debugger TCP socket",
+    "applicationProcessKill": false
+  },
+  "source": "installed Node inspector CLI activation; exact owned test-controller socket",
+  "applicationExitResult": "separately observed after detach"
+}

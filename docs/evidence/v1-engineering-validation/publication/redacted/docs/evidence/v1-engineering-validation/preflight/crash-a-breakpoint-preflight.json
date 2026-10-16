@@ -1,0 +1,114 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/crash-a-breakpoint-preflight.json",
+    "originalSha256": "c1e4b7d1bf6cb5f17d000779934104bfa0f496451e0a6d712122cbeab4b93592",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "evidenceVersion": 1,
+  "observedAt": "2026-10-15T12:08:16.1013083+08:00",
+  "case": "CR-A",
+  "target": "P4 completeExecution post-commit/pre-return",
+  "status": "BLOCKED",
+  "package": {
+    "exe": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+    "profileRoot": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-a-profile",
+    "workspaceRoot": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-a-workspace",
+    "offlineFlags": [
+      "--gate1-fake-model",
+      "--r4-fake-routing",
+      "--w22-fake-software"
+    ]
+  },
+  "launch": {
+    "method": "Start-Process of exact packaged EXE",
+    "pid": 27612,
+    "startedAt": "2026-10-15T11:50:11.3038319+08:00",
+    "envRoots": "APPDATA, LOCALAPPDATA, USERPROFILE, TEMP, TMP, TMPDIR, CULTIVATION_USER_DATA_DIR, and Chromium --user-data-dir all pointed under isolated E: CR-A profile"
+  },
+  "inspector": {
+    "initialHttpJsonListStatus": 200,
+    "websocketHandshake": "opened",
+    "commands": [
+      {
+        "method": "Page.captureScreenshot",
+        "result": "no response within 12 seconds"
+      },
+      {
+        "method": "Browser.close",
+        "result": "no response within 8 seconds"
+      },
+      {
+        "method": "Target.getTargets",
+        "result": "no response"
+      }
+    ],
+    "debuggerBreakpointSet": false,
+    "debuggerBreakpointHit": false
+  },
+  "window": {
+    "mainWindowHandles": [
+      72838,
+      72832
+    ],
+    "title": "",
+    "respondingAtLastWindowCheck": true,
+    "bounds": "50x50",
+    "printWindowReturned": true,
+    "imagePath": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-a-profile\\window-preflight.png",
+    "imageBytes": 139,
+    "imageSha256": "b52b8cf497186550366c876c7503f999d7949987b6f0d268960caad341ab1ebe",
+    "visual": "black/empty"
+  },
+  "startupFailure": {
+    "logPath": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-a-profile\\stderr.log",
+    "logSha256": "24896a807cff576862c5fc4751dde77921d07e9f3552e246edabcd390862fdee",
+    "observed": "Chromium mojo platform_channel.cc:108 FATAL access denied (0x5), then network_sandbox access failures for isolated E: Cache, SharedDictionary, and Network paths."
+  },
+  "close": {
+    "closeMainWindowAccepted": true,
+    "waitMs": 15000,
+    "exitedAtFirstCheck": false,
+    "forcedTermination": false,
+    "finalObservationAt": "2026-10-15T12:02:24.6176766+08:00",
+    "finalProcessStates": [
+      {
+        "Id": 27612,
+        "State": "not-running"
+      },
+      {
+        "Id": 23224,
+        "State": "not-running"
+      },
+      {
+        "Id": 29356,
+        "State": "not-running"
+      }
+    ],
+    "debugPortsListening": false,
+    "finalObservedAt": "2026-10-15T12:08:16.1013083+08:00"
+  },
+  "workflow": {
+    "officialWorkflowCreated": false,
+    "normalUIOrIPCFlowPerformed": false,
+    "providerCalls": 0,
+    "credentialsRead": false,
+    "S06CompletedAndS07ReadyObserved": false,
+    "externalCallCountAtBarrier": null
+  },
+  "breakpoint": {
+    "source": "packages/application/src/w1-workflow-service.ts:1071-1102",
+    "desired": "after completion transaction returns, before completeExecution returns",
+    "location": "static bundle inspection only; no live frame",
+    "reached": false
+  },
+  "notes": [
+    "No official workflow or ToolRuntime invocation was created.",
+    "No paid/provider/API call or credential read occurred.",
+    "App/process group disappeared without forced termination before the 12:02:24 check; exit cause is not asserted.",
+    "The user-reported popup text was not available to this worker."
+  ]
+}

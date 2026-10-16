@@ -1,0 +1,47 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/packaged-fixture-module-check.json",
+    "originalSha256": "2c8bd9c2f45c7050b698d37884e45cdc13b1e209055c977fe7780f192127465b",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "status": "PASS",
+  "scope": "Synthetic fixture-module input validation only; not a packaged workflow/window result",
+  "node": "v24.15.0",
+  "typescript": "strip",
+  "lab": "[REPOSITORY_ROOT]\\.tmp\\e1-main-preflight\\fixture-module-check-fbf94ffb-cb19-46a8-bf5f-449e05b79724",
+  "beforeExpectedFailureExitCode": 1,
+  "afterExpectedContentsExitCode": 0,
+  "expectedExportAssertions": [
+    "featureRenderer === true",
+    "featureIpc === 'feature:run'",
+    "featureStored === true"
+  ],
+  "ledgerEvents": [
+    {
+      "event": "ENTRY",
+      "pid": 26856,
+      "at": "2026-10-15T16:20:23.645Z"
+    },
+    {
+      "event": "FAILED",
+      "pid": 26856,
+      "at": "2026-10-15T16:20:23.696Z"
+    },
+    {
+      "event": "ENTRY",
+      "pid": 15212,
+      "at": "2026-10-15T16:20:23.920Z"
+    },
+    {
+      "event": "COMPLETED",
+      "pid": 15212,
+      "at": "2026-10-15T16:20:23.978Z"
+    }
+  ],
+  "productionCodeChanged": false,
+  "applicationLaunched": false
+}

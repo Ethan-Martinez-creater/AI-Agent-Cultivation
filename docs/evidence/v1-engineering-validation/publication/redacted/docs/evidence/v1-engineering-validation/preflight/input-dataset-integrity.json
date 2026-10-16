@@ -1,0 +1,57 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/input-dataset-integrity.json",
+    "originalSha256": "6b34f41fda6cd2b2ca1c4c4183e5939e47b7a18511f855d21887d5193cc1ffe9",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "evidenceType": "E1_P1_DATASET_INTEGRITY",
+  "generatedAt": "2026-10-15T04:07:22.664Z",
+  "documentPath": "[REPOSITORY_ROOT]\\docs\\AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md",
+  "hashes": {
+    "document": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+    "expectedDocument": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+    "documentStatus": "PASS",
+    "dataset": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+    "expectedDataset": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+    "datasetStatus": "PASS",
+    "toolMapping": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+    "expectedToolMapping": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62",
+    "toolMappingStatus": "PASS"
+  },
+  "documentBytes": 71202,
+  "datasetJsonBytes": 34366,
+  "datasetSchema": "AAC-E0-BENCH-v0.1",
+  "baseCommit": "a2551bbc9dbd87ec4701183a53a2635966326df4",
+  "caseCount": 30,
+  "caseCounts": {
+    "SKILL": 10,
+    "MEMORY": 10,
+    "TOOL": 10
+  },
+  "liveCaseCount": 15,
+  "liveSet": [
+    "SK-02",
+    "SK-03",
+    "SK-05",
+    "SK-08",
+    "SK-10",
+    "ME-02",
+    "ME-03",
+    "ME-05",
+    "ME-08",
+    "ME-10",
+    "TO-02",
+    "TO-03",
+    "TO-05",
+    "TO-08",
+    "TO-10"
+  ],
+  "structuralStatus": "PASS",
+  "structureErrors": [],
+  "noDatasetMutation": true,
+  "noGoldForwarded": true
+}

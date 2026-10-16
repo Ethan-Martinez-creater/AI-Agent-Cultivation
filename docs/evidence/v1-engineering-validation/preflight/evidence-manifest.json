@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "sealedAt": "2026-10-15T16:44:17.803Z",
+  "algorithm": "SHA-256",
+  "scope": "New E1 preflight scripts, complete review and textual evidence. Excludes this manifest itself and ignored binary/profile artifacts.",
+  "baseline": "a2551bbc9dbd87ec4701183a53a2635966326df4",
+  "entries": [
+    {
+      "path": "docs/AI_Agent_Cultivation_V1_E1_Closure_Preflight_Review.md",
+      "bytes": 62071,
+      "sha256": "ca53e0eca27201f2d48076e06ba03824654d97b1ca249a06fcacabfc522b1a0b"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/build-isolation.json",
+      "bytes": 726,
+      "sha256": "58aed02a0237e49190846ae8d0442b23b2e2dffd7d346cb5b86b56085f87e59e"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/controller-debugger-cleanup.json",
+      "bytes": 710,
+      "sha256": "fbb366394b5b53d0ae0df8142a6cf640f8b026760ef9787f9c8c81b85d259703"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-a-breakpoint-preflight.json",
+      "bytes": 4080,
+      "sha256": "c1e4b7d1bf6cb5f17d000779934104bfa0f496451e0a6d712122cbeab4b93592"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-a-packaged-execution-final.json",
+      "bytes": 228876,
+      "sha256": "8046aafebb15d6eacef629641cf7ce03a52c655dc6dad679e2774369e50eb1b8"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-breakpoint-preflight.json",
+      "bytes": 1311,
+      "sha256": "4325e679abc1f1b3533b97f748eb7b5acc3a4cd49a95c572e7e6316e03683a36"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-identity-supplement.json",
+      "bytes": 4097,
+      "sha256": "05b9a2a89db2705d4ffb90667768b3a7cc562d30036db32f249ff1803c939d2c"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-await-deadlock-historical.json",
+      "bytes": 26256,
+      "sha256": "35675ecb72ad072a944cecee6c5761564d4213c35fa8466062a50e9b405b05fd"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-inspector-historical.json",
+      "bytes": 5812,
+      "sha256": "e77867205067689a9d8277ccae37cc57c2ab754d5b982aa43e765448bb482414"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-pause-state-historical.json",
+      "bytes": 2858,
+      "sha256": "1c3745c5d7c001789ecf6db6f29b6f364e20ab1e2a632e6a9ddde60ba4888dc9"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-packaged-execution-final.json",
+      "bytes": 92801,
+      "sha256": "90faf04babfa62c4c1b01c6510e875061e94d3db3e69c46d790e128d9c983f85"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-ts-entry-mapping-historical.json",
+      "bytes": 36461,
+      "sha256": "a59b750bd9326adf084aea1c0de153d38a9695390eda028ef6d43b6904e407be"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-ts-post13635-historical.json",
+      "bytes": 36015,
+      "sha256": "04e810390606a741328dc489b25622f80cb31cafa74172ab2ffeb5de4961d6a1"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-controller-backup-preflight.json",
+      "bytes": 2482,
+      "sha256": "46888a0a974c03ac24b99c37669a66bd935b81455292fcdd4c533e2e97304769"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-controller-observability-final.json",
+      "bytes": 2050,
+      "sha256": "e2eac036e703b17a8381814f62295348884c359cfac961ea8fb1dd7b1c1bfadb"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-controller-preflight.json",
+      "bytes": 11264,
+      "sha256": "bf5efd29a93ba7af08e6c3b27cc4d8231235feed363bd60c429d162cc036aab1"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/dataset-integrity.json",
+      "bytes": 87457,
+      "sha256": "c48e91937c07f768c195f4440cec4d412c092b3fbedb536ed38e15ba126ae38c"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/execution-notes.json",
+      "bytes": 8864,
+      "sha256": "0a669096b50c7ae5274ca7d4763d416019e4c75d294fbced9002ab674e592525"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/final-test-process-observation.json",
+      "bytes": 5268,
+      "sha256": "807903448f480cc27675437b406105783d900c674e867ac97d85c0735d85effe"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/final-worktree-audit.json",
+      "bytes": 81298,
+      "sha256": "ec16943f71def17f290e1c842db18a30e881de43db23134beef62c997b06dab0"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/format-check-restricted-attempt.txt",
+      "bytes": 1058,
+      "sha256": "eea5590248e6c25cd3f00cbbb6dcd09e62c8ff101ae2f5d9897328559ec7d6d7"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/format-check-results.txt",
+      "bytes": 327,
+      "sha256": "62e7040ffb6568debfca6836360e8ea56fe9735957e9f4f064e078b2f280fb5c"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/full-test-results.txt",
+      "bytes": 494,
+      "sha256": "92b7d15a190989789e9e97bb6bf328c45cffdf9517e089a8b100674836ea1502"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/gold-review-pending.md",
+      "bytes": 28801,
+      "sha256": "ba7c04443a205548b240f9c9927b275dee3e88ecf9d99d50e6f082619771bf57"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-dataset-integrity.json",
+      "bytes": 1482,
+      "sha256": "6b34f41fda6cd2b2ca1c4c4183e5939e47b7a18511f855d21887d5193cc1ffe9"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-fault-preflight.json",
+      "bytes": 8850,
+      "sha256": "a9dab5604a15539bb7da87c37ff9360934ac67116727b5a387b0c69478fab710"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-preflight-summary.md",
+      "bytes": 6525,
+      "sha256": "d47a4f48ff6df1684e58559f66bc3df0a992518e1e6508b6b349dc145dce1583"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-run-results.txt",
+      "bytes": 1403,
+      "sha256": "32f8d4d166e3a52c317fad1002186b6b09658933bb1a20d87ebda4735bf3c07b"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/jev-transport-preflight.json",
+      "bytes": 17799,
+      "sha256": "6fdfaeb2bbadb79b80c83faeb47b8373d14199478eeea2c1534fe02041d66b41"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/lint-results.txt",
+      "bytes": 981,
+      "sha256": "fc0e581506769a902b86577bdcf395c0a73747a51e6c63de2520cba857f0a4eb"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/local-runtime-archive.json",
+      "bytes": 471,
+      "sha256": "acf5ed19c5b82f1829dfcc60e45b966694f1965beef2c35179c6b6fa40e4c1ea"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/memory-preflight.json",
+      "bytes": 42580,
+      "sha256": "86a19d338158b4d9331d5f5c793f01fde03ce22811879616d621a270eca145c5"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/metrics-contract.json",
+      "bytes": 6719,
+      "sha256": "eb1c3d261b0b4927086e114ae92050694b5e3f3bbcd8ce306ce8d00c5d3bf742"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/metrics-unit-test-results.txt",
+      "bytes": 1720,
+      "sha256": "5aa280368ff4be60480dbde667de01c48a0f089df78c107d0ff1d39f5048e5d6"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/p6-backup-integrated-results.json",
+      "bytes": 2761,
+      "sha256": "e047ddeac016cb957d783537edacfc10ab0d54453d28a2e246b2dc7dd8835a90"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/p6-live-wal-method-test-final.json",
+      "bytes": 4934,
+      "sha256": "6dfc31a55bd84c4d74c841f513debcdee81b3df74f8c0d23650455e65a1dc378"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/p6-wal-integrated-results.json",
+      "bytes": 5494,
+      "sha256": "1ffb90989e8ee2760d9c9d831ac348fe067da4c761054fe767b9fb67b17d626e"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-1-results.txt",
+      "bytes": 2683,
+      "sha256": "52d0a0116a3dd7207eaa3109bca91f29ab76786e564dc23f7f3486b6a2051685"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-2-interrupted-results.txt",
+      "bytes": 1254,
+      "sha256": "ac51b7fc0b06e6606572a63ddb235a03384d508efb8ae6df7c4346d353ba434e"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-3-cancelled-results.txt",
+      "bytes": 1254,
+      "sha256": "ac51b7fc0b06e6606572a63ddb235a03384d508efb8ae6df7c4346d353ba434e"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-3-command-result.json",
+      "bytes": 335,
+      "sha256": "6778bc0c58a6f8ad49b31e19e767580e293a39e8aa5ca291fafb3756cd5ddae6"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-command-result.json",
+      "bytes": 426,
+      "sha256": "433dc3b8b668fe7b541b4f465b1bb8448919e7edaa9e6311a7c71d851a73ffb7"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-results.txt",
+      "bytes": 81224,
+      "sha256": "7167f59204d257f08264001b48274dd510cb6e3401f93fb3cc6cca0c359f338b"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-artifact-integrity-final.json",
+      "bytes": 1246,
+      "sha256": "a0332580517b97fc02e5bf36de595100634d643ebff43b1b3c6bbba4182e3d62"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-clean-launch.json",
+      "bytes": 2141,
+      "sha256": "1eee41c178ce001ee5c1911ec2cc31f28528bb2a95f65c71c1e596acf159886f"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-fixture-module-check.json",
+      "bytes": 1026,
+      "sha256": "2c8bd9c2f45c7050b698d37884e45cdc13b1e209055c977fe7780f192127465b"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-startup-stderr.txt",
+      "bytes": 1722,
+      "sha256": "24896a807cff576862c5fc4751dde77921d07e9f3552e246edabcd390862fdee"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/preflight-statuses.json",
+      "bytes": 2550,
+      "sha256": "daa3750a6ee55000212cc81e6baedada3086aa9b7e52d50567c2f4eb8ecf5104"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/preflight-summary.md",
+      "bytes": 3312,
+      "sha256": "a5b9fa47ba955def5d6e68abc85cd1bdbe6bfd423912c8c8588ac7681589a2b6"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/reproduce.md",
+      "bytes": 7329,
+      "sha256": "0fc517b3b54bd651c8ee5399d36409361ba94238c2d401b8952ba70b4dfb4b76"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-javascript-check-results.json",
+      "bytes": 738,
+      "sha256": "624399a881dc0f490628577b6d24c88f09780dbc8a0abe88dde6320f1f4cd875"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-lint-integrated-initial.txt",
+      "bytes": 672,
+      "sha256": "d09c6ec0d16fba77c35cae423a97f37b6223934ed6b325ae83d747367e05f6da"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-lint-results.txt",
+      "bytes": 26,
+      "sha256": "1b4d48e522913168e14478817e374bbd6f5be4f313d25befb294ccedf13e4217"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-result.json",
+      "bytes": 770,
+      "sha256": "0620180e64db4efa81063cdd3e02f838cd431e40b7cc6544230976727161dcb8"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-results.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/skill-preflight.json",
+      "bytes": 47118,
+      "sha256": "19cd99f5c38e703687dd715807cc0dde1bf1ee6e900080011f124086ef118fa5"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/tool-preflight.json",
+      "bytes": 143185,
+      "sha256": "59880c47683224d4cffbebf10292d566d78ee908c289853ab13c7a1ddda9e09b"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/transport-run-results.txt",
+      "bytes": 93,
+      "sha256": "d8792776cc8f4c4e1542c13eb53e220a7eb9235784c9d78bf611d1bafdb24b9a"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/typecheck-results.txt",
+      "bytes": 77,
+      "sha256": "8b5c52e0d1623ff20d11c198452c6846991380963c7ae8f24107baea8e606573"
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/windows-application-error-observation.json",
+      "bytes": 433,
+      "sha256": "92e01ff17376f0d852425d65b2ec8d6871170f0782a97e64574a2d1704221f11"
+    },
+    {
+      "path": "scripts/engineering-validation/input-preflight.ts",
+      "bytes": 58523,
+      "sha256": "458ddc9c1fd0593a1d44b57fabc3b3d8c26b62b720b3160310d748d13edb465d"
+    },
+    {
+      "path": "scripts/engineering-validation/integrity-preflight.ts",
+      "bytes": 9708,
+      "sha256": "55782a745fe961572a38bc3f70c970af190dfb75209956713e39148601c8a4e6"
+    },
+    {
+      "path": "scripts/engineering-validation/jev-transport-preflight.ts",
+      "bytes": 14638,
+      "sha256": "b0b48be39578b62657efccae51a2e1ae06eb0b2719085a580d25b63ef1e932fc"
+    },
+    {
+      "path": "scripts/engineering-validation/metrics.mjs",
+      "bytes": 24447,
+      "sha256": "7141446b6ca90f5bb03c2ccede28f7fcf28b424a983e4bf9e9bc7ece2b2eabf9"
+    },
+    {
+      "path": "scripts/engineering-validation/metrics.test.mjs",
+      "bytes": 18726,
+      "sha256": "b62dca75562ec866368fc6e2318f4ebccd023955e19262269c6b93ec059434a2"
+    },
+    {
+      "path": "scripts/engineering-validation/p6-live-wal-method-test.mjs",
+      "bytes": 6864,
+      "sha256": "76962355edd1de3ad5aa6fc4619536baa84fa60bc9cdc101f12763ec1be6e398"
+    },
+    {
+      "path": "scripts/engineering-validation/packaged-breakpoint-preflight.mjs",
+      "bytes": 4504,
+      "sha256": "dcc4e657593be47a607a310634e4796a589b63007bb46845aed4232d8c0a13bb"
+    },
+    {
+      "path": "scripts/engineering-validation/packaged-breakpoint-ui-controller.mjs",
+      "bytes": 54220,
+      "sha256": "06906f898c04596b0d07c94719904fbbe7953cc482e7cce894db2ea12849d708"
+    },
+    {
+      "path": "scripts/engineering-validation/packaged-workspace-fixture.mjs",
+      "bytes": 3957,
+      "sha256": "91289d2737393f58c27bd423e03878751270983c6fd28037a50e25fff665b8fb"
+    },
+    {
+      "path": "scripts/engineering-validation/prepare-build-preflight.mjs",
+      "bytes": 2212,
+      "sha256": "e703c0730bd6b4091605bfee3bf1df0af7ef7670b74746e979f8908d7afc6b70"
+    },
+    {
+      "path": "scripts/engineering-validation/run-preflight.mjs",
+      "bytes": 1536,
+      "sha256": "cd0499ddd5ceb235e03079d1e3707e8492937e52977777d2bcdc4fc10535227e"
+    }
+  ]
+}

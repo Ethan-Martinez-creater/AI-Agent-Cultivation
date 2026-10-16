@@ -1,0 +1,38 @@
+{
+  "checkedAt": "2026-10-15T16:40:47.6247412+00:00",
+  "lintExitCode": 0,
+  "syntax": [
+    {
+      "file": "metrics.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "metrics.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "p6-live-wal-method-test.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "packaged-breakpoint-preflight.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "packaged-breakpoint-ui-controller.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "packaged-workspace-fixture.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "prepare-build-preflight.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "run-preflight.mjs",
+      "exitCode": 0
+    }
+  ]
+}

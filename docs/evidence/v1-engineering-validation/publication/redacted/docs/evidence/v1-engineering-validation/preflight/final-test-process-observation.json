@@ -1,0 +1,128 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/final-test-process-observation.json",
+    "originalSha256": "807903448f480cc27675437b406105783d900c674e867ac97d85c0735d85effe",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH",
+      "LOCAL_SYSTEM_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "observedAt": "2026-10-15T16:38:36.9958455+00:00",
+  "action": "Read-only PID + creation-time + executable identity check; no process termination",
+  "candidateFiltering": "Only original launcher and same-executable app candidates created at/after verified Main; stale/reused lineage rows excluded",
+  "allOriginalApplicationProcessesAbsent": true,
+  "observations": [
+    {
+      "scenario": "CR_A_P4",
+      "source": "crash-a-packaged-execution-final.json",
+      "expectedPid": 25208,
+      "expectedExecutable": "[WINDOWS_ROOT]\\system32\\cmd.exe",
+      "expectedCreatedAt": "2026-10-16T00:24:18.177834+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_A_P4",
+      "source": "crash-a-packaged-execution-final.json",
+      "expectedPid": 27408,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:24:18.225196+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_A_P4",
+      "source": "crash-a-packaged-execution-final.json",
+      "expectedPid": 6664,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:24:18.593235+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_A_P4",
+      "source": "crash-a-packaged-execution-final.json",
+      "expectedPid": 25756,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:24:18.605201+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_A_P4",
+      "source": "crash-a-packaged-execution-final.json",
+      "expectedPid": 28780,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:24:19.707316+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_B_P5",
+      "source": "crash-b-packaged-execution-final.json",
+      "expectedPid": 24096,
+      "expectedExecutable": "[WINDOWS_ROOT]\\system32\\cmd.exe",
+      "expectedCreatedAt": "2026-10-16T00:33:37.201692+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_B_P5",
+      "source": "crash-b-packaged-execution-final.json",
+      "expectedPid": 28880,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:33:37.255188+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_B_P5",
+      "source": "crash-b-packaged-execution-final.json",
+      "expectedPid": 24436,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:33:37.615791+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_B_P5",
+      "source": "crash-b-packaged-execution-final.json",
+      "expectedPid": 23872,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:33:37.630661+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    },
+    {
+      "scenario": "CR_B_P5",
+      "source": "crash-b-packaged-execution-final.json",
+      "expectedPid": 6032,
+      "expectedExecutable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "expectedCreatedAt": "2026-10-16T00:33:38.474627+08:00",
+      "currentPidPresent": false,
+      "sameOriginalProcessPresent": false,
+      "observedExecutable": null,
+      "observedCreatedAt": null
+    }
+  ]
+}

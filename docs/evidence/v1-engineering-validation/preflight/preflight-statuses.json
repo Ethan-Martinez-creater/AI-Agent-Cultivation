@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-10-15T16:44:05.499Z",
+  "overall": "E1_CLOSURE_CONDITIONAL",
+  "gates": [
+    {
+      "id": "DATASET_INTEGRITY",
+      "status": "PASS",
+      "note": "基线、三个冻结 Hash、33 migration 和三个官方 Workflow 核验通过。"
+    },
+    {
+      "id": "SKILL_INPUT_COMPATIBILITY",
+      "status": "PASS",
+      "note": "10/10；真实 SkillService / select，隔离内存 owner DTO，不包含 Gate1 持久化。"
+    },
+    {
+      "id": "MEMORY_INPUT_COMPATIBILITY",
+      "status": "PASS",
+      "note": "10/10；真实 rank，范围仅 R5.3 RERANK_ONLY。"
+    },
+    {
+      "id": "TOOL_MAPPING_COMPATIBILITY",
+      "status": "PASS",
+      "note": "10/10；16 个冻结合成 descriptor、真实 registry/select；执行回调 0 次。"
+    },
+    {
+      "id": "TO09_CAPACITY_CONTRACT",
+      "status": "PASS",
+      "note": "原生 fallback 12、Jev 上限 8、派生 K=8 分开；保持非 Live。"
+    },
+    {
+      "id": "METRICS_CONTRACT",
+      "status": "PASS",
+      "note": "11 个合成测试通过；固定 Live 分母、fallback、NOT_RUN 和未知成本独立保留。"
+    },
+    {
+      "id": "JEV_TRANSPORT_OBSERVABILITY",
+      "status": "PASS",
+      "note": "17 个 loopback 场景；区分 logical/dispatch/wire。未测真实 Jev TLS 或计费。"
+    },
+    {
+      "id": "JEV_COST_GUARD_READINESS",
+      "status": "BLOCKED",
+      "note": "需账号真实价格、金额上限，以及拒绝 replay/redirect 和迟到 factory 的执行合同审核。"
+    },
+    {
+      "id": "CR_A_PACKAGED_BREAKPOINT",
+      "status": "PASS",
+      "note": "真实 Windows 既有打包产物、官方 Workflow、TypeScript 隔离工程；S06 提交后精确命中，S07 READY / Mission 未创建。"
+    },
+    {
+      "id": "CR_B_PACKAGED_BREAKPOINT",
+      "status": "PASS",
+      "note": "独立 TS Profile；真实 S05、权限/Guard、writeText 入口 9848:7612 与写后 return 9848:13661；文件改写、两 PREPARED、无成功结果。"
+    },
+    {
+      "id": "CRASH_CONTROLLER_OBSERVABILITY",
+      "status": "PASS",
+      "note": "Preflight：独立入口/写后命中各1、S06 verifier外部ledger1/1、Main身份及SQLite/WAL采集已验证。正式重启后计数 NOT_RUN。"
+    },
+    {
+      "id": "GOLD_INDEPENDENT_REVIEW",
+      "status": "BLOCKED",
+      "note": "15 个 Live Case 均待用户或独立评审者签署；原 Gold 未修改。"
+    }
+  ],
+  "formalExperiments": {
+    "jevLive": "NOT_RUN",
+    "crAKillRestart": "NOT_RUN",
+    "crBKillRestart": "NOT_RUN"
+  }
+}

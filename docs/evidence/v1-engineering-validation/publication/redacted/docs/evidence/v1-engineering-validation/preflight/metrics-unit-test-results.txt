@@ -1,0 +1,37 @@
+COMMAND: node --test scripts/engineering-validation/metrics.test.mjs
+EXIT CODE: 0
+
+▶ offline metric contract
+  ✔ computes P@K, R@K, graded nDCG@K, Top1 Grade, and same-pool IDCG (4.1075ms)
+  ✔ records empty output as P=0 and marks empty Recall and no-IDCG as N/A (0.8696ms)
+  ✔ preserves the Memory N=6, K=6 P/R degeneracy while exposing Top3 ranking diagnostics (0.7712ms)
+  ✔ shows Tool Live N<=8 can reorder all eligible candidates without proving filtering gain (1.5776ms)
+  ✔ keeps TO-09 native 12-offer and derived K=8 records separate (0.7395ms)
+  ✔ computes paired differences as comparison minus baseline and family macro averages (1.1167ms)
+  ✔ keeps fallback out of native-success quality but includes it in system-effective quality (2.7671ms)
+  ✔ keeps five NOT_RUN cases in the fixed denominator without zero-imputing quality (0.6556ms)
+  ✔ rejects illegal or duplicate candidates and never treats unknown cost as zero (0.4647ms)
+  ✔ requires family production K and validates derived output as a native-order truncation (0.3252ms)
+  ✔ rejects a shortened fixed Live denominator and unusable paired source paths (0.6379ms)
+✔ offline metric contract (16.46ms)
+ℹ tests 11
+ℹ suites 1
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 217.6749
+
+COMMAND: node <repo-root>/node_modules/vitest/vitest.mjs run scripts/engineering-validation/metrics.test.mjs
+EXIT CODE: 0
+
+
+ RUN  v5.0.1 [REPOSITORY_ROOT]/.tmp/e1-metrics-preflight
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  12:04:40
+   Duration  2.34s (transform 88%, worker 7%, import 4%, tests 1%)
+

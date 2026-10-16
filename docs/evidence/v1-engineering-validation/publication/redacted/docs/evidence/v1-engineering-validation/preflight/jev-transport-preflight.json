@@ -1,0 +1,599 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/jev-transport-preflight.json",
+    "originalSha256": "6fdfaeb2bbadb79b80c83faeb47b8373d14199478eeea2c1534fe02041d66b41",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "status": "PASS",
+  "liveProviderCalls": 0,
+  "formalBenchmark": "NOT_RUN",
+  "checkedAt": "2026-10-15T14:54:58.899Z",
+  "node": {
+    "status": "PASS",
+    "runtime": "node-fetch",
+    "evidenceLevel": "LOCAL_HTTP_REAL_PRODUCTION_GATEWAY",
+    "liveProviderCalls": 0,
+    "sdkVersion": "0.6.0",
+    "model": "jev-1.13.0",
+    "requestHash": "ccad8094dc1edcede8384b616d2a97d8d0ef59ca146f5e9a1169e1b4d9eb2c2a",
+    "cases": [
+      {
+        "scenario": "success",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "requestMethods": [
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 84.88719999999921,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0",
+          "inputTokens": 7,
+          "outputTokens": 2,
+          "latencyMs": 35,
+          "errorCode": null,
+          "answers": {
+            "memories": [
+              {
+                "memoryId": "offline-memory",
+                "score": 0.75
+              }
+            ]
+          },
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "node-fetch-1",
+            "scenario": "success",
+            "path": "/node-fetch-1/success/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:40.137Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "unavailable",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "requestMethods": [
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 46.18119999999908,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 3,
+          "errorCode": "PROVIDER_UNAVAILABLE",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "node-fetch-2",
+            "scenario": "unavailable",
+            "path": "/node-fetch-2/unavailable/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:40.201Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "redirect",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 2,
+        "requestMethods": [
+          "POST",
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 60.707800000000134,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0",
+          "inputTokens": 7,
+          "outputTokens": 2,
+          "latencyMs": 7,
+          "errorCode": null,
+          "answers": {
+            "memories": [
+              {
+                "memoryId": "offline-memory",
+                "score": 0.75
+              }
+            ]
+          },
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "node-fetch-3",
+            "scenario": "redirect",
+            "path": "/node-fetch-3/redirect/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:40.248Z",
+            "disconnected": true
+          },
+          {
+            "id": "node-fetch-3",
+            "scenario": "success",
+            "path": "/node-fetch-3/success/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:40.252Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "response-loss",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "requestMethods": [
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 47.277000000000044,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 7,
+          "errorCode": "PROVIDER_UNAVAILABLE",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "node-fetch-4",
+            "scenario": "response-loss",
+            "path": "/node-fetch-4/response-loss/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:40.310Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "timeout",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "requestMethods": [
+          "POST"
+        ],
+        "abortEvents": 1,
+        "elapsedMs": 6048.7947,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 6003,
+          "errorCode": "TIMEOUT",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "node-fetch-5",
+            "scenario": "timeout",
+            "path": "/node-fetch-5/timeout/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:40.357Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "connection-probe",
+        "logicalEvaluateCount": 0,
+        "sdkDispatches": 2,
+        "serverObservedWireRequests": 2,
+        "requestMethods": [
+          "GET",
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 47.03639999999905,
+        "result": {
+          "ok": true,
+          "model": "jev-1.13.0",
+          "errorCode": null,
+          "latencyMs": 6
+        },
+        "wire": [
+          {
+            "id": "node-fetch-6",
+            "scenario": "success",
+            "path": "/node-fetch-6/success/v1/models",
+            "method": "GET",
+            "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receivedAt": "2026-10-15T14:54:46.405Z",
+            "disconnected": true
+          },
+          {
+            "id": "node-fetch-6",
+            "scenario": "success",
+            "path": "/node-fetch-6/success/v1/systemone",
+            "method": "POST",
+            "bodyHash": "0c6fde363cb2382fdb07476d74661002514971637cc3e3544347dfe749ef1ada",
+            "receivedAt": "2026-10-15T14:54:46.408Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "late-factory-no-stop-guard",
+        "source": "PRODUCTION_SELECTOR_WITH_LOCAL_GATEWAY",
+        "returnedReason": "GATEWAY_TIMEOUT",
+        "dispatchesAtSelectorReturn": 0,
+        "dispatchesAfterDrain": 1,
+        "rejectedLateDispatches": 0,
+        "serverObservedWireRequests": 1
+      },
+      {
+        "scenario": "late-factory-with-test-stop-guard",
+        "source": "PRODUCTION_SELECTOR_WITH_LOCAL_GATEWAY",
+        "returnedReason": "GATEWAY_TIMEOUT",
+        "dispatchesAtSelectorReturn": 0,
+        "dispatchesAfterDrain": 0,
+        "rejectedLateDispatches": 1,
+        "serverObservedWireRequests": 0
+      },
+      {
+        "scenario": "existing-one-shot-transport-success",
+        "source": "PRODUCTION_GATEWAY_WITH_EXPLICIT_ALTERNATE_FETCH_OPTION",
+        "productionMainDefaultTransport": false,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0",
+          "inputTokens": 7,
+          "outputTokens": 2,
+          "latencyMs": 9,
+          "errorCode": null,
+          "answers": {
+            "memories": [
+              {
+                "memoryId": "offline-memory",
+                "score": 0.75
+              }
+            ]
+          },
+          "confidence": {},
+          "selectedAction": null
+        }
+      },
+      {
+        "scenario": "existing-one-shot-transport-redirect",
+        "source": "PRODUCTION_GATEWAY_WITH_EXPLICIT_ALTERNATE_FETCH_OPTION",
+        "productionMainDefaultTransport": false,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 3,
+          "errorCode": "PROVIDER_UNAVAILABLE",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        }
+      },
+      {
+        "scenario": "existing-one-shot-transport-response-loss",
+        "source": "PRODUCTION_GATEWAY_WITH_EXPLICIT_ALTERNATE_FETCH_OPTION",
+        "productionMainDefaultTransport": false,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 2,
+          "errorCode": "PROVIDER_UNAVAILABLE",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        }
+      }
+    ]
+  },
+  "electron": {
+    "status": "PASS",
+    "runtime": "electron-net-fetch",
+    "evidenceLevel": "LOCAL_HTTP_REAL_PRODUCTION_GATEWAY",
+    "liveProviderCalls": 0,
+    "sdkVersion": "0.6.0",
+    "model": "jev-1.13.0",
+    "requestHash": "ccad8094dc1edcede8384b616d2a97d8d0ef59ca146f5e9a1169e1b4d9eb2c2a",
+    "cases": [
+      {
+        "scenario": "success",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "requestMethods": [
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 2443.5950999999995,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0",
+          "inputTokens": 7,
+          "outputTokens": 2,
+          "latencyMs": 2397,
+          "errorCode": null,
+          "answers": {
+            "memories": [
+              {
+                "memoryId": "offline-memory",
+                "score": 0.75
+              }
+            ]
+          },
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "electron-net-fetch-1",
+            "scenario": "success",
+            "path": "/electron-net-fetch-1/success/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:43.037Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "unavailable",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "requestMethods": [
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 45.82810000000018,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 4,
+          "errorCode": "PROVIDER_UNAVAILABLE",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "electron-net-fetch-2",
+            "scenario": "unavailable",
+            "path": "/electron-net-fetch-2/unavailable/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:43.092Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "redirect",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 2,
+        "requestMethods": [
+          "POST",
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 46.79910000000018,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": "jev-1.13.0",
+          "inputTokens": 7,
+          "outputTokens": 2,
+          "latencyMs": 5,
+          "errorCode": null,
+          "answers": {
+            "memories": [
+              {
+                "memoryId": "offline-memory",
+                "score": 0.75
+              }
+            ]
+          },
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "electron-net-fetch-3",
+            "scenario": "redirect",
+            "path": "/electron-net-fetch-3/redirect/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:43.138Z",
+            "disconnected": true
+          },
+          {
+            "id": "electron-net-fetch-3",
+            "scenario": "success",
+            "path": "/electron-net-fetch-3/success/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:43.139Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "response-loss",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 2,
+        "requestMethods": [
+          "POST",
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 45.983000000000175,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 6,
+          "errorCode": "PROVIDER_UNAVAILABLE",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "electron-net-fetch-4",
+            "scenario": "response-loss",
+            "path": "/electron-net-fetch-4/response-loss/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:43.185Z",
+            "disconnected": true
+          },
+          {
+            "id": "electron-net-fetch-4",
+            "scenario": "response-loss",
+            "path": "/electron-net-fetch-4/response-loss/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:43.187Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "timeout",
+        "logicalEvaluateCount": 1,
+        "sdkDispatches": 1,
+        "serverObservedWireRequests": 1,
+        "requestMethods": [
+          "POST"
+        ],
+        "abortEvents": 1,
+        "elapsedMs": 6048.427,
+        "result": {
+          "provider": "TYPESAFE",
+          "model": null,
+          "inputTokens": null,
+          "outputTokens": null,
+          "latencyMs": 6002,
+          "errorCode": "TIMEOUT",
+          "answers": {},
+          "confidence": {},
+          "selectedAction": null
+        },
+        "wire": [
+          {
+            "id": "electron-net-fetch-5",
+            "scenario": "timeout",
+            "path": "/electron-net-fetch-5/timeout/v1/systemone",
+            "method": "POST",
+            "bodyHash": "f0e09dec349b837508670818967736df605b7ba2ebb26b7984c216a190be8d9b",
+            "receivedAt": "2026-10-15T14:54:43.231Z",
+            "disconnected": true
+          }
+        ]
+      },
+      {
+        "scenario": "connection-probe",
+        "logicalEvaluateCount": 0,
+        "sdkDispatches": 2,
+        "serverObservedWireRequests": 2,
+        "requestMethods": [
+          "GET",
+          "POST"
+        ],
+        "abortEvents": 0,
+        "elapsedMs": 62.47750000000087,
+        "result": {
+          "ok": true,
+          "model": "jev-1.13.0",
+          "errorCode": null,
+          "latencyMs": 7
+        },
+        "wire": [
+          {
+            "id": "electron-net-fetch-6",
+            "scenario": "success",
+            "path": "/electron-net-fetch-6/success/v1/models",
+            "method": "GET",
+            "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "receivedAt": "2026-10-15T14:54:49.280Z",
+            "disconnected": true
+          },
+          {
+            "id": "electron-net-fetch-6",
+            "scenario": "success",
+            "path": "/electron-net-fetch-6/success/v1/systemone",
+            "method": "POST",
+            "bodyHash": "0c6fde363cb2382fdb07476d74661002514971637cc3e3544347dfe749ef1ada",
+            "receivedAt": "2026-10-15T14:54:49.283Z",
+            "disconnected": true
+          }
+        ]
+      }
+    ]
+  },
+  "electronProcess": {
+    "pid": 8412,
+    "exitCode": 0,
+    "normalAppQuit": true,
+    "forcedKill": false,
+    "profile": "[REPOSITORY_ROOT]\\.test-data\\e1-transport\\2026-10-15T14-54-30-557Z\\electron-profile",
+    "stderr": ""
+  },
+  "wireScope": "server-observed plaintext loopback HTTP; no assertion about unobserved real Jev TLS traffic",
+  "budgetReadiness": {
+    "status": "BLOCKED",
+    "logicalEvaluateCap": 15,
+    "questionCap": 91,
+    "sdkPostDispatchCap": 15,
+    "timeoutMs": 6000,
+    "roundWatchdogMs": 120000,
+    "automaticRetry": false,
+    "reason": "account price/monetary ceiling and approval of E2 observed no-replay transport remain pending; Gold separately pending"
+  }
+}

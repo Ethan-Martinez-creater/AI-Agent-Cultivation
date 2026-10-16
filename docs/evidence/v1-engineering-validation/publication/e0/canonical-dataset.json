@@ -1,0 +1,1392 @@
+{
+  "schema": "AAC-E0-BENCH-v0.1",
+  "baseCommit": "a2551bbc9dbd87ec4701183a53a2635966326df4",
+  "labels": "human-designed provisional expert reference: grade 0/1/2/3",
+  "liveSet": [
+    "SK-02",
+    "SK-03",
+    "SK-05",
+    "SK-08",
+    "SK-10",
+    "ME-02",
+    "ME-03",
+    "ME-05",
+    "ME-08",
+    "ME-10",
+    "TO-02",
+    "TO-03",
+    "TO-05",
+    "TO-08",
+    "TO-10"
+  ],
+  "catalogs": {
+    "SKILL": {
+      "csv-clean": {
+        "name": "CSV 数据清洗",
+        "description": "规范日期、缺失值、重复行并输出清洗报告",
+        "tags": [
+          "CSV",
+          "data-cleaning"
+        ]
+      },
+      "sql-join": {
+        "name": "SQL 查询与关联",
+        "description": "使用关系型查询进行过滤、聚合及表连接",
+        "tags": [
+          "SQL",
+          "database"
+        ]
+      },
+      "anomaly": {
+        "name": "统计异常识别",
+        "description": "通过稳健统计量定位离群点与突变",
+        "tags": [
+          "statistics",
+          "anomaly"
+        ]
+      },
+      "chart": {
+        "name": "趋势可视化",
+        "description": "将时间序列数据绘制成清晰的图表",
+        "tags": [
+          "visualization",
+          "chart"
+        ]
+      },
+      "unit-test": {
+        "name": "单元测试设计",
+        "description": "编写可重复的边界与回归单元测试",
+        "tags": [
+          "testing",
+          "test"
+        ]
+      },
+      "api-design": {
+        "name": "API 契约设计",
+        "description": "定义 HTTP API 输入输出与错误协议",
+        "tags": [
+          "API",
+          "contract"
+        ]
+      },
+      "notes": {
+        "name": "版本发布说明",
+        "description": "根据已验证变更撰写发布文档",
+        "tags": [
+          "release",
+          "documentation"
+        ]
+      },
+      "translate": {
+        "name": "双语翻译",
+        "description": "中英双向翻译并保持术语一致",
+        "tags": [
+          "translation",
+          "language"
+        ]
+      },
+      "security": {
+        "name": "安全边界审查",
+        "description": "检查权限、凭据与输入校验风险",
+        "tags": [
+          "security",
+          "permission"
+        ]
+      },
+      "log-debug": {
+        "name": "日志根因分析",
+        "description": "从调用轨迹和错误日志定位故障来源",
+        "tags": [
+          "logging",
+          "debugging"
+        ]
+      },
+      "requirements": {
+        "name": "需求拆解",
+        "description": "将产品需求转化成验收任务与约束",
+        "tags": [
+          "requirements",
+          "planning"
+        ]
+      },
+      "markdown": {
+        "name": "Markdown 排版",
+        "description": "整理标题、列表、代码块和文档格式",
+        "tags": [
+          "markdown",
+          "formatting"
+        ]
+      },
+      "privacy": {
+        "name": "敏感数据脱敏",
+        "description": "删除或匿名化不应外发的敏感字段",
+        "tags": [
+          "privacy",
+          "redaction"
+        ]
+      },
+      "research": {
+        "name": "文献证据整理",
+        "description": "组织研究来源、主张与证据映射",
+        "tags": [
+          "research",
+          "evidence"
+        ]
+      },
+      "benchmark": {
+        "name": "实验评测设计",
+        "description": "定义对照组、指标、样本和误差分析",
+        "tags": [
+          "benchmark",
+          "evaluation"
+        ]
+      },
+      "perf": {
+        "name": "性能瓶颈剖析",
+        "description": "定位慢查询、网络延迟和资源热点",
+        "tags": [
+          "performance",
+          "profiling"
+        ]
+      }
+    },
+    "MEMORY": {
+      "api-current": {
+        "memoryType": "FACT",
+        "text": "当前图片生成版本使用异步任务查询，完成后再获取输出。"
+      },
+      "api-old": {
+        "memoryType": "EPISODE",
+        "text": "较早的内部草案计划将图片生成写成同步接口，已被更新的方案取代。"
+      },
+      "csv-policy": {
+        "memoryType": "PROCEDURE",
+        "text": "清洗销售 CSV 时，日期用 UTC，空金额保留并标记，不填零。"
+      },
+      "csv-example": {
+        "memoryType": "EPISODE",
+        "text": "某次销售日报发现重复订单，人工去重后生成对账文件。"
+      },
+      "privacy": {
+        "memoryType": "PROCEDURE",
+        "text": "对外发送诊断材料之前必须移除 API Key、签名 URL 和原始客户标识。"
+      },
+      "ui-theme": {
+        "memoryType": "PREFERENCE",
+        "text": "用户希望桌面应用保持低对比度界面，紧凑卡片展示。"
+      },
+      "ui-size": {
+        "memoryType": "FACT",
+        "text": "生成对话的验收宽度覆盖 1440、1180、900。"
+      },
+      "jev-shadow": {
+        "memoryType": "FACT",
+        "text": "Jev Shadow 模式只记录 Decision Receipt，不改变 Mission 控制流。"
+      },
+      "jev-tool": {
+        "memoryType": "FACT",
+        "text": "Tool Shortlist 只能在确定性合法工具集合之内选择，不授予执行权限。"
+      },
+      "recovery": {
+        "memoryType": "PROCEDURE",
+        "text": "外部付费提交结果为 UNKNOWN 时禁止自动重发 POST。"
+      },
+      "workflow": {
+        "memoryType": "FACT",
+        "text": "Workflow 完成的 Step 保存 Checkpoint，重启时只对账已提交事实。"
+      },
+      "music": {
+        "memoryType": "EPISODE",
+        "text": "一次 Suno 基础生成返回两条 WAV，最终均注册为 Artifact。"
+      },
+      "research-cite": {
+        "memoryType": "PROCEDURE",
+        "text": "研究报告的关键论点必须关联来源证据和内容哈希。"
+      },
+      "cost": {
+        "memoryType": "PREFERENCE",
+        "text": "真实模型验收以尽可能低的预算进行，不生成长视频。"
+      },
+      "code-review": {
+        "memoryType": "PROCEDURE",
+        "text": "软件功能开发先记录接受范围，再执行受限修改、测试和独立审查。"
+      },
+      "outdated-cost": {
+        "memoryType": "FACT",
+        "text": "上一轮预算草案写的是每个视频生成十秒，未与当前价格核对。"
+      },
+      "permission": {
+        "memoryType": "FACT",
+        "text": "Workspace 文件读取需要 FILE_READ 审批，生成 Artifact 分享不自动授予此权限。"
+      },
+      "mimo": {
+        "memoryType": "FACT",
+        "text": "MiMo TTS 文字内容放在 assistant 消息中，音频从指定字段解析。"
+      }
+    },
+    "TOOL": {
+      "file.list": {
+        "name": "列目录",
+        "description": "列出当前 Workspace 允许访问目录中的条目",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "file.readText": {
+        "name": "读取文本",
+        "description": "安全读取受限文本文件",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "file.writeText": {
+        "name": "写入文本",
+        "description": "写入或覆盖 Workspace 允许路径中的文本文件",
+        "capabilityHint": "FILE_WRITE",
+        "riskHint": "WRITE",
+        "effectHint": "WORKSPACE_MUTATION"
+      },
+      "file.createDirectory": {
+        "name": "新建目录",
+        "description": "在允许的 Workspace 路径下创建目录",
+        "capabilityHint": "FILE_WRITE",
+        "riskHint": "WRITE",
+        "effectHint": "WORKSPACE_MUTATION"
+      },
+      "bench.csv.validate": {
+        "name": "表格校验",
+        "description": "仅检查 CSV 列、类型和缺失数据，不改写原文件",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "bench.csv.aggregate": {
+        "name": "统计汇总",
+        "description": "只读方式计算按月汇总数据",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "bench.chart.render": {
+        "name": "绘图输出",
+        "description": "根据已验证数据生成可视化图表文件",
+        "capabilityHint": "FILE_WRITE",
+        "riskHint": "WRITE",
+        "effectHint": "FILE_OUTPUT"
+      },
+      "bench.tests.run": {
+        "name": "运行隔离测试",
+        "description": "执行已批准的隔离项目单元测试",
+        "capabilityHint": "TOOL_EXEC",
+        "riskHint": "WRITE",
+        "effectHint": "EXTERNAL_ACTION"
+      },
+      "bench.docs.search": {
+        "name": "搜索文档",
+        "description": "在限定文档快照中查找相关段落",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "bench.docs.cite": {
+        "name": "引用核对",
+        "description": "检查报告的断言是否附有证据引用",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "bench.log.inspect": {
+        "name": "日志检索",
+        "description": "检索指定任务的脱敏执行日志",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "bench.secrets.redact": {
+        "name": "证据脱敏",
+        "description": "在隔离副本中清除可能泄露的凭据字段",
+        "capabilityHint": "FILE_WRITE",
+        "riskHint": "WRITE",
+        "effectHint": "FILE_OUTPUT"
+      },
+      "bench.api.check": {
+        "name": "接口结构校验",
+        "description": "离线核对 API 请求与错误 Schema",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      },
+      "bench.release.notes": {
+        "name": "发布记录生成",
+        "description": "写出已验证变更的发布说明",
+        "capabilityHint": "FILE_WRITE",
+        "riskHint": "WRITE",
+        "effectHint": "FILE_OUTPUT"
+      },
+      "bench.disk.remove": {
+        "name": "删除文件",
+        "description": "删除 Workspace 中的文件，存在不可逆风险",
+        "capabilityHint": "FILE_WRITE",
+        "riskHint": "HIGH",
+        "effectHint": "WORKSPACE_MUTATION"
+      },
+      "bench.stats.anomaly": {
+        "name": "异常检测",
+        "description": "读取已清洗数据并标记异常值",
+        "capabilityHint": "FILE_READ",
+        "riskHint": "READ_ONLY",
+        "effectHint": "NONE"
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "SK-01",
+      "family": "SKILL",
+      "stratum": "lexical",
+      "live": false,
+      "task": "清理季度销售 CSV 中的重复订单和日期格式，产出可追溯清洗报告。",
+      "candidateGrades": [
+        {
+          "id": "csv-clean",
+          "grade": 3
+        },
+        {
+          "id": "sql-join",
+          "grade": 1
+        },
+        {
+          "id": "anomaly",
+          "grade": 1
+        },
+        {
+          "id": "markdown",
+          "grade": 1
+        },
+        {
+          "id": "chart",
+          "grade": 0
+        },
+        {
+          "id": "notes",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "CSV 清洗直接相关；关联、异常和排版仅是次要辅助。"
+    },
+    {
+      "id": "SK-02",
+      "family": "SKILL",
+      "stratum": "semantic",
+      "live": true,
+      "task": "识别经营数据里突然偏离常态的月份，并画出变化趋势。",
+      "candidateGrades": [
+        {
+          "id": "csv-clean",
+          "grade": 1
+        },
+        {
+          "id": "anomaly",
+          "grade": 3
+        },
+        {
+          "id": "chart",
+          "grade": 3
+        },
+        {
+          "id": "sql-join",
+          "grade": 1
+        },
+        {
+          "id": "perf",
+          "grade": 0
+        },
+        {
+          "id": "notes",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "异常检测和趋势图两个能力都必要；语言中未直接出现统计技能名。"
+    },
+    {
+      "id": "SK-03",
+      "family": "SKILL",
+      "stratum": "semantic",
+      "live": true,
+      "task": "接口偶发返回 502，排查请求链路并确认是否暴露了访问令牌。",
+      "candidateGrades": [
+        {
+          "id": "log-debug",
+          "grade": 3
+        },
+        {
+          "id": "security",
+          "grade": 3
+        },
+        {
+          "id": "api-design",
+          "grade": 2
+        },
+        {
+          "id": "unit-test",
+          "grade": 1
+        },
+        {
+          "id": "markdown",
+          "grade": 0
+        },
+        {
+          "id": "translate",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "日志诊断与凭据审查直接相关；API 契约校验可辅助。"
+    },
+    {
+      "id": "SK-04",
+      "family": "SKILL",
+      "stratum": "lexical",
+      "live": false,
+      "task": "将新版 REST 接口字段冻结成契约，并为输入异常补回归测试。",
+      "candidateGrades": [
+        {
+          "id": "api-design",
+          "grade": 3
+        },
+        {
+          "id": "unit-test",
+          "grade": 3
+        },
+        {
+          "id": "requirements",
+          "grade": 2
+        },
+        {
+          "id": "log-debug",
+          "grade": 1
+        },
+        {
+          "id": "notes",
+          "grade": 0
+        },
+        {
+          "id": "chart",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "契约设计及测试为共同关键技能。"
+    },
+    {
+      "id": "SK-05",
+      "family": "SKILL",
+      "stratum": "distractor",
+      "live": true,
+      "task": "将研究访谈笔记整理成有来源依据的证据表，禁止编造引用。",
+      "candidateGrades": [
+        {
+          "id": "research",
+          "grade": 3
+        },
+        {
+          "id": "markdown",
+          "grade": 2
+        },
+        {
+          "id": "privacy",
+          "grade": 2
+        },
+        {
+          "id": "benchmark",
+          "grade": 1
+        },
+        {
+          "id": "translate",
+          "grade": 0
+        },
+        {
+          "id": "chart",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "证据链优先，格式和隐私处理辅助；翻译不是需求。"
+    },
+    {
+      "id": "SK-06",
+      "family": "SKILL",
+      "stratum": "semantic",
+      "live": false,
+      "task": "评估两种缓存算法的延迟差异，设计公平对照并分析瓶颈。",
+      "candidateGrades": [
+        {
+          "id": "benchmark",
+          "grade": 3
+        },
+        {
+          "id": "perf",
+          "grade": 3
+        },
+        {
+          "id": "unit-test",
+          "grade": 2
+        },
+        {
+          "id": "chart",
+          "grade": 1
+        },
+        {
+          "id": "api-design",
+          "grade": 0
+        },
+        {
+          "id": "sql-join",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "评测设计与性能剖析共同必要；单元测试仅辅助。"
+    },
+    {
+      "id": "SK-07",
+      "family": "SKILL",
+      "stratum": "constraint",
+      "live": false,
+      "task": "把本轮已批准的变更写成可发布说明，不修改任何程序文件。",
+      "candidateGrades": [
+        {
+          "id": "notes",
+          "grade": 3
+        },
+        {
+          "id": "markdown",
+          "grade": 2
+        },
+        {
+          "id": "requirements",
+          "grade": 1
+        },
+        {
+          "id": "unit-test",
+          "grade": 0
+        },
+        {
+          "id": "api-design",
+          "grade": 0
+        },
+        {
+          "id": "log-debug",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "文档交付而非代码开发；编写测试并非当前目标。"
+    },
+    {
+      "id": "SK-08",
+      "family": "SKILL",
+      "stratum": "semantic",
+      "live": true,
+      "task": "把内部排障日志作为面试材料，但所有密钥和客户标识必须移除。",
+      "candidateGrades": [
+        {
+          "id": "privacy",
+          "grade": 3
+        },
+        {
+          "id": "security",
+          "grade": 3
+        },
+        {
+          "id": "log-debug",
+          "grade": 2
+        },
+        {
+          "id": "markdown",
+          "grade": 1
+        },
+        {
+          "id": "notes",
+          "grade": 0
+        },
+        {
+          "id": "translate",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "脱敏与安全核对共同关键，根因分析仅间接相关。"
+    },
+    {
+      "id": "SK-09",
+      "family": "SKILL",
+      "stratum": "ambiguous",
+      "live": false,
+      "task": "需要只解释现有代码中的接口类型并写出中文说明，不更改接口协议。",
+      "candidateGrades": [
+        {
+          "id": "api-design",
+          "grade": 3
+        },
+        {
+          "id": "markdown",
+          "grade": 2
+        },
+        {
+          "id": "translate",
+          "grade": 1
+        },
+        {
+          "id": "security",
+          "grade": 0
+        },
+        {
+          "id": "unit-test",
+          "grade": 0
+        },
+        {
+          "id": "chart",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "需要解释现有契约和文档组织；不是重新设计协议。"
+    },
+    {
+      "id": "SK-10",
+      "family": "SKILL",
+      "stratum": "semantic",
+      "live": true,
+      "task": "用同一输入比较规则排序与语义排序，统计准确性和耗时，报告负面案例。",
+      "candidateGrades": [
+        {
+          "id": "benchmark",
+          "grade": 3
+        },
+        {
+          "id": "perf",
+          "grade": 2
+        },
+        {
+          "id": "anomaly",
+          "grade": 1
+        },
+        {
+          "id": "research",
+          "grade": 1
+        },
+        {
+          "id": "notes",
+          "grade": 1
+        },
+        {
+          "id": "api-design",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "实验设计最重要，延迟/性能度量是主要辅助。"
+    },
+    {
+      "id": "ME-01",
+      "family": "MEMORY",
+      "stratum": "version",
+      "live": false,
+      "task": "当前图片生成任务怎样查询异步状态并保存输出？",
+      "candidateGrades": [
+        {
+          "id": "api-old",
+          "grade": 0
+        },
+        {
+          "id": "api-current",
+          "grade": 3
+        },
+        {
+          "id": "mimo",
+          "grade": 0
+        },
+        {
+          "id": "workflow",
+          "grade": 1
+        },
+        {
+          "id": "music",
+          "grade": 0
+        },
+        {
+          "id": "recovery",
+          "grade": 2
+        }
+      ],
+      "referenceReason": "当前图片异步协议与 UNKNOWN 安全性相关；过时草案不应占前列。"
+    },
+    {
+      "id": "ME-02",
+      "family": "MEMORY",
+      "stratum": "semantic",
+      "live": true,
+      "task": "按照此前销售报表的日期和空金额处理口径继续清洗新 CSV。",
+      "candidateGrades": [
+        {
+          "id": "csv-example",
+          "grade": 2
+        },
+        {
+          "id": "csv-policy",
+          "grade": 3
+        },
+        {
+          "id": "ui-size",
+          "grade": 0
+        },
+        {
+          "id": "api-old",
+          "grade": 0
+        },
+        {
+          "id": "privacy",
+          "grade": 1
+        },
+        {
+          "id": "code-review",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "优先提取固定清洗政策，而不是曾经的单次案例。"
+    },
+    {
+      "id": "ME-03",
+      "family": "MEMORY",
+      "stratum": "semantic",
+      "live": true,
+      "task": "向招聘面试官解释重启任务为何不自动再付费调用。",
+      "candidateGrades": [
+        {
+          "id": "outdated-cost",
+          "grade": 0
+        },
+        {
+          "id": "recovery",
+          "grade": 3
+        },
+        {
+          "id": "workflow",
+          "grade": 3
+        },
+        {
+          "id": "jev-tool",
+          "grade": 1
+        },
+        {
+          "id": "music",
+          "grade": 0
+        },
+        {
+          "id": "ui-theme",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "UNKNOWN 防重复发送与 Workflow 事实恢复共同相关。"
+    },
+    {
+      "id": "ME-04",
+      "family": "MEMORY",
+      "stratum": "security",
+      "live": false,
+      "task": "为什么 Jev 排序结果不能让道友越权执行文件写入？",
+      "candidateGrades": [
+        {
+          "id": "jev-shadow",
+          "grade": 2
+        },
+        {
+          "id": "jev-tool",
+          "grade": 3
+        },
+        {
+          "id": "permission",
+          "grade": 3
+        },
+        {
+          "id": "privacy",
+          "grade": 1
+        },
+        {
+          "id": "code-review",
+          "grade": 0
+        },
+        {
+          "id": "api-current",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "候选资格/执行权限边界是直接答案。"
+    },
+    {
+      "id": "ME-05",
+      "family": "MEMORY",
+      "stratum": "distractor",
+      "live": true,
+      "task": "为视频验收制定最低预算策略，不要长视频，也不要公开密钥。",
+      "candidateGrades": [
+        {
+          "id": "outdated-cost",
+          "grade": 0
+        },
+        {
+          "id": "cost",
+          "grade": 3
+        },
+        {
+          "id": "privacy",
+          "grade": 3
+        },
+        {
+          "id": "recovery",
+          "grade": 2
+        },
+        {
+          "id": "ui-theme",
+          "grade": 0
+        },
+        {
+          "id": "music",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "当前预算偏好与凭据脱敏优先；过时十秒预算不可当作事实。"
+    },
+    {
+      "id": "ME-06",
+      "family": "MEMORY",
+      "stratum": "lexical",
+      "live": false,
+      "task": "检查科研报告中每一条结论能否追溯到来源材料。",
+      "candidateGrades": [
+        {
+          "id": "research-cite",
+          "grade": 3
+        },
+        {
+          "id": "code-review",
+          "grade": 1
+        },
+        {
+          "id": "workflow",
+          "grade": 1
+        },
+        {
+          "id": "csv-policy",
+          "grade": 0
+        },
+        {
+          "id": "api-current",
+          "grade": 0
+        },
+        {
+          "id": "ui-size",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "来源证据链最相关。"
+    },
+    {
+      "id": "ME-07",
+      "family": "MEMORY",
+      "stratum": "lexical",
+      "live": false,
+      "task": "测试生成页在三种窗口大小下的可读性，遵循既定展示习惯。",
+      "candidateGrades": [
+        {
+          "id": "ui-theme",
+          "grade": 3
+        },
+        {
+          "id": "ui-size",
+          "grade": 3
+        },
+        {
+          "id": "music",
+          "grade": 0
+        },
+        {
+          "id": "mimo",
+          "grade": 0
+        },
+        {
+          "id": "api-old",
+          "grade": 0
+        },
+        {
+          "id": "privacy",
+          "grade": 1
+        }
+      ],
+      "referenceReason": "界面偏好和验收宽度均重要。"
+    },
+    {
+      "id": "ME-08",
+      "family": "MEMORY",
+      "stratum": "version",
+      "live": true,
+      "task": "旧资料建议图片立即返回文件，应该按现行方案如何处理？",
+      "candidateGrades": [
+        {
+          "id": "api-old",
+          "grade": 1
+        },
+        {
+          "id": "api-current",
+          "grade": 3
+        },
+        {
+          "id": "recovery",
+          "grade": 2
+        },
+        {
+          "id": "mimo",
+          "grade": 0
+        },
+        {
+          "id": "csv-example",
+          "grade": 0
+        },
+        {
+          "id": "jev-shadow",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "旧方案应识别为历史而非权威；现行异步优先。"
+    },
+    {
+      "id": "ME-09",
+      "family": "MEMORY",
+      "stratum": "semantic",
+      "live": false,
+      "task": "排查文字转语音请求为什么没有拿到音频文件。",
+      "candidateGrades": [
+        {
+          "id": "mimo",
+          "grade": 3
+        },
+        {
+          "id": "api-current",
+          "grade": 1
+        },
+        {
+          "id": "music",
+          "grade": 1
+        },
+        {
+          "id": "privacy",
+          "grade": 1
+        },
+        {
+          "id": "cost",
+          "grade": 0
+        },
+        {
+          "id": "workflow",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "MiMo TTS 请求和响应协议直接相关。"
+    },
+    {
+      "id": "ME-10",
+      "family": "MEMORY",
+      "stratum": "security",
+      "live": true,
+      "task": "当前协作任务读取共享媒体前，是否自动拥有本地 Workspace 文件权限？",
+      "candidateGrades": [
+        {
+          "id": "permission",
+          "grade": 3
+        },
+        {
+          "id": "workflow",
+          "grade": 2
+        },
+        {
+          "id": "recovery",
+          "grade": 1
+        },
+        {
+          "id": "api-current",
+          "grade": 0
+        },
+        {
+          "id": "jev-tool",
+          "grade": 2
+        },
+        {
+          "id": "ui-theme",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "分享不授予 FILE_READ；Workflow 和 Tool 边界提供上下文。"
+    },
+    {
+      "id": "TO-01",
+      "family": "TOOL",
+      "stratum": "lexical",
+      "live": false,
+      "task": "只列出测试工程根目录有哪些文件，不读取正文也不要修改。",
+      "candidateGrades": [
+        {
+          "id": "file.list",
+          "grade": 3
+        },
+        {
+          "id": "file.readText",
+          "grade": 1
+        },
+        {
+          "id": "file.writeText",
+          "grade": 0
+        },
+        {
+          "id": "file.createDirectory",
+          "grade": 0
+        },
+        {
+          "id": "bench.log.inspect",
+          "grade": 0
+        },
+        {
+          "id": "bench.docs.search",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "只需目录枚举；写权限工具不应优先。"
+    },
+    {
+      "id": "TO-02",
+      "family": "TOOL",
+      "stratum": "semantic",
+      "live": true,
+      "task": "读取配置文件并找到指定字段，然后把找到的行显示给我，不要写回文件。",
+      "candidateGrades": [
+        {
+          "id": "file.list",
+          "grade": 1
+        },
+        {
+          "id": "file.readText",
+          "grade": 3
+        },
+        {
+          "id": "file.writeText",
+          "grade": 0
+        },
+        {
+          "id": "bench.docs.search",
+          "grade": 1
+        },
+        {
+          "id": "bench.log.inspect",
+          "grade": 1
+        },
+        {
+          "id": "bench.csv.validate",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "读取文本直接完成目标；用户禁止写回。"
+    },
+    {
+      "id": "TO-03",
+      "family": "TOOL",
+      "stratum": "multi-step",
+      "live": true,
+      "task": "校验月度 CSV 各列类型，再计算月度订单总额，不改变源数据。",
+      "candidateGrades": [
+        {
+          "id": "file.readText",
+          "grade": 2
+        },
+        {
+          "id": "bench.csv.validate",
+          "grade": 3
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "grade": 3
+        },
+        {
+          "id": "file.writeText",
+          "grade": 0
+        },
+        {
+          "id": "bench.chart.render",
+          "grade": 0
+        },
+        {
+          "id": "bench.stats.anomaly",
+          "grade": 1
+        }
+      ],
+      "referenceReason": "表格校验与统计汇总两个工具必要，均只读。"
+    },
+    {
+      "id": "TO-04",
+      "family": "TOOL",
+      "stratum": "semantic",
+      "live": false,
+      "task": "为研发变更生成发布说明，内容只能基于已通过验证的变更。",
+      "candidateGrades": [
+        {
+          "id": "bench.tests.run",
+          "grade": 2
+        },
+        {
+          "id": "bench.release.notes",
+          "grade": 3
+        },
+        {
+          "id": "bench.api.check",
+          "grade": 1
+        },
+        {
+          "id": "file.createDirectory",
+          "grade": 0
+        },
+        {
+          "id": "bench.docs.cite",
+          "grade": 2
+        },
+        {
+          "id": "bench.disk.remove",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "生成发布说明优先，核对验证与证据辅助。"
+    },
+    {
+      "id": "TO-05",
+      "family": "TOOL",
+      "stratum": "security",
+      "live": true,
+      "task": "检查故障日志并整理可以安全分享的排查证据，不能泄露密钥。",
+      "candidateGrades": [
+        {
+          "id": "bench.log.inspect",
+          "grade": 3
+        },
+        {
+          "id": "bench.secrets.redact",
+          "grade": 3
+        },
+        {
+          "id": "file.readText",
+          "grade": 1
+        },
+        {
+          "id": "bench.docs.search",
+          "grade": 1
+        },
+        {
+          "id": "file.writeText",
+          "grade": 0
+        },
+        {
+          "id": "bench.disk.remove",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "日志读取和脱敏一起构成任务；任意写入或删除不是安全捷径。"
+    },
+    {
+      "id": "TO-06",
+      "family": "TOOL",
+      "stratum": "semantic",
+      "live": false,
+      "task": "查找报告中的引用来源并验证每个关键论断都有依据。",
+      "candidateGrades": [
+        {
+          "id": "bench.docs.search",
+          "grade": 3
+        },
+        {
+          "id": "bench.docs.cite",
+          "grade": 3
+        },
+        {
+          "id": "file.list",
+          "grade": 1
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "grade": 0
+        },
+        {
+          "id": "bench.api.check",
+          "grade": 0
+        },
+        {
+          "id": "bench.log.inspect",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "文档检索和引用核对均关键。"
+    },
+    {
+      "id": "TO-07",
+      "family": "TOOL",
+      "stratum": "constraints",
+      "live": false,
+      "task": "对已有隔离测试项目执行已批准的单元测试，不允许改写业务代码。",
+      "candidateGrades": [
+        {
+          "id": "bench.tests.run",
+          "grade": 3
+        },
+        {
+          "id": "file.readText",
+          "grade": 1
+        },
+        {
+          "id": "file.writeText",
+          "grade": 0
+        },
+        {
+          "id": "bench.docs.search",
+          "grade": 0
+        },
+        {
+          "id": "bench.chart.render",
+          "grade": 0
+        },
+        {
+          "id": "bench.disk.remove",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "测试工具高度相关；写入与删除不是必需。"
+    },
+    {
+      "id": "TO-08",
+      "family": "TOOL",
+      "stratum": "multi-step",
+      "live": true,
+      "task": "从已清洗的数据中找出异常订单并画一张离群值可视化图表。",
+      "candidateGrades": [
+        {
+          "id": "bench.stats.anomaly",
+          "grade": 3
+        },
+        {
+          "id": "bench.chart.render",
+          "grade": 3
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "grade": 1
+        },
+        {
+          "id": "bench.csv.validate",
+          "grade": 1
+        },
+        {
+          "id": "file.readText",
+          "grade": 1
+        },
+        {
+          "id": "bench.docs.cite",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "异常检测与绘图为互补工具。"
+    },
+    {
+      "id": "TO-09",
+      "family": "TOOL",
+      "stratum": "over-capacity",
+      "live": false,
+      "task": "为本轮审计读取日志、检查 API Schema、确认引用并导出发布记录。",
+      "candidateGrades": [
+        {
+          "id": "file.list",
+          "grade": 1
+        },
+        {
+          "id": "file.readText",
+          "grade": 2
+        },
+        {
+          "id": "bench.csv.validate",
+          "grade": 0
+        },
+        {
+          "id": "bench.csv.aggregate",
+          "grade": 0
+        },
+        {
+          "id": "bench.chart.render",
+          "grade": 0
+        },
+        {
+          "id": "bench.tests.run",
+          "grade": 1
+        },
+        {
+          "id": "bench.docs.search",
+          "grade": 1
+        },
+        {
+          "id": "bench.docs.cite",
+          "grade": 3
+        },
+        {
+          "id": "bench.log.inspect",
+          "grade": 3
+        },
+        {
+          "id": "bench.secrets.redact",
+          "grade": 2
+        },
+        {
+          "id": "bench.api.check",
+          "grade": 3
+        },
+        {
+          "id": "bench.release.notes",
+          "grade": 3
+        }
+      ],
+      "referenceReason": "候选数超过 8，比较基线原样 offer 与 Jev 最多 8 的质量—覆盖权衡；无关候选不可算好结果。"
+    },
+    {
+      "id": "TO-10",
+      "family": "TOOL",
+      "stratum": "multi-step",
+      "live": true,
+      "task": "需要对外输出事故报告：先检索日志、删除其中敏感字段，并检查说明中的来源。",
+      "candidateGrades": [
+        {
+          "id": "bench.log.inspect",
+          "grade": 3
+        },
+        {
+          "id": "bench.secrets.redact",
+          "grade": 3
+        },
+        {
+          "id": "bench.docs.cite",
+          "grade": 3
+        },
+        {
+          "id": "bench.docs.search",
+          "grade": 2
+        },
+        {
+          "id": "file.readText",
+          "grade": 1
+        },
+        {
+          "id": "file.writeText",
+          "grade": 0
+        },
+        {
+          "id": "bench.disk.remove",
+          "grade": 0
+        }
+      ],
+      "referenceReason": "多步安全证据任务，必须保留脱敏与来源核查；不要通过删除原始文件实现脱敏。"
+    }
+  ]
+}

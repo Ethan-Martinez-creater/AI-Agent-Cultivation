@@ -1,0 +1,31 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/packaged-artifact-integrity-final.json",
+    "originalSha256": "a0332580517b97fc02e5bf36de595100634d643ebff43b1b3c6bbba4182e3d62",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "checkedAt": "2026-10-15T16:43:05.336Z",
+  "status": "PASS",
+  "scope": "Existing packaged artifacts unchanged from preflight baseline; not a successful rebuild claim",
+  "facts": [
+    {
+      "path": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "actualSha256": "8a4cdbce704b86297dfee1bc0e22c9b92fc225bdb31eda6501aa668108e4b42c",
+      "expectedSha256": "8a4cdbce704b86297dfee1bc0e22c9b92fc225bdb31eda6501aa668108e4b42c"
+    },
+    {
+      "path": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\resources\\app.asar",
+      "actualSha256": "7deaf487916b0d0a65d723151c87658ce8e65588a37328c0add88e7ceac073b8",
+      "expectedSha256": "7deaf487916b0d0a65d723151c87658ce8e65588a37328c0add88e7ceac073b8"
+    },
+    {
+      "path": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\resources\\app.asar!/.vite/build/main-pyN31JHh.js",
+      "actualSha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71",
+      "expectedSha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71"
+    }
+  ]
+}

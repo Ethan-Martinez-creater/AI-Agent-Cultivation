@@ -1,0 +1,167 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/preflight/p6-wal-integrated-results.json",
+    "originalSha256": "1ffb90989e8ee2760d9c9d831ac348fe067da4c761054fe767b9fb67b17d626e",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "purpose": "Synthetic non-empty live-WAL online-backup method test; no app launch and no business-schema mutation",
+  "observedAt": "2026-10-15T14:50:33.271Z",
+  "status": "PASS",
+  "originalProfileDb": {
+    "path": "[REPOSITORY_ROOT]\\.tmp\\e1-packaged-preflight\\isolated\\66bba9eabc4342679aa2718a8770a78c\\cr-a-profile\\UserData\\data\\cultivation.sqlite",
+    "sha256Before": "63206470596633960f9b86eecb799c5c2ae248521c718f3d2bfa4c588232079d",
+    "sha256After": "63206470596633960f9b86eecb799c5c2ae248521c718f3d2bfa4c588232079d",
+    "unchanged": true
+  },
+  "template": {
+    "path": "[REPOSITORY_ROOT]\\.test-data\\e1-backup-main-1792075830888\\cr-a-online-backup.sqlite",
+    "sha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001"
+  },
+  "labClone": {
+    "path": "[REPOSITORY_ROOT]\\.test-data\\e1-backup-main-1792075830888\\p6-live-wal-lab.sqlite",
+    "initialCloneSha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001",
+    "derivedFromTemplate": true,
+    "differsFromOriginalPath": true
+  },
+  "writer": {
+    "journalMode": "wal",
+    "walAutoCheckpoint": 0,
+    "writerMarker": 4242,
+    "markerIsLabOnly": true,
+    "afterMarker": {
+      "stage": "writer-open-after-marker",
+      "db": {
+        "exists": true,
+        "sizeBytes": 2146304,
+        "sha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001",
+        "lastWriteTime": "2026-10-15T14:50:32.219Z"
+      },
+      "wal": {
+        "exists": true,
+        "sizeBytes": 4152,
+        "sha256": "51976ce7ea04cd20304940650b537c0f4e24261db309e2ace8946fa59759a1c3",
+        "lastWriteTime": "2026-10-15T14:50:32.939Z"
+      },
+      "shm": {
+        "exists": true,
+        "sizeBytes": 32768,
+        "sha256": "9dc34d7ab7964a585a77fd572599d34e5b97acd9acd2400d9999f62f6642cea2",
+        "lastWriteTime": "2026-10-15T14:50:32.681Z"
+      }
+    }
+  },
+  "readonlyReader": {
+    "queryOnly": 1,
+    "visibleMarker": 4242,
+    "beforeBackup": {
+      "stage": "writer-open-before-online-backup",
+      "db": {
+        "exists": true,
+        "sizeBytes": 2146304,
+        "sha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001",
+        "lastWriteTime": "2026-10-15T14:50:32.219Z"
+      },
+      "wal": {
+        "exists": true,
+        "sizeBytes": 4152,
+        "sha256": "51976ce7ea04cd20304940650b537c0f4e24261db309e2ace8946fa59759a1c3",
+        "lastWriteTime": "2026-10-15T14:50:32.939Z"
+      },
+      "shm": {
+        "exists": true,
+        "sizeBytes": 32768,
+        "sha256": "9dc34d7ab7964a585a77fd572599d34e5b97acd9acd2400d9999f62f6642cea2",
+        "lastWriteTime": "2026-10-15T14:50:32.681Z"
+      }
+    },
+    "afterBackup": {
+      "stage": "writer-open-after-online-backup",
+      "db": {
+        "exists": true,
+        "sizeBytes": 2146304,
+        "sha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001",
+        "lastWriteTime": "2026-10-15T14:50:32.219Z"
+      },
+      "wal": {
+        "exists": true,
+        "sizeBytes": 4152,
+        "sha256": "51976ce7ea04cd20304940650b537c0f4e24261db309e2ace8946fa59759a1c3",
+        "lastWriteTime": "2026-10-15T14:50:32.939Z"
+      },
+      "shm": {
+        "exists": true,
+        "sizeBytes": 32768,
+        "sha256": "9dc34d7ab7964a585a77fd572599d34e5b97acd9acd2400d9999f62f6642cea2",
+        "lastWriteTime": "2026-10-15T14:50:32.681Z"
+      }
+    }
+  },
+  "backup": {
+    "path": "[REPOSITORY_ROOT]\\.test-data\\e1-backup-main-1792075830888\\p6-live-wal-consistent-backup.sqlite",
+    "pages": {
+      "totalPages": 524,
+      "remainingPages": 0
+    },
+    "beforeVerify": {
+      "exists": true,
+      "sizeBytes": 2146304,
+      "sha256": "39aa5d7450c996c832406ae6bd2961da0fef25b1118191acd58fe6e491ddf65c",
+      "lastWriteTime": "2026-10-15T14:50:33.073Z"
+    },
+    "afterVerify": {
+      "exists": true,
+      "sizeBytes": 2146304,
+      "sha256": "39aa5d7450c996c832406ae6bd2961da0fef25b1118191acd58fe6e491ddf65c",
+      "lastWriteTime": "2026-10-15T14:50:33.073Z"
+    },
+    "hashFrozenDuringVerification": true,
+    "verification": {
+      "queryOnly": 1,
+      "userVersion": 4242,
+      "integrityCheck": [
+        "ok"
+      ],
+      "foreignKeyViolations": 0
+    }
+  },
+  "sourceTrioBeforeWriterClose": {
+    "stage": "before-normal-writer-close",
+    "db": {
+      "exists": true,
+      "sizeBytes": 2146304,
+      "sha256": "6b30b5c6d3270de19655d7683a81104cc7ac15a78f2dd036352c882f9c564001",
+      "lastWriteTime": "2026-10-15T14:50:32.219Z"
+    },
+    "wal": {
+      "exists": true,
+      "sizeBytes": 4152,
+      "sha256": "51976ce7ea04cd20304940650b537c0f4e24261db309e2ace8946fa59759a1c3",
+      "lastWriteTime": "2026-10-15T14:50:32.939Z"
+    },
+    "shm": {
+      "exists": true,
+      "sizeBytes": 32768,
+      "sha256": "9dc34d7ab7964a585a77fd572599d34e5b97acd9acd2400d9999f62f6642cea2",
+      "lastWriteTime": "2026-10-15T14:50:32.681Z"
+    }
+  },
+  "sourceTrioAfterNormalLabClose": {
+    "stage": "after-normal-lab-writer-close",
+    "db": {
+      "exists": true,
+      "sizeBytes": 2146304,
+      "sha256": "f18f677c0d14d260d02d5b5df97ba5baa5b757c86d047126a362c41eed9b4556",
+      "lastWriteTime": "2026-10-15T14:50:33.345Z"
+    },
+    "wal": {
+      "exists": false
+    },
+    "shm": {
+      "exists": false
+    }
+  }
+}
