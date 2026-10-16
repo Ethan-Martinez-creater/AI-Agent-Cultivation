@@ -1,0 +1,10 @@
+{
+  "links": 91,
+  "bad": [
+    {
+      "path": "docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md",
+      "target": "docs/AI_Agent_Cultivation_V1_E1_Feasibility_Review.md"
+    }
+  ],
+  "exceptionPolicy": "Frozen E0 historical link retained byte-for-byte; use publication index/map for E1 target."
+}

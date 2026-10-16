@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-10-16T05:07:50.157Z",
+  "baseline": "a2551bbc9dbd87ec4701183a53a2635966326df4",
+  "trackedDiff": [],
+  "historicalUntrackedFilesPreserved": 733,
+  "priorChecks": [
+    {
+      "manifest": "docs/evidence/v1-engineering-validation/preflight/evidence-manifest.json",
+      "entries": 71,
+      "sha256": "0e0327f2de13917fca85f2c117c9e5f5cab4bf7548ead3f274ce93cbd178d2db",
+      "status": "PASS"
+    },
+    {
+      "manifest": "docs/evidence/v1-engineering-validation/e3/evidence-manifest.json",
+      "entries": 59,
+      "sha256": "e7ce69c19ed366a52e4c7f19d8f18f79e9abab6cd59bce5af1b8a7c98af9eb17",
+      "status": "PASS"
+    }
+  ],
+  "oneFormalCase": true,
+  "mainKillCount": 1,
+  "allFirstRestartChecksPass": true,
+  "allOriginalVerifiedProcessesAbsent": true,
+  "remainingCorrectiveApplicationCount": 0,
+  "executedControllerAndSafetySourceHashesMatch": true,
+  "commitOrPush": false
+}

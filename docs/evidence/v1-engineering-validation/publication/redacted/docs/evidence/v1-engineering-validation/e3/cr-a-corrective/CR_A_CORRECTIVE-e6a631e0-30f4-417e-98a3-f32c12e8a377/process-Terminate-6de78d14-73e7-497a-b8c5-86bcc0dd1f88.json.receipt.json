@@ -1,0 +1,58 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json.receipt.json",
+    "originalSha256": "903c286bccfdb4e20c2778df8cfaa01964cf1b726eeab34782771e726b9d3f50",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "status": "TERMINATED",
+  "case": "CR_A_CORRECTIVE",
+  "mainPid": 29940,
+  "mainKillOrdinal": 1,
+  "mainStopRequested": true,
+  "allOriginalIdentitiesAbsent": true,
+  "operations": [
+    {
+      "pid": 29940,
+      "action": "STOP_EXACT_MAIN_PID",
+      "status": "STOP_REQUEST_RETURNED",
+      "identity": {
+        "pid": 29940,
+        "parentPid": 26800,
+        "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --inspect-brk=127.0.0.1:57253 --remote-debugging-port=57254 --gate1-fake-model --r4-fake-routing --w22-fake-software \"--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-corrective-runtime\\CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377\\profile\\Chromium\"",
+        "createdUtc": "2026-10-16T04:51:53.7623460Z",
+        "createdUtcTicks": "639277231137623460"
+      }
+    },
+    {
+      "pid": 10572,
+      "action": "NONE",
+      "status": "EXITED",
+      "actual": null
+    },
+    {
+      "pid": 25304,
+      "action": "NONE",
+      "status": "EXITED",
+      "actual": null
+    },
+    {
+      "pid": 16380,
+      "action": "NONE",
+      "status": "EXITED",
+      "actual": null
+    },
+    {
+      "pid": 29944,
+      "action": "NONE",
+      "status": "EXITED",
+      "actual": null
+    }
+  ],
+  "ledgerPath": "[REPOSITORY_ROOT]\\.tmp\\e3-corrective-runtime\\CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377\\raw-controller\\process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json.ledger.ndjson",
+  "finishedAt": "2026-10-16T04:52:31.7338970+00:00"
+}

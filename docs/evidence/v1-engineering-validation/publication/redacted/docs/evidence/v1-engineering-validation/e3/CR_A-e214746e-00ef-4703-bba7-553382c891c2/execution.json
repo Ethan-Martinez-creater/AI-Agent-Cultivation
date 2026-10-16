@@ -1,0 +1,282 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/CR_A-e214746e-00ef-4703-bba7-553382c891c2/execution.json",
+    "originalSha256": "fe7a2566522aae5d030d23825ccd1806168b811182ecfbc8b54a42a7e3d9deba",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "schemaVersion": 1,
+  "case": "CR_A",
+  "scenario": "CR_A_P4",
+  "token": "CR_A-e214746e-00ef-4703-bba7-553382c891c2",
+  "status": "BLOCKED_BEFORE_KILL",
+  "startedAt": "2026-10-16T02:59:05.223Z",
+  "executablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+  "profile": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\profile",
+  "workspace": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\workspace",
+  "databasePath": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\profile\\UserData\\data\\cultivation.sqlite",
+  "runRoot": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2",
+  "fixtureLanguage": "TypeScript cross-layer fixture; Node 24 executes .ts module exports via the real permission-gated verify_repository command. No tsc/static-typecheck claim.",
+  "fixtureFlags": [
+    "--gate1-fake-model",
+    "--r4-fake-routing",
+    "--w22-fake-software"
+  ],
+  "restrictions": {
+    "realProviderCalls": 0,
+    "productionFilesModified": false,
+    "manualDatabaseBusinessWrites": false
+  },
+  "generations": [
+    {
+      "generation": 0,
+      "mainPid": 18164,
+      "initialIdentity": {
+        "pid": 18164,
+        "parentPid": 23792,
+        "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --inspect-brk=127.0.0.1:59463 --remote-debugging-port=59464 --gate1-fake-model --r4-fake-routing --w22-fake-software \"--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\profile\\Chromium\"",
+        "createdUtc": "2026-10-16T02:59:05.8003370Z",
+        "createdUtcTicks": "639277163458003370"
+      },
+      "runtimeIdentity": {
+        "pid": 18164,
+        "execPath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "userData": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\profile\\UserData",
+        "argv": [
+          "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+          "--inspect-brk=127.0.0.1:59463",
+          "--remote-debugging-port=59464",
+          "--gate1-fake-model",
+          "--r4-fake-routing",
+          "--w22-fake-software",
+          "--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\profile\\Chromium"
+        ]
+      },
+      "profileVerified": true,
+      "observerArmedBeforeBootstrap": true,
+      "readyAt": "2026-10-16T02:59:13.548Z",
+      "normalClose": {
+        "exitCode": 0,
+        "finishedAt": "2026-10-16T02:59:14.993Z"
+      }
+    }
+  ],
+  "stages": {},
+  "breakpoints": [
+    {
+      "label": "P4 completeExecution after transaction, conditional S06",
+      "requested": {
+        "index": 1001489,
+        "lineNumber": 9625,
+        "columnNumber": 7198
+      },
+      "condition": "n.stepId === \"S06\"",
+      "scanRange": {
+        "start": {
+          "scriptId": "134",
+          "lineNumber": 9625,
+          "columnNumber": 7196
+        },
+        "end": {
+          "scriptId": "134",
+          "lineNumber": 9625,
+          "columnNumber": 7206
+        }
+      },
+      "rawPossibleBreakpointsResponse": {
+        "locations": []
+      },
+      "rawSetBreakpointResponse": {
+        "breakpointId": "4:9625:7198:134",
+        "actualLocation": {
+          "scriptId": "134",
+          "lineNumber": 9625,
+          "columnNumber": 7198
+        }
+      },
+      "actualLocations": [
+        {
+          "scriptId": "134",
+          "lineNumber": 9625,
+          "columnNumber": 7198
+        }
+      ],
+      "breakpointId": "4:9625:7198:134",
+      "possibleBreakpoints": []
+    }
+  ],
+  "hits": [],
+  "observations": [
+    {
+      "at": "2026-10-16T02:59:13.549Z",
+      "text": "generation 0 healthy, Main=18164, observer armed before bootstrap"
+    },
+    {
+      "at": "2026-10-16T02:59:13.894Z",
+      "text": "stopped: {\"exceptionId\":1,\"text\":\"Uncaught (in promise) TypeError: A dynamic import callback was not specified.\",\"lineNumber\":280,\"columnNumber\":9,\"scriptId\":\"77\",\"stackTrace\":{\"callFrames\":[{\"functionName\":\"importModuleDynamicallyCallback\",\"scriptId\":\"77\",\"url\":\"node:internal/modules/esm/utils\",\"lineNumber\":279,\"columnNumber\":8},{\"functionName\":\"\",\"scriptId\":\"361\",\"url\":\"\",\"lineNumber\":0,\"columnNumber\":26},{\"functionName\":\"\",\"scriptId\":\"361\",\"url\":\"\",\"lineNumber\":2,\"columnNumber\":162}]},\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"TypeError\",\"description\":\"TypeError: A dynamic import callback was not specified.\\n    at importModuleDynamicallyCallback (node:internal/modules/esm/utils:280:9)\\n    at <anonymous>:1:27\\n    at <anonymous>:3:163\",\"objectId\":\"1434940932758395396.1.32\"}}"
+    },
+    {
+      "at": "2026-10-16T02:59:14.994Z",
+      "text": "final BLOCKED_BEFORE_KILL; [REPOSITORY_ROOT]\\docs\\evidence\\v1-engineering-validation\\e3\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\execution.json"
+    }
+  ],
+  "killOrdinal": 0,
+  "app": {
+    "mainPid": 18164,
+    "launcherPid": 18164,
+    "mainExecPath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+    "runtimeIdentity": {
+      "pid": 18164,
+      "execPath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "userData": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\profile\\UserData",
+      "argv": [
+        "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "--inspect-brk=127.0.0.1:59463",
+        "--remote-debugging-port=59464",
+        "--gate1-fake-model",
+        "--r4-fake-routing",
+        "--w22-fake-software",
+        "--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-e214746e-00ef-4703-bba7-553382c891c2\\profile\\Chromium"
+      ]
+    },
+    "inspectorPort": 59463
+  },
+  "bundle": {
+    "url": "file:///[REPOSITORY_ROOT]/out/AI%20Agent%20Cultivation-win32-x64/resources/app.asar/.vite/build/main-pyN31JHh.js",
+    "scriptId": "134",
+    "sha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71",
+    "length": 3177404,
+    "expectedSha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71",
+    "hashMatchesApproved": true
+  },
+  "staticLocations": {
+    "P4": {
+      "index": 1001489,
+      "lineNumber": 9625,
+      "columnNumber": 7198
+    },
+    "P5entry": {
+      "index": 2551490,
+      "lineNumber": 9848,
+      "columnNumber": 7607
+    },
+    "P5postwrite": {
+      "index": 2557518,
+      "lineNumber": 9848,
+      "columnNumber": 13635
+    }
+  },
+  "fixtureSetup": {
+    "actors": [
+      {
+        "id": "b742294e-4b91-45dd-a5c9-e59edc0ac820",
+        "name": "青岚"
+      },
+      {
+        "id": "76771c8e-7199-4611-9267-5e7e4f9ca2a2",
+        "name": "明衡"
+      }
+    ],
+    "serverId": "499c5437-91e4-43aa-a330-5aca44015a7b",
+    "toolId": "499c5437-91e4-43aa-a330-5aca44015a7b:verify_repository",
+    "mcpStatus": "READY",
+    "routingConfig": {
+      "cloudEnabled": false,
+      "policyVersion": "r4-controlled-routing-v1"
+    },
+    "r3Config": {
+      "provider": "TYPESAFE",
+      "model": "jev-1.13.0",
+      "mode": "SHADOW",
+      "enabled": false,
+      "configured": false,
+      "keySource": "NONE"
+    },
+    "availability": [
+      {
+        "teammateId": "b742294e-4b91-45dd-a5c9-e59edc0ac820",
+        "observations": [
+          {
+            "teammateId": "b742294e-4b91-45dd-a5c9-e59edc0ac820",
+            "runtimeProfileId": "a93ed185-6db0-46dd-b3b3-50a46adb216c",
+            "status": "AVAILABLE",
+            "lastCheckedAt": "2026-10-16T02:59:13.883Z",
+            "lastSuccessAt": "2026-10-16T02:59:13.883Z",
+            "lastFailureAt": null,
+            "recentOutcomes": [
+              {
+                "kind": "SUCCESS",
+                "code": "PROBE_SUCCEEDED",
+                "checkedAt": "2026-10-16T02:59:13.883Z"
+              }
+            ],
+            "policyVersion": "r3-2-availability-v1"
+          }
+        ],
+        "latest": {
+          "teammateId": "b742294e-4b91-45dd-a5c9-e59edc0ac820",
+          "runtimeProfileId": "a93ed185-6db0-46dd-b3b3-50a46adb216c",
+          "status": "AVAILABLE",
+          "lastCheckedAt": "2026-10-16T02:59:13.883Z",
+          "lastSuccessAt": "2026-10-16T02:59:13.883Z",
+          "lastFailureAt": null,
+          "recentOutcomes": [
+            {
+              "kind": "SUCCESS",
+              "code": "PROBE_SUCCEEDED",
+              "checkedAt": "2026-10-16T02:59:13.883Z"
+            }
+          ],
+          "policyVersion": "r3-2-availability-v1"
+        }
+      },
+      {
+        "teammateId": "76771c8e-7199-4611-9267-5e7e4f9ca2a2",
+        "observations": [
+          {
+            "teammateId": "76771c8e-7199-4611-9267-5e7e4f9ca2a2",
+            "runtimeProfileId": "23101dae-a1f5-40b3-9cfb-af4140698132",
+            "status": "AVAILABLE",
+            "lastCheckedAt": "2026-10-16T02:59:13.890Z",
+            "lastSuccessAt": "2026-10-16T02:59:13.890Z",
+            "lastFailureAt": null,
+            "recentOutcomes": [
+              {
+                "kind": "SUCCESS",
+                "code": "PROBE_SUCCEEDED",
+                "checkedAt": "2026-10-16T02:59:13.890Z"
+              }
+            ],
+            "policyVersion": "r3-2-availability-v1"
+          }
+        ],
+        "latest": {
+          "teammateId": "76771c8e-7199-4611-9267-5e7e4f9ca2a2",
+          "runtimeProfileId": "23101dae-a1f5-40b3-9cfb-af4140698132",
+          "status": "AVAILABLE",
+          "lastCheckedAt": "2026-10-16T02:59:13.890Z",
+          "lastSuccessAt": "2026-10-16T02:59:13.890Z",
+          "lastFailureAt": null,
+          "recentOutcomes": [
+            {
+              "kind": "SUCCESS",
+              "code": "PROBE_SUCCEEDED",
+              "checkedAt": "2026-10-16T02:59:13.890Z"
+            }
+          ],
+          "policyVersion": "r3-2-availability-v1"
+        }
+      }
+    ],
+    "modelGateway": "--gate1-fake-model probe/model gateway; no real provider/API invocation"
+  },
+  "error": {
+    "message": "{\"exceptionId\":1,\"text\":\"Uncaught (in promise) TypeError: A dynamic import callback was not specified.\",\"lineNumber\":280,\"columnNumber\":9,\"scriptId\":\"77\",\"stackTrace\":{\"callFrames\":[{\"functionName\":\"importModuleDynamicallyCallback\",\"scriptId\":\"77\",\"url\":\"node:internal/modules/esm/utils\",\"lineNumber\":279,\"columnNumber\":8},{\"functionName\":\"\",\"scriptId\":\"361\",\"url\":\"\",\"lineNumber\":0,\"columnNumber\":26},{\"functionName\":\"\",\"scriptId\":\"361\",\"url\":\"\",\"lineNumber\":2,\"columnNumber\":162}]},\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"TypeError\",\"description\":\"TypeError: A dynamic import callback was not specified.\\n    at importModuleDynamicallyCallback (node:internal/modules/esm/utils:280:9)\\n    at <anonymous>:1:27\\n    at <anonymous>:3:163\",\"objectId\":\"1434940932758395396.1.32\"}}",
+    "stack": "Error: {\"exceptionId\":1,\"text\":\"Uncaught (in promise) TypeError: A dynamic import callback was not specified.\",\"lineNumber\":280,\"columnNumber\":9,\"scriptId\":\"77\",\"stackTrace\":{\"callFrames\":[{\"functionName\":\"importModuleDynamicallyCallback\",\"scriptId\":\"77\",\"url\":\"node:internal/modules/esm/utils\",\"lineNumber\":279,\"columnNumber\":8},{\"functionName\":\"\",\"scriptId\":\"361\",\"url\":\"\",\"lineNumber\":0,\"columnNumber\":26},{\"functionName\":\"\",\"scriptId\":\"361\",\"url\":\"\",\"lineNumber\":2,\"columnNumber\":162}]},\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"TypeError\",\"description\":\"TypeError: A dynamic import callback was not specified.\\n    at importModuleDynamicallyCallback (node:internal/modules/esm/utils:280:9)\\n    at <anonymous>:1:27\\n    at <anonymous>:3:163\",\"objectId\":\"1434940932758395396.1.32\"}}\n    at Object.evaluate (file:///[REPOSITORY_ROOT]/scripts/engineering-validation/e3-packaged-controller.mjs:990:40)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async chooseWorkspaceBeforeWorkflowDrawer (file:///[REPOSITORY_ROOT]/scripts/engineering-validation/e3-packaged-controller.mjs:213:3)\n    at async file:///[REPOSITORY_ROOT]/scripts/engineering-validation/e3-packaged-controller.mjs:1055:5"
+  },
+  "finishedAt": "2026-10-16T02:59:14.993Z"
+}

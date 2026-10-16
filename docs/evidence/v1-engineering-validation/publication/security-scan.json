@@ -1,0 +1,18 @@
+{
+  "scope": "All 214 explicit public counterparts; separate manual review required for semantic privacy and synthetic credential markers",
+  "files": 214,
+  "jsonParsed": 115,
+  "rules": [
+    "PRIVATE_KEY",
+    "GITHUB_TOKEN",
+    "PROVIDER_KEY",
+    "JWT",
+    "PERSONAL_ABSOLUTE_PATH",
+    "FULL_ENVIRONMENT_DUMP",
+    "MACHINE_IDENTITY"
+  ],
+  "findings": [],
+  "status": "AUTOMATED_PATTERNS_CLEAR",
+  "binaryFiles": [],
+  "limits": "Pattern and independent semantic review are complementary; hashes are provenance, not proof of secret absence."
+}

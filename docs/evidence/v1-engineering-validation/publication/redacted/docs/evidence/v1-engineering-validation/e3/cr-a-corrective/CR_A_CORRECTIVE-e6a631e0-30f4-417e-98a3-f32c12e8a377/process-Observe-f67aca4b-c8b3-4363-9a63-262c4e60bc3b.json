@@ -1,0 +1,18 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-f67aca4b-c8b3-4363-9a63-262c4e60bc3b.json",
+    "originalSha256": "3426a1bccae73e533419d0802b333a051fef4a1be4aaf93cdaf3439cdf76f5b6",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH",
+      "LOCAL_TOOL_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "mainPid": 29940,
+  "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+  "profile": "[REPOSITORY_ROOT]\\.tmp\\e3-corrective-runtime\\CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377\\profile",
+  "nodeExecutable": "[NODE_RUNTIME_ROOT]\\node.exe",
+  "fixtureScript": "[REPOSITORY_ROOT]\\scripts\\fixtures\\software-mcp-fixture.mjs",
+  "verifierScript": "[REPOSITORY_ROOT]\\.tmp\\e3-corrective-runtime\\CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377\\workspace\\verify.mjs"
+}

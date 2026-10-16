@@ -1,0 +1,65 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json",
+    "originalSha256": "fd781807460f4b13b0126283fd8347ac2ccea60eeecb83f2c4469d7b9d296fa3",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH",
+      "LOCAL_TOOL_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "mainPid": 13864,
+  "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+  "profile": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\profile",
+  "nodeExecutable": "[NODE_RUNTIME_ROOT]\\node.exe",
+  "fixtureScript": "[REPOSITORY_ROOT]\\scripts\\fixtures\\software-mcp-fixture.mjs",
+  "verifierScript": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\workspace\\verify.mjs",
+  "authorization": "USER_APPROVED_E3_ONE_PLANNED_KILL",
+  "case": "CR_B",
+  "killOrdinal": 1,
+  "profileVerifiedFromRuntime": true,
+  "breakpointAndSnapshotVerified": true,
+  "identities": [
+    {
+      "pid": 13864,
+      "parentPid": 25444,
+      "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --inspect-brk=127.0.0.1:60441 --remote-debugging-port=60442 --gate1-fake-model --r4-fake-routing --w22-fake-software \"--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\profile\\Chromium\"",
+      "createdUtc": "2026-10-16T03:08:03.3700260Z",
+      "createdUtcTicks": "639277168833700260"
+    },
+    {
+      "pid": 22648,
+      "parentPid": 13864,
+      "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --type=gpu-process --user-data-dir=\"[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\profile\\UserData\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=2052,i,9529665259522839171,11556923985222738471,262144 --enable-features=PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=2056,i,4933592979310697821,14931266601458582090,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2044 /prefetch:2",
+      "createdUtc": "2026-10-16T03:08:05.3997610Z",
+      "createdUtcTicks": "639277168853997610"
+    },
+    {
+      "pid": 18484,
+      "parentPid": 13864,
+      "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\profile\\UserData\" --standard-schemes=cultivation-media --secure-schemes=cultivation-media --cors-schemes=cultivation-media --fetch-schemes=cultivation-media --streaming-schemes=cultivation-media --field-trial-handle=2052,i,9529665259522839171,11556923985222738471,262144 --enable-features=PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=2056,i,4933592979310697821,14931266601458582090,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2220 /prefetch:3",
+      "createdUtc": "2026-10-16T03:08:05.4097240Z",
+      "createdUtcTicks": "639277168854097240"
+    },
+    {
+      "pid": 24892,
+      "parentPid": 13864,
+      "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --type=renderer --user-data-dir=\"[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\profile\\UserData\" --standard-schemes=cultivation-media --secure-schemes=cultivation-media --cors-schemes=cultivation-media --fetch-schemes=cultivation-media --streaming-schemes=cultivation-media --app-user-model-id=com.squirrel.AiAgentCultivation.AI-Agent-Cultivation --app-path=\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\resources\\app.asar\" --enable-sandbox --remote-debugging-port=60442 --video-capture-use-gpu-memory-buffer --lang=zh-CN --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --launch-time-ticks=6795948618 --field-trial-handle=2052,i,9529665259522839171,11556923985222738471,262144 --enable-features=PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=2056,i,4933592979310697821,14931266601458582090,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2912 /prefetch:1",
+      "createdUtc": "2026-10-16T03:08:06.1165690Z",
+      "createdUtcTicks": "639277168861165690"
+    },
+    {
+      "pid": 21624,
+      "parentPid": 13864,
+      "executable": "[NODE_RUNTIME_ROOT]\\node.exe",
+      "commandLine": "[NODE_RUNTIME_ROOT]\\node.exe \"[REPOSITORY_ROOT]\\scripts\\fixtures\\software-mcp-fixture.mjs\"",
+      "createdUtc": "2026-10-16T03:08:09.8882310Z",
+      "createdUtcTicks": "639277168898882310"
+    }
+  ]
+}

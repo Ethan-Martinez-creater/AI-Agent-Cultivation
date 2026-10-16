@@ -1,0 +1,465 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/baseline-2026-10-16T04-16-02-325Z.json",
+    "originalSha256": "bbe1a6432d26ac7b075701d600ef07979604afd3026e332cb57c2654bba8703e",
+    "redactionCategories": [
+      "UNRELATED_WORKTREE_INVENTORY"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "stage": "E3_P0",
+  "status": "PASS",
+  "checkedAt": "2026-10-16T04:16:02.115Z",
+  "baseline": "a2551bbc9dbd87ec4701183a53a2635966326df4",
+  "branch": "main",
+  "node": "v24.15.0",
+  "platform": "win32",
+  "architecture": "x64",
+  "hashes": {
+    "document": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+    "dataset": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+    "mapping": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62"
+  },
+  "migrations": [
+    {
+      "path": "migrations/0001_initial.sql",
+      "rawSha256": "bbf2d9589a85d7fcf11792b2b4dc0dc9df2d3b473a546c93b2f862d1ac28be46",
+      "gitContentSha256": "bbf2d9589a85d7fcf11792b2b4dc0dc9df2d3b473a546c93b2f862d1ac28be46",
+      "lfSha256": "bbf2d9589a85d7fcf11792b2b4dc0dc9df2d3b473a546c93b2f862d1ac28be46",
+      "gitBlobObjectId": "bf37d8162c2e5d1b59899130d8ffd3b9925d907f"
+    },
+    {
+      "path": "migrations/0002_gate1.sql",
+      "rawSha256": "50668a7440152588454d01460c39142518e1c37444ee2941bb02b9bddaa8d626",
+      "gitContentSha256": "0c0e9a2dafd77f10aca9a36047f18f079949115b145e7fa094ec0c55637ca5f7",
+      "lfSha256": "0c0e9a2dafd77f10aca9a36047f18f079949115b145e7fa094ec0c55637ca5f7",
+      "gitBlobObjectId": "2cf977625123f397e2333be3a37380ad3998dfd6"
+    },
+    {
+      "path": "migrations/0003_gate2.sql",
+      "rawSha256": "26ff9b7225421924a3ed833e37121f2284141f978b7e3035d343110ad22914fc",
+      "gitContentSha256": "0e65fc460642728a851df58691bcedae8d17c337bccbef8dcba7d9dcda442179",
+      "lfSha256": "0e65fc460642728a851df58691bcedae8d17c337bccbef8dcba7d9dcda442179",
+      "gitBlobObjectId": "fbf5f835fb974469ab178fd15a1ff40590475077"
+    },
+    {
+      "path": "migrations/0004_gate3.sql",
+      "rawSha256": "2f68454d7d3678fe7a3bebbabbe24b7aca16e8d729d65ba8d9c1344b4a22452a",
+      "gitContentSha256": "2f68454d7d3678fe7a3bebbabbe24b7aca16e8d729d65ba8d9c1344b4a22452a",
+      "lfSha256": "2f68454d7d3678fe7a3bebbabbe24b7aca16e8d729d65ba8d9c1344b4a22452a",
+      "gitBlobObjectId": "61d4d592574ac1dd941cba0cc1627c838ca91566"
+    },
+    {
+      "path": "migrations/0005_gate4.sql",
+      "rawSha256": "1504456d144cf4497903de5332d674f16a2a0f6c025f31a4ca263ca8e22e4e6a",
+      "gitContentSha256": "1504456d144cf4497903de5332d674f16a2a0f6c025f31a4ca263ca8e22e4e6a",
+      "lfSha256": "1504456d144cf4497903de5332d674f16a2a0f6c025f31a4ca263ca8e22e4e6a",
+      "gitBlobObjectId": "3a0ea726083a1cab58ffa4e904b8bcf0ec9c2fed"
+    },
+    {
+      "path": "migrations/0006_gate5.sql",
+      "rawSha256": "c60e466f8e208c8381071f16d027b6e5642e2419b9032e3ade5fbe49f6d99c40",
+      "gitContentSha256": "b406985bcb00a73ee5ab5b011b350c5c6edc990d474e0ea47a47691b8c88a2bc",
+      "lfSha256": "b406985bcb00a73ee5ab5b011b350c5c6edc990d474e0ea47a47691b8c88a2bc",
+      "gitBlobObjectId": "2fbb0bd9ba4d4b0a843182c35a0325d0106724ee"
+    },
+    {
+      "path": "migrations/0007_gate6.sql",
+      "rawSha256": "ef9563f1b455e5d78826108bdea879df3ddabd3f705e869cf68a874418bc14c8",
+      "gitContentSha256": "46e27868c67dbcb1b585eca4f645ce844b58e397988bc63cce9fcf0249687760",
+      "lfSha256": "46e27868c67dbcb1b585eca4f645ce844b58e397988bc63cce9fcf0249687760",
+      "gitBlobObjectId": "ea20cd35f556824b815d77c0c15a997d654f884c"
+    },
+    {
+      "path": "migrations/0008_gate6_collaboration_outcome.sql",
+      "rawSha256": "571c7f5bcfb873e05470e315d2f177c7ae32e04e5f047c86d6f675937a1bf651",
+      "gitContentSha256": "1ff11414e227f85419cbfb74fbcc892804bf1813101e2ea756f0fa6bb3f5906b",
+      "lfSha256": "1ff11414e227f85419cbfb74fbcc892804bf1813101e2ea756f0fa6bb3f5906b",
+      "gitBlobObjectId": "8aac9cdd99459ed7da7a7873ba233e43b7a83c77"
+    },
+    {
+      "path": "migrations/0009_routing_foundation.sql",
+      "rawSha256": "3a2b2ed8e41bf5cb17a5c5427f228cacb4b6c462e29fc996775f48ac6c75e8bb",
+      "gitContentSha256": "f013ec88e6b21b509d9fdba98dd553a9c632b0a940ab8007e74751aae208391a",
+      "lfSha256": "f013ec88e6b21b509d9fdba98dd553a9c632b0a940ab8007e74751aae208391a",
+      "gitBlobObjectId": "ba96659b73ef130f193958c307617d86ea023372"
+    },
+    {
+      "path": "migrations/0010_r0_capability_evidence_provenance.sql",
+      "rawSha256": "583cb90de2b3ae194cc9be278186f2e38f94b5803682305cdb143527a22bbc4b",
+      "gitContentSha256": "583cb90de2b3ae194cc9be278186f2e38f94b5803682305cdb143527a22bbc4b",
+      "lfSha256": "583cb90de2b3ae194cc9be278186f2e38f94b5803682305cdb143527a22bbc4b",
+      "gitBlobObjectId": "d75955efefd398ed007527da10b994dcfe6aac6a"
+    },
+    {
+      "path": "migrations/0011_r1_dynamic_capability.sql",
+      "rawSha256": "645cab68a08cebc9bcf704dbce830494dc30c3ba032adbf5c6851075077327b0",
+      "gitContentSha256": "cc2aac614e00074133a13e13c3819dcc8c61af9175f09002a13d66298d5b8806",
+      "lfSha256": "cc2aac614e00074133a13e13c3819dcc8c61af9175f09002a13d66298d5b8806",
+      "gitBlobObjectId": "68de6c7369ceceab50b6fb714066af4d14dda932"
+    },
+    {
+      "path": "migrations/0012_r2_human_bridge.sql",
+      "rawSha256": "e78a3d04508b331e8b5ff38df067f5a11e25ac0e65804316a6d2b601c970b29e",
+      "gitContentSha256": "4220f795402c197b3da2f1dcea15efe8813e72836679783fc7d58325083f6b65",
+      "lfSha256": "4220f795402c197b3da2f1dcea15efe8813e72836679783fc7d58325083f6b65",
+      "gitBlobObjectId": "d18fa009616c116bdea4d234adf5cd765a68c354"
+    },
+    {
+      "path": "migrations/0013_r3_decision_plane.sql",
+      "rawSha256": "08305d87fc4567710345d2623ac90266de451adc766a9d7e7458cbcb2774f845",
+      "gitContentSha256": "031be87a8ce74e44086ef277dd9e4f2aac088b15a93f83ca3aca8378b6202e8f",
+      "lfSha256": "031be87a8ce74e44086ef277dd9e4f2aac088b15a93f83ca3aca8378b6202e8f",
+      "gitBlobObjectId": "a61025c3f1a80950f61387802f4ce5f423f30dbd"
+    },
+    {
+      "path": "migrations/0014_r3_1_identity_capability.sql",
+      "rawSha256": "bd25d0d1919ebd6c878e17e821d332f5233b842ec24f3b7559467219a5f3cdff",
+      "gitContentSha256": "5714b0754322070e0b31654fa55e627e8c76a2b028b743d523f49350521741f9",
+      "lfSha256": "5714b0754322070e0b31654fa55e627e8c76a2b028b743d523f49350521741f9",
+      "gitBlobObjectId": "afa08962c3b3689f408d7eff9c66921d75affb49"
+    },
+    {
+      "path": "migrations/0015_r3_2_availability.sql",
+      "rawSha256": "f4292ab05a35a267d712f68375ff3b6b40ef9e624961f73f3ef70a31362c8fcb",
+      "gitContentSha256": "7b3c5e7048e6db02428183f783e54386931e70e89caee824ae84da6924046a47",
+      "lfSha256": "7b3c5e7048e6db02428183f783e54386931e70e89caee824ae84da6924046a47",
+      "gitBlobObjectId": "fa330fcdb3effcf4218dc276326c27242c9d6f5c"
+    },
+    {
+      "path": "migrations/0016_r4_controlled_routing.sql",
+      "rawSha256": "b3b496ff019d323f7d81d1151f2493b693eb76ed06abbc75b04ae4d27f70815a",
+      "gitContentSha256": "ff6a7728dbe470f693fdbe6010fe48af9fdea001eaf9d132d29dfe80fa801942",
+      "lfSha256": "ff6a7728dbe470f693fdbe6010fe48af9fdea001eaf9d132d29dfe80fa801942",
+      "gitBlobObjectId": "dc477853e2a73089180282694ab11c68c0f886e6"
+    },
+    {
+      "path": "migrations/0017_w1_workflow_foundation.sql",
+      "rawSha256": "d1220f73322daa73159ec4815266c20be869ec6b4df7bb1b5bdd4776910bf712",
+      "gitContentSha256": "d1220f73322daa73159ec4815266c20be869ec6b4df7bb1b5bdd4776910bf712",
+      "lfSha256": "d1220f73322daa73159ec4815266c20be869ec6b4df7bb1b5bdd4776910bf712",
+      "gitBlobObjectId": "4a36731ff73edd2008fc6623c7a7424c4824df9d"
+    },
+    {
+      "path": "migrations/0018_w1_workflow_io.sql",
+      "rawSha256": "9d0392bdac09021151f1af7fa51c53de91c761cb40e6f2e095978eb55352b4f1",
+      "gitContentSha256": "9d0392bdac09021151f1af7fa51c53de91c761cb40e6f2e095978eb55352b4f1",
+      "lfSha256": "9d0392bdac09021151f1af7fa51c53de91c761cb40e6f2e095978eb55352b4f1",
+      "gitBlobObjectId": "a1d7e6a73ef1a6bc3217aa29d708e01fec0c0466"
+    },
+    {
+      "path": "migrations/0019_w2_builtin_workflow_contract.sql",
+      "rawSha256": "5605166ae06a2f6b6ecf8b8093fe30328321dfc9ae9850ad7dd27cb2e4eeafb9",
+      "gitContentSha256": "ace28be8c200ebfba60625017e3a8b5bfcb5a6435dae178d0a674d1664a9ddee",
+      "lfSha256": "ace28be8c200ebfba60625017e3a8b5bfcb5a6435dae178d0a674d1664a9ddee",
+      "gitBlobObjectId": "668759e53f254af2fd4b6e332ab76ff1761e070c"
+    },
+    {
+      "path": "migrations/0020_w21_ai_news_video.sql",
+      "rawSha256": "faebeaeca8d64859c14fea143872e2b51c79e28239998d1af964812683dc46c7",
+      "gitContentSha256": "c74946011f7793704be23e3de70f70d19479e60fa6893b423fa7f011c5056897",
+      "lfSha256": "c74946011f7793704be23e3de70f70d19479e60fa6893b423fa7f011c5056897",
+      "gitBlobObjectId": "92a146a2385bfa0456fef24266b32493c5303da6"
+    },
+    {
+      "path": "migrations/0021_w21_tool_purpose_bindings.sql",
+      "rawSha256": "c4162f0933e2505e573dbcdc92f48d5efbbedb7dea9633b18952c20cfacf00c6",
+      "gitContentSha256": "c4162f0933e2505e573dbcdc92f48d5efbbedb7dea9633b18952c20cfacf00c6",
+      "lfSha256": "c4162f0933e2505e573dbcdc92f48d5efbbedb7dea9633b18952c20cfacf00c6",
+      "gitBlobObjectId": "8bef4f0bfce2e2bd82b6ebb1d4bde305fd85fd80"
+    },
+    {
+      "path": "migrations/0022_w22_software_feature.sql",
+      "rawSha256": "3806fae6c0edd68894ead347d40eb69a5b5bf1c888ba20ee783eaacfff607746",
+      "gitContentSha256": "4d16fd5bbb2a9fe004e5e5d8b1b7df984c2529a8bbdf933cf173e835291c205f",
+      "lfSha256": "4d16fd5bbb2a9fe004e5e5d8b1b7df984c2529a8bbdf933cf173e835291c205f",
+      "gitBlobObjectId": "8f08a9c189cb6067c14e947e8201d13434239268"
+    },
+    {
+      "path": "migrations/0023_w23_research.sql",
+      "rawSha256": "cbf1753bf268bd6d23aaa08170153f010c8e18c097e6753be2712aaf6beb5afa",
+      "gitContentSha256": "a74ca57f9218eb1e15790b702f8176f6c6b26bf52c2cc08e5f7d6ed0aadbadd9",
+      "lfSha256": "a74ca57f9218eb1e15790b702f8176f6c6b26bf52c2cc08e5f7d6ed0aadbadd9",
+      "gitBlobObjectId": "b7ee2cdfc0708f90d4b0575b58611984807d6515"
+    },
+    {
+      "path": "migrations/0024_w23_input_artifacts.sql",
+      "rawSha256": "f3898197719469a5b6c2818998555f47d39a3923d7f2a387b22cc98e56959ccd",
+      "gitContentSha256": "f3898197719469a5b6c2818998555f47d39a3923d7f2a387b22cc98e56959ccd",
+      "lfSha256": "f3898197719469a5b6c2818998555f47d39a3923d7f2a387b22cc98e56959ccd",
+      "gitBlobObjectId": "6b03dd0577434c37f4ece612b6fd6dd94d181bd0"
+    },
+    {
+      "path": "migrations/0025_w23_uncertain_prepared_effect.sql",
+      "rawSha256": "f1ce963cbe2e414084a4bc4159898253586a24ca35c2d24bda05fb6257d9012c",
+      "gitContentSha256": "ec61ede92b269562c9081b660eca97a91cbdc66688fedfd12f20e732215f57a6",
+      "lfSha256": "ec61ede92b269562c9081b660eca97a91cbdc66688fedfd12f20e732215f57a6",
+      "gitBlobObjectId": "d1ab985e12e421d875e833ba9c8483eeafb56429"
+    },
+    {
+      "path": "migrations/0026_w24_dynamic_manifest_integrity.sql",
+      "rawSha256": "22589ff7cdd13797bba1043d30ee0cd773f213eba2d946f22a4882e71290656b",
+      "gitContentSha256": "22589ff7cdd13797bba1043d30ee0cd773f213eba2d946f22a4882e71290656b",
+      "lfSha256": "22589ff7cdd13797bba1043d30ee0cd773f213eba2d946f22a4882e71290656b",
+      "gitBlobObjectId": "0256417ab9e338315ddfac357e861358c6a9469a"
+    },
+    {
+      "path": "migrations/0027_g1_generation_foundation.sql",
+      "rawSha256": "1eb84e3abab4d05a58000079878346af5c7a3a5e5d54c4b7aab446e3c1fcb90e",
+      "gitContentSha256": "1eb84e3abab4d05a58000079878346af5c7a3a5e5d54c4b7aab446e3c1fcb90e",
+      "lfSha256": "1eb84e3abab4d05a58000079878346af5c7a3a5e5d54c4b7aab446e3c1fcb90e",
+      "gitBlobObjectId": "ab1739f7830577e9c57c0dd6cddb70f830b2a453"
+    },
+    {
+      "path": "migrations/0028_g2_generation_http.sql",
+      "rawSha256": "5a234eb869d09970b8c643f6c21504d340f6735bdc2f9331c78272ee52b3bc14",
+      "gitContentSha256": "5a234eb869d09970b8c643f6c21504d340f6735bdc2f9331c78272ee52b3bc14",
+      "lfSha256": "5a234eb869d09970b8c643f6c21504d340f6735bdc2f9331c78272ee52b3bc14",
+      "gitBlobObjectId": "5725f9513bbcfcda52c5fba2b3d60e31ee4bc05f"
+    },
+    {
+      "path": "migrations/0029_g2_submission_continuation.sql",
+      "rawSha256": "c2f5dc1b9e146fb53de508dc054df8140f513ef10851e44cfc1376e621fbfa75",
+      "gitContentSha256": "c2f5dc1b9e146fb53de508dc054df8140f513ef10851e44cfc1376e621fbfa75",
+      "lfSha256": "c2f5dc1b9e146fb53de508dc054df8140f513ef10851e44cfc1376e621fbfa75",
+      "gitBlobObjectId": "f971d6cda0857861b4b4a6ad5fdba100473a9800"
+    },
+    {
+      "path": "migrations/0030_g3_multimodal_collaboration.sql",
+      "rawSha256": "75fe4c06eeee49f50007222817204ce1d7550c78b9b1b742d41c178f8039bccb",
+      "gitContentSha256": "58951c8331c8c6c3d14f0e946c3e13b63190b3650b589745c022574f44cd84ea",
+      "lfSha256": "58951c8331c8c6c3d14f0e946c3e13b63190b3650b589745c022574f44cd84ea",
+      "gitBlobObjectId": "231d60c890f6d82820c95a9732a5e7715bc1fa55"
+    },
+    {
+      "path": "migrations/0031_w31_workflow_drafts.sql",
+      "rawSha256": "828eda7f66cfd879dbd450b558cf3fc61c1fcbdd0cae710faba22e2c375fb6d6",
+      "gitContentSha256": "823cbb8f3d3d25c01493a82e28c78ebb2fa3e957bb670df1ec72e6a93bbf592c",
+      "lfSha256": "823cbb8f3d3d25c01493a82e28c78ebb2fa3e957bb670df1ec72e6a93bbf592c",
+      "gitBlobObjectId": "d0a4812ba70c2030b135a6feab1583ec048d34d6"
+    },
+    {
+      "path": "migrations/0032_w32_workflow_import.sql",
+      "rawSha256": "48d3fbffb6f5ddf63566389bdf3ea6a572535ceaa56d9d36764b0efde2786dbd",
+      "gitContentSha256": "67f4b7c19e6ecfb1de94cd01099ba4d90f5a582965b51c3933b5f0c59b498428",
+      "lfSha256": "67f4b7c19e6ecfb1de94cd01099ba4d90f5a582965b51c3933b5f0c59b498428",
+      "gitBlobObjectId": "34eac87bca8a1877a80effca04187f4ef21d0e71"
+    },
+    {
+      "path": "migrations/0033_generation_artifact_sharing.sql",
+      "rawSha256": "8438ef8ede8f15fd000ef4f93cb6e5411196b5e81e2d5cb3d5ff89b445eab26b",
+      "gitContentSha256": "8438ef8ede8f15fd000ef4f93cb6e5411196b5e81e2d5cb3d5ff89b445eab26b",
+      "lfSha256": "8438ef8ede8f15fd000ef4f93cb6e5411196b5e81e2d5cb3d5ff89b445eab26b",
+      "gitBlobObjectId": "0f9c5442caf33c81c91e4f7f8a2ca8ec21046ba9"
+    }
+  ],
+  "database": {
+    "versions": [
+      {
+        "definition_id": "official.ai-news-video",
+        "version": 1,
+        "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153"
+      },
+      {
+        "definition_id": "official.research",
+        "version": 1,
+        "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7"
+      },
+      {
+        "definition_id": "official.software-feature",
+        "version": 1,
+        "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+      }
+    ],
+    "releases": [
+      {
+        "definition_id": "official.ai-news-video",
+        "version": 1,
+        "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd"
+      },
+      {
+        "definition_id": "official.research",
+        "version": 1,
+        "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3"
+      },
+      {
+        "definition_id": "official.software-feature",
+        "version": 1,
+        "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d"
+      }
+    ],
+    "migrationCount": 33,
+    "integrity": "ok",
+    "foreignKeys": []
+  },
+  "artifacts": [
+    {
+      "path": "out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "sha256": "8a4cdbce704b86297dfee1bc0e22c9b92fc225bdb31eda6501aa668108e4b42c"
+    },
+    {
+      "path": "out\\AI Agent Cultivation-win32-x64\\resources\\app.asar",
+      "sha256": "7deaf487916b0d0a65d723151c87658ce8e65588a37328c0add88e7ceac073b8"
+    },
+    {
+      "path": "\\.vite\\build\\main-pyN31JHh.js",
+      "sha256": "417144942a7179bde611c014360f545da756e01b3e270e69a5031ea507f3bc71"
+    }
+  ],
+  "e1ManifestEntriesUnchanged": 71,
+  "historicalE3EntriesUnchanged": 59,
+  "historicalE3ManifestSha256": "e7ce69c19ed366a52e4c7f19d8f18f79e9abab6cd59bce5af1b8a7c98af9eb17",
+  "buildProvenance": "Reused the E1-verified existing Windows x64 packaged output; no E3 rebuild performed",
+  "workingTreeAtStart": {
+    "_publicationRedaction": "DERIVED/REDACTED unrelated repository inventory",
+    "originalEntryCount": 740,
+    "omittedEntryCount": 597,
+    "retained": [
+      "?? docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design.md",
+      "?? docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md",
+      "?? docs/AI_Agent_Cultivation_V1_E1_Closure_Preflight_Review.md",
+      "?? docs/AI_Agent_Cultivation_V1_E1_Feasibility_Review.md",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/AfterKill.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/AfterKillVerifiedLedger.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/BeforeCrash.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/execution.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/independent-controller.ndjson",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/ledger-path-correction.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/process-Terminate-98e1488d-bc30-48b1-8c3a-ca8c7f528ac3.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/termination-audit-followup.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/verification-events.ndjson",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_A-e214746e-00ef-4703-bba7-553382c891c2/execution.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/AfterKill.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/BeforeCrash.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/FirstRestart.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/SecondRestart.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/WriteEntry.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/execution.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/independent-controller.ndjson",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json",
+      "?? docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json.ledger.ndjson",
+      "?? docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/ProbeReady.json",
+      "?? docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/execution.json",
+      "?? docs/evidence/v1-engineering-validation/e3/PROBE-6fbf0675-d31b-4d89-911a-c62edd1e706d/execution.json",
+      "?? docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/ProbeReady.json",
+      "?? docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/execution.json",
+      "?? docs/evidence/v1-engineering-validation/e3/assertion-sensitivity-initial.json",
+      "?? docs/evidence/v1-engineering-validation/e3/assertion-sensitivity.json",
+      "?? docs/evidence/v1-engineering-validation/e3/baseline-2026-10-16T02-42-24-073Z.json",
+      "?? docs/evidence/v1-engineering-validation/e3/baseline-2026-10-16T03-13-50-519Z.json",
+      "?? docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-policy-tests.json",
+      "?? docs/evidence/v1-engineering-validation/e3/cr-a-corrective/full-test-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/cr-a-corrective/typecheck-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/evidence-manifest.json",
+      "?? docs/evidence/v1-engineering-validation/e3/evidence-manifest.sha256",
+      "?? docs/evidence/v1-engineering-validation/e3/final-process-audit.json",
+      "?? docs/evidence/v1-engineering-validation/e3/format-check-final-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/format-check-initial-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/format-check-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/full-smoke-safety-audit.json",
+      "?? docs/evidence/v1-engineering-validation/e3/full-test-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/javascript-typecheck-final-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/javascript-typecheck-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/lint-final-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/lint-intermediate-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/lint-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/recovery-invariants.json",
+      "?? docs/evidence/v1-engineering-validation/e3/recovery-targeted-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/reproduce.md",
+      "?? docs/evidence/v1-engineering-validation/e3/result-summary.json",
+      "?? docs/evidence/v1-engineering-validation/e3/scoped-lint-initial-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/scoped-lint-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/sqlite-and-fact-audit.json",
+      "?? docs/evidence/v1-engineering-validation/e3/syntax-results.json",
+      "?? docs/evidence/v1-engineering-validation/e3/typecheck-results.txt",
+      "?? docs/evidence/v1-engineering-validation/e3/validation-command-statuses.json",
+      "?? docs/evidence/v1-engineering-validation/e3/working-tree-final.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/build-isolation.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/controller-debugger-cleanup.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-a-breakpoint-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-a-packaged-execution-final.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-breakpoint-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-identity-supplement.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-js-await-deadlock-historical.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-js-inspector-historical.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-js-pause-state-historical.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-packaged-execution-final.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-ts-entry-mapping-historical.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-b-ts-post13635-historical.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-controller-backup-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-controller-observability-final.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/crash-controller-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/dataset-integrity.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/evidence-manifest.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/execution-notes.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/final-test-process-observation.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/final-worktree-audit.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/format-check-restricted-attempt.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/format-check-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/full-test-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/gold-review-pending.md",
+      "?? docs/evidence/v1-engineering-validation/preflight/input-dataset-integrity.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/input-fault-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/input-preflight-summary.md",
+      "?? docs/evidence/v1-engineering-validation/preflight/input-run-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/jev-transport-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/lint-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/local-runtime-archive.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/memory-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/metrics-contract.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/metrics-unit-test-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/p6-backup-integrated-results.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/p6-live-wal-method-test-final.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/p6-wal-integrated-results.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/package-attempt-1-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/package-attempt-2-interrupted-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/package-attempt-3-cancelled-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/package-attempt-3-command-result.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/package-command-result.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/package-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/packaged-artifact-integrity-final.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/packaged-clean-launch.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/packaged-fixture-module-check.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/packaged-startup-stderr.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/preflight-statuses.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/preflight-summary.md",
+      "?? docs/evidence/v1-engineering-validation/preflight/reproduce.md",
+      "?? docs/evidence/v1-engineering-validation/preflight/scoped-javascript-check-results.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/scoped-lint-integrated-initial.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/scoped-lint-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-result.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/skill-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/tool-preflight.json",
+      "?? docs/evidence/v1-engineering-validation/preflight/transport-run-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/typecheck-results.txt",
+      "?? docs/evidence/v1-engineering-validation/preflight/windows-application-error-observation.json",
+      "?? docs/status/v1-engineering-validation-e3.md",
+      "?? docs/status/workflow-crash-recovery-case-study.md",
+      "?? scripts/engineering-validation/e3-assertion-sensitivity.mjs",
+      "?? scripts/engineering-validation/e3-baseline.mjs",
+      "?? scripts/engineering-validation/e3-corrective/baseline.mjs",
+      "?? scripts/engineering-validation/e3-corrective/process-control.ps1",
+      "?? scripts/engineering-validation/e3-corrective/process-policy.ps1",
+      "?? scripts/engineering-validation/e3-corrective/process-policy.tests.ps1",
+      "?? scripts/engineering-validation/e3-evidence-audit.mjs",
+      "?? scripts/engineering-validation/e3-invariants.mjs",
+      "?? scripts/engineering-validation/e3-packaged-controller.mjs",
+      "?? scripts/engineering-validation/e3-process-control.ps1",
+      "?? scripts/engineering-validation/e3-snapshots.mjs",
+      "?? scripts/engineering-validation/input-preflight.ts",
+      "?? scripts/engineering-validation/integrity-preflight.ts",
+      "?? scripts/engineering-validation/jev-transport-preflight.ts",
+      "?? scripts/engineering-validation/metrics.mjs",
+      "?? scripts/engineering-validation/metrics.test.mjs",
+      "?? scripts/engineering-validation/p6-live-wal-method-test.mjs",
+      "?? scripts/engineering-validation/packaged-breakpoint-preflight.mjs",
+      "?? scripts/engineering-validation/packaged-breakpoint-ui-controller.mjs",
+      "?? scripts/engineering-validation/packaged-workspace-fixture.mjs",
+      "?? scripts/engineering-validation/prepare-build-preflight.mjs",
+      "?? scripts/engineering-validation/run-preflight.mjs"
+    ]
+  },
+  "realProviderCalls": 0
+}

@@ -1,0 +1,10 @@
+
+ RUN  v5.0.1 [REPOSITORY_ROOT]
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 34 skipped (37)
+   Start at  11:11:19
+   Duration  675ms (transform 76%, import 17%, tests 5%, worker 1%)
+
+exitCode=0

@@ -1,0 +1,158 @@
+{
+  "generatedAt": "2026-10-16T04:53:42.061Z",
+  "overall": "E3_FAIL",
+  "caseToken": "CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377",
+  "runId": "bda77f9a-ee99-44bf-8cd4-0892e72c5b1f",
+  "statuses": {
+    "E3_CR_A_CORRECTIVE": "FAIL",
+    "E3_CR_B_HISTORICAL": "PASS",
+    "E3_RECOVERY_INVARIANTS": "FAIL",
+    "E3_REPRODUCIBILITY": "BLOCKED",
+    "E3_SQLITE_INTEGRITY": "BLOCKED",
+    "E3_BASELINE_PRESERVATION": "PENDING_FINAL_AUDIT"
+  },
+  "invariants": {
+    "scenario": "CR_A_CORRECTIVE",
+    "status": "FAIL",
+    "checks": [
+      {
+        "id": "REC-01",
+        "evidence": "StepRun IDs, attempt keys, workflow_run_id, created_at, and Mission assignment lineage",
+        "status": "PASS",
+        "details": "No new attempts; all completed pre-crash StepRuns retained their identities. 2 new Mission/MissionRun assignment(s) occurred only after explicit continuation on pre-existing unfinished StepRuns and persisted through SecondRestart. The sealed REC-01 identity projection reports the expected unfinished-StepRun Mission assignment as a mismatch for S08#1; this is the sole compatibility delta accepted by the corrective rule.",
+        "legacyStatus": "FAIL",
+        "legacyDetails": "firstRestart -> explicitContinue: Prior Step attempt identity changed: S08#1"
+      },
+      {
+        "id": "REC-02",
+        "evidence": "pre-crash completed StepRun/Mission/MissionRun IDs and MissionRun event IDs/content",
+        "status": "PASS",
+        "details": "All 6 pre-crash completed StepRun(s), their Mission/MissionRun rows, and their complete event histories are unchanged. Startup windows afterKill→firstRestart and explicitContinue→secondRestart add no Mission, MissionRun, or MissionEvent rows. Legacy REC status: PASS (Completed Step execution events stayed stable: afterKill=21, firstRestart=21, explicitContinue=21, secondRestart=21.).",
+        "legacyStatus": "PASS",
+        "legacyDetails": "Completed Step execution events stayed stable: afterKill=21, firstRestart=21, explicitContinue=21, secondRestart=21."
+      },
+      {
+        "id": "REC-03",
+        "evidence": "workflow_run_output_validations.a2840c08-4049-42a6-8af3-5f15a7c73ea1",
+        "status": "FAIL",
+        "details": "New workflow_run_output_validations row cannot be tied to a pre-existing unfinished StepRun. Legacy REC status: PASS (Prior durable row IDs and hashes are preserved across 6 table(s). No rows were added.).",
+        "legacyStatus": "PASS",
+        "legacyDetails": "Prior durable row IDs and hashes are preserved across 6 table(s). No rows were added."
+      },
+      {
+        "id": "REC-04",
+        "status": "PASS",
+        "evidence": "independent WRITE_ENTRY/WRITE_RETURN ledger and verifier ledger",
+        "details": "Target operation and journal identities persist across phases without duplicate rows."
+      },
+      {
+        "id": "REC-05",
+        "status": "PASS",
+        "evidence": "automatic recovery has no new Operation/Journal or mutation attempt",
+        "details": "Target operation and journal identities persist across phases without duplicate rows."
+      },
+      {
+        "id": "REC-06",
+        "status": "PASS",
+        "evidence": "production completion facts and workspace hash agreement",
+        "details": "The invariant is true in every required phase."
+      },
+      {
+        "id": "REC-07",
+        "status": "PASS",
+        "evidence": "permission/receipt/contract and evidence consistency",
+        "details": "The invariant is true in every required phase."
+      },
+      {
+        "id": "REC-08",
+        "status": "PASS",
+        "evidence": "offlineRetryTestPassed",
+        "details": "Independent offline retry test passed: creates a new Step attempt and preserves prior attempt artifacts on explicit retry."
+      },
+      {
+        "id": "REC-09",
+        "status": "PASS",
+        "evidence": "explicitContinue versus secondRestart IDs/hashes/counts",
+        "details": "Final continuation and second restart have stable Run identity/state, Step rows, durable IDs/hashes, events, and workspace hashes."
+      },
+      {
+        "id": "REC-10",
+        "status": "PASS",
+        "evidence": "SQLite integrity/FK and isolated process/profile evidence",
+        "details": "SQLite checks passed; raw triplet was copied before SQLite open; runtime verified one isolated profile/workspace across generations 0, 1, and 2."
+      }
+    ],
+    "legacyDiagnostic": {
+      "scenario": "CR_A",
+      "status": "FAIL",
+      "checks": [
+        {
+          "id": "REC-01",
+          "status": "FAIL",
+          "evidence": "definition, Run and Step attempt identity",
+          "details": "firstRestart -> explicitContinue: Prior Step attempt identity changed: S08#1"
+        },
+        {
+          "id": "REC-02",
+          "status": "PASS",
+          "evidence": "completed Step Mission and Workflow event chains",
+          "details": "Completed Step execution events stayed stable: afterKill=21, firstRestart=21, explicitContinue=21, secondRestart=21."
+        },
+        {
+          "id": "REC-03",
+          "status": "PASS",
+          "evidence": "Artifact/Receipt/Checkpoint/Binding/Decision/Traversal/Workflow event rows",
+          "details": "Prior durable row IDs and hashes are preserved across 6 table(s). No rows were added."
+        },
+        {
+          "id": "REC-04",
+          "status": "PASS",
+          "evidence": "independent WRITE_ENTRY/WRITE_RETURN ledger and verifier ledger",
+          "details": "Target operation and journal identities persist across phases without duplicate rows."
+        },
+        {
+          "id": "REC-05",
+          "status": "PASS",
+          "evidence": "automatic recovery has no new Operation/Journal or mutation attempt",
+          "details": "Target operation and journal identities persist across phases without duplicate rows."
+        },
+        {
+          "id": "REC-06",
+          "status": "PASS",
+          "evidence": "production completion facts and workspace hash agreement",
+          "details": "The invariant is true in every required phase."
+        },
+        {
+          "id": "REC-07",
+          "status": "PASS",
+          "evidence": "permission/receipt/contract and evidence consistency",
+          "details": "The invariant is true in every required phase."
+        },
+        {
+          "id": "REC-08",
+          "status": "PASS",
+          "evidence": "offlineRetryTestPassed",
+          "details": "Independent offline retry test passed: creates a new Step attempt and preserves prior attempt artifacts on explicit retry."
+        },
+        {
+          "id": "REC-09",
+          "status": "PASS",
+          "evidence": "explicitContinue versus secondRestart IDs/hashes/counts",
+          "details": "Final continuation and second restart have stable Run identity/state, Step rows, durable IDs/hashes, events, and workspace hashes."
+        },
+        {
+          "id": "REC-10",
+          "status": "PASS",
+          "evidence": "SQLite integrity/FK and isolated process/profile evidence",
+          "details": "SQLite checks passed; raw triplet was copied before SQLite open; runtime verified one isolated profile/workspace across generations 0, 1, and 2."
+        }
+      ]
+    }
+  },
+  "historicalBReferencedWithoutRerun": true,
+  "rawHistoricalEvidenceModified": false,
+  "offlineRetryTestPassed": true,
+  "noProductChanges": true,
+  "paidProviderCalls": 0,
+  "commitOrPush": false
+}

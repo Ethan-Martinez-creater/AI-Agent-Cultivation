@@ -1,0 +1,31 @@
+
+> ai-agent-cultivation@0.0.1 format:check
+> node scripts/format-check.mjs
+
+Prettier found formatting issues in 25 file(s):
+  docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design.md
+  docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md
+  docs/AI_Agent_Cultivation_V1_E1_Feasibility_Review.md
+  docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/execution.json
+  docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/process-Terminate-98e1488d-bc30-48b1-8c3a-ca8c7f528ac3.json
+  docs/evidence/v1-engineering-validation/e3/CR_A-e214746e-00ef-4703-bba7-553382c891c2/execution.json
+  docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/execution.json
+  docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json
+  docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/execution.json
+  docs/evidence/v1-engineering-validation/e3/PROBE-6fbf0675-d31b-4d89-911a-c62edd1e706d/execution.json
+  docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/execution.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/execution.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-1d1a2534-2ea5-4474-ba2a-635fa1815c74.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-6de9907d-7f2a-4b9f-9c80-6c7d4a8b72df.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-72e5be2d-3317-4f0a-8ae8-47adf6513bff.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-7d1c8892-f0ba-438d-816e-78e83648bac6.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-96aebae2-76b3-4c4d-a4c9-2c48f5e1fd30.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-de7dfccd-a74f-4eca-a21c-055d54a9eef8.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-f67aca4b-c8b3-4363-9a63-262c4e60bc3b.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json
+  docs/evidence/v1-engineering-validation/e3/cr-a-corrective/PROBE-b91c4f13-ec25-4405-8367-f5038652727d/execution.json
+  docs/evidence/v1-engineering-validation/e3/sqlite-and-fact-audit.json
+  scripts/engineering-validation/e3-corrective/controller.mjs
+  scripts/engineering-validation/e3-corrective/snapshots.mjs
+  scripts/engineering-validation/e3-corrective/types.d.ts
+exitCode=1

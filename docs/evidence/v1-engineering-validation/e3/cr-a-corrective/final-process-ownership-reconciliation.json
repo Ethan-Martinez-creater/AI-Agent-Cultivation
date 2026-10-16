@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "sourceObservation": "final-original-lineage-audit.json",
+  "originalVerifiedProcessCount": 5,
+  "allOriginalVerifiedProcessesAbsent": true,
+  "owned": [
+    {
+      "pid": 29940,
+      "expectedCreatedUtcTicks": "639277231137623460",
+      "originalIdentityStillPresent": false,
+      "currentPidPresent": false,
+      "action": "OBSERVE_ONLY_NO_STOP"
+    },
+    {
+      "pid": 10572,
+      "expectedCreatedUtcTicks": "639277231161484380",
+      "originalIdentityStillPresent": false,
+      "currentPidPresent": true,
+      "action": "OBSERVE_ONLY_NO_STOP"
+    },
+    {
+      "pid": 25304,
+      "expectedCreatedUtcTicks": "639277231161615880",
+      "originalIdentityStillPresent": false,
+      "currentPidPresent": true,
+      "action": "OBSERVE_ONLY_NO_STOP"
+    },
+    {
+      "pid": 16380,
+      "expectedCreatedUtcTicks": "639277231170572810",
+      "originalIdentityStillPresent": false,
+      "currentPidPresent": false,
+      "action": "OBSERVE_ONLY_NO_STOP"
+    },
+    {
+      "pid": 29944,
+      "expectedCreatedUtcTicks": "639277231238490200",
+      "originalIdentityStillPresent": false,
+      "currentPidPresent": false,
+      "action": "OBSERVE_ONLY_NO_STOP"
+    }
+  ],
+  "excluded": [
+    {
+      "pid": 30148,
+      "validTime": false,
+      "recognizedOwnedCommand": false,
+      "originalIdentityStillPresent": true,
+      "classification": "PREEXISTING_UNRELATED_CANDIDATE_CREATED_BEFORE_CURRENT_PARENT",
+      "action": "NO_TERMINATION_PERMITTED"
+    },
+    {
+      "pid": 27320,
+      "validTime": false,
+      "recognizedOwnedCommand": false,
+      "originalIdentityStillPresent": true,
+      "classification": "PREEXISTING_UNRELATED_CANDIDATE_CREATED_BEFORE_CURRENT_PARENT",
+      "action": "NO_TERMINATION_PERMITTED"
+    },
+    {
+      "pid": 25468,
+      "validTime": false,
+      "recognizedOwnedCommand": false,
+      "originalIdentityStillPresent": true,
+      "classification": "PREEXISTING_UNRELATED_CANDIDATE_CREATED_BEFORE_CURRENT_PARENT",
+      "action": "NO_TERMINATION_PERMITTED"
+    },
+    {
+      "pid": 30464,
+      "validTime": true,
+      "recognizedOwnedCommand": false,
+      "originalIdentityStillPresent": false,
+      "classification": "EXCLUDED_NO_TERMINATION_CANDIDATE",
+      "action": "NO_TERMINATION_PERMITTED"
+    }
+  ],
+  "interpretation": "The broad observation includes three pre-existing, unowned candidates whose creation time precedes their current same-number parent. They were excluded before termination. Remaining alive is not evidence of an owned-test process leak and does not permit killing them. The valid-time console candidate exited naturally. Reused numeric PIDs were only read, never signaled."
+}

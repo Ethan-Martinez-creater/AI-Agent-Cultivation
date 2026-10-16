@@ -1,0 +1,7 @@
+{
+  "status": "CORRECTION",
+  "observedAt": "2026-10-16T03:12:15.376Z",
+  "previous": "AfterKill.json",
+  "corrected": "AfterKillVerifiedLedger.json",
+  "reason": "The first post-stop sealing script referenced workspace-verifier-ledger.ndjson rather than the actual verification-events.ndjson. The prior capture is retained, and this independent second capture includes the real verifier records. No application was restarted and no database business state was changed."
+}

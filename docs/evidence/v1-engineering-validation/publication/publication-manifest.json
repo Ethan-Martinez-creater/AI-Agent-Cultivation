@@ -1,0 +1,2640 @@
+{
+  "schemaVersion": 1,
+  "kind": "PUBLICATION_DERIVATION_MAP",
+  "baseline": "a2551bbc9dbd87ec4701183a53a2635966326df4",
+  "scope": "E0/E1/E3 only; original manifests describe original local bytes, not redacted files",
+  "entries": [
+    {
+      "path": "docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design.md",
+      "bytes": 57087,
+      "sha256": "3fac164963d9cdc84545c90f9f76eff03af485b02cb8041ca6bf7a008f9fa17f",
+      "stage": "E0E1",
+      "publicPath": "docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design.md",
+      "publicSha256": "3fac164963d9cdc84545c90f9f76eff03af485b02cb8041ca6bf7a008f9fa17f",
+      "publicBytes": 57087,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md",
+      "bytes": 71202,
+      "sha256": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+      "stage": "E0E1",
+      "publicPath": "docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md",
+      "publicSha256": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+      "publicBytes": 71202,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/AI_Agent_Cultivation_V1_E1_Closure_Preflight_Review.md",
+      "bytes": 62071,
+      "sha256": "ca53e0eca27201f2d48076e06ba03824654d97b1ca249a06fcacabfc522b1a0b",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/AI_Agent_Cultivation_V1_E1_Closure_Preflight_Review.md",
+      "publicSha256": "12bc41cfcba466879019a218c5551d0695a226bc6ab2196878c6220457b842e6",
+      "publicBytes": 61928,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "PUBLICATION_READER_COPY",
+        "PUBLICATION_LINK_REMAP"
+      ]
+    },
+    {
+      "path": "docs/AI_Agent_Cultivation_V1_E1_Feasibility_Review.md",
+      "bytes": 37533,
+      "sha256": "4fb0104da0603b26525a8343444a44358b9a39d8b3cf82947ef44f4d2dcc688d",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/AI_Agent_Cultivation_V1_E1_Feasibility_Review.md",
+      "publicSha256": "319bc6b751bda2356b1b8d64c86158cde761ba7cef5d1bfc0fe96d942c7b4419",
+      "publicBytes": 36453,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "PUBLICATION_READER_COPY",
+        "LOCAL_ONLY_REFERENCE_DELINKED",
+        "PUBLICATION_LINK_REMAP"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/AfterKill.json",
+      "bytes": 200211,
+      "sha256": "914aad79aa22e9b2c707086bb052da2a21dadaac2b126796305935b0c8b947a7",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/AfterKill.json",
+      "publicSha256": "f1fe0c6e58d29ba036ec9c50675aabff66d3bef5b84ea9b0eec6ed37630a2265",
+      "publicBytes": 199904,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/AfterKillVerifiedLedger.json",
+      "bytes": 200451,
+      "sha256": "ff4148328c7b291063165006e2ded6e68920c7996051250f2f7bca7ab9dc4567",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/AfterKillVerifiedLedger.json",
+      "publicSha256": "74cc8c0802359dc20550acff92b5a3962e95809cd957129415c9772991a7da71",
+      "publicBytes": 200158,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/BeforeCrash.json",
+      "bytes": 200370,
+      "sha256": "f67b2d24e584e33d1025d0efd25223fde3576444126f7d7f95a88a160aa98fdc",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/BeforeCrash.json",
+      "publicSha256": "f299646ec0fb9c46fb63b39d5144faf36814844ae6c9779fcda21b0849445495",
+      "publicBytes": 200065,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/execution.json",
+      "bytes": 253866,
+      "sha256": "ccf782f6bb7f057030bbe3028584c1865566c69f0bade9b5a8e58451bd767eb3",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/execution.json",
+      "publicSha256": "e9e90bba997e4cdf2e39c61dd91ab79cde940930815c8c13ba7d5d675d97c998",
+      "publicBytes": 250944,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/independent-controller.ndjson",
+      "bytes": 2804,
+      "sha256": "7705c78e80bea99bce461cd18e6db51c6ddcfb7fa12691e058f6989ac0e7f3ee",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/independent-controller.ndjson",
+      "publicSha256": "e4f113462dbdfda5927c1dd437d413be8d0978624ca9962fddcb11538fb8f0cb",
+      "publicBytes": 2621,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/ledger-path-correction.json",
+      "bytes": 473,
+      "sha256": "a2ab6a91a20bc752ce6af43235ec87f251bc7f0570199d05897d36fd97e611c7",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/ledger-path-correction.json",
+      "publicSha256": "a2ab6a91a20bc752ce6af43235ec87f251bc7f0570199d05897d36fd97e611c7",
+      "publicBytes": 473,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/process-Terminate-98e1488d-bc30-48b1-8c3a-ca8c7f528ac3.json",
+      "bytes": 6272,
+      "sha256": "8ffeed65eab6c415038d6a426a3e0db1f45f134752ccbc5a5cb267dfda6bc38a",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/process-Terminate-98e1488d-bc30-48b1-8c3a-ca8c7f528ac3.json",
+      "publicSha256": "88763684dafb92e3399f11cad2507e53f189c395e35f16cb6d562bba6e477606",
+      "publicBytes": 6225,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/termination-audit-followup.json",
+      "bytes": 6726,
+      "sha256": "36ddb475daea0ac4586c0a5c0eb813736050d5aafd2ee8779f25f29c208390a1",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/termination-audit-followup.json",
+      "publicSha256": "c68c2f3e28f236fec666bd7ec425c6caac9d902a2e26cf0d5419aefa44cb5fb0",
+      "publicBytes": 6458,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/verification-events.ndjson",
+      "bytes": 128,
+      "sha256": "a466f68d6a9fd901d561925b98c9ab0d3182175ab2c42ed6d7685b62b824a7d4",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/verification-events.ndjson",
+      "publicSha256": "a466f68d6a9fd901d561925b98c9ab0d3182175ab2c42ed6d7685b62b824a7d4",
+      "publicBytes": 128,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_A-e214746e-00ef-4703-bba7-553382c891c2/execution.json",
+      "bytes": 13812,
+      "sha256": "fe7a2566522aae5d030d23825ccd1806168b811182ecfbc8b54a42a7e3d9deba",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_A-e214746e-00ef-4703-bba7-553382c891c2/execution.json",
+      "publicSha256": "9b5f4e517410b74a58e18595ff16727cdd8927dbf7d6eab87856dde66fd97adb",
+      "publicBytes": 13113,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/AfterKill.json",
+      "bytes": 127872,
+      "sha256": "329d08d225b75f34421afb7155a3151301d7519acdcb93c37cb36ab63367ead5",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/AfterKill.json",
+      "publicSha256": "23b24e7783e644449682bcf5419241e4d669e7f0cb96249e0b6d7253ca0dda97",
+      "publicBytes": 127740,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/BeforeCrash.json",
+      "bytes": 127874,
+      "sha256": "7ae5bb8184aa6f7ce0b62f9fcd9e7f68bcbff900301a5297dc669c0eab1e1480",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/BeforeCrash.json",
+      "publicSha256": "445fefd66878dcb255ef11e1b6cf108e43bd9c826d1d55344d08468127ef50d8",
+      "publicBytes": 127744,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/FirstRestart.json",
+      "bytes": 129556,
+      "sha256": "170c1d237b57d433c96b04950b0ece3f4c53a3087c508f43ae93368c7c6fe5af",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/FirstRestart.json",
+      "publicSha256": "be297c752bb29c2549d1cd236b0228ba05a163656d2c9bd85c4fc58b405b5b30",
+      "publicBytes": 129427,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/SecondRestart.json",
+      "bytes": 129811,
+      "sha256": "e1e6048235fd641b70f385868e463cd91b50fde88ef5de3150878dcf20db5d5d",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/SecondRestart.json",
+      "publicSha256": "6f267ad28def18337d28b8b948efef9047ce70a3ec28e7293a460fa73b7bc4cb",
+      "publicBytes": 129683,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/WriteEntry.json",
+      "bytes": 127233,
+      "sha256": "1e3ccde41fc5de3598b37fefbe2fd5f80ff132f1415169ee93e405a61165fc65",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/WriteEntry.json",
+      "publicSha256": "0d0d717c68235d234d0e279868dd633491bd7870eee8a19e07c130e70d7921ab",
+      "publicBytes": 127102,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/execution.json",
+      "bytes": 731458,
+      "sha256": "c84a5f86c2cb8f807fbe0ccfcd6cbf29f5936169cdedb5e17c4761377585ba7d",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/execution.json",
+      "publicSha256": "6534471e9058f30b256eab323ebee61cb56824a2d40e3d99b1af7c34c919e4fe",
+      "publicBytes": 726193,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/independent-controller.ndjson",
+      "bytes": 1473,
+      "sha256": "35125007c69aa18606e8e80923fb960668d6e3eac44ead2836735cfce1ec8eef",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/independent-controller.ndjson",
+      "publicSha256": "a17f3b3fdcf783a17d089b8ceda4c0858a7bd033a1390b94f72f5ab4302d9573",
+      "publicBytes": 1412,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json",
+      "bytes": 6275,
+      "sha256": "fd781807460f4b13b0126283fd8347ac2ccea60eeecb83f2c4469d7b9d296fa3",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json",
+      "publicSha256": "be8fb25766fb83520fbbb1ed06a1b7d782050522ca54e1a6ea6804496c947fea",
+      "publicBytes": 6228,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json.ledger.ndjson",
+      "bytes": 6668,
+      "sha256": "e7a3187579591cebce0c4ed19e6195880ca76c86808e8f5183b74704591c7f60",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json.ledger.ndjson",
+      "publicSha256": "f24b37b19cf4268807f2ce30ac7259f3af64525ec1559520faf6c6e9d186ac00",
+      "publicBytes": 5732,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/ProbeReady.json",
+      "bytes": 4940,
+      "sha256": "cf051d1b9204bd1058d975f020e7fce61a1bb06820f30f3a0332d1b0a4258366",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/ProbeReady.json",
+      "publicSha256": "44758360bcc3108391c154946377832644c71991b3923867ef9dd167fcf69ba9",
+      "publicBytes": 5197,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/execution.json",
+      "bytes": 16244,
+      "sha256": "92769b1badd00e36a44752872a1c8d55f413a22210ea56550ed64f68a9e29692",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/execution.json",
+      "publicSha256": "88a56a6604c2a6c1a99c97e8a1fb74a98bdc49aefa27703d5883877479c8faab",
+      "publicBytes": 15485,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/PROBE-6fbf0675-d31b-4d89-911a-c62edd1e706d/execution.json",
+      "bytes": 13224,
+      "sha256": "c6161551ef339657e9e10faf603ce7e7678f44591e2f34d661e466d31e7c255b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/PROBE-6fbf0675-d31b-4d89-911a-c62edd1e706d/execution.json",
+      "publicSha256": "33d94a224bcaafab179038eaff7aed619eb1257e4859077dddfe7c8394ddf33a",
+      "publicBytes": 12465,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/ProbeReady.json",
+      "bytes": 4938,
+      "sha256": "7f4b89d4e3c87067c2c0b320f1dab3d96f52186d044026ab0890b78c97934c86",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/ProbeReady.json",
+      "publicSha256": "1fa461673e05d0b058952371999165db399f677881d369f5eb06cd40d6e3978e",
+      "publicBytes": 5195,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/execution.json",
+      "bytes": 10244,
+      "sha256": "274808cca0887f1aba1568eb6b7487cdb0976f5fe234e442657800a032469372",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/execution.json",
+      "publicSha256": "c2106d033df51c077fe18e69d72e9545de1ec957fd55d91eb06a5952cdf28241",
+      "publicBytes": 9652,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/assertion-sensitivity-initial.json",
+      "bytes": 2178,
+      "sha256": "8cd2172f95637ea05618bacc80624e9f5cb87d9db10b0dcc9d9b9a431a307255",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/assertion-sensitivity-initial.json",
+      "publicSha256": "8cd2172f95637ea05618bacc80624e9f5cb87d9db10b0dcc9d9b9a431a307255",
+      "publicBytes": 2178,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/assertion-sensitivity.json",
+      "bytes": 2123,
+      "sha256": "54d4165fdbc78769884d9a46c75e0fe92739b9ccec91054e64255b9e9cd4a41d",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/assertion-sensitivity.json",
+      "publicSha256": "54d4165fdbc78769884d9a46c75e0fe92739b9ccec91054e64255b9e9cd4a41d",
+      "publicBytes": 2123,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/baseline-2026-10-16T02-42-24-073Z.json",
+      "bytes": 90701,
+      "sha256": "c6fed83d158144a5323c091fc6f6a27f6d2dac2a2e3dffed9372064fff503882",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/baseline-2026-10-16T02-42-24-073Z.json",
+      "publicSha256": "c21578bb02c98453efe0d0c951ad469419ebeb7cc06583d0a8e654cca57de948",
+      "publicBytes": 23025,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "UNRELATED_WORKTREE_INVENTORY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/baseline-2026-10-16T03-13-50-519Z.json",
+      "bytes": 93493,
+      "sha256": "a10dcbe812428f2257fdbd47a28bf05250686909a1c0cdc7a95ac9c4b63ff1b9",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/baseline-2026-10-16T03-13-50-519Z.json",
+      "publicSha256": "6579d36d4c9eeb0cf2e32dcffe26f50d196dbf6f89091e44841df216e566ed75",
+      "publicBytes": 25873,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "UNRELATED_WORKTREE_INVENTORY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/AfterKill.json",
+      "bytes": 203547,
+      "sha256": "4df176d8f35124d5ed77c683126c9884e8ca38e84fa3c9a730b227acae41fe1d",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/AfterKill.json",
+      "publicSha256": "8bdb59e4c1fbe3b68a22b55f36f71ddba0370c0f8e7d18798eeb2d8efc83190d",
+      "publicBytes": 202684,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/BeforeCrash.json",
+      "bytes": 203549,
+      "sha256": "9fc64f31e470fe4b920b3f871538d9d162232ade028437f2a986a8cb62913bcd",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/BeforeCrash.json",
+      "publicSha256": "d6b050f8d4ad5ecde8374cfa9cbe2c46d3fab909865092a4a1dba3ec9e672d5d",
+      "publicBytes": 202688,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/ExplicitContinue.json",
+      "bytes": 266759,
+      "sha256": "9794d9c5b0d53ada0252abd0c37cf56061f86b57266ad3935bbd62c783187575",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/ExplicitContinue.json",
+      "publicSha256": "97a632f89fa52657cffc0524ef1af1e40aef30d53f3765b058b083c575c28a7a",
+      "publicBytes": 265797,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/FirstRestartBeforeContinue.json",
+      "bytes": 203861,
+      "sha256": "6b45dbbe136ed77fb0c4e7a18dc21aa6907ff0a50419964e5a6fb7d9da52b0d3",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/FirstRestartBeforeContinue.json",
+      "publicSha256": "da792fc5d36bc356a92af9533f7375d47818efffa7d2ed7049e50806487e3c15",
+      "publicBytes": 203015,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/SecondRestart.json",
+      "bytes": 267012,
+      "sha256": "021ace75d7eef9404a7c3c0c05c922028bfaab4f361055d426cde66eb9082b67",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/SecondRestart.json",
+      "publicSha256": "36f049e64146f4f7ec472e74cb6289590d98b4751656c46252c762f37670d9b8",
+      "publicBytes": 266047,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/execution.json",
+      "bytes": 1424654,
+      "sha256": "45669c16605109a59323d9046d6317a0066581f8580b0a360d1373213500c057",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/execution.json",
+      "publicSha256": "48f3d80e331985b89886faf78db4356aa6910443643f429e0a3122327f8ef39f",
+      "publicBytes": 1417550,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/independent-controller.ndjson",
+      "bytes": 3427,
+      "sha256": "130c96c8c92b1b24c2d5b002b4236ccd4180b8625f8ac99d0c31ce78aefdfdb5",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/independent-controller.ndjson",
+      "publicSha256": "f226abe87c317e36e53c329705e1c4e3b5c082ae86bafcbb7bd17b74897696e7",
+      "publicBytes": 3244,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-1d1a2534-2ea5-4474-ba2a-635fa1815c74.json",
+      "bytes": 711,
+      "sha256": "4d7d4e938770d029c4a08a80ef86b1169782e167b38bd3af8244c5037dea4c35",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-1d1a2534-2ea5-4474-ba2a-635fa1815c74.json",
+      "publicSha256": "99e2fb5828a0c26fb9fff52a701820f1fffadec9557fc94955d9bdf018a54eda",
+      "publicBytes": 1096,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-6de9907d-7f2a-4b9f-9c80-6c7d4a8b72df.json",
+      "bytes": 711,
+      "sha256": "4d7d4e938770d029c4a08a80ef86b1169782e167b38bd3af8244c5037dea4c35",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-6de9907d-7f2a-4b9f-9c80-6c7d4a8b72df.json",
+      "publicSha256": "c981df3c6cbc8df080372ca8bd3a56dc9c9f9d299a7e4744440f0cde9f4c2108",
+      "publicBytes": 1096,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-72e5be2d-3317-4f0a-8ae8-47adf6513bff.json",
+      "bytes": 711,
+      "sha256": "3426a1bccae73e533419d0802b333a051fef4a1be4aaf93cdaf3439cdf76f5b6",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-72e5be2d-3317-4f0a-8ae8-47adf6513bff.json",
+      "publicSha256": "162d2112b0671dc789279701636b874583ccb5e4aa007fdbcde392669d2f04ec",
+      "publicBytes": 1096,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-7d1c8892-f0ba-438d-816e-78e83648bac6.json",
+      "bytes": 711,
+      "sha256": "3426a1bccae73e533419d0802b333a051fef4a1be4aaf93cdaf3439cdf76f5b6",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-7d1c8892-f0ba-438d-816e-78e83648bac6.json",
+      "publicSha256": "ab9e70722b8d6e064cbfafa66542367af0bda6e0a30d42bebbb561e859e204d9",
+      "publicBytes": 1096,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-96aebae2-76b3-4c4d-a4c9-2c48f5e1fd30.json",
+      "bytes": 711,
+      "sha256": "da055e4c729e14f6b1ed7dd327f61b7f096189195c9091fd1e4325eaaa26d60c",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-96aebae2-76b3-4c4d-a4c9-2c48f5e1fd30.json",
+      "publicSha256": "179533bc1b54068fa319b3dc775a9d7d266bc5d486020ae86f384c88caea52e1",
+      "publicBytes": 1096,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-de7dfccd-a74f-4eca-a21c-055d54a9eef8.json",
+      "bytes": 711,
+      "sha256": "da055e4c729e14f6b1ed7dd327f61b7f096189195c9091fd1e4325eaaa26d60c",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-de7dfccd-a74f-4eca-a21c-055d54a9eef8.json",
+      "publicSha256": "56cc00f9a71a4df3b95a2b2c0146935dceb60a25d3a8c13dd050955b0405215c",
+      "publicBytes": 1096,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-f67aca4b-c8b3-4363-9a63-262c4e60bc3b.json",
+      "bytes": 711,
+      "sha256": "3426a1bccae73e533419d0802b333a051fef4a1be4aaf93cdaf3439cdf76f5b6",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Observe-f67aca4b-c8b3-4363-9a63-262c4e60bc3b.json",
+      "publicSha256": "f44caf76d5de94bfa8f7d80deea96cf4f74e04d468b8530c72d234cd214ebc4e",
+      "publicBytes": 1096,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json",
+      "bytes": 9004,
+      "sha256": "534c255bbf4bb97523b0d60ec4478ade095a8e685d65024409201a28a00d49a5",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json",
+      "publicSha256": "2d021a5b6e88449fd0cec353a494e9bade9af17730a63328943d2be6332f49d9",
+      "publicBytes": 8625,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json.ledger.ndjson",
+      "bytes": 31194,
+      "sha256": "6666be934708898b3eff968b52c3453b8157bb81b0e1106c27bd0abd1cd924bc",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json.ledger.ndjson",
+      "publicSha256": "0c3f3fcd748debf4824a736d06a3491bb165c244883c226566bbb8629d0da641",
+      "publicBytes": 27238,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json.receipt.json",
+      "bytes": 1900,
+      "sha256": "903c286bccfdb4e20c2778df8cfaa01964cf1b726eeab34782771e726b9d3f50",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/process-Terminate-6de78d14-73e7-497a-b8c5-86bcc0dd1f88.json.receipt.json",
+      "publicSha256": "189385c3a5c9e28db857c56c832bcfc6e1b92ee15b5032dabe4199b58bf48d24",
+      "publicBytes": 2191,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/recovery-invariants-corrective.json",
+      "bytes": 6641,
+      "sha256": "27a49d8bc8df620e05339166987642d95f0a31ff3dfd8940d48b1b866a1aa024",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/recovery-invariants-corrective.json",
+      "publicSha256": "27a49d8bc8df620e05339166987642d95f0a31ff3dfd8940d48b1b866a1aa024",
+      "publicBytes": 6641,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/verification-events.ndjson",
+      "bytes": 128,
+      "sha256": "688e88e270446e4291cf538069793564882df48bc40a27ee783ea4ca03061ee8",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377/verification-events.ndjson",
+      "publicSha256": "688e88e270446e4291cf538069793564882df48bc40a27ee783ea4ca03061ee8",
+      "publicBytes": 128,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/PROBE-b91c4f13-ec25-4405-8367-f5038652727d/ProbeReady.json",
+      "bytes": 7785,
+      "sha256": "866422dfe4fa88300566413ce5984cfd19b937db52bce8e4d1c2c48c00b31c18",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/PROBE-b91c4f13-ec25-4405-8367-f5038652727d/ProbeReady.json",
+      "publicSha256": "29bddfe35457c03d6e3159fa0a9a0e275a03694d4143d066f6703305bf7a563b",
+      "publicBytes": 7475,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/PROBE-b91c4f13-ec25-4405-8367-f5038652727d/execution.json",
+      "bytes": 17225,
+      "sha256": "b5d30ce47ae01df9b99c2cd56509c6a45c446ec03dc40021d21e92dc6e39d54b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/PROBE-b91c4f13-ec25-4405-8367-f5038652727d/execution.json",
+      "publicSha256": "b1229aef27d170be0820d0374be314623b730964cc75f1eff833c4752702329c",
+      "publicBytes": 16278,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/adapter-sensitivity-final-results.txt",
+      "bytes": 240,
+      "sha256": "5025a555a2634b5e0becdaa39fcd65f1dbb62bf1ac8eae8eced63595b2c7d927",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/adapter-sensitivity-final-results.txt",
+      "publicSha256": "5025a555a2634b5e0becdaa39fcd65f1dbb62bf1ac8eae8eced63595b2c7d927",
+      "publicBytes": 240,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/adapter-sensitivity-output-validation-results.txt",
+      "bytes": 240,
+      "sha256": "5025a555a2634b5e0becdaa39fcd65f1dbb62bf1ac8eae8eced63595b2c7d927",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/adapter-sensitivity-output-validation-results.txt",
+      "publicSha256": "5025a555a2634b5e0becdaa39fcd65f1dbb62bf1ac8eae8eced63595b2c7d927",
+      "publicBytes": 240,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/adapter-sensitivity-results.txt",
+      "bytes": 240,
+      "sha256": "5025a555a2634b5e0becdaa39fcd65f1dbb62bf1ac8eae8eced63595b2c7d927",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/adapter-sensitivity-results.txt",
+      "publicSha256": "5025a555a2634b5e0becdaa39fcd65f1dbb62bf1ac8eae8eced63595b2c7d927",
+      "publicBytes": 240,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/historical-cr-b-reference.before-run-id-label-correction.json",
+      "bytes": 3282,
+      "sha256": "f8f0ebbd4f96cdbb02794eccfdc253340ed94a0b4efa849a0ddf86c26eb3060f",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/historical-cr-b-reference.before-run-id-label-correction.json",
+      "publicSha256": "f8f0ebbd4f96cdbb02794eccfdc253340ed94a0b4efa849a0ddf86c26eb3060f",
+      "publicBytes": 3282,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/historical-cr-b-reference.json.0a3b36e4-3c58-4ea5-8b9e-2453873f55da.json",
+      "bytes": 3282,
+      "sha256": "f8f0ebbd4f96cdbb02794eccfdc253340ed94a0b4efa849a0ddf86c26eb3060f",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/historical-cr-b-reference.json.0a3b36e4-3c58-4ea5-8b9e-2453873f55da.json",
+      "publicSha256": "f8f0ebbd4f96cdbb02794eccfdc253340ed94a0b4efa849a0ddf86c26eb3060f",
+      "publicBytes": 3282,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/recovery-invariants-corrective.json.b004e999-dfab-4ec6-8a2b-cd6eb8530a40.json",
+      "bytes": 6512,
+      "sha256": "6edcb270b8b2fe8b0fd103846044c32638b5e2f0b221f7bac80ebceaca37c43e",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/recovery-invariants-corrective.json.b004e999-dfab-4ec6-8a2b-cd6eb8530a40.json",
+      "publicSha256": "6edcb270b8b2fe8b0fd103846044c32638b5e2f0b221f7bac80ebceaca37c43e",
+      "publicBytes": 6512,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/result-summary.json.b8bd8369-e434-49b7-990d-622fea4fdff4.json",
+      "bytes": 7453,
+      "sha256": "3873f7e9e7ef2b7bda1ae1fc1577d797e4a8cc2184cd701730298cbe2e42113c",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/result-summary.json.b8bd8369-e434-49b7-990d-622fea4fdff4.json",
+      "publicSha256": "3873f7e9e7ef2b7bda1ae1fc1577d797e4a8cc2184cd701730298cbe2e42113c",
+      "publicBytes": 7453,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/result-summary.pre-final-baseline.df6af5df-6720-4cc3-b8a2-d30534792410.json",
+      "bytes": 7576,
+      "sha256": "6fa5c873603bd683c62fa2614fabd1e0d58dca034c60ce116a1c11a451735f4c",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/result-summary.pre-final-baseline.df6af5df-6720-4cc3-b8a2-d30534792410.json",
+      "publicSha256": "6fa5c873603bd683c62fa2614fabd1e0d58dca034c60ce116a1c11a451735f4c",
+      "publicBytes": 7576,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/sqlite-and-fact-audit.json.35db38d4-0529-4734-be52-4d4b8c3ab672.json",
+      "bytes": 280480,
+      "sha256": "620dfa770aecb8981fa03ccb590256616c60b9140e1f60e0883ab13c466d5382",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-history/sqlite-and-fact-audit.json.35db38d4-0529-4734-be52-4d4b8c3ab672.json",
+      "publicSha256": "f5a76ec294f6ef9603249eb2e77d1f1ebaf966112ee422b644dd1314b18f8d1c",
+      "publicBytes": 272076,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-schema-correction.md",
+      "bytes": 2491,
+      "sha256": "5e4d203131328b3f7d359f3e37c1d1b9fb7c111989e56486817c766b859ae46f",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/analysis-schema-correction.md",
+      "publicSha256": "b84f36cd9dc0e91b7e487c04c85f996a0156ad1fa980cfa87c6b321630ac01c8",
+      "publicBytes": 2729,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/audit-typecheck-final-results.txt",
+      "bytes": 14,
+      "sha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/audit-typecheck-final-results.txt",
+      "publicSha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "publicBytes": 14,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/audit-typecheck-results.txt",
+      "bytes": 12,
+      "sha256": "e05222033cd2c7b46b6fad5ec87b44b62f844dbb6f004476498f71d0e3c9875b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/audit-typecheck-results.txt",
+      "publicSha256": "e05222033cd2c7b46b6fad5ec87b44b62f844dbb6f004476498f71d0e3c9875b",
+      "publicBytes": 12,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/baseline-2026-10-16T04-16-02-325Z.json",
+      "bytes": 97055,
+      "sha256": "bbe1a6432d26ac7b075701d600ef07979604afd3026e332cb57c2654bba8703e",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/baseline-2026-10-16T04-16-02-325Z.json",
+      "publicSha256": "635cf77f8ed2c3acfeb3518175908e3acdb8c874f11650ec676e9b609c167b2c",
+      "publicBytes": 29529,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "UNRELATED_WORKTREE_INVENTORY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/baseline-2026-10-16T04-57-41-026Z.json",
+      "bytes": 103287,
+      "sha256": "e3d5dc1b7e7911d7b16c25d1ffd490f4c68c50bb156e4cecc081b05449bae7b0",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/baseline-2026-10-16T04-57-41-026Z.json",
+      "publicSha256": "b18263e84de0d7ee66a5219984d16c5c3423557d803de3695221188bdef4d152",
+      "publicBytes": 35859,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "UNRELATED_WORKTREE_INVENTORY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/baseline-typecheck-results.txt",
+      "bytes": 12,
+      "sha256": "e05222033cd2c7b46b6fad5ec87b44b62f844dbb6f004476498f71d0e3c9875b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/baseline-typecheck-results.txt",
+      "publicSha256": "e05222033cd2c7b46b6fad5ec87b44b62f844dbb6f004476498f71d0e3c9875b",
+      "publicBytes": 12,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-policy-tests-final.json",
+      "bytes": 3127,
+      "sha256": "28e9edaf5bdd840b17f590a0622b2e704447ae2d7341f185ebc037a1bc2233fe",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-policy-tests-final.json",
+      "publicSha256": "215b08ab06a071604eb5ce45b7300cacdf290d0fcb23fa0637deb68295f88a8c",
+      "publicBytes": 3484,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "OTHER_LOCAL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-policy-tests.json",
+      "bytes": 3127,
+      "sha256": "5eadeaad20f818c66d98abaab4837f9f917b8b75102d979042c5af2a18e31b75",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-policy-tests.json",
+      "publicSha256": "5944e29505c1faabbdaabb1a31d055d6e92bf2be4cfdd942d49ff2b52748c1d0",
+      "publicBytes": 3478,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "OTHER_LOCAL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-typecheck-results.txt",
+      "bytes": 14,
+      "sha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-typecheck-results.txt",
+      "publicSha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "publicBytes": 14,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/evidence-manifest.json",
+      "bytes": 19281,
+      "sha256": "44ca22930afd86724aef4a95090ba56742f4ea3564a292b6426fa0fa071c82f4",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/evidence-manifest.json",
+      "publicSha256": "44ca22930afd86724aef4a95090ba56742f4ea3564a292b6426fa0fa071c82f4",
+      "publicBytes": 19281,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/evidence-manifest.sha256",
+      "bytes": 89,
+      "sha256": "d84090db326126b572052daeeb5a007ee45170f484ce5cf83867d05b1e39d4af",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/evidence-manifest.sha256",
+      "publicSha256": "d84090db326126b572052daeeb5a007ee45170f484ce5cf83867d05b1e39d4af",
+      "publicBytes": 89,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-original-lineage-audit.json",
+      "bytes": 2035,
+      "sha256": "3f4e5f6cc8a3121798d07d26e709c2aa31a56f0937475e6e895c0ca3c92db7ae",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-original-lineage-audit.json",
+      "publicSha256": "3f4e5f6cc8a3121798d07d26e709c2aa31a56f0937475e6e895c0ca3c92db7ae",
+      "publicBytes": 2035,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-preservation-and-provenance.json",
+      "bytes": 930,
+      "sha256": "086a279b988578e0404fcf9449e027eb953352a0caad2e0571cca72d9b64797c",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-preservation-and-provenance.json",
+      "publicSha256": "086a279b988578e0404fcf9449e027eb953352a0caad2e0571cca72d9b64797c",
+      "publicBytes": 930,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-process-audit.json",
+      "bytes": 123,
+      "sha256": "276d1c132ebb856d41ad2e5a944bf5504c827cb5deba947e60d9bd5eaa4ab26e",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-process-audit.json",
+      "publicSha256": "276d1c132ebb856d41ad2e5a944bf5504c827cb5deba947e60d9bd5eaa4ab26e",
+      "publicBytes": 123,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-process-ownership-reconciliation.json",
+      "bytes": 2771,
+      "sha256": "18a5ea325be6274e886396fdddef2cbdc45757bdece88d945396637eb5d03cdf",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/final-process-ownership-reconciliation.json",
+      "publicSha256": "18a5ea325be6274e886396fdddef2cbdc45757bdece88d945396637eb5d03cdf",
+      "publicBytes": 2771,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/formal-authorization-used.json",
+      "bytes": 1186,
+      "sha256": "18483fb5722026f70f5f856c7ea7c35789781aae3d7a5cfef2ed4b269c1ea5c8",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/formal-authorization-used.json",
+      "publicSha256": "c880d665c8b628877dc1cf7b84c4dc0a1bc971b11b83d50c5dfe534ebd0f2ee2",
+      "publicBytes": 1410,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/format-check-final-results.txt",
+      "bytes": 3125,
+      "sha256": "c56298877d8c0e2f2b6606172795118811825e2173e9f4d3f197f3c9757b79bf",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/format-check-final-results.txt",
+      "publicSha256": "c56298877d8c0e2f2b6606172795118811825e2173e9f4d3f197f3c9757b79bf",
+      "publicBytes": 3125,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/format-check-initial-results.txt",
+      "bytes": 1305,
+      "sha256": "51f26305bdda6b8a032cef9f5cb54b6859218b3543c91bceeb36ae153986c9a7",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/format-check-initial-results.txt",
+      "publicSha256": "51f26305bdda6b8a032cef9f5cb54b6859218b3543c91bceeb36ae153986c9a7",
+      "publicBytes": 1305,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/full-test-results.txt",
+      "bytes": 720,
+      "sha256": "7381d50812aa8555000d201a10a7b05fe39f05c6cddfcbc07b9378094fe3a364",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/full-test-results.txt",
+      "publicSha256": "d529f04c59b53da58f599566400b9a95fcc1d544f5d613cdd44d1285ae5c6117",
+      "publicBytes": 671,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/historical-cr-b-reference.json",
+      "bytes": 3419,
+      "sha256": "e21f2968be8ecde857177a7cbd37064a586c49c2b08da384d162a6ff9d80c4fe",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/historical-cr-b-reference.json",
+      "publicSha256": "e21f2968be8ecde857177a7cbd37064a586c49c2b08da384d162a6ff9d80c4fe",
+      "publicBytes": 3419,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/historical-untracked-start.json",
+      "bytes": 172093,
+      "sha256": "ea89486ed5b077bc70fde0354c6a28355c5c927d447832961d9d94966da9aa5b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/historical-untracked-start.json",
+      "publicSha256": "3f6b1575d435b9a29f844eb0ca653da6ec5e2eff516cbaa4b6c24b7488f2d76b",
+      "publicBytes": 31155,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "UNRELATED_WORKTREE_INVENTORY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/independent-audit-typecheck-final-results.txt",
+      "bytes": 14,
+      "sha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/independent-audit-typecheck-final-results.txt",
+      "publicSha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "publicBytes": 14,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/independent-typecheck-seal-results.txt",
+      "bytes": 14,
+      "sha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/independent-typecheck-seal-results.txt",
+      "publicSha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "publicBytes": 14,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/lint-final-results.txt",
+      "bytes": 993,
+      "sha256": "15c93768c26c243d26289458d7fec948bc15a86e154d64c873fd29953472a8b6",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/lint-final-results.txt",
+      "publicSha256": "c0ebb294d2bd4dab6af526aa9ea4f6b93e6b82510dce0a9ab34a5878f6d1123f",
+      "publicBytes": 895,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/lint-initial-results.txt",
+      "bytes": 993,
+      "sha256": "15c93768c26c243d26289458d7fec948bc15a86e154d64c873fd29953472a8b6",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/lint-initial-results.txt",
+      "publicSha256": "c0ebb294d2bd4dab6af526aa9ea4f6b93e6b82510dce0a9ab34a5878f6d1123f",
+      "publicBytes": 895,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/quality-command-statuses.json",
+      "bytes": 1187,
+      "sha256": "7ae36cc38e1f3828bb040ead3d8375519d49b889000c9d85d5eed43f66c0ba3b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/quality-command-statuses.json",
+      "publicSha256": "7ae36cc38e1f3828bb040ead3d8375519d49b889000c9d85d5eed43f66c0ba3b",
+      "publicBytes": 1187,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/recovery-targeted-results.txt",
+      "bytes": 261,
+      "sha256": "bd4be3c383511877b20b64043439db1afd94e62c7621aacf1d84bad9b3a0572b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/recovery-targeted-results.txt",
+      "publicSha256": "7616381237315dbc6ca91618613714745667dc6308a8d885cbaf1b8baa3bed0d",
+      "publicBytes": 212,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/reproduce.md",
+      "bytes": 7297,
+      "sha256": "6c13e149ff96567babfc00f0c4e1c371d566b4ecab5c88cdfae59b5ee90a07f5",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/reproduce.md",
+      "publicSha256": "6fb374136236572518a0892d3eb1bf8e24bdb9755fd2ba34df84b5a936675d83",
+      "publicBytes": 7486,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "PUBLICATION_READER_COPY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/result-summary.json",
+      "bytes": 7740,
+      "sha256": "7027af1e47594b29ad52f9961fdd41a0c1fbc236c31d7a0a8be135024eb84915",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/result-summary.json",
+      "publicSha256": "7027af1e47594b29ad52f9961fdd41a0c1fbc236c31d7a0a8be135024eb84915",
+      "publicBytes": 7740,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/scoped-lint-final-results.txt",
+      "bytes": 14,
+      "sha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/scoped-lint-final-results.txt",
+      "publicSha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "publicBytes": 14,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/sqlite-and-fact-audit.json",
+      "bytes": 280480,
+      "sha256": "620dfa770aecb8981fa03ccb590256616c60b9140e1f60e0883ab13c466d5382",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/cr-a-corrective/sqlite-and-fact-audit.json",
+      "publicSha256": "f5f7504ad13ddcf74d283b6e67f77ef660d810ad2916510d2dc20102f759d195",
+      "publicBytes": 272017,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/syntax-final-results.json",
+      "bytes": 709,
+      "sha256": "b2882a284c68acc435186bacafbfb1e3d59a2c84617252a43bb3463dbf02c4dc",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/syntax-final-results.json",
+      "publicSha256": "b2882a284c68acc435186bacafbfb1e3d59a2c84617252a43bb3463dbf02c4dc",
+      "publicBytes": 709,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/typecheck-results.txt",
+      "bytes": 89,
+      "sha256": "934cc62676aed2fb6dbcd640b2eb56aa7d2aa1efcf61eaba10233978764f556c",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/typecheck-results.txt",
+      "publicSha256": "934cc62676aed2fb6dbcd640b2eb56aa7d2aa1efcf61eaba10233978764f556c",
+      "publicBytes": 89,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/working-tree-final.json",
+      "bytes": 8755,
+      "sha256": "4ee34b8b5b10a6ea60077e838927f26d077eb067737f1239c64cea85c58ba814",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/working-tree-final.json",
+      "publicSha256": "4ee34b8b5b10a6ea60077e838927f26d077eb067737f1239c64cea85c58ba814",
+      "publicBytes": 8755,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/evidence-manifest.json",
+      "bytes": 13304,
+      "sha256": "e7ce69c19ed366a52e4c7f19d8f18f79e9abab6cd59bce5af1b8a7c98af9eb17",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/evidence-manifest.json",
+      "publicSha256": "e7ce69c19ed366a52e4c7f19d8f18f79e9abab6cd59bce5af1b8a7c98af9eb17",
+      "publicBytes": 13304,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/evidence-manifest.sha256",
+      "bytes": 89,
+      "sha256": "6bd1f214eb9be8882ef422116a8a0a4330e33ac4fdb4faa4f7b1eecc93d95e19",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/evidence-manifest.sha256",
+      "publicSha256": "6bd1f214eb9be8882ef422116a8a0a4330e33ac4fdb4faa4f7b1eecc93d95e19",
+      "publicBytes": 89,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/final-process-audit.json",
+      "bytes": 115,
+      "sha256": "83a78f00e66f21f8a1faf27b999e41a383794ca41ece6fd507f94543412c9f53",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/final-process-audit.json",
+      "publicSha256": "83a78f00e66f21f8a1faf27b999e41a383794ca41ece6fd507f94543412c9f53",
+      "publicBytes": 115,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/format-check-final-results.txt",
+      "bytes": 1305,
+      "sha256": "51f26305bdda6b8a032cef9f5cb54b6859218b3543c91bceeb36ae153986c9a7",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/format-check-final-results.txt",
+      "publicSha256": "51f26305bdda6b8a032cef9f5cb54b6859218b3543c91bceeb36ae153986c9a7",
+      "publicBytes": 1305,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/format-check-initial-results.txt",
+      "bytes": 1070,
+      "sha256": "4440a89cf1de60063f71b85caa2e53ab5ee9d5fa54fbbdf64897ffd96255593b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/format-check-initial-results.txt",
+      "publicSha256": "54a14227c6c2cd609ae808793f2f9fe278d34f742d1a70ed5daaa38ba534344f",
+      "publicBytes": 1017,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/format-check-results.txt",
+      "bytes": 1098,
+      "sha256": "21329a1ad0801812aed32d29e6d1f3597d8bdc61657b03e686e90dacafa3f252",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/format-check-results.txt",
+      "publicSha256": "21329a1ad0801812aed32d29e6d1f3597d8bdc61657b03e686e90dacafa3f252",
+      "publicBytes": 1098,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/full-smoke-safety-audit.json",
+      "bytes": 1325,
+      "sha256": "7afdbb0b2df959c5f669fd5cc04cfe6a4d25da355b6a2e06427996af58865ced",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/full-smoke-safety-audit.json",
+      "publicSha256": "7afdbb0b2df959c5f669fd5cc04cfe6a4d25da355b6a2e06427996af58865ced",
+      "publicBytes": 1325,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/full-test-results.txt",
+      "bytes": 517,
+      "sha256": "6b397591a437e82f9f0db6c77a7f4f15a3ef403899c70ad1b7cdc04ca3081cd7",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/full-test-results.txt",
+      "publicSha256": "0e4b3fae7a7444293cf403ca9ef6de7a4baa15e3ab1feef750047aa9a2b59c2e",
+      "publicBytes": 468,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/javascript-typecheck-final-results.txt",
+      "bytes": 11775,
+      "sha256": "77c32ca13a132b76b278545962c0cc449dde75b482d279a7e1b1c3ee61fb1225",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/javascript-typecheck-final-results.txt",
+      "publicSha256": "77c32ca13a132b76b278545962c0cc449dde75b482d279a7e1b1c3ee61fb1225",
+      "publicBytes": 11775,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/javascript-typecheck-results.txt",
+      "bytes": 11536,
+      "sha256": "8ea1e9ef361d2dab925b63bdd3d5ad5f85fa09e7561d0acf1d62a51442eaaa93",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/javascript-typecheck-results.txt",
+      "publicSha256": "8ea1e9ef361d2dab925b63bdd3d5ad5f85fa09e7561d0acf1d62a51442eaaa93",
+      "publicBytes": 11536,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/lint-final-results.txt",
+      "bytes": 993,
+      "sha256": "15c93768c26c243d26289458d7fec948bc15a86e154d64c873fd29953472a8b6",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/lint-final-results.txt",
+      "publicSha256": "c0ebb294d2bd4dab6af526aa9ea4f6b93e6b82510dce0a9ab34a5878f6d1123f",
+      "publicBytes": 895,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/lint-intermediate-results.txt",
+      "bytes": 1245,
+      "sha256": "76582cd0b134dcc6c790ecfb2e9c7578780b61c8933d0d410cc47252fbbebc4a",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/lint-intermediate-results.txt",
+      "publicSha256": "7126f9f38be303194311b8be8bedc7dcabb2c3684d63c093f7f63b84e5eb2282",
+      "publicBytes": 1098,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/lint-results.txt",
+      "bytes": 1430,
+      "sha256": "8cde2f713f4ea9ac3957421c461d512f18e80392f5f31209e308894e63d6307b",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/lint-results.txt",
+      "publicSha256": "8d368811c06211dd9322f87e8ab7c7cc1d7174e26e8f1a260ea3938e43fbb108",
+      "publicBytes": 1283,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/recovery-invariants.json",
+      "bytes": 5114,
+      "sha256": "45f11647af4405c78429271aca4ec39410249f71f37706cf7751302d9b1068a8",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/recovery-invariants.json",
+      "publicSha256": "45f11647af4405c78429271aca4ec39410249f71f37706cf7751302d9b1068a8",
+      "publicBytes": 5114,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/recovery-targeted-results.txt",
+      "bytes": 261,
+      "sha256": "bd0a6ee68a47c5cf28e9dffc071318024a5f0eba8391df58beb46575d77f968d",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/recovery-targeted-results.txt",
+      "publicSha256": "7223247e37bbb7f280d9252f773a971971a21965d47dccb56b145f040f9e42d7",
+      "publicBytes": 212,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/reproduce.md",
+      "bytes": 8256,
+      "sha256": "9e40da6a6ed9299b367e368dff057a4354cb130cf39b96a3284462ac56c6fc91",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/reproduce.md",
+      "publicSha256": "7a1515b26856dfe291f996429579aad8e69703161cd1bc8e27f71ede9683630e",
+      "publicBytes": 8445,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "PUBLICATION_READER_COPY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/result-summary.json",
+      "bytes": 6515,
+      "sha256": "f9df3894469817e9857ed9511b22023f82db8212090460445f5892f2d9085ad4",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/result-summary.json",
+      "publicSha256": "f9df3894469817e9857ed9511b22023f82db8212090460445f5892f2d9085ad4",
+      "publicBytes": 6515,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/scoped-lint-initial-results.txt",
+      "bytes": 307,
+      "sha256": "fb2d47119d61ee84a013af8385183d5acdb40a76fc2015dc1b662788b82892b4",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/scoped-lint-initial-results.txt",
+      "publicSha256": "df3e8ab13fc63d04db7f03a0415f476e3a20632f19fbe72e73b2939307c0bb77",
+      "publicBytes": 258,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/scoped-lint-results.txt",
+      "bytes": 14,
+      "sha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/scoped-lint-results.txt",
+      "publicSha256": "a22562e5988237f768d3a3c8a6dcc6d3e02e40b8df1387065836435614d3fe54",
+      "publicBytes": 14,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/sqlite-and-fact-audit.json",
+      "bytes": 36893,
+      "sha256": "9fbb69b4a91597f45976a89a53476c82cab61f455f79f51d3f222333052713c5",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/e3/sqlite-and-fact-audit.json",
+      "publicSha256": "cd4d7a8cefb414687e594a48fbb782c41e5be0108e93615ce4f399f2dadf6009",
+      "publicBytes": 36959,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/syntax-results.json",
+      "bytes": 517,
+      "sha256": "7ae82949d555bc7105a297cf7a7eaa1efa5554d25062f8f3da349487397d38f6",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/syntax-results.json",
+      "publicSha256": "7ae82949d555bc7105a297cf7a7eaa1efa5554d25062f8f3da349487397d38f6",
+      "publicBytes": 517,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/typecheck-results.txt",
+      "bytes": 89,
+      "sha256": "934cc62676aed2fb6dbcd640b2eb56aa7d2aa1efcf61eaba10233978764f556c",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/typecheck-results.txt",
+      "publicSha256": "934cc62676aed2fb6dbcd640b2eb56aa7d2aa1efcf61eaba10233978764f556c",
+      "publicBytes": 89,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/validation-command-statuses.json",
+      "bytes": 1642,
+      "sha256": "b70c87e7bbfdb35c785c4f42afcea8b30e2d8533c94c2f9493645629b1857522",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/validation-command-statuses.json",
+      "publicSha256": "b70c87e7bbfdb35c785c4f42afcea8b30e2d8533c94c2f9493645629b1857522",
+      "publicBytes": 1642,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/working-tree-final.json",
+      "bytes": 5559,
+      "sha256": "1ba7d921752aac34d363362d7a9504174d1ae539c93540ccae9422282a85fedf",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/e3/working-tree-final.json",
+      "publicSha256": "1ba7d921752aac34d363362d7a9504174d1ae539c93540ccae9422282a85fedf",
+      "publicBytes": 5559,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/build-isolation.json",
+      "bytes": 726,
+      "sha256": "58aed02a0237e49190846ae8d0442b23b2e2dffd7d346cb5b86b56085f87e59e",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/build-isolation.json",
+      "publicSha256": "5486a1ba502727a8dec4f47172e5c6940c5c8321529b3455975af45c61898efe",
+      "publicBytes": 1005,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/controller-debugger-cleanup.json",
+      "bytes": 710,
+      "sha256": "fbb366394b5b53d0ae0df8142a6cf640f8b026760ef9787f9c8c81b85d259703",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/controller-debugger-cleanup.json",
+      "publicSha256": "69dfcc82c38e423bf8d87920e9ad10a04f849526e8674ec2c5f940793ee50719",
+      "publicBytes": 1150,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-a-breakpoint-preflight.json",
+      "bytes": 4080,
+      "sha256": "c1e4b7d1bf6cb5f17d000779934104bfa0f496451e0a6d712122cbeab4b93592",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-a-breakpoint-preflight.json",
+      "publicSha256": "ea1029e2ce24bc84a7aa0d31888097ee6c9847be2d955914890cf76f27d74917",
+      "publicBytes": 4210,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-a-packaged-execution-final.json",
+      "bytes": 228876,
+      "sha256": "8046aafebb15d6eacef629641cf7ce03a52c655dc6dad679e2774369e50eb1b8",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-a-packaged-execution-final.json",
+      "publicSha256": "1790173ee5794e6cb3360763e78909eb00a4963481f17d36400a20088ce4f0fe",
+      "publicBytes": 230883,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-breakpoint-preflight.json",
+      "bytes": 1311,
+      "sha256": "4325e679abc1f1b3533b97f748eb7b5acc3a4cd49a95c572e7e6316e03683a36",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-b-breakpoint-preflight.json",
+      "publicSha256": "4486c7282ff3d16f6ac1fa44c499f705b4b9fb266937ef64524febc1fd42f1a5",
+      "publicBytes": 1633,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-identity-supplement.json",
+      "bytes": 4097,
+      "sha256": "05b9a2a89db2705d4ffb90667768b3a7cc562d30036db32f249ff1803c939d2c",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/crash-b-identity-supplement.json",
+      "publicSha256": "05b9a2a89db2705d4ffb90667768b3a7cc562d30036db32f249ff1803c939d2c",
+      "publicBytes": 4097,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-await-deadlock-historical.json",
+      "bytes": 26256,
+      "sha256": "35675ecb72ad072a944cecee6c5761564d4213c35fa8466062a50e9b405b05fd",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-b-js-await-deadlock-historical.json",
+      "publicSha256": "c82463325267cf206d0e15d9090e10215ca491d2346fd5d18ecc6d4520e0fab5",
+      "publicBytes": 25435,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-inspector-historical.json",
+      "bytes": 5812,
+      "sha256": "e77867205067689a9d8277ccae37cc57c2ab754d5b982aa43e765448bb482414",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-inspector-historical.json",
+      "publicSha256": "e77867205067689a9d8277ccae37cc57c2ab754d5b982aa43e765448bb482414",
+      "publicBytes": 5812,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-js-pause-state-historical.json",
+      "bytes": 2858,
+      "sha256": "1c3745c5d7c001789ecf6db6f29b6f364e20ab1e2a632e6a9ddde60ba4888dc9",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-b-js-pause-state-historical.json",
+      "publicSha256": "54d780c6f64637e73fd127872f000a40a4871f4201c6f4d04da51d98084310b1",
+      "publicBytes": 3191,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-packaged-execution-final.json",
+      "bytes": 92801,
+      "sha256": "90faf04babfa62c4c1b01c6510e875061e94d3db3e69c46d790e128d9c983f85",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-b-packaged-execution-final.json",
+      "publicSha256": "c6cd3386d82ad75344fd660521a0a917aaacb30cf5b5fabdcc0b876b4cb16cf4",
+      "publicBytes": 92965,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-ts-entry-mapping-historical.json",
+      "bytes": 36461,
+      "sha256": "a59b750bd9326adf084aea1c0de153d38a9695390eda028ef6d43b6904e407be",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-b-ts-entry-mapping-historical.json",
+      "publicSha256": "6d6918f1f207a387547d2e560d789111c1a80a207d13d21d892c00c3d363db23",
+      "publicBytes": 35380,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-b-ts-post13635-historical.json",
+      "bytes": 36015,
+      "sha256": "04e810390606a741328dc489b25622f80cb31cafa74172ab2ffeb5de4961d6a1",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-b-ts-post13635-historical.json",
+      "publicSha256": "34056251653eafe31434d5da58898cef47c21f1d9389f24a20daab2c9df94275",
+      "publicBytes": 34930,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-controller-backup-preflight.json",
+      "bytes": 2482,
+      "sha256": "46888a0a974c03ac24b99c37669a66bd935b81455292fcdd4c533e2e97304769",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-controller-backup-preflight.json",
+      "publicSha256": "cf4668af9816103bc5f9aa651441610fed7862cd11fd851ad8006119a3544622",
+      "publicBytes": 2782,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-controller-observability-final.json",
+      "bytes": 2050,
+      "sha256": "e2eac036e703b17a8381814f62295348884c359cfac961ea8fb1dd7b1c1bfadb",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/crash-controller-observability-final.json",
+      "publicSha256": "e2eac036e703b17a8381814f62295348884c359cfac961ea8fb1dd7b1c1bfadb",
+      "publicBytes": 2050,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/crash-controller-preflight.json",
+      "bytes": 11264,
+      "sha256": "bf5efd29a93ba7af08e6c3b27cc4d8231235feed363bd60c429d162cc036aab1",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/crash-controller-preflight.json",
+      "publicSha256": "b161f09e3dd76dd10b6a5e97f1f6745f65739a67bf3fc51b65da1ecc2c03fec0",
+      "publicBytes": 11120,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/dataset-integrity.json",
+      "bytes": 87457,
+      "sha256": "c48e91937c07f768c195f4440cec4d412c092b3fbedb536ed38e15ba126ae38c",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/dataset-integrity.json",
+      "publicSha256": "378f389f581269f3012f10bfcb88b2b62a8c3fcb4e9d9d385e522aa8661d34e3",
+      "publicBytes": 19620,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "UNRELATED_WORKTREE_INVENTORY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/evidence-manifest.json",
+      "bytes": 15232,
+      "sha256": "0e0327f2de13917fca85f2c117c9e5f5cab4bf7548ead3f274ce93cbd178d2db",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/evidence-manifest.json",
+      "publicSha256": "0e0327f2de13917fca85f2c117c9e5f5cab4bf7548ead3f274ce93cbd178d2db",
+      "publicBytes": 15232,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/execution-notes.json",
+      "bytes": 8864,
+      "sha256": "0a669096b50c7ae5274ca7d4763d416019e4c75d294fbced9002ab674e592525",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/execution-notes.json",
+      "publicSha256": "52fe085f88d56b8e65bd48487d4db105819eb59c4402494274ecc2b52170b023",
+      "publicBytes": 9330,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "USER_HOME_PATH",
+        "LOCAL_TOOL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/final-test-process-observation.json",
+      "bytes": 5268,
+      "sha256": "807903448f480cc27675437b406105783d900c674e867ac97d85c0735d85effe",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/final-test-process-observation.json",
+      "publicSha256": "7b819f3232cea10d9532b3b6129449f05f8421a7903b6b7f2b36e5579b124283",
+      "publicBytes": 5212,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/final-worktree-audit.json",
+      "bytes": 81298,
+      "sha256": "ec16943f71def17f290e1c842db18a30e881de43db23134beef62c997b06dab0",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/final-worktree-audit.json",
+      "publicSha256": "4bce903fa814e2fbf88df706aec4967f0814961939fb0764d113a8b1110f40a2",
+      "publicBytes": 13610,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "UNRELATED_WORKTREE_INVENTORY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/format-check-restricted-attempt.txt",
+      "bytes": 1058,
+      "sha256": "eea5590248e6c25cd3f00cbbb6dcd09e62c8ff101ae2f5d9897328559ec7d6d7",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/format-check-restricted-attempt.txt",
+      "publicSha256": "f0a33323a75b4445c2433abd2b968397f01d757677b1f181b4d27bd2d728f6e8",
+      "publicBytes": 1005,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/format-check-results.txt",
+      "bytes": 327,
+      "sha256": "62e7040ffb6568debfca6836360e8ea56fe9735957e9f4f064e078b2f280fb5c",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/format-check-results.txt",
+      "publicSha256": "62e7040ffb6568debfca6836360e8ea56fe9735957e9f4f064e078b2f280fb5c",
+      "publicBytes": 327,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/full-test-results.txt",
+      "bytes": 494,
+      "sha256": "92b7d15a190989789e9e97bb6bf328c45cffdf9517e089a8b100674836ea1502",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/full-test-results.txt",
+      "publicSha256": "e0a47097c3e9684b1d5e09966dd6e1cd1822e425d53ddd866cbfb88c7501c8d6",
+      "publicBytes": 445,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/gold-review-pending.md",
+      "bytes": 28801,
+      "sha256": "ba7c04443a205548b240f9c9927b275dee3e88ecf9d99d50e6f082619771bf57",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/gold-review-pending.md",
+      "publicSha256": "cc193d3490fab7fd077d84a9593d43f540387a26853ed7945d4b548a5112a55b",
+      "publicBytes": 29039,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-dataset-integrity.json",
+      "bytes": 1482,
+      "sha256": "6b34f41fda6cd2b2ca1c4c4183e5939e47b7a18511f855d21887d5193cc1ffe9",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/input-dataset-integrity.json",
+      "publicSha256": "27b0db184ca41815a473926a24f319ca2e1d7ef9bb324326f991b33487d35514",
+      "publicBytes": 1875,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-fault-preflight.json",
+      "bytes": 8850,
+      "sha256": "a9dab5604a15539bb7da87c37ff9360934ac67116727b5a387b0c69478fab710",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/input-fault-preflight.json",
+      "publicSha256": "a9dab5604a15539bb7da87c37ff9360934ac67116727b5a387b0c69478fab710",
+      "publicBytes": 8850,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-preflight-summary.md",
+      "bytes": 6525,
+      "sha256": "d47a4f48ff6df1684e58559f66bc3df0a992518e1e6508b6b349dc145dce1583",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/input-preflight-summary.md",
+      "publicSha256": "8f9173348dbae902bf97bb97a7576d11214b0e738f415a9b531f0c1fa0670a5c",
+      "publicBytes": 6763,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/input-run-results.txt",
+      "bytes": 1403,
+      "sha256": "32f8d4d166e3a52c317fad1002186b6b09658933bb1a20d87ebda4735bf3c07b",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/input-run-results.txt",
+      "publicSha256": "09e01051cd72ade3c2e3c0abd35ac9d227f1979ca1b748f76f11ded05e1ef81f",
+      "publicBytes": 1297,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/jev-transport-preflight.json",
+      "bytes": 17799,
+      "sha256": "6fdfaeb2bbadb79b80c83faeb47b8373d14199478eeea2c1534fe02041d66b41",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/jev-transport-preflight.json",
+      "publicSha256": "11e4835853d017830ede4250120e74888a4f7730e64d11c07bcb998081f0557a",
+      "publicBytes": 18482,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/lint-results.txt",
+      "bytes": 981,
+      "sha256": "fc0e581506769a902b86577bdcf395c0a73747a51e6c63de2520cba857f0a4eb",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/lint-results.txt",
+      "publicSha256": "07b6c4453b18c0adc1c70ebab2b9c66e4e6d462187b474237ccb0f9ef16d7ee4",
+      "publicBytes": 883,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/local-runtime-archive.json",
+      "bytes": 471,
+      "sha256": "acf5ed19c5b82f1829dfcc60e45b966694f1965beef2c35179c6b6fa40e4c1ea",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/local-runtime-archive.json",
+      "publicSha256": "f18b71f07e9b136095541ee12f3d4b29248e30a496243fbf5fd39afe361ba8ad",
+      "publicBytes": 853,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/memory-preflight.json",
+      "bytes": 42580,
+      "sha256": "86a19d338158b4d9331d5f5c793f01fde03ce22811879616d621a270eca145c5",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/memory-preflight.json",
+      "publicSha256": "86a19d338158b4d9331d5f5c793f01fde03ce22811879616d621a270eca145c5",
+      "publicBytes": 42580,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/metrics-contract.json",
+      "bytes": 6719,
+      "sha256": "eb1c3d261b0b4927086e114ae92050694b5e3f3bbcd8ce306ce8d00c5d3bf742",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/metrics-contract.json",
+      "publicSha256": "eb1c3d261b0b4927086e114ae92050694b5e3f3bbcd8ce306ce8d00c5d3bf742",
+      "publicBytes": 6719,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/metrics-unit-test-results.txt",
+      "bytes": 1720,
+      "sha256": "5aa280368ff4be60480dbde667de01c48a0f089df78c107d0ff1d39f5048e5d6",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/metrics-unit-test-results.txt",
+      "publicSha256": "a844c497f9187f13f59f0a290b765bd50cc03d22232a8afc1862f08672966be9",
+      "publicBytes": 1671,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/p6-backup-integrated-results.json",
+      "bytes": 2761,
+      "sha256": "e047ddeac016cb957d783537edacfc10ab0d54453d28a2e246b2dc7dd8835a90",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/p6-backup-integrated-results.json",
+      "publicSha256": "7df093f3c8e3d3b0768aa749ce9cd34adda8512b65e2e0754254b835fe0d52ce",
+      "publicBytes": 3130,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/p6-live-wal-method-test-final.json",
+      "bytes": 4934,
+      "sha256": "6dfc31a55bd84c4d74c841f513debcdee81b3df74f8c0d23650455e65a1dc378",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/p6-live-wal-method-test-final.json",
+      "publicSha256": "b4408aba70e0ce024c640df0584d4068d917ae43a3aa7f070d250a1959e5e4af",
+      "publicBytes": 5055,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/p6-wal-integrated-results.json",
+      "bytes": 5494,
+      "sha256": "1ffb90989e8ee2760d9c9d831ac348fe067da4c761054fe767b9fb67b17d626e",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/p6-wal-integrated-results.json",
+      "publicSha256": "de72c495e263c8fc6a8caf6a47ef00f658d3ec45ab88442508ab78b81ef24e04",
+      "publicBytes": 5746,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-1-results.txt",
+      "bytes": 2683,
+      "sha256": "52d0a0116a3dd7207eaa3109bca91f29ab76786e564dc23f7f3486b6a2051685",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/package-attempt-1-results.txt",
+      "publicSha256": "faa47df03e9e0032ab3e82b074c1ab04ad90692e5610e7652481a20dfb78267f",
+      "publicBytes": 2487,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-2-interrupted-results.txt",
+      "bytes": 1254,
+      "sha256": "ac51b7fc0b06e6606572a63ddb235a03384d508efb8ae6df7c4346d353ba434e",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/package-attempt-2-interrupted-results.txt",
+      "publicSha256": "ac51b7fc0b06e6606572a63ddb235a03384d508efb8ae6df7c4346d353ba434e",
+      "publicBytes": 1254,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-3-cancelled-results.txt",
+      "bytes": 1254,
+      "sha256": "ac51b7fc0b06e6606572a63ddb235a03384d508efb8ae6df7c4346d353ba434e",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/package-attempt-3-cancelled-results.txt",
+      "publicSha256": "ac51b7fc0b06e6606572a63ddb235a03384d508efb8ae6df7c4346d353ba434e",
+      "publicBytes": 1254,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-attempt-3-command-result.json",
+      "bytes": 335,
+      "sha256": "6778bc0c58a6f8ad49b31e19e767580e293a39e8aa5ca291fafb3756cd5ddae6",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/package-attempt-3-command-result.json",
+      "publicSha256": "d4fdaffeabf16031f5476f70b766f6f575004da432655a36938fa3c31cfb9354",
+      "publicBytes": 728,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-command-result.json",
+      "bytes": 426,
+      "sha256": "433dc3b8b668fe7b541b4f465b1bb8448919e7edaa9e6311a7c71d851a73ffb7",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/package-command-result.json",
+      "publicSha256": "3a9c02df34a0ba055bcbcabb47831838f20efe16503964b97ad06ceb6efae923",
+      "publicBytes": 807,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/package-results.txt",
+      "bytes": 81224,
+      "sha256": "7167f59204d257f08264001b48274dd510cb6e3401f93fb3cc6cca0c359f338b",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/package-results.txt",
+      "publicSha256": "c6d339a35135ffbdcf78fdd4ae7567366cfa02a080a2afba25d640dfe1602fa9",
+      "publicBytes": 48460,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "FULL_INHERITED_ENVIRONMENT_DUMP",
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_TOOL_PATH",
+        "LOCAL_SYSTEM_PATH",
+        "OTHER_LOCAL_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-artifact-integrity-final.json",
+      "bytes": 1246,
+      "sha256": "a0332580517b97fc02e5bf36de595100634d643ebff43b1b3c6bbba4182e3d62",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/packaged-artifact-integrity-final.json",
+      "publicSha256": "e94e822d3cbd420f8b70ccb99bbf52e956d03d164b7a4e513c9de7d08c1b05e7",
+      "publicBytes": 1543,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-clean-launch.json",
+      "bytes": 2141,
+      "sha256": "1eee41c178ce001ee5c1911ec2cc31f28528bb2a95f65c71c1e596acf159886f",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/packaged-clean-launch.json",
+      "publicSha256": "2f8922791d73ed368cb7b2698fbee88131485f90dbbde1567b26aa98a568681b",
+      "publicBytes": 2313,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "LOCAL_SYSTEM_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-fixture-module-check.json",
+      "bytes": 1026,
+      "sha256": "2c8bd9c2f45c7050b698d37884e45cdc13b1e209055c977fe7780f192127465b",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/packaged-fixture-module-check.json",
+      "publicSha256": "25f2cf54d0be9b39c3a2f7d99c4890c630100b6f2aea93e81cb9a4cad35ad3f1",
+      "publicBytes": 1425,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/packaged-startup-stderr.txt",
+      "bytes": 1722,
+      "sha256": "24896a807cff576862c5fc4751dde77921d07e9f3552e246edabcd390862fdee",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/packaged-startup-stderr.txt",
+      "publicSha256": "7d06e5eec6ff9ddc0f996d3affd840a7dfe1fbbd60adfac2821a465ce8356cba",
+      "publicBytes": 1526,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/preflight-statuses.json",
+      "bytes": 2550,
+      "sha256": "daa3750a6ee55000212cc81e6baedada3086aa9b7e52d50567c2f4eb8ecf5104",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/preflight-statuses.json",
+      "publicSha256": "daa3750a6ee55000212cc81e6baedada3086aa9b7e52d50567c2f4eb8ecf5104",
+      "publicBytes": 2550,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/preflight-summary.md",
+      "bytes": 3312,
+      "sha256": "a5b9fa47ba955def5d6e68abc85cd1bdbe6bfd423912c8c8588ac7681589a2b6",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/preflight-summary.md",
+      "publicSha256": "bb61a39faac3dc84d12aaaf9e71d02fb84993a2fd6b582b40ad3876e3a1b4fab",
+      "publicBytes": 3550,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/reproduce.md",
+      "bytes": 7329,
+      "sha256": "0fc517b3b54bd651c8ee5399d36409361ba94238c2d401b8952ba70b4dfb4b76",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/reproduce.md",
+      "publicSha256": "3ef23da805575f96fef81a39281f1dec0c6733712abeee35102abb56a35a3fe3",
+      "publicBytes": 7553,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "OTHER_LOCAL_PATH",
+        "PUBLICATION_READER_COPY"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-javascript-check-results.json",
+      "bytes": 738,
+      "sha256": "624399a881dc0f490628577b6d24c88f09780dbc8a0abe88dde6320f1f4cd875",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/scoped-javascript-check-results.json",
+      "publicSha256": "624399a881dc0f490628577b6d24c88f09780dbc8a0abe88dde6320f1f4cd875",
+      "publicBytes": 738,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-lint-integrated-initial.txt",
+      "bytes": 672,
+      "sha256": "d09c6ec0d16fba77c35cae423a97f37b6223934ed6b325ae83d747367e05f6da",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/evidence/v1-engineering-validation/preflight/scoped-lint-integrated-initial.txt",
+      "publicSha256": "9432eb8907844857c83f97e16d055c20a4990c900084c5838c885cfecea141cc",
+      "publicBytes": 623,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH"
+      ]
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-lint-results.txt",
+      "bytes": 26,
+      "sha256": "1b4d48e522913168e14478817e374bbd6f5be4f313d25befb294ccedf13e4217",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/scoped-lint-results.txt",
+      "publicSha256": "1b4d48e522913168e14478817e374bbd6f5be4f313d25befb294ccedf13e4217",
+      "publicBytes": 26,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-result.json",
+      "bytes": 770,
+      "sha256": "0620180e64db4efa81063cdd3e02f838cd431e40b7cc6544230976727161dcb8",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-result.json",
+      "publicSha256": "0620180e64db4efa81063cdd3e02f838cd431e40b7cc6544230976727161dcb8",
+      "publicBytes": 770,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-results.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/scoped-typecheck-results.txt",
+      "publicSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publicBytes": 0,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/skill-preflight.json",
+      "bytes": 47118,
+      "sha256": "19cd99f5c38e703687dd715807cc0dde1bf1ee6e900080011f124086ef118fa5",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/skill-preflight.json",
+      "publicSha256": "19cd99f5c38e703687dd715807cc0dde1bf1ee6e900080011f124086ef118fa5",
+      "publicBytes": 47118,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/tool-preflight.json",
+      "bytes": 143185,
+      "sha256": "59880c47683224d4cffbebf10292d566d78ee908c289853ab13c7a1ddda9e09b",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/tool-preflight.json",
+      "publicSha256": "59880c47683224d4cffbebf10292d566d78ee908c289853ab13c7a1ddda9e09b",
+      "publicBytes": 143185,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/transport-run-results.txt",
+      "bytes": 93,
+      "sha256": "d8792776cc8f4c4e1542c13eb53e220a7eb9235784c9d78bf611d1bafdb24b9a",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/transport-run-results.txt",
+      "publicSha256": "d8792776cc8f4c4e1542c13eb53e220a7eb9235784c9d78bf611d1bafdb24b9a",
+      "publicBytes": 93,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/typecheck-results.txt",
+      "bytes": 77,
+      "sha256": "8b5c52e0d1623ff20d11c198452c6846991380963c7ae8f24107baea8e606573",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/typecheck-results.txt",
+      "publicSha256": "8b5c52e0d1623ff20d11c198452c6846991380963c7ae8f24107baea8e606573",
+      "publicBytes": 77,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/windows-application-error-observation.json",
+      "bytes": 433,
+      "sha256": "92e01ff17376f0d852425d65b2ec8d6871170f0782a97e64574a2d1704221f11",
+      "stage": "E0E1",
+      "publicPath": "docs/evidence/v1-engineering-validation/preflight/windows-application-error-observation.json",
+      "publicSha256": "92e01ff17376f0d852425d65b2ec8d6871170f0782a97e64574a2d1704221f11",
+      "publicBytes": 433,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "docs/status/v1-engineering-validation-e3-cr-a-corrective.md",
+      "bytes": 21897,
+      "sha256": "5324c5a23c847019bbbbf114224a12b8b9d06be8f2274b2cabf30f49364fd1c4",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/status/v1-engineering-validation-e3-cr-a-corrective.md",
+      "publicSha256": "cd6db3f55f5bf2e7f6c1c9f3574fb4423406feb44481bda0a051f7d6ab2973c2",
+      "publicBytes": 21910,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "LOCAL_REPOSITORY_PATH",
+        "PUBLICATION_READER_COPY",
+        "PUBLICATION_LINK_REMAP"
+      ]
+    },
+    {
+      "path": "docs/status/v1-engineering-validation-e3-final.md",
+      "bytes": 2408,
+      "sha256": "ddb5c01d8f5df15b53faf07a44d4b1ec4b4e5b53360444d344b733aa78a9e689",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/status/v1-engineering-validation-e3-final.md",
+      "publicSha256": "3b474e9185280ff1fc7c76542c9441ccbd5a93001460891c1180d8083c1a148d",
+      "publicBytes": 2620,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY",
+        "PUBLICATION_LINK_REMAP"
+      ]
+    },
+    {
+      "path": "docs/status/v1-engineering-validation-e3.md",
+      "bytes": 19060,
+      "sha256": "7acd6f3984622c30b86c8a8c2f06b4b67d15a64982a21f4f46ecc3894934c7b4",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/status/v1-engineering-validation-e3.md",
+      "publicSha256": "7da5e74479e0e722c3b479b3e9ad10df0e41c61193912984742ac5a1c2e44cf6",
+      "publicBytes": 19272,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY",
+        "PUBLICATION_LINK_REMAP"
+      ]
+    },
+    {
+      "path": "docs/status/workflow-crash-recovery-case-study-final.md",
+      "bytes": 8544,
+      "sha256": "43894a3d03a7414c8a489feb2c7cfb34fd839fae79bc194806c65dd02882beea",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/status/workflow-crash-recovery-case-study-final.md",
+      "publicSha256": "41aa66dc88145959da5c600649e3fbeb57427f0b682281bf9a19f8b7982559eb",
+      "publicBytes": 8756,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY",
+        "PUBLICATION_LINK_REMAP"
+      ]
+    },
+    {
+      "path": "docs/status/workflow-crash-recovery-case-study.md",
+      "bytes": 7398,
+      "sha256": "50d832ca24c9f50e3f9270a6ae33c44de0ccbe12582eed2abe7d63b4ad64b549",
+      "stage": "E3",
+      "publicPath": "docs/evidence/v1-engineering-validation/publication/redacted/docs/status/workflow-crash-recovery-case-study.md",
+      "publicSha256": "2525d1a0fbc196bfcd135ea2a9657e9ed71d6285036df5f21b5ecc5990476ab9",
+      "publicBytes": 7584,
+      "classification": "DERIVED/REDACTED",
+      "redactionCategories": [
+        "PUBLICATION_READER_COPY",
+        "PUBLICATION_LINK_REMAP"
+      ]
+    },
+    {
+      "path": "scripts/engineering-validation/e3-assertion-sensitivity.mjs",
+      "bytes": 4020,
+      "sha256": "83fc9a15ff1887bc2b3753ac78278b09398c32da1639238972197eec5d5a4b8d",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-assertion-sensitivity.mjs",
+      "publicSha256": "83fc9a15ff1887bc2b3753ac78278b09398c32da1639238972197eec5d5a4b8d",
+      "publicBytes": 4020,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-baseline.mjs",
+      "bytes": 6784,
+      "sha256": "5dd77ce0f66a17fc23fb8e7eb5da2504b91c65447d55dc7378d8c2977b46a33a",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-baseline.mjs",
+      "publicSha256": "5dd77ce0f66a17fc23fb8e7eb5da2504b91c65447d55dc7378d8c2977b46a33a",
+      "publicBytes": 6784,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/adapter-sensitivity.mjs",
+      "bytes": 16148,
+      "sha256": "fc7c5b6d65820fcbb4d48f502f93e4864a46e6ae81b63151b7f11bca1fe2c7c7",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/adapter-sensitivity.mjs",
+      "publicSha256": "fc7c5b6d65820fcbb4d48f502f93e4864a46e6ae81b63151b7f11bca1fe2c7c7",
+      "publicBytes": 16148,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/baseline.mjs",
+      "bytes": 7541,
+      "sha256": "c06250772d94c9cbf3ad5b6fdb1f2e79b92ef25e6db1a289f1d472c644dcf108",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/baseline.mjs",
+      "publicSha256": "c06250772d94c9cbf3ad5b6fdb1f2e79b92ef25e6db1a289f1d472c644dcf108",
+      "publicBytes": 7541,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/controller.mjs",
+      "bytes": 63974,
+      "sha256": "9eafb8f27a42e14b378ef0a458cd1062ce75782e239bb8d2ef2db1dfb0b7d19a",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/controller.mjs",
+      "publicSha256": "9eafb8f27a42e14b378ef0a458cd1062ce75782e239bb8d2ef2db1dfb0b7d19a",
+      "publicBytes": 63974,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/evidence-audit.mjs",
+      "bytes": 9437,
+      "sha256": "f7f2126cc17d83ace8e87771a8933186c118129791c7a5ee041428985e6880a9",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/evidence-audit.mjs",
+      "publicSha256": "f7f2126cc17d83ace8e87771a8933186c118129791c7a5ee041428985e6880a9",
+      "publicBytes": 9437,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/process-control.ps1",
+      "bytes": 11994,
+      "sha256": "7e5aaed63add6c24d5fbcf14444a4bf2e6f12a68b7507a251f204627b2556a0e",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/process-control.ps1",
+      "publicSha256": "7e5aaed63add6c24d5fbcf14444a4bf2e6f12a68b7507a251f204627b2556a0e",
+      "publicBytes": 11994,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/process-policy.ps1",
+      "bytes": 2194,
+      "sha256": "b9d2b64b453523b7faa5d4fe9291344be51eaa78ab60e6eba99e80ff0abd1ad2",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/process-policy.ps1",
+      "publicSha256": "b9d2b64b453523b7faa5d4fe9291344be51eaa78ab60e6eba99e80ff0abd1ad2",
+      "publicBytes": 2194,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/process-policy.tests.ps1",
+      "bytes": 3550,
+      "sha256": "3124430897303dd2b1263f599a04d0fb30d4974780889c96d5596293b0160080",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/process-policy.tests.ps1",
+      "publicSha256": "3124430897303dd2b1263f599a04d0fb30d4974780889c96d5596293b0160080",
+      "publicBytes": 3550,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/recovery-adapter.mjs",
+      "bytes": 36501,
+      "sha256": "e47e32f4b5d385aa8eba836090b22731eaa24d3dc5d7916fcd3639ac8cd2799c",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/recovery-adapter.mjs",
+      "publicSha256": "e47e32f4b5d385aa8eba836090b22731eaa24d3dc5d7916fcd3639ac8cd2799c",
+      "publicBytes": 36501,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/snapshots.mjs",
+      "bytes": 9974,
+      "sha256": "f28b2622f7e4cd7c0e437ceccdba925bdb1d10bb902322e81b962b9097134db6",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/snapshots.mjs",
+      "publicSha256": "f28b2622f7e4cd7c0e437ceccdba925bdb1d10bb902322e81b962b9097134db6",
+      "publicBytes": 9974,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/tsconfig.json",
+      "bytes": 408,
+      "sha256": "399c6e00dac372930c5bfa9e47c959b3975e13eab4895f1faac5a32019ab5053",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/tsconfig.json",
+      "publicSha256": "399c6e00dac372930c5bfa9e47c959b3975e13eab4895f1faac5a32019ab5053",
+      "publicBytes": 408,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-corrective/types.d.ts",
+      "bytes": 2736,
+      "sha256": "0fe88ba0ed84113facfb7c75b4823a0d93c9e8f67e1564d641d45e01c583288c",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-corrective/types.d.ts",
+      "publicSha256": "0fe88ba0ed84113facfb7c75b4823a0d93c9e8f67e1564d641d45e01c583288c",
+      "publicBytes": 2736,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-evidence-audit.mjs",
+      "bytes": 9592,
+      "sha256": "52c787133b84becc9b2636dd171b93b3b2ad3e65ee3a919614d5ab9fbf2ef6cd",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-evidence-audit.mjs",
+      "publicSha256": "52c787133b84becc9b2636dd171b93b3b2ad3e65ee3a919614d5ab9fbf2ef6cd",
+      "publicBytes": 9592,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-invariants.mjs",
+      "bytes": 70255,
+      "sha256": "978bc5176a968cd7968c6bb9520b9223a2a154f65e38823cce283f8a106ddea5",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-invariants.mjs",
+      "publicSha256": "978bc5176a968cd7968c6bb9520b9223a2a154f65e38823cce283f8a106ddea5",
+      "publicBytes": 70255,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-packaged-controller.mjs",
+      "bytes": 53935,
+      "sha256": "8f1c50cbb6ccf5154ea5755b169fc6c93609c8b1c1e73105ae155dbbdb7fde66",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-packaged-controller.mjs",
+      "publicSha256": "8f1c50cbb6ccf5154ea5755b169fc6c93609c8b1c1e73105ae155dbbdb7fde66",
+      "publicBytes": 53935,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-process-control.ps1",
+      "bytes": 7202,
+      "sha256": "dad6e0f1daef9d7bd6ffe8d633d79eae0d636035b908b90a530cfa168ec70cb8",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-process-control.ps1",
+      "publicSha256": "dad6e0f1daef9d7bd6ffe8d633d79eae0d636035b908b90a530cfa168ec70cb8",
+      "publicBytes": 7202,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/e3-snapshots.mjs",
+      "bytes": 7427,
+      "sha256": "5d1a3dceec82a5089f3b0be986dd69576540bd4f6c44592d11a83504a52b5fa6",
+      "stage": "E3",
+      "publicPath": "scripts/engineering-validation/e3-snapshots.mjs",
+      "publicSha256": "5d1a3dceec82a5089f3b0be986dd69576540bd4f6c44592d11a83504a52b5fa6",
+      "publicBytes": 7427,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/input-preflight.ts",
+      "bytes": 58523,
+      "sha256": "458ddc9c1fd0593a1d44b57fabc3b3d8c26b62b720b3160310d748d13edb465d",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/input-preflight.ts",
+      "publicSha256": "458ddc9c1fd0593a1d44b57fabc3b3d8c26b62b720b3160310d748d13edb465d",
+      "publicBytes": 58523,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/integrity-preflight.ts",
+      "bytes": 9708,
+      "sha256": "55782a745fe961572a38bc3f70c970af190dfb75209956713e39148601c8a4e6",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/integrity-preflight.ts",
+      "publicSha256": "55782a745fe961572a38bc3f70c970af190dfb75209956713e39148601c8a4e6",
+      "publicBytes": 9708,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/jev-transport-preflight.ts",
+      "bytes": 14638,
+      "sha256": "b0b48be39578b62657efccae51a2e1ae06eb0b2719085a580d25b63ef1e932fc",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/jev-transport-preflight.ts",
+      "publicSha256": "b0b48be39578b62657efccae51a2e1ae06eb0b2719085a580d25b63ef1e932fc",
+      "publicBytes": 14638,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/metrics.mjs",
+      "bytes": 24447,
+      "sha256": "7141446b6ca90f5bb03c2ccede28f7fcf28b424a983e4bf9e9bc7ece2b2eabf9",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/metrics.mjs",
+      "publicSha256": "7141446b6ca90f5bb03c2ccede28f7fcf28b424a983e4bf9e9bc7ece2b2eabf9",
+      "publicBytes": 24447,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/metrics.test.mjs",
+      "bytes": 18726,
+      "sha256": "b62dca75562ec866368fc6e2318f4ebccd023955e19262269c6b93ec059434a2",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/metrics.test.mjs",
+      "publicSha256": "b62dca75562ec866368fc6e2318f4ebccd023955e19262269c6b93ec059434a2",
+      "publicBytes": 18726,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/p6-live-wal-method-test.mjs",
+      "bytes": 6864,
+      "sha256": "76962355edd1de3ad5aa6fc4619536baa84fa60bc9cdc101f12763ec1be6e398",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/p6-live-wal-method-test.mjs",
+      "publicSha256": "76962355edd1de3ad5aa6fc4619536baa84fa60bc9cdc101f12763ec1be6e398",
+      "publicBytes": 6864,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/packaged-breakpoint-preflight.mjs",
+      "bytes": 4504,
+      "sha256": "dcc4e657593be47a607a310634e4796a589b63007bb46845aed4232d8c0a13bb",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/packaged-breakpoint-preflight.mjs",
+      "publicSha256": "dcc4e657593be47a607a310634e4796a589b63007bb46845aed4232d8c0a13bb",
+      "publicBytes": 4504,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/packaged-breakpoint-ui-controller.mjs",
+      "bytes": 54220,
+      "sha256": "06906f898c04596b0d07c94719904fbbe7953cc482e7cce894db2ea12849d708",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/packaged-breakpoint-ui-controller.mjs",
+      "publicSha256": "06906f898c04596b0d07c94719904fbbe7953cc482e7cce894db2ea12849d708",
+      "publicBytes": 54220,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/packaged-workspace-fixture.mjs",
+      "bytes": 3957,
+      "sha256": "91289d2737393f58c27bd423e03878751270983c6fd28037a50e25fff665b8fb",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/packaged-workspace-fixture.mjs",
+      "publicSha256": "91289d2737393f58c27bd423e03878751270983c6fd28037a50e25fff665b8fb",
+      "publicBytes": 3957,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/prepare-build-preflight.mjs",
+      "bytes": 2212,
+      "sha256": "e703c0730bd6b4091605bfee3bf1df0af7ef7670b74746e979f8908d7afc6b70",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/prepare-build-preflight.mjs",
+      "publicSha256": "e703c0730bd6b4091605bfee3bf1df0af7ef7670b74746e979f8908d7afc6b70",
+      "publicBytes": 2212,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    },
+    {
+      "path": "scripts/engineering-validation/run-preflight.mjs",
+      "bytes": 1536,
+      "sha256": "cd0499ddd5ceb235e03079d1e3707e8492937e52977777d2bcdc4fc10535227e",
+      "stage": "E0E1",
+      "publicPath": "scripts/engineering-validation/run-preflight.mjs",
+      "publicSha256": "cd0499ddd5ceb235e03079d1e3707e8492937e52977777d2bcdc4fc10535227e",
+      "publicBytes": 1536,
+      "classification": "ORIGINAL_BYTES",
+      "redactionCategories": []
+    }
+  ]
+}

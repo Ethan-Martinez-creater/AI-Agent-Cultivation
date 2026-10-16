@@ -1,0 +1,47 @@
+{
+  "test": {
+    "log": "full-test-results.txt",
+    "exitCode": 0
+  },
+  "applicationTypecheck": {
+    "log": "typecheck-results.txt",
+    "exitCode": 0
+  },
+  "targetedRecovery": {
+    "log": "recovery-targeted-results.txt",
+    "exitCode": 0
+  },
+  "controllerStrictTypecheck": {
+    "log": "controller-typecheck-results.txt",
+    "exitCode": 0
+  },
+  "independentAuditTypecheck": {
+    "log": "independent-typecheck-seal-results.txt",
+    "exitCode": 0
+  },
+  "scopedLint": {
+    "log": "scoped-lint-final-results.txt",
+    "exitCode": 0
+  },
+  "adapterSensitivity": {
+    "log": "adapter-sensitivity-output-validation-results.txt",
+    "exitCode": 0
+  },
+  "globalLint": {
+    "log": "lint-final-results.txt",
+    "exitCode": 1
+  },
+  "format": {
+    "log": "format-check-final-results.txt",
+    "exitCode": 1
+  },
+  "package": {
+    "status": "NOT_RUN",
+    "reason": "Reused the same verified package; prior E1 MSBuild long-path failure retained"
+  },
+  "fullSmoke": {
+    "status": "BLOCKED",
+    "execution": "NOT_RUN",
+    "reason": "Extra termination cases are outside this single-case authorization and historical chain still lacks the strict identity/profile guards"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "realEvidenceStatus": "PASS",
+  "missingPhaseStatus": "BLOCKED",
+  "results": [
+    {
+      "id": "REC-01",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "afterKill -> firstRestart: Prior Step attempt disappeared: S05#1"
+    },
+    {
+      "id": "REC-02",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "firstRestart: model/tool execution event counts changed."
+    },
+    {
+      "id": "REC-03",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "afterKill -> firstRestart: workflow_artifacts: Previously committed row changed: 82ece9bf-27dc-49f5-a472-3127c9959438"
+    },
+    {
+      "id": "REC-04",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "firstRestart: Controller observed duplicate writes for renderer.ts at generation 1."
+    },
+    {
+      "id": "REC-05",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "firstRestart: model/tool execution event counts changed."
+    },
+    {
+      "id": "REC-06",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "firstRestart: Mutation Journal must remain PREPARED after the crash."
+    },
+    {
+      "id": "REC-07",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "firstRestart: target mutation Step does not preserve the interrupted confirmation wait."
+    },
+    {
+      "id": "REC-08",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "Independent offline retry test failed."
+    },
+    {
+      "id": "REC-09",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "workflow_artifacts IDs/rows changed between final continuation and second restart."
+    },
+    {
+      "id": "REC-10",
+      "injectedViolationDetected": true,
+      "actualStatus": "FAIL",
+      "details": "secondRestart: integrity_check returned negative-control-corruption."
+    }
+  ],
+  "mutatedProductDatabase": false
+}

@@ -1,0 +1,981 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/sqlite-and-fact-audit.json",
+    "originalSha256": "9fbb69b4a91597f45976a89a53476c82cab61f455f79f51d3f222333052713c5",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "status": "PASS_FOR_CAPTURED_STAGES",
+  "missingRequiredStages": [
+    "CR_A.FirstRestart",
+    "CR_A.ExplicitContinue",
+    "CR_A.SecondRestart"
+  ],
+  "audit": [
+    {
+      "scenario": "CR_A",
+      "stage": "BeforeCrash",
+      "integrity": "ok",
+      "foreignKeys": [],
+      "rawTripletChecks": [
+        {
+          "suffix": "main",
+          "existed": true,
+          "sha256": "fb59a56b3a78c3f8f23514202a9abacf0d5239a33979e76c5364e9e04bdfcb90"
+        },
+        {
+          "suffix": "-wal",
+          "existed": true,
+          "sha256": "155aa88efe3ab01ef0547e343ba4874777148932da42a709946457cab7b92c86"
+        },
+        {
+          "suffix": "-shm",
+          "existed": true,
+          "sha256": "215815c3d83be10d271818554b1da4da9cc4e1b5d5ea7239f8610cc41a9b4269"
+        }
+      ],
+      "rawTripletCapturedBeforeSQLiteOpen": true,
+      "artifactHashes": [
+        {
+          "id": "baf3d191-b768-47c4-b6c5-f2354e9d4b95",
+          "producerStepRunId": "f14ff3e5-70eb-4537-910d-9ffb47de7fdd",
+          "sha256": "eab7108ca3f4c4e6cee3b8afb6dc46002e69bf936b706f68ca977c48fa2efe97"
+        },
+        {
+          "id": "43d411e5-a9f5-4071-aafc-1ffc0c985947",
+          "producerStepRunId": "ca527ec6-6ed9-4d01-83d3-4f56d9be92ec",
+          "sha256": "a927eab3b837128f9dba3eaa22b4050f8ccd1ad53db1906e062ded53613042c3"
+        },
+        {
+          "id": "84953dc9-a41d-4a90-b39d-f1d8ea51ace3",
+          "producerStepRunId": "ca527ec6-6ed9-4d01-83d3-4f56d9be92ec",
+          "sha256": "2067398dd8e325ff28aa9149e3028c5a2bc266211c98c0e4a2e4492ddcce1bb0"
+        },
+        {
+          "id": "bd11e05d-eef7-4288-b837-05163fdd6c0b",
+          "producerStepRunId": "af032be9-478c-4676-a9eb-8acb46af7381",
+          "sha256": "1343090d19d0f17740dff6384c3bb2c453129c4cc01adee0a503532fcb397518"
+        },
+        {
+          "id": "693b59f0-308d-4b02-8973-24029ee31bfb",
+          "producerStepRunId": "af032be9-478c-4676-a9eb-8acb46af7381",
+          "sha256": "43d43bbf7d3ffe8b2886af61c39356cf495b6b1a5bb092f93398e864f374a33c"
+        },
+        {
+          "id": "a3b8c358-6414-4bf0-80df-e4591f11304c",
+          "producerStepRunId": "23dfd4b7-e0c6-4cd5-a87d-52aabe1e5f26",
+          "sha256": "e8e25aca43a880e83ef92ab8fd8e6da7175bab0284fab7b13d565ab5efd66365"
+        },
+        {
+          "id": "8d8e290a-8085-400d-a7ab-e1ea39342dcf",
+          "producerStepRunId": "d5705331-8658-49f4-b46f-0160087b2300",
+          "sha256": "e352f8d01ddb633b35ad0a8e25d13db06fd1634a9b99089682f5e27d5c5266b7"
+        },
+        {
+          "id": "377d18fb-b960-41af-bd65-78677d4f49fa",
+          "producerStepRunId": "e340016b-55b8-49f4-a456-00bf61458015",
+          "sha256": "bf20f572691f388807db00cc13a62b805e4db516dadcd2e191b1348d56e3f3f7"
+        }
+      ],
+      "workflowRunId": "ef2d69de-90c8-4ff0-97db-512f2548f757",
+      "workflowState": "RUNNING",
+      "workflowWaitReason": null,
+      "step": {
+        "id": "e340016b-55b8-49f4-a456-00bf61458015",
+        "workflow_run_id": "ef2d69de-90c8-4ff0-97db-512f2548f757",
+        "step_id": "S06",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "cae7eb8d-9e9b-4c1e-90d6-47d8d44dcb68",
+        "mission_run_id": "4809108c-a57d-4749-afb4-9c56968844c7",
+        "workspace_root": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac\\workspace",
+        "wait_reason": null,
+        "error_code": null,
+        "created_at": "2026-10-16T03:02:32.919Z",
+        "updated_at": "2026-10-16T03:02:39.814Z",
+        "completion_origin": "EXECUTED"
+      },
+      "missionRun": {
+        "id": "4809108c-a57d-4749-afb4-9c56968844c7",
+        "mission_id": "cae7eb8d-9e9b-4c1e-90d6-47d8d44dcb68",
+        "attempt": 1,
+        "status": "COMPLETED",
+        "started_at": "2026-10-16T03:02:38.742Z",
+        "ended_at": "2026-10-16T03:02:39.496Z",
+        "error_code": null,
+        "error_message": null,
+        "result_text": "{\"executions\":[{\"commandId\":\"verify-feature\",\"command\":\"node verify.mjs\",\"toolId\":\"ccf3572b-8956-42cb-aea9-3e47051a1f8c:verify_repository\",\"toolExecutionId\":\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\",\"exitStatus\":0,\"acceptanceCriteriaIds\":[\"AC-UI\",\"AC-IPC\",\"AC-PERSISTENCE\"],\"outputArtifactId\":\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\",\"outputHash\":\"7f99921bffa2b3d44b45e200c3a7ae20c34629ce7267a7fef4f80613f7b9be44\"}],\"criteria\":[{\"criterionId\":\"AC-UI\",\"status\":\"PASS\",\"evidenceArtifactIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"],\"executionIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"]},{\"criterionId\":\"AC-IPC\",\"status\":\"PASS\",\"evidenceArtifactIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"],\"executionIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"]},{\"criterionId\":\"AC-PERSISTENCE\",\"status\":\"PASS\",\"evidenceArtifactIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"],\"executionIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"]}],\"failures\":[]}"
+      },
+      "artifacts": 8,
+      "validations": 8,
+      "checkpoints": [
+        "a14eb4b8-a392-4970-891a-3b22d28bd9ed",
+        "aa4b51a6-1da6-478b-88aa-c3987458d35e",
+        "6f011357-9010-48cb-9adb-77854acc3f48",
+        "3d6e6105-01af-467c-9081-1e9cf67ea6f6",
+        "f79539cd-b6c5-4515-a077-a1a6e08d3ad1",
+        "9153ed0f-b982-48da-955a-780553cc7fe5"
+      ],
+      "modelCalls": 11,
+      "toolResults": 5,
+      "independentWrites": [
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:02:36.625Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:02:36.836Z"
+        },
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "ipc.ts",
+          "at": "2026-10-16T03:02:37.268Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "ipc.ts",
+          "at": "2026-10-16T03:02:37.291Z"
+        },
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "store.ts",
+          "at": "2026-10-16T03:02:37.713Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "store.ts",
+          "at": "2026-10-16T03:02:37.732Z"
+        }
+      ],
+      "observers": [
+        {
+          "at": "2026-10-16T03:02:27.959Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 25156
+        }
+      ],
+      "verifierLedger": [
+        {
+          "event": "ENTRY",
+          "pid": 25520,
+          "at": "2026-10-16T03:02:39.317Z"
+        },
+        {
+          "event": "COMPLETED",
+          "pid": 25520,
+          "at": "2026-10-16T03:02:39.353Z"
+        }
+      ]
+    },
+    {
+      "scenario": "CR_A",
+      "stage": "AfterKillVerifiedLedger",
+      "integrity": "ok",
+      "foreignKeys": [],
+      "rawTripletChecks": [
+        {
+          "suffix": "main",
+          "existed": true,
+          "sha256": "fb59a56b3a78c3f8f23514202a9abacf0d5239a33979e76c5364e9e04bdfcb90"
+        },
+        {
+          "suffix": "-wal",
+          "existed": true,
+          "sha256": "155aa88efe3ab01ef0547e343ba4874777148932da42a709946457cab7b92c86"
+        },
+        {
+          "suffix": "-shm",
+          "existed": true,
+          "sha256": "215815c3d83be10d271818554b1da4da9cc4e1b5d5ea7239f8610cc41a9b4269"
+        }
+      ],
+      "rawTripletCapturedBeforeSQLiteOpen": true,
+      "artifactHashes": [
+        {
+          "id": "baf3d191-b768-47c4-b6c5-f2354e9d4b95",
+          "producerStepRunId": "f14ff3e5-70eb-4537-910d-9ffb47de7fdd",
+          "sha256": "eab7108ca3f4c4e6cee3b8afb6dc46002e69bf936b706f68ca977c48fa2efe97"
+        },
+        {
+          "id": "43d411e5-a9f5-4071-aafc-1ffc0c985947",
+          "producerStepRunId": "ca527ec6-6ed9-4d01-83d3-4f56d9be92ec",
+          "sha256": "a927eab3b837128f9dba3eaa22b4050f8ccd1ad53db1906e062ded53613042c3"
+        },
+        {
+          "id": "84953dc9-a41d-4a90-b39d-f1d8ea51ace3",
+          "producerStepRunId": "ca527ec6-6ed9-4d01-83d3-4f56d9be92ec",
+          "sha256": "2067398dd8e325ff28aa9149e3028c5a2bc266211c98c0e4a2e4492ddcce1bb0"
+        },
+        {
+          "id": "bd11e05d-eef7-4288-b837-05163fdd6c0b",
+          "producerStepRunId": "af032be9-478c-4676-a9eb-8acb46af7381",
+          "sha256": "1343090d19d0f17740dff6384c3bb2c453129c4cc01adee0a503532fcb397518"
+        },
+        {
+          "id": "693b59f0-308d-4b02-8973-24029ee31bfb",
+          "producerStepRunId": "af032be9-478c-4676-a9eb-8acb46af7381",
+          "sha256": "43d43bbf7d3ffe8b2886af61c39356cf495b6b1a5bb092f93398e864f374a33c"
+        },
+        {
+          "id": "a3b8c358-6414-4bf0-80df-e4591f11304c",
+          "producerStepRunId": "23dfd4b7-e0c6-4cd5-a87d-52aabe1e5f26",
+          "sha256": "e8e25aca43a880e83ef92ab8fd8e6da7175bab0284fab7b13d565ab5efd66365"
+        },
+        {
+          "id": "8d8e290a-8085-400d-a7ab-e1ea39342dcf",
+          "producerStepRunId": "d5705331-8658-49f4-b46f-0160087b2300",
+          "sha256": "e352f8d01ddb633b35ad0a8e25d13db06fd1634a9b99089682f5e27d5c5266b7"
+        },
+        {
+          "id": "377d18fb-b960-41af-bd65-78677d4f49fa",
+          "producerStepRunId": "e340016b-55b8-49f4-a456-00bf61458015",
+          "sha256": "bf20f572691f388807db00cc13a62b805e4db516dadcd2e191b1348d56e3f3f7"
+        }
+      ],
+      "workflowRunId": "ef2d69de-90c8-4ff0-97db-512f2548f757",
+      "workflowState": "RUNNING",
+      "workflowWaitReason": null,
+      "step": {
+        "id": "e340016b-55b8-49f4-a456-00bf61458015",
+        "workflow_run_id": "ef2d69de-90c8-4ff0-97db-512f2548f757",
+        "step_id": "S06",
+        "attempt": 1,
+        "state": "COMPLETED",
+        "mission_id": "cae7eb8d-9e9b-4c1e-90d6-47d8d44dcb68",
+        "mission_run_id": "4809108c-a57d-4749-afb4-9c56968844c7",
+        "workspace_root": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac\\workspace",
+        "wait_reason": null,
+        "error_code": null,
+        "created_at": "2026-10-16T03:02:32.919Z",
+        "updated_at": "2026-10-16T03:02:39.814Z",
+        "completion_origin": "EXECUTED"
+      },
+      "missionRun": {
+        "id": "4809108c-a57d-4749-afb4-9c56968844c7",
+        "mission_id": "cae7eb8d-9e9b-4c1e-90d6-47d8d44dcb68",
+        "attempt": 1,
+        "status": "COMPLETED",
+        "started_at": "2026-10-16T03:02:38.742Z",
+        "ended_at": "2026-10-16T03:02:39.496Z",
+        "error_code": null,
+        "error_message": null,
+        "result_text": "{\"executions\":[{\"commandId\":\"verify-feature\",\"command\":\"node verify.mjs\",\"toolId\":\"ccf3572b-8956-42cb-aea9-3e47051a1f8c:verify_repository\",\"toolExecutionId\":\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\",\"exitStatus\":0,\"acceptanceCriteriaIds\":[\"AC-UI\",\"AC-IPC\",\"AC-PERSISTENCE\"],\"outputArtifactId\":\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\",\"outputHash\":\"7f99921bffa2b3d44b45e200c3a7ae20c34629ce7267a7fef4f80613f7b9be44\"}],\"criteria\":[{\"criterionId\":\"AC-UI\",\"status\":\"PASS\",\"evidenceArtifactIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"],\"executionIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"]},{\"criterionId\":\"AC-IPC\",\"status\":\"PASS\",\"evidenceArtifactIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"],\"executionIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"]},{\"criterionId\":\"AC-PERSISTENCE\",\"status\":\"PASS\",\"evidenceArtifactIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"],\"executionIds\":[\"w22-638638ce-74c3-4084-a206-3f6bba14dd63\"]}],\"failures\":[]}"
+      },
+      "artifacts": 8,
+      "validations": 8,
+      "checkpoints": [
+        "a14eb4b8-a392-4970-891a-3b22d28bd9ed",
+        "aa4b51a6-1da6-478b-88aa-c3987458d35e",
+        "6f011357-9010-48cb-9adb-77854acc3f48",
+        "3d6e6105-01af-467c-9081-1e9cf67ea6f6",
+        "f79539cd-b6c5-4515-a077-a1a6e08d3ad1",
+        "9153ed0f-b982-48da-955a-780553cc7fe5"
+      ],
+      "modelCalls": 11,
+      "toolResults": 5,
+      "independentWrites": [
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:02:36.625Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:02:36.836Z"
+        },
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "ipc.ts",
+          "at": "2026-10-16T03:02:37.268Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "ipc.ts",
+          "at": "2026-10-16T03:02:37.291Z"
+        },
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "store.ts",
+          "at": "2026-10-16T03:02:37.713Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "store.ts",
+          "at": "2026-10-16T03:02:37.732Z"
+        }
+      ],
+      "observers": [
+        {
+          "at": "2026-10-16T03:02:27.959Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 25156
+        }
+      ],
+      "verifierLedger": [
+        {
+          "event": "ENTRY",
+          "pid": 25520,
+          "at": "2026-10-16T03:02:39.317Z"
+        },
+        {
+          "event": "COMPLETED",
+          "pid": 25520,
+          "at": "2026-10-16T03:02:39.353Z"
+        }
+      ]
+    },
+    {
+      "scenario": "CR_B",
+      "stage": "WriteEntry",
+      "integrity": "ok",
+      "foreignKeys": [],
+      "rawTripletChecks": [
+        {
+          "suffix": "main",
+          "existed": true,
+          "sha256": "17353563a641a84ee3157c3940d772b4fb9d3d4f91629a8ea469ed0a49db56c5"
+        },
+        {
+          "suffix": "-wal",
+          "existed": true,
+          "sha256": "21f66afe00dd1e7ea30b8458d040b89c48c34c00787b2ddfee490d89e090f6fc"
+        },
+        {
+          "suffix": "-shm",
+          "existed": true,
+          "sha256": "9a32e1b0cc0fbaf875bb9461d13715bf2b64153c28d366c003d5f1a9ea00197e"
+        }
+      ],
+      "rawTripletCapturedBeforeSQLiteOpen": true,
+      "artifactHashes": [
+        {
+          "id": "82ece9bf-27dc-49f5-a472-3127c9959438",
+          "producerStepRunId": "9f01fdd8-1797-4dd0-aeed-3a65ff5f7e3a",
+          "sha256": "eab7108ca3f4c4e6cee3b8afb6dc46002e69bf936b706f68ca977c48fa2efe97"
+        },
+        {
+          "id": "e70b3e20-2a55-448a-a797-b17caa1470c3",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "a927eab3b837128f9dba3eaa22b4050f8ccd1ad53db1906e062ded53613042c3"
+        },
+        {
+          "id": "41b442bb-8714-48e9-8b28-7ae51b8e10f2",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "2067398dd8e325ff28aa9149e3028c5a2bc266211c98c0e4a2e4492ddcce1bb0"
+        },
+        {
+          "id": "9a09268b-f6a6-4cad-a84c-e6bbe83caa7e",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "1343090d19d0f17740dff6384c3bb2c453129c4cc01adee0a503532fcb397518"
+        },
+        {
+          "id": "437ef519-87a5-441a-84a0-4661e2007263",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "43d43bbf7d3ffe8b2886af61c39356cf495b6b1a5bb092f93398e864f374a33c"
+        },
+        {
+          "id": "79a77c2b-795d-4318-acc1-fc08f2b3d959",
+          "producerStepRunId": "98f08bf7-99c1-404b-a5fe-d0e5cead04f4",
+          "sha256": "8c7f25d0c220d3bff544261ba5a0b3ca0ef56d536e448cf4e55829303dc4ed49"
+        }
+      ],
+      "workflowRunId": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+      "workflowState": "WAITING",
+      "workflowWaitReason": "APPROVAL",
+      "step": {
+        "id": "f56253a4-1b40-4aa0-adf1-7608f0cfcf5e",
+        "workflow_run_id": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+        "step_id": "S05",
+        "attempt": 1,
+        "state": "WAITING",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "mission_run_id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "workspace_root": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\workspace",
+        "wait_reason": "APPROVAL",
+        "error_code": null,
+        "created_at": "2026-10-16T03:08:10.110Z",
+        "updated_at": "2026-10-16T03:08:12.223Z",
+        "completion_origin": "EXECUTED"
+      },
+      "missionRun": {
+        "id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "attempt": 1,
+        "status": "RUNNING",
+        "started_at": "2026-10-16T03:08:11.962Z",
+        "ended_at": null,
+        "error_code": null,
+        "error_message": null,
+        "result_text": null
+      },
+      "artifacts": 6,
+      "validations": 6,
+      "checkpoints": [
+        "67df2af1-de26-438a-bc71-0aa67cbc2997",
+        "0087dd5f-a25c-40c6-babf-066624aba98d",
+        "f04d7b80-91c1-4d24-8382-5b97485b5d0c",
+        "b36c69c1-cd3b-406c-8297-8d167746c67e"
+      ],
+      "modelCalls": 6,
+      "toolResults": 1,
+      "independentWrites": [
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:12.603Z"
+        }
+      ],
+      "observers": [
+        {
+          "at": "2026-10-16T03:08:05.026Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 13864
+        }
+      ],
+      "verifierLedger": []
+    },
+    {
+      "scenario": "CR_B",
+      "stage": "BeforeCrash",
+      "integrity": "ok",
+      "foreignKeys": [],
+      "rawTripletChecks": [
+        {
+          "suffix": "main",
+          "existed": true,
+          "sha256": "17353563a641a84ee3157c3940d772b4fb9d3d4f91629a8ea469ed0a49db56c5"
+        },
+        {
+          "suffix": "-wal",
+          "existed": true,
+          "sha256": "21f66afe00dd1e7ea30b8458d040b89c48c34c00787b2ddfee490d89e090f6fc"
+        },
+        {
+          "suffix": "-shm",
+          "existed": true,
+          "sha256": "9a32e1b0cc0fbaf875bb9461d13715bf2b64153c28d366c003d5f1a9ea00197e"
+        }
+      ],
+      "rawTripletCapturedBeforeSQLiteOpen": true,
+      "artifactHashes": [
+        {
+          "id": "82ece9bf-27dc-49f5-a472-3127c9959438",
+          "producerStepRunId": "9f01fdd8-1797-4dd0-aeed-3a65ff5f7e3a",
+          "sha256": "eab7108ca3f4c4e6cee3b8afb6dc46002e69bf936b706f68ca977c48fa2efe97"
+        },
+        {
+          "id": "e70b3e20-2a55-448a-a797-b17caa1470c3",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "a927eab3b837128f9dba3eaa22b4050f8ccd1ad53db1906e062ded53613042c3"
+        },
+        {
+          "id": "41b442bb-8714-48e9-8b28-7ae51b8e10f2",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "2067398dd8e325ff28aa9149e3028c5a2bc266211c98c0e4a2e4492ddcce1bb0"
+        },
+        {
+          "id": "9a09268b-f6a6-4cad-a84c-e6bbe83caa7e",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "1343090d19d0f17740dff6384c3bb2c453129c4cc01adee0a503532fcb397518"
+        },
+        {
+          "id": "437ef519-87a5-441a-84a0-4661e2007263",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "43d43bbf7d3ffe8b2886af61c39356cf495b6b1a5bb092f93398e864f374a33c"
+        },
+        {
+          "id": "79a77c2b-795d-4318-acc1-fc08f2b3d959",
+          "producerStepRunId": "98f08bf7-99c1-404b-a5fe-d0e5cead04f4",
+          "sha256": "8c7f25d0c220d3bff544261ba5a0b3ca0ef56d536e448cf4e55829303dc4ed49"
+        }
+      ],
+      "workflowRunId": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+      "workflowState": "WAITING",
+      "workflowWaitReason": "APPROVAL",
+      "step": {
+        "id": "f56253a4-1b40-4aa0-adf1-7608f0cfcf5e",
+        "workflow_run_id": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+        "step_id": "S05",
+        "attempt": 1,
+        "state": "WAITING",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "mission_run_id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "workspace_root": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\workspace",
+        "wait_reason": "APPROVAL",
+        "error_code": null,
+        "created_at": "2026-10-16T03:08:10.110Z",
+        "updated_at": "2026-10-16T03:08:12.223Z",
+        "completion_origin": "EXECUTED"
+      },
+      "missionRun": {
+        "id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "attempt": 1,
+        "status": "RUNNING",
+        "started_at": "2026-10-16T03:08:11.962Z",
+        "ended_at": null,
+        "error_code": null,
+        "error_message": null,
+        "result_text": null
+      },
+      "artifacts": 6,
+      "validations": 6,
+      "checkpoints": [
+        "67df2af1-de26-438a-bc71-0aa67cbc2997",
+        "0087dd5f-a25c-40c6-babf-066624aba98d",
+        "f04d7b80-91c1-4d24-8382-5b97485b5d0c",
+        "b36c69c1-cd3b-406c-8297-8d167746c67e"
+      ],
+      "modelCalls": 6,
+      "toolResults": 1,
+      "independentWrites": [
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:12.603Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:15.728Z"
+        }
+      ],
+      "observers": [
+        {
+          "at": "2026-10-16T03:08:05.026Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 13864
+        }
+      ],
+      "verifierLedger": []
+    },
+    {
+      "scenario": "CR_B",
+      "stage": "AfterKill",
+      "integrity": "ok",
+      "foreignKeys": [],
+      "rawTripletChecks": [
+        {
+          "suffix": "main",
+          "existed": true,
+          "sha256": "17353563a641a84ee3157c3940d772b4fb9d3d4f91629a8ea469ed0a49db56c5"
+        },
+        {
+          "suffix": "-wal",
+          "existed": true,
+          "sha256": "21f66afe00dd1e7ea30b8458d040b89c48c34c00787b2ddfee490d89e090f6fc"
+        },
+        {
+          "suffix": "-shm",
+          "existed": true,
+          "sha256": "9a32e1b0cc0fbaf875bb9461d13715bf2b64153c28d366c003d5f1a9ea00197e"
+        }
+      ],
+      "rawTripletCapturedBeforeSQLiteOpen": true,
+      "artifactHashes": [
+        {
+          "id": "82ece9bf-27dc-49f5-a472-3127c9959438",
+          "producerStepRunId": "9f01fdd8-1797-4dd0-aeed-3a65ff5f7e3a",
+          "sha256": "eab7108ca3f4c4e6cee3b8afb6dc46002e69bf936b706f68ca977c48fa2efe97"
+        },
+        {
+          "id": "e70b3e20-2a55-448a-a797-b17caa1470c3",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "a927eab3b837128f9dba3eaa22b4050f8ccd1ad53db1906e062ded53613042c3"
+        },
+        {
+          "id": "41b442bb-8714-48e9-8b28-7ae51b8e10f2",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "2067398dd8e325ff28aa9149e3028c5a2bc266211c98c0e4a2e4492ddcce1bb0"
+        },
+        {
+          "id": "9a09268b-f6a6-4cad-a84c-e6bbe83caa7e",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "1343090d19d0f17740dff6384c3bb2c453129c4cc01adee0a503532fcb397518"
+        },
+        {
+          "id": "437ef519-87a5-441a-84a0-4661e2007263",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "43d43bbf7d3ffe8b2886af61c39356cf495b6b1a5bb092f93398e864f374a33c"
+        },
+        {
+          "id": "79a77c2b-795d-4318-acc1-fc08f2b3d959",
+          "producerStepRunId": "98f08bf7-99c1-404b-a5fe-d0e5cead04f4",
+          "sha256": "8c7f25d0c220d3bff544261ba5a0b3ca0ef56d536e448cf4e55829303dc4ed49"
+        }
+      ],
+      "workflowRunId": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+      "workflowState": "WAITING",
+      "workflowWaitReason": "APPROVAL",
+      "step": {
+        "id": "f56253a4-1b40-4aa0-adf1-7608f0cfcf5e",
+        "workflow_run_id": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+        "step_id": "S05",
+        "attempt": 1,
+        "state": "WAITING",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "mission_run_id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "workspace_root": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\workspace",
+        "wait_reason": "APPROVAL",
+        "error_code": null,
+        "created_at": "2026-10-16T03:08:10.110Z",
+        "updated_at": "2026-10-16T03:08:12.223Z",
+        "completion_origin": "EXECUTED"
+      },
+      "missionRun": {
+        "id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "attempt": 1,
+        "status": "RUNNING",
+        "started_at": "2026-10-16T03:08:11.962Z",
+        "ended_at": null,
+        "error_code": null,
+        "error_message": null,
+        "result_text": null
+      },
+      "artifacts": 6,
+      "validations": 6,
+      "checkpoints": [
+        "67df2af1-de26-438a-bc71-0aa67cbc2997",
+        "0087dd5f-a25c-40c6-babf-066624aba98d",
+        "f04d7b80-91c1-4d24-8382-5b97485b5d0c",
+        "b36c69c1-cd3b-406c-8297-8d167746c67e"
+      ],
+      "modelCalls": 6,
+      "toolResults": 1,
+      "independentWrites": [
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:12.603Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:15.728Z"
+        }
+      ],
+      "observers": [
+        {
+          "at": "2026-10-16T03:08:05.026Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 13864
+        }
+      ],
+      "verifierLedger": []
+    },
+    {
+      "scenario": "CR_B",
+      "stage": "FirstRestart",
+      "integrity": "ok",
+      "foreignKeys": [],
+      "rawTripletChecks": [
+        {
+          "suffix": "main",
+          "existed": true,
+          "sha256": "17353563a641a84ee3157c3940d772b4fb9d3d4f91629a8ea469ed0a49db56c5"
+        },
+        {
+          "suffix": "-wal",
+          "existed": true,
+          "sha256": "af35861e070fae1ea64c65d3f559d61b4476fa03ffe53ad04c131e798785bbaf"
+        },
+        {
+          "suffix": "-shm",
+          "existed": true,
+          "sha256": "3d272a7431d3363051d7a9d71235cecf47f253c5ccee35a19daa673fbc9fc248"
+        }
+      ],
+      "rawTripletCapturedBeforeSQLiteOpen": true,
+      "artifactHashes": [
+        {
+          "id": "82ece9bf-27dc-49f5-a472-3127c9959438",
+          "producerStepRunId": "9f01fdd8-1797-4dd0-aeed-3a65ff5f7e3a",
+          "sha256": "eab7108ca3f4c4e6cee3b8afb6dc46002e69bf936b706f68ca977c48fa2efe97"
+        },
+        {
+          "id": "e70b3e20-2a55-448a-a797-b17caa1470c3",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "a927eab3b837128f9dba3eaa22b4050f8ccd1ad53db1906e062ded53613042c3"
+        },
+        {
+          "id": "41b442bb-8714-48e9-8b28-7ae51b8e10f2",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "2067398dd8e325ff28aa9149e3028c5a2bc266211c98c0e4a2e4492ddcce1bb0"
+        },
+        {
+          "id": "9a09268b-f6a6-4cad-a84c-e6bbe83caa7e",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "1343090d19d0f17740dff6384c3bb2c453129c4cc01adee0a503532fcb397518"
+        },
+        {
+          "id": "437ef519-87a5-441a-84a0-4661e2007263",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "43d43bbf7d3ffe8b2886af61c39356cf495b6b1a5bb092f93398e864f374a33c"
+        },
+        {
+          "id": "79a77c2b-795d-4318-acc1-fc08f2b3d959",
+          "producerStepRunId": "98f08bf7-99c1-404b-a5fe-d0e5cead04f4",
+          "sha256": "8c7f25d0c220d3bff544261ba5a0b3ca0ef56d536e448cf4e55829303dc4ed49"
+        }
+      ],
+      "workflowRunId": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+      "workflowState": "WAITING",
+      "workflowWaitReason": "USER_CONFIRMATION",
+      "step": {
+        "id": "f56253a4-1b40-4aa0-adf1-7608f0cfcf5e",
+        "workflow_run_id": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+        "step_id": "S05",
+        "attempt": 1,
+        "state": "WAITING",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "mission_run_id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "workspace_root": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\workspace",
+        "wait_reason": "USER_CONFIRMATION",
+        "error_code": "EXECUTION_INTERRUPTED_RETRY_REQUIRED",
+        "created_at": "2026-10-16T03:08:10.110Z",
+        "updated_at": "2026-10-16T03:08:31.284Z",
+        "completion_origin": "EXECUTED"
+      },
+      "missionRun": {
+        "id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "attempt": 1,
+        "status": "INTERRUPTED",
+        "started_at": "2026-10-16T03:08:11.962Z",
+        "ended_at": "2026-10-16T03:08:31.203Z",
+        "error_code": "APP_RESTARTED",
+        "error_message": "Application restarted while the Mission was running.",
+        "result_text": null
+      },
+      "artifacts": 6,
+      "validations": 6,
+      "checkpoints": [
+        "67df2af1-de26-438a-bc71-0aa67cbc2997",
+        "0087dd5f-a25c-40c6-babf-066624aba98d",
+        "f04d7b80-91c1-4d24-8382-5b97485b5d0c",
+        "b36c69c1-cd3b-406c-8297-8d167746c67e"
+      ],
+      "modelCalls": 6,
+      "toolResults": 1,
+      "independentWrites": [
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:12.603Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:15.728Z"
+        }
+      ],
+      "observers": [
+        {
+          "at": "2026-10-16T03:08:05.026Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 13864
+        },
+        {
+          "at": "2026-10-16T03:08:30.517Z",
+          "generation": 1,
+          "phase": "STARTUP_RECOVERY",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 18428
+        }
+      ],
+      "verifierLedger": []
+    },
+    {
+      "scenario": "CR_B",
+      "stage": "SecondRestart",
+      "integrity": "ok",
+      "foreignKeys": [],
+      "rawTripletChecks": [
+        {
+          "suffix": "main",
+          "existed": true,
+          "sha256": "0a5a6c683886a326270256a4f20cad4d696fcf35090d900af25b5b07cdeedc1f"
+        },
+        {
+          "suffix": "-wal",
+          "existed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "suffix": "-shm",
+          "existed": true,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        }
+      ],
+      "rawTripletCapturedBeforeSQLiteOpen": true,
+      "artifactHashes": [
+        {
+          "id": "82ece9bf-27dc-49f5-a472-3127c9959438",
+          "producerStepRunId": "9f01fdd8-1797-4dd0-aeed-3a65ff5f7e3a",
+          "sha256": "eab7108ca3f4c4e6cee3b8afb6dc46002e69bf936b706f68ca977c48fa2efe97"
+        },
+        {
+          "id": "e70b3e20-2a55-448a-a797-b17caa1470c3",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "a927eab3b837128f9dba3eaa22b4050f8ccd1ad53db1906e062ded53613042c3"
+        },
+        {
+          "id": "41b442bb-8714-48e9-8b28-7ae51b8e10f2",
+          "producerStepRunId": "bda72ad3-1fc8-4e9a-b833-d73bc02c6c3f",
+          "sha256": "2067398dd8e325ff28aa9149e3028c5a2bc266211c98c0e4a2e4492ddcce1bb0"
+        },
+        {
+          "id": "9a09268b-f6a6-4cad-a84c-e6bbe83caa7e",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "1343090d19d0f17740dff6384c3bb2c453129c4cc01adee0a503532fcb397518"
+        },
+        {
+          "id": "437ef519-87a5-441a-84a0-4661e2007263",
+          "producerStepRunId": "52e0255a-8271-462d-bf2f-4b9b90737674",
+          "sha256": "43d43bbf7d3ffe8b2886af61c39356cf495b6b1a5bb092f93398e864f374a33c"
+        },
+        {
+          "id": "79a77c2b-795d-4318-acc1-fc08f2b3d959",
+          "producerStepRunId": "98f08bf7-99c1-404b-a5fe-d0e5cead04f4",
+          "sha256": "8c7f25d0c220d3bff544261ba5a0b3ca0ef56d536e448cf4e55829303dc4ed49"
+        }
+      ],
+      "workflowRunId": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+      "workflowState": "WAITING",
+      "workflowWaitReason": "USER_CONFIRMATION",
+      "step": {
+        "id": "f56253a4-1b40-4aa0-adf1-7608f0cfcf5e",
+        "workflow_run_id": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+        "step_id": "S05",
+        "attempt": 1,
+        "state": "WAITING",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "mission_run_id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "workspace_root": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_B-219de96c-32de-4534-b909-7de476dcc490\\workspace",
+        "wait_reason": "USER_CONFIRMATION",
+        "error_code": "EXECUTION_INTERRUPTED_RETRY_REQUIRED",
+        "created_at": "2026-10-16T03:08:10.110Z",
+        "updated_at": "2026-10-16T03:08:31.284Z",
+        "completion_origin": "EXECUTED"
+      },
+      "missionRun": {
+        "id": "c3e4a430-03ba-4d6b-bcc1-53074328d2b6",
+        "mission_id": "0b65126a-0d61-4cdc-b64b-2a36526dfd0b",
+        "attempt": 1,
+        "status": "INTERRUPTED",
+        "started_at": "2026-10-16T03:08:11.962Z",
+        "ended_at": "2026-10-16T03:08:31.203Z",
+        "error_code": "APP_RESTARTED",
+        "error_message": "Application restarted while the Mission was running.",
+        "result_text": null
+      },
+      "artifacts": 6,
+      "validations": 6,
+      "checkpoints": [
+        "67df2af1-de26-438a-bc71-0aa67cbc2997",
+        "0087dd5f-a25c-40c6-babf-066624aba98d",
+        "f04d7b80-91c1-4d24-8382-5b97485b5d0c",
+        "b36c69c1-cd3b-406c-8297-8d167746c67e"
+      ],
+      "modelCalls": 6,
+      "toolResults": 1,
+      "independentWrites": [
+        {
+          "event": "WRITE_ENTRY",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:12.603Z"
+        },
+        {
+          "event": "WRITE_RETURN",
+          "generation": 0,
+          "path": "renderer.ts",
+          "at": "2026-10-16T03:08:15.728Z"
+        }
+      ],
+      "observers": [
+        {
+          "at": "2026-10-16T03:08:05.026Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 13864
+        },
+        {
+          "at": "2026-10-16T03:08:30.517Z",
+          "generation": 1,
+          "phase": "STARTUP_RECOVERY",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 18428
+        },
+        {
+          "at": "2026-10-16T03:08:41.059Z",
+          "generation": 2,
+          "phase": "STARTUP_RECOVERY",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 7048
+        }
+      ],
+      "verifierLedger": []
+    }
+  ]
+}

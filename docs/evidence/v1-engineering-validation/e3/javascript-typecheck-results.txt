@@ -1,0 +1,69 @@
+scripts/engineering-validation/e3-baseline.mjs(75,25): error TS2554: Expected 2 arguments, but got 1.
+scripts/engineering-validation/e3-packaged-controller.mjs(139,45): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'number'.
+scripts/engineering-validation/e3-packaged-controller.mjs(140,33): error TS2339: Property 'port' does not exist on type 'string | AddressInfo'.
+  Property 'port' does not exist on type 'string'.
+scripts/engineering-validation/e3-packaged-controller.mjs(304,54): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(335,14): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(371,26): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(776,53): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(780,22): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(894,55): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(917,20): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(959,32): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1071,11): error TS2339: Property 'spawnError' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1080,9): error TS2339: Property 'initialIdentity' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1082,9): error TS2339: Property 'inspector' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1091,9): error TS2339: Property 'observerId' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1107,51): error TS2339: Property 'observerId' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1125,19): error TS2339: Property 'heldEntry' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1146,19): error TS2339: Property 'heldReturn' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1154,15): error TS2339: Property 'observerError' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1161,15): error TS2339: Property 'spawnError' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1162,60): error TS2339: Property 'spawnError' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1171,9): error TS2339: Property 'browser' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1182,9): error TS2339: Property 'page' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1197,9): error TS2339: Property 'osIdentity' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1214,9): error TS2339: Property 'app' does not exist on type '{ generation: any; child: ChildProcessByStdio<null, Readable, Readable>; port: any; chromePort: any; paused: boolean; entryCount: number; returnCount: number; profileVerified: boolean; activeReturns: Set<...>; }'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1236,54): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1279,55): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1289,18): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1301,42): error TS2339: Property 'cultivation' does not exist on type 'Window & typeof globalThis'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1315,27): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1315,40): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1316,45): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1317,47): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1317,60): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1323,45): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1323,58): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1324,45): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1326,47): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1326,60): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1328,7): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1335,9): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1336,9): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1341,7): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1343,28): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1353,9): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1354,9): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1358,7): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1360,28): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1361,13): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1364,26): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1373,39): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1374,7): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1375,7): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1377,7): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1380,28): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1382,9): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1382,37): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1401,18): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1402,18): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1410,58): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1419,18): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1420,18): error TS18048: 'current' is possibly 'undefined'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1429,27): error TS2339: Property 'paused' does not exist on type 'never'.
+scripts/engineering-validation/e3-packaged-controller.mjs(1429,45): error TS2339: Property 'child' does not exist on type 'never'.
+scripts/engineering-validation/e3-snapshots.mjs(77,84): error TS2339: Property 'n' does not exist on type 'unknown'.
+exitCode=2

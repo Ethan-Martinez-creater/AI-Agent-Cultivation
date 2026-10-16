@@ -1,0 +1,2 @@
+CR-A corrective adapter sensitivity checks passed: legal assignment, immutable completed identity, no new attempts, no startup assignment/call, scoped continuation facts, Mission identity freshness, and missing-phase blocking.
+exitCode=0

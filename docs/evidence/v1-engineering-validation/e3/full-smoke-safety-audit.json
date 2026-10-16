@@ -1,0 +1,42 @@
+{
+  "status": "BLOCKED",
+  "execution": "NOT_RUN",
+  "reason": "Full recursive smoke chain contains PID-only forced termination and application self-kill paths without the E3-required creation-time, executable and isolated-profile identity revalidation. This is a current audit result, not a carry-over of the E1 kill prohibition.",
+  "references": [
+    {
+      "path": "scripts/r3-1-crash-packaged-smoke.mjs",
+      "line": 45,
+      "mechanism": "taskkill /PID /T /F"
+    },
+    {
+      "path": "scripts/w1-packaged-smoke.mjs",
+      "line": 67,
+      "mechanism": "taskkill /PID /T /F"
+    },
+    {
+      "path": "scripts/w2-packaged-smoke.mjs",
+      "line": 61,
+      "mechanism": "taskkill /PID /T /F"
+    },
+    {
+      "path": "scripts/g1-packaged-smoke.mjs",
+      "line": 34,
+      "mechanism": "process.kill SIGKILL"
+    },
+    {
+      "path": "scripts/g2-packaged-smoke.mjs",
+      "line": 74,
+      "mechanism": "process.kill SIGKILL"
+    },
+    {
+      "path": "apps/desktop/src/main/main.ts",
+      "line": 1366,
+      "mechanism": "test-flag-triggered self termination"
+    }
+  ],
+  "additionalIsolationGaps": [
+    "Inherited system Profile and TEMP environment",
+    "Some fixed docs/evidence outputs can replace historical evidence"
+  ],
+  "paidLiveHarnesses": "NOT_RUN; outside E3 scope; no keys read"
+}

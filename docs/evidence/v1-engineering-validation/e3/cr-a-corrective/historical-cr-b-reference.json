@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "execution": "NOT_RERUN",
+  "originalCase": "CR_B-219de96c-32de-4534-b909-7de476dcc490",
+  "originalRunId": "1986ed84-12ed-4ba5-b94e-00c9419f76b1",
+  "analysisCorrection": "CR-B REC-09 compares FirstRestart and SecondRestart confirmation wait. No explicit continuation occurred. The historical Final continuation wording and raw assertion output remain unchanged.",
+  "originalAssertionResult": {
+    "scenario": "CR_B",
+    "status": "PASS",
+    "checks": [
+      {
+        "id": "REC-01",
+        "status": "PASS",
+        "evidence": "official definition, Run and Step attempt identities",
+        "details": "Preserved 11 prior Step attempt(s); no new attempt was added."
+      },
+      {
+        "id": "REC-02",
+        "status": "PASS",
+        "evidence": "completed Step event chains and interrupted target MissionRun execution count",
+        "details": "No additional model/tool execution events were recorded for the interrupted target MissionRun."
+      },
+      {
+        "id": "REC-03",
+        "status": "PASS",
+        "evidence": "artifact/receipt/checkpoint/binding/decision/traversal IDs and hashes",
+        "details": "Prior durable row IDs and hashes are preserved across 6 table(s). No rows were added."
+      },
+      {
+        "id": "REC-04",
+        "status": "PASS",
+        "evidence": "independent controller WRITE_ENTRY/WRITE_RETURN ledger and journal reconciliation",
+        "details": "Target operation and journal identities persist across phases without duplicate rows."
+      },
+      {
+        "id": "REC-05",
+        "status": "PASS",
+        "evidence": "no startup retry, new POST/Tool execution, or target Operation/Journal",
+        "details": "No explicitContinue snapshot or retry/advance evidence exists in CR-B; both restarts preserve the confirmation wait."
+      },
+      {
+        "id": "REC-06",
+        "status": "PASS",
+        "evidence": "interrupted Mission/Operation/Journal remains unverified and waiting",
+        "details": "Each restart preserves the exact interrupted UNKNOWN/PREPARED waiting contract."
+      },
+      {
+        "id": "REC-07",
+        "status": "PASS",
+        "evidence": "uncertain file state cannot be treated as verified completion",
+        "details": "Before recovery Mission/MissionRun remain RUNNING with PREPARED evidence; after recovery the uncertain mutation stays UNKNOWN/PREPARED and waits for confirmation."
+      },
+      {
+        "id": "REC-08",
+        "status": "PASS",
+        "evidence": "offlineRetryTestPassed",
+        "details": "Independent offline retry test passed; CR-B itself contains no retry or new Step attempt."
+      },
+      {
+        "id": "REC-09",
+        "status": "PASS",
+        "evidence": "firstRestart versus secondRestart IDs/hashes/counts",
+        "details": "Final continuation and second restart have stable Run identity/state, Step rows, durable IDs/hashes, events, and workspace hashes."
+      },
+      {
+        "id": "REC-10",
+        "status": "PASS",
+        "evidence": "SQLite integrity/FK and isolated process/profile evidence",
+        "details": "SQLite checks passed; raw triplet was copied before SQLite open; runtime verified one isolated profile/workspace across generations 0, 1, and 2."
+      }
+    ]
+  },
+  "originalCaseToken": "CR_B-219de96c-32de-4534-b909-7de476dcc490"
+}

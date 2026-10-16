@@ -1,0 +1,29 @@
+{
+  "javascript": [
+    {
+      "file": "e3-assertion-sensitivity.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "e3-baseline.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "e3-evidence-audit.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "e3-invariants.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "e3-packaged-controller.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "e3-snapshots.mjs",
+      "exitCode": 0
+    }
+  ],
+  "powerShellParseErrorCount": 0
+}

@@ -1,0 +1,18 @@
+
+> ai-agent-cultivation@0.0.1 format:check
+> node scripts/format-check.mjs
+
+Prettier found formatting issues in 12 file(s):
+  docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design.md
+  docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md
+  docs/AI_Agent_Cultivation_V1_E1_Feasibility_Review.md
+  docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/execution.json
+  docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/process-Terminate-98e1488d-bc30-48b1-8c3a-ca8c7f528ac3.json
+  docs/evidence/v1-engineering-validation/e3/CR_A-e214746e-00ef-4703-bba7-553382c891c2/execution.json
+  docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/execution.json
+  docs/evidence/v1-engineering-validation/e3/CR_B-219de96c-32de-4534-b909-7de476dcc490/process-Terminate-88d383c5-9391-49f4-a409-b961387e64f4.json
+  docs/evidence/v1-engineering-validation/e3/PROBE-6a660524-0111-4fa3-8cad-1301fc2e5d8f/execution.json
+  docs/evidence/v1-engineering-validation/e3/PROBE-6fbf0675-d31b-4d89-911a-c62edd1e706d/execution.json
+  docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/execution.json
+  docs/evidence/v1-engineering-validation/e3/sqlite-and-fact-audit.json
+exitCode=1

@@ -1,0 +1,8 @@
+
+[REPOSITORY_ROOT]\scripts\engineering-validation\e3-assertion-sensitivity.mjs
+  107:17  error  'structuredClone' is not defined  no-undef
+  117:17  error  'structuredClone' is not defined  no-undef
+
+✖ 2 problems (2 errors, 0 warnings)
+
+exitCode=1

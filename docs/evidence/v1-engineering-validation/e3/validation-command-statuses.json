@@ -1,0 +1,49 @@
+{
+  "commands": [
+    {
+      "command": "npm run test",
+      "e1": "PASS：1521 / 165",
+      "e3": "PASS：1521 / 165",
+      "log": "full-test-results.txt"
+    },
+    {
+      "command": "npm run typecheck",
+      "e1": "PASS",
+      "e3": "PASS",
+      "log": "typecheck-results.txt"
+    },
+    {
+      "command": "npm run lint",
+      "e1": "FAIL：既有 private 脚本 10 项",
+      "e3": "FAIL：既有 private 脚本 10 项（最终日志为准）",
+      "log": "lint-final-results.txt"
+    },
+    {
+      "command": "npm run format:check",
+      "e1": "FAIL：3 份既有冻结/历史 Markdown",
+      "e3": "FAIL：既有 3 份文档，另含保留原样的 E3 原始 execution.json",
+      "log": "format-check-final-results.txt"
+    },
+    {
+      "command": "npm run package",
+      "e1": "FAIL：隔离构建 MSBuild 路径超过 260 字符",
+      "e3": "NOT_RUN：依本轮授权复用已验证产物；无重新打包 PASS 声明",
+      "log": "../preflight/package-results.txt"
+    },
+    {
+      "command": "npm run smoke:package",
+      "e1": "NOT_RUN：当时禁止强杀",
+      "e3": "BLOCKED / NOT_RUN：本轮重新审查发现链内缺少严格身份复核和部分环境/历史输出隔离",
+      "log": "full-smoke-safety-audit.json"
+    }
+  ],
+  "additionalChecks": {
+    "recoveryTargeted": "PASS: 3 passed, 34 skipped; existing tests only",
+    "scriptSyntax": "PASS",
+    "scopedLint": "PASS",
+    "javascriptSemanticTypecheck": "FAIL; dynamic Inspector/session/renderer bridge type declarations incomplete",
+    "applicationTypecheck": "PASS",
+    "packageReused": true,
+    "paidProviderCalls": 0
+  }
+}

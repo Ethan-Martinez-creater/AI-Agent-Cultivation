@@ -1,0 +1,30 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/formal-authorization-used.json",
+    "originalSha256": "18483fb5722026f70f5f856c7ea7c35789781aae3d7a5cfef2ed4b269c1ea5c8",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "case": "CR_A_CORRECTIVE",
+  "mainPid": 29940,
+  "profile": "[REPOSITORY_ROOT]\\.tmp\\e3-corrective-runtime\\CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377\\profile",
+  "launch": {
+    "mainPid": 29940,
+    "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+    "profile": "[REPOSITORY_ROOT]\\.tmp\\e3-corrective-runtime\\CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377\\profile",
+    "spawnargs": [
+      "--inspect-brk=127.0.0.1:57253",
+      "--remote-debugging-port=57254",
+      "--gate1-fake-model",
+      "--r4-fake-routing",
+      "--w22-fake-software",
+      "--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-corrective-runtime\\CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377\\profile\\Chromium"
+    ],
+    "launchToken": "CR_A_CORRECTIVE-e6a631e0-30f4-417e-98a3-f32c12e8a377",
+    "startedAt": "2026-10-16T04:51:53.754Z"
+  },
+  "reservedAt": "2026-10-16T04:52:23.4462511+00:00"
+}

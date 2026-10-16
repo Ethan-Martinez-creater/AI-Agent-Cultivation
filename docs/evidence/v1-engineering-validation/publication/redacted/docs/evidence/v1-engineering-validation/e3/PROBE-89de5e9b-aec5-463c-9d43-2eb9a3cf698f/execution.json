@@ -1,0 +1,248 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f/execution.json",
+    "originalSha256": "274808cca0887f1aba1568eb6b7487cdb0976f5fe234e442657800a032469372",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "schemaVersion": 1,
+  "case": "PROBE",
+  "scenario": "CR_B_P5",
+  "token": "PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f",
+  "status": "PROBE_PASS",
+  "startedAt": "2026-10-16T02:57:38.497Z",
+  "executablePath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+  "profile": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\profile",
+  "workspace": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\workspace",
+  "databasePath": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\profile\\UserData\\data\\cultivation.sqlite",
+  "runRoot": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f",
+  "fixtureLanguage": "TypeScript cross-layer fixture; Node 24 executes .ts module exports via the real permission-gated verify_repository command. No tsc/static-typecheck claim.",
+  "fixtureFlags": [
+    "--gate1-fake-model",
+    "--r4-fake-routing",
+    "--w22-fake-software"
+  ],
+  "restrictions": {
+    "realProviderCalls": 0,
+    "productionFilesModified": false,
+    "manualDatabaseBusinessWrites": false
+  },
+  "generations": [
+    {
+      "generation": 0,
+      "mainPid": 2400,
+      "initialIdentity": {
+        "pid": 2400,
+        "parentPid": 7488,
+        "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --inspect-brk=127.0.0.1:59279 --remote-debugging-port=59280 --gate1-fake-model --r4-fake-routing --w22-fake-software \"--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\profile\\Chromium\"",
+        "createdUtc": "2026-10-16T02:57:39.1579380Z",
+        "createdUtcTicks": "639277162591579380"
+      },
+      "runtimeIdentity": {
+        "pid": 2400,
+        "execPath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "userData": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\profile\\UserData",
+        "argv": [
+          "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+          "--inspect-brk=127.0.0.1:59279",
+          "--remote-debugging-port=59280",
+          "--gate1-fake-model",
+          "--r4-fake-routing",
+          "--w22-fake-software",
+          "--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\profile\\Chromium"
+        ]
+      },
+      "profileVerified": true,
+      "observerArmedBeforeBootstrap": true,
+      "readyAt": "2026-10-16T02:57:50.113Z",
+      "normalClose": {
+        "exitCode": 0,
+        "finishedAt": "2026-10-16T02:57:50.992Z"
+      }
+    }
+  ],
+  "stages": {
+    "ProbeReady": {
+      "stage": "ProbeReady",
+      "capturedAt": "2026-10-16T02:57:50.427Z",
+      "checks": {
+        "integrity": "ok",
+        "foreignKeys": []
+      },
+      "rawTriplet": {
+        "directory": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\ProbeReady\\raw",
+        "sourceBefore": {
+          "main": {
+            "exists": true,
+            "bytes": 4096,
+            "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+          },
+          "-wal": {
+            "exists": true,
+            "bytes": 3444352,
+            "sha256": "b70477c0ff2569dfe47547320188a3a97caac39e4ea3858dafab03f374f7597e"
+          },
+          "-shm": {
+            "exists": true,
+            "bytes": 32768,
+            "sha256": "1e49d34d415fbe026d3d9f430d7735a5fa2badb327f11fcaa3b8d94b0cc8f1f8"
+          }
+        },
+        "sourceAfter": {
+          "main": {
+            "exists": true,
+            "bytes": 4096,
+            "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+          },
+          "-wal": {
+            "exists": true,
+            "bytes": 3444352,
+            "sha256": "b70477c0ff2569dfe47547320188a3a97caac39e4ea3858dafab03f374f7597e"
+          },
+          "-shm": {
+            "exists": true,
+            "bytes": 32768,
+            "sha256": "1e49d34d415fbe026d3d9f430d7735a5fa2badb327f11fcaa3b8d94b0cc8f1f8"
+          }
+        },
+        "copiedBeforeAnySQLiteOpen": true
+      },
+      "workspaceFiles": {
+        "ipc.ts": {
+          "exists": true,
+          "bytes": 53,
+          "sha256": "ad684938ee3e5fabcda3e01862a4bba48703a244fcff630c5dfd0eed6e846fa9"
+        },
+        "package.json": {
+          "exists": true,
+          "bytes": 136,
+          "sha256": "b44b1306ce1ddbb356f048ca3bc636d4844bec4cb7d518fef05cc09205ca5d3f"
+        },
+        "renderer.ts": {
+          "exists": true,
+          "bytes": 47,
+          "sha256": "6d1bbc70d0961794c1f755f7a9543627b6aad4dbec749693173926062d356c9b"
+        },
+        "store.ts": {
+          "exists": true,
+          "bytes": 45,
+          "sha256": "770a31c7cd3732f1ccadd108017e3c44d055cc38bc0f92d0a4b1c1f94b98d2bb"
+        },
+        "tsconfig.json": {
+          "exists": true,
+          "bytes": 227,
+          "sha256": "2da105ddc5c9420c9e5cf245ae00144a011da07f2919779116814c338907d133"
+        },
+        "verify.mjs": {
+          "exists": true,
+          "bytes": 860,
+          "sha256": "ba02da826132d87687293c453669a9e1b2ab65df297efaf688bcdfc2240953ab"
+        }
+      },
+      "verifierLedger": [],
+      "controllerLedger": [
+        {
+          "at": "2026-10-16T02:57:42.394Z",
+          "generation": 0,
+          "phase": "INITIAL_STARTUP",
+          "event": "OBSERVER_ARMED",
+          "breakpointId": "2:9848:7612:main-pyN31JHh\\.js$",
+          "beforeBootstrapAndRecovery": true,
+          "mainPid": 2400
+        }
+      ],
+      "facts": {
+        "steps": [],
+        "missions": [],
+        "missionRuns": [],
+        "missionEvents": [],
+        "workflow_artifacts": [],
+        "workflow_validation_receipts": [],
+        "workflow_checkpoints": [],
+        "workflow_artifact_bindings": [],
+        "workflow_step_operation_receipts": [],
+        "workflow_workspace_mutation_journal": [],
+        "workflow_events": [],
+        "workflow_decisions": [],
+        "workflow_revision_traversals": [],
+        "workflow_run_output_validations": [],
+        "counts": {},
+        "frozenVersions": [
+          {
+            "definition_id": "official.ai-news-video",
+            "version": 1,
+            "content_hash": "4763d276b85362096db1085ebc458c76ea731c243d72df6069da302ca75ce153"
+          },
+          {
+            "definition_id": "official.research",
+            "version": 1,
+            "content_hash": "b264c0448470b12473c0e39f21cf7e1c40c1d9b4b6e1c945f9ffb5ccc2a305b7"
+          },
+          {
+            "definition_id": "official.software-feature",
+            "version": 1,
+            "content_hash": "a5a9982824db796dc4843d68558b4874067d551eff878132c78c94e881e2ea5a"
+          }
+        ],
+        "frozenReleases": [
+          {
+            "definition_id": "official.ai-news-video",
+            "version": 1,
+            "manifest_hash": "ae37a04bf0156c42adea41d8d0418de2f942d6dc677803727af7db41ab36e4cd"
+          },
+          {
+            "definition_id": "official.research",
+            "version": 1,
+            "manifest_hash": "199c675c91c1c7d15709141be9a7dc6ce1e776f3c1b0af7c66c2ff9e1f3b03d3"
+          },
+          {
+            "definition_id": "official.software-feature",
+            "version": 1,
+            "manifest_hash": "30eb30ce957ef3bad798d1046bd45835322b645d97e49ca5affcac4e16cd348d"
+          }
+        ],
+        "migrationCount": 33
+      },
+      "consistentDatabasePath": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\ProbeReady\\consistent.sqlite",
+      "rawPublished": false
+    }
+  },
+  "breakpoints": [],
+  "hits": [],
+  "observations": [
+    {
+      "at": "2026-10-16T02:57:50.114Z",
+      "text": "generation 0 healthy, Main=2400, observer armed before bootstrap"
+    },
+    {
+      "at": "2026-10-16T02:57:50.993Z",
+      "text": "final PROBE_PASS; [REPOSITORY_ROOT]\\docs\\evidence\\v1-engineering-validation\\e3\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\execution.json"
+    }
+  ],
+  "killOrdinal": 0,
+  "app": {
+    "mainPid": 2400,
+    "launcherPid": 2400,
+    "mainExecPath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+    "runtimeIdentity": {
+      "pid": 2400,
+      "execPath": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+      "userData": "[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\profile\\UserData",
+      "argv": [
+        "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "--inspect-brk=127.0.0.1:59279",
+        "--remote-debugging-port=59280",
+        "--gate1-fake-model",
+        "--r4-fake-routing",
+        "--w22-fake-software",
+        "--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\PROBE-89de5e9b-aec5-463c-9d43-2eb9a3cf698f\\profile\\Chromium"
+      ]
+    },
+    "inspectorPort": 59279
+  },
+  "finishedAt": "2026-10-16T02:57:50.993Z"
+}

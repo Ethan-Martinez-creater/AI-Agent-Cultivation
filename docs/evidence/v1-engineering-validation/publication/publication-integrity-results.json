@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "publicFilesVerified": 214,
+  "localOriginalsVerified": 214,
+  "historical": [
+    {
+      "path": "docs/evidence/v1-engineering-validation/preflight/evidence-manifest.json",
+      "sha256": "0e0327f2de13917fca85f2c117c9e5f5cab4bf7548ead3f274ce93cbd178d2db",
+      "entries": 71
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/evidence-manifest.json",
+      "sha256": "e7ce69c19ed366a52e4c7f19d8f18f79e9abab6cd59bce5af1b8a7c98af9eb17",
+      "entries": 59
+    },
+    {
+      "path": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/evidence-manifest.json",
+      "sha256": "44ca22930afd86724aef4a95090ba56742f4ea3564a292b6426fa0fa071c82f4",
+      "entries": 76
+    }
+  ],
+  "frozen": {
+    "docs/AI_Agent_Cultivation_V1_E0_Evaluation_Design_v0.2.md": "2667e1ac9281084b492b8bb81fbb3514f5d242bf0d919945c04dae615582160c",
+    "docs/evidence/v1-engineering-validation/publication/e0/canonical-dataset.json": "ecf073ad4ed30be2c8d4adfc6b9285eb91fa4f6459d88395ea9d9c3c3f48e602",
+    "docs/evidence/v1-engineering-validation/publication/e0/tool-fixture-mapping.tsv": "04ac50f6f151131b6af6010fef9c6606a6d228230c4f04e567d05caa9ae99a62"
+  },
+  "limitation": "Public derivations verify publication hashes; original-byte claims require the retained local originals. This is not a rerun or a secrecy proof."
+}

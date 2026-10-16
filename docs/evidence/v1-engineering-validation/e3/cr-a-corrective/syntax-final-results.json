@@ -1,0 +1,42 @@
+{
+  "node": [
+    {
+      "file": "adapter-sensitivity.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "baseline.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "controller.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "evidence-audit.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "recovery-adapter.mjs",
+      "exitCode": 0
+    },
+    {
+      "file": "snapshots.mjs",
+      "exitCode": 0
+    }
+  ],
+  "powerShell": [
+    {
+      "file": "process-control.ps1",
+      "errorCount": 0
+    },
+    {
+      "file": "process-policy.ps1",
+      "errorCount": 0
+    },
+    {
+      "file": "process-policy.tests.ps1",
+      "errorCount": 0
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac/termination-audit-followup.json",
+    "originalSha256": "36ddb475daea0ac4586c0a5c0eb813736050d5aafd2ee8779f25f29c208390a1",
+    "redactionCategories": [
+      "LOCAL_REPOSITORY_PATH",
+      "LOCAL_TOOL_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "status": "BLOCKED",
+  "observedAt": "2026-10-16T03:08:42.172Z",
+  "audit": [
+    {
+      "expected": {
+        "pid": 25156,
+        "parentPid": 24716,
+        "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --inspect-brk=127.0.0.1:59870 --remote-debugging-port=59871 --gate1-fake-model --r4-fake-routing --w22-fake-software \"--user-data-dir=[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac\\profile\\Chromium\"",
+        "createdUtc": "2026-10-16T03:02:26.307939Z",
+        "createdUtcTicks": "639277165463079390"
+      },
+      "present": false,
+      "current": null
+    },
+    {
+      "expected": {
+        "pid": 17256,
+        "parentPid": 25156,
+        "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --type=gpu-process --user-data-dir=\"[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac\\profile\\UserData\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=2032,i,7849539387114555671,4618519527248819566,262144 --enable-features=PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1992,i,12532904345866850734,2119980889898152629,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2028 /prefetch:2",
+        "createdUtc": "2026-10-16T03:02:28.353243Z",
+        "createdUtcTicks": "639277165483532430"
+      },
+      "present": false,
+      "current": null
+    },
+    {
+      "expected": {
+        "pid": 16820,
+        "parentPid": 25156,
+        "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac\\profile\\UserData\" --standard-schemes=cultivation-media --secure-schemes=cultivation-media --cors-schemes=cultivation-media --fetch-schemes=cultivation-media --streaming-schemes=cultivation-media --field-trial-handle=2032,i,7849539387114555671,4618519527248819566,262144 --enable-features=PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1992,i,12532904345866850734,2119980889898152629,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2228 /prefetch:3",
+        "createdUtc": "2026-10-16T03:02:28.364113Z",
+        "createdUtcTicks": "639277165483641130"
+      },
+      "present": false,
+      "current": null
+    },
+    {
+      "expected": {
+        "pid": 24924,
+        "parentPid": 25156,
+        "executable": "[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe",
+        "commandLine": "\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\AI-Agent-Cultivation.exe\" --type=renderer --user-data-dir=\"[REPOSITORY_ROOT]\\.tmp\\e3-runtime\\CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac\\profile\\UserData\" --standard-schemes=cultivation-media --secure-schemes=cultivation-media --cors-schemes=cultivation-media --fetch-schemes=cultivation-media --streaming-schemes=cultivation-media --app-user-model-id=com.squirrel.AiAgentCultivation.AI-Agent-Cultivation --app-path=\"[REPOSITORY_ROOT]\\out\\AI Agent Cultivation-win32-x64\\resources\\app.asar\" --enable-sandbox --remote-debugging-port=59871 --video-capture-use-gpu-memory-buffer --lang=zh-CN --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --launch-time-ticks=6458760971 --field-trial-handle=2032,i,7849539387114555671,4618519527248819566,262144 --enable-features=PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1992,i,12532904345866850734,2119980889898152629,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2840 /prefetch:1",
+        "createdUtc": "2026-10-16T03:02:28.925495Z",
+        "createdUtcTicks": "639277165489254950"
+      },
+      "present": false,
+      "current": null
+    },
+    {
+      "expected": {
+        "pid": 24272,
+        "parentPid": 25156,
+        "executable": "[NODE_RUNTIME_ROOT]\\node.exe",
+        "commandLine": "[NODE_RUNTIME_ROOT]\\node.exe \"[REPOSITORY_ROOT]\\scripts\\fixtures\\software-mcp-fixture.mjs\"",
+        "createdUtc": "2026-10-16T03:02:32.72606Z",
+        "createdUtcTicks": "639277165527260600"
+      },
+      "present": false,
+      "current": null
+    }
+  ],
+  "afterKillSnapshot": "[REPOSITORY_ROOT]\\docs\\evidence\\v1-engineering-validation\\e3\\CR_A-64e44b53-bcc2-44c9-8d07-352fade461ac\\AfterKill.json",
+  "reason": "Identity revalidation failed during child cleanup; the formal case is stopped under the user stop condition. No repeat kill or recovery restart was performed. Main and every originally verified child are now absent. The original execution record remains unchanged."
+}

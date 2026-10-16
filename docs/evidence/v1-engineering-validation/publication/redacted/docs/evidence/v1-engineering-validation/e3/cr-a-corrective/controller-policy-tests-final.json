@@ -1,0 +1,123 @@
+{
+  "_publication": {
+    "classification": "DERIVED/REDACTED",
+    "originalRepositoryPath": "docs/evidence/v1-engineering-validation/e3/cr-a-corrective/controller-policy-tests-final.json",
+    "originalSha256": "28e9edaf5bdd840b17f590a0622b2e704447ae2d7341f185ebc037a1bc2233fe",
+    "redactionCategories": [
+      "OTHER_LOCAL_PATH"
+    ],
+    "notice": "Original local bytes retained; this file has its own public hash in publication-manifest.json."
+  },
+  "status": "PASS",
+  "passed": 10,
+  "total": 10,
+  "cases": [
+    {
+      "name": "Absent PID",
+      "pass": true,
+      "expected": "EXITED",
+      "actual": {
+        "status": "EXITED",
+        "action": "NONE",
+        "reason": "OS query returned no process"
+      }
+    },
+    {
+      "name": "Exact live identity",
+      "pass": true,
+      "expected": "MATCHED",
+      "actual": {
+        "status": "MATCHED",
+        "action": "EXACT_PID_STOP_ELIGIBLE",
+        "reason": "PID, creation time, executable and complete command line match"
+      }
+    },
+    {
+      "name": "Unreadable live identity",
+      "pass": true,
+      "expected": "UNKNOWN",
+      "actual": {
+        "status": "UNKNOWN",
+        "action": "WAIT_ONLY",
+        "reason": "Live process identity fields are unreadable"
+      }
+    },
+    {
+      "name": "Reused PID",
+      "pass": true,
+      "expected": "PID_REUSED",
+      "actual": {
+        "status": "PID_REUSED",
+        "action": "REFUSE",
+        "reason": "Same PID has a different OS creation time"
+      }
+    },
+    {
+      "name": "Different full command/profile",
+      "pass": true,
+      "expected": "MISMATCHED",
+      "actual": {
+        "status": "MISMATCHED",
+        "action": "REFUSE",
+        "reason": "Executable or complete command line differs"
+      }
+    },
+    {
+      "name": "Different executable",
+      "pass": true,
+      "expected": "MISMATCHED",
+      "actual": {
+        "status": "MISMATCHED",
+        "action": "REFUSE",
+        "reason": "Executable or complete command line differs"
+      }
+    },
+    {
+      "name": "Different PID",
+      "pass": true,
+      "expected": "MISMATCHED",
+      "actual": {
+        "status": "MISMATCHED",
+        "action": "REFUSE",
+        "reason": "PID differs"
+      }
+    },
+    {
+      "name": "Main exit followed by unreadable child naturally disappearing",
+      "pass": true,
+      "actual": {
+        "status": "EXITED",
+        "stopAllowed": false
+      }
+    },
+    {
+      "name": "Persistent unreadable child blocks without stop",
+      "pass": true,
+      "actual": {
+        "status": "BLOCKED",
+        "stopAllowed": false,
+        "reason": "Bounded observations exhausted with identity still unknown"
+      }
+    },
+    {
+      "name": "PID reuse after unreadable child blocks without stop",
+      "pass": true,
+      "actual": {
+        "status": "BLOCKED",
+        "stopAllowed": false,
+        "reason": "Same PID has a different OS creation time",
+        "actual": {
+          "pid": 4242,
+          "parentPid": 4000,
+          "executable": "[LOCAL_PATH_ROOT]\\application.exe",
+          "commandLine": "[LOCAL_PATH_ROOT]\\application.exe --profile=[LOCAL_PATH_ROOT]\\profile",
+          "createdUtcTicks": "639277168833700261"
+        }
+      }
+    }
+  ],
+  "actualProcessStops": 0,
+  "policyTestsOnly": true,
+  "observation": "In-memory identity observations; no process termination, database edits, application launch or paid API",
+  "checkedAt": "2026-10-16T04:25:13.8029351+00:00"
+}
